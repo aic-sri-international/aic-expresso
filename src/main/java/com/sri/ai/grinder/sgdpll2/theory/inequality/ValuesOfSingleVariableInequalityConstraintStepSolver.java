@@ -79,8 +79,8 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.base.LiteralStepSolver;
+import com.sri.ai.grinder.sgdpll2.theory.equality.DistinctExpressionsStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
-import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsStepSolver;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -130,7 +130,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 
 	private NumberOfDistinctExpressionsIsLessThanStepSolver initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 
-	private NumberOfDistinctExpressionsStepSolver initialNumberOfDistinctDisequalsStepSolver;
+	private DistinctExpressionsStepSolver initialDistinctDisequalsStepSolver;
 	
 	
 
@@ -521,7 +521,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), process);
 
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
-				NumberOfDistinctExpressionsStepSolver numberOfDistinctExpressionsStepSolver;
+				DistinctExpressionsStepSolver distinctExpressionsStepSolver;
 				
 				if (isNumber(boundsDifference)) {
 					NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
@@ -544,15 +544,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					}
 
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
-					numberOfDistinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getNumberOfDistinctExpressionsStepSolver();
+					distinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getDistinctExpressionsStepSolver();
 				}
 				else {
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = false;
-					if (initialNumberOfDistinctDisequalsStepSolver == null) {
-						numberOfDistinctExpressionsStepSolver = new NumberOfDistinctExpressionsStepSolver(disequalsWithinBounds);
+					if (initialDistinctDisequalsStepSolver == null) {
+						distinctExpressionsStepSolver = new DistinctExpressionsStepSolver(disequalsWithinBounds);
 					}
 					else {
-						numberOfDistinctExpressionsStepSolver = initialNumberOfDistinctDisequalsStepSolver;
+						distinctExpressionsStepSolver = initialDistinctDisequalsStepSolver;
 					}
 				}
 
@@ -563,12 +563,12 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					solutionExpression = new RangeAndExceptionsSet.Singleton(getFirst(getEquals()));
 				}
 				else {
-					SolutionStep numberOfDistinctDisequalsStep = numberOfDistinctExpressionsStepSolver.step(contextualConstraint, process);
+					SolutionStep numberOfDistinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint, process);
 					if (numberOfDistinctDisequalsStep.itDepends()) {
 						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
-						ifTrue.initialNumberOfDistinctDisequalsStepSolver = (NumberOfDistinctExpressionsStepSolver) numberOfDistinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();
+						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) numberOfDistinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();
 						ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
-						ifFalse.initialNumberOfDistinctDisequalsStepSolver = (NumberOfDistinctExpressionsStepSolver) numberOfDistinctDisequalsStep.getStepSolverForWhenLiteralIsFalse();
+						ifFalse.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) numberOfDistinctDisequalsStep.getStepSolverForWhenLiteralIsFalse();
 						ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsStep.getLiteral(), numberOfDistinctDisequalsStep.getConstraintSplitting(), ifTrue, ifFalse);
 						return result;
 					}

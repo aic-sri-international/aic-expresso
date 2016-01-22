@@ -98,7 +98,11 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	abstract public Solution makeSolutionStepWhenThereAreNoPairs();
 
 	/**
-	 * Provides solution step after going over all ordered pairs.
+	 * Provides solution step after going over all ordered pairs;
+	 * note that fields {@link #i}, {@link #j},
+	 * {@link #iThExpression}, {@link #jThExpression} and {@link #nextIndices}
+	 * are <i>not</i> set at this point, when we ran out of pairs,
+	 * even if there has been pairs up to here.
 	 * @return
 	 */
 	abstract public Solution makeSolutionStepAfterGoingOverAllPairs();

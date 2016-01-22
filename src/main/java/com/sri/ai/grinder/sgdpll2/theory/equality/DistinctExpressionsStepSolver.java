@@ -38,68 +38,81 @@
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.util.Util.getLast;
+import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
+import com.sri.ai.util.collect.ImmutableStackedLinkedList;
 
 /**
- * A context-dependent problem step solver deciding the number of unique values among a set of expressions
+ * A context-dependent problem step solver deciding the unique values among a set of expressions.
  *
  * @author braz
  *
  */
 @Beta
-public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver {
+public class DistinctExpressionsStepSolver extends AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver {
 
-	private int numberOfUniqueExpressionsWhenStepSolverWasConstructed;
+	// INSTEAD OF MODIFYING THIS CLASS,
+	// make it based on DistinctExpressionsStepSolver.
 	
-	public NumberOfDistinctExpressionsStepSolver(ArrayList<Expression> expressions) {
+	private List<Expression> uniqueValuesWhenStepSolverWasConstructed;
+	
+	public DistinctExpressionsStepSolver(ArrayList<Expression> expressions) {
 		super(expressions, 0, 1);
 		if (expressions.size() < 2) {
-			this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = expressions.size();
+			this.uniqueValuesWhenStepSolverWasConstructed = expressions;
 		}
 		else {
-			this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = 0;
+			this.uniqueValuesWhenStepSolverWasConstructed = list();
 		}
 	}
 
-	private NumberOfDistinctExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfUniqueExpressions) {
+	private DistinctExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, List<Expression> uniqueValues) {
 		super(expressions, initialIndices);
-		this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = numberOfUniqueExpressions;
+		this.uniqueValuesWhenStepSolverWasConstructed = uniqueValues;
 	}
 	
-	public int getNumberOfUniqueExpressionsWhenStepSolverWasConstructed() {
-		return numberOfUniqueExpressionsWhenStepSolverWasConstructed;
+	public List<Expression> getUniqueValuesWhenStepSolverWasConstructed() {
+		return uniqueValuesWhenStepSolverWasConstructed;
 	}
 	
 	@Override
 	public Solution makeSolutionStepWhenThereAreNoPairs() {
-		Solution result = new Solution(makeSymbol(getExpressions().size()));
+		Solution result = makeSolution(getExpressions());
+		return result;
+	}
+
+	@Override
+	public Solution makeSolutionStepAfterGoingOverAllPairs() {
+		// unique expressions after examining all pairs
+		// are the same as unique expressions when step solver was constructed
+		// plus the last one, because the last expression is always unique.
+		List<Expression> uniqueValuesAfterExaminingAllPairs =
+				new ImmutableStackedLinkedList<Expression>(
+						getLast(getExpressions()), uniqueValuesWhenStepSolverWasConstructed);
+		
+		Solution result = makeSolution(uniqueValuesAfterExaminingAllPairs);
+		
 		return result;
 	}
 
 	/**
-	 * Provides solution step after going over all ordered pairs.
+	 * @param distinctValuesList
 	 * @return
 	 */
-	@Override
-	public Solution makeSolutionStepAfterGoingOverAllPairs() {
-		// number of unique expressions after examining all pairs
-		// is the same as number of unique expressions when step solver was constructed
-		// plus one, because the last element is always unique.
-		int numberOfUniqueExpressionsAfterExaminingAllPairs = 
-				numberOfUniqueExpressionsWhenStepSolverWasConstructed + 1;
-		
-		Solution result = 
-				new Solution(makeSymbol(numberOfUniqueExpressionsAfterExaminingAllPairs));
-		
+	private Solution makeSolution(List<Expression> distinctValuesList) {
+		ArrayList<Expression> arrayList = new ArrayList<>(distinctValuesList);
+		DefaultExtensionalUniSet set = new DefaultExtensionalUniSet(arrayList);
+		Solution result = new Solution(set);
 		return result;
 	}
 
@@ -117,15 +130,15 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 * @return
 	 */
 	@Override
-	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue() {
-		NumberOfDistinctExpressionsStepSolver stepSolverForEquality;
+	public DistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue() {
+		DistinctExpressionsStepSolver stepSolverForEquality;
 		// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
 		OrderedPairsOfIntegersIterator nextInitialIndices = nextIndices.clone(); nextInitialIndices.makeSureToBeAtRowBeginning(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
 		stepSolverForEquality
-		= new NumberOfDistinctExpressionsStepSolver(
+		= new DistinctExpressionsStepSolver(
 				getExpressions(), 
 				nextInitialIndices, 
-				numberOfUniqueExpressionsWhenStepSolverWasConstructed);
+				uniqueValuesWhenStepSolverWasConstructed);
 		return stepSolverForEquality;
 	}
 
@@ -133,21 +146,21 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 * @return
 	 */
 	@Override
-	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse() {
-		NumberOfDistinctExpressionsStepSolver stepSolverForDisequality;
+	public DistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse() {
+		DistinctExpressionsStepSolver stepSolverForDisequality;
 		// if they turn out to be disequal, keep moving like we did above (move to the next j)
-		int newNumberOfUniqueExpressions;
+		List<Expression> newUniqueValues;
 		if (nextIndices.hadPreviousAndItWasLastOfRow()) { // if row is over, that is, we are done with the current i
-			newNumberOfUniqueExpressions = numberOfUniqueExpressionsWhenStepSolverWasConstructed + 1; // we compared i-th against all j-th's, it is equal to none and therefore unique
+			newUniqueValues = new ImmutableStackedLinkedList<>(iThExpression, uniqueValuesWhenStepSolverWasConstructed);
 		}
 		else {
-			newNumberOfUniqueExpressions = numberOfUniqueExpressionsWhenStepSolverWasConstructed; // not done with i-th yet, number of uniques remains the same
+			newUniqueValues = uniqueValuesWhenStepSolverWasConstructed;
 		}
 		stepSolverForDisequality
-		= new NumberOfDistinctExpressionsStepSolver(
+		= new DistinctExpressionsStepSolver(
 				getExpressions(), 
 				nextIndices, 
-				newNumberOfUniqueExpressions);
+				newUniqueValues);
 		return stepSolverForDisequality;
 	}
 }

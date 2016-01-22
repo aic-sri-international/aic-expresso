@@ -61,13 +61,13 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 
 	private int limit;
 	private List<Expression> expressions;
-	private NumberOfDistinctExpressionsStepSolver counterStepSolver;
+	private DistinctExpressionsStepSolver distinctExpressionsStepSolver;
 	
 	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, ArrayList<Expression> expressions) {
 		super();
 		this.limit = limit;
 		this.expressions = expressions;
-		this.counterStepSolver = new NumberOfDistinctExpressionsStepSolver(expressions);
+		this.distinctExpressionsStepSolver = new DistinctExpressionsStepSolver(expressions);
 	}
 
 	@Override
@@ -80,41 +80,41 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	}
 
 	/**
-	 * Returns the underlying {@link NumberOfDistinctExpressionsStepSolver}.
-	 * This is useful if one wants to re-use the work done for counting distinct expressions
+	 * Returns the underlying {@link DistinctExpressionsStepSolver}.
+	 * This is useful if one wants to re-use the work done for computing distinct expressions
 	 * without a limit on their number.
 	 * @return
 	 */
-	public NumberOfDistinctExpressionsStepSolver getNumberOfDistinctExpressionsStepSolver() {
-		return counterStepSolver;
+	public DistinctExpressionsStepSolver getDistinctExpressionsStepSolver() {
+		return distinctExpressionsStepSolver;
 	}
 	
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		if (counterStepSolver.getNumberOfUniqueExpressionsWhenStepSolverWasConstructed() >= limit) {
+		if (distinctExpressionsStepSolver.getUniqueValuesWhenStepSolverWasConstructed().size() >= limit) {
 			return new Solution(FALSE);
 		}
-		else if (counterStepSolver.getNumberOfUniqueExpressionsWhenStepSolverWasConstructed() + maximumPossibleNumberOfRemainingUniqueExpressions() < limit) {
+		else if (distinctExpressionsStepSolver.getUniqueValuesWhenStepSolverWasConstructed().size() + maximumPossibleNumberOfRemainingUniqueExpressions() < limit) {
 			// we already know the limit will never be reached
 			return new Solution(TRUE);
 		}
 
-		SolutionStep step = counterStepSolver.step(contextualConstraint, process);
+		SolutionStep step = distinctExpressionsStepSolver.step(contextualConstraint, process);
 		if (step.itDepends()) {
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsTrue = clone();
-			subStepSolverWhenFormulaIsTrue.counterStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();
+			subStepSolverWhenFormulaIsTrue.distinctExpressionsStepSolver = (DistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();
 
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse = clone();
-			subStepSolverWhenFormulaIsFalse.counterStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse();
+			subStepSolverWhenFormulaIsFalse.distinctExpressionsStepSolver = (DistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse();
 
 			return new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
 		}
 		else {
-			return new Solution(makeSymbol(step.getValue().intValue() < limit));
+			return new Solution(makeSymbol(step.getValue().numberOfArguments() < limit));
 		}
 	}
 	
 	private int maximumPossibleNumberOfRemainingUniqueExpressions() {
-		return expressions.size() - counterStepSolver.numberOfElementsAlreadyExamined();
+		return expressions.size() - distinctExpressionsStepSolver.numberOfElementsAlreadyExamined();
 	}
 }
