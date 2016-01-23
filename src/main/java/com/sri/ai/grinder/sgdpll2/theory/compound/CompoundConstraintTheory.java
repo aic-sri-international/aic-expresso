@@ -62,12 +62,15 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.Util;
 
 /** 
@@ -225,6 +228,12 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
 		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, process);
 		return result;
+	}
+
+	@Override
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
+		return new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+		(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody);
 	}
 
 	@Override

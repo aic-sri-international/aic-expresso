@@ -65,6 +65,7 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
@@ -73,9 +74,13 @@ import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.SummationOnIntegerInequalityAndPolynomialStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.helper.DifferenceArithmeticSimplifier;
@@ -197,6 +202,19 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+	}
+
+	@Override
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
+		ContextDependentExpressionProblemStepSolver result;
+//		if (group instanceof SymbolicPlusGroup) {
+//			result = new SummationOnIntegerInequalityAndPolynomialStepSolver(constraintForThisIndex, currentBody);
+//		}
+//		else {
+			result = new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+					(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody);
+//		}
+		return result;
 	}
 
 	/**

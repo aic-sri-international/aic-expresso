@@ -60,9 +60,11 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -174,7 +176,18 @@ public interface ConstraintTheory extends Theory {
 	 * @return a {@link ContextDependentExpressionProblemStepSolver} computing a constraint's model count.
 	 */
 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
-	
+
+	/**
+	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
+	 * @param group
+	 * @param constraint
+	 * @param currentBody
+	 * @param simplifierUnderContextualConstraint
+	 * @param process
+	 * @return
+	 */
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process);
+
 	/**
 	 * Returns the negation of a literal.
 	 * While one could simply add or remove a <code>not</code> in the original literal,

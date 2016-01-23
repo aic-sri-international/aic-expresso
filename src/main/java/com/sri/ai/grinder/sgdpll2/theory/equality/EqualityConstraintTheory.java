@@ -47,12 +47,15 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 
@@ -132,5 +135,11 @@ public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinary
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
+	}
+
+	@Override
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
+		return new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+		(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody);
 	}
 }

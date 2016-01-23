@@ -65,7 +65,6 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -181,8 +180,8 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 								lastIndexConstraint
 								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, process);
 				currentBody =
-						new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
-						(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody).
+						constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
+								group, constraintForThisIndex, currentBody, simplifierUnderContextualConstraint, process).
 						solve(contextualConstraint, process);
 			}
 		}

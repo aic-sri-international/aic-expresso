@@ -23,7 +23,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * An abstract implementation for step solvers for quantified expressions
  * (the quantification being based on an associative commutative group's operation).
  * <p>
- * This is done by applying a {@link HorriblyInefficientEvaluatorStepSolver} on the body expression,
+ * This is done by applying a {@link EvaluatorStepSolver} on the body expression,
  * picking literals in it according to the contextual constraint conjoined with the index constraint,
  * and "intercepting" literals containing the indices and splitting the quantifier
  * based on that, solving the two resulting sub-problems.
