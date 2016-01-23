@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.SET_DIFFERENCE;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.list;
 
@@ -52,8 +52,8 @@ import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 
 /**
- * An interface representing a set of integers by keeping the symbolic extremes of an interval
- * and a set of expressions in the interval but <i>not</i> in the denoted set.
+ * An interface representing a set of integers by keeping the symbolic extremes of an aboveAndUpTo
+ * and a set of expressions in the aboveAndUpTo but <i>not</i> in the denoted set.
  * 
  * @author braz
  *
@@ -263,10 +263,15 @@ public interface RangeAndExceptionsSet extends Expression {
 
 		@Override
 		protected Expression computeInnerExpression() {
-			Expression result = apply(
-					SET_DIFFERENCE,
-					apply("interval", strictLowerBound, nonStrictUpperBound),
+			Expression result;
+			if (exceptions.isEmpty()) {
+				result = apply("aboveAndUpTo", strictLowerBound, nonStrictUpperBound);
+			} else {
+				result = apply(
+					MINUS,
+					apply("aboveAndUpTo", strictLowerBound, nonStrictUpperBound),
 					new DefaultExtensionalUniSet(new ArrayList<>(exceptions)));
+			}
 			return result;
 		}
 	}

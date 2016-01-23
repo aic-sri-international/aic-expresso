@@ -116,11 +116,15 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 			GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO
 			);
 
-	public SingleVariableInequalityConstraint(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, ConstraintTheory constraintTheory) {
+	public SingleVariableInequalityConstraint(
+			Expression variable,
+			boolean propagateAllLiteralsWhenVariableIsBound,
+			ConstraintTheory constraintTheory) {
+		
 		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	public SingleVariableInequalityConstraint(
+	private SingleVariableInequalityConstraint(
 			Expression variable,
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,

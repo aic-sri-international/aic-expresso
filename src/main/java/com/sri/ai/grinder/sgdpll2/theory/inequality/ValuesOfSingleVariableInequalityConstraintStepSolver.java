@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -50,6 +49,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.sgdpll2.theory.inequality.RangeAndExceptionsSet.EMPTY;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.arrayListFrom;
 import static com.sri.ai.util.Util.getFirst;
@@ -77,7 +77,6 @@ import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.base.LiteralStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.DistinctExpressionsStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
@@ -89,11 +88,8 @@ import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A {@link AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableInequalityConstraint}.
- * <p>
- * The solution is guaranteed to be either a numerical constant, or
- * a conditional of the form {@code if <satisfiability condition> then <model count> else 0}.
- * 
+ * A step solver computing the possible values of the variable of
+ * a single-variable inequalities constraint.
  * @author braz
  *
  */
@@ -138,6 +134,9 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		super(constraint);
 	}
 	
+	/**
+	 * @return
+	 */
 	public ValuesOfSingleVariableInequalityConstraintStepSolver clone() {
 		return (ValuesOfSingleVariableInequalityConstraintStepSolver) super.clone();
 	}
@@ -398,6 +397,11 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		// where D is the number of disequals.
 
 		Expression solutionExpression;
+		
+		// successor keeps track of updates to non-splitting inner step solvers so far.
+		// When a splitting inner step solver is found, it is used as a basis
+		// for the sub-step solvers.
+		ValuesOfSingleVariableInequalityConstraintStepSolver successor = clone();
 
 		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound() && ! getEquals().isEmpty()) {
 			Expression value = getFirst(getEquals());
@@ -418,15 +422,16 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			}
 			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, process);
 			if (maximumStrictLowerBoundStep.itDepends()) {
-				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
+				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
-				ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+				ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 				ifFalse.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsFalse();
 				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getLiteral(), maximumStrictLowerBoundStep.getConstraintSplitting(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression greatestStrictLowerBound = maximumStrictLowerBoundStep.getValue();
-
+			successor.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStepSolver;
+			
 			MaximumExpressionStepSolver minimumNonStrictUpperBoundStepSolver;
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
@@ -441,15 +446,16 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			}
 			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, process);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
-				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
+				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
-				ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+				ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 				ifFalse.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsFalse();
 				ItDependsOn result = new ItDependsOn(minimumNonStrictUpperBoundStep.getLiteral(), minimumNonStrictUpperBoundStep.getConstraintSplitting(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression leastNonStrictUpperBound = minimumNonStrictUpperBoundStep.getValue();
-
+			successor.initialMinimumNonStrictUpperBoundStepSolver = minimumNonStrictUpperBoundStepSolver;
+			
 			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
 				solutionExpression = new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(MINUS_INFINITY, INFINITY);
 			}
@@ -464,17 +470,18 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				}
 				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(contextualConstraint, process);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
-					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
+					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
-					ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+					ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 					ifFalse.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsFalse();
 					ItDependsOn result = new ItDependsOn(lowerBoundIsLessThanUpperBoundStep.getLiteral(), lowerBoundIsLessThanUpperBoundStep.getConstraintSplitting(), ifTrue, ifFalse);
 					return result;
 				}
 				if ( ! lowerBoundIsLessThanUpperBoundStep.getValue()) {
-					return new Solution(ZERO);
+					return new Solution(EMPTY);
 				}
 				// else, bounds difference is positive and we can move on
+				successor.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStepSolver;
 				
 				SelectExpressionsSatisfyingComparisonStepSolver disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 				if (initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver == null) {
@@ -487,14 +494,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step
 				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint, process);
 				if (step.itDepends()) {
-					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
+					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsTrue();
-					ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+					ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 					ifFalse.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsFalse();
 					ItDependsOn result = new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), ifTrue, ifFalse);
 					return result;
 				}
 				List<Expression> disequalsGreaterThanGreatestStrictLowerBound = step.getValue();
+				successor.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 
 				SelectExpressionsSatisfyingComparisonStepSolver disequalsWithinBoundsStepSolver;
 				if (initialDisequalsWithinBoundsStepSolver == null) {
@@ -509,14 +517,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step2
 				= disequalsWithinBoundsStepSolver.step(contextualConstraint, process);
 				if (step2.itDepends()) {
-					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
+					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsTrue();
-					ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+					ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 					ifFalse.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsFalse();
 					ItDependsOn result = new ItDependsOn(step2.getLiteral(), step2.getConstraintSplitting(), ifTrue, ifFalse);
 					return result;
 				}
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
+				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
 
 				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), process);
 
@@ -535,14 +544,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint, process);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
-						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
+						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 						ifTrue.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = (NumberOfDistinctExpressionsIsLessThanStepSolver) numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getStepSolverForWhenLiteralIsTrue();
-						ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+						ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 						ifFalse.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = (NumberOfDistinctExpressionsIsLessThanStepSolver) numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getStepSolverForWhenLiteralIsFalse();
 						ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getLiteral(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getConstraintSplitting(), ifTrue, ifFalse);
 						return result;
 					}
-
+					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+					
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
 					distinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getDistinctExpressionsStepSolver();
 				}
@@ -563,18 +573,22 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					solutionExpression = new RangeAndExceptionsSet.Singleton(getFirst(getEquals()));
 				}
 				else {
-					SolutionStep numberOfDistinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint, process);
-					if (numberOfDistinctDisequalsStep.itDepends()) {
-						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = clone();
-						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) numberOfDistinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();
-						ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
-						ifFalse.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) numberOfDistinctDisequalsStep.getStepSolverForWhenLiteralIsFalse();
-						ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsStep.getLiteral(), numberOfDistinctDisequalsStep.getConstraintSplitting(), ifTrue, ifFalse);
+					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint, process);
+					if (distinctDisequalsStep.itDepends()) {
+						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();
+						ValuesOfSingleVariableInequalityConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+						ifFalse.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsFalse();
+						ItDependsOn result = new ItDependsOn(distinctDisequalsStep.getLiteral(), distinctDisequalsStep.getConstraintSplitting(), ifTrue, ifFalse);
 						return result;
 					}
-					Expression numberOfDistinctDisequals = numberOfDistinctDisequalsStep.getValue();
-					ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, numberOfDistinctDisequals);
-					solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+					Expression distinctDisequals = distinctDisequalsStep.getValue();
+					solutionExpression = 
+							new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(
+									greatestStrictLowerBound,
+									leastNonStrictUpperBound,
+									distinctDisequals.getArguments()
+									);
 				}
 			}
 		}
@@ -582,10 +596,13 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return new Solution(solutionExpression);
 	}
 
-	
 	@Override
 	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
 		return RangeAndExceptionsSet.EMPTY;
+	}
+
+	private ValuesOfSingleVariableInequalityConstraintStepSolver makeBasisForSubStepSolver(ValuesOfSingleVariableInequalityConstraintStepSolver successor) {
+		return successor.clone();
 	}
 
 	private IntegerInterval getType(RewritingProcess process) {
