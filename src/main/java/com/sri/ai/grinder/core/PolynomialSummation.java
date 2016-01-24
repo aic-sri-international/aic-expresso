@@ -92,7 +92,7 @@ public class PolynomialSummation {
 		Set<Expression> subsetOfSignatureFactors = new HashSet<Expression>();
 		subsetOfSignatureFactors.addAll(factors);
 		
-		Polynomial projectedSummand = summand.project(subsetOfSignatureFactors);
+		Polynomial projectedSummand = summand.isNumericConstant() ? summand : summand.project(subsetOfSignatureFactors);
 		int        n                = projectedSummand.degree();
 		
 		//

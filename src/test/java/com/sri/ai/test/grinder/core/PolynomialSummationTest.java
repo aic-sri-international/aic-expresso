@@ -169,6 +169,12 @@ public class PolynomialSummationTest {
 				polynomialSummationSum("x", "y + z + 1", "z^2 + y", "y + 4*x^2"));
 	}
 	
+	@Test
+	public void testNumericConstantSummand() {
+		Assert.assertEquals(makePolynomial("9 - 3*j",  "tuple(j)"), 
+				polynomialSummationSum("k", "j+1", "4", "3"));
+	}
+	
 	//
 	// PRIVATE
 	//
