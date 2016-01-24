@@ -496,7 +496,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	public Polynomial project(Set<Expression> subsetOfSignatureFactors)
 			throws IllegalArgumentException {
 		if (!getSignatureFactors().containsAll(subsetOfSignatureFactors)) {
-			throw new IllegalArgumentException("Argument is not a subset of this Polynomials signature of factors.");
+			throw new IllegalArgumentException("Argument, "+subsetOfSignatureFactors+", is not a subset of this Polynomials signature of factors, "+getSignatureFactors()+".");
 		}
 		
 		// Get the subset of signatures factors in their current order.
