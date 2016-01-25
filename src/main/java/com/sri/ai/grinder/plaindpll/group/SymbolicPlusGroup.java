@@ -46,14 +46,10 @@ import static com.sri.ai.util.Util.list;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.TotalRewriter;
-import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
-import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.core.DefaultPolynomial;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -84,12 +80,13 @@ public class SymbolicPlusGroup extends AbstractSymbolicNumbersGroup {
 		}
 		else {
 			Expression sum = Plus.make(arrayList(value1, value2));
-			result = plusAndMinusRewriter.rewrite(sum, process);
+			//result = plusAndMinusRewriter.rewrite(sum, process);
+			result = DefaultPolynomial.make(sum);
 		}
 		return result;
 	}
 
-	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
+	// private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
 	
 	@Override
 	protected Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {

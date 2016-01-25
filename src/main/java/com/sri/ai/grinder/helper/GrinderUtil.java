@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -87,6 +89,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -112,6 +115,8 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOf
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.number.GreaterThan;
+import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.ui.TreeUtil;
@@ -773,6 +778,30 @@ public class GrinderUtil {
 			}
 			else if (thenType == null) {
 				throw new Error("Could not determine the types of then and else branches of '" + expression + "'.");
+			}
+			else if (thenType.equals("Integer") && elseType.toString().startsWith("Integer(")) { // TODO: I know, I know, this treatment of integers and interval is terrible... will fix at some point
+				result = thenType;
+			}
+			else if (thenType.toString().startsWith("Integer(") && elseType.equals("Integer")) {
+				result = elseType;
+			}
+			else if (thenType.toString().startsWith("Integer(") && elseType.toString().startsWith("Integer(")) {
+				IntegerInterval thenInterval = (IntegerInterval) thenType;
+				IntegerInterval elseInterval = (IntegerInterval) elseType;
+				Expression minimumLowerBound = 
+						LessThan.simplify(apply(LESS_THAN, thenInterval.getNonStrictLowerBound(), elseInterval.getNonStrictLowerBound()), process).booleanValue()
+						? thenInterval.getNonStrictLowerBound()
+								: elseInterval.getNonStrictLowerBound();
+				Expression maximumUpperBound =
+						GreaterThan.simplify(apply(GREATER_THAN, thenInterval.getNonStrictUpperBound(), elseInterval.getNonStrictUpperBound()), process).booleanValue()
+						? thenInterval.getNonStrictUpperBound()
+								: elseInterval.getNonStrictUpperBound();
+				if (minimumLowerBound.equals(MINUS_INFINITY) && maximumUpperBound.equals(INFINITY)) {
+					result = makeSymbol("Integer");
+				}
+				else {
+					result = makeSymbol("Integer(" + minimumLowerBound + ", " + maximumUpperBound + ")");
+				}
 			}
 			else {
 				throw new Error("'" + expression + "' then and else branches have different types (" + thenType + " and " + elseType + " respectively).");

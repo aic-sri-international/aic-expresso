@@ -50,6 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
@@ -218,15 +219,16 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	}
 
 	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Constraint2 contextualConstraint, RewritingProcess process) {
+		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
 		Constraint2 constraint
 		= new SingleVariableInequalityConstraint(
-				variable, true, contextualConstraint.getConstraintTheory());
+				variable, true, constraintTheory);
 		constraint = constraint.conjoin(parse(constraintString), process);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new SummationOnIntegerInequalityAndPolynomialStepSolver(
 						(SingleVariableInequalityConstraint) constraint,
-						body);
+						body, new SymbolicCommonInterpreter(constraintTheory, true));
 		
 		Expression actual = stepSolver.solve(contextualConstraint, process);
 

@@ -138,8 +138,8 @@ public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinary
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
 		return new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
-		(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody);
+		(group, simplifierUnderContextualConstraint, constraint, currentBody);
 	}
 }

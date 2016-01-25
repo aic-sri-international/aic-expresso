@@ -171,6 +171,9 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
+			if (lastIndexConstraint == null) {
+				return group.additiveIdentityElement();
+			}
 
 			for (int i = numberOfIndices - 1; i >= 0; i--) { // evaluate from inside out; this may change in the future
 				Expression indexExpression = indexExpressions.getList().get(i);

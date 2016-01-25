@@ -98,6 +98,10 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
 @Beta
 public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
+	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+	// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+	// instead and make the changes there.
+	
 	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(FunctorConstants.GREATER_THAN);
 
 	private static final Symbol LESS_THAN_SYMBOL = makeSymbol(LESS_THAN);
@@ -153,6 +157,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return true;
 	}
 
+	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+	// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+	// instead and make the changes there.
+	
 	@Override
 	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
 		
@@ -230,6 +238,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return result;
 	}
 
+	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+	// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+	// instead and make the changes there.
+	
 	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(RewritingProcess process) {
 		if (strictLowerBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
@@ -312,6 +324,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return equals;
 	}
 
+	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+	// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+	// instead and make the changes there.
+	
 	private ArrayList<Expression> getNonEqualityComparisons(RewritingProcess process) {
 		if (nonEqualityComparisons == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
@@ -390,6 +406,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return list();
 	}
 	
+	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+	// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+	// instead and make the changes there.
+	
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2 contextualConstraint, RewritingProcess process) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
@@ -456,6 +476,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			}
 			Expression leastNonStrictUpperBound = minimumNonStrictUpperBoundStep.getValue();
 			successor.initialMinimumNonStrictUpperBoundStepSolver = minimumNonStrictUpperBoundStepSolver;
+			
+			// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+			// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+			// instead and make the changes there.
 			
 			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
 				solutionExpression = INFINITY;
@@ -567,6 +591,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					}
 				}
 
+				// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+				// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+				// instead and make the changes there.
+				
 				if (weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds) {
 					solutionExpression = ZERO; // there are no available values left
 				}
@@ -590,6 +618,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			}
 		}
 
+		// NEXT TIME YOU NEED CHANGES TO THIS CLASS
+		// MAKE IT USE ValuesOfSingleVariableInequalityConstraintStepSolver
+		// instead and make the changes there.
+		
 		return new Solution(solutionExpression);
 	}
 

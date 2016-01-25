@@ -73,6 +73,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreIdentical;
+import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
 import com.sri.ai.grinder.library.number.Minus;
@@ -118,7 +119,8 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 		TotalRewriter normalizer = new TotalRewriter(
 				new PlainSubstitution(),
 				new Associative("+"), new Associative("*"), new Associative("and"), new Associative("or"),
-				new Plus(), new Minus(), new Times(), new GreaterThan(), new LessThanOrEqualTo(), new Equality(),
+				new Plus(), new Minus(), new Times(), new Exponentiation(),
+				new GreaterThan(), new LessThanOrEqualTo(), new Equality(),
 				new Or(), new And(),
 				new IfThenElse(),
 				new IfThenElseBranchesAreIdentical()

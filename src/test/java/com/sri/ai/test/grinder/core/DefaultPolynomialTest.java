@@ -717,6 +717,10 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals("x * y", makePolynomial("y*x", "(x, y)").toString());
 	}
 	
+	@Test
+	public void testNormalization() {
+		Assert.assertEquals("2 * J", makePolynomial("-2*J + 4*J").toString());
+	}
 	//
 	// PRIVATE
 	//	

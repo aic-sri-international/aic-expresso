@@ -87,7 +87,7 @@ public class SymbolEqualitySumDPLLTest extends AbstractSymbolicSymbolEqualityDPL
 		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.
 		expression = parse("if X != b and X = Y then 2 else 3");
 		indices    = list("X");
-		expected   = parse("if Y = b then 3 + 3 * (| Everything | - 1) else 5 + 3 * (| Everything | - 2)");
+		expected   = parse("if Y = b then 3 * | Everything | else 3 * | Everything | + -1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		// tests elimination for quantified sub-expressions

@@ -70,7 +70,6 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.Util;
 
 /** 
@@ -231,9 +230,10 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
-		return new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
-		(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody);
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
+		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
+		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, simplifierUnderContextualConstraint, process);
+		return result;
 	}
 
 	@Override

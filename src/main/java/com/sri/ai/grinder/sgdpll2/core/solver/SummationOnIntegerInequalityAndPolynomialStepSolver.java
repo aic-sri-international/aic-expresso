@@ -50,6 +50,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.DefaultPolynomial;
 import com.sri.ai.grinder.core.PolynomialSummation;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
@@ -75,8 +76,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 
 	private ValuesOfSingleVariableInequalityConstraintStepSolver valuesOfSingleVariableInequalityConstraintStepSolver;
 	
-	public SummationOnIntegerInequalityAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
-		super(new SymbolicPlusGroup(), null, indexConstraint, body);
+	public SummationOnIntegerInequalityAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
+		super(new SymbolicPlusGroup(), simplifierUnderContextualConstraint, indexConstraint, body);
 		valuesOfSingleVariableInequalityConstraintStepSolver =
 				new ValuesOfSingleVariableInequalityConstraintStepSolver(
 						(SingleVariableInequalityConstraint) indexConstraint);
@@ -86,6 +87,14 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 		return (SummationOnIntegerInequalityAndPolynomialStepSolver) super.clone();
 	}
 	
+	@Override
+	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+		AbstractQuantifierEliminationStepSolver result = 
+				new SummationOnIntegerInequalityAndPolynomialStepSolver(
+						newIndexConstraint, body, simplifierUnderContextualConstraint);
+		return result;
+	}
+
 	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			Constraint2 contextualConstraint,
@@ -131,7 +140,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			if (values instanceof RangeAndExceptionsSet.Singleton) {
 				Expression value = ((RangeAndExceptionsSet.Singleton)values).getSingleValue();
 				Expression valueAtPoint = 
-						getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, process);
+						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, process));
 				result = valueAtPoint;
 			}
 			else {

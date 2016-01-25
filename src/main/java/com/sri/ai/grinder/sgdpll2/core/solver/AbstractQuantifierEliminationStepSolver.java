@@ -88,17 +88,17 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	
 	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
 	
-	private AssociativeCommutativeGroup group;
+	protected AssociativeCommutativeGroup group;
 	
-	private SingleVariableConstraint indexConstraint;
+	protected SingleVariableConstraint indexConstraint;
 
-	private Expression body;
+	protected Expression body;
 	
 	private HorriblyInefficientEvaluatorStepSolver initialBodyEvaluationOnIndexFreeLiteralsStepSolver;
 	
 	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
 	
-	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
+	protected SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
 	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
 		this.group = group;
@@ -133,12 +133,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	 * @param newIndexConstraint
 	 * @return
 	 */
-	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		AbstractQuantifierEliminationStepSolver result = clone();
-		result.indexConstraint = newIndexConstraint;
-		return result;
-	}
-
+	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
+	
 	public AssociativeCommutativeGroup getGroup() {
 		return group;
 	}

@@ -213,7 +213,7 @@ public class SymbolEqualityModelCountingDPLLTest extends AbstractSymbolicSymbolE
 		
 		expression = parse("X != a or Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("| Everything | + -1 + (| Everything | - 1) * | Everything |");
+		expected   = parse("| Everything |^2 + -1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and X != Y and Y != a");

@@ -76,6 +76,13 @@ public class QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver extend
 	}
 
 	@Override
+	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+		AbstractQuantifierEliminationStepSolver result = clone();
+		result.indexConstraint = newIndexConstraint;
+		return result;
+	}
+
+	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			Constraint2 contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
 		
