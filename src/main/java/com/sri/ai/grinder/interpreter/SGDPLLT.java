@@ -111,7 +111,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		return DPLLUtil.makeProcess(
-				(Constraint2) constraint,
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
 				additionalTypes,

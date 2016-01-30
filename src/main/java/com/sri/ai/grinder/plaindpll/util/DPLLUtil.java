@@ -78,7 +78,6 @@ import com.sri.ai.grinder.plaindpll.problemtype.Validity;
 import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.util.Util;
 
 /**
@@ -237,7 +236,7 @@ public class DPLLUtil {
 		return result;
 	}
 
-	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public static RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;

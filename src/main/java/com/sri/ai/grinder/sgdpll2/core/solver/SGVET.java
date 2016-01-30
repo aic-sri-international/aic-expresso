@@ -50,7 +50,6 @@ import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.interpreter.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 
@@ -94,9 +93,9 @@ public class SGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		RewritingProcess result = DPLLUtil.makeProcess(
-						(Constraint2) constraint,
-						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
-						additionalTypes, isUniquelyNamedConstantPredicate);
+						mapFromSymbolNameToTypeName,
+						mapFromCategoricalTypeNameToSizeString, additionalTypes,
+						isUniquelyNamedConstantPredicate);
 		return result;
 	}
 }
