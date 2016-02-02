@@ -60,13 +60,23 @@ import com.sri.ai.util.Util;
  */
 public class Compilation {
 
+	/**
+	 * Compiles an expression to a normalized (decision-tree-like) expression.
+	 * @param inputExpression
+	 * @param inputTheory
+	 * @param mapFromVariableNameToTypeName
+	 * @param mapFromCategoricalTypeNameToSizeString
+	 * @param additionalTypes
+	 * @param solverListener if not null, invoked on solver used for compilation, before and after compilation starts; returned solver on 'before' invocation is used (it may be the same one used as argument, of course).
+	 * @return
+	 */
 	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminatorWithSetup, QuantifierEliminatorWithSetup> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		PlainSGDPLLT solver = new PlainSGDPLLT(inputTheory, problemType, null);
+		QuantifierEliminatorWithSetup solver = new PlainSGDPLLT(inputTheory, problemType, null);
 		if (solverListener != null) {
-			solverListener.apply(solver);
+			solver = solverListener.apply(solver);
 		}
 		
 		// We use the Prolog convention of small-letter initials for constants, but we need an exception for the random variables.

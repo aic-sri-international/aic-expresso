@@ -353,7 +353,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, ConstraintTheory constraintTheory) {
 		ContextDependentExpressionProblemStepSolver evaluator;
 		if (useEvaluatorStepSolver()) {
-			evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier());
+			evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()); // TODO: wrong: should get top simplifier from simplifierUnderContextualConstraint, which may have more simplifiers than the constraint theory alone
 		} else {
 			evaluator = new HorriblyInefficientEvaluatorStepSolver(expression, simplifierUnderContextualConstraint);
 		}
