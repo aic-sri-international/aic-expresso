@@ -35,10 +35,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.grinder.polynomial.core;
 
-import static com.sri.ai.grinder.core.DefaultMonomial.isLegalExponent;
-import static com.sri.ai.grinder.core.DefaultMonomial.simplifyExponentIfPossible;
+import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.isLegalExponent;
+import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.simplifyExponentIfPossible;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,10 +57,10 @@ import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Monomial;
-import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.helper.MonomialComparator;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Multinomial;
 import com.sri.ai.util.math.Rational;
@@ -488,28 +488,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				result = new DefaultPolynomial(expandedTerms, getSignatureFactors());
 			}
 		}
-		
-		return result;
-	}
-
-	@Override
-	public Polynomial project(Set<Expression> subsetOfSignatureFactors)
-			throws IllegalArgumentException {
-		if (!getSignatureFactors().containsAll(subsetOfSignatureFactors)) {
-			throw new IllegalArgumentException("Argument, "+subsetOfSignatureFactors+", is not a subset of this Polynomials signature of factors, "+getSignatureFactors()+".");
-		}
-		
-		// Get the subset of signatures factors in their current order.
-		List<Expression> subsetFactors = new ArrayList<>(subsetOfSignatureFactors.size());
-		getSignatureFactors().forEach(signatureFactor -> {
-			if (subsetOfSignatureFactors.contains(signatureFactor)) {
-				subsetFactors.add(signatureFactor);
-			}
-		});
-		
-		// NOTE: calling make again with the subet of factors will implement this logic by default
-		// i.e.. terms that become like terms will be summed appropriately
-		Polynomial result = make(this, subsetFactors);
 		
 		return result;
 	}

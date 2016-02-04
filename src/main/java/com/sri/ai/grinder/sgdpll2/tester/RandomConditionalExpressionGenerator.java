@@ -37,13 +37,21 @@
  */
 package com.sri.ai.grinder.sgdpll2.tester;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Map;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
@@ -101,5 +109,40 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 			result = IfThenElse.make(literal, apply(depth - 1), apply(depth - 1));
 		}
 		return result;
+	}
+	
+	public static void main(String[] args) {
+		Random random = new Random();
+		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		for (int numberOfVariables = 3; numberOfVariables != 5; numberOfVariables++) {
+			Map<String, Type> variableNamesAndTypes = map();
+			Type integerInterval = new IntegerInterval(0, 100);
+			for (int v = 0; v != numberOfVariables; v++) {
+				variableNamesAndTypes.put("v" + v, integerInterval);
+			}
+			constraintTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
+			RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+			RandomConditionalExpressionGenerator generator = 
+					new RandomConditionalExpressionGenerator(
+							random, 
+							constraintTheory, 
+							4, 
+							() -> makeSymbol(random.nextDouble()), 
+							process);
+			
+			System.out.println();
+			System.out.println();
+			for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypes.entrySet()) {
+				Type type = variableNameAndType.getValue();
+				IntegerInterval interval = (IntegerInterval) type;
+				System.out.println(
+						"random " + variableNameAndType.getKey() + ": " + 
+								interval.getNonStrictLowerBound() + ".." + interval.getNonStrictUpperBound() + ";");
+			}
+			for (int i = 0; i != 5; i++) {
+				Expression output = generator.apply();
+				System.out.println(output + ";");
+			}
+		}
 	}
 }

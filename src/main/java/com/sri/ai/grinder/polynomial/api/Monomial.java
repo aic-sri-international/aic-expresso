@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.api;
+package com.sri.ai.grinder.polynomial.api;
 
 import java.util.ArrayList;
 import java.util.List;

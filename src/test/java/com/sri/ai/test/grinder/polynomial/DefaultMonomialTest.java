@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.core;
+package com.sri.ai.test.grinder.polynomial;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,8 +47,8 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Monomial;
-import com.sri.ai.grinder.core.DefaultMonomial;
+import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.polynomial.core.DefaultMonomial;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 

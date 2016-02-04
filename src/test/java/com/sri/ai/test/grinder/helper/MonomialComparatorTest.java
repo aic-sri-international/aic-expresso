@@ -41,9 +41,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Monomial;
-import com.sri.ai.grinder.core.DefaultMonomial;
 import com.sri.ai.grinder.helper.MonomialComparator;
+import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.polynomial.core.DefaultMonomial;
 
 public class MonomialComparatorTest {
 	private MonomialComparator comparator = new MonomialComparator();

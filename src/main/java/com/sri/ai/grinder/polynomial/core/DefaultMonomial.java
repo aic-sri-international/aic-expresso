@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.grinder.polynomial.core;
 
 import static com.sri.ai.util.Util.zipWith;
 
@@ -54,11 +54,11 @@ import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.helper.MonomialComparator;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.polynomial.api.Monomial;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 

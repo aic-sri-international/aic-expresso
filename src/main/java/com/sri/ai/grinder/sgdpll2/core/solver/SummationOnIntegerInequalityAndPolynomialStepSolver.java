@@ -48,12 +48,12 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
-import com.sri.ai.grinder.core.DefaultPolynomial;
-import com.sri.ai.grinder.core.PolynomialSummation;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
+import com.sri.ai.grinder.polynomial.api.Polynomial;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
+import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;

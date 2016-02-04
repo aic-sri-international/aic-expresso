@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.core;
+package com.sri.ai.test.grinder.polynomial;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,10 +49,10 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Monomial;
-import com.sri.ai.grinder.api.Polynomial;
-import com.sri.ai.grinder.core.DefaultMonomial;
-import com.sri.ai.grinder.core.DefaultPolynomial;
+import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.polynomial.api.Polynomial;
+import com.sri.ai.grinder.polynomial.core.DefaultMonomial;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -593,14 +593,6 @@ public class DefaultPolynomialTest {
 		//       due to the negative values and odd exponent.
 		p = makePolynomial("z^2 + -1*z + -1", "tuple(z)");
 		Assert.assertEquals(Expressions.parse("z^6 + -3*z^5 + 5*z^3 + -3*z + -1"), p.exponentiate(3));
-	}
-	
-	@Test
-	public void testProject() {		
-		Polynomial p = makePolynomial("x^2 * y^4 * z + x^2 * y^3 + y + 10", "(x, y, z)");
-		Assert.assertEquals(Expressions.parse("x^2*(y^4*z + y^3) + (y + 10)"), p.project(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
-		Assert.assertEquals(Expressions.parse("y^4*z*(x^2) + y^3*(x^2) + y + 10"), p.project(new HashSet<>(Expressions.parse("tuple(y, z)").getArguments())));
-		Assert.assertEquals(Expressions.parse("y^4*(x^2*z) + y^3*(x^2) + y + 10"), p.project(new HashSet<>(Expressions.parse("tuple(y)").getArguments())));
 	}
 	
 	//
