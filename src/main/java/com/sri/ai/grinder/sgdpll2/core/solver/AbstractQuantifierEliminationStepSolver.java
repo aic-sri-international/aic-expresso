@@ -9,7 +9,7 @@ import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
@@ -71,13 +71,13 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	
 	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
 	
-	protected SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
+	protected Simplifier simplifier;
 	
-	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
+	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, Simplifier simplifier, SingleVariableConstraint indexConstraint, Expression body) {
 		this.group = group;
 		this.indexConstraint = indexConstraint;
 		this.body = body;
-		this.simplifierUnderContextualConstraint = simplifierUnderContextualConstraint;
+		this.simplifier = simplifier;
 	}
 
 	/**
@@ -274,13 +274,13 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 
 	/**
 	 * @param expression
-	 * @param simplifierUnderContextualConstraint
+	 * @param simplifier
 	 * @param constraintTheory
 	 * @return
 	 */
-	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, ConstraintTheory constraintTheory) {
+	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression, Simplifier simplifier, ConstraintTheory constraintTheory) {
 		ContextDependentExpressionProblemStepSolver evaluator;
-		evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()); // TODO: wrong: should get top simplifier from simplifierUnderContextualConstraint, which may have more simplifiers than the constraint theory alone
+		evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()); // TODO: wrong: should get top simplifier from simplifier, which may have more simplifiers than the constraint theory alone
 		return evaluator;
 	}
 }

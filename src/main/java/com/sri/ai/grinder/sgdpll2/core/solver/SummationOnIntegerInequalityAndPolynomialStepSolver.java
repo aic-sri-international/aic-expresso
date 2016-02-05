@@ -49,7 +49,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
@@ -76,8 +76,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 
 	private ValuesOfSingleVariableInequalityConstraintStepSolver valuesOfSingleVariableInequalityConstraintStepSolver;
 	
-	public SummationOnIntegerInequalityAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
-		super(new SymbolicPlusGroup(), simplifierUnderContextualConstraint, indexConstraint, body);
+	public SummationOnIntegerInequalityAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
+		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
 		valuesOfSingleVariableInequalityConstraintStepSolver =
 				new ValuesOfSingleVariableInequalityConstraintStepSolver(
 						(SingleVariableInequalityConstraint) indexConstraint);
@@ -91,7 +91,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		AbstractQuantifierEliminationStepSolver result = 
 				new SummationOnIntegerInequalityAndPolynomialStepSolver(
-						newIndexConstraint, body, simplifierUnderContextualConstraint);
+						newIndexConstraint, body, simplifier);
 		return result;
 	}
 

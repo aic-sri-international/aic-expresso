@@ -54,7 +54,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
@@ -76,13 +76,13 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 
-	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
+	private Simplifier simplifier;
 	private GroupProblemType problemType;
 	private ConstraintTheory constraintTheory;
 	
-	public SGDPLLT(SimplifierUnderContextualConstraint simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
+	public SGDPLLT(Simplifier simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
 		super();
-		this.simplifierUnderContextualConstraint = simplifier;
+		this.simplifier = simplifier;
 		this.problemType = problemType;
 		this.constraintTheory = constraintTheory;
 	}
@@ -94,7 +94,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		return simplifierUnderContextualConstraint.apply(expression, process);
+		return simplifier.apply(expression, process);
 	}
 
 	@Override
@@ -122,9 +122,9 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
 		Constraint2 trueContextualConstraint = (Constraint2) makeTrueConstraint(indices);
-		Expression quantifierFreeConstraint = simplifierUnderContextualConstraint.apply(constraint, process);
-		Expression quantifierFreeBody = simplifierUnderContextualConstraint.apply(body, process);
-		Expression result = solve(problemType, simplifierUnderContextualConstraint, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
+		Expression quantifierFreeConstraint = simplifier.apply(constraint, process);
+		Expression quantifierFreeBody = simplifier.apply(body, process);
+		Expression result = solve(problemType, simplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
 		return result;
 	}
 
@@ -143,7 +143,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	 */
 	public static Expression solve(
 			AssociativeCommutativeGroup group,
-			SimplifierUnderContextualConstraint simplifierUnderContextualConstraint,
+			Simplifier simplifier,
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
@@ -183,7 +183,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, process);
 				currentBody =
 						constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-								group, constraintForThisIndex, currentBody, simplifierUnderContextualConstraint, process).
+								group, constraintForThisIndex, currentBody, simplifier, process).
 						solve(contextualConstraint, process);
 			}
 		}
@@ -193,7 +193,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		
 		// Normalize final result.
 		ContextDependentExpressionProblemStepSolver evaluator
-		= makeEvaluator(currentBody, simplifierUnderContextualConstraint, constraintTheory);
+		= makeEvaluator(currentBody, simplifier, constraintTheory);
 		currentBody = evaluator.solve(contextualConstraint, process);
 		
 		return currentBody;

@@ -45,7 +45,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.interpreter.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
@@ -62,7 +62,7 @@ public class SGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 
 	private ConstraintTheory constraintTheory;
 	
-	public SGVET(SimplifierUnderContextualConstraint simplifier, SemiRingProblemType problemType, ConstraintTheory constraintTheory) {
+	public SGVET(Simplifier simplifier, SemiRingProblemType problemType, ConstraintTheory constraintTheory) {
 		super(new SGDPLLT(simplifier, problemType, constraintTheory), problemType);
 		this.constraintTheory = constraintTheory;
 	}

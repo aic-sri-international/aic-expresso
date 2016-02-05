@@ -48,7 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.CommonSimplifier;
@@ -123,7 +123,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 						(Constraint2) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT)
 						: new CompleteMultiVariableConstraint(constraintTheory);
 
-		SimplifierUnderContextualConstraint simplifierUnderContextualConstraint =
+		Simplifier simplifier =
 				simplifyGivenConstraint?
 						this
 						: new SymbolicCommonInterpreter(constraintTheory, true);
@@ -131,7 +131,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 		Expression result =
 				solve(
 						group,
-						simplifierUnderContextualConstraint,
+						simplifier,
 						indexExpressions,
 						quantifierFreeIndicesCondition,
 						quantifierFreeBody,

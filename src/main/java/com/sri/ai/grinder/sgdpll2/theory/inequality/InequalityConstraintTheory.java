@@ -65,7 +65,6 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
@@ -206,14 +205,14 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, RewritingProcess process) {
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, RewritingProcess process) {
 		ContextDependentExpressionProblemStepSolver result;
 		if (group instanceof SymbolicPlusGroup || group instanceof SumProduct) {
-			result = new SummationOnIntegerInequalityAndPolynomialStepSolver(constraint, currentBody, simplifierUnderContextualConstraint);
+			result = new SummationOnIntegerInequalityAndPolynomialStepSolver(constraint, currentBody, simplifier);
 		}
 		else {
 			result = new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
-					(group, simplifierUnderContextualConstraint, constraint, currentBody);
+					(group, simplifier, constraint, currentBody);
 		}
 		return result;
 	}

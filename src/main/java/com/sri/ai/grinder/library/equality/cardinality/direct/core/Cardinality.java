@@ -89,8 +89,8 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		Expression result;
 		
 		Expression solution = sgdplltCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
-			Expression simplifiedSolution = DPLLUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
-			result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityConstraintTheory(new SymbolTermTheory()), process);
+		Expression simplifiedSolution = DPLLUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
+		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityConstraintTheory(new SymbolTermTheory()), process);
 //		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
 //		System.out.println("AbstractEqualityConstraint               : " + process.getContextualConstraint());
 //		System.out.println("Solution                 : " + solution);

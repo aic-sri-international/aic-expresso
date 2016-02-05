@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll2.core.solver;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
@@ -71,8 +71,8 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 @Beta
 public class QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	public QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
-		super(group, simplifierUnderContextualConstraint, indexConstraint, body);
+	public QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver(AssociativeCommutativeGroup group, Simplifier simplifier, SingleVariableConstraint indexConstraint, Expression body) {
+		super(group, simplifier, indexConstraint, body);
 	}
 
 	@Override

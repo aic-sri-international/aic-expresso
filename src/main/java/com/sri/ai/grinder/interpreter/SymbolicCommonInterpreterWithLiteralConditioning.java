@@ -91,10 +91,10 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	@Override public Expression apply(Expression expression, RewritingProcess process) {
 		Expression interpretationResult = super.apply(expression, process);
 		Constraint2 trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
-		SymbolicCommonInterpreter simplifierUnderContextualConstraint =
+		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory(), true /* simplify given constraint */);
 		ContextDependentExpressionProblemStepSolver evaluator
-		= makeEvaluator(interpretationResult, simplifierUnderContextualConstraint, getConstraintTheory());
+		= makeEvaluator(interpretationResult, simplifier, getConstraintTheory());
 		Expression result = evaluator.solve(trueConstraint, process);
 		return result;
 	}
