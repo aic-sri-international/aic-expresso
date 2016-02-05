@@ -178,8 +178,8 @@ public class PolynomialSummationTest {
 	//
 	// PRIVATE
 	//
-	private static Polynomial makePolynomial(String polynomial, String tupleSignatureFactors) {
-		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial), Expressions.parse(tupleSignatureFactors).getArguments());
+	private static Polynomial makePolynomial(String polynomial, String tupleVariables) {
+		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial), Expressions.parse(tupleVariables).getArguments());
 		return result;
 	}
 	

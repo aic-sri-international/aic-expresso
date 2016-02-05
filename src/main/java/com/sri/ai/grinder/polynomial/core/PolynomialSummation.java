@@ -86,9 +86,9 @@ public class PolynomialSummation {
 	public static Polynomial sum(Expression indexOfSummation, Expression lowerBoundExclusive, Expression upperBoundInclusive, Polynomial summand) {
 		Polynomial result;
 		
-		List<Expression> indexSignatureFactor = Arrays.asList(indexOfSummation);
+		List<Expression> indexVariable = Arrays.asList(indexOfSummation);
 		
-		Polynomial summandAsPolynomialOfIndex = DefaultPolynomial.make(summand, indexSignatureFactor);
+		Polynomial summandAsPolynomialOfIndex = DefaultPolynomial.make(summand, indexVariable);
 		int        n                          = summandAsPolynomialOfIndex.degree();
 		
 		//
@@ -99,16 +99,16 @@ public class PolynomialSummation {
 		}
 		for (int i = 0; i < summandAsPolynomialOfIndex.numberOfTerms(); i++) {
 			Monomial term = summandAsPolynomialOfIndex.getOrderedSummands().get(i);
-			tCoefficients.set(term.getPowerOfFactor(indexOfSummation).intValue(), term.getCoefficient(indexSignatureFactor));
+			tCoefficients.set(term.getPowerOfFactor(indexOfSummation).intValue(), term.getCoefficient(indexVariable));
 		}
 		
 		//
         // compute polynomials R_i(x) = (x + l)^i for each i
 		Expression indexOfSummationPlusLowerBound           = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBoundExclusive));
-		Polynomial indexOfSummationPlusLowerBoundPolynomial = DefaultPolynomial.make(indexOfSummationPlusLowerBound, indexSignatureFactor);
+		Polynomial indexOfSummationPlusLowerBoundPolynomial = DefaultPolynomial.make(indexOfSummationPlusLowerBound, indexVariable);
 
 		List<Polynomial> rPolynomials = new ArrayList<>(n);		
-		rPolynomials.add(DefaultPolynomial.make(Expressions.ONE, indexSignatureFactor));
+		rPolynomials.add(DefaultPolynomial.make(Expressions.ONE, indexVariable));
 		rPolynomials.add(indexOfSummationPlusLowerBoundPolynomial);		
 		for (int i = 2; i <= n; i++) {
 			rPolynomials.add(rPolynomials.get(i-1).times(indexOfSummationPlusLowerBoundPolynomial));
@@ -123,7 +123,7 @@ public class PolynomialSummation {
 					indexedRCoefficient.put(indexKey, Expressions.ZERO);
 				}
 				else {
-					indexedRCoefficient.put(indexKey, rqxq.getCoefficient(indexSignatureFactor));
+					indexedRCoefficient.put(indexKey, rqxq.getCoefficient(indexVariable));
 				}
 			}
 		}
@@ -152,7 +152,7 @@ public class PolynomialSummation {
 								bernoulliJ
 							));
 					
-					sConstants.put(indexKey, DefaultPolynomial.make(sConstant, indexSignatureFactor));
+					sConstants.put(indexKey, DefaultPolynomial.make(sConstant, indexVariable));
 				}
 			}
 		}
@@ -160,7 +160,7 @@ public class PolynomialSummation {
 		//
 		// compute polynomials, for each q, j,   V_{q + 1 -j}  = (u - l)^{q + 1 - j}
 		Expression upperBoundMinusLowerBound            = new DefaultFunctionApplication(MINUS_FUNCTOR, Arrays.asList(upperBoundInclusive, lowerBoundExclusive));
-		Polynomial upperBoundMinusLowerBoundPolynomial  = DefaultPolynomial.make(upperBoundMinusLowerBound, indexSignatureFactor);
+		Polynomial upperBoundMinusLowerBoundPolynomial  = DefaultPolynomial.make(upperBoundMinusLowerBound, indexVariable);
 		Map<Integer, Polynomial> vValues                = new LinkedHashMap<>();
 		for (int q = 0; q <= n; q++) {
 			for (int j = 0; j <= q; j++) {
@@ -173,7 +173,7 @@ public class PolynomialSummation {
 	
 		//
 		// Compute the w values and construct the final result.
-		Polynomial ws = DefaultPolynomial.make(Expressions.ZERO, indexSignatureFactor);
+		Polynomial ws = DefaultPolynomial.make(Expressions.ZERO, indexVariable);
 		for (int i = 0; i <= n; i++) {
 			for (int q = 0; q <= i; q++) {
 				for (int j = 0; j <= q; j++) {
@@ -194,7 +194,7 @@ public class PolynomialSummation {
 			ws = DefaultPolynomial.make(ws, generalizedVariables);
 		}
 		
-		result = DefaultPolynomial.make(ws, indexSignatureFactor);
+		result = DefaultPolynomial.make(ws, indexVariable);
 		
 		return result;
 	}

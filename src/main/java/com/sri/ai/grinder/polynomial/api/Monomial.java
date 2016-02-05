@@ -64,7 +64,6 @@ import com.sri.ai.util.math.Rational;
  * </pre>
  * 
  * @author oreilly
- *
  */
 @Beta
 public interface Monomial extends Expression {
@@ -80,7 +79,7 @@ public interface Monomial extends Expression {
 	 * @return true if this monomial is equivalent to a numeric constant;
 	 */
 	default boolean isNumericConstant() {
-		boolean result = getOrderedNonNumericConstantFactors().size() == 0;
+		boolean result = getOrderedNonNumericFactors().size() == 0;
 		return result;
 	}
 
@@ -99,7 +98,7 @@ public interface Monomial extends Expression {
 	 */
 	default boolean isOne() {
 		boolean result = getNumericConstantFactor().equals(Rational.ONE)
-				&& getOrderedNonNumericConstantFactors().size() == 0;
+				&& getOrderedNonNumericFactors().size() == 0;
 		return result;
 	}
 
@@ -126,14 +125,14 @@ public interface Monomial extends Expression {
 	 * @return an ordered list of the non-numeric constant factors contained in
 	 *         the monomial.
 	 */
-	List<Expression> getOrderedNonNumericConstantFactors();
+	List<Expression> getOrderedNonNumericFactors();
 
 	/**
 	 * 
 	 * @return the powers of the non-numeric constant factors in the monomial,
 	 *         which map to the order of these factors.
 	 */
-	List<Rational> getPowersOfOrderedNonNumericConstantFactors();
+	List<Rational> getPowersOfNonNumericFactors();
 
 	/**
 	 * The <b>coefficient</b> of a monomial <em>M</em> wrt a set of factors
@@ -200,7 +199,7 @@ public interface Monomial extends Expression {
 	 *         are in this Monomial.
 	 */
 	default List<Rational> getSignature() {
-		List<Expression> factors = this.getOrderedNonNumericConstantFactors();
+		List<Expression> factors = this.getOrderedNonNumericFactors();
 
 		List<Rational> result = getSignature(factors);
 
@@ -318,8 +317,8 @@ public interface Monomial extends Expression {
 	 */
 	public static List<Expression> orderedUnionOfNonNumericConstantFactors(
 			Monomial m1, Monomial m2) {
-		List<Expression> m1Factors = m1.getOrderedNonNumericConstantFactors();
-		List<Expression> m2Factors = m2.getOrderedNonNumericConstantFactors();
+		List<Expression> m1Factors = m1.getOrderedNonNumericFactors();
+		List<Expression> m2Factors = m2.getOrderedNonNumericFactors();
 		// For efficiency ensure we have enough capacity in the union up front.
 		List<Expression> result = new ArrayList<>(m1Factors.size()
 				+ m2Factors.size());

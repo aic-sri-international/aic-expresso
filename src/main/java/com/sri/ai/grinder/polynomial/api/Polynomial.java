@@ -47,24 +47,23 @@ import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
- * A polynomial is a monomial, or a sum of monomials, associated with a tuple of
- * factors <em>F</em>, called the <b>signature factors</b>, such that no two
+ * A polynomial is a monomial, or a sum of {@link Monomial}s.
+ * It is associated with a tuple <em>F</em> of <b>variables</b>, such that no two
  * monomials are like terms to each other wrt <em>F</em>, and monomials are in
  * order according to "comes before" wrt <em>F</em>.
  * 
- * More informally, signature factors are the "variables" involved in the polynomial.
- * The reason this library does not simply use the term "variable"
- * is that it allows for more complex, unknown, terms to be treated as variables.
+ * Note that the variables can any tuple of given expression, and not just symbols.
+ * This allows polynomials defined on more complex, unknown, terms.
  * For example, we may not know what a set <em>D</em> is, but need to
  * represent a polynomial on its cardinality: <em>2*|D|^2 + |D|</em>.
  * 
- * A "signature" (with respect to signature factors)
+ * A "signature" (with respect to variables)
  * of a monomial is the list of powers associated
- * to each of the signature factors.
- * Note that the signature factors are ordered,
+ * to each of the variables.
+ * Note that the variables are ordered,
  * and the signature follows that order.
  * For example, the monomial <em>x^2*y</em> has signature <code>(2,1)</code>
- * for signature factors <em>(x,y)</em>.
+ * for variables <em>(x,y)</em>.
  * The choice of the word "signature" for this concept is due to the
  * fact that the signature of a monomial "gives away its identity"
  * and forces it to be grouped with other monomials of the same signature
@@ -93,10 +92,10 @@ public interface Polynomial extends Expression {
 
 	/**
 	 * 
-	 * @return the factors that are used to identify like terms in the
+	 * @return the variables that are used to identify like terms in the
 	 *         polynomial.
 	 */
-	List<Expression> getSignatureFactors();
+	List<Expression> getVariables();
 	
 	
 	/**
@@ -182,6 +181,7 @@ public interface Polynomial extends Expression {
 	 *         Polynomial.
 	 */
 	Set<Expression> getNonNumericConstantFactors();
+	// TODO: seems unnecessary in the Polynomial API, maybe should remove it.
 	
 	/**
 	 * The degree of a polynomial is the highest degree of its terms.

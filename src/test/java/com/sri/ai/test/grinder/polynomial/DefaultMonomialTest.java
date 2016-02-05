@@ -201,58 +201,58 @@ public class DefaultMonomialTest {
 	@Test
 	public void testGetOrderedNonNumericConstantFactors() {
 		Monomial m = makeMonomial("2");
-		Assert.assertEquals(0, m.getOrderedNonNumericConstantFactors().size());	
+		Assert.assertEquals(0, m.getOrderedNonNumericFactors().size());	
 		
 		m = makeMonomial("2*x");
-		Assert.assertEquals(1, m.getOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), m.getOrderedNonNumericConstantFactors());
+		Assert.assertEquals(1, m.getOrderedNonNumericFactors().size());
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), m.getOrderedNonNumericFactors());
 		
 		m = makeMonomial("2*x^3*y^7*z^11");
-		Assert.assertEquals(3, m.getOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getOrderedNonNumericFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericFactors());
 		
 		m = makeMonomial("2*z^3*y^7*x^11");
-		Assert.assertEquals(3, m.getOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getOrderedNonNumericFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericFactors());
 		
 		m = makeMonomial("2*z^3*x^7*y^11");
-		Assert.assertEquals(3, m.getOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getOrderedNonNumericFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericFactors());
 		
 		m = makeMonomial("2*z^3*x^7*x^11");
-		Assert.assertEquals(2, m.getOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Expressions.parse("(x, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
+		Assert.assertEquals(2, m.getOrderedNonNumericFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, z)").getArguments(), m.getOrderedNonNumericFactors());
 		
 		// Note: z is dropped as we know is = 1
 		m = makeMonomial("2*x^3*y^7*z^0");
-		Assert.assertEquals(2, m.getOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), m.getOrderedNonNumericConstantFactors());
+		Assert.assertEquals(2, m.getOrderedNonNumericFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), m.getOrderedNonNumericFactors());
 	}
 	
 	@Test
 	public void testGetPowersOfOrderedNonNumericConstantFactors() {
 		Monomial m = makeMonomial("2");
-		Assert.assertEquals(0, m.getPowersOfOrderedNonNumericConstantFactors().size());	
+		Assert.assertEquals(0, m.getPowersOfNonNumericFactors().size());	
 		
 		m = makeMonomial("2*x");
-		Assert.assertEquals(1, m.getPowersOfOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(1)), m.getPowersOfOrderedNonNumericConstantFactors());
+		Assert.assertEquals(1, m.getPowersOfNonNumericFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(1)), m.getPowersOfNonNumericFactors());
 		
 		m = makeMonomial("2*x^3*y^7*z^11");
-		Assert.assertEquals(3, m.getPowersOfOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(3), new Rational(7), new Rational(11)), m.getPowersOfOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getPowersOfNonNumericFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(3), new Rational(7), new Rational(11)), m.getPowersOfNonNumericFactors());
 		
 		m = makeMonomial("2*z^3*y^7*x^11");
-		Assert.assertEquals(3, m.getPowersOfOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(11), new Rational(7), new Rational(3)), m.getPowersOfOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getPowersOfNonNumericFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(11), new Rational(7), new Rational(3)), m.getPowersOfNonNumericFactors());
 		
 		m = makeMonomial("2*z^3*x^7*y^11");
-		Assert.assertEquals(3, m.getPowersOfOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(7), new Rational(11), new Rational(3)), m.getPowersOfOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getPowersOfNonNumericFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(7), new Rational(11), new Rational(3)), m.getPowersOfNonNumericFactors());
 		
 		m = makeMonomial("2*z^3*x^7*x^11");
-		Assert.assertEquals(2, m.getPowersOfOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(18), new Rational(3)), m.getPowersOfOrderedNonNumericConstantFactors());	
+		Assert.assertEquals(2, m.getPowersOfNonNumericFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(18), new Rational(3)), m.getPowersOfNonNumericFactors());	
 	}
 	
 	@Test

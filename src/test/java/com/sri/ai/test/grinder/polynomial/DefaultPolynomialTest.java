@@ -89,6 +89,8 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("(-1*x^3)"), makePolynomial("-x^3", "tuple()"));
 		Assert.assertEquals(Expressions.parse("(-1*x^3)"), makePolynomial("-x^3", "tuple(z)"));
 		
+		Assert.assertEquals(Expressions.parse("x^2"), makePolynomial("x*x", "tuple(x)"));
+
 		Assert.assertEquals(Expressions.parse("x*(y)"), makePolynomial("x*y", "tuple(x)"));
 		Assert.assertEquals(Expressions.parse("(x*y)"), makePolynomial("x*y", "tuple()"));
 		Assert.assertEquals(Expressions.parse("(x*y)"), makePolynomial("x*y", "tuple(z)"));
@@ -194,7 +196,7 @@ public class DefaultPolynomialTest {
 	}
 	
 	@Test
-	public void testMakeSignatureFactorsFromExtractedGeneralizedVariables() {
+	public void testMakeVariablesFromExtractedGeneralizedVariables() {
 		Assert.assertEquals(Expressions.parse("16*x"), makePolynomial("2^2^2*x"));
 		Assert.assertEquals(Expressions.parse("2^x^4"), makePolynomial("2^x^2^2"));
 		Assert.assertEquals(Expressions.parse("2^2^x^4"), makePolynomial("2^2^x^2^2"));
@@ -256,27 +258,27 @@ public class DefaultPolynomialTest {
 	}
 	
 	@Test
-	public void testGetSignatureFactors() {
+	public void testGetVariables() {
 		Polynomial p = makePolynomial("3*x^2*y^4", "tuple()");
-		Assert.assertEquals(Collections.emptyList(), p.getSignatureFactors());
+		Assert.assertEquals(Collections.emptyList(), p.getVariables());
 		
 		p = makePolynomial("3*x^2*y^4", "tuple(x)");
-		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), p.getSignatureFactors());
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), p.getVariables());
 		
 		p = makePolynomial("3*x^2*y^4", "tuple(y)");
-		Assert.assertEquals(Expressions.parse("tuple(y)").getArguments(), p.getSignatureFactors());
+		Assert.assertEquals(Expressions.parse("tuple(y)").getArguments(), p.getVariables());
 		
 		p = makePolynomial("3*x^2*y^4", "tuple(3)");
-		Assert.assertEquals(Expressions.parse("tuple(3)").getArguments(), p.getSignatureFactors());
+		Assert.assertEquals(Expressions.parse("tuple(3)").getArguments(), p.getVariables());
 		
 		p = makePolynomial("3*x^2*y^4", "(x, y)");
-		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), p.getSignatureFactors());
+		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), p.getVariables());
 		
 		p = makePolynomial("3*x^2*y^4", "(x, y, z)");
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), p.getSignatureFactors());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), p.getVariables());
 		
 		p = makePolynomial("3*x^2*y^4", "(x, y, 3)");
-		Assert.assertEquals(Expressions.parse("(x, y, 3)").getArguments(), p.getSignatureFactors());
+		Assert.assertEquals(Expressions.parse("(x, y, 3)").getArguments(), p.getVariables());
 	}
 	
 	@Test
@@ -522,7 +524,7 @@ public class DefaultPolynomialTest {
 		Polynomial p = makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)", "tuple(x)");
 		Assert.assertEquals(Expressions.parse("3*x + (-11 + ((28*x + 30) / (x^2 + 3*x + 3)))"), p);
 		// Note: the -11 from the quotient gets absorbed into the remainder/divisor term 
-		// as they are like terms under the signature factors [x]
+		// as they are like terms under the variables [x]
 		Assert.assertEquals(2, p.numberOfTerms());
 		Assert.assertEquals(Expressions.parse("3*x"), p.getOrderedSummands().get(0));
 		Assert.assertEquals(Expressions.parse("-11 + ((28*x + 30) / (x^2 + 3*x + 3))"), p.getOrderedSummands().get(1));
@@ -726,8 +728,8 @@ public class DefaultPolynomialTest {
 		return result;
 	}
 	
-	private static Polynomial makePolynomial(String polynomial, String tupleSignatureFactors) {
-		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial), Expressions.parse(tupleSignatureFactors).getArguments());
+	private static Polynomial makePolynomial(String polynomial, String tupleVariables) {
+		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial), Expressions.parse(tupleVariables).getArguments());
 		return result;
 	}
 }

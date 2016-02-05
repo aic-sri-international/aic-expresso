@@ -93,7 +93,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	//
 	private static final ExpressionComparator _factorComparator = new ExpressionComparator();
 	//
-	private List<Expression>              signatureFactors          = null;
+	private List<Expression>              variables          = null;
 	private MonomialComparator            monomialComparator        = null;
 	private List<Monomial>                orderedSummands           = null;
 	private Set<Expression>               nonNumericConstantFactors = null;
@@ -107,15 +107,15 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	}
 			
 	public static Polynomial make(Expression expression,
-			List<Expression> signatureFactors) {
+			List<Expression> variables) {
 		Polynomial result = null;
 		if (expression.hasFunctor(PLUS_FUNCTOR)) {
 			// E1 + E2 --> make(E1, F).add(make(E2, F))
 			// Note: as + can have 0 or more arguments we start with 0 (i.e. the
 			// neutral element).
-			result = makeFromMonomial(Expressions.ZERO, signatureFactors);
+			result = makeFromMonomial(Expressions.ZERO, variables);
 			for (Expression summandExpression : expression.getArguments()) {
-				Polynomial summand = make(summandExpression, signatureFactors);
+				Polynomial summand = make(summandExpression, variables);
 				result = result.add(summand);
 			}
 		} else if (expression.hasFunctor(MINUS_FUNCTOR)) {
@@ -124,12 +124,12 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				// is '-(something)' which is equivalent to
 				// -1 * (something)
 				Polynomial p1 = makeFromMonomial(Expressions.MINUS_ONE,
-						signatureFactors);
-				Polynomial p2 = make(expression.get(0), signatureFactors);
+						variables);
+				Polynomial p2 = make(expression.get(0), variables);
 				result = p1.times(p2);
 			} else if (expression.numberOfArguments() == 2) {
-				Polynomial p1 = make(expression.get(0), signatureFactors);
-				Polynomial p2 = make(expression.get(1), signatureFactors);
+				Polynomial p1 = make(expression.get(0), variables);
+				Polynomial p2 = make(expression.get(1), variables);
 				result = p1.minus(p2);
 			} else {
 				throw new IllegalArgumentException(
@@ -139,14 +139,14 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			// E1 * E2 --> make(E1, F).times(make(E2, F))
 			// Note: as * can have 0 or more arguments we start with 1 (i.e. the
 			// neutral element).
-			result = makeFromMonomial(Expressions.ONE, signatureFactors);
+			result = makeFromMonomial(Expressions.ONE, variables);
 			// Note: handle case when one of the multipliers is 0 (i.e. an
 			// absorbing element).
 			Polynomial absorbingElement = makeFromMonomial(Expressions.ZERO,
-					signatureFactors);
+					variables);
 			for (Expression multiplierExpression : expression.getArguments()) {
 				Polynomial multiplier = make(multiplierExpression,
-						signatureFactors);
+						variables);
 				if (multiplier.equals(absorbingElement)) {
 					// * by 0 so answer is 0, no need to worry about any other
 					// multipliers.
@@ -158,8 +158,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			}
 		} else if (expression.hasFunctor(DIVISION_FUNCTOR)) {
 			// E1 / E2 --> make(E1, F).divide(make(E2, F))
-			Polynomial dividend = make(expression.get(0), signatureFactors);
-			Polynomial divisor  = make(expression.get(1), signatureFactors);
+			Polynomial dividend = make(expression.get(0), variables);
+			Polynomial divisor  = make(expression.get(1), variables);
 
 			Pair<Polynomial, Polynomial> quotientAndRemainder = dividend.divide(divisor);
 			Polynomial quotient  = quotientAndRemainder.first;
@@ -171,7 +171,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				// ----------  =  quotient(x) + ------------
 				// divisor(x)                    divisor(x)
 				Expression remainderDividedByDivisor = new DefaultFunctionApplication(DIVISION_FUNCTOR, Arrays.asList(remainder, divisor));
-				result = quotient.add(makeFromMonomial(remainderDividedByDivisor, signatureFactors));
+				result = quotient.add(makeFromMonomial(remainderDividedByDivisor, variables));
 			}
 			else {
 				result = quotient;
@@ -181,14 +181,14 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			Expression base  = expression.get(0);
 			Expression power = simplifyExponentIfPossible(expression.get(1));
 			if (isLegalExponent(power)) {
-				Polynomial p1 = make(base, signatureFactors);
+				Polynomial p1 = make(base, variables);
 				result = p1.exponentiate(power.intValue());
 			}
 		}
 
 		// E is a single-factor Monomial.
 		if (result == null) {
-			result = makeFromMonomial(expression, signatureFactors);
+			result = makeFromMonomial(expression, variables);
 		}
 
 		return result;
@@ -209,8 +209,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	//
 	// START-Polynomial
 	@Override
-	public List<Expression> getSignatureFactors() {
-		return signatureFactors;
+	public List<Expression> getVariables() {
+		return variables;
 	}
 	
 	@Override
@@ -230,7 +230,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 
 	@Override
 	public Polynomial add(Polynomial summand) throws IllegalArgumentException {
-		assertSameSignatureFactors(summand);
+		assertSameVariables(summand);
 		
 		Polynomial result;
 		
@@ -268,10 +268,10 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			}
 			// In case all the summands cancel each other out
 			if (summands.isEmpty()) {
-				result = makeFromMonomial(Expressions.ZERO, signatureFactors);
+				result = makeFromMonomial(Expressions.ZERO, variables);
 			}
 			else {
-				result = new DefaultPolynomial(summands, getSignatureFactors());
+				result = new DefaultPolynomial(summands, getVariables());
 			}
 		}
 		
@@ -281,7 +281,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public Polynomial minus(Polynomial subtrahend)
 			throws IllegalArgumentException {
-		assertSameSignatureFactors(subtrahend);
+		assertSameVariables(subtrahend);
 		
 		Polynomial result;
 		
@@ -291,7 +291,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		else {
 			List<Monomial> negatedSubtrahendSummands = new ArrayList<>();
 			subtrahend.getOrderedSummands().forEach(summand -> negatedSubtrahendSummands.add(summand.times(DefaultMonomial.MINUS_ONE)));
-			Polynomial negatedSubtrahend = new DefaultPolynomial(negatedSubtrahendSummands, getSignatureFactors());
+			Polynomial negatedSubtrahend = new DefaultPolynomial(negatedSubtrahendSummands, getVariables());
 			
 			result = add(negatedSubtrahend);
 		}
@@ -302,7 +302,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public Polynomial times(Polynomial multiplier)
 			throws IllegalArgumentException {
-		assertSameSignatureFactors(multiplier);
+		assertSameVariables(multiplier);
 		
 		Polynomial result;
 		
@@ -322,7 +322,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		else {
 			// Base case
 			if (isMonomial() && multiplier.isMonomial()) {
-				result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getSignatureFactors());
+				result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getVariables());
 			}
 			else {
 				// OPTIMIZATION NOTE: Instead of incrementally adding to a result polynomial for each of the
@@ -350,7 +350,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					else {
 						Monomial sumOfLikeTerms = summedLikeProducts.get(summedIdx);
 						// are like terms, add them and track their sum
-						if (sumOfLikeTerms.areLikeTerms(product, getSignatureFactors())) {
+						if (sumOfLikeTerms.areLikeTerms(product, getVariables())) {
 							sumOfLikeTerms = addMonomialsWithSameSignature(sumOfLikeTerms, product);
 							summedLikeProducts.set(summedIdx, sumOfLikeTerms);
 						}
@@ -362,7 +362,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				
 				summedLikeProducts.removeIf(term -> term.isZero());
 				
-				result = new DefaultPolynomial(summedLikeProducts, getSignatureFactors());
+				result = new DefaultPolynomial(summedLikeProducts, getVariables());
 			}
 		}
 		
@@ -372,7 +372,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public Pair<Polynomial, Polynomial> divide(Polynomial divisor)
 			throws IllegalArgumentException {
-		assertSameSignatureFactors(divisor);
+		assertSameVariables(divisor);
 		
 		Pair<Polynomial, Polynomial> result;
 		
@@ -382,8 +382,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		} // Base case
 		else if (isMonomial() && divisor.isMonomial()) { 
 			Pair<Monomial, Monomial> monomialQuotientAndRemainder = asMonomial().divide(divisor.asMonomial());
-			result = new Pair<>(makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors()),
-					            makeFromMonomial(monomialQuotientAndRemainder.second, getSignatureFactors()));
+			result = new Pair<>(makeFromMonomial(monomialQuotientAndRemainder.first, getVariables()),
+					            makeFromMonomial(monomialQuotientAndRemainder.second, getVariables()));
 		}
 		else if (divisor.isNumericConstant()) {
 			// In this case do not need to worry about remainders as can always
@@ -397,16 +397,16 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				}
 				quotients.add(monomialQuotientAndRemainder.first);
 			}
-			result = new Pair<>(new DefaultPolynomial(quotients, getSignatureFactors()), 
-					            makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()));						
+			result = new Pair<>(new DefaultPolynomial(quotients, getVariables()), 
+					            makeFromMonomial(DefaultMonomial.ZERO, getVariables()));						
 		}
 		else {
 			// Univariate case
-			if (getSignatureFactors().size() == 1) {
+			if (getVariables().size() == 1) {
 // TODO - implement faster synthetic division version
 //        see: https://en.wikipedia.org/wiki/Synthetic_division
 				// Perform Polynomial Long Division
-				Polynomial quotient  = makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors());
+				Polynomial quotient  = makeFromMonomial(DefaultMonomial.ZERO, getVariables());
 				Polynomial remainder = this;
 				
 				Monomial leadingDivisorTerm = divisor.getOrderedSummands().get(0);
@@ -417,7 +417,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					if (!monomialQuotientAndRemainder.second.isZero()) {
 						break; // Could not divide, i.e. have a remainder
 					}
-					Polynomial monomialQuotient = makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors());
+					Polynomial monomialQuotient = makeFromMonomial(monomialQuotientAndRemainder.first, getVariables());
 					quotient  = quotient.add(monomialQuotient);
 					remainder = remainder.minus(divisor.times(monomialQuotient));		
 				} while (!remainder.isZero());
@@ -428,7 +428,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 // TODO - Multivariate case, currently not supported 
 // See: https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis
 // for generalization of long division to the multivariate case.
-				result = new Pair<>(makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()), this);
+				result = new Pair<>(makeFromMonomial(DefaultMonomial.ZERO, getVariables()), this);
 			}
 		}
 		
@@ -445,11 +445,11 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		Polynomial result;
 		// Base case
 		if (isMonomial()) {
-			result = makeFromMonomial(asMonomial().exponentiate(exponent), getSignatureFactors());
+			result = makeFromMonomial(asMonomial().exponentiate(exponent), getVariables());
 		}
 		else {
 			if (exponent == 0) {
-				result = makeFromMonomial(DefaultMonomial.ONE, getSignatureFactors());
+				result = makeFromMonomial(DefaultMonomial.ONE, getVariables());
 			}
 			else if (exponent == 1 || isZero() || isOne()) {
 				result = this;
@@ -465,7 +465,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					}
 					product = coefficient.times(product);
 
-					List<Rational> productSignature = product.getSignature(getSignatureFactors());
+					List<Rational> productSignature = product.getSignature(getVariables());
 					Monomial       existingLikeTerm = expandedLikeTerms.get(productSignature);
 					if (existingLikeTerm == null) {
 						if (!product.isZero()) {
@@ -485,7 +485,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				} while (multinomial.iterate());
 				
 				List<Monomial> expandedTerms = new ArrayList<>(expandedLikeTerms.values());
-				result = new DefaultPolynomial(expandedTerms, getSignatureFactors());
+				result = new DefaultPolynomial(expandedTerms, getVariables());
 			}
 		}
 		
@@ -499,7 +499,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	// START-Expression
 	@Override
 	public Polynomial clone() {
-		Polynomial result = new DefaultPolynomial(orderedSummands, signatureFactors);
+		Polynomial result = new DefaultPolynomial(orderedSummands, variables);
 		return result;
 	}
 	
@@ -513,10 +513,10 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
-		List<Expression> signatureFactors = getSignatureFactors();
+		List<Expression> variables = getVariables();
 		Expression result = super.set(i, newIthArgument);
 		// Ensure we make a Polynomial out of the modified expression
-		result = make(result, signatureFactors);
+		result = make(result, variables);
 		return result;
 	}
 	
@@ -531,7 +531,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		else if (anotherObject instanceof Polynomial) {
 			result = 0; // Set to something, we are guaranteed to go through the following for loop 
 			Polynomial otherPolynomial = (Polynomial) anotherObject;
-			if (this.getSignatureFactors().equals(otherPolynomial.getSignatureFactors())) {
+			if (this.getVariables().equals(otherPolynomial.getVariables())) {
 				for (int i = 0, j = 0; i < this.getOrderedSummands().size() && j < otherPolynomial.getOrderedSummands().size(); i++, j++) {
 					result = monomialComparator.compare(getOrderedSummands().get(i), otherPolynomial.getOrderedSummands().get(j));
 					if (result != 0) {
@@ -548,7 +548,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				}
 			}
 			else {
-				// Can only compare degrees of leading term as they have different signature factors
+				// Can only compare degrees of leading term as they have different variables
 				result = otherPolynomial.getOrderedSummands().get(0).degree() - getOrderedSummands().get(0).degree();
 				// Ensure we normalize.
 				if (result < 0) {
@@ -594,42 +594,43 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	// PRIVATE
 	//
 	private DefaultPolynomial(List<Monomial> summands,
-			List<Expression> signatureFactors) {
+			List<Expression> variables) {
 		// NOTE: we use Collections.unmodifiable<...> to ensure Polynomials are
 		// immutable.
-		this.monomialComparator = new MonomialComparator(signatureFactors);
+		this.monomialComparator = new MonomialComparator(variables);
 		Collections.sort(summands, monomialComparator);
 		this.orderedSummands  = Collections.unmodifiableList(summands);
-		this.signatureFactors = Collections.unmodifiableList(signatureFactors);
+		this.variables = Collections.unmodifiableList(variables);
 
 		this.signatureTermMap          = new LinkedHashMap<>();
-		this.nonNumericConstantFactors = new LinkedHashSet<>();
 		for (Monomial monomial : orderedSummands) {
-			this.nonNumericConstantFactors.addAll(monomial
-					.getOrderedNonNumericConstantFactors());
-			List<Rational> signature = monomial.getSignature(this.signatureFactors);
+			List<Rational> signature = monomial.getSignature(this.variables);
 			if (this.signatureTermMap.containsKey(signature)) {
 				throw new IllegalArgumentException("Trying to create a polynomial with like terms: "+orderedSummands);
 			}
 			this.signatureTermMap.put(signature, monomial);
 		}
+		this.nonNumericConstantFactors = new LinkedHashSet<>();
+		for (Monomial monomial : orderedSummands) {
+			this.nonNumericConstantFactors.addAll(monomial.getOrderedNonNumericFactors());
+		}
 		this.nonNumericConstantFactors = Collections.unmodifiableSet(this.nonNumericConstantFactors);
 		this.signatureTermMap          = Collections.unmodifiableMap(this.signatureTermMap);
 	}
 	
-	private void assertSameSignatureFactors(Polynomial other) {
-		if (!getSignatureFactors().equals(other.getSignatureFactors())) {
-			throw new IllegalArgumentException("Signature factors are not equal between polynomials");
+	private void assertSameVariables(Polynomial other) {
+		if (!getVariables().equals(other.getVariables())) {
+			throw new IllegalArgumentException("Variables are not equal between polynomials");
 		}
 	}
 
 	private static Polynomial makeFromMonomial(Expression monomialExpression,
-			List<Expression> signatureFactors) {
+			List<Expression> variables) {
 		Monomial monomial = DefaultMonomial.make(monomialExpression);
 		if (!monomial.isNumericConstant()) {
 			// Need to pull out the factors are to be treated together as a single constant
 			// based on the polynomial's signature of factors.
-			Monomial coefficient = monomial.getCoefficient(signatureFactors);
+			Monomial coefficient = monomial.getCoefficient(variables);
 			if (!coefficient.isNumericConstant()) {
 				// Have factors of the monomial that need to be treated as a single constant
 				// based on the polynomials signature of factors.
@@ -638,9 +639,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				
 				orderedFactors.add(coefficient);
 				factorToPower.put(coefficient, Rational.ONE);
-				Set<Expression> coeefficientFactors = coefficient.getFactors();
-				for (Expression factor : monomial.getOrderedNonNumericConstantFactors()) {
-					if (!coeefficientFactors.contains(factor)) {
+				Set<Expression> coefficientFactors = coefficient.getFactors();
+				for (Expression factor : monomial.getOrderedNonNumericFactors()) {
+					if (!coefficientFactors.contains(factor)) {
 						orderedFactors.add(factor);
 						factorToPower.put(factor, monomial.getPowerOfFactor(factor));
 					}
@@ -651,9 +652,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				// coefficient(3*x^2*y^2, {3, x}) = 1*y^2
 				// in that the coefficent gets the numeric constant from the
 				// original monomial as the numeric constant is listed as one
-				// of the signature factors.
+				// of the variables.
 				if (coefficient.getNumericConstantFactor().equals(numericConstant)) {
-					numericConstant = Rational.ONE; // i.e. numeric constant was in signature factors.
+					numericConstant = Rational.ONE; // i.e. numeric constant was in variables.
 				}
 				List<Rational> orderedPowers = new ArrayList<>();
 				Collections.sort(orderedFactors, _factorComparator);
@@ -664,7 +665,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		}
 		
 		Polynomial result = new DefaultPolynomial(
-				Collections.singletonList(monomial), signatureFactors);
+				Collections.singletonList(monomial), variables);
 
 		return result;
 	}
@@ -673,8 +674,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		Monomial result;
 		
 		// Both have the same signature
-		Monomial m1Coefficient = m1.getCoefficient(getSignatureFactors());
-		Monomial m2Coefficient = m2.getCoefficient(getSignatureFactors());
+		Monomial m1Coefficient = m1.getCoefficient(getVariables());
+		Monomial m2Coefficient = m2.getCoefficient(getVariables());
 		Expression summedCoefficient;
 		if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
 			// We can add them
@@ -711,7 +712,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			} else {
 				args.add(summedCoefficient);
 			}
-			args.addAll(getSignatureFactors());
+			args.addAll(getVariables());
 			Collections.sort(args, _factorComparator);
 			List<Rational> orderedPowers = new ArrayList<>();
 			for (Expression factor : args) {

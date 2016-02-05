@@ -60,7 +60,7 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class MonomialComparator implements Comparator<Monomial> {
 
-	private List<Expression> signatureFactors = null;
+	private List<Expression> variables = null;
 
 	/**
 	 * Default Constructor, uses the union of the non-numeric constant factors
@@ -74,12 +74,12 @@ public class MonomialComparator implements Comparator<Monomial> {
 	/**
 	 * Constructor.
 	 * 
-	 * @param signatureFactors
-	 *            The signature factors to use when retrieving the signatures of
+	 * @param variables
+	 *            The variables to use when retrieving the signatures of
 	 *            given monomials that are being compared.
 	 */
-	public MonomialComparator(List<Expression> signatureFactors) {
-		this.signatureFactors = new ArrayList<>(signatureFactors);
+	public MonomialComparator(List<Expression> variables) {
+		this.variables = new ArrayList<>(variables);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class MonomialComparator implements Comparator<Monomial> {
 			}
 		}
 		else {
-			List<Expression> factors = getSignatureFactors(m1, m2);
+			List<Expression> factors = getVariables(m1, m2);
 	
 			List<Rational> m1Signature = m1.getSignature(factors);
 			List<Rational> m2Signature = m2.getSignature(factors);
@@ -123,10 +123,10 @@ public class MonomialComparator implements Comparator<Monomial> {
 	//
 	// PRIVATE
 	//
-	private List<Expression> getSignatureFactors(Monomial m1, Monomial m2) {
-		List<Expression> result = signatureFactors;
+	private List<Expression> getVariables(Monomial m1, Monomial m2) {
+		List<Expression> result = variables;
 
-		// no signature factors defined, then fall back on the union of the
+		// no variables defined, then fall back on the union of the
 		// non-numeric constants factors of the given monomials.
 		if (result == null) {
 			result = Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2);
