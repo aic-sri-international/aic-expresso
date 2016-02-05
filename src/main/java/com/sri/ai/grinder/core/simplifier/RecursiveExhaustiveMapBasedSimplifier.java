@@ -65,7 +65,12 @@ public class RecursiveExhaustiveMapBasedSimplifier extends AbstractMapBasedSimpl
 			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		
 		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
-		recursiveExhaustiveSimplifier = new Recursive(new Exhaustive(new DefaultMapBasedSimplifier(getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers())));
+		recursiveExhaustiveSimplifier =
+				new Recursive(
+						new TopExhaustive(
+								new DefaultMapBasedSimplifier(
+										getFunctionApplicationSimplifiers(), 
+										getSyntacticFormTypeSimplifiers())));
 	}
 
 	public RecursiveExhaustiveMapBasedSimplifier(MapBasedSimplifier mapBasedSimplifier) {

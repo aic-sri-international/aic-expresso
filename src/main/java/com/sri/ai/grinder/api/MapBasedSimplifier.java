@@ -43,6 +43,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.util.collect.StackedHashMap;
 
@@ -59,6 +60,19 @@ public interface MapBasedSimplifier extends Simplifier {
 
 	Map<String, Simplifier> getSyntacticFormTypeSimplifiers();
 
+	/**
+	 * Returns a top simplifier constructed from this {@link MapBasedSimplifier}'s
+	 * elementary function and syntactic form type simplifiers.
+	 * @return
+	 */
+	default TopSimplifier getTopSimplifier() {
+		DefaultMapBasedSimplifier topSimplifier = 
+				new DefaultMapBasedSimplifier(
+						getFunctionApplicationSimplifiers(),
+						getSyntacticFormTypeSimplifiers());
+		return topSimplifier;
+	}
+	
 	/**
 	 * Simplify an expression given maps of function application and syntactic form type simplifiers,
 	 * and an extra simplifier for a given syntactic form type.

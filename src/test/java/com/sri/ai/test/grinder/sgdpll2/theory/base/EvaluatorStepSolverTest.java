@@ -49,7 +49,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.TopSimplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
@@ -84,7 +84,7 @@ public class EvaluatorStepSolverTest {
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		process = constraintTheory.extendWithTestingInformation(process);
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Simplifier topSimplifier = constraintTheory.getTopSimplifier();
+		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
 		
 		String expressionString;
 		Expression expected;
@@ -126,7 +126,7 @@ public class EvaluatorStepSolverTest {
 		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
 	}
 
-	private void runTest(String expressionString, Expression expected, Constraint2 contextualConstraint, Simplifier topSimplifier, RewritingProcess process) {
+	private void runTest(String expressionString, Expression expected, Constraint2 contextualConstraint, TopSimplifier topSimplifier, RewritingProcess process) {
 		Expression expression = parse(expressionString);
 		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression, topSimplifier);
 		System.out.println("Evaluating " + expression);

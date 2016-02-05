@@ -93,8 +93,12 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		Constraint2 trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
 		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory(), true /* simplify given constraint */);
+		// TODO: given that we are only using the top simplifier from the simplifier above,
+		// we don't need the "simplify given constraint" setting.
+		// Not touching it now because I am in the middle of something else,
+		// but should set it off, or just remove the functionality altogether if it is not used anywhere else.
 		ContextDependentExpressionProblemStepSolver evaluator
-		= makeEvaluator(interpretationResult, simplifier, getConstraintTheory());
+		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
 		Expression result = evaluator.solve(trueConstraint, process);
 		return result;
 	}

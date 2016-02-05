@@ -55,7 +55,10 @@ import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.TopSimplifier;
 import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.core.simplifier.Recursive;
+import com.sri.ai.grinder.core.simplifier.TopExhaustive;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
@@ -76,13 +79,15 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 
+	private TopSimplifier topSimplifier;
 	private Simplifier simplifier;
 	private GroupProblemType problemType;
 	private ConstraintTheory constraintTheory;
 	
-	public SGDPLLT(Simplifier simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
+	public SGDPLLT(TopSimplifier topSimplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
 		super();
-		this.simplifier = simplifier;
+		this.topSimplifier = topSimplifier;
+		this.simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		this.problemType = problemType;
 		this.constraintTheory = constraintTheory;
 	}
@@ -124,7 +129,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		Constraint2 trueContextualConstraint = (Constraint2) makeTrueConstraint(indices);
 		Expression quantifierFreeConstraint = simplifier.apply(constraint, process);
 		Expression quantifierFreeBody = simplifier.apply(body, process);
-		Expression result = solve(problemType, simplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
+		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
 		return result;
 	}
 
@@ -143,12 +148,14 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	 */
 	public static Expression solve(
 			AssociativeCommutativeGroup group,
-			Simplifier simplifier,
+			TopSimplifier topSimplifier,
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
 			Constraint2 contextualConstraint,
 			RewritingProcess process) {
+		
+		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
 		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
 		
@@ -193,7 +200,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		
 		// Normalize final result.
 		ContextDependentExpressionProblemStepSolver evaluator
-		= makeEvaluator(currentBody, simplifier, constraintTheory);
+		= makeEvaluator(currentBody, topSimplifier);
 		currentBody = evaluator.solve(contextualConstraint, process);
 		
 		return currentBody;

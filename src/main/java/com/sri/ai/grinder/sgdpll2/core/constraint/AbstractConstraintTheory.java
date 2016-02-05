@@ -57,6 +57,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
+import com.sri.ai.grinder.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
@@ -69,7 +70,7 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 abstract public class AbstractConstraintTheory implements ConstraintTheory {
 
 	protected Simplifier simplifier;
-	protected MapBasedSimplifier topSimplifier;
+	protected MapBasedTopSimplifier topSimplifier;
 	
 	/**
 	 * Initializes types for testing to be the collection of a single type,
@@ -111,7 +112,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 	
 	@Override
-	public MapBasedSimplifier getTopSimplifier() {
+	public MapBasedTopSimplifier getTopSimplifier() {
 		return topSimplifier;
 	}
 	

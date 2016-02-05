@@ -35,52 +35,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
-
-import java.util.Map;
+package com.sri.ai.grinder.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.MapBasedTopSimplifier;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
 
-/**
- * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
- * and applying them only once to the top expression only.
- * 
- * @author braz
- *
- */
 @Beta
-public class DefaultMapBasedSimplifier extends AbstractMapBasedSimplifier implements MapBasedTopSimplifier {
-	
-	protected Map<String, Simplifier> functionApplicationSimplifiers;
-	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
+/** 
+ * A {@link MapBasedSimplifier} that is also a {@link TopSimplifier}. 
+ */
+public interface MapBasedTopSimplifier extends MapBasedSimplifier, TopSimplifier {
 
-	public DefaultMapBasedSimplifier(
-			Map<String, Simplifier> functionApplicationSimplifiers,
-			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
-		
-		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
-	}
-
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Simplifier simplifier;
-		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
-		}
-		else {
-			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
-		}
-		
-		if (simplifier != null) {
-			expression = simplifier.apply(expression, process);
-		}
-		
-		return expression;
-	}
 }

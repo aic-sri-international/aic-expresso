@@ -46,9 +46,9 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.Exhaustive;
 import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.TopExhaustive;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
@@ -74,7 +74,13 @@ public class DefaultInputTheory implements InputTheory {
 	
 	public DefaultInputTheory(ConstraintTheory constraintTheory) {
 		this.constraintTheory = constraintTheory;
-		this.simplifier = new Recursive(new Exhaustive(new SeriallyMergedMapBasedSimplifier(map(), makeSyntacticFormTypeSimplifiers(), new CommonSimplifier())));
+		this.simplifier = 
+				new Recursive(
+						new TopExhaustive(
+								new SeriallyMergedMapBasedSimplifier(
+										map(),
+										makeSyntacticFormTypeSimplifiers(),
+										new CommonSimplifier())));
 	}
 	
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {

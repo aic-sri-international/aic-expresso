@@ -49,15 +49,19 @@ import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.TopSimplifier;
 
 /**
  * A {@link Simplifier} that recursively applies a base simplifier <code>S</code> to a given expression.
  * <p>
- * Note that typically it makes sense that <code>S</code> is a <i>top</i> simplifier,
+ * Note that typically it makes sense that <code>S</code> is a {@link TopSimplifier},
  * that is, a simplifier that does not recurse into sub-expressions,
  * since that is precisely what {@link Recursive} is meant to do.
+ * Passing a recursive simplifier to this class would probably result in the
+ * same expressions but a lot less efficiently.
+ * To avoid this from happening inadvertently, we statically enforce it.
  * <p>
- * TODO: CURRENTLY only applies to sub-expressions of function applications!
+ * TODO: CURRENTLY only applies to sub-expressions of function applications, not of, say, quantified expressions!
  * @author braz
  *
  */
@@ -66,7 +70,7 @@ public class Recursive implements Simplifier {
 	
 	private Simplifier base;
 
-	public Recursive(Simplifier topSimplifier) {
+	public Recursive(TopSimplifier topSimplifier) {
 		super();
 		this.base = topSimplifier;
 	}

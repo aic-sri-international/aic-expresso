@@ -47,9 +47,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.Exhaustive;
 import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.TopExhaustive;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -75,7 +75,7 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 
 	public static final String INTERPRETER_CONTEXTUAL_CONSTRAINT = "sgdpll2 contextual constraint";
 	
-	private MapBasedSimplifier basicSimplifier;
+	private SeriallyMergedMapBasedSimplifier basicSimplifier;
 	private Simplifier simplifier;
 	protected boolean simplifyGivenConstraint;
 	protected ConstraintTheory constraintTheory;
@@ -97,7 +97,7 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 	 */
 	public AbstractInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
 		this.basicSimplifier = new InternalSimplifier();
-		this.simplifier = new Recursive(new Exhaustive(this.basicSimplifier));
+		this.simplifier = new Recursive(new TopExhaustive(this.basicSimplifier));
 		this.simplifyGivenConstraint = simplifyGivenConstraint;
 		this.constraintTheory = constraintTheory;
 		this.trueConstraint = new CompleteMultiVariableConstraint(constraintTheory);

@@ -10,7 +10,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.util.base.IdentityWrapper;
@@ -73,9 +73,9 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	private Expression expression;
 	private int subExpressionIndex;
 	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
-	private Simplifier topSimplifier;
+	private TopSimplifier topSimplifier;
 	
-	public EvaluatorStepSolver(Expression expression, Simplifier topSimplifier) {
+	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier) {
 		super();
 		this.expression = expression;
 		this.subExpressionIndex = 0;
