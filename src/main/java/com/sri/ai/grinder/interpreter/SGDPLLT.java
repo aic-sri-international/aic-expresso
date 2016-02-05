@@ -76,6 +76,10 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 
+	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
+	private GroupProblemType problemType;
+	private ConstraintTheory constraintTheory;
+	
 	public SGDPLLT(SimplifierUnderContextualConstraint simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
 		super();
 		this.simplifierUnderContextualConstraint = simplifier;
@@ -83,10 +87,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		this.constraintTheory = constraintTheory;
 	}
 
-	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
-	private GroupProblemType problemType;
-	private ConstraintTheory constraintTheory;
-	
 	@Override
 	public Constraint makeTrueConstraint(Collection<Expression> indices) {
 		return new CompleteMultiVariableConstraint(constraintTheory);
@@ -122,8 +122,8 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
 		Constraint2 trueContextualConstraint = (Constraint2) makeTrueConstraint(indices);
-		Expression quantifierFreeConstraint = simplifierUnderContextualConstraint.simplifyUnderContextualConstraint(constraint, trueContextualConstraint, process);
-		Expression quantifierFreeBody = simplifierUnderContextualConstraint.simplifyUnderContextualConstraint(body, trueContextualConstraint, process);
+		Expression quantifierFreeConstraint = simplifierUnderContextualConstraint.apply(constraint, process);
+		Expression quantifierFreeBody = simplifierUnderContextualConstraint.apply(body, process);
 		Expression result = solve(problemType, simplifierUnderContextualConstraint, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
 		return result;
 	}
