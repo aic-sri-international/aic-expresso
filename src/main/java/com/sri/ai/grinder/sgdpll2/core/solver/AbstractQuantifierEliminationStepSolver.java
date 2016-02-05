@@ -7,7 +7,6 @@ import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
@@ -30,7 +29,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * <p>
  * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
  * under contextual constraint <code>Z = alice</code>,
- * {@link HorriblyInefficientEvaluatorStepSolver#step(Constraint2, RewritingProcess)} is
+ * {@link EvaluatorStepSolver#step(Constraint2, RewritingProcess)} is
  * invoked with contextual constraint <code>Z = alice and X != john</code>.
  * The solution step will depend on literal <code>Y != bob</code>.
  * <p>
@@ -52,7 +51,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * for the given contextual constraint and index constraint.
  * <p>
  * At the time of this writing,
- * {@link HorriblyInefficientEvaluatorStepSolver} supports only expressions that are composed of
+ * {@link EvaluatorStepSolver} supports only expressions that are composed of
  * function applications or symbols only,
  * so this extension inherits this restriction if that is still in place.
  * 
@@ -62,30 +61,6 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 @Beta
 public abstract class AbstractQuantifierEliminationStepSolver implements ContextDependentExpressionProblemStepSolver, Cloneable {
 
-	/** 
-	 * Indicates whether index-free literals are conditioned first.
-	 * 
-	 * This option has been introduced because conditioning on an index-free literal
-	 * avoids the need to combine solutions, as it must be done with the literal does contain the index.
-	 * Also, splitting on an index-free literal allows us to re-use the contextual constraint splitting
-	 * (see code below for details on how this is done).
-	 * Surprisingly, however, benchmarks turned slower when this is true.
-	 * So, I am making this off by default,
-	 * but leaving it in case there is a mistake somewhere, or future code
-	 * makes this the best option.
-	 * 
-	 * TODO: It's been made static for now because making it a parameter requires
-	 * adding a new parameter to a lot of nested methods all the way from the user code,
-	 * which is too much for an option that is not seriously used at this point,
-	 * but only for testing.
-	 * Another option requiring less code change would be to set it as a
-	 * global object in the rewriting process, but even that is some work
-	 * because the rewriting process is not always readily available at user code level.
-	 * If it is ever adopted for general use, it should be made either
-	 * a parameter or a rewriting process global object.
-	 */
-	public static boolean conditionOnIndexFreeLiteralsFirst = false;
-	
 	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
 	
 	protected AssociativeCommutativeGroup group;
@@ -93,8 +68,6 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	protected SingleVariableConstraint indexConstraint;
 
 	protected Expression body;
-	
-	private HorriblyInefficientEvaluatorStepSolver initialBodyEvaluationOnIndexFreeLiteralsStepSolver;
 	
 	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
 	
@@ -155,34 +128,10 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		return indexConstraint.getVariable();
 	}
 	
-	private HorriblyInefficientEvaluatorStepSolver getInitialBodyOnIndexFreeLiteralsStepSolver() {
-		if (initialBodyEvaluationOnIndexFreeLiteralsStepSolver == null) {
-			return new HorriblyInefficientEvaluatorStepSolver(
-					body,
-					e -> ! isSubExpressionOf(getIndex(), e), // only literals not involving the index
-					simplifierUnderContextualConstraint);
-		}
-		else {
-			return initialBodyEvaluationOnIndexFreeLiteralsStepSolver;
-		}
-	}
-
 	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(ConstraintTheory constraintTheory) {
 		if (initialBodyEvaluationStepSolver == null) {
-			if (useEvaluatorStepSolver()) {
-				initialBodyEvaluationStepSolver
-				= new EvaluatorStepSolver(body, constraintTheory.getTopSimplifier());
-			}
-			else {
-				Predicate<Expression> literalSelector = 
-						conditionOnIndexFreeLiteralsFirst // if this is true, we only need to check the literals involving the index now
-						? e -> isSubExpressionOf(getIndex(), e)
-								: e -> true; // else we need to check all literals
-				initialBodyEvaluationStepSolver = new HorriblyInefficientEvaluatorStepSolver(
-						body,
-						literalSelector, 
-						simplifierUnderContextualConstraint);
-			}
+			initialBodyEvaluationStepSolver
+			= new EvaluatorStepSolver(body, constraintTheory.getTopSimplifier());
 		}
 		return initialBodyEvaluationStepSolver;
 	}
@@ -196,58 +145,37 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		
 		SolutionStep result;
 
-		if (conditionOnIndexFreeLiteralsFirst) {
-			HorriblyInefficientEvaluatorStepSolver symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStepSolver = getInitialBodyOnIndexFreeLiteralsStepSolver();
-			SolutionStep symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep = symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStepSolver.step(contextualConstraint, process);
-
-			if (symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.itDepends()) {
-				AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
-				AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
-				subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationOnIndexFreeLiteralsStepSolver = (HorriblyInefficientEvaluatorStepSolver) symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getStepSolverForWhenLiteralIsTrue();
-				subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationOnIndexFreeLiteralsStepSolver = (HorriblyInefficientEvaluatorStepSolver) symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getStepSolverForWhenLiteralIsFalse();
-				result = new ItDependsOn(symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getLiteral(), symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getConstraintSplitting(), subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
-			}
-			else {
-				result = null; // no more index-free literals to condition
-			}
+		Constraint2 contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), process);
+		if (contextualConstraintForBody == null) {
+			result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
 		}
 		else {
-			result = null; // not conditioning on index-free literals first 
-		}
+			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(contextualConstraint.getConstraintTheory());
+			SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody, process);
 
-		if (result == null) { // not conditioning on index-free literals first, or no more index-free literals to condition
-			Constraint2 contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), process);
-			if (contextualConstraintForBody == null) {
-				result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
-			}
-			else {
-				ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(contextualConstraint.getConstraintTheory());
-				SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody, process);
-
-				if (bodyStep.itDepends()) {
-					// "intercept" literals containing the index and split the quantifier based on it
-					if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
-						Expression literalOnIndex = bodyStep.getLiteral();
-						result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
-					}
-					else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
-						AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
-						AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
-						subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsTrue();
-						subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsFalse();
-						result = new ItDependsOn(bodyStep.getLiteral(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
-						// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint,
-						// but from the contextual constraint conjoined with the index constraint.
-					}
+			if (bodyStep.itDepends()) {
+				// "intercept" literals containing the index and split the quantifier based on it
+				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
+					Expression literalOnIndex = bodyStep.getLiteral();
+					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
 				}
-				else { // body is already literal free
-					result
-					= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-							contextualConstraint, indexConstraint, bodyStep.getValue(), process);
+				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
+					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
+					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
+					subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsTrue();
+					subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsFalse();
+					result = new ItDependsOn(bodyStep.getLiteral(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
+					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint,
+					// but from the contextual constraint conjoined with the index constraint.
 				}
 			}
+			else { // body is already literal free
+				result
+				= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+						contextualConstraint, indexConstraint, bodyStep.getValue(), process);
+			}
 		}
-		
+
 		return result;
 	}
 
@@ -352,16 +280,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	 */
 	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, ConstraintTheory constraintTheory) {
 		ContextDependentExpressionProblemStepSolver evaluator;
-		if (useEvaluatorStepSolver()) {
-			evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()); // TODO: wrong: should get top simplifier from simplifierUnderContextualConstraint, which may have more simplifiers than the constraint theory alone
-		} else {
-			evaluator = new HorriblyInefficientEvaluatorStepSolver(expression, simplifierUnderContextualConstraint);
-		}
+		evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()); // TODO: wrong: should get top simplifier from simplifierUnderContextualConstraint, which may have more simplifiers than the constraint theory alone
 		return evaluator;
-	}
-
-	public static boolean useEvaluatorStepSolver() {
-		boolean result = useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst && !conditionOnIndexFreeLiteralsFirst;
-		return result;
 	}
 }
