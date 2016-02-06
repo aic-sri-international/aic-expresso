@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll2.theory.helper;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.util.Util.in;
+import static com.sri.ai.util.Util.join;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,15 +51,12 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.google.common.collect.LinkedHashMultiset;
-import com.google.common.collect.Multiset;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.Triple;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.collect.NestedIterator;
 
 /**
@@ -73,22 +71,41 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public class DifferenceArithmeticSimplifier implements Simplifier {
 
-	private BinaryFunction<Expression, Expression, Error> makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm;
-
-	public DifferenceArithmeticSimplifier(BinaryFunction<Expression, Expression, Error> makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm) {
-		this.makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm = makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm;
+	public DifferenceArithmeticSimplifier() {
 	}
 
+	/** 
+	 * A triple containing the components of a difference arithmetic literal:
+	 * the positive, negative and constant terms in it.
+	 * @author braz
+	 *
+	 */
+	private static class DAParts {
+		private Set<Expression> positives;
+		private Set<Expression> negatives;
+		private int constant;
+		
+		public DAParts() {
+			this(new LinkedHashSet<>(), new LinkedHashSet<>(), 0);
+		}
+		
+		public DAParts(Set<Expression> positiveTerms, Set<Expression> negativeTerms, int constant) {
+			this.positives = positiveTerms;
+			this.negatives = negativeTerms;
+			this.constant  = constant;
+		}
+	}
+	
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-		Triple<Set<Expression>, Set<Expression>, Integer> triple = makeDifferenceArithmeticTriple(expression, makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm);
-		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(triple.first);
-		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(triple.second); // negatives in the left-hand side (all elements in triple are supposed to be there) move to right-hand side as positives
-		if (triple.third.intValue() >= 0) {
-			leftHandSideArguments.add(makeSymbol(triple.third));
+		DAParts parts = makeDifferenceArithmeticTriple(expression);
+		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
+		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives
+		if (parts.constant >= 0) {
+			leftHandSideArguments.add(makeSymbol(parts.constant));
 		}
 		else {
-			rightHandSideArguments.add(makeSymbol(-triple.third));
+			rightHandSideArguments.add(makeSymbol(-parts.constant));
 		}
 		Expression result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
 		if (result.equals(expression)) {
@@ -113,14 +130,11 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
 		Expression result;
 
-		BinaryFunction<Expression, Expression, Error> makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm =
-				(e, duplicate) -> new Error(e + " is not a difference arithmetic atom because " + duplicate + " sums with itself, but no multiples are allowed in difference arithmetic");
+		DAParts parts = makeDifferenceArithmeticTriple(numericalComparison);
 
-		Triple<Set<Expression>, Set<Expression>, Integer> triple = makeDifferenceArithmeticTriple(numericalComparison, makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm);
-
-		Set<Expression> positiveVariables = triple.first;
-		Set<Expression> negativeVariables = triple.second;
-		int constant = triple.third.intValue();
+		Set<Expression> positiveVariables = parts.positives;
+		Set<Expression> negativeVariables = parts.negatives;
+		int constant = parts.constant;
 
 		// now isolate variable:
 
@@ -182,23 +196,22 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	 * If the <code>makeDuplicateError</code> function is not null, the detection of two terms with the same sign
 	 * will throw the Error provided by that function.
 	 * @param numericalComparison
-	 * @param makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm
 	 * @return
 	 * @throws Error
 	 */
-	private static Triple<Set<Expression>, Set<Expression>, Integer> makeDifferenceArithmeticTriple(Expression numericalComparison, BinaryFunction<Expression, Expression, Error> makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm) throws Error {
+	private static DAParts makeDifferenceArithmeticTriple(Expression numericalComparison) {
 		
 		Function<Expression, Error> makeDuplicateError =
-				duplicate -> makeDuplicateErrorFromNumericalComparisonAndDuplicateTerm.apply(numericalComparison, duplicate);
+				duplicate -> makeDuplicateError(numericalComparison, duplicate);
 		
-		Triple<Multiset<Expression>, Multiset<Expression>, Integer>
+		DAParts
 		items0 = gatherPositiveAndNegativeTermsAndConstantInteger(numericalComparison.get(0), makeDuplicateError);
 
-		Triple<Multiset<Expression>, Multiset<Expression>, Integer>
+		DAParts
 		items1 = gatherPositiveAndNegativeTermsAndConstantInteger(numericalComparison.get(1), makeDuplicateError);
 
-		Triple<Set<Expression>, Set<Expression>, Integer>
-		result = subtractDifferenceLogicTriples(items0, items1, makeDuplicateError);
+		DAParts
+		result = subtractDifferenceLogicTriples(numericalComparison, items0, items1, makeDuplicateError);
 
 		return result;
 	}
@@ -213,42 +226,48 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	 * @param makeDuplicateError a function that, if non-null, gets a duplicate term and makes an Error to be thrown 
 	 * @return
 	 */
-	private static Triple<Multiset<Expression>, Multiset<Expression>, Integer> gatherPositiveAndNegativeTermsAndConstantInteger(Expression expression, Function<Expression, Error> makeDuplicateError) {
-		Triple<Multiset<Expression>, Multiset<Expression>, Integer> result =
-				Triple.make(LinkedHashMultiset.create(), LinkedHashMultiset.create(), new Integer(0));
+	private static DAParts 
+	gatherPositiveAndNegativeTermsAndConstantInteger(
+			Expression expression, 
+			Function<Expression, Error> makeDuplicateError) {
+		
+		DAParts result = new DAParts();
 
 		List<Expression> arguments = Plus.getSummands(expression);
 		for (Expression argument : arguments) {
+			if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
+				argument = UnaryMinus.simplify(argument); // removes double minuses
+			}
 			if (argument.hasFunctor(MINUS)) {
 				Expression negationArgument = argument.get(0);
 				if (negationArgument.getValue() instanceof Number) {
-					result.third = result.third.intValue() - ((Number) negationArgument.getValue()).intValue(); // note the -  !
+					result.constant = result.constant - ((Number) negationArgument.getValue()).intValue(); // note the -  !
 				}
 				else {
-					if (makeDuplicateError != null && result.second.contains(negationArgument)) {
+					if (result.negatives.contains(negationArgument)) {
 						throw makeDuplicateError.apply(negationArgument);
 					}
-					else if (makeDuplicateError != null && result.first.contains(negationArgument)) {
-						result.first.remove(negationArgument); // cancel out with the positive one, and don't add it to negatives
+					else if (result.positives.contains(negationArgument)) {
+						result.positives.remove(negationArgument); // cancel out with the positive one, and don't add it to negatives
 					}
 					else {
-						result.second.add(negationArgument);
+						result.negatives.add(negationArgument);
 					}
 				}
 			}
 			else {
 				if (argument.getValue() instanceof Number) {
-					result.third = result.third.intValue() + ((Number) argument.getValue()).intValue(); // note the +  !
+					result.constant = result.constant + ((Number) argument.getValue()).intValue(); // note the +  !
 				}
 				else {
-					if (makeDuplicateError != null && result.first.contains(argument)) {
+					if (result.positives.contains(argument)) {
 						throw makeDuplicateError.apply(argument);
 					}
-					else if (makeDuplicateError != null && result.second.contains(argument)) {
-						result.second.remove(argument); // cancel out with the negative one, and don't add it to positives
+					else if (result.negatives.contains(argument)) {
+						result.negatives.remove(argument); // cancel out with the negative one, and don't add it to positives
 					}
 					else {
-						result.first.add(argument);
+						result.positives.add(argument);
 					}
 				}
 			}
@@ -263,38 +282,42 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	 * or throws an Error if any of the terms appears with the same final sign multiple times
 	 * (which would require representing a multiple of it), such as in ({X}, {}, 1) - ({}, {X}, 2)
 	 * which would result in 2*X - 1.
+	 * @param numericalComparison TODO
 	 * @param positiveAndNegativeTermsAndConstant1
 	 * @param positiveAndNegativeTermsAndConstant2
 	 * @param makeDuplicateError a function getting the offending duplicate term and returning an Error to be thrown.
 	 * @return
 	 * @throws Error
 	 */
-	private static Triple<Set<Expression>, Set<Expression>, Integer> subtractDifferenceLogicTriples(Triple<Multiset<Expression>, Multiset<Expression>, Integer> positiveAndNegativeTermsAndConstant1, Triple<Multiset<Expression>, Multiset<Expression>, Integer> positiveAndNegativeTermsAndConstant2, Function<Expression, Error> makeDuplicateError) throws Error {
+	private static DAParts subtractDifferenceLogicTriples(
+			Expression numericalComparison, 
+			DAParts positiveAndNegativeTermsAndConstant1, 
+			DAParts positiveAndNegativeTermsAndConstant2, Function<Expression, Error> makeDuplicateError) {
 
-		// cancel out terms that are positive in both first and second triple (they cancel because second triple is being subtracted):
-		Iterator<Expression> positive1Iterator = positiveAndNegativeTermsAndConstant1.first.iterator();
+		// cancel out terms that are positive in both first and second parts (they cancel because second parts is being subtracted):
+		Iterator<Expression> positive1Iterator = positiveAndNegativeTermsAndConstant1.positives.iterator();
 		while (positive1Iterator.hasNext()) {
 			Expression positive1 = positive1Iterator.next();
-			if (positiveAndNegativeTermsAndConstant2.first.contains(positive1)) {
+			if (positiveAndNegativeTermsAndConstant2.positives.contains(positive1)) {
 				positive1Iterator.remove();
-				positiveAndNegativeTermsAndConstant2.first.remove(positive1);
+				positiveAndNegativeTermsAndConstant2.positives.remove(positive1);
 			}
 		}
 		
-		// cancel out terms that are negative in both first and second triple (they cancel because second triple is being subtracted):
-		Iterator<Expression> negative1Iterator = positiveAndNegativeTermsAndConstant1.second.iterator();
+		// cancel out terms that are negative in both first and second parts (they cancel because second parts is being subtracted):
+		Iterator<Expression> negative1Iterator = positiveAndNegativeTermsAndConstant1.negatives.iterator();
 		while (negative1Iterator.hasNext()) {
 			Expression negative1 = negative1Iterator.next();
-			if (positiveAndNegativeTermsAndConstant2.second.contains(negative1)) {
+			if (positiveAndNegativeTermsAndConstant2.negatives.contains(negative1)) {
 				negative1Iterator.remove();
-				positiveAndNegativeTermsAndConstant2.second.remove(negative1);
+				positiveAndNegativeTermsAndConstant2.negatives.remove(negative1);
 			}
 		}
 		
 		Set<Expression> unionOfPositiveTerms = new LinkedHashSet<>();
 		Iterable<Expression> positiveTerms = in(new NestedIterator<Expression>(
-				positiveAndNegativeTermsAndConstant1.first,
-				positiveAndNegativeTermsAndConstant2.second)); // negative terms in second tuple are actually positive since it is being subtracted
+				positiveAndNegativeTermsAndConstant1.positives,
+				positiveAndNegativeTermsAndConstant2.negatives)); // negative terms in second tuple are actually positive since it is being subtracted
 		
 		for (Expression positive : positiveTerms) {
 			boolean noDuplicate = unionOfPositiveTerms.add(positive);
@@ -302,12 +325,15 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 			if (duplicate) {
 				throw makeDuplicateError.apply(positive);
 			}
+			else if (unionOfPositiveTerms.size() == 2) {
+				throw new Error(numericalComparison + " is not a difference arithmetic atom because it contains more than one positive term when moved to the left-hand side: " + join(unionOfPositiveTerms));
+			}
 		}
 		
 		Set<Expression> unionOfNegativeTerms = new LinkedHashSet<>();
 		Iterable<Expression> negativeTerms = in(new NestedIterator<Expression>(
-				positiveAndNegativeTermsAndConstant1.second,
-				positiveAndNegativeTermsAndConstant2.first)); // positive terms in second tuple are actually negative since it is being subtracted
+				positiveAndNegativeTermsAndConstant1.negatives,
+				positiveAndNegativeTermsAndConstant2.positives)); // positive terms in second tuple are actually negative since it is being subtracted
 		
 		for (Expression negative : negativeTerms) {
 			boolean noDuplicate = unionOfNegativeTerms.add(negative);
@@ -315,11 +341,25 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 			if (duplicate) {
 				throw makeDuplicateError.apply(negative);
 			}
+			else if (unionOfNegativeTerms.size() == 2) {
+				throw new Error(numericalComparison + " is not a difference arithmetic atom because it contains more than one negative term when moved to the left-hand side: " + join(unionOfNegativeTerms));
+			}
 		}
 		
-		int constant = positiveAndNegativeTermsAndConstant1.third.intValue() - positiveAndNegativeTermsAndConstant2.third.intValue();
+		int constant = positiveAndNegativeTermsAndConstant1.constant - positiveAndNegativeTermsAndConstant2.constant;
 	
-		Triple<Set<Expression>, Set<Expression>, Integer> result = Triple.make(unionOfPositiveTerms, unionOfNegativeTerms, constant);
+		DAParts result = new DAParts(unionOfPositiveTerms, unionOfNegativeTerms, constant);
 		return result;
+	}
+
+	/**
+	 * @param numericalComparison
+	 * @param duplicate
+	 * @return
+	 */
+	private static Error makeDuplicateError(Expression numericalComparison, Expression duplicate) {
+		return new Error(
+				numericalComparison + " is not a difference arithmetic atom because " 
+						+ duplicate + " sums with itself, but no multiples are allowed in difference arithmetic");
 	}
 }

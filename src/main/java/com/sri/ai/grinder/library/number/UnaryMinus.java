@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
@@ -70,7 +72,16 @@ public class UnaryMinus extends AbstractRewriter {
 	 * @return
 	 */
 	public static Expression simplify(Expression expression) {
-		if (expression.get(0).getValue() instanceof Number) {
+		if (expression.get(0).hasFunctor(MINUS) && expression.get(0).numberOfArguments() == 1) { // double minus
+			Expression argumentsArgument = expression.get(0).get(0);
+			if (argumentsArgument.hasFunctor(MINUS) && argumentsArgument.numberOfArguments() == 1) {
+				return simplify(expression);
+			}
+			else {
+				return argumentsArgument;
+			}
+		}
+		else if (expression.get(0).getValue() instanceof Number) {
 			return Expressions.makeSymbol(expression.get(0).rationalValue().negate());
 		}
 		return expression;

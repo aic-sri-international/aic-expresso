@@ -143,9 +143,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	}
 	
 	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmetic() {
-		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier(
-				(expression, duplicate) ->
-				new Error("Found difference arithmetic expression " + expression + " containing " + duplicate + " more than once"));
+		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
 						EQUALITY,                 differenceArithmeticSimplifier,
