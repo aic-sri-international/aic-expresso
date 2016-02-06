@@ -767,7 +767,10 @@ public class GrinderUtil {
 		else if (IfThenElse.isIfThenElse(expression)) {
 			Expression thenType = getType(IfThenElse.thenBranch(expression), process);
 			Expression elseType = getType(IfThenElse.elseBranch(expression), process);
-			if (thenType != null && elseType != null && (thenType.equals("Integer") && elseType.equals("Real") || thenType.equals("Real") && elseType.equals("Integer"))) {
+			if (thenType != null && elseType != null && (thenType.equals("Number") && isIntegerOrReal(elseType) || isIntegerOrReal(thenType) && elseType.equals("Number"))) {
+				result = makeSymbol("Number");
+			}
+			else if (thenType != null && elseType != null && (thenType.equals("Integer") && elseType.equals("Real") || thenType.equals("Real") && elseType.equals("Integer"))) {
 				result = makeSymbol("Real");
 			}
 			else if (thenType != null && (elseType == null || thenType.equals(elseType))) {
@@ -811,7 +814,10 @@ public class GrinderUtil {
 			result = makeSymbol("Integer");
 		}
 		else if (isNumericFunctionApplication(expression)) {
-			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, process), "Real"))) {
+			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, process), "Number"))) {
+				result = makeSymbol("Number");
+			}
+			else if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, process), "Real"))) {
 				result = makeSymbol("Real");
 			}
 			else {
@@ -841,6 +847,9 @@ public class GrinderUtil {
 			}
 			else if (expression.getValue() instanceof Boolean) {
 				result = makeSymbol("Boolean");
+			}
+			else if (expression.equals(Expressions.INFINITY) || expression.equals(Expressions.MINUS_INFINITY)) {
+				result = makeSymbol("Number");
 			}
 			else {
 				result = process.getContextualSymbolType(expression);
@@ -883,6 +892,14 @@ public class GrinderUtil {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
 		}
 		return result;
+	}
+
+	/**
+	 * @param type
+	 * @return
+	 */
+	public static boolean isIntegerOrReal(Expression type) {
+		return type.equals("Integer") || type.equals("Real");
 	}
 
 	/**
