@@ -303,10 +303,6 @@ public class DPLLUtil {
 			String typeExpressionString = typeNameAndSizeString.getKey();
 			String sizeString = typeNameAndSizeString.getValue();
 			
-			if (typeExpressionString.startsWith("Integer")) {
-				throw new Error("Categorical type name starts with 'Integer' -- this is probably due to recent changes in which a map from type names to size strings is now interpreted as a definition for *categorical* types only. There is a new parameter (typically named 'types' or 'additionalTypes') in methods taking that map that takes non-categorical types, including Integer ones. Please modify your code to create these types separately and add them to such argument.");
-			}
-
 			// check if already present and, if not, make it
 			Categorical type = (Categorical) process.getType(typeExpressionString);
 			if (type == null) {

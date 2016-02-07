@@ -112,6 +112,7 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 
 	//// Implemented methods
 	
+	@Override
 	public void interrupt() {
 		interrupted = true;
 		if (topLevelRewritingProcess != null) {

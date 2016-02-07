@@ -83,6 +83,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 						(SingleVariableInequalityConstraint) indexConstraint);
 	}
 
+	@Override
 	public SummationOnIntegerInequalityAndPolynomialStepSolver clone() {
 		return (SummationOnIntegerInequalityAndPolynomialStepSolver) super.clone();
 	}

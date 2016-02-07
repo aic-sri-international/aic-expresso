@@ -137,6 +137,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	/**
 	 * @return
 	 */
+	@Override
 	public ValuesOfSingleVariableInequalityConstraintStepSolver clone() {
 		return (ValuesOfSingleVariableInequalityConstraintStepSolver) super.clone();
 	}

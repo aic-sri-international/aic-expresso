@@ -43,6 +43,7 @@ import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
@@ -84,12 +85,12 @@ public class IntegerInterval implements Type {
 			nonStrictLowerBound = UnaryMinus.make(INFINITY);
 			nonStrictUpperBound = INFINITY;
 		}
-		else if (nameParse.hasFunctor("Integer") && nameParse.numberOfArguments() == 2) {
+		else if (nameParse.hasFunctor(INTEGER_INTERVAL) && nameParse.numberOfArguments() == 2) {
 			nonStrictLowerBound = nameParse.get(0);
 			nonStrictUpperBound = nameParse.get(1);
 		}
 		else {
-			throw new Error(this.getClass() + " created with invalid name " + name + ". Must be either 'Integer' or 'Integer(nonStrictLowerBound, nonStrictUpperBound)'");
+			throw new Error(this.getClass() + " created with invalid name " + name + ". Must be either 'Integer' or 'nonStrictLowerBound..nonStrictUpperBound'");
 		}
 	}
 
@@ -99,7 +100,7 @@ public class IntegerInterval implements Type {
 	 * @param last
 	 */
 	public IntegerInterval(int first, int last) {
-		this("Integer(" + first + ", " + last + ")");
+		this(first + ".." + last);
 	}
 	
 	public Expression getNonStrictLowerBound() {
@@ -208,6 +209,6 @@ public class IntegerInterval implements Type {
 	
 	@Override
 	public String toString() {
-		return "Integer(" + nonStrictLowerBound + ", " + nonStrictUpperBound + ")";
+		return nonStrictLowerBound + ".." + nonStrictUpperBound;
 	}
 }

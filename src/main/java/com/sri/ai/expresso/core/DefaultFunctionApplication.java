@@ -239,7 +239,13 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			}
 			else if (infixFunctionsStrings.contains(getFunctor().toString())) {
 				List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
-				result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+				if (hasFunctor(FunctorConstants.INTEGER_INTERVAL) && numberOfArguments() == 2) {
+					// no spaces between functor and arguments
+					result = subExpressionsStrings.get(0) + FunctorConstants.INTEGER_INTERVAL + subExpressionsStrings.get(1);
+				}
+				else {
+					result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+				}
 			}
 			else {
 				String functorRepresentation = getFunctor() instanceof Symbol? getFunctor().toString() : "(" + getFunctor() + ")";
@@ -320,6 +326,8 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 					expression.hasFunctor("/")
 					||
 					expression.hasFunctor("and")
+					||
+					expression.hasFunctor(FunctorConstants.INTEGER_INTERVAL)
 					)
 			{
 				result = 3;

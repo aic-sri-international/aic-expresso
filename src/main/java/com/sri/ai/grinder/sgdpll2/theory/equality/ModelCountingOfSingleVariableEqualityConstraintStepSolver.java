@@ -69,6 +69,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 		numberOfDistinctExpressionsStepSolver = new NumberOfDistinctExpressionsStepSolver(getConstraint().getDisequals());
 	}
 
+	@Override
 	public ModelCountingOfSingleVariableEqualityConstraintStepSolver clone() {
 		return (ModelCountingOfSingleVariableEqualityConstraintStepSolver) super.clone();
 	}

@@ -143,6 +143,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * @param process
 	 * @return
 	 */
+	@Override
 	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
 		
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms result;

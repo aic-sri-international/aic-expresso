@@ -43,6 +43,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
@@ -137,7 +138,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 						),
 						propagateAllLiteralsWhenVariableIsBound);
 
-		String typeName = "Integer(0,4)";
+		String typeName = "0..4";
 		IntegerInterval type = new IntegerInterval(typeName);
 		setVariableNamesAndTypesForTesting(map("I", type, "J", type, "K", type));
 	}
@@ -162,7 +163,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	@Override
 	protected boolean isValidArgument(Expression expression, Type type) {
 		Expression parsedType = Expressions.parse(type.toString());
-		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor("Integer") && parsedType.numberOfArguments() == 2);
+		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor(INTEGER_INTERVAL) && parsedType.numberOfArguments() == 2);
 		return result;
 	}
 

@@ -6,6 +6,7 @@ public class OverridingPerformanceTest {
 	}
 	
 	static class Parent implements Person {
+		@Override
 		public String live() {
 			return "do what parents do";
 		}
@@ -22,6 +23,7 @@ public class OverridingPerformanceTest {
 			this.useParentAsRoleModel = useParentAsRoleModel;
 		}
 
+		@Override
 		public String live() {
 			if (useParentAsRoleModel) {
 				return super.live();

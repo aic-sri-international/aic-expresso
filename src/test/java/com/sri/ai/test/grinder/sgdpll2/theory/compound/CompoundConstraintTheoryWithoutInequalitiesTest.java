@@ -54,6 +54,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.interpreter.AbstractInterpreter;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
@@ -61,6 +62,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
@@ -84,6 +86,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 	 * Indicates whether correctness should be checked against brute-force methods when possible.
 	 * @return
 	 */
+	@Override
 	protected boolean getTestAgainstBruteForce() {
 		return true;
 	}
@@ -104,7 +107,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
-		process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
+		process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
 		Expression result = interpreter.apply(input, process);
 		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);
@@ -203,7 +206,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 
 		String conjunction;
 		Expression expected;
-		Categorical someType = CompoundConstraintTheory.getDefaultTestingType();
+		Categorical someType = AbstractConstraintTheory.getDefaultTestingType();
 
 		Map<String, Type> variableNamesAndTypesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
 				map("X", someType, "Y", someType, "Z", someType, "W", someType);

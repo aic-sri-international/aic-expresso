@@ -370,6 +370,7 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		innerAbstractQuantifierEliminatorWithSetup.setDebug(newValue);
 	}
 
+	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		return innerAbstractQuantifierEliminatorWithSetup.solve(indices, constraint, body, process);
 	}

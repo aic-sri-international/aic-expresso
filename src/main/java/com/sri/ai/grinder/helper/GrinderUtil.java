@@ -49,6 +49,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
@@ -759,7 +760,9 @@ public class GrinderUtil {
 			else if (expression.hasFunctor(MAX)) { // MAX can also be applied to a bunch of numbers
 				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(expression.getArguments(), process);
 			}
-			else throw new Error(expression.getFunctor() + " defined for sets only but got " + expression.get(0));
+			else {
+				throw new Error(expression.getFunctor() + " defined for sets only but got " + expression.get(0));
+			}
 		}
 		else if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
 			result = makeSymbol("Boolean");
@@ -782,13 +785,13 @@ public class GrinderUtil {
 			else if (thenType == null) {
 				throw new Error("Could not determine the types of then and else branches of '" + expression + "'.");
 			}
-			else if (thenType.equals("Integer") && elseType.toString().startsWith("Integer(")) { // TODO: I know, I know, this treatment of integers and interval is terrible... will fix at some point
+			else if (thenType.equals("Integer") && elseType.hasFunctor(INTEGER_INTERVAL)) { // TODO: I know, I know, this treatment of integers and interval is terrible... will fix at some point
 				result = thenType;
 			}
-			else if (thenType.toString().startsWith("Integer(") && elseType.equals("Integer")) {
+			else if (thenType.hasFunctor(INTEGER_INTERVAL) && elseType.equals("Integer")) {
 				result = elseType;
 			}
-			else if (thenType.toString().startsWith("Integer(") && elseType.toString().startsWith("Integer(")) {
+			else if (thenType.hasFunctor(INTEGER_INTERVAL) && elseType.hasFunctor(INTEGER_INTERVAL)) {
 				IntegerInterval thenInterval = (IntegerInterval) thenType;
 				IntegerInterval elseInterval = (IntegerInterval) elseType;
 				Expression minimumLowerBound = 
@@ -803,7 +806,7 @@ public class GrinderUtil {
 					result = makeSymbol("Integer");
 				}
 				else {
-					result = makeSymbol("Integer(" + minimumLowerBound + ", " + maximumUpperBound + ")");
+					result = apply(INTEGER_INTERVAL, minimumLowerBound, maximumUpperBound);
 				}
 			}
 			else {

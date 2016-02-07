@@ -58,6 +58,7 @@ public interface QuantifierEliminatorWithSetup extends QuantifierEliminator {
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, RewritingProcess)}
 	 * assuming a true contextual constraint.
 	 */
+	@Override
 	Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process);
 
 	/**

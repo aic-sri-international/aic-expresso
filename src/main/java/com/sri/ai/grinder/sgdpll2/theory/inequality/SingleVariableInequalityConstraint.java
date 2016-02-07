@@ -176,6 +176,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		return result;
 	}
 
+	@Override
 	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
 		Expression result;
 		
@@ -416,7 +417,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		if (cachedType == null) {
 			Type type = process.getType(getVariableTypeExpression(process));
 			if (type instanceof IntegerExpressoType) {
-				cachedType = new IntegerInterval("Integer(-infinity, infinity)");
+				cachedType = new IntegerInterval("-infinity..infinity");
 			}
 			else {
 				cachedType = (IntegerInterval) type;

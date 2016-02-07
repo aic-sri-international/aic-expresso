@@ -126,6 +126,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		return new BruteForceCommonInterpreter(constraintTheory, new StackedHashMap<>(extendingAssignment, assignment), simplifyGivenConstraint);
 	}
 
+	@Override
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		Map<String, Simplifier> result = super.makeSyntacticFormTypeSimplifiers();
 		result.put(

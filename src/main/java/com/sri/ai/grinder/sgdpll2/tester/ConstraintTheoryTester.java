@@ -562,7 +562,7 @@ public class ConstraintTheoryTester {
 			ConstraintTheory constraintTheory = singleVariableConstraint.getConstraintTheory();
 			SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory);
 			CompleteMultiVariableConstraint trueContextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-			process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
+			process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
 			long start = System.currentTimeMillis();
 			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
 			output("Symbolic solution: " + symbolicSolution);

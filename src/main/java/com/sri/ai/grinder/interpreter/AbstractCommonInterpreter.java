@@ -95,6 +95,7 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 		super(constraintTheory, simplifyGivenConstraint);
 	}
 	
+	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
 				SUM,         simplifierFor(new SymbolicPlusGroup()),
@@ -132,6 +133,7 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 		};
 	}
 
+	@Override
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
 				"There exists", simplifierForQuantificationOn(new BooleansWithDisjunctionGroup()),

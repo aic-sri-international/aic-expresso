@@ -54,6 +54,7 @@ public class Max extends AbstractGroupProblemTypeWithFunctionApplicationExpressi
 		super(new SymbolicMaxGroup());
 	}
 
+	@Override
 	public String getFunctorString() {
 		return MAX;
 	}

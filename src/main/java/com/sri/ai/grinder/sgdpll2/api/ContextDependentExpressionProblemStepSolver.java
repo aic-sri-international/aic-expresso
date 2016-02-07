@@ -88,12 +88,14 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
 		 */
+		@Override
 		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue();
 		
 		/**
 		 * Same as {@link #getStepSolverForWhenLiteralIsTrue()} but for when literal is false.
 		 * @return
 		 */
+		@Override
 		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse();
 	}
 	
@@ -153,5 +155,6 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * @param process
 	 * @return
 	 */
+	@Override
 	SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process);
 }

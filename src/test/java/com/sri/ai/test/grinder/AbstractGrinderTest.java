@@ -37,8 +37,6 @@
  */
 package com.sri.ai.test.grinder;
 
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -57,18 +55,15 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.base.Pair;

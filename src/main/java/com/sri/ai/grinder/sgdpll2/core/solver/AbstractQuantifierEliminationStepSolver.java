@@ -92,6 +92,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 			Expression literalFreeBody,
 			RewritingProcess process);
 
+	@Override
 	public AbstractQuantifierEliminationStepSolver clone() {
 		AbstractQuantifierEliminationStepSolver result = null;
 		try {

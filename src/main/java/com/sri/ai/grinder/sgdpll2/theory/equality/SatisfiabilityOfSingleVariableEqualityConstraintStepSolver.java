@@ -294,6 +294,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return result;
 	}
 	
+	@Override
 	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver clone() {
 		return (SatisfiabilityOfSingleVariableEqualityConstraintStepSolver) super.clone();
 	}

@@ -143,6 +143,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 	/**
 	 * @return
 	 */
+	@Override
 	public ModelCountingOfSingleVariableInequalityConstraintStepSolver clone() {
 		return (ModelCountingOfSingleVariableInequalityConstraintStepSolver) super.clone();
 	}

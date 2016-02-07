@@ -18,6 +18,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 		super();
 	}
 
+	@Override
 	protected abstract boolean getPropagateAllLiteralsWhenVariableIsBound();
 
 	@Override
