@@ -39,6 +39,7 @@ package com.sri.ai.grinder.shell;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -85,9 +86,9 @@ public class SymbolicShell {
 								new PropositionalConstraintTheory()));
 		
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		process = process.put(new Categorical("Boolean", 2, makeSymbol("true"), makeSymbol("false")));
-		process = process.put(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
-		process = process.put(new IntegerInterval("Integer"));
+		process = process.newRewritingProcessWith(BOOLEAN_TYPE);
+		process = process.newRewritingProcessWith(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
+		process = process.newRewritingProcessWith(new IntegerInterval("Integer"));
 		
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("P"), makeSymbol("Boolean")), process);
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Q"), makeSymbol("Boolean")), process);
@@ -201,6 +202,8 @@ public class SymbolicShell {
 		System.out.println("Pre-defined types are:");
 		System.out.println("- 'Boolean' with constants 'true' and 'false',");
 		System.out.println("                 pre-defined variables P, Q, R, S");
+		System.out.println("- 'Integer' with pre-defined variables I, J, K");
+		System.out.println("- Integer intevals can be used in summations: sum({{(on I in 1..10) I}});");
 		System.out.println("- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran',");
 		System.out.println("                                       pre-defined variables X, Y, Z");
 		System.out.println("");

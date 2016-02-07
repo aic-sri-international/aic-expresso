@@ -37,13 +37,11 @@
  */
 package com.sri.ai.grinder.plaindpll.util;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
-import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
@@ -278,7 +276,7 @@ public class DPLLUtil {
 		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(symbolDeclarations, process);
 					
 		for (Type type : types) {
-			process = process.put(type);
+			process = process.newRewritingProcessWith(type);
 			process.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
 		}
 		
@@ -307,7 +305,7 @@ public class DPLLUtil {
 			Categorical type = (Categorical) process.getType(typeExpressionString);
 			if (type == null) {
 				if (typeExpressionString.equals("Boolean")) {
-					type = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
+					type = BOOLEAN_TYPE;
 				}
 				else {
 					ArrayList<Expression> knownConstants = 

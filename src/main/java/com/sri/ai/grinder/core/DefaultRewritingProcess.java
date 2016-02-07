@@ -39,6 +39,7 @@ package com.sri.ai.grinder.core;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.myAssert;
@@ -788,7 +789,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public RewritingProcess put(Type type) {
+	public RewritingProcess newRewritingProcessWith(Type type) {
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
 		result.types = new LinkedHashMap<>(result.types);
 		result.types.put(parse(type.getName()), type);
@@ -801,12 +802,18 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public Type getType(String name) {
-		return types.get(parse(name));
+		Expression typeExpression = parse(name);
+		Type result = getType(typeExpression);
+		return result;
 	}
 
 	@Override
 	public Type getType(Expression typeExpression) {
-		return types.get(typeExpression);
+		Type result = types.get(typeExpression);
+		if (result == null) {
+			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression);
+		}
+		return result;
 	}
 
 	@Override

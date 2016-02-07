@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
@@ -276,6 +277,6 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	 */
 	@Override
 	public Collection<Type> getNativeTypes() {
-		return list(new IntegerExpressoType());
+		return list(INTEGER_TYPE);
 	}
 }

@@ -112,8 +112,8 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true));
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-		process = process.put(new Categorical("Population", 500000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
-		process = process.put(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
+		process = process.newRewritingProcessWith(new Categorical("Population", 500000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
+		process = process.newRewritingProcessWith(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
 //		Expression expression = parse("there exists X in Numbers : X = 3 and X + 1 = 1 + X");
 //		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
 //		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");

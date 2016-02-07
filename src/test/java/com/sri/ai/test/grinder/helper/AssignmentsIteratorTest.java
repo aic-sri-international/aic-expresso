@@ -83,7 +83,7 @@ public class AssignmentsIteratorTest  {
 				"{X=people4, Y=people4}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		process = process.put(myType);
+		process = process.newRewritingProcessWith(myType);
 		process = GrinderUtil.extendContextualSymbols(map(x, myTypeExpression, y, myTypeExpression), process);
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
 		String actual = join("\n", assignmentsIterator);
@@ -107,7 +107,7 @@ public class AssignmentsIteratorTest  {
 				"{X=mary, Y=mary}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		process = process.put(myType);
+		process = process.newRewritingProcessWith(myType);
 		process = GrinderUtil.extendContextualSymbols(map(x, myTypeExpression, y, myTypeExpression), process);
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
 		String actual = join("\n", assignmentsIterator);
@@ -141,8 +141,8 @@ public class AssignmentsIteratorTest  {
 
 		Symbol myPeopleTypeExpression = makeSymbol(peopleType.getName());
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
-		process = process.put(peopleType);
-		process = process.put(petsType);
+		process = process.newRewritingProcessWith(peopleType);
+		process = process.newRewritingProcessWith(petsType);
 		process = GrinderUtil.extendContextualSymbols(map(x, myPeopleTypeExpression, y, myPetsTypeExpression), process);
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
 		String actual = join("\n", assignmentsIterator);

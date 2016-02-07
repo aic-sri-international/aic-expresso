@@ -279,12 +279,12 @@ public interface RewritingProcess extends Cloneable {
 
 	RewritingProcess extendDPLLContextualConstraint(boolean splitterSign, Expression splitter);
 	
-	RewritingProcess put(Type type);
+	RewritingProcess newRewritingProcessWith(Type type);
 
 	default RewritingProcess put(Collection<Type> types) {
 		RewritingProcess result = this;
 		for (Type type : types) {
-			result = result.put(type);
+			result = result.newRewritingProcessWith(type);
 		}
 		return result;
 	}

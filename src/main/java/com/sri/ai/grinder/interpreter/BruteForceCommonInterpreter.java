@@ -176,8 +176,8 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(testingConstraintTheory);
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-		process = process.put(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
-		process = process.put(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
+		process = process.newRewritingProcessWith(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
+		process = process.newRewritingProcessWith(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
 //		Expression expression = parse("there exists X in Numbers : X = 3 and for all X in Numbers : X + 1 = 1 + X");
 //		Expression expression = parse("there exists X in Numbers : X = 3 and for all X in Numbers : X * 2 = 2 * X");
 //		Expression expression = parse("there exists X in Numbers : X = 3 and for all X in Numbers : X * 0 = 0");

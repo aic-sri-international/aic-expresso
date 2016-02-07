@@ -37,9 +37,8 @@
  */
 package com.sri.ai.test.grinder.sgdpll2.theory.compound;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
@@ -95,7 +94,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		// using different testing variables and types to test distribution of testing information
 		// to sub constraint theories.
 		
-		Categorical booleanType = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
+		Categorical booleanType = BOOLEAN_TYPE;
 		Categorical dogsType    = new Categorical("Dogs", 4, arrayList(parse("fido"), parse("rex")));
 		IntegerInterval oneTwoThree = new IntegerInterval(1, 3);
 		

@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -59,6 +60,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.list;
@@ -90,6 +92,8 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
@@ -1488,5 +1492,57 @@ public class GrinderUtil {
 		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, process);
 		Expression universallyQuantified = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
 		return universallyQuantified;
+	}
+
+	public static final Categorical BOOLEAN_TYPE = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
+	public static final IntegerExpressoType INTEGER_TYPE = new IntegerExpressoType();
+	
+	/**
+	 * A method mapping type expressions to {@link Type} objects,
+	 * for general use in Grinder.
+	 * The returned type is in the one registered in the rewriting process, if any,
+	 * or a new one if the expression can be interpreted as a unique type.
+	 * Current recognized type expressions are
+	 * <code>Boolean</code>, <code>Integer</code>, and function applications
+	 * of the type <code>m..n</code>.
+	 * @param typeExpression
+	 * @return
+	 */
+	public static Type fromTypeExpressionToType(Expression typeExpression, RewritingProcess process) {
+		Type type = process.getType(typeExpression);
+		if (type == null) {
+			type = fromTypeExpressionToItsIntrinsicMeaning(typeExpression);
+		}
+		return type;
+	}
+
+	/**
+	 * A method mapping type expressions to their intrinsic {@link Type} objects,
+	 * where "intrinsic" means there is only one possible {@link Type} object
+	 * for them in the context of grinder
+	 * (therefore, it cannot be used for, say, categorical types defined
+	 * by the user and registered in the rewriting process by name only).
+	 * Current recognized type expressions are
+	 * <code>Boolean</code>, <code>Integer</code>, and function applications
+	 * of the type <code>m..n</code>.
+	 * If there is no such meaning, the method returns <code>null</code>.
+	 * @param typeExpression
+	 * @return
+	 */
+	public static Type fromTypeExpressionToItsIntrinsicMeaning(Expression typeExpression) throws Error {
+		Type type;
+		if (typeExpression.equals("Boolean")) {
+			type = BOOLEAN_TYPE;
+		}
+		else if (typeExpression.equals("Integer")) {
+			type = BOOLEAN_TYPE;
+		}
+		else if (typeExpression.hasFunctor(INTEGER_INTERVAL) && typeExpression.numberOfArguments() == 2) {
+			type = new IntegerInterval(typeExpression.get(0), typeExpression.get(1));
+		}
+		else {
+			type = null;
+		}
+		return type;
 	}
 }

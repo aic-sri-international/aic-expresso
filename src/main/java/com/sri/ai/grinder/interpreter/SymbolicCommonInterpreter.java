@@ -153,8 +153,8 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(constraintTheory, true);
 		
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		process = process.put(new Categorical("Population", 1000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
-		process = process.put(new Categorical("Numbers", -1, arrayList(parse("1"), parse("2"), parse("3"))));
+		process = process.newRewritingProcessWith(new Categorical("Population", 1000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
+		process = process.newRewritingProcessWith(new Categorical("Numbers", -1, arrayList(parse("1"), parse("2"), parse("3"))));
 
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("W"), makeSymbol("Population")), process);
 		

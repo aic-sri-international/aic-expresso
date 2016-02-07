@@ -38,19 +38,15 @@
 package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
-import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.mapIntoArrayList;
-
-import java.util.ArrayList;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -85,9 +81,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	 */
 	public PropositionalConstraintTheory() {
 		super(new BooleanSimplifier());
-		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
-		Categorical booleanType = new Categorical("Boolean", 2, knownConstants);
-		setVariableNamesAndTypesForTesting(map("P", booleanType, "Q", booleanType, "R", booleanType));
+		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
 	}
 
 	@Override
