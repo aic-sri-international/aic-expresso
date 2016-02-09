@@ -273,7 +273,7 @@ public interface RewritingProcess extends Cloneable {
 	 */
 	void interrupt();
 
-	void initializeDPLLContextualConstraint(Constraint1 constraint);
+	void initializePlainDPLLContextualConstraint(Constraint1 constraint);
 
 	Constraint1 getDPLLContextualConstraint();
 

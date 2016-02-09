@@ -768,7 +768,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	Constraint1 dpllConstraint;
 	
 	@Override
-	public void initializeDPLLContextualConstraint(Constraint1 constraint) {
+	public void initializePlainDPLLContextualConstraint(Constraint1 constraint) {
 		dpllConstraint = constraint;
 	}
 

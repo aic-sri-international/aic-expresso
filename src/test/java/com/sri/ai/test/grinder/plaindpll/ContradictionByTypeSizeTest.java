@@ -39,6 +39,7 @@ package com.sri.ai.test.grinder.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.list;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -100,22 +101,22 @@ public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityD
 		
 		expression = parse("if F = bob then 1 else 2");
 		expected   = parse("1");
-		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "1"), null);
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "1"), list());
 		assertEquals(expected, result);
 
 		expression = parse("if F = bob then 1 else if F = mary then 2 else 3");
 		expected   = parse("if F = bob then 1 else 2");
-		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"), null);
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"), list());
 		assertEquals(expected, result);
 		
 		expression = parse("if F = bob then 1 else if F = mary then 2 else if F = john then 3 else if F = paul then 4 else 5");
 		expected   = parse("if F = bob then 1 else 2");
-		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"), null);
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"), list());
 		assertEquals(expected, result);
 		
 		expression = parse("if F = bob then 1 else if F = mary then 2 else 3");
 		expected   = expression;
-		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "5"), null);
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "5"), list());
 		assertEquals(expected, result);
 	}
 }

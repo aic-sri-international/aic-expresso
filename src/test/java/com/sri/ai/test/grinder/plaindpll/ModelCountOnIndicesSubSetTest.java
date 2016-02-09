@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.X;
 import static com.sri.ai.expresso.helper.Expressions.Y;
 import static com.sri.ai.expresso.helper.Expressions.Z;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.plaindpll.util.DPLLUtil.makeProcess;
+import static com.sri.ai.grinder.plaindpll.util.DPLLUtil.makeProcessForPlainDPLL;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
@@ -74,7 +74,7 @@ public class ModelCountOnIndicesSubSetTest {
 		Expression modelCount;
 		
 		EqualityConstraintTheory theory = new EqualityConstraintTheory(new SymbolTermTheory());
-		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"), list());
+		RewritingProcess process = makeProcessForPlainDPLL(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"), list());
 		
 		totalIndices    = list(X, Y);
 		countingIndices = list(X, Y);

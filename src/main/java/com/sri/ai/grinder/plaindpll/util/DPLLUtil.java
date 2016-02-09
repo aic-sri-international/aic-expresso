@@ -218,19 +218,18 @@ public class DPLLUtil {
 	}
 
 	
-	public static RewritingProcess makeProcess(ConstraintTheory theory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
-		return makeProcess(theory, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
+	public static RewritingProcess makeProcessForPlainDPLL(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
+		return makeProcessForPlainDPLL(constraintTheory, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
 	}
 
-	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public static RewritingProcess makeProcessForPlainDPLL(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		Constraint1 trueConstraintOnNoIndices = constraintTheory.makeConstraint(list());
-		return makeProcess(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
+		return makeProcessForPlainDPLL(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
 	}
 
-	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, list(), mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
-		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-		result.initializeDPLLContextualConstraint(trueConstraintOnNoIndices);
+	public static RewritingProcess makeProcessForPlainDPLL(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = makeProcess(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);			
+		result.initializePlainDPLLContextualConstraint(trueConstraintOnNoIndices);
 		return result;
 	}
 
@@ -242,7 +241,7 @@ public class DPLLUtil {
 
 	/**
 	 * @param mapFromSymbolNameToTypeName
-	 * @param additionalTypes TODO
+	 * @param additionalTypes
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param process
 	 * @return

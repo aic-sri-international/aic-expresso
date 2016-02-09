@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.core;
 
-import static com.sri.ai.util.Util.list;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -90,16 +88,14 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	protected abstract Expression getAdditiveIdentityElement();
 	
 	/**
-	 * Makes an appropriate rewriting process with the given data.
-	 * @param constraint
+	 * Makes an appropriate rewriting process with the given data for SGDPLL2, which does not require a contextual constraint.
 	 * @param mapFromSymbolNameToTypeName
 	 * @param mapFromCategoricalTypeNameToSizeString
-	 * @param additionalTypes TODO
+	 * @param additionalTypes
 	 * @param isUniquelyNamedConstantPredicate
 	 * @return
 	 */
 	protected abstract RewritingProcess makeProcess(
-			Constraint constraint,
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
 
@@ -149,12 +145,15 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 
 	@Override
 	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			Expression expression, 
+			Collection<Expression> indices,
+			Map<String, String> mapFromSymbolNameToTypeName, 
+			Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes, 
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		topLevelRewritingProcess =
-				makeProcess(makeTrueConstraint(list()),
+				makeProcess(
 						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
 						additionalTypes, isUniquelyNamedConstantPredicate);
 		
@@ -164,8 +163,12 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 
 	@Override
 	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
+			Expression expression,
+			Collection<Expression> indices,
+			Map<String, String> mapFromVariableNameToTypeName, 
+			Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes) {
+		
 		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
 	}
 }

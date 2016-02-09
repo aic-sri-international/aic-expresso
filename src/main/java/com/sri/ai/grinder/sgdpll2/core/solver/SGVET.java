@@ -88,7 +88,6 @@ public class SGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 
 	@Override
 	public RewritingProcess makeProcess(
-			Constraint constraint,
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		

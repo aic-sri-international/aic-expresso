@@ -108,13 +108,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	}
 
 	@Override
-	public RewritingProcess makeProcess(
-			Constraint constraint, 
-			Map<String, String> mapFromSymbolNameToTypeName,
-			Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
+	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		return DPLLUtil.makeProcess(
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
@@ -122,7 +116,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 				isUniquelyNamedConstantPredicate) ;
 	}
 
-	
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);

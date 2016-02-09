@@ -174,7 +174,7 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 	 */
 	protected Expression addSymbolicResults(Expression solution1, Expression solution2) {
 		DefaultRewritingProcess process = new DefaultRewritingProcess(null);
-		process.initializeDPLLContextualConstraint(getConstraintTheory().makeConstraint(list()));
+		process.initializePlainDPLLContextualConstraint(getConstraintTheory().makeConstraint(list()));
 		return addSymbolicResults(solution1, solution2, process);
 	}
 
@@ -324,11 +324,17 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		}
 	
 		@Override
-		public RewritingProcess makeProcess(Constraint constraint, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-			RewritingProcess result = DPLLUtil.makeProcess(
-					(Constraint1) constraint,
-					mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
-					additionalTypes, isUniquelyNamedConstantPredicate);
+		public RewritingProcess makeProcess(
+				Map<String, String> mapFromSymbolNameToTypeName, 
+				Map<String, String> mapFromCategoricalTypeNameToSizeString,
+				Collection<Type> additionalTypes,
+				Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			
+			RewritingProcess result = 
+					DPLLUtil.makeProcessForPlainDPLL(
+							(Constraint1) makeTrueConstraint(list()),
+							mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
+							additionalTypes, isUniquelyNamedConstantPredicate);
 			return result;
 		}
 	
@@ -337,7 +343,7 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 			// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 			Constraint1 oldConstraint = process.getDPLLContextualConstraint();
 			Constraint1 contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
-			process.initializeDPLLContextualConstraint(contextualConstraint);
+			process.initializePlainDPLLContextualConstraint(contextualConstraint);
 	
 			Expression simplifiedInput = simplify(body, process);
 			Expression result = solveAfterBookkeeping(indices, (Constraint1) constraint, simplifiedInput, process);
@@ -345,7 +351,7 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 				result = getAdditiveIdentityElement();
 			}
 			
-			process.initializeDPLLContextualConstraint(oldConstraint);
+			process.initializePlainDPLLContextualConstraint(oldConstraint);
 			return result;
 		}
 		
