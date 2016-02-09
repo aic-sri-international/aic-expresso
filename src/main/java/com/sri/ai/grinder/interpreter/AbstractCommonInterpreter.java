@@ -62,7 +62,6 @@ import com.sri.ai.grinder.plaindpll.group.BooleansWithDisjunctionGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicMaxGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicTimesGroup;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 /**
  * An implementation of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
@@ -77,24 +76,6 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 @Beta
 public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 
-	/**
-	 * Constructs {@link AbstractCommonInterpreter}
-	 * <i>not</i> simplifying literals according to contextual constraint.
-	 */
-	public AbstractCommonInterpreter(ConstraintTheory constraintTheory) {
-		this(constraintTheory, false);
-	}
-	
-	/**
-	 * Constructs {@link AbstractCommonInterpreter} and
-	 * sets it to simplify literals according to contextual constraint stored in
-	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
-	 * @param simplifyGivenConstraint
-	 */
-	public AbstractCommonInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
-		super(constraintTheory, simplifyGivenConstraint);
-	}
-	
 	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(

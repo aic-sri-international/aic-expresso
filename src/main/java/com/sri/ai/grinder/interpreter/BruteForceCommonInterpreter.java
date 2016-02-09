@@ -38,9 +38,7 @@
 package com.sri.ai.grinder.interpreter;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbolsWithIndexExpressions;
-import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
@@ -49,17 +47,10 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -75,44 +66,21 @@ import com.sri.ai.util.collect.StackedHashMap;
 @Beta
 public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 
-	public static final String COMMON_INTERPRETER_ASSIGNMENT = "BruteForceCommonInterpreter assignment";
-	
 	private Map<Expression, Expression> assignment;
 	
 	/**
-	 * Constructs {@link BruteForceCommonInterpreter} with an empty initial assignment and
-	 * <i>not</i> simplifying literals according to contextual constraint.
+	 * Constructs {@link BruteForceCommonInterpreter} with an empty initial assignment.
 	 */
-	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory) {
-		this(constraintTheory, map());
+	public BruteForceCommonInterpreter() {
+		this(map());
 	}
 
 	/**
-	 * Constructs {@link BruteForceCommonInterpreter} with an empty initial assignment and
-	 * <simplifying literals according to contextual constraint.
-	 */
-	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
-		this(constraintTheory, map(), simplifyGivenConstraint);
-	}
-
-	/**
-	 * Constructs {@link BruteForceCommonInterpreter} with an initial assignment and
-	 * <i>not</i> simplifying literals according to contextual constraint.
+	 * Constructs {@link BruteForceCommonInterpreter} with an initial assignment.
 	 * @param assignment
 	 */
-	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory, Map<Expression, Expression> assignment) {
-		this(constraintTheory, assignment, false);
-	}
-	
-	/**
-	 * Constructs {@link BruteForceCommonInterpreter} with an initial assignment and
-	 * sets it to simplify literals according to contextual constraint stored in
-	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
-	 * @param assignment
-	 * @param simplifyGivenConstraint
-	 */
-	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory, Map<Expression, Expression> assignment, boolean simplifyGivenConstraint) {
-		super(constraintTheory, simplifyGivenConstraint);
+	public BruteForceCommonInterpreter(Map<Expression, Expression> assignment) {
+		super();
 		this.assignment = assignment;
 	}
 	
@@ -123,7 +91,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * @return
 	 */
 	public AbstractInterpreter extendWith(Map<Expression, Expression> extendingAssignment, RewritingProcess process) {
-		return new BruteForceCommonInterpreter(constraintTheory, new StackedHashMap<>(extendingAssignment, assignment), simplifyGivenConstraint);
+		return new BruteForceCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment));
 	}
 
 	@Override
@@ -148,7 +116,8 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		Expression value = group.additiveIdentityElement();
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, process);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
-			Expression indicesConditionEvaluation = evaluateGivenValuesAndCheckForBeingAConstant(indicesCondition, values, process);
+			Expression indicesConditionEvaluation = 
+					evaluateGivenValuesAndCheckForBeingAConstant(indicesCondition, values, process);
 			if (indicesConditionEvaluation.equals(FALSE)) {
 				continue;
 			}
@@ -167,26 +136,5 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 			throw new Error("Quantifier body must evaluate to constant but evaluated to " + expressionEvaluation);
 		}
 		return expressionEvaluation;
-	}
-
-	public static void main(String[] args) {
-		AbstractConstraintTheoryWithBinaryAtoms testingConstraintTheory = new EqualityConstraintTheory(true, true);
-		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(testingConstraintTheory, map(parse("Hurrah"), parse("awesome")), true);
-		RewritingProcess process = new DefaultRewritingProcess(null);
-		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(testingConstraintTheory);
-		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
-		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-		process = process.newRewritingProcessWith(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
-		process = process.newRewritingProcessWith(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
-//		Expression expression = parse("there exists X in Numbers : X = 3 and for all X in Numbers : X + 1 = 1 + X");
-//		Expression expression = parse("there exists X in Numbers : X = 3 and for all X in Numbers : X * 2 = 2 * X");
-//		Expression expression = parse("there exists X in Numbers : X = 3 and for all X in Numbers : X * 0 = 0");
-//		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
-//		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
-//		Expression expression = parse("sum({{(on Y in Population) 2 | Y != tom and W != 3}})");
-		Expression expression = parse("product({{(on Y in Population) 2 | Y != tom and W != 3}})");
-//		Expression expression = parse("max({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3}})");
-		Expression result = interpreter.apply(expression, process);
-		System.out.println("result: " + result);
 	}
 }

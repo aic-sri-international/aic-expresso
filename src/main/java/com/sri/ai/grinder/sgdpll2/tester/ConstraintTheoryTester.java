@@ -383,8 +383,7 @@ public class ConstraintTheoryTester {
 			Expression typeNameExpression = parse(variableNamesAndTypesForTesting.get(variable).toString());
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, typeNameExpression), quantifiedFormula);
 		}
-		process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraintTheory));
-		Expression evaluation = new BruteForceCommonInterpreter(constraintTheory).apply(quantifiedFormula, process);
+		Expression evaluation = new BruteForceCommonInterpreter().apply(quantifiedFormula, process);
 		boolean result = evaluation.equals(TRUE);
 		return result;
 	}
@@ -477,7 +476,6 @@ public class ConstraintTheoryTester {
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
 			AbstractInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment, process);
-			process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraintTheory));
 			Expression value = completeInterpreter.apply(conjunction, process);
 			if (value.equals(TRUE)) {
 				modelCount++;
@@ -561,8 +559,6 @@ public class ConstraintTheoryTester {
 			
 			ConstraintTheory constraintTheory = singleVariableConstraint.getConstraintTheory();
 			SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory);
-			CompleteMultiVariableConstraint trueContextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-			process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
 			long start = System.currentTimeMillis();
 			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
 			output("Symbolic solution: " + symbolicSolution);
@@ -626,7 +622,7 @@ public class ConstraintTheoryTester {
 	}
 
 	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, ConstraintTheory constraintTheory, String problemDescription, Expression symbolicSolution, Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, RewritingProcess process) throws Error {
-		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(constraintTheory, assignment);
+		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
 		Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter);
 		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
 		output("Under free variables assignment " + assignment);

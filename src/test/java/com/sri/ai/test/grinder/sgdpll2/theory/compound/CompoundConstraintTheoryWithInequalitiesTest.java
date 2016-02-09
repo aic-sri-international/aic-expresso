@@ -57,7 +57,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.interpreter.AbstractInterpreter;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
@@ -141,7 +140,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
-		process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
 		Expression result = interpreter.apply(input, process);
 		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);

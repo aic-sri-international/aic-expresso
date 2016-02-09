@@ -37,9 +37,6 @@
  */
 package com.sri.ai.grinder.interpreter;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -50,111 +47,49 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.core.simplifier.TopExhaustive;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
- * A {@link MapBasedSimplifier} able (optionally) to simplify expressions based
- * a contextual constraint stored in {@link RewritingProcess}'s global object under key
- * {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
- * <p>
- * This simplifier is based on the elementary simplifiers provided by abstract methods {@link #makeFunctionApplicationSimplifiers()},
+ * A {@link MapBasedSimplifier} based on the elementary simplifiers provided by abstract methods
+ * {@link #makeFunctionApplicationSimplifiers()},
  * the ones provided by {@link #makeSyntacticFormTypeSimplifiers()}, and another {@link MapBasedSimplifier}
  * provided by abstract method {@link #makeAnotherMapBasedSimplifier()}.
  * The simplifiers in the latter are supplemented, not overridden, by the simplifiers in the first two to create
- * an overriding effect, in the sense that the new ones only act once the older one has nothing else to say about the expression
+ * an overriding effect, 
+ * in the sense that the new ones only act once the older one has nothing else to say about the expression
  * (that is, returns the same instance).
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplifier {
+public abstract class AbstractInterpreter implements MapBasedSimplifier {
 
-	public static final String INTERPRETER_CONTEXTUAL_CONSTRAINT = "sgdpll2 contextual constraint";
-	
-	private SeriallyMergedMapBasedSimplifier basicSimplifier;
+	private SeriallyMergedMapBasedSimplifier topSimplifier;
 	private Simplifier simplifier;
-	protected boolean simplifyGivenConstraint;
-	protected ConstraintTheory constraintTheory;
-	private Constraint2 trueConstraint;
 	
 	/**
 	 * Constructs {@link AbstractInterpreter} with 
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 */
-	public AbstractInterpreter(ConstraintTheory constraintTheory) {
-		this(constraintTheory, false);
-	}
-
-	/**
-	 * Constructs {@link AbstractInterpreter} that
-	 * simplifies literals according to contextual constraint stored in
-	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
-	 * @param simplifyGivenConstraint
-	 */
-	public AbstractInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
-		this.basicSimplifier = new InternalSimplifier();
-		this.simplifier = new Recursive(new TopExhaustive(this.basicSimplifier));
-		this.simplifyGivenConstraint = simplifyGivenConstraint;
-		this.constraintTheory = constraintTheory;
-		this.trueConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+	public AbstractInterpreter() {
+		this.topSimplifier = 
+				new SeriallyMergedMapBasedSimplifier(
+						makeFunctionApplicationSimplifiers(), 
+						makeSyntacticFormTypeSimplifiers(), 
+						makeAnotherMapBasedSimplifier());
+		this.simplifier = new Recursive(new TopExhaustive(this.topSimplifier));
 	}
 
 	@Override
 	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
-		return basicSimplifier.getFunctionApplicationSimplifiers();
+		return topSimplifier.getFunctionApplicationSimplifiers();
 	}
 
 	@Override
 	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
-		return basicSimplifier.getSyntacticFormTypeSimplifiers();
+		return topSimplifier.getSyntacticFormTypeSimplifiers();
 	}
 
-	private class InternalSimplifier extends SeriallyMergedMapBasedSimplifier {
-
-		// The reason we use an internal simplifier as opposed to making {@link AbstractInterpreter} an extension of {@link MergedMapBasedSimplifier}
-		// is that we want the makers of sub-simplifiers to be dynamic (non-static), so this class can be extended and they can be overridden.
-		// If it were an extension of {@link MergedMapBasedSimplifier}, those methods
-		// would have to be static because they would have to be used inside a
-		// constructor's super() statement.
-		
-		public InternalSimplifier() {
-			super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), makeAnotherMapBasedSimplifier());
-		}
-
-		@Override
-		public Expression apply(Expression expression, RewritingProcess process) {
-			if (simplifyGivenConstraint) {
-				Constraint2 contextualConstraint = (Constraint2) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT);
-				if (contextualConstraint == null) {
-					contextualConstraint = trueConstraint;
-				}
-				if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
-					ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
-					switch(split.getResult()) {
-					case CONSTRAINT_IS_CONTRADICTORY:
-						return null;
-					case LITERAL_IS_TRUE:
-						return TRUE;
-					case LITERAL_IS_FALSE:
-						return FALSE;
-					case LITERAL_IS_UNDEFINED:
-					default:
-						break;
-					}
-				}
-			}
-			
-			Expression result = super.apply(expression, process);
-
-			return result;
-		}
-		
-	}
-	
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);

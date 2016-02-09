@@ -37,20 +37,15 @@
  */
 package com.sri.ai.grinder.interpreter;
 
-import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
-import static com.sri.ai.util.Util.arrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 /**
  * An extension of {@link SymbolicCommonInterpreter} whose results
@@ -68,21 +63,9 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 * @param constraintTheory
 	 */
 	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory) {
-		this(constraintTheory, false);
+		super(constraintTheory);
 	}
 
-	/**
-	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning}
-	 * which conditions on literals and <i>does</i> simplify literals according to contextual constraint.
-	 * stored in
-	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
-	 * @param constraintTheory
-	 * @param simplifyGivenConstraint
-	 */
-	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
-		super(constraintTheory, simplifyGivenConstraint);
-	}
-	
 	/**
 	 * We override this interpreter to go the extra mile and condition on literals in the
 	 * result of super's interpretation, since we expect a symbolic interpreter
@@ -92,7 +75,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		Expression interpretationResult = super.apply(expression, process);
 		Constraint2 trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
 		SymbolicCommonInterpreter simplifier =
-				new SymbolicCommonInterpreter(getConstraintTheory(), true /* simplify given constraint */);
+				new SymbolicCommonInterpreter(getConstraintTheory());
 		// TODO: given that we are only using the top simplifier from the simplifier above,
 		// we don't need the "simplify given constraint" setting.
 		// Not touching it now because I am in the middle of something else,
@@ -101,28 +84,5 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
 		Expression result = evaluator.solve(trueConstraint, process);
 		return result;
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		AbstractInterpreter interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory(true, true), true);
-		RewritingProcess process = new DefaultRewritingProcess(null);
-		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true));
-		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
-		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-		process = process.newRewritingProcessWith(new Categorical("Population", 500000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
-		process = process.newRewritingProcessWith(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
-//		Expression expression = parse("there exists X in Numbers : X = 3 and X + 1 = 1 + X");
-//		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
-//		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
-		Expression expression = parse("sum({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
-//		Expression expression = parse("sum({{(on Y in Population, Z in Numbers) 2 | Y != tom and Z != 2}})");
-//		Expression expression = parse("sum({{(on Y in Population, Z in Numbers) 2 | (for all X in Population : (X = tom) => Y != X) and W != 3 and Z != 2}})");
-//		Expression expression = parse("product({{(on Y in Population) 2 | Y != tom and W != 3}})");
-//		Expression expression = parse("max({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
-		Expression result = interpreter.apply(expression, process);
-		System.out.println("result: " + result);
 	}
 }

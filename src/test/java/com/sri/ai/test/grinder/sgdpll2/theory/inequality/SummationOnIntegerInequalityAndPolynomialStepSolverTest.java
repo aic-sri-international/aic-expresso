@@ -228,7 +228,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new SummationOnIntegerInequalityAndPolynomialStepSolver(
 						(SingleVariableInequalityConstraint) constraint,
-						body, new SymbolicCommonInterpreter(constraintTheory, true));
+						body, new SymbolicCommonInterpreter(constraintTheory));
 		
 		Expression actual = stepSolver.solve(contextualConstraint, process);
 
