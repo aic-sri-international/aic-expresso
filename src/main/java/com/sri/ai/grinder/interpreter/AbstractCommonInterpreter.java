@@ -55,6 +55,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
@@ -64,7 +65,8 @@ import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicTimesGroup;
 
 /**
- * An implementation of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
+ * An implementation of {@link AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier}
+ * re-using {@link CommonSimplifier}
  * (provided through {@link #makeAnotherMapBasedSimplifier()},
  * and delegating quantified expressions to abstract method
  * {@link AbstractCommonInterpreter#evaluateAggregateOperation(
@@ -74,7 +76,24 @@ import com.sri.ai.grinder.plaindpll.group.SymbolicTimesGroup;
  *
  */
 @Beta
-public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
+public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier {
+
+	/**
+	 * Extensions can use this method to define how a aggregate or quantified expression is to be solved.
+	 * @param group
+	 * @param indexExpressions
+	 * @param indicesCondition
+	 * @param body
+	 * @param process
+	 * @return
+	 * @throws Error
+	 */
+	abstract protected Expression evaluateAggregateOperation(
+			AssociativeCommutativeGroup group,
+			ExtensionalIndexExpressionsSet indexExpressions,
+			Expression indicesCondition,
+			Expression body,
+			RewritingProcess process) throws Error;
 
 	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
@@ -84,6 +103,19 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 				MAX,         simplifierFor(new SymbolicMaxGroup()),
 				CARDINALITY, simplifierCardinality()
 				);
+	}
+
+	@Override
+	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
+		return map(
+				"There exists", simplifierForQuantificationOn(new BooleansWithDisjunctionGroup()),
+				"For all",      simplifierForQuantificationOn(new BooleansWithConjunctionGroup())
+				);
+	}
+
+	@Override
+	public MapBasedSimplifier makeAnotherMapBasedSimplifier() {
+		return new CommonSimplifier();
 	}
 
 	private Simplifier simplifierFor(AssociativeCommutativeGroup group) {
@@ -114,14 +146,6 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 		};
 	}
 
-	@Override
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map(
-				"There exists", simplifierForQuantificationOn(new BooleansWithDisjunctionGroup()),
-				"For all",      simplifierForQuantificationOn(new BooleansWithConjunctionGroup())
-				);
-	}
-
 	private Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group) {
 		return (Simplifier) (e, p) -> evaluateQuantifiedExpression(e, group, p);
 	}
@@ -150,27 +174,5 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
 		Expression result = evaluateAggregateOperation(group, indexExpressions, TRUE, body, process);
 		return result;
-	}
-
-	/**
-	 * Extensions can use this method to define how a aggregate or quantified expression is to be solved.
-	 * @param group
-	 * @param indexExpressions
-	 * @param indicesCondition
-	 * @param body
-	 * @param process
-	 * @return
-	 * @throws Error
-	 */
-	abstract protected Expression evaluateAggregateOperation(
-			AssociativeCommutativeGroup group,
-			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression indicesCondition,
-			Expression body,
-			RewritingProcess process) throws Error;
-
-	@Override
-	public MapBasedSimplifier makeAnotherMapBasedSimplifier() {
-		return new CommonSimplifier();
 	}
 }

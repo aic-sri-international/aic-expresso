@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.interpreter;
+package com.sri.ai.grinder.core.simplifier;
 
 import java.util.Map;
 
@@ -44,9 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.Recursive;
-import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.core.simplifier.TopExhaustive;
+import com.sri.ai.grinder.interpreter.AbstractCommonInterpreter;
 
 /**
  * A {@link MapBasedSimplifier} based on the elementary simplifiers provided by abstract methods
@@ -57,23 +55,27 @@ import com.sri.ai.grinder.core.simplifier.TopExhaustive;
  * an overriding effect, 
  * in the sense that the new ones only act once the older one has nothing else to say about the expression
  * (that is, returns the same instance).
+ * <p>
+ * This is very similar to {@link RecursiveExhaustiveSeriallyMergedMapBasedSimplifier},
+ * but receives its elementary simplifiers through implementations of abstract methods,
+ * as opposed to through a constructor.
+ * This makes its usage a bit more laborious but also more flexible because
+ * its extending classes can provide simplifiers based on the extending class' own abstract methods.
+ * This is used by {@link AbstractCommonInterpreter} to leave the treatment of quantified expressions
+ * open, according to an abstract method.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractInterpreter implements MapBasedSimplifier {
+public abstract class AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier implements MapBasedSimplifier {
 
-	private SeriallyMergedMapBasedSimplifier topSimplifier;
+	private SeriallyMergedMapBasedTopSimplifier topSimplifier;
 	private Simplifier simplifier;
 	
-	/**
-	 * Constructs {@link AbstractInterpreter} with 
-	 * <i>not</i> simplifying literals according to contextual constraint.
-	 */
-	public AbstractInterpreter() {
+	public AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier() {
 		this.topSimplifier = 
-				new SeriallyMergedMapBasedSimplifier(
+				new SeriallyMergedMapBasedTopSimplifier(
 						makeFunctionApplicationSimplifiers(), 
 						makeSyntacticFormTypeSimplifiers(), 
 						makeAnotherMapBasedSimplifier());

@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.Recursive;
-import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.core.simplifier.TopExhaustive;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -77,7 +77,7 @@ public class DefaultInputTheory implements InputTheory {
 		this.simplifier = 
 				new Recursive(
 						new TopExhaustive(
-								new SeriallyMergedMapBasedSimplifier(
+								new SeriallyMergedMapBasedTopSimplifier(
 										map(),
 										makeSyntacticFormTypeSimplifiers(),
 										new CommonSimplifier())));

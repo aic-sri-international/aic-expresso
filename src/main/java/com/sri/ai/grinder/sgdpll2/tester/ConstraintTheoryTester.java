@@ -63,7 +63,6 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.interpreter.AbstractInterpreter;
 import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.boole.And;
@@ -475,7 +474,7 @@ public class ConstraintTheoryTester {
 		Expression testingVariable = variable;
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			AbstractInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment, process);
+			Simplifier completeInterpreter = interpreter.extendWith(testingVariableAssignment, process);
 			Expression value = completeInterpreter.apply(conjunction, process);
 			if (value.equals(TRUE)) {
 				modelCount++;

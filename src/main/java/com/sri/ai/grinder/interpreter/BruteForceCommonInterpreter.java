@@ -90,7 +90,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * @param process the rewriting process
 	 * @return
 	 */
-	public AbstractInterpreter extendWith(Map<Expression, Expression> extendingAssignment, RewritingProcess process) {
+	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment, RewritingProcess process) {
 		return new BruteForceCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment));
 	}
 

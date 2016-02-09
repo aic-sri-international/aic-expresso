@@ -43,7 +43,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.util.collect.StackedHashMap;
 
@@ -66,8 +66,8 @@ public interface MapBasedSimplifier extends Simplifier {
 	 * @return
 	 */
 	default TopSimplifier getTopSimplifier() {
-		DefaultMapBasedSimplifier topSimplifier = 
-				new DefaultMapBasedSimplifier(
+		DefaultMapBasedTopSimplifier topSimplifier = 
+				new DefaultMapBasedTopSimplifier(
 						getFunctionApplicationSimplifiers(),
 						getSyntacticFormTypeSimplifiers());
 		return topSimplifier;

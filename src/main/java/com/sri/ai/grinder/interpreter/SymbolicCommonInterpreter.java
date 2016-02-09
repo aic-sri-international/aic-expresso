@@ -50,7 +50,7 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 
 /**
- * An extension of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
+ * An extension of {@link AbstractCommonInterpreter} re-using {@link CommonSimplifier}
  * (provided by {@link #makeAnotherMapBasedSimplifier()},
  * and augmented with symbolic solvers for
  * summations, and universal and existentially quantified formulas.

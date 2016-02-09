@@ -65,7 +65,7 @@ import com.sri.ai.grinder.api.Simplifier;
  *
  */
 @Beta
-public class SeriallyMergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
+public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimplifier {
 	
 	/**
 	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers,
@@ -74,7 +74,7 @@ public class SeriallyMergedMapBasedSimplifier extends DefaultMapBasedSimplifier 
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public SeriallyMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+	public SeriallyMergedMapBasedTopSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
 				merge ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
 				merge ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
@@ -89,7 +89,7 @@ public class SeriallyMergedMapBasedSimplifier extends DefaultMapBasedSimplifier 
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public SeriallyMergedMapBasedSimplifier(
+	public SeriallyMergedMapBasedTopSimplifier(
 			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {

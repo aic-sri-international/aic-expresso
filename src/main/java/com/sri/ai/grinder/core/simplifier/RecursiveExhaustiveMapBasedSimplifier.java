@@ -47,10 +47,11 @@ import com.sri.ai.grinder.api.Simplifier;
 
 /**
  * A convenience for<br> 
- * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link DefaultMapBasedSimplifier}(functionApplicationSimplifiers, syntacticFormTypeSimplifiers)))</code><br>
+ * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link DefaultMapBasedTopSimplifier}(functionApplicationSimplifiers, syntacticFormTypeSimplifiers)))</code><br>
  * or<br>
  * <code>new {@link Recursive}(new {@link Exhaustive}(<{@link MapBasedSimplifier} instance>))</code><br>
- * but with the additional advantage of being itself a {@link MapBasedSimplifier}, giving access to its elementary simplifiers.
+ * but with the additional advantage of being itself a {@link MapBasedSimplifier},
+ * giving access to its elementary simplifiers.
  * 
  * @author braz
  *
@@ -68,7 +69,7 @@ public class RecursiveExhaustiveMapBasedSimplifier extends AbstractMapBasedSimpl
 		recursiveExhaustiveSimplifier =
 				new Recursive(
 						new TopExhaustive(
-								new DefaultMapBasedSimplifier(
+								new DefaultMapBasedTopSimplifier(
 										getFunctionApplicationSimplifiers(), 
 										getSyntacticFormTypeSimplifiers())));
 	}

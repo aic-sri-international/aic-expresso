@@ -60,7 +60,7 @@ import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 @Beta
@@ -83,7 +83,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	public AbstractConstraintTheory(MapBasedSimplifier simplifier) {
 		super();
 		this.simplifier = simplifier;
-		this.topSimplifier = new SeriallyMergedMapBasedSimplifier(simplifier);
+		this.topSimplifier = new SeriallyMergedMapBasedTopSimplifier(simplifier);
 		Categorical someType = getDefaultTestingType();
 		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
 	}

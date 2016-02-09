@@ -45,8 +45,14 @@ import com.sri.ai.grinder.api.Simplifier;
 
 /**
  * A convenience for<br>
- * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link SeriallyMergedMapBasedSimplifier}(...)))</code>,<br>
- * but with the additional advantage of being itself a {@link MapBasedSimplifier}, giving access to its elementary simplifiers.
+ * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link SeriallyMergedMapBasedTopSimplifier}(...)))</code>,<br>
+ * but with the additional advantage of being itself a {@link MapBasedSimplifier},
+ * giving access to its elementary simplifiers.
+ * <p>
+ * This is very similar to {@link AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier},
+ * but receives its elementary simplifliers through the constructor,
+ * as opposed to through implementations of abstract methods, like that class.
+ * This makes its usage a little more direct.
  * 
  * @author braz
  *
@@ -61,7 +67,7 @@ public class RecursiveExhaustiveSeriallyMergedMapBasedSimplifier extends Recursi
 	 * @param simplifiers
 	 */
 	public RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
-		super(new SeriallyMergedMapBasedSimplifier(simplifiers));
+		super(new SeriallyMergedMapBasedTopSimplifier(simplifiers));
 	}
 
 	/**
@@ -75,6 +81,6 @@ public class RecursiveExhaustiveSeriallyMergedMapBasedSimplifier extends Recursi
 			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
-		super(new SeriallyMergedMapBasedSimplifier(additionalFunctionApplicationSimplifiers, additionalSyntacticFormTypeSimplifiers, simplifiers));
+		super(new SeriallyMergedMapBasedTopSimplifier(additionalFunctionApplicationSimplifiers, additionalSyntacticFormTypeSimplifiers, simplifiers));
 	}
 }
