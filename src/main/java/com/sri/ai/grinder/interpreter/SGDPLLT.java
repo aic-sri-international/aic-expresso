@@ -52,11 +52,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
-import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.api.TopSimplifier;
-import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.core.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.core.simplifier.TopExhaustive;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -71,13 +71,13 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstrain
 import com.sri.ai.util.base.Pair;
 
 /**
- * A {@link QuantifierEliminatorWithSetup} implementing the SGDPLL(T) algorithm.
+ * A {@link QuantifierEliminator} implementing the SGDPLL(T) algorithm.
  *
  * @author braz
  *
  */
 @Beta
-public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
+public class SGDPLLT extends AbstractQuantifierEliminator {
 
 	private TopSimplifier topSimplifier;
 	private Simplifier simplifier;

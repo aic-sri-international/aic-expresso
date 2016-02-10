@@ -46,7 +46,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
  * @author braz
  *
  */
-public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
+public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminator {
 
 	private ConstraintTheory constraintTheory;
 	private InputTheory inputTheory;

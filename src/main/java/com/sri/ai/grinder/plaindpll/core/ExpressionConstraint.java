@@ -50,7 +50,7 @@ import java.util.Collections;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.Constraint1;
@@ -188,13 +188,13 @@ public class ExpressionConstraint extends AbstractConstraint {
 
 	@Override
 	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		QuantifierEliminatorWithSetup solver = getSolver();
+		QuantifierEliminator solver = getSolver();
 		Expression result = solver.solve(IfThenElse.make(this, ONE, ZERO), indicesSubSet, process);
 		return result;
 	}
 
-	private QuantifierEliminatorWithSetup cachedSolver;
-	public QuantifierEliminatorWithSetup getSolver() {
+	private QuantifierEliminator cachedSolver;
+	public QuantifierEliminator getSolver() {
 		if (cachedSolver == null) {
 			cachedSolver = new PlainSGDPLLT(new DefaultInputTheory(theory), new ModelCounting(), null); 
 		}

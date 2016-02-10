@@ -45,7 +45,7 @@ import java.util.function.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
@@ -70,11 +70,11 @@ public class Compilation {
 	 * @param solverListener if not null, invoked on solver used for compilation, before and after compilation starts; returned solver on 'before' invocation is used (it may be the same one used as argument, of course).
 	 * @return
 	 */
-	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminatorWithSetup, QuantifierEliminatorWithSetup> solverListener) {
+	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminator, QuantifierEliminator> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		QuantifierEliminatorWithSetup solver = new PlainSGDPLLT(inputTheory, problemType, null);
+		QuantifierEliminator solver = new PlainSGDPLLT(inputTheory, problemType, null);
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}

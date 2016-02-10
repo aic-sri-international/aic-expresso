@@ -69,7 +69,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * @author braz
  *
  */
-public class PlainSGDPLLT extends AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter {
+public class PlainSGDPLLT extends AbstractPlainDPLLQuantifierEliminator {
 	
 	public int debugLevel = 3;
 	

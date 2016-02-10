@@ -52,9 +52,9 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
-import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.core.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -78,7 +78,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter extends AbstractHierarchicalRewriter implements QuantifierEliminatorWithSetup {
+abstract public class AbstractPlainDPLLQuantifierEliminator extends AbstractHierarchicalRewriter implements QuantifierEliminator {
 
 	/** The background theory for the solver's input in the algorithm. */
 	protected InputTheory inputTheory;
@@ -92,11 +92,11 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter(InputTheory inputTheory, GroupProblemType problemType) {
+	public AbstractPlainDPLLQuantifierEliminator(InputTheory inputTheory, GroupProblemType problemType) {
 		this(inputTheory, problemType, null);
 	}
 
-	public AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+	public AbstractPlainDPLLQuantifierEliminator(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		this.inputTheory = inputTheory;
 		this.constraintTheory = inputTheory.getConstraintTheory();
 		this.problemType = problemType;
@@ -297,16 +297,16 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		return result;
 	}
 
-	//// QuantifierEliminatorWithSetup:
+	//// QuantifierEliminator:
 	
 	/**
 	 * "Multiple inheritance" by composition
-	 * We would like to inherit the implementation in {@link AbstractQuantifierEliminatorWithSetup}
+	 * We would like to inherit the implementation in {@link AbstractQuantifierEliminator}
 	 * but this class already inherits from {@link AbstractHierarchicalRewriter}.
-	 * There we create this instance of {@link AbstractQuantifierEliminatorWithSetup}
+	 * There we create this instance of {@link AbstractQuantifierEliminator}
 	 * and direct the appropriate methods to it.
 	 */
-	private AbstractQuantifierEliminatorWithSetup innerAbstractQuantifierEliminatorWithSetup = new AbstractQuantifierEliminatorWithSetup() {
+	private AbstractQuantifierEliminator innerAbstractQuantifierEliminator = new AbstractQuantifierEliminator() {
 	
 		@Override
 		public Constraint makeTrueConstraint(Collection<Expression> indices) {
@@ -357,45 +357,50 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 
 	@Override
 	public void interrupt() {
-		innerAbstractQuantifierEliminatorWithSetup.interrupt();
+		innerAbstractQuantifierEliminator.interrupt();
 	}
 
 	protected void checkInterrupted() {
-		innerAbstractQuantifierEliminatorWithSetup.checkInterrupted();
+		innerAbstractQuantifierEliminator.checkInterrupted();
 	}
 
 	@Override
 	public boolean getDebug() {
-		return innerAbstractQuantifierEliminatorWithSetup.getDebug();
+		return innerAbstractQuantifierEliminator.getDebug();
 	}
 
 	@Override
 	public void setDebug(boolean newValue) {
-		innerAbstractQuantifierEliminatorWithSetup.setDebug(newValue);
+		innerAbstractQuantifierEliminator.setDebug(newValue);
 	}
 
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
-		return innerAbstractQuantifierEliminatorWithSetup.solve(indices, constraint, body, process);
+		return innerAbstractQuantifierEliminator.solve(indices, constraint, body, process);
+	}
+
+	@Override
+	public Constraint makeTrueConstraint(Collection<Expression> indices) {
+		return innerAbstractQuantifierEliminator.makeTrueConstraint(indices);
 	}
 
 	@Override
 	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
-		return innerAbstractQuantifierEliminatorWithSetup.solve(input, indices, process);
+		return innerAbstractQuantifierEliminator.solve(input, indices, process);
 	}
 
 	@Override
 	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return innerAbstractQuantifierEliminatorWithSetup.makeProcess(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
+		return innerAbstractQuantifierEliminator.makeProcess(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
 	}
 
 	@Override
 	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
+		return innerAbstractQuantifierEliminator.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
 	}
 
 	@Override
 	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
-		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes);
+		return innerAbstractQuantifierEliminator.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes);
 	}
 }

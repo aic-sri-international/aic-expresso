@@ -22,11 +22,22 @@ public interface QuantifierEliminator {
 	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
 	
 	/**
+	 * Returns a true constraint for a problem with given indices.
+	 * This is used by the default implementation of {@link #solve(Expression, Collection, RewritingProcess).
+	 * @param indices
+	 * @return
+	 */
+	Constraint makeTrueConstraint(Collection<Expression> indices);
+	
+	/**
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, RewritingProcess)}
 	 * assuming a true contextual constraint.
 	 */
-	Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process);
-	// TODO: make it a default method
+	default Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
+		Constraint constraint = makeTrueConstraint(indices);
+		Expression result = solve(indices, constraint, input, process);
+		return result;
+	}
 
 	void interrupt();
 	

@@ -35,16 +35,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.api;
+package com.sri.ai.grinder.core;
 
+import com.sri.ai.grinder.api.QuantifierEliminator;
 
 /**
- * A {@link QuantifierEliminator} with convenience methods
- * that know about setup information
- * (symbol names and types, and type sizes).
+ * A {@link QuantifierEliminator} implementing interruption and debugging mechanisms.
+ * <p>
+ * Extensions to this class must routinely invoke {@link #checkInterrupted()}
+ * during its operation so as to allow interruption ordered by client code.
  * 
  * @author braz
  *
  */
-public interface QuantifierEliminatorWithSetup extends QuantifierEliminator {
+public abstract class AbstractQuantifierEliminator implements QuantifierEliminator {
+
+	private boolean interrupted = false;
+	private boolean debug = false;
+
+	//// Abstract methods
+ 
+	@Override
+	public void interrupt() {
+		interrupted = true;
+	}
+	
+	/**
+	 * Extensions must periodically invoke this method, so algorithm stops if so ordered by user.
+	 * @return 
+	 */
+	public void checkInterrupted() {
+		if (interrupted) {
+			throw new RuntimeException("Solver Interrupted");
+		}
+	}
+	
+	@Override
+	public boolean getDebug() {
+		return debug;
+	}
+
+	@Override
+	public void setDebug(boolean newDebugValue) {
+		debug = true;
+	}
 }

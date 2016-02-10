@@ -65,17 +65,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.QuantifierEliminator;
-import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.plaindpll.core.AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter;
-import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
+import com.sri.ai.grinder.plaindpll.core.AbstractPlainDPLLQuantifierEliminator;
+import com.sri.ai.grinder.interpreter.SGDPLLT;
 import com.sri.ai.util.base.PairOf;
 
 /**
  * A Variable Elimination algorithm generalized in the same manner
- * {@link PlainSGDPLLT} is generalized from DPLL,
+ * {@link SGDPLLT} is generalized from DPLL,
  * that is, it can produce symbolic answers and it does not need
  * to only solve problems with the operations from its classic version
  * (for the case of VE, sum and product, or max and product).
@@ -91,31 +90,31 @@ import com.sri.ai.util.base.PairOf;
  * <pre>
  * sum_{i_n} prod_{j : args_j contains i_n} f_j(args_j)
  * </pre>
- * with {@link PlainSGDPLLT}.
+ * with {@link SGDPLLT}.
  * Note that the symbolic capability of {@link PlainSGDPLLT} is crucial here, as
  * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.
  * <p>
- * This used to be an extension of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter} but was abstracted for reuse by
- * implementations of {@link QuantifierEliminatorWithSetup} that are not extensions of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter};
+ * This used to be an extension of {@link AbstractPlainDPLLQuantifierEliminator} but was abstracted for reuse by
+ * implementations of {@link QuantifierEliminator} that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator};
  * it now only concerns itself with implementing ways to do Variable Elimination,
- * without committing to the specifics of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter}.
- * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter},
- * but can also be used in the same way by implementations of {@link QuantifierEliminatorWithSetup}
- * that are not extensions of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter} and which choose to implement
+ * without committing to the specifics of {@link AbstractPlainDPLLQuantifierEliminator}.
+ * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLQuantifierEliminator},
+ * but can also be used in the same way by implementations of {@link QuantifierEliminator}
+ * that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator} and which choose to implement
  * the remaining functionality of Solver in other ways.
  * This can be seen as a simulated form of multiple inheritance
- * (some classes will inherit from {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter} and "inherit" from this class by encapsulated object).
+ * (some classes will inherit from {@link AbstractPlainDPLLQuantifierEliminator} and "inherit" from this class by encapsulated object).
  * 
  * @author braz
  *
  */
-public abstract class AbstractSGVETQuantifierEliminatorWithSetup extends AbstractQuantifierEliminatorWithSetup {
+public abstract class AbstractSGVETQuantifierEliminator extends AbstractQuantifierEliminator {
 
 	protected QuantifierEliminator subSolver;
 	protected SemiRingProblemType problemType;
 	
-	public AbstractSGVETQuantifierEliminatorWithSetup(QuantifierEliminatorWithSetup subSolver, SemiRingProblemType problemType) {
+	public AbstractSGVETQuantifierEliminator(QuantifierEliminator subSolver, SemiRingProblemType problemType) {
 		this.subSolver = subSolver;
 		this.problemType = problemType;
 	}

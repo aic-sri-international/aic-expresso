@@ -42,7 +42,7 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
@@ -57,7 +57,7 @@ import com.sri.ai.util.base.Wrapper;
  *
  */
 @Beta
-public class SGDPLLTMapReduce extends AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter {
+public class SGDPLLTMapReduce extends AbstractPlainDPLLQuantifierEliminator {
 
 	public SGDPLLTMapReduce(InputTheory inputTheory, GroupProblemType problemType) {
 		super(inputTheory, problemType);
@@ -71,7 +71,7 @@ public class SGDPLLTMapReduce extends AbstractPlainDPLLQuantifierEliminatorWithS
 		final Wrapper<Expression> accumulatedSolution = new Wrapper<>(getProblemType().additiveIdentityElement()); // starts with "zero"
 		// Wrapper is used because one cannot use a non-final object inside a closure as seen below.
 		
-		QuantifierEliminatorWithSetup solver = new PlainSGDPLLT(getInputTheory(), getProblemType(), null);
+		QuantifierEliminator solver = new PlainSGDPLLT(getInputTheory(), getProblemType(), null);
 		
 		SGDPLLTParallelizer.Collector collector =
 				(e, i, c, p) -> {

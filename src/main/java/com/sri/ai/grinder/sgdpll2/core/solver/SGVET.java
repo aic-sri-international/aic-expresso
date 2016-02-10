@@ -46,7 +46,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.TopSimplifier;
-import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminator;
 import com.sri.ai.grinder.interpreter.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstrain
  * @author braz
  *
  */
-public class SGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
+public class SGVET extends AbstractSGVETQuantifierEliminator {
 
 	private ConstraintTheory constraintTheory;
 	
