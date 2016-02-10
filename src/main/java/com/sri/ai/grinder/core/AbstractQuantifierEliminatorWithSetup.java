@@ -38,11 +38,8 @@
 package com.sri.ai.grinder.core;
 
 import java.util.Collection;
-import java.util.Map;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
@@ -73,38 +70,17 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	 */
 	protected abstract Constraint makeTrueConstraint(Collection<Expression> indices);
 	
-	/**
-	 * Local simplification of an expression according to the theory used by this solver.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	protected abstract Expression simplify(Expression expression, RewritingProcess process);
-	
-	/**
-	 * Returns the additive identity element of the group used by this solver.
-	 * @return
-	 */
-	protected abstract Expression getAdditiveIdentityElement();
-	
-	/**
-	 * Makes an appropriate rewriting process with the given data for SGDPLL2, which does not require a contextual constraint.
-	 * @param mapFromSymbolNameToTypeName
-	 * @param mapFromCategoricalTypeNameToSizeString
-	 * @param additionalTypes
-	 * @param isUniquelyNamedConstantPredicate
-	 * @return
-	 */
-	protected abstract RewritingProcess makeProcess(
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
-
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
-	 */
-	@Override
-	public abstract Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
-	
+//	/**
+//	 * Makes an appropriate rewriting process with the given data for SGDPLL2, which does not require a contextual constraint.
+//	 * @param mapFromSymbolNameToTypeName
+//	 * @param mapFromCategoricalTypeNameToSizeString
+//	 * @param additionalTypes
+//	 * @param isUniquelyNamedConstantPredicate
+//	 * @return
+//	 */
+//	protected abstract RewritingProcess makeProcess(
+//			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
+//			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
 
 	//// Implemented methods
 	
@@ -141,34 +117,5 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 		Constraint constraint = makeTrueConstraint(indices);
 		Expression result = solve(indices, constraint, input, process);
 		return result;
-	}
-
-	@Override
-	public Expression solve(
-			Expression expression, 
-			Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, 
-			Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, 
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
-		topLevelRewritingProcess =
-				makeProcess(
-						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
-						additionalTypes, isUniquelyNamedConstantPredicate);
-		
-		Expression result = solve(expression, indices, topLevelRewritingProcess);
-		return result;
-	}
-
-	@Override
-	public Expression solve(
-			Expression expression,
-			Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, 
-			Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes) {
-		
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
 	}
 }

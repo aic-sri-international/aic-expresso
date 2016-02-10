@@ -93,7 +93,6 @@ public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 		return constraintTheory;
 	}
 	
-	@Override
 	public	Expression simplify(Expression expression, RewritingProcess process) {
 		return getInputTheory().simplify(expression, process);
 	}

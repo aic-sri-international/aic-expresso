@@ -313,12 +313,10 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 			return getConstraintTheory().makeConstraint(indices);
 		}
 	
-		@Override
 		public Expression simplify(Expression expression, RewritingProcess process) {
 			return getInputTheory().simplify(expression, process);
 		}
 	
-		@Override
 		public Expression getAdditiveIdentityElement() {
 			return problemType.additiveIdentityElement();
 		}
@@ -384,6 +382,11 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 	@Override
 	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
 		return innerAbstractQuantifierEliminatorWithSetup.solve(input, indices, process);
+	}
+
+	@Override
+	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return innerAbstractQuantifierEliminatorWithSetup.makeProcess(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
 	}
 
 	@Override

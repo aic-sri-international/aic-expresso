@@ -330,15 +330,6 @@ public abstract class AbstractSGVETQuantifierEliminatorWithSetup extends Abstrac
 		return result;
 	}
 	
-	/**
-	 * Returns the additive identity element of the group used by this solver.
-	 * @return
-	 */
-	@Override
-	public Expression getAdditiveIdentityElement() {
-		return problemType.additiveIdentityElement();
-	}
-
 	@Override
 	public String toString() {
 		return "SGVE(T)";

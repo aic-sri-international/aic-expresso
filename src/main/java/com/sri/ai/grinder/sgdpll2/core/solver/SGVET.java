@@ -82,11 +82,6 @@ public class SGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 	}
 	
 	@Override
-	public	Expression simplify(Expression expression, RewritingProcess process) {
-		return ((SGDPLLT) subSolver).simplify(expression, process);
-	}
-
-	@Override
 	public RewritingProcess makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {

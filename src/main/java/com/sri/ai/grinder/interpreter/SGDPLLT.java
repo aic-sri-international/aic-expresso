@@ -98,16 +98,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	}
 
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		return simplifier.apply(expression, process);
-	}
-
-	@Override
-	public Expression getAdditiveIdentityElement() {
-		return problemType.additiveIdentityElement();
-	}
-
-	@Override
 	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		return DPLLUtil.makeProcess(
 				mapFromSymbolNameToTypeName,
