@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
-import com.sri.ai.grinder.api.QuantifierEliminator;
+import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.api.TopSimplifier;
@@ -71,7 +71,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstrain
 import com.sri.ai.util.base.Pair;
 
 /**
- * A {@link QuantifierEliminator} implementing the SGDPLL(T) algorithm.
+ * A {@link OldStyleQuantifierEliminator} implementing the SGDPLL(T) algorithm.
  *
  * @author braz
  *

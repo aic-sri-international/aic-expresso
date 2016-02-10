@@ -37,6 +37,11 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+
+import java.util.Random;
+
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
@@ -69,5 +74,11 @@ public class Sum extends AbstractGroupProblemTypeWithFunctionApplicationExpressi
 	@Override
 	public String getFunctorString() {
 		return FunctorConstants.SUM;
+	}
+
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextInt(10));
+		return result;
 	}
 }

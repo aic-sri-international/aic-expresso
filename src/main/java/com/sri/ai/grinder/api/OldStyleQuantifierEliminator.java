@@ -14,7 +14,7 @@ import com.sri.ai.grinder.core.PrologConstantPredicate;
  * @author braz
  *
  */
-public interface QuantifierEliminator {
+public interface OldStyleQuantifierEliminator {
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them

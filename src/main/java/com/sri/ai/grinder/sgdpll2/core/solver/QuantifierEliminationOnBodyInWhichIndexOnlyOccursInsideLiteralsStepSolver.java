@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
+import java.util.Random;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -69,15 +71,20 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
  *
  */
 @Beta
-public class QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierEliminationStepSolver {
+public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	public QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver(AssociativeCommutativeGroup group, Simplifier simplifier, SingleVariableConstraint indexConstraint, Expression body) {
+	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(AssociativeCommutativeGroup group, Simplifier simplifier, SingleVariableConstraint indexConstraint, Expression body) {
 		super(group, simplifier, indexConstraint, body);
 	}
 
 	@Override
-	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		AbstractQuantifierEliminationStepSolver result = clone();
+	protected
+	QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
+	makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+		
+		QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver result = 
+				(QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver)
+				clone();
 		result.indexConstraint = newIndexConstraint;
 		return result;
 	}
@@ -97,5 +104,11 @@ public class QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver extend
 		}
 		
 		return new Solution(result);
+	}
+
+	@Override
+	public Expression makeRandomUnconditionalBody(Random random) {
+		Expression result = getGroup().makeRandomConstant(random);
+		return result;
 	}
 }

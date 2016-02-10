@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.plaindpll.group;
 
+import java.util.Random;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -74,4 +76,11 @@ public interface AssociativeCommutativeGroup {
 
 	/** Indicates whether group's operator is idempotent. */
 	boolean isIdempotent();
+	
+	/**
+	 * Makes a random constant in the group's set of elements.
+	 * This is useful for random test generation.
+	 * @return
+	 */
+	Expression makeRandomConstant(Random random);
 }

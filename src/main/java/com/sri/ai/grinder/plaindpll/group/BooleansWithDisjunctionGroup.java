@@ -41,7 +41,10 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -106,5 +109,11 @@ public class BooleansWithDisjunctionGroup implements AssociativeCommutativeGroup
 	@Override
 	public boolean isIdempotent() {
 		return true;
+	}
+	
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextBoolean());
+		return result;
 	}
 }

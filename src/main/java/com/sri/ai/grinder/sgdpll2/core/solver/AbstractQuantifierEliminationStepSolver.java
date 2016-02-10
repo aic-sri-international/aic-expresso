@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public abstract class AbstractQuantifierEliminationStepSolver implements ContextDependentExpressionProblemStepSolver, Cloneable {
+public abstract class AbstractQuantifierEliminationStepSolver implements QuantifierEliminationStepSolver {
 
 	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
 	
@@ -110,10 +110,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	 */
 	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
 	
+	@Override
 	public AssociativeCommutativeGroup getGroup() {
 		return group;
 	}
 	
+	@Override
 	public SingleVariableConstraint getIndexConstraint() {
 		return indexConstraint;
 	}
@@ -122,10 +124,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	 * Convenience method for <code>indexConstraint.getConstraintTheory()</code>.
 	 * @return
 	 */
+	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return indexConstraint.getConstraintTheory();
 	}
 	
+	@Override
 	public Expression getIndex() {
 		return indexConstraint.getVariable();
 	}

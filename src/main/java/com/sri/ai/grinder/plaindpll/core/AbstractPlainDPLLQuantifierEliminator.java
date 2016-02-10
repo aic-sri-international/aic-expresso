@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.QuantifierEliminator;
+import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -78,7 +78,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-abstract public class AbstractPlainDPLLQuantifierEliminator extends AbstractHierarchicalRewriter implements QuantifierEliminator {
+abstract public class AbstractPlainDPLLQuantifierEliminator extends AbstractHierarchicalRewriter implements OldStyleQuantifierEliminator {
 
 	/** The background theory for the solver's input in the algorithm. */
 	protected InputTheory inputTheory;
@@ -352,7 +352,6 @@ abstract public class AbstractPlainDPLLQuantifierEliminator extends AbstractHier
 			process.initializePlainDPLLContextualConstraint(oldConstraint);
 			return result;
 		}
-		
 	};
 
 	@Override

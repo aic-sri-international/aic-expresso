@@ -37,6 +37,10 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+
+import java.util.Random;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
@@ -55,6 +59,12 @@ public class Validity extends AbstractGroupProblemTypeWithQuantifiedFormula {
 	@Override
 	public Expression makeQuantifiedExpression(Expression indexExpression, Expression body) {
 		DefaultUniversallyQuantifiedFormula result = new DefaultUniversallyQuantifiedFormula(indexExpression, body);
+		return result;
+	}
+
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextBoolean());
 		return result;
 	}
 }

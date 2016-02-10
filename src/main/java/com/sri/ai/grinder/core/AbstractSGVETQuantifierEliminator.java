@@ -64,7 +64,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Constraint;
-import com.sri.ai.grinder.api.QuantifierEliminator;
+import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
@@ -96,11 +96,11 @@ import com.sri.ai.util.base.PairOf;
  * at the level of the sub-problem, are free variables.
  * <p>
  * This used to be an extension of {@link AbstractPlainDPLLQuantifierEliminator} but was abstracted for reuse by
- * implementations of {@link QuantifierEliminator} that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator};
+ * implementations of {@link OldStyleQuantifierEliminator} that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator};
  * it now only concerns itself with implementing ways to do Variable Elimination,
  * without committing to the specifics of {@link AbstractPlainDPLLQuantifierEliminator}.
  * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLQuantifierEliminator},
- * but can also be used in the same way by implementations of {@link QuantifierEliminator}
+ * but can also be used in the same way by implementations of {@link OldStyleQuantifierEliminator}
  * that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator} and which choose to implement
  * the remaining functionality of Solver in other ways.
  * This can be seen as a simulated form of multiple inheritance
@@ -111,10 +111,10 @@ import com.sri.ai.util.base.PairOf;
  */
 public abstract class AbstractSGVETQuantifierEliminator extends AbstractQuantifierEliminator {
 
-	protected QuantifierEliminator subSolver;
+	protected OldStyleQuantifierEliminator subSolver;
 	protected SemiRingProblemType problemType;
 	
-	public AbstractSGVETQuantifierEliminator(QuantifierEliminator subSolver, SemiRingProblemType problemType) {
+	public AbstractSGVETQuantifierEliminator(OldStyleQuantifierEliminator subSolver, SemiRingProblemType problemType) {
 		this.subSolver = subSolver;
 		this.problemType = problemType;
 	}

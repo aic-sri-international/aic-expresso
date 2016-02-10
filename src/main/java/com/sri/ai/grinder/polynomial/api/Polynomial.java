@@ -37,12 +37,20 @@
  */
 package com.sri.ai.grinder.polynomial.api;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.library.number.Exponentiation;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -281,4 +289,91 @@ public interface Polynomial extends Expression {
 	 *             if the exponent is negative.
 	 */
 	Polynomial exponentiate(int exponent) throws IllegalArgumentException;
+
+
+	public static Expression makeRandomPolynomial(
+			Random random, 
+			Expression index, 
+			int degree, 
+			ArrayList<Expression> 
+			freeVariables, 
+			int maximumNumberOfFreeVariablesInEachMonomial, 
+			int maximumConstantInEachMonomial) {
+		
+		ArrayList<Expression> terms = 
+				makeRandomMonomials(
+						random, 
+						degree, 
+						index, 
+						freeVariables, 
+						maximumNumberOfFreeVariablesInEachMonomial,
+						maximumConstantInEachMonomial);
+		Expression result = Plus.make(terms);
+		return result;
+	}
+
+
+	public static ArrayList<Expression> makeRandomMonomials(
+			Random random, 
+			int degree, 
+			Expression index, 
+			ArrayList<Expression> freeVariables, 
+			int maximumNumberOfFreeVariablesInEachMonomial,
+			int maximumConstant) {
+		
+		ArrayList<Expression> monomials = new ArrayList<>(degree);
+		for (int i = degree; i != -1; i++) {
+			Expression monomial = 
+					makeRandomMonomial(
+							random, 
+							index, 
+							freeVariables, 
+							maximumNumberOfFreeVariablesInEachMonomial,
+							i,
+							maximumConstant);
+			monomials.add(monomial);
+		}
+		return monomials;
+	}
+
+
+	public static Expression makeRandomMonomial(
+			Random random, 
+			Expression index, 
+			ArrayList<Expression> freeVariables, 
+			int maximumNumberOfFreeVariables, 
+			int indexPower, int maximumConstant) {
+		
+		Expression coefficient = 
+				makeRandomCoefficient(
+						random,
+						index,
+						freeVariables, 
+						maximumNumberOfFreeVariables, 
+						maximumConstant);
+		Expression monomial = Times.make(coefficient, Exponentiation.make(index, makeSymbol(indexPower)));
+		return monomial;
+	}
+
+
+	public static Expression makeRandomCoefficient(
+			Random random, 
+			Expression index,
+			ArrayList<Expression> freeVariables, 
+			int maximumNumberOfFreeVariables, 
+			int maximumConstant) {
+		
+		int numberOfFreeVariables = random.nextInt(maximumNumberOfFreeVariables);
+		ArrayList<Expression> coefficientFactors = new ArrayList<>(numberOfFreeVariables + 1);
+		pickUpToKElementsWithoutReplacement(
+				freeVariables,
+				numberOfFreeVariables + 1,
+				e -> ! e.equals(index),
+				random,
+				coefficientFactors);
+		Expression coefficientConstant = makeSymbol(random.nextInt(maximumConstant));
+		coefficientFactors.set(0, coefficientConstant);
+		Expression coefficient = Times.make(coefficientFactors);
+		return coefficient;
+	}
 }

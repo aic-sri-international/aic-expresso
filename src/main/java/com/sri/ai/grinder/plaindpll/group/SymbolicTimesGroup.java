@@ -39,7 +39,10 @@ package com.sri.ai.grinder.plaindpll.group;
 
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.arrayList;
+
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -110,5 +113,11 @@ public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
 	@Override
 	public boolean isIdempotent() {
 		return false;
+	}
+
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextInt(10));
+		return result;
 	}
 }

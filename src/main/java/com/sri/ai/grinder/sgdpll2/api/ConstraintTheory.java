@@ -39,13 +39,16 @@ package com.sri.ai.grinder.sgdpll2.api;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.thereExists;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -251,6 +254,12 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	List<String> getVariableNamesForTesting();
+	
+	default ArrayList<Expression> getVariablesForTesting() {
+		List<String> variableNames = getVariableNamesForTesting();
+		ArrayList<Expression> result = mapIntoArrayList(variableNames, s -> parse(s));
+		return result;
+	}
 
 	/**
 	 * Returns a set of types appropriate for testing this constraint theory;

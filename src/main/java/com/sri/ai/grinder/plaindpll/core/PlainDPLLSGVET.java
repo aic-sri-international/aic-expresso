@@ -105,5 +105,4 @@ public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminator {
 				additionalTypes, isUniquelyNamedConstantPredicate);
 		return result;
 	}
-
 }

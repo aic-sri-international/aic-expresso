@@ -39,6 +39,9 @@ package com.sri.ai.grinder.plaindpll.group;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -103,5 +106,11 @@ public class SymbolicMaxGroup extends AbstractSymbolicNumbersGroup {
 	@Override
 	public boolean isIdempotent() {
 		return true;
+	}
+
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextInt(10));
+		return result;
 	}
 }

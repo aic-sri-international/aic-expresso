@@ -51,7 +51,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.pickKElementsWithoutReplacement;
+import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.SumProduct;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.SummationOnIntegerInequalityAndPolynomialStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
@@ -211,7 +211,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 			result = new SummationOnIntegerInequalityAndPolynomialStepSolver(constraint, currentBody, simplifier);
 		}
 		else {
-			result = new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+			result = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
 					(group, simplifier, constraint, currentBody);
 		}
 		return result;
@@ -225,7 +225,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 		
 		int maxNumberOfOtherVariablesInAtom = Math.min(getVariableNamesForTesting().size(), 2);
 		int numberOfOtherVariablesInAtom = random.nextInt(maxNumberOfOtherVariablesInAtom); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
-		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(new ArrayList<>(getVariableNamesForTesting()), numberOfOtherVariablesInAtom, o -> !o.equals(variable), random);
+		ArrayList<String> otherVariablesForAtom = pickUpToKElementsWithoutReplacement(new ArrayList<>(getVariableNamesForTesting()), numberOfOtherVariablesInAtom, o -> !o.equals(variable), random);
 		// Note that otherVariablesForAtom contains only one or zero elements
 		
 		Type type = getVariableNamesAndTypesForTesting().get(variable);

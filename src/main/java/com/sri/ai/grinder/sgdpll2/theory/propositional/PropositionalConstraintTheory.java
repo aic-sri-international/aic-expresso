@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 
 @Beta
 /** 
@@ -118,7 +118,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Simplifier simplifier, RewritingProcess process) {
-		return new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+		return new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
 		(group, simplifier, constraintForThisIndex, currentBody);
 	}
 

@@ -41,10 +41,12 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.polynomial.api.Polynomial.makeRandomPolynomial;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -190,5 +192,23 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, process);
 		Expression valueAtPoint = constraintTheory.simplify(newBody, process);
 		return valueAtPoint;
+	}
+
+	@Override
+	public Expression makeRandomUnconditionalBody(Random random) {
+		// unconditional body class is polynomials
+		ArrayList<Expression> freeVariables = getConstraintTheory().getVariablesForTesting();
+		int degree = random.nextInt(3);
+		int maximumNumberOfFreeVariablesInEach = 2;
+		int maximumConstant = 10;
+		Expression result =
+				makeRandomPolynomial(
+						random, 
+						getIndex(), 
+						degree, 
+						freeVariables, 
+						maximumNumberOfFreeVariablesInEach,
+						maximumConstant);
+		return result;
 	}
 }

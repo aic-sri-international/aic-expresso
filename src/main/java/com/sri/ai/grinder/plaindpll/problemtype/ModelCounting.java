@@ -39,6 +39,9 @@ package com.sri.ai.grinder.plaindpll.problemtype;
 
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+
+import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -78,6 +81,12 @@ public class ModelCounting extends AbstractGroupProblemTypeWithFunctionApplicati
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Expression body = IfThenElse.make(set.getCondition(), ONE, ZERO);
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(body, set.getIndexExpressions());
+		return result;
+	}
+
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextBoolean());
 		return result;
 	}
 }
