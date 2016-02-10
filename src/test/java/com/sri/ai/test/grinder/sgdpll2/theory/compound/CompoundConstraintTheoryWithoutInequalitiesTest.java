@@ -167,7 +167,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 	public void testSumForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -182,7 +182,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 	public void testMaxForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),

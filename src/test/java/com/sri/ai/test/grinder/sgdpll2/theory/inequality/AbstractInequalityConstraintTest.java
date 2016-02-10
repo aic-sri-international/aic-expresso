@@ -97,7 +97,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 	public void testSumForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -112,7 +112,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 	public void testMaxForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Max(),

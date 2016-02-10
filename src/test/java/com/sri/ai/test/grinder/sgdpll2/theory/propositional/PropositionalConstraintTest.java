@@ -94,7 +94,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 	public void testSumForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -109,7 +109,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 	public void testMaxForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
