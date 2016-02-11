@@ -100,7 +100,7 @@ public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminator {
 	@Override
 	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess result = DPLLUtil.makeProcessForPlainDPLL(
-				(Constraint1) makeTrueConstraint(list()),
+				makeTrueConstraint(list()),
 				mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
 				additionalTypes, isUniquelyNamedConstantPredicate);
 		return result;

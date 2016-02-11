@@ -1535,7 +1535,7 @@ public class GrinderUtil {
 			type = BOOLEAN_TYPE;
 		}
 		else if (typeExpression.equals("Integer")) {
-			type = BOOLEAN_TYPE;
+			type = INTEGER_TYPE;
 		}
 		else if (typeExpression.hasFunctor(INTEGER_INTERVAL) && typeExpression.numberOfArguments() == 2) {
 			type = new IntegerInterval(typeExpression.get(0), typeExpression.get(1));

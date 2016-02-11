@@ -513,10 +513,15 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
-		List<Expression> variables = getVariables();
+//		List<Expression> variables = getVariables();
+//		Expression result = super.set(i, newIthArgument);
+//		// Ensure we make a Polynomial out of the modified expression
+//		result = make(result, variables);
+//		return result;
+
+		// the above is incorrect because Expression.set is not supposed to change the structure of an expression,
+		// for example changing the number of sub-expressions.
 		Expression result = super.set(i, newIthArgument);
-		// Ensure we make a Polynomial out of the modified expression
-		result = make(result, variables);
 		return result;
 	}
 	

@@ -75,6 +75,8 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		return new EqualityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
+	
+
 	// DO NOT CHANGE TEST PARAMETERS! IMPLEMENTATIONS HAVE RUN-TIME HISTORY WRITTEN DOWN
 	// AND CHANGING THE TEST WILL MAKE THE TRACKIGN OF PROGRESS IMPOSSIBLE
 	
@@ -143,6 +145,38 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
+				new Max(),
+				makeConstraintTheory(),
+				scale(50) /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testSum() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+				makeRandom(),
+				3, /* number of indices */
+				getTestAgainstBruteForce(),
+				new Sum(),
+				makeConstraintTheory(),
+				scale(50) /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMax() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+				makeRandom(),
+				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),

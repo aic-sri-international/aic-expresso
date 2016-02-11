@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.polynomial;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -653,14 +655,14 @@ public class DefaultPolynomialTest {
 	@Test
 	public void testSet() {
 		Polynomial p = makePolynomial("x^2*y^3", "(x, y)");
-		Assert.assertEquals(makePolynomial("2*y^3", "(x, y)"), p.set(0, Expressions.parse("2")));
-		Assert.assertEquals(makePolynomial("x^5", "(x, y)"), p.set(1, Expressions.parse("x^3")));
-		Assert.assertEquals(makePolynomial("x^2*z^4", "(x, y)"), p.set(1, Expressions.parse("z^4")));
+		Assert.assertEquals(parse("2*y^3"), p.set(0, Expressions.parse("2")));
+		Assert.assertEquals(parse("x^5"), p.set(1, Expressions.parse("x^3")));
+		Assert.assertEquals(parse("x^2*z^4"), p.set(1, Expressions.parse("z^4")));
 		
 		p = makePolynomial("x^2*y^3 + 10", "(x, y)");
-		Assert.assertEquals(makePolynomial("12", "(x, y)"), p.set(0, Expressions.parse("2")));
-		Assert.assertEquals(makePolynomial("x^2*y^3", "(x, y)"), p.set(1, Expressions.parse("0")));
-		Assert.assertEquals(makePolynomial("15", "(x, y)"), p.set(0, Expressions.parse("2 + 3")));
+		Assert.assertEquals(parse("2 + 10"), p.set(0, Expressions.parse("2")));
+		Assert.assertEquals(parse("x^2*y^3 + 0"), p.set(1, Expressions.parse("0")));
+		Assert.assertEquals(parse("(2 + 3) + 10"), p.set(0, Expressions.parse("2 + 3")));
 	}
 	
 	@Test

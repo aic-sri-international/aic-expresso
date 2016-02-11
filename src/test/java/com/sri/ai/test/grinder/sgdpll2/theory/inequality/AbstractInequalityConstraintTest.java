@@ -127,8 +127,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				true /* output count */);
 	}
 
-
-	//@Test
+	@Test
 	public void testSum() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
@@ -143,7 +142,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				true /* output count */);
 	}
 
-	//@Test
+	@Test
 	public void testMax() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		

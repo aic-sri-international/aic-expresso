@@ -130,4 +130,36 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
+
+	@Test
+	public void testSum() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+				new Random(),
+				3, /* number of indices */
+				getTestAgainstBruteForce(),
+				new Sum(),
+				makeConstraintTheory(),
+				scale(100) /* number of tests */,
+				30 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMax() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+				new Random(),
+				3, /* number of indices */
+				getTestAgainstBruteForce(),
+				new Max(),
+				makeConstraintTheory(),
+				scale(100) /* number of tests */,
+				30 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
 }
