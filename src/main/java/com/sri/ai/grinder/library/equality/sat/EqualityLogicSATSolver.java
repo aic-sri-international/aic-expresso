@@ -70,7 +70,7 @@ public class EqualityLogicSATSolver implements SATSolver {
 		else if (!dnf.equals(Expressions.FALSE)) {
 			for (Expression conjunct : dnf.getArguments()) {
 				Set<Expression> consts = FormulaUtil.getConstants(conjunct, process);
-				Set<Expression> vars   = Expressions.getVariables(conjunct, process);
+				Set<Expression> vars   = Expressions.getVariableReferences(conjunct, process);
 				Set<Expression> all    = new LinkedHashSet<Expression>();
 				all.addAll(consts);
 				all.addAll(vars);

@@ -39,12 +39,13 @@ package com.sri.ai.grinder.sgdpll2.tester;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.expresso.helper.Expressions.getVariables;
+import static com.sri.ai.expresso.helper.Expressions.getVariableReferences;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.pickKElementsWithoutReplacement;
 import static com.sri.ai.util.Util.removeFromSetNonDestructively;
 
 import java.util.Collection;
@@ -425,7 +426,7 @@ public class ConstraintTheoryTester {
 			}
 			else {
 				Expression testingVariable = singleVariableConstraint.getVariable();
-				Set<Expression> allVariables = getVariables(singleVariableConstraint, process);
+				Set<Expression> allVariables = getVariableReferences(singleVariableConstraint, process);
 				Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
 				Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution =
 						interpreterWithAssignmentToOtherVariables
@@ -488,19 +489,11 @@ public class ConstraintTheoryTester {
 			int bodyDepth,
 			boolean outputCount) {
 		
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
-		
-		NullaryFunction<Constraint2> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
-		
-		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
-		
+		String problemName = "quantification of " + problemType.getClass().getSimpleName() + " with single index";
 		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForSingleVariableConstraint(r, c, problemType, tB, cT, ls, bodyDepth, p);
-		
-		String problemName = "quantification of " + problemType.getClass().getSimpleName();
-		
-		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, constraintTheory, makeInitialConstraint, makeRandomLiteral, outputCount, process);
+		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, problemType, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount);
 	}
-	
+
 	private static void runGroupProblemSolvingTestForSingleVariableConstraint(
 			Random random,
 			Constraint2 constraint,
@@ -511,57 +504,138 @@ public class ConstraintTheoryTester {
 			int bodyDepth,
 			RewritingProcess process) {
 		
-		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
-		
-		NullaryFunction<Expression> leafGenerator = () -> problemType.makeRandomConstant(random);
-		Expression body = new RandomConditionalExpressionGenerator(random, constraintTheory, bodyDepth, leafGenerator, process).apply();
-		
-		if (singleVariableConstraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
+		if (constraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
+			SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 			Expression index = singleVariableConstraint.getVariable();
-			Expression indexType = GrinderUtil.getType(index, process);
-			Expression problem = problemType.makeProblemExpression(index, indexType, singleVariableConstraint, body);
-			
-			String problemDescription = problem.toString();
-			output(problemDescription);
-			
-			ConstraintTheory constraintTheory1 = singleVariableConstraint.getConstraintTheory();
-			SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory1);
-			long start = System.currentTimeMillis();
-			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
-			output("Symbolic solution: " + symbolicSolution);
-			output("Computed in " + (System.currentTimeMillis() - start) + " ms");
-		
-			if (testAgainstBruteForce) {
-				Collection<Expression> otherVariables = getFreeVariableMinusIndex(singleVariableConstraint, body, process);
-				Function<BruteForceCommonInterpreter, Expression> bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = i -> i.apply(problem, process);
-				testSymbolicVsBruteForceComputationForEachAssignment(
-						constraintTheory1, problemDescription, otherVariables, symbolicSolution, bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables, process);
-				// A more elegant approach would be to create a "for all free variables : symbolic = problem" expression
-				// and solve it by brute force instead of using testSymbolicVsBruteForceComputation
-				// which replicates the brute force interpreter to some extent.
-				// The reason we do not do this is simply due to the fact that the brute force interpreter would return "false"
-				// in case of failure, without indicating which assignment failed, which is very useful for debugging.
-				// If interpreters, and in fact the whole framework, provided proofs of its calculations,
-				// then we could simply use the more elegant approach.
-			}
-			else {
-				output("Skipping test againt brute-force.");
-			}
+			runGroupProblemSolvingTest(random, list(index), constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, process);
 		}
 	}
 
 	/**
-	 * @param constraint
-	 * @param body
-	 * @param process
-	 * @return
+	 * Given a list of problem types, a constraint theory and a number <code>n</code> of tests,
+	 * generates <code>n</code> problems with given number of indices and body depth (number of levels of if then else expressions)
+	 * and checks if {@link SymbolicCommonInterpreterWithLiteralConditioning} works (checked by brute force).
+	 * Throws an {@link Error} with the failure description if a test fails.
+	 * @param random
+	 * @param numberOfIndices
+	 * @param problemTypes
+	 * @param constraintTheory
+	 * @param numberOfTests
+	 * @param maxNumberOfLiterals
+	 * @param bodyDepth
+	 * @param outputCount
 	 */
-	private static Collection<Expression> getFreeVariableMinusIndex(SingleVariableConstraint constraint, Expression body, RewritingProcess process) {
-		Expression testingVariable = constraint.getVariable();
-		Set<Expression> allVariables = getVariables(constraint, process);
-		allVariables.addAll(getVariables(body, process));
-		Collection<Expression> freeVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
-		return freeVariables;
+	public static void testGroupProblemSolvingForMultipleIndices(
+			Random random,
+			int numberOfIndices,
+			boolean testAgainstBruteForce,
+			GroupProblemType problemType,
+			ConstraintTheory constraintTheory,
+			long numberOfTests,
+			int maxNumberOfLiterals,
+			int bodyDepth,
+			boolean outputCount) {
+		
+		String problemName = "quantification of " + problemType.getClass().getSimpleName() + " with " + numberOfIndices + " indices";
+		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndices(r, numberOfIndices, c, problemType, tB, cT, ls, bodyDepth, p);
+		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, problemType, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount);
+	}
+
+	private static void runGroupProblemSolvingTestForMultipleIndices(
+			Random random,
+			int numberOfIndices,
+			Constraint2 constraint,
+			GroupProblemType problemType,
+			boolean testAgainstBruteForce,
+			ConstraintTheory constraintTheory,
+			Collection<Expression> literals,
+			int bodyDepth, RewritingProcess process) {
+		
+		if (constraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
+			Collection<Expression> indices = 
+					pickKElementsWithoutReplacement(
+							constraintTheory.getVariablesForTesting(),
+							numberOfIndices,
+							random);
+			runGroupProblemSolvingTest(random, indices, constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, process);
+		}
+	}
+
+	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, GroupProblemType problemType, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		
+		NullaryFunction<Constraint2> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
+		
+		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
+		
+		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, constraintTheory, makeInitialConstraint, makeRandomLiteral, outputCount, process);
+	}
+
+	private static void runGroupProblemSolvingTest(Random random, Collection<Expression> indices, Constraint2 constraint, GroupProblemType problemType, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int bodyDepth, RewritingProcess process) throws Error {
+		
+		Expression body = makeBody(random, problemType, constraintTheory, bodyDepth, process);
+		Expression problem = makeProblem(indices, constraint, body, problemType, process);
+		Collection<Expression> freeVariables = getFreeVariableMinusIndices(indices, constraint, body, process);
+		
+		String problemDescription = problem.toString();
+		output(problemDescription);
+		
+		SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = 
+				new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory);
+		
+		long start = System.currentTimeMillis();
+		Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
+		long time = System.currentTimeMillis() - start;
+		
+		output("Symbolic solution: " + symbolicSolution);
+		output("Computed in " + time + " ms");
+		
+		if (testAgainstBruteForce) {
+			Function<BruteForceCommonInterpreter, Expression> 
+			bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = i -> i.apply(problem, process);
+			testSymbolicVsBruteForceComputationForEachAssignment(
+					constraintTheory, 
+					problemDescription, 
+					freeVariables, 
+					symbolicSolution, 
+					bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables, 
+					process);
+			// A more elegant approach would be to create a "for all free variables : symbolic = problem" expression
+			// and solve it by brute force instead of using testSymbolicVsBruteForceComputation
+			// which replicates the brute force interpreter to some extent.
+			// The reason we do not do this is simply due to the fact that the brute force interpreter would return "false"
+			// in case of failure, without indicating which assignment failed, which is very useful for debugging.
+			// If interpreters, and in fact the whole framework, provided proofs of its calculations,
+			// then we could simply use the more elegant approach.
+		}
+		else {
+			output("Skipping test againt brute-force.");
+		}
+	}
+
+	private static Expression makeProblem(Collection<Expression> indices, Constraint2 constraint, Expression body, GroupProblemType problemType, RewritingProcess process) {
+		Expression problem = body;
+		boolean firstIndex = true;
+		for (Expression index : indices) {
+			Expression indexType = GrinderUtil.getType(index, process);
+			Expression constraintOnThisIndex = firstIndex? constraint : TRUE;
+			problem = problemType.makeProblemExpression(index, indexType, constraintOnThisIndex, problem);
+			firstIndex = false;
+		}
+		return problem;
+	}
+
+	private static Expression makeBody(Random random, GroupProblemType problemType, ConstraintTheory constraintTheory, int bodyDepth, RewritingProcess process) {
+		NullaryFunction<Expression> leafGenerator = () -> problemType.makeRandomConstant(random);
+		Expression body = new RandomConditionalExpressionGenerator(random, constraintTheory, bodyDepth, leafGenerator, process).apply();
+		return body;
+	}
+
+	private static Collection<Expression> getFreeVariableMinusIndices(Collection<Expression> indices, Constraint2 constraint, Expression body, RewritingProcess process) {
+		Set<Expression> allVariables = getVariableReferences(constraint, process);
+		allVariables.addAll(getVariableReferences(body, process));
+		Collection<Expression> freeVariablesMinusIndex = removeFromSetNonDestructively(allVariables, v -> indices.contains(v));
+		return freeVariablesMinusIndex;
 	}
 
 	/**

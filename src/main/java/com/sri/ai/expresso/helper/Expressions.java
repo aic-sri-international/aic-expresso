@@ -503,7 +503,7 @@ public class Expressions {
 	 * to make it unique in a given expression.
 	 */
 	public static Expression primedUntilUnique(Expression symbol, Expression expression, RewritingProcess process) {
-		LinkedHashSet<Expression> variables = Expressions.getVariables(expression, process.getIsUniquelyNamedConstantPredicate());
+		LinkedHashSet<Expression> variables = Expressions.getVariableReferences(expression, process.getIsUniquelyNamedConstantPredicate());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
 		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
 		return result;
@@ -967,19 +967,25 @@ public class Expressions {
 	}
 
 	/**
-	 * A static method returning the variables
-	 * in a given expression, for a certain predicate indicating constants.
+	 * A static method returning the variable references
+	 * in a given expression, for a certain predicate indicating uniquely named constants.
+	 * By reference, we mean points in which a variable is used, not declared.
+	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
+	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariables(Expression argument, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return Expressions.getSubExpressionsSatisfying(argument, new IsVariable(isUniquelyNamedConstantPredicate));
+	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return Expressions.getSubExpressionsSatisfying(expression, new IsVariable(isUniquelyNamedConstantPredicate));
 	}
 
 	/**
-	 * A static method returning the variables
+	 * A static method returning the variable references
 	 * in a given expression, in a certain process.
+	 * By reference, we mean points in which a variable is used, not declared.
+	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
+	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariables(Expression argument, RewritingProcess process) {
-		return getVariables(argument, process.getIsUniquelyNamedConstantPredicate());
+	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, RewritingProcess process) {
+		return getVariableReferences(expression, process.getIsUniquelyNamedConstantPredicate());
 	}
 
 	/** Returns the set of free variables in an expression, according to a given process. */

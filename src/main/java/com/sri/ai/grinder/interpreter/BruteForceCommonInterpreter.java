@@ -132,9 +132,6 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 
 	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, RewritingProcess process) throws Error {
 		Expression expressionEvaluation = extendWith(values, process).apply(expression, process);
-		if ( ! expressionEvaluation.getSyntacticFormType().equals("Symbol")) {
-			throw new Error("Quantifier body must evaluate to constant but evaluated to " + expressionEvaluation);
-		}
 		return expressionEvaluation;
 	}
 }

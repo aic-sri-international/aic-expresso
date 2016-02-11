@@ -129,7 +129,7 @@ public class SAT4JSolver implements SATSolver {
 		
 		// Replace each constant in formula with a new variable C_i
 		Set<Expression>  consts       = FormulaUtil.getConstants(formula, process);
-		Set<Expression>  vars         = Expressions.getVariables(formula, process);
+		Set<Expression>  vars         = Expressions.getVariableReferences(formula, process);
 		List<Expression> newConstVars = new ArrayList<Expression>(); 		
 		for (Expression c : consts) {
 			Expression newConstVar = newVariable(vars, newConstVars.size()+1);
@@ -225,7 +225,7 @@ public class SAT4JSolver implements SATSolver {
 	private NPGraph makeNPGraph(Expression formula, RewritingProcess process, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
 		NPGraph result = new NPGraph();
 		
-		for (Expression var : Expressions.getVariables(formula, process)) {
+		for (Expression var : Expressions.getVariableReferences(formula, process)) {
 			result.addVertex(var);
 		}
 		

@@ -31,6 +31,10 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 		return new Random();
 	}
 	
+	protected int getNumberOfIndices() {
+		return 3;
+	}
+
 	protected int getBodyDepth() {
 		return 3;
 	}
@@ -114,6 +118,38 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
+				new Max(),
+	            makeConstraintTheory(),
+	            scale(10) /* number of tests */,
+				20 /* number of literals per test */,
+				getBodyDepth(), /* body depth */
+				true /* output count */);
+	}
+
+
+	//@Test
+	public void testSum() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+				makeRandom(),
+				getNumberOfIndices(),
+				getTestAgainstBruteForce(),
+				new Sum(),
+				makeConstraintTheory(),
+				scale(10) /* number of tests */,
+				20 /* number of literals per test */,
+				getBodyDepth(), /* body depth */
+				true /* output count */);
+	}
+
+	//@Test
+	public void testMax() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+				makeRandom(),
+				getNumberOfIndices(),
 				getTestAgainstBruteForce(),
 				new Max(),
 	            makeConstraintTheory(),

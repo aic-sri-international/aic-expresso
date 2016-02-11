@@ -61,7 +61,7 @@ public class FormulaToSharpSAT {
 	
 	public static void convertToSharpSAT(Expression formula, RewritingProcess process, PropositionalCNFListener conversionListener) {
 		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
-		int minimumTypeSize = FormulaUtil.getConstants(cnfFormula, process).size() + Expressions.getVariables(cnfFormula, process).size();
+		int minimumTypeSize = FormulaUtil.getConstants(cnfFormula, process).size() + Expressions.getVariableReferences(cnfFormula, process).size();
 		
 		convertToSharpSAT(cnfFormula, minimumTypeSize, process, conversionListener);
 	}
@@ -167,7 +167,7 @@ public class FormulaToSharpSAT {
 	private static Map<Expression, Integer> getVariables(Expression formula, final RewritingProcess process) {
 		Set<Expression> vars   = new LinkedHashSet<Expression>();
 		
-		vars.addAll(Expressions.getVariables(formula, process));
+		vars.addAll(Expressions.getVariableReferences(formula, process));
 		
 		Map<Expression, Integer> varIds = new LinkedHashMap<Expression, Integer>();
 		int id = 0;
