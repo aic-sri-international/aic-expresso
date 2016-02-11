@@ -248,4 +248,15 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, process);
 		return simplifiedLiteral;
 	}
+
+	@Override
+	public Expression binding() {
+		if (onlyConstraintOnVariableIsBinding()) {
+			Expression binding = getPositiveNormalizedAtoms().get(0);
+			return binding;
+		}
+		else {
+			return null;
+		}
+	}
 }

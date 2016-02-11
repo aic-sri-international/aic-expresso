@@ -147,4 +147,16 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, process);
 		return modelCount;
 	}
+	
+	/**
+	 * Returns an expression to which the constraint's variable is bound to
+	 * under this constraint, if there is such a value and it can be determined by the implementation.
+	 * @return
+	 */
+	Expression binding();
+	
+	@Override
+	default Expression binding(Expression variable) {
+		return binding(getVariable());
+	}
 }

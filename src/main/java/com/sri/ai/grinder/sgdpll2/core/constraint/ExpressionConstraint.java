@@ -45,4 +45,9 @@ public class ExpressionConstraint extends AbstractExpressionWrapper implements C
 	protected Expression computeInnerExpression() {
 		return expression;
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		return null;
+	}
 }

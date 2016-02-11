@@ -181,6 +181,14 @@ public interface Constraint2 extends Constraint {
 		return result;
 	}
 	
+	/**
+	 * Returns an expression to which the given variable is bound to
+	 * under this constraint, if there is such a value and it can be determined by the implementation.
+	 * @param variable
+	 * @return
+	 */
+	Expression binding(Expression variable);
+
 //	/**
 //	 * Returns, in time constant in the size of the constraint,
 //	 * a pair of {@link Constraint}s whose conjunction is equivalent to this constraint,

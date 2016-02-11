@@ -309,4 +309,16 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 		}
 		return result;
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		Expression result;
+		if (singleVariableConstraint != null && singleVariableConstraint.getVariable().equals(variable)) {
+			result = singleVariableConstraint.binding();
+		}
+		else {
+			result = contextualConstraint.binding(variable);
+		}
+		return result;
+	}
 }

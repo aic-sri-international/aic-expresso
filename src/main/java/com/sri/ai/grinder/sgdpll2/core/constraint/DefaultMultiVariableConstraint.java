@@ -128,4 +128,15 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 
 		return result;
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		SingleVariableConstraint singleVariableConstraint = fromVariableToItsConstraint.get(variable);
+		if (singleVariableConstraint != null) {
+		return singleVariableConstraint.binding(variable);
+		}
+		else {
+			return null;
+		}
+	}
 }

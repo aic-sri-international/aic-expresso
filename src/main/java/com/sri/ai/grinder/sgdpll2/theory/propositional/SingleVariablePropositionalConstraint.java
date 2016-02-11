@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
@@ -115,5 +117,18 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	@Override
 	public SingleVariablePropositionalConstraint conjoin(Expression formula, RewritingProcess process) {
 		return (SingleVariablePropositionalConstraint) super.conjoin(formula, process);
+	}
+
+	@Override
+	public Expression binding() {
+		if (getPositiveNormalizedAtoms().contains(getVariable())) {
+			return TRUE;
+		}
+		else if (getNegativeNormalizedAtoms().contains(getVariable())) {
+			return FALSE;
+		}
+		else {
+			return null;
+		}
 	}
 }

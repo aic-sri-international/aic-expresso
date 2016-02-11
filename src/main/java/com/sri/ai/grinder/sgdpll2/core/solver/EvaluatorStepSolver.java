@@ -28,9 +28,11 @@ keeps a map Evaluators from identity wrappers
 and the index SEIndex of the next sub-expression to be analyzed.
 of the sub-expression of E to their own evaluator step solver.
 Step solver assumes sub-expressions before SEIndex
-fully evaluated and E top-simplified already with respect to them.
+fully evaluated.
 
 Its step is:
+
+E <- top-simplify E if not already so
 
 if E is literal
     split on it with sub step solvers true and false
@@ -46,16 +48,16 @@ else if SEIndex != E.numberOfArguments
             to SEStep's sub-step solvers for SE being true and false,
             respectively.
     else
-        value <- SEStep.getValue()
+        SEvalue <- SEStep.getValue() // for abbreviation only
 
-        if value == SE
+        if SEvalue == SE
             // no change to SE, so no change to E. Just move on to next sub-expression
             Evaluator' <- clone
             Evaluator'.Evaluators <- stacked map on Evaluators with new entry { SE -> SEEvaluator // so we remember the solution if a future simplification surfaces an already fully evaluated sub-expression, including SE, as E'
             Evaluator'.SEIndex++ // go to next sub-expression
             return Evaluator'.step
         else
-            E' <- top-simplify(E[SE/value])
+            E' <- top-simplify(E[SE/SEvalue])
 		    if E' == SE // E has been reduced to SE itself, which we just evaluated
 		        return SEStep
             else
@@ -71,16 +73,28 @@ else
 public class EvaluatorStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Expression expression;
+	private boolean alreadyTopSimplified;
 	private int subExpressionIndex;
 	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
 	private TopSimplifier topSimplifier;
 	
 	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier) {
+		this(expression, topSimplifier, false /* not known to be top-simplified */);
+	}
+	
+	/**
+	 * A constructor informing whether expression is already top-simplified (for efficiency).
+	 * @param expression
+	 * @param topSimplifier
+	 * @param alreadyTopSimplified
+	 */
+	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier, boolean alreadyTopSimplified) {
 		super();
 		this.expression = expression;
 		this.subExpressionIndex = 0;
 		this.evaluators = map();
 		this.topSimplifier = topSimplifier;
+		this.alreadyTopSimplified = alreadyTopSimplified;
 	}
 
 	@Override
@@ -102,12 +116,21 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result = null;
 		
-		if (expressionIsLiteral(contextualConstraint, process)) {
-			result = stepDependingOnLiteral(expression, TRUE, FALSE, contextualConstraint, process);
+		Expression topSimplifiedExpression;
+		if (alreadyTopSimplified) {
+			topSimplifiedExpression = expression;
 		}
-		else if (subExpressionIndex != expression.numberOfArguments()) {
-			Expression subExpression = expression.get(subExpressionIndex);
-			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = getEvaluatorFor(subExpression);
+		else {
+			topSimplifiedExpression = topSimplifier.apply(this.expression, process);
+		}
+		
+		if (expressionIsLiteral(contextualConstraint, process)) {
+			result = stepDependingOnLiteral(topSimplifiedExpression, TRUE, FALSE, contextualConstraint, process);
+		}
+		else if (subExpressionIndex != topSimplifiedExpression.numberOfArguments()) {
+			Expression subExpression = topSimplifiedExpression.get(subExpressionIndex);
+			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
+					getEvaluatorFor(subExpression, false /* not known to be top-simplified already */);
 			SolutionStep subExpressionStep = subExpressionEvaluator.step(contextualConstraint, process);
 
 			if (subExpressionStep == null) {
@@ -135,12 +158,12 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			}
 			else {
 				Expression expressionWithSubExpressionReplacedByItsValue
-				= expression.set(subExpressionIndex, subExpressionStep.getValue());
+				= topSimplifiedExpression.set(subExpressionIndex, subExpressionStep.getValue());
 
-				Expression topSimplified
+				Expression topSimplifiedAfterSubExpressionEvaluation
 				= topSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, process);
 
-				if (topSimplified == subExpression) {
+				if (topSimplifiedAfterSubExpressionEvaluation == subExpression) {
 					// topSimplified turns out to be the sub-expression itself
 					// we already know the result for that: the non-dependent subExpressionStep itself.
 					return subExpressionStep;
@@ -149,23 +172,22 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 					// topSimplified is either a former sub-expression, or new.
 					// try to reuse evaluator if available, or a make a new one, and use it
 					ContextDependentExpressionProblemStepSolver nextStepSolver
-					= getEvaluatorFor(topSimplified);
+					= getEvaluatorFor(topSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
 					result = nextStepSolver.step(contextualConstraint, process);
 				}
 			}
 		}
 		else {
-			// all sub-expressions are evaluated and expression is top-simplified
-			result = new Solution(expression);
+			result = new Solution(topSimplifiedExpression);
 		}
 		
 		return result;
 	}
 
-	private ContextDependentExpressionProblemStepSolver getEvaluatorFor(Expression expression) {
+	private ContextDependentExpressionProblemStepSolver getEvaluatorFor(Expression expression, boolean alreadyTopSimplified) {
 		ContextDependentExpressionProblemStepSolver result	= evaluators.get(expression);
 		if (result == null) {
-			result = new EvaluatorStepSolver(expression, topSimplifier);
+			result = new EvaluatorStepSolver(expression, topSimplifier, alreadyTopSimplified);
 		}
 		return result;
 	}
@@ -177,7 +199,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	}
 
 	private boolean expressionIsLiteral(Constraint2 contextualConstraint, RewritingProcess process) {
-		return contextualConstraint.getConstraintTheory().isLiteral(expression, process);
+		boolean result = contextualConstraint.getConstraintTheory().isLiteral(expression, process);
+		return result;
 	}
 	
 	@Override
