@@ -56,7 +56,7 @@ import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.api.TopSimplifier;
-import com.sri.ai.grinder.core.AbstractQuantifierEliminator;
+import com.sri.ai.grinder.core.AbstractOldStyleQuantifierEliminator;
 import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.core.simplifier.TopExhaustive;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -77,7 +77,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class SGDPLLT extends AbstractQuantifierEliminator {
+public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 
 	private TopSimplifier topSimplifier;
 	private Simplifier simplifier;

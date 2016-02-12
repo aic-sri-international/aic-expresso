@@ -144,8 +144,6 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class GrinderUtil {
 
-	public static boolean usePlainSGDPLLT = true;
-
 	/**
 	 * The key of a global object of rewriting processes that prevents the check again free variables in additional constraints
 	 * (that is, that are not in the contextual symbols).

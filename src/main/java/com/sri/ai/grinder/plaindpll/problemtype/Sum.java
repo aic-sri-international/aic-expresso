@@ -81,4 +81,9 @@ public class Sum extends AbstractGroupProblemTypeWithFunctionApplicationExpressi
 		Expression result = makeSymbol(random.nextInt(10));
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return "Sum";
+	}
 }

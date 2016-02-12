@@ -80,7 +80,7 @@ import com.sri.ai.util.base.PairOf;
  * (for the case of VE, sum and product, or max and product).
  * <p>
  * It relies on a partial decomposition of the problem, producing instances
- * to be solved by a {@link PlainSGDPLLT}, in the following manner:
+ * to be solved by a <code>SGDPLL(T)</code> solver, in the following manner:
  * <pre>
  * sum_{i1,...,i_n} prod_j f_j(args_j)
  * =
@@ -91,7 +91,7 @@ import com.sri.ai.util.base.PairOf;
  * sum_{i_n} prod_{j : args_j contains i_n} f_j(args_j)
  * </pre>
  * with {@link SGDPLLT}.
- * Note that the symbolic capability of {@link PlainSGDPLLT} is crucial here, as
+ * Note that the symbolic capability of <code>SGDPLL(T)</code> is crucial here, as
  * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.
  * <p>
@@ -109,7 +109,7 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public abstract class AbstractSGVETQuantifierEliminator extends AbstractQuantifierEliminator {
+public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyleQuantifierEliminator {
 
 	protected OldStyleQuantifierEliminator subSolver;
 	protected SemiRingProblemType problemType;

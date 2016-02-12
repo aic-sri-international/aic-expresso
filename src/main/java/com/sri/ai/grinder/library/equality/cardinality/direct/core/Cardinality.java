@@ -45,7 +45,6 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -62,13 +61,6 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
-import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
-import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
-import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
-import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
-import com.sri.ai.grinder.plaindpll.util.SolutionPostProcessing;
 
 
 /**
@@ -80,26 +72,6 @@ import com.sri.ai.grinder.plaindpll.util.SolutionPostProcessing;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private Rewriter sgdplltCardinality =
-              GrinderUtil.usePlainSGDPLLT?
-					new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting(), null)
-			: null;
-
-	private Expression useSGDPLLTCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
-		Expression result;
-		
-		Expression solution = sgdplltCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
-		Expression simplifiedSolution = DPLLUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
-		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityConstraintTheory(new SymbolTermTheory()), process);
-//		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
-//		System.out.println("AbstractEqualityConstraint               : " + process.getContextualConstraint());
-//		System.out.println("Solution                 : " + solution);
-//		System.out.println("Solution under constraint: " + simplifiedSolution);
-//		System.out.println("Shortened solution       : " + result + "\n");
-		
-		return result;
-	}
-
 	public Cardinality() {
 	}
 	
@@ -125,19 +97,11 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 			cardinalityOfIndexedFormulaExpression = CardinalityUtil.removeIfThenElsesFromFormula(cardinalityOfIndexedFormulaExpression, process);
 			
-			if (GrinderUtil.usePlainSGDPLLT) {
-				result = useSGDPLLTCardinality(cardinalityOfIndexedFormulaExpression, process);
-			}
-			else {
-				result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
-				System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
-				System.out.println("AbstractEqualityConstraint               : " + process.getContextualConstraint());
-				System.out.println("Solution                 : " + result);
-			}
+			result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
+			System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
+			System.out.println("AbstractEqualityConstraint               : " + process.getContextualConstraint());
+			System.out.println("Solution                 : " + result);
 		} 
-		else if (GrinderUtil.usePlainSGDPLLT) {
-			result = useSGDPLLTCardinality(expression, process);
-		}
 		else {
 			System.out.println("Problem: " + expression);
 			Expression contextualConstraint = process.getContextualConstraint();

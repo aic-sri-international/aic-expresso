@@ -48,7 +48,7 @@ import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
  * @author braz
  *
  */
-public abstract class AbstractQuantifierEliminator implements OldStyleQuantifierEliminator {
+public abstract class AbstractOldStyleQuantifierEliminator implements OldStyleQuantifierEliminator {
 
 	private boolean interrupted = false;
 	private boolean debug = false;

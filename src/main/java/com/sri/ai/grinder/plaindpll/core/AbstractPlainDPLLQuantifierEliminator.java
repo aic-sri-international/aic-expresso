@@ -54,7 +54,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
-import com.sri.ai.grinder.core.AbstractQuantifierEliminator;
+import com.sri.ai.grinder.core.AbstractOldStyleQuantifierEliminator;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -301,12 +301,12 @@ abstract public class AbstractPlainDPLLQuantifierEliminator extends AbstractHier
 	
 	/**
 	 * "Multiple inheritance" by composition
-	 * We would like to inherit the implementation in {@link AbstractQuantifierEliminator}
+	 * We would like to inherit the implementation in {@link AbstractOldStyleQuantifierEliminator}
 	 * but this class already inherits from {@link AbstractHierarchicalRewriter}.
-	 * There we create this instance of {@link AbstractQuantifierEliminator}
+	 * There we create this instance of {@link AbstractOldStyleQuantifierEliminator}
 	 * and direct the appropriate methods to it.
 	 */
-	private AbstractQuantifierEliminator innerAbstractQuantifierEliminator = new AbstractQuantifierEliminator() {
+	private AbstractOldStyleQuantifierEliminator innerAbstractQuantifierEliminator = new AbstractOldStyleQuantifierEliminator() {
 	
 		@Override
 		public Constraint makeTrueConstraint(Collection<Expression> indices) {
