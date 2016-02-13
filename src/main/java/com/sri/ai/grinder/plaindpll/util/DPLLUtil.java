@@ -37,11 +37,9 @@
  */
 package com.sri.ai.grinder.plaindpll.util;
 
-import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
-import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
@@ -58,28 +56,18 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.boole.Implication;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
-import com.sri.ai.grinder.plaindpll.problemtype.Validity;
-import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
-import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
 
 /**
- * Implements utility methods to be used by {@link PlainSGDPLLT} and associated classes.
+ * Implements utility methods to be used by <code>SGDPLL(T)</code> and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
  * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, ConstraintTheory constraintTheoryWithEquality)}
@@ -97,93 +85,6 @@ import com.sri.ai.util.Util;
  */
 @Beta
 public class DPLLUtil {
-
-	/**
-	 * A method provided for use with {@link Rewriter} code using contextual constraints.
-	 * Will probably be discarded at some point.
-	 * @param solution
-	 * @param constraint
-	 * @param process
-	 * @return
-	 */
-	public static Expression simplifySolutionUnderConstraint(Expression solution, Expression constraint, RewritingProcess process) {
-		Expression result = null;
-		
-		if (constraint.equals(Expressions.TRUE)) {
-			result = solution;
-		}
-		else {
-			result = simplifySolutionUnderNonTrivialConstraint(solution, constraint, process);
-		}
-	
-		return result;
-	}
-
-	/**
-	 * A method provided for use with {@link Rewriter} code using contextual constraints.
-	 * Will probably be discarded at some point.
-	 * @param solution
-	 * @param constraint
-	 * @param process
-	 * @return
-	 */
-	public static Expression simplifySolutionUnderNonTrivialConstraint(Expression solution, Expression constraint, RewritingProcess process) {
-		Expression result = null;
-		
-		if (IfThenElse.isIfThenElse(solution)) {
-			Expression newCondition = impliesExpressionOrItsNegationOrNeither(IfThenElse.condition(solution), constraint, process);
-			if (newCondition.equals(Expressions.TRUE)) {
-				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.thenBranch(solution), constraint, process);
-			}
-			else if (newCondition.equals(Expressions.FALSE)) {
-				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.elseBranch(solution), constraint, process);
-			}
-			else {
-				Expression newThenBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.thenBranch(solution), constraint, process);
-				Expression newElseBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.elseBranch(solution), constraint, process);
-				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false);
-			}
-		}
-		else {
-			result = solution;
-		}
-		return result;
-	}
-
-	/**
-	 * Returns 'true' if expression is tautologically implied by constraint,
-	 * 'false' if its negation is tautologically implied by constraint,
-	 * and expression itself otherwise.
-	 * @param expression
-	 * @param constraint
-	 * @param process
-	 * @return
-	 */
-	public static Expression impliesExpressionOrItsNegationOrNeither(Expression expression, Expression constraint, RewritingProcess process) {
-		Expression result = null;
-	
-		Expression constraintImpliesExpression = Implication.make(constraint, expression);
-		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process)).getList();
-	
-		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Validity(), null)).rewrite(closedConstraintImpliedExpression, process);
-		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
-			result = Expressions.TRUE;
-		}
-		else {
-			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
-			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Validity(), null)).rewrite(closedConstraintImpliesNegationOfExpression, process);
-			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
-				result = Expressions.FALSE;
-			}
-			else {
-				result = expression;
-			}
-		}
-	
-		return result;
-	}
 
 	/**
 	 * @param solution

@@ -7,18 +7,12 @@ import java.util.Collection;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
-import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
-import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
-import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
-import com.sri.ai.util.Util;
 
 /**
  * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
  * model counting.
- * This interface is defined for use primarily by {@link PlainSGDPLLT}.
+ * This interface is defined for use primarily by PlainSGDPLLT.
  * 
  * @author braz
  *
@@ -86,26 +80,6 @@ public interface Constraint1 extends Constraint {
 	 * The model count is required to contain no literals implied by the contextual constraint.
 	 */
 	Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process);
-
-	/**
-	 * Given a sub-set of supported indices, projects the constraint onto the remaining ones.
-	 * Resulting constraint still supports all original indices.
-	 * Default implementation uses symbolic satisfiability through {@link PlainSGDPLLT}.
-	 * Specific constraint implementations will typically have more efficient ways to do it.
-	 * Note: at some point this <i>seemed</i> essential for variable elimination
-	 * until I realized that solving the problem for the eliminated variable using the whole
-	 * constraint produces a solution that already encodes the conditions on the remaining
-	 * variables, so the project is actually unneeded in that case.
-	 * Leaving it here for now in case it comes up as a convenience.
-	 */
-	default Constraint1 project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
-		OldStyleQuantifierEliminator projector = new PlainSGDPLLT(new DefaultInputTheory(getConstraintTheory()), new Satisfiability(), null);
-		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
-		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
-		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);
-		Constraint1 result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);
-		return result;
-	}
 
 	/**
 	 * Indicates whether a given literal is directly implied by this constraint
