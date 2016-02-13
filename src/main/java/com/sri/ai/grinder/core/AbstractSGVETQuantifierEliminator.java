@@ -63,12 +63,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.interpreter.SGDPLLT;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll2.api.SemiRingProblemType;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
+import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.util.base.PairOf;
 
 /**

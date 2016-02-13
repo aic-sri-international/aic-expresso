@@ -123,7 +123,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Configuration;

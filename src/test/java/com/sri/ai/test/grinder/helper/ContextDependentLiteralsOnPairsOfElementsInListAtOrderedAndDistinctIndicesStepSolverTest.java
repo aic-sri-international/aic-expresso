@@ -54,11 +54,11 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolver;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
-import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
+import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.base.BinaryFunction;
 
 public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolverTest  {
@@ -71,7 +71,7 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 		
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
-		Constraint2 contextualConstraint = CompleteMultiVariableConstraint.parse(contextualConstraintString, constraintTheory, process);
+		Constraint contextualConstraint = CompleteMultiVariableConstraint.parse(contextualConstraintString, constraintTheory, process);
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		BinaryFunction<Expression, Expression, Expression> makeDisequality = (e1, e2) -> apply(FunctorConstants.DISEQUALITY, e1, e2);
 		ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolver stepSolver = new ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolver(list, makeDisequality);

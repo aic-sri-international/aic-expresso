@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
 
 /**
  * Interface to classes able to eliminate quantification (for a fixed group) over given indices, constraint and body.

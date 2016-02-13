@@ -43,9 +43,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
+import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.base.CloneableIterator;
 
 /**
@@ -89,7 +89,7 @@ public class ContextDependentDefinedLiteralsStepSolver implements ContextDepende
 	}
 
 	@Override
-	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
 		CloneableIterator<Expression> iterator = initialIterator.clone();
 		while (iterator.hasNext()) {
 			Expression literal = iterator.next();

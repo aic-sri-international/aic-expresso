@@ -52,8 +52,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 
