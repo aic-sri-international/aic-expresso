@@ -66,10 +66,9 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.plaindpll.core.AbstractPlainDPLLQuantifierEliminator;
 import com.sri.ai.grinder.interpreter.SGDPLLT;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpll2.api.SemiRingProblemType;
 import com.sri.ai.util.base.PairOf;
 
 /**
@@ -94,17 +93,6 @@ import com.sri.ai.util.base.PairOf;
  * Note that the symbolic capability of <code>SGDPLL(T)</code> is crucial here, as
  * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.
- * <p>
- * This used to be an extension of {@link AbstractPlainDPLLQuantifierEliminator} but was abstracted for reuse by
- * implementations of {@link OldStyleQuantifierEliminator} that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator};
- * it now only concerns itself with implementing ways to do Variable Elimination,
- * without committing to the specifics of {@link AbstractPlainDPLLQuantifierEliminator}.
- * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLQuantifierEliminator},
- * but can also be used in the same way by implementations of {@link OldStyleQuantifierEliminator}
- * that are not extensions of {@link AbstractPlainDPLLQuantifierEliminator} and which choose to implement
- * the remaining functionality of Solver in other ways.
- * This can be seen as a simulated form of multiple inheritance
- * (some classes will inherit from {@link AbstractPlainDPLLQuantifierEliminator} and "inherit" from this class by encapsulated object).
  * 
  * @author braz
  *

@@ -44,9 +44,9 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
-import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeSemiRing;
+import com.sri.ai.grinder.sgdpll2.api.GroupProblemType;
+import com.sri.ai.grinder.sgdpll2.api.SemiRingProblemType;
 import com.sri.ai.util.base.Pair;
 
 /**

@@ -70,7 +70,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.expression.ExpressionCacheKey;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
@@ -762,30 +761,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public String toString() {
-		return getDPLLContextualConstraint() + " Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
-	}
-
-	Constraint1 dpllConstraint;
-	
-	@Override
-	public void initializePlainDPLLContextualConstraint(Constraint1 constraint) {
-		dpllConstraint = constraint;
-	}
-
-	@Override
-	public Constraint1 getDPLLContextualConstraint() {
-		return dpllConstraint;
-	}
-
-	@Override
-	public RewritingProcess extendDPLLContextualConstraint(boolean splitterSign, Expression splitter) {
-		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
-		Constraint1 constraint = getDPLLContextualConstraint();
-		if (constraint != null) {
-			Constraint1 newConstraint = constraint.incorporate(splitterSign, splitter, this);
-			result.dpllConstraint = newConstraint;
-		}
-		return result;
+		return "Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
 	}
 
 	@Override

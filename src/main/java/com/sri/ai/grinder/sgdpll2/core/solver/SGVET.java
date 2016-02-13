@@ -48,9 +48,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.TopSimplifier;
 import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminator;
 import com.sri.ai.grinder.interpreter.SGDPLLT;
-import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 
 /**

@@ -35,37 +35,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.core;
+package com.sri.ai.grinder.sgdpll2.api;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.util.base.Pair;
 
 /**
- * Represents a splitter along with its sign.
+ * A group problem type is a group that knows how to convert quantifier-elimination type problems involving its
+ * operations to {@link Expression}s representing those problems, and vice-versa.
+ * <p>
+ * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression
+ * <code>X != Y</code> and indices <code>X, Y</code>.
  * 
  * @author braz
  *
  */
-public class SignedSplitter  {
+public interface GroupProblemType extends AssociativeCommutativeGroup {
 
-	private boolean splitterSign;
-	private Expression splitter;
-	
-	public SignedSplitter(boolean splitterSign, Expression splitter) {
-		super();
-		this.splitterSign = splitterSign;
-		this.splitter = splitter;
-	}
+	/**
+	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
+	 * and indices for DPLL to solve.
+	 * The index types are assumed to be stored in the rewriting process.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	Pair<Expression, IndexExpressionsSet>
+	getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 
-	public boolean getSplitterSign() {
-		return splitterSign;
-	}
+	/**
+	 * Generates an expression representing of problem of this type, given its components. 
+	 * @param index
+	 * @param constraint
+	 * @param body
+	 * @param process
+	 * @return
+	 */
+	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);
 
-	public Expression getSplitter() {
-		return splitter;
-	}
-	
-	@Override
-	public String toString() {
-		return "Signed splitter " + (splitterSign? "" : "neg ") + splitter;
-	}
 }

@@ -50,9 +50,9 @@ import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.interpreter.SGDPLLT;
 import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.GroupProblemType;
 import com.sri.ai.util.Util;
 
 /**

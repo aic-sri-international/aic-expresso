@@ -40,14 +40,10 @@ package com.sri.ai.grinder.plaindpll.util;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
-import static com.sri.ai.util.Util.filter;
-import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -59,21 +55,15 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.Constraint1;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.util.Util;
 
 /**
  * Implements utility methods to be used by <code>SGDPLL(T)</code> and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
  * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, ConstraintTheory constraintTheoryWithEquality)}
- * could be a method in interface {@link ConstraintTheory}),
- * but are included here instead because their functionality depends on a more basic method of those interfaces
- * (in that case, on {@link ConstraintTheory#makeConstraint()});
+ * could be a method in interface ConstraintTheory),
+ * but are included here instead because their functionality depends on a more basic method of those interfaces,
  * including them there would place the burden on users to make sure the implementations of these multiple methods are mutually consistent.
  * Default interface methods would not be a good solution either because the burden would still be there for the user not to override
  * the default method, or if they did, to make sure they are consistent (there are no "final default" interface methods).
@@ -85,54 +75,6 @@ import com.sri.ai.util.Util;
  */
 @Beta
 public class DPLLUtil {
-
-	/**
-	 * @param solution
-	 * @param process
-	 * @return
-	 */
-	public static boolean isConditionalSolution(Expression solution, ConstraintTheory theory, RewritingProcess process) {
-		boolean result = IfThenElse.isIfThenElse(solution) && isSplitter(IfThenElse.condition(solution), theory, process);
-		return result;
-	}
-
-	public static boolean isSplitter(Expression literal, ConstraintTheory theory, RewritingProcess process) {
-		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
-		return result;
-	}
-
-	/**
-	 * Applies a constraint equivalent to given signed splitter using
-	 * {@link ConstraintTheory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.ConstraintTheory.Constraint1, Expression, RewritingProcess)}.
-	 * @param splitterSign
-	 * @param splitter
-	 * @param solution
-	 * @param constraintTheoryWithEquality
-	 * @param process
-	 * @return an equivalent solution
-	 */
-	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, ConstraintTheory theory, RewritingProcess process) {
-		Constraint1 constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
-		constraint = constraint.incorporate(splitterSign, splitter, process);
-		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
-		return result;
-	}
-
-	
-	public static RewritingProcess makeProcessForPlainDPLL(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
-		return makeProcessForPlainDPLL(constraintTheory, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
-	}
-
-	public static RewritingProcess makeProcessForPlainDPLL(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		Constraint1 trueConstraintOnNoIndices = constraintTheory.makeConstraint(list());
-		return makeProcessForPlainDPLL(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
-	}
-
-	public static RewritingProcess makeProcessForPlainDPLL(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = makeProcess(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);			
-		result.initializePlainDPLLContextualConstraint(trueConstraintOnNoIndices);
-		return result;
-	}
 
 	public static RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
@@ -243,45 +185,5 @@ public class DPLLUtil {
 			}
 		}
 		return knownConstants;
-	}
-
-	/**
-	 * Given a collection of splitters, returns a collection with those not yet satisfied by process's DPLL contextual constraint.
-	 * @param splitters
-	 * @param process
-	 * @return
-	 */
-	public static Collection<Expression> keepSplittersUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
-		Predicate<Expression> keepUnsatisfiedSplitters = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
-		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = filter(splitters, keepUnsatisfiedSplitters);
-		return undeterminedSplittersThatNeedToBeTrue;
-	}
-
-	/**
-	 * Given a collection of splitters, returns a collection with those <i>the negations of which</i>
-	 * are not yet satisfied by process's DPLL contextual constraint.
-	 * @param splitters
-	 * @param process
-	 * @return
-	 */
-	public static Collection<Expression> keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
-		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
-		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = filter(splitters, keepUnsatisfiedSplitterNegations);
-		return undeterminedSplittersThatNeedToBeFalse;
-	}
-
-	/**
-	 * Indicates whether a splitter does not hold according to process's DPLL contextual constraint.
-	 * @param splitterSign
-	 * @param splitter
-	 * @param process
-	 * @return
-	 */
-	public static boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		boolean result;
-		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
-		myAssert(() -> ! splitterNormalizedByContextualConstraint.equals( ! splitterSign), () -> "required splitter must be satisfiable under contextual constraint");
-		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
-		return result;
 	}
 }

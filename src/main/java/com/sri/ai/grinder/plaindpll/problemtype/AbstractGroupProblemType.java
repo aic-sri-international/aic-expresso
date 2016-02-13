@@ -39,8 +39,8 @@ package com.sri.ai.grinder.plaindpll.problemtype;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll2.api.GroupProblemType;
 
 
 /**
