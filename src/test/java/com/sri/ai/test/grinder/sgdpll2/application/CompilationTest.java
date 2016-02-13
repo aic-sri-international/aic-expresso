@@ -1,7 +1,7 @@
-package com.sri.ai.test.grinder.plaindpll.application;
+package com.sri.ai.test.grinder.sgdpll2.application;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.plaindpll.application.Compilation.compile;
+import static com.sri.ai.grinder.sgdpll2.application.Compilation.compile;
 import static com.sri.ai.util.Util.list;
 import static org.junit.Assert.assertEquals;
 
@@ -12,11 +12,10 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.theory.AtomsOnConstraintTheoryWithEquality;
-import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
-import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.util.Util;
 
 public class CompilationTest {
@@ -26,13 +25,39 @@ public class CompilationTest {
 		
 		Expression input; 
 		Expression expected;
-		InputTheory theory;
+		ConstraintTheory constraintTheory = 
+				new CompoundConstraintTheory(
+						new EqualityConstraintTheory(true, true),
+						new PropositionalConstraintTheory());
 		Map<String, String> mapFromCategoricalTypeNameToSizeString;
 		Map<String, String> mapFromVariableNameToTypeName;
+		Map<String, String> mapFromUniquelyNamedConstantToTypeName;
 
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		theory = new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory()));
+		input = Expressions.parse("if X = a then if X = b then 1 else 2 else 3"); 
+		expected = parse("if X = a then 2 else 3");
+		mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "2");
+		mapFromVariableNameToTypeName = Util.map("X", "Everything");
+		mapFromUniquelyNamedConstantToTypeName = Util.map("a", "Everything", "b", "Everything");
+		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		
+
+		input = Expressions.parse(""
+						+ "if X = a and Y = a then 0.1 else "
+						+ "if X = a and Y = b then 0.1 else "
+						+ "if X = b and Y = a then 0.2 else "
+						// + "if X = b and Y = b then 0.2" // no need to test because it is the last case
+						+ "0.2"); 
+		expected = parse("if X = a then 0.1 else 0.2");
+		mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "2");
+		mapFromVariableNameToTypeName = 
+				Util.map("X", "Everything", "Y", "Everything");
+		mapFromUniquelyNamedConstantToTypeName = 
+				Util.map("a", "Everything", "b", "Everything");
+		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		
+
 		input = Expressions.parse(""
 						+ "if X = a and Y = a and Z = a then 0.1 else "
 						+ "if X = a and Y = a and Z = b then 0.1 else "
@@ -63,11 +88,13 @@ public class CompilationTest {
 						+  /* X = c and Y = c and Z = c ; no need as it is implied by domain definition */  "0.3"); 
 		expected = parse("if X = a then 0.1 else if X = b then 0.2 else 0.3");
 		mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "3");
-		mapFromVariableNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
-		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName);
+		mapFromVariableNameToTypeName = 
+				Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
+		mapFromUniquelyNamedConstantToTypeName = 
+				Util.map("a", "Everything", "b", "Everything", "c", "Everything");
+		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 		
 		// Same thing, but with non-capitalized variables that should still be recognized as variables
-		theory = new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory()));
 		input = Expressions.parse(""
 						+ "if x = a and y = a and z = a then 0.1 else "
 						+ "if x = a and y = a and z = b then 0.1 else "
@@ -98,10 +125,12 @@ public class CompilationTest {
 						+  /* x = c and y = c and z = c ; no need as it is implied by domain definition */  "0.3"); 
 		expected = parse("if x = a then 0.1 else if x = b then 0.2 else 0.3");
 		mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "3");
-		mapFromVariableNameToTypeName = Util.map("x", "Everything", "y", "Everything", "z", "Everything");
-		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName);
+		mapFromVariableNameToTypeName = 
+				Util.map("x", "Everything", "y", "Everything", "z", "Everything");
+		mapFromUniquelyNamedConstantToTypeName = 
+				Util.map("a", "Everything", "b", "Everything", "c", "Everything");
+		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 
-		theory = new DefaultInputTheory(new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new SymbolTermTheory())));
 		input = Expressions.parse(""
 						+ "if not g0 and (g1 = consg1_0)\r\n" + 
 						"then 0.0001\r\n" + 
@@ -119,21 +148,24 @@ public class CompilationTest {
 						"                              then 1\r\n" + 
 						"                              else 1\r\n" + 
 				""); 
-		expected = parse("if g0 then 1 else if g1 = consg1_0 then 0.0001 else if g1 = consg1_1 then 1 else if g1 = consg1_2 then 0.0001 else 1");
+		expected = parse("if not g0 then if g1 = consg1_0 then 0.0001 else if g1 = consg1_1 then 1 else if g1 = consg1_2 then 0.0001 else 1 else 1");
 		mapFromCategoricalTypeNameToSizeString   = Util.map("G1Type", "4", "Boolean", "2");
-		mapFromVariableNameToTypeName = Util.map("g0", "Boolean", "g1", "G1Type");
-		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName);
+		mapFromVariableNameToTypeName = 
+				Util.map("g0", "Boolean", "g1", "G1Type");
+		mapFromUniquelyNamedConstantToTypeName = 
+				Util.map("consg1_0", "G1Type", "consg1_1", "G1Type", "consg1_2", "G1Type", "consg1_3", "G1Type");
+		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 
-		theory = new DefaultInputTheory(new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new SymbolTermTheory())));
 		input = Expressions.parse("if not g0 then 1 else 1"); 
 		expected = parse("1");
 		mapFromCategoricalTypeNameToSizeString   = Util.map("G1Type", "4", "Boolean", "2");
 		mapFromVariableNameToTypeName = Util.map("g0", "Boolean", "g1", "G1Type");
-		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName);
+		mapFromUniquelyNamedConstantToTypeName = Util.map();
+		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 	}
 
-	private void runTest(Expression input, Expression expected, InputTheory theory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName) {
-		Expression actual = compile(input, theory, mapFromCategoricalTypeNameToSizeString, list(), mapFromVariableNameToTypeName);
+	private void runTest(Expression input, Expression expected, ConstraintTheory constraintTheory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName) {
+		Expression actual = compile(input, constraintTheory, mapFromCategoricalTypeNameToSizeString, list(), mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 		assertEquals(expected, actual);
 	}
 }

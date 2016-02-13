@@ -35,9 +35,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.application;
+package com.sri.ai.grinder.sgdpll2.application;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -47,10 +48,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
+import com.sri.ai.grinder.interpreter.SGDPLLT;
+import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
-import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.util.Util;
 
 /**
@@ -63,18 +65,17 @@ public class Compilation {
 	/**
 	 * Compiles an expression to a normalized (decision-tree-like) expression.
 	 * @param inputExpression
-	 * @param inputTheory
 	 * @param mapFromVariableNameToTypeName
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param additionalTypes
 	 * @param solverListener if not null, invoked on solver used for compilation, before and after compilation starts; returned solver on 'before' invocation is used (it may be the same one used as argument, of course).
 	 * @return
 	 */
-	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<OldStyleQuantifierEliminator, OldStyleQuantifierEliminator> solverListener) {
+	public static Expression compile(Expression inputExpression, ConstraintTheory constraintTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<OldStyleQuantifierEliminator, OldStyleQuantifierEliminator> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		OldStyleQuantifierEliminator solver = new PlainSGDPLLT(inputTheory, problemType, null);
+		OldStyleQuantifierEliminator solver = new SGDPLLT(new CommonSimplifier().getTopSimplifier(), problemType, constraintTheory);
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}
@@ -83,9 +84,12 @@ public class Compilation {
 		Predicate<Expression> isPrologConstant = new PrologConstantPredicate();
 		Predicate<Expression> isUniquelyNamedConstantPredicate = e -> isPrologConstant.apply(e) && ! mapFromVariableNameToTypeName.containsKey(e);
 		
+		Map<String, String> mapFromSymbolNameToTypeName = new LinkedHashMap<>(mapFromVariableNameToTypeName);
+		mapFromSymbolNameToTypeName.putAll(mapFromUniquelyNamedConstantToTypeName);
+		
 		// Solve the problem.
 		List<Expression> indices = Util.list(); // no indices; we want to keep all variables
-		Expression result = solver.solve(inputExpression, indices, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);	
+		Expression result = solver.solve(inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);	
 		
 		if (solverListener != null) {
 			solverListener.apply(null);
@@ -93,7 +97,7 @@ public class Compilation {
 		return result;
 	}
 
-	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Map<String, String> mapFromVariableNameToTypeName) {
-		return compile(inputExpression, inputTheory, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, null);
+	public static Expression compile(Expression inputExpression, ConstraintTheory constraintTheory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName) {
+		return compile(inputExpression, constraintTheory, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, null);
 	}
 }
