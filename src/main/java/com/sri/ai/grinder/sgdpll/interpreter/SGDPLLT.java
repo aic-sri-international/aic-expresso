@@ -54,10 +54,6 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractOldStyleQuantifierEliminator;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.api.TopSimplifier;
-import com.sri.ai.grinder.core.simplifier.core.Recursive;
-import com.sri.ai.grinder.core.simplifier.core.TopExhaustive;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -67,6 +63,10 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.DPLLUtil;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.Recursive;
+import com.sri.ai.grinder.sgdpll.simplifier.core.TopExhaustive;
 import com.sri.ai.util.base.Pair;
 
 /**

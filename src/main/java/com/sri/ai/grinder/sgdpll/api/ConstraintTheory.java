@@ -63,10 +63,10 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.MapBasedTopSimplifier;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 

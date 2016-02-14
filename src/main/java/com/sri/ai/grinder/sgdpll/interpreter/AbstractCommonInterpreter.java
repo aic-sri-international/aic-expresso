@@ -54,8 +54,6 @@ import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.core.AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.BooleansWithConjunctionGroup;
@@ -63,6 +61,8 @@ import com.sri.ai.grinder.sgdpll.group.BooleansWithDisjunctionGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicMaxGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicTimesGroup;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 
 /**
  * An implementation of {@link AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier}

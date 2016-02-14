@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier.core;
+package com.sri.ai.grinder.sgdpll.simplifier.core;
 
 import static com.sri.ai.util.Util.list;
 
@@ -47,7 +47,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 

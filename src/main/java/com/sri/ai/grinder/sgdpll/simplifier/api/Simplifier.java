@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.core.simplifier.api;
+package com.sri.ai.grinder.sgdpll.simplifier.api;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;

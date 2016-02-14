@@ -43,9 +43,9 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 
 /**
  * A {@link Simplifier} with common numeric functions:

@@ -35,40 +35,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set;
-
-import static com.sri.ai.util.Util.map;
+package com.sri.ai.grinder.sgdpll.simplifier.core;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 
-/**
- * A {@link Simplifier} with a cardinality simplifier
- * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).))
- * 
- * @author braz
- *
- */
 @Beta
-public class CardinalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
-	
-	public CardinalitySimplifier() {
-		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
-	}
-	
-	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
-				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; }
-				);
+/** 
+ * Basic implementation of {@link MapBasedSimplifier}
+ * delegating the creation of elementary simplifier maps to
+ * two abstract methods.
+ * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
+ * which prevents them to be given to {@link RecursiveExhaustiveMapBasedSimplifier} via <code>super</code>.
+ */
+abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
+
+	protected Map<String, Simplifier> functionApplicationSimplifiers;
+	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
+
+	public AbstractMapBasedSimplifier(
+			Map<String, Simplifier> functionApplicationSimplifiers,
+			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 
-	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
+	@Override
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
+	}
+
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
+
+	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+	}
+
+	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 }

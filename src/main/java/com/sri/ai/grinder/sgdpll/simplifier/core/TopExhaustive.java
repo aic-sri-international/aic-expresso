@@ -35,50 +35,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier.core;
-
-import java.util.Map;
+package com.sri.ai.grinder.sgdpll.simplifier.core;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
-@Beta
-/** 
- * Basic implementation of {@link MapBasedSimplifier}
- * delegating the creation of elementary simplifier maps to
- * two abstract methods.
- * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
- * which prevents them to be given to {@link RecursiveExhaustiveMapBasedSimplifier} via <code>super</code>.
+/**
+ * An {@link Exhaustive} simplifier applied to a {@link TopSimplifier},
+ * and thus being a {@link TopSimplifier} itself.
+ * 
+ * @author braz
+ *
  */
-abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
+@Beta
+public class TopExhaustive extends Exhaustive implements TopSimplifier {
 
-	protected Map<String, Simplifier> functionApplicationSimplifiers;
-	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
-
-	public AbstractMapBasedSimplifier(
-			Map<String, Simplifier> functionApplicationSimplifiers,
-			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
-		
-		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
-		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
-	}
-
-	@Override
-	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
-		return functionApplicationSimplifiers;
-	}
-
-	@Override
-	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
-		return syntacticFormTypeSimplifiers;
-	}
-
-	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
-		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
-	}
-
-	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
-		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
+	public TopExhaustive(TopSimplifier base) {
+		super(base);
 	}
 }

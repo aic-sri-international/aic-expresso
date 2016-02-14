@@ -35,52 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier.core;
+package com.sri.ai.grinder.sgdpll.simplifier.core;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.MapBasedTopSimplifier;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
- * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
- * and applying them only once to the top expression only.
+ * A convenience for<br> 
+ * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link DefaultMapBasedTopSimplifier}(functionApplicationSimplifiers, syntacticFormTypeSimplifiers)))</code><br>
+ * or<br>
+ * <code>new {@link Recursive}(new {@link Exhaustive}(<{@link MapBasedSimplifier} instance>))</code><br>
+ * but with the additional advantage of being itself a {@link MapBasedSimplifier},
+ * giving access to its elementary simplifiers.
  * 
  * @author braz
  *
  */
 @Beta
-public class DefaultMapBasedTopSimplifier extends AbstractMapBasedSimplifier implements MapBasedTopSimplifier {
+public class RecursiveExhaustiveMapBasedSimplifier extends AbstractMapBasedSimplifier {
 	
-	protected Map<String, Simplifier> functionApplicationSimplifiers;
-	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
+	private Simplifier recursiveExhaustiveSimplifier;
 
-	public DefaultMapBasedTopSimplifier(
+	public RecursiveExhaustiveMapBasedSimplifier(
 			Map<String, Simplifier> functionApplicationSimplifiers,
 			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		
 		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
+		recursiveExhaustiveSimplifier =
+				new Recursive(
+						new TopExhaustive(
+								new DefaultMapBasedTopSimplifier(
+										getFunctionApplicationSimplifiers(), 
+										getSyntacticFormTypeSimplifiers())));
+	}
+
+	public RecursiveExhaustiveMapBasedSimplifier(MapBasedSimplifier mapBasedSimplifier) {
+		this(mapBasedSimplifier.getFunctionApplicationSimplifiers(), mapBasedSimplifier.getSyntacticFormTypeSimplifiers());
 	}
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-		Simplifier simplifier;
-		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
-		}
-		else {
-			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
-		}
-		
-		if (simplifier != null) {
-			expression = simplifier.apply(expression, process);
-		}
-		
-		return expression;
+		Expression result = recursiveExhaustiveSimplifier.apply(expression, process);
+		return result;
 	}
 }

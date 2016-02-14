@@ -9,8 +9,6 @@ import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -18,6 +16,8 @@ import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * An abstract implementation for step solvers for quantified expressions

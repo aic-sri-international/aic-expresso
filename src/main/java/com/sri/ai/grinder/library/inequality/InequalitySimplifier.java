@@ -46,12 +46,12 @@ import static com.sri.ai.util.Util.map;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.GreaterThanOrEqualTo;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 
 /**
  * A {@link Simplifier} with inequality functions (<code>> <, >=, <=</code>)

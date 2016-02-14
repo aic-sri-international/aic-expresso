@@ -35,37 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier.core;
+package com.sri.ai.grinder.sgdpll.simplifier.core;
 
-import java.util.Collection;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
- * A {@link Simplifier} applying a list of {@link Simplifier}s.
+ * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
+ * and applying them only once to the top expression only.
  * 
  * @author braz
  *
  */
 @Beta
-public class Pipeline implements Simplifier {
-
-	private Collection<Simplifier> simplifiers;
+public class DefaultMapBasedTopSimplifier extends AbstractMapBasedSimplifier implements MapBasedTopSimplifier {
 	
-	public Pipeline(Collection<Simplifier> simplifiers) {
-		super();
-		this.simplifiers = simplifiers;
+	protected Map<String, Simplifier> functionApplicationSimplifiers;
+	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
+
+	public DefaultMapBasedTopSimplifier(
+			Map<String, Simplifier> functionApplicationSimplifiers,
+			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		
+		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
 	}
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression current = expression;
-		for (Simplifier simplifier : simplifiers) {
-			current = simplifier.apply(current, process);
+		Simplifier simplifier;
+		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
+			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
 		}
-		return current;
+		else {
+			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
+		}
+		
+		if (simplifier != null) {
+			expression = simplifier.apply(expression, process);
+		}
+		
+		return expression;
 	}
 }

@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.core.simplifier.api;
+package com.sri.ai.grinder.sgdpll.simplifier.api;
 
 
 /**

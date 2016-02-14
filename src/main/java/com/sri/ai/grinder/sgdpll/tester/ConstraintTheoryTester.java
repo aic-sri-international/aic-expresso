@@ -61,7 +61,6 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
@@ -75,6 +74,7 @@ import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint
 import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**

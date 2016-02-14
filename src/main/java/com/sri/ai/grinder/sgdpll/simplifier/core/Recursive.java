@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier.core;
+package com.sri.ai.grinder.sgdpll.simplifier.core;
 
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.sameInstancesInSameIterableOrder;
@@ -48,8 +48,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * A {@link Simplifier} that recursively applies a base simplifier <code>S</code> to a given expression.

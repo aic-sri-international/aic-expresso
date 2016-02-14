@@ -35,37 +35,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier.core;
+package com.sri.ai.grinder.sgdpll.simplifier.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 
-/**
- * A {@link Simplifier} exhaustively applying another.
- * 
- * @author braz
- *
- */
 @Beta
-public class Exhaustive implements Simplifier {
+/** 
+ * A {@link MapBasedSimplifier} that is also a {@link TopSimplifier}. 
+ */
+public interface MapBasedTopSimplifier extends MapBasedSimplifier, TopSimplifier {
 
-	private Simplifier base;
-	
-	public Exhaustive(Simplifier base) {
-		super();
-		this.base = base;
-	}
-
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression previous;
-		do {
-			previous = expression;
-			expression = base.apply(expression, process);
-		} while (expression != previous);
-		
-		return expression;
-	}
 }
