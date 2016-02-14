@@ -47,15 +47,11 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.number.Exponentiation;
-import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
  * Object representing a group on symbolic numbers with multiplication.
@@ -88,12 +84,12 @@ public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
 		}
 		else {
 			Expression multiplication = Times.make(arrayList(value1, value2));
-			result = arithmeticRewriter.rewrite(multiplication, process);
+			result = numericSimplifier.apply(multiplication, process);
 		}
 		return result;
 	}
 
-	private static Rewriter arithmeticRewriter = new TotalRewriter(new Times(), new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
+	private static Simplifier numericSimplifier = new NumericSimplifier();
 	
 	@Override
 	protected Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
