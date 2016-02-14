@@ -43,8 +43,8 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 
 /**

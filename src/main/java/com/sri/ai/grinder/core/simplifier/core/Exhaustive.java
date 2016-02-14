@@ -35,12 +35,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
+package com.sri.ai.grinder.core.simplifier.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 
 /**
  * A {@link Simplifier} exhaustively applying another.

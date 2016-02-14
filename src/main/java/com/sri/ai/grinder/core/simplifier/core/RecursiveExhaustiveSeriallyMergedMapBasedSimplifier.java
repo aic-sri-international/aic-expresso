@@ -35,52 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
+package com.sri.ai.grinder.core.simplifier.core;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 
 /**
- * A convenience for<br> 
- * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link DefaultMapBasedTopSimplifier}(functionApplicationSimplifiers, syntacticFormTypeSimplifiers)))</code><br>
- * or<br>
- * <code>new {@link Recursive}(new {@link Exhaustive}(<{@link MapBasedSimplifier} instance>))</code><br>
+ * A convenience for<br>
+ * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link SeriallyMergedMapBasedTopSimplifier}(...)))</code>,<br>
  * but with the additional advantage of being itself a {@link MapBasedSimplifier},
  * giving access to its elementary simplifiers.
+ * <p>
+ * This is very similar to {@link AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier},
+ * but receives its elementary simplifliers through the constructor,
+ * as opposed to through implementations of abstract methods, like that class.
+ * This makes its usage a little more direct.
  * 
  * @author braz
  *
  */
 @Beta
-public class RecursiveExhaustiveMapBasedSimplifier extends AbstractMapBasedSimplifier {
+public class RecursiveExhaustiveSeriallyMergedMapBasedSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
-	private Simplifier recursiveExhaustiveSimplifier;
-
-	public RecursiveExhaustiveMapBasedSimplifier(
-			Map<String, Simplifier> functionApplicationSimplifiers,
-			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
-		
-		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
-		recursiveExhaustiveSimplifier =
-				new Recursive(
-						new TopExhaustive(
-								new DefaultMapBasedTopSimplifier(
-										getFunctionApplicationSimplifiers(), 
-										getSyntacticFormTypeSimplifiers())));
+	/**
+	 * Creates a map-based recursive exhaustive simplifier with elementary simplifiers serially merged from the ones in given map-based simplifiers.
+	 * @param additionalFunctionApplicationSimplifiers
+	 * @param additionalSyntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 */
+	public RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+		super(new SeriallyMergedMapBasedTopSimplifier(simplifiers));
 	}
 
-	public RecursiveExhaustiveMapBasedSimplifier(MapBasedSimplifier mapBasedSimplifier) {
-		this(mapBasedSimplifier.getFunctionApplicationSimplifiers(), mapBasedSimplifier.getSyntacticFormTypeSimplifiers());
-	}
-
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression result = recursiveExhaustiveSimplifier.apply(expression, process);
-		return result;
+	/**
+	 * Creates a map-based recursive exhaustive simplifier with elementary simplifiers serially merged from given map-based simplifiers
+	 * and additional elementary simplifiers.
+	 * @param additionalFunctionApplicationSimplifiers
+	 * @param additionalSyntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 */
+	public RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
+			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
+			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
+			MapBasedSimplifier... simplifiers) {
+		super(new SeriallyMergedMapBasedTopSimplifier(additionalFunctionApplicationSimplifiers, additionalSyntacticFormTypeSimplifiers, simplifiers));
 	}
 }

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
+package com.sri.ai.grinder.core.simplifier.core;
 
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
@@ -47,7 +47,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 
 /**
  * A {@link MapBasedSimplifier} receiving elementary simplifiers on their own or from other {@link MapBasedSimplifier}s,

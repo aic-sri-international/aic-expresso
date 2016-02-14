@@ -57,10 +57,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedTopSimplifier;
+import com.sri.ai.grinder.core.simplifier.api.MapBasedTopSimplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 
 @Beta

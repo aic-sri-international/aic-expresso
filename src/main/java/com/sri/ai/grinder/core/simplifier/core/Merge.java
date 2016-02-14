@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
+package com.sri.ai.grinder.core.simplifier.core;
 
 import static com.sri.ai.util.Util.list;
 
@@ -47,7 +47,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 
@@ -67,7 +67,6 @@ public class Merge  {
 	 * @param simplifiers
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static
 	Iterator<Map<String, Simplifier>>
 	functionApplicationSimplifiersIterator(Map<String, Simplifier> functionApplicationSimplifiers, MapBasedSimplifier... simplifiers) {
@@ -75,13 +74,12 @@ public class Merge  {
 	}
 
 	/**
-	 * Iterates over syntact form type simplifiers, <b>going over the {@link MapBasedSimplifier}s first</b>
+	 * Iterates over syntactic form type simplifiers, <b>going over the {@link MapBasedSimplifier}s first</b>
 	 * to create an effect of overriding.
 	 * @param syntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public static
 	Iterator<Map<String, Simplifier>>
 	syntacticFormTypeSimplifiersIterator(Map<String, Simplifier> syntacticFormTypeSimplifiers, MapBasedSimplifier... simplifiers) {

@@ -1,6 +1,7 @@
-package com.sri.ai.grinder.api;
+package com.sri.ai.grinder.core.simplifier.api;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.BinaryFunction;
 
 /**

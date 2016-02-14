@@ -51,7 +51,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;

@@ -35,52 +35,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
+package com.sri.ai.grinder.core.simplifier.core;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.MapBasedTopSimplifier;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 
-/**
- * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
- * and applying them only once to the top expression only.
- * 
- * @author braz
- *
- */
 @Beta
-public class DefaultMapBasedTopSimplifier extends AbstractMapBasedSimplifier implements MapBasedTopSimplifier {
-	
+/** 
+ * Basic implementation of {@link MapBasedSimplifier}
+ * delegating the creation of elementary simplifier maps to
+ * two abstract methods.
+ * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
+ * which prevents them to be given to {@link RecursiveExhaustiveMapBasedSimplifier} via <code>super</code>.
+ */
+abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
+
 	protected Map<String, Simplifier> functionApplicationSimplifiers;
 	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
 
-	public DefaultMapBasedTopSimplifier(
+	public AbstractMapBasedSimplifier(
 			Map<String, Simplifier> functionApplicationSimplifiers,
 			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		
-		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Simplifier simplifier;
-		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
-		}
-		else {
-			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
-		}
-		
-		if (simplifier != null) {
-			expression = simplifier.apply(expression, process);
-		}
-		
-		return expression;
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
+	}
+
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
+
+	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+	}
+
+	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 }

@@ -47,7 +47,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.TopSimplifier;
+import com.sri.ai.grinder.core.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.util.base.IdentityWrapper;

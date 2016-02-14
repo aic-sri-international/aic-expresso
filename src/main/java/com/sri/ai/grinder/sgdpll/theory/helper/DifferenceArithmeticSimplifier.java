@@ -54,7 +54,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.Simplifier;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.collect.NestedIterator;

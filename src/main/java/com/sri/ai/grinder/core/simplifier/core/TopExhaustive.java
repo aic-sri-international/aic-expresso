@@ -35,37 +35,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core.simplifier;
-
-import java.util.Collection;
+package com.sri.ai.grinder.core.simplifier.core;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.api.TopSimplifier;
 
 /**
- * A {@link Simplifier} applying a list of {@link Simplifier}s.
+ * An {@link Exhaustive} simplifier applied to a {@link TopSimplifier},
+ * and thus being a {@link TopSimplifier} itself.
  * 
  * @author braz
  *
  */
 @Beta
-public class Pipeline implements Simplifier {
+public class TopExhaustive extends Exhaustive implements TopSimplifier {
 
-	private Collection<Simplifier> simplifiers;
-	
-	public Pipeline(Collection<Simplifier> simplifiers) {
-		super();
-		this.simplifiers = simplifiers;
-	}
-
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression current = expression;
-		for (Simplifier simplifier : simplifiers) {
-			current = simplifier.apply(current, process);
-		}
-		return current;
+	public TopExhaustive(TopSimplifier base) {
+		super(base);
 	}
 }
