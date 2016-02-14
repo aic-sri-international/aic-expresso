@@ -93,7 +93,6 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -109,7 +108,6 @@ import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
@@ -747,12 +745,6 @@ public class GrinderUtil {
 		return new ExtensionalIndexExpressionsSet(indexExpressions);
 	}
 
-	public static void doTreeUtilWaitUntilClosed() {
-		if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {
-			TreeUtil.waitUntilUIClosed();
-		}
-	}
-
 	/**
 	 * Disables tracing and justification output, and turned concurrency off.
 	 * This is useful for running tests.
@@ -764,9 +756,6 @@ public class GrinderUtil {
 		// -Djustification.level=off
 		// -Dsriutil.branch.and.merge.threading.enabled=false
 		// Setting here explicitly so its not forgotten.
-		Configuration.setProperty(GrinderConfiguration.KEY_DISPLAY_TREE_UTIL_UI, "false");
-		GrinderConfiguration.disableTrace();
-		GrinderConfiguration.disableJustification();
 		Configuration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
 		BranchAndMerge.reset();
 	}

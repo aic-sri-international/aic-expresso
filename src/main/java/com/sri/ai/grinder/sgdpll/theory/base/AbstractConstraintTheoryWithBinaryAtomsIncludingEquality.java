@@ -40,8 +40,8 @@ package com.sri.ai.grinder.sgdpll.theory.base;
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 
 
 /** 

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.api;
+package com.sri.ai.grinder.sgdpll.simplifier.api;
 
 import static com.sri.ai.util.Util.putAll;
 
@@ -43,8 +43,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.util.collect.StackedHashMap;

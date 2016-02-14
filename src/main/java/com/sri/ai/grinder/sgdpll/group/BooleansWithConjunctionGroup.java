@@ -49,7 +49,6 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -89,9 +88,6 @@ public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup
 			result = FALSE;
 		}
 		// n is a symbolic value, so now it all depends on its being greater than zero
-		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // this flag tells us to always assume type sizes are as large as needed to make n positive.
-			result = FALSE;
-		}
 		else if (IfThenElse.isIfThenElse(n)) {
 			Expression condition  = IfThenElse.condition(n);
 			Expression thenBranch = IfThenElse.thenBranch(n);

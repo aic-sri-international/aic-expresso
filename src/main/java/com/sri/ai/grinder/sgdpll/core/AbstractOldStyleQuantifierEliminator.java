@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpll.core;
 
-import com.sri.ai.grinder.api.OldStyleQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
 
 /**
  * A {@link OldStyleQuantifierEliminator} implementing interruption and debugging mechanisms.

@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll.simplifier.core;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 @Beta
