@@ -54,7 +54,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.helper.FunctionSignature;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.util.Util;
 
 /**

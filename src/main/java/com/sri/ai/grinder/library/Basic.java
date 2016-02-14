@@ -57,11 +57,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.equality.NotOnDisequality;
-import com.sri.ai.grinder.library.equality.NotOnEquality;
-import com.sri.ai.grinder.library.equality.injective.DisequalityOnInjectiveSubExpressions;
-import com.sri.ai.grinder.library.equality.injective.EqualityOnInjectiveSubExpressions;
-import com.sri.ai.grinder.library.equality.injective.EqualityOnMutuallyExclusiveCoDomainExpressions;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 import com.sri.ai.grinder.library.number.Division;
@@ -119,26 +114,6 @@ public class Basic extends TotalRewriter {
 						new IfThenElse(),
 						new ProductOnExtensionalSet(),
 						new IntensionalSetWithFalseConditionIsEmptySet(),
-						new EqualityOnInjectiveSubExpressions(), // these two
-																	// are best
-																	// before
-																	// ExtensionalSet,
-																	// so
-																	// normalization
-																	// of
-																	// Extensional
-																	// sets does
-																	// not
-																	// expand
-																	// completely
-																	// before
-																	// equalities
-																	// and
-																	// disequalities
-																	// are taken
-																	// into
-																	// account
-						new DisequalityOnInjectiveSubExpressions(),
 						new UnionOnExtensionalSets(),
 						new Partition(),
 
@@ -158,8 +133,6 @@ public class Basic extends TotalRewriter {
 						new AbsorbingElement("and", "false", "or", "true", "*",
 								"0"),
 						new Associative("+", "*", "and"),
-						new NotOnEquality(),
-						new NotOnDisequality(),
 						new NotOnGreaterThan(),
 						new NotOnLessThan(),
 						new NotOnLessThanOrEqualTo(),
@@ -169,8 +142,6 @@ public class Basic extends TotalRewriter {
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
 
 						new IfThenElseExternalization(),
-
-						new EqualityOnMutuallyExclusiveCoDomainExpressions(),
 
 						// only modules from here on: they don't actually
 						// rewrite anything, so why test them sooner than

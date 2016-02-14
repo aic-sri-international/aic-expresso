@@ -57,8 +57,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.equality.NotOnDisequality;
-import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.NotOnGreaterThan;
@@ -113,8 +111,6 @@ public class CommonLibrary extends DefaultLibrary {
 						"*", "0"
 				),
 				new Associative("+", "*", "and"),
-				new NotOnEquality(),
-				new NotOnDisequality(),
 				new NotOnGreaterThan(),
 				new NotOnLessThan(),
 				new NotOnLessThanOrEqualTo(),

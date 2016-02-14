@@ -47,7 +47,6 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 
@@ -62,7 +61,6 @@ import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 public class Tuple extends AbstractRewriter
 implements
 NoOpRewriter,
-CheapDisequalityModule.Provider,
 InjectiveModule.Provider,
 MutuallyExclusiveCoDomainsModule.Provider {
 
@@ -123,37 +121,6 @@ MutuallyExclusiveCoDomainsModule.Provider {
 	}
 	
 	@Override
-	public boolean isCheapDisequality(Expression e1, Expression e2, RewritingProcess process) {
-		boolean result = false;
-		
-		if (isTuple(e1) && isTuple(e2)) {
-			List<Expression> els1 = getElements(e1);
-			List<Expression> els2 = getElements(e2);
-			if (els1.size() != els2.size()) {
-				// tuples of different length are guaranteed not to be equal.
-				result = true;
-			}
-			else {
-				// Both tuples are the same length, lets see if another provider
-				// can determine inequality cheaply between the elements.
-				CheapDisequalityModule cheapDisequalityModule = (CheapDisequalityModule) process.findModule(CheapDisequalityModule.class);
-				if (cheapDisequalityModule != null) {
-					int size = els1.size();
-					for (int i = 0; i < size; i++) {
-						result = cheapDisequalityModule.isCheapDisequality(els1.get(i), els2.get(i), process);
-						if (result) {
-							// The provider guarantees: e1 != e2
-							break;
-						}
-					}
-				}
-			}
-		}
-		
-		return result;
-	}
-
-	@Override
 	public Object getInjectiveFunctionToken(Expression expression, RewritingProcess process) {
 		if ( ! isTuple(expression)) {
 			return null;
@@ -164,7 +131,6 @@ MutuallyExclusiveCoDomainsModule.Provider {
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		CheapDisequalityModule.register(this, process);
 		InjectiveModule.register(this, process);
 		MutuallyExclusiveCoDomainsModule.register(this, process);
 	}

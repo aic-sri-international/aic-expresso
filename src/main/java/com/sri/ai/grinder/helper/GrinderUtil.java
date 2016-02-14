@@ -81,7 +81,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Type;
@@ -106,18 +105,16 @@ import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType.TypeSizeOfSymbolOrType;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.GreaterThan;
@@ -1052,7 +1049,7 @@ public class GrinderUtil {
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
 			checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(additionalConstraints, newMapOfcontextualSymbolsAndTypes, process);
 			// Construct a conjunct of contextual constraints extended by the additional context
-			newContextualConstraint = CardinalityUtil.makeAnd(newContextualConstraint, additionalConstraints);
+			newContextualConstraint = GrinderUtil.makeAnd(newContextualConstraint, additionalConstraints);
 		} 
 		else {
 			// Note: commenting out for now due to the bloat caused in the trace output.
@@ -1315,41 +1312,6 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Checks for equality of two lambda expressions up to renaming of
-	 * single-variable parameters.
-	 */
-	public static boolean lambdasAreKnownToBeEqualUpToParameterRenaming(Expression lambda1, Expression lambda2, RewritingProcess process) {
-		List<Expression> parameters1 = getParameters((QuantifiedExpression) lambda1);
-		List<Expression> parameters2 = getParameters((QuantifiedExpression) lambda2);
-		if (parameters1.size() != parameters2.size()) {
-			return false;
-		}
-		Expression body1 = ((LambdaExpression) lambda1).getBody();
-		Expression body2 = ((LambdaExpression) lambda2).getBody();
-		if ( ! parameters1.equals(parameters2)) {
-			Iterator<Expression> parameter1Iterator = parameters1.iterator();
-			Iterator<Expression> parameter2Iterator = parameters2.iterator();
-			while (parameter1Iterator.hasNext()) {
-				Expression parameter1 = parameter1Iterator.next();
-				Expression parameter2 = parameter2Iterator.next();
-				if ( ! parameter1.equals(parameter2)) {
-					if (parameter1.getSyntacticFormType().equals("Symbol") && parameter2.getSyntacticFormType().equals("Symbol")) {
-						body2 = SemanticSubstitute.replace(body2, parameter2, parameter1, process);
-					}
-					else {
-						return false; // not renaming function applications, so just give up.
-					}
-				}
-			}
-		}
-		boolean result = body1.equals(body2);
-		return result;
-		// We still need to take into account the situation in which a variable appears in different positions,
-		// such as lambda X,Y ... and lambda Y,Z ...
-		// This requires standardizing apart.
-	}
-
-	/**
 	 * Returns the cardinality of the type of a given variable in the given process,
 	 * trying to find {@link TypeSizeOfSymbolOrType} object in the process global objects
 	 * under key {@link CardinalityOfType#PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE}
@@ -1542,5 +1504,27 @@ public class GrinderUtil {
 			type = null;
 		}
 		return type;
+	}
+
+	public static Expression makeAnd(Expression conjunct1, Expression conjunct2) {
+		Expression result = null;
+		List<Expression> conjuncts = new ArrayList<Expression>();
+		if (And.isConjunction(conjunct1)) {
+			conjuncts.addAll(conjunct1.getArguments());
+		}
+		else {
+			conjuncts.add(conjunct1);
+		}
+		
+		if (And.isConjunction(conjunct2)) {
+			conjuncts.addAll(conjunct2.getArguments());
+		}
+		else {
+			conjuncts.add(conjunct2);
+		}
+		
+		result = And.make(conjuncts);
+		
+		return result;
 	}
 }

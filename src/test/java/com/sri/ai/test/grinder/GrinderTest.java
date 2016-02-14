@@ -41,9 +41,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -60,47 +58,28 @@ import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Library;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultLibrary;
-import com.sri.ai.grinder.core.DefaultRewriterLookup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Associative;
-import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.CommonLibrary;
-import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
-import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
-import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
-import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteNormalize;
-import com.sri.ai.grinder.library.equality.injective.DisequalityOnInjectiveSubExpressions;
-import com.sri.ai.grinder.library.equality.injective.DisequalityOnMutuallyExclusiveCoDomainExpressions;
-import com.sri.ai.grinder.library.equality.injective.EqualityOnInjectiveSubExpressions;
-import com.sri.ai.grinder.library.equality.injective.EqualityOnMutuallyExclusiveCoDomainExpressions;
-import com.sri.ai.grinder.library.function.InjectiveModule;
-import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
-import com.sri.ai.grinder.library.lambda.LambdaApplication;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.GreaterThan;
@@ -116,21 +95,12 @@ import com.sri.ai.grinder.library.set.extensional.EqualityOfExtensionalUniSets;
 import com.sri.ai.grinder.library.set.extensional.NormalizeExtensionalUniSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
-import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
 public class GrinderTest extends AbstractGrinderTest {
-
-	@Override
-	public RewritingProcess makeRewritingProcess(Expression topExpression) {
-		RewritingProcess process = new DefaultRewritingProcess(topExpression, new Basic());
-		process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpression, process);
-		return process;
-	}
 
 	@Test
 	public void testRounding() {
@@ -727,248 +697,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 
 	@Test
-	public void testSyntacticFunctionSyntacticForm() {
-		Library library = new DefaultLibrary(
-				new SyntacticFunctionsSubExpressionsProvider("type")
-				);
-		evaluator = new ExhaustiveRewriter(library);
-
-		@SuppressWarnings("unused") // it is needed for keeping module and registering provider.
-		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
-		
-		expression   = parse("f(x)");
-		assertEquals("Function application", expression.getSyntacticFormType());
-		
-		expression   = parse("type(X)");
-		assertEquals("Syntactic function", expression.getSyntacticFormType());
-	}
-	
-	@Test
-	public void testSubstitute() {
-		Library library = new DefaultLibrary(
-				new IntensionalSetWithFalseConditionIsEmptySet(),
-				new ImposedConditionsModule(),
-				new Tuple(),
-				new SyntacticFunctionsSubExpressionsProvider("type"),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new CompleteNormalize());
-		evaluator = new ExhaustiveRewriter(library);
-
-		Expression result;
-		Map<Expression, Expression> replacements;
-
-		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
-		
-		//
-		// IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch failure condition (i.e. keeps expanding else branch in the manner below), 
-		// when calling NewSubstitute.
-		expression   = parse("if false then false else 10 = | type(X) |"); // note: | type(.) | is replaced by 10 according to newRewritingProcessWithCardinalityAndCounts above.
-		replacements = Util.map(parse("W = 10"), parse("false"));
-		expected     = parse("if false then false else (if W = 10 then false else 10 = | type(X) |)");
-		testSemanticSubstitute(replacements, process);
-
-		// Test stack overflow condition.
-		expression   = parse("sick(john)");
-		replacements = Util.map(parse("sick(john)"), parse("sick(john)"));
-		expected     = parse("sick(john)");
-		testSemanticSubstitute(replacements, process);
-		
-		//
-		expression   = parse("x + 2");
-		replacements = Util.map(parse("y"), parse("1"));
-		expected     = parse("x + 2");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("x + 2");
-		replacements = Util.map(parse("x"), parse("1"));
-		expected     = parse("1 + 2");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("x + 2");
-		replacements = Util.map();
-		expected     = parse("x + 2");
-		testSemanticSubstitute(replacements, process);
-		
-		// TODO: SENSITIVE TO MAP STORAGE ORDERING - https://code.google.com/p/aic-expresso/issues/detail?id=42
-		// The current map order generates output "10 + 10", but if stored in a different order we get "2 + 10".
-		// This was noticed when the underlying map was changed from HashMap to LinkedHashMap
-		// Changing the semantic substitute to an exhaustive replacement does not work as it may cause infinite recursion.
-		expression   = parse("x + 2");
-		replacements = Util.map(
-				parse("x"), parse("2"),
-				parse("2"), parse("10"));
-		expected     = parse("10 + 10");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("f(g(h(x)))");
-		replacements = Util.map(parse("x"), parse("2"));
-		expected     = parse("f(g(h(2)))");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on X) X}");
-		replacements = Util.map(parse("X"), parse("2"));
-		expected     = parse("{(on X) X}");
-		testSemanticSubstitute(replacements, process);
-		
-		// should respect scoped symbols
-		expression   = parse("x + {(on x) f(x)}");
-		replacements = Util.map(parse("x"), parse("2"));
-		expected     = parse("2 + {(on x) f(x)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("x + {(on x in group(x)) f(x)}");
-		replacements = Util.map(parse("x"), parse("2"));
-		expected     = parse("2 + {(on x in group(2)) f(x)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("x + {(on y) f(x)}");
-		replacements = Util.map(parse("x"), parse("2"));
-		expected     = parse("2 + {(on y) f(2)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on q(a)) p(a)}");
-		replacements = Util.map(parse("p(a)"), parse("2"));
-		expected     = parse("{(on q(a)) 2}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on p(a)) p(a)}");
-		replacements = Util.map(parse("p(a)"), parse("2"));
-		expected     = parse("{(on p(a)) p(a)}");
-		result = SemanticSubstitute.replaceAll(expression, replacements, process);
-		assertEquals(expected, result);
-		
-		expression   = parse("{(on p(X)) p(a)}");
-		replacements = Util.map(parse("p(a)"), parse("2"));
-		expected     = parse("{(on p(X)) if X != a then 2 else p(a)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on p(a)) p(X)}");
-		replacements = Util.map(parse("p(X)"), parse("2"));
-		expected     = parse("{(on p(a)) if X != a then 2 else p(X)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("p(X)");
-		replacements = Util.map(parse("p(Y)"), parse("2"));
-		expected     = parse("if X = Y then 2 else p(X)");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on p(a), p(b), p(c)) p(X)}");
-		replacements = Util.map(parse("p(X)"), parse("2"));
-		expected     = parse("{(on p(a), p(b), p(c)) if X != a and X != b and X != c then 2 else p(X)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on p(Y,X)) p(X,Y)}");
-		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		expected     = parse("{(on p(Y,X)) if X != Y then 2 else p(X,Y)}");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on p(W,Z)) p(Y,X)}");
-		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		expected     = parse("{ ( on p(W, Z) ) (if not (W = X and Z = Y) and X = Y then 2 else p(Y, X)) }");
-		testSemanticSubstitute(replacements, process);
-		
-		expression   = parse("{(on p(Y,X)) p(Y,X)}");
-		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		expected     = parse("{(on p(Y,X)) p(Y,X)}");
-		testSemanticSubstitute(replacements, process);
-
-		expression   = parse("if W != X and Z != Y then p(W,Z) else p(a,Y)");
-		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		expected     = parse("if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)");
-		testSemanticSubstitute(replacements, process);
-
-		expression   = parse("{{ (on p(a,Y)) {{ (on p(c,Y)) p(X,Y) }} or p(X,Y) | X != b }}");
-		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		expected     = parse("{{ (on p(a,Y))" +
-				               "{{ (on p(c,Y)) if X != a and X != c then 2 else p(X,Y) }} or (if X != a then 2 else p(X,Y))" +
-				               "| X != b }}");
-		testSemanticSubstitute(replacements, process);
-	}
-
-	private void testSemanticSubstitute(Map<Expression, Expression> replacements, RewritingProcess process) {
-		Expression result;
-		RewritingProcess subProcess;
-		subProcess   = extendContext(expression, replacements, expected, process);
-		result = SemanticSubstitute.replaceAll(expression, replacements, subProcess);
-		assertEquals(expected, result);
-	}
-	
-	private RewritingProcess extendContext(Expression expression, Map<Expression, Expression> replacements, Expression expected, RewritingProcess process) {
-		List<Expression> topExpressions = new LinkedList<Expression>();
-		topExpressions.add(expression);
-		for (Map.Entry<Expression, Expression> entry : replacements.entrySet()) {
-			topExpressions.add(entry.getKey());
-			topExpressions.add(entry.getValue());
-		}
-		topExpressions.add(expected);
-		Expression topExpressionsTuple = Tuple.make(topExpressions);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpressionsTuple, process);
-		return result;
-	}
-
-	@Test
-	public void testSyntacticSubstitute() {
-		Library library = new DefaultLibrary();
-		evaluator = new ExhaustiveRewriter(library);
-		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
-
-		String expressionString;
-		String replacedString;
-		String replacementString;
-		String expectedString;
-		Expression actual;
-		
-		expressionString  = "X and for all X : X"; // should not replace a locally scoped symbol
-		replacedString    = "X";
-		replacementString = "true";
-		expectedString    = "true and for all X : X";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-		
-		expressionString  = "X and for all Y : X"; // should introduce a locally scoped symbol
-		replacedString    = "X";
-		replacementString = "Y";
-		expectedString    = "Y and for all Y : X";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-		
-		expressionString  = "p(X) and for all Z : p(X) and p(Y)"; // should not try to unify function application arguments
-		replacedString    = "p(X)";
-		replacementString = "true";
-		expectedString    = "true and for all Z : true and p(Y)";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-		
-		expressionString  = "p(X) and for all p(Z) : p(X) and p(Y)"; // should not replace locally scoped symbols 
-		replacedString    = "p(X)";
-		replacementString = "true";
-		expectedString    = "true and for all p(Z) : p(X) and p(Y)";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-
-		expressionString  = "p(X) and for all X : p(X) and p(Y)"; // should not introduce a locally scoped symbols, even if it is a parameter 
-		replacedString    = "p(X)";
-		replacementString = "true";
-		expectedString    = "true and for all X : p(X) and p(Y)";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-
-		expressionString  = "p(X) and for all q(X) : p(X) and p(Y)"; // arguments of quantified functino applications are not locally scoped symbols 
-		replacedString    = "p(X)";
-		replacementString = "true";
-		expectedString    = "true and for all q(X) : true and p(Y)";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-
-		expressionString  = "f(g(p(X) and for all q(X) : p(X) and p(Y)))"; // should work at greater depths as well 
-		replacedString    = "p(X)";
-		replacementString = "true";
-		expectedString    = "f(g(true and for all q(X) : true and p(Y)))";
-		actual            = SyntacticSubstitute.replace(parse(expressionString), parse(replacedString), parse(replacementString), process);
-		assertEquals(parse(expectedString), actual);
-	}
-	
-	@Test
 	public void testDepthFirstIterator() {
 		Expression expression;
 		List<Expression> expected;
@@ -1130,85 +858,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testIfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch() {
-		Library library = new DefaultLibrary(
-				new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
-				new Equality(),
-				new Disequality(),
-				new IfThenElse(),
-				new And(),
-				new Or(),
-				// Required Modules
-				new IntensionalSetWithFalseConditionIsEmptySet(),
-				new ImposedConditionsModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider());
-		
-		evaluator = new ExhaustiveRewriter(library);
-
-		expressionString = "if even(X) then f(even(X)) else g(even(X))";
-		expected = parse("if even(X) then f(true) else g(false)");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-
-		expressionString = "if not even(X) then f(even(X)) else g(even(X))";
-		expected = parse("if not even(X) then f(false) else g(true)");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-
-		expressionString = "if even(X) then f(even(Y)) else g(even(X))";
-		expected = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ANY_OF,
-				parse("if even(X) then f(if Y = X then true else even(Y)) else g(false)"),
-				parse("if even(X) then f(even(Y)) else g(false)")
-				);
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-
-		expressionString = "if even(X) then {(on even(a)) f(even(Y))} else g(even(X))";
-		expected = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ANY_OF, 
-				parse("if even(X) then { ( on even(a) ) f(even(Y)) } else g(false)"),
-				parse("if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)"),
-				parse("if even(X) then {(on even(a)) f(if X != a and Y = X then true else even(Y))} else g(false)"));
-
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-	}
-	
-	
-	@Ignore("Not currently supported.")
-	@Test
-	public void testIfThenElseConditionIsTrueInThenBranchAndFalseInElseBranchOnEquality() {
-		Library library = new DefaultLibrary(
-				new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
-				new Equality(),
-				new Disequality(),
-				new IfThenElse(),
-				new And(),
-				new Or(),
-				// Required Modules
-				new IntensionalSetWithFalseConditionIsEmptySet(),
-				new ImposedConditionsModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider());
-		
-		evaluator = new ExhaustiveRewriter(library);
-		
-		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
-		
-		// substitutions on = and != only take place when they are non-trivial.
-		expressionString = "if X = Y then f(X = Y) else g(X = Y)";
-		expected =   parse("if X = Y then f(true) else g(false)");
-		evaluationTest(process);
-
-		expressionString = "if X = Y then f(X = Z) else g(X = Y)";
-		expected =   parse("if X = Y then f(X = Z) else g(false)");
-		evaluationTest(process);
-
-		expressionString = "if X = Y then {(on X = a) f(X = Y)} else g(X = Y)";
-		expected =   parse("if X = Y then {(on X = a) f(X = Y)} else g(false)");
-		evaluationTest(process);
-		
-		// Test For: ALBP-78
-		expressionString = "if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2";
-		expected =   parse("if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2");
-		evaluationTest(process);
-	}
-	
-	@Test
 	public void testStandardizedApartWithoutAssumingImplicitQuantificationOfAllVariablesInFirstExpression() {
 		Library library = new CommonLibrary();
 		
@@ -1329,81 +978,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 	}
 	
-	@Test
-	public void testIntensionalSetWithBoundIndex() {
-		Library library = new DefaultLibrary(
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetWithFalseConditionIsEmptySet(),
-				new UnionOnExtensionalSets(),
-				new IntensionalSetWithBoundIndex(),
-				new Plus(),
-				new And(),
-				new Or(),
-				new Equality(),
-				new Disequality(),
-				new IfThenElse());
-		
-		evaluator = new ExhaustiveRewriter(library);
-		
-		expressionString = "{ ( on A ) p(A, X) | A = A = X }";
-		expected   = parse("{ ( on ) p(X, X) | true }");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{(on X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}";
-		expected   = parse("{(on Y) p(1) | 1 != Y}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{{(on Z in {1,2}, X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}}";
-		expected   = parse("{{(on Z in {1,2}, Y) p(1) | 1 != Y}}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{ ( on A ) p(A, X) | X = A = A }";
-		expected   = parse("{ ( on ) p(X, X) | true }");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{ ( on A ) p(A, X) | A = X = A }";
-		expected   = parse("{ ( on ) p(X, X) | true }");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{ ( on A ) p(A, X) | A != X and X = X and A = A }";
-		expected   = parse("{ ( on A ) p(A, X) | A != X }");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-	}
-
-	@Test
-	public void testIntensionalUniSetWithIndicesNotUsedInHead() {
-		Library library = new DefaultLibrary(
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetWithFalseConditionIsEmptySet(),
-				new IntensionalUniSetWithIndicesNotUsedInHead());
-		
-		evaluator = new ExhaustiveRewriter(library);
-		
-		expressionString = "{(on X in {1,2,3}, Y) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{(on X in {1,2,3}, Y in {a,b}) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y in {a,b} : X != Y}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{(on Y in {a,b}, X in {1,2,3}) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y in {a,b} : X != Y}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{(on Y in {a,b}) p(X) | X != Y}";
-		expected   = parse("{(on ) p(X) | there exists Y in {a,b} : X != Y}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y in {a,b} : there exists Z : X != Y}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}";
-		expected   = parse("{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-	}
-
 	@Test
 	public void testCannotIndirectlyMutateExpression() {
 		Library library = new DefaultLibrary(
@@ -1569,66 +1143,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 
 	@Test
-	public void testTuple() {
-		
-		Library library = new DefaultLibrary(
-				new Equality(),
-				new Disequality(),
-				
-				new EqualityOnMutuallyExclusiveCoDomainExpressions(),
-				new DisequalityOnMutuallyExclusiveCoDomainExpressions(),
-				new MutuallyExclusiveCoDomainsModule(),
-				
-				new EqualityOnInjectiveSubExpressions(),
-				new DisequalityOnInjectiveSubExpressions(),
-				new InjectiveModule(),
-				
-				new Tuple()
-		);
-
-		Expression expression;
-		
-		expression = parse("(1, 2)");
-		assertEquals(2, Tuple.size(expression));
-		assertEquals(parse("2"), Tuple.get(expression, 1));
-
-		evaluator = new ExhaustiveRewriter(library);
-
-		// REPEATING FOR DEBUGGING
-		expressionString = "(X, Y, Z) = tuple(a, b, c)";
-		expected = parse("X = a and Y = b and Z = c");
-		evaluationTest();
-
-		expressionString = "(X, Y) = (X, Y, Z)";
-		expected = parse("false");
-		evaluationTest();
-
-		expressionString = "tuple(X, Y) = (X, Y, Z)";
-		expected = parse("false");
-		evaluationTest();
-
-		expressionString = "(X, Y) = tuple(X, Y, Z)";
-		expected = parse("false");
-		evaluationTest();
-
-		expressionString = "(X, Y, Z) = (a, b, c)";
-		expected = parse("X = a and Y = b and Z = c");
-		evaluationTest();
-
-		expressionString = "tuple(X, Y, Z) = tuple(a, b, c)";
-		expected = parse("X = a and Y = b and Z = c");
-		evaluationTest();
-
-		expressionString = "tuple(X, Y, Z) = (a, b, c)";
-		expected = parse("X = a and Y = b and Z = c");
-		evaluationTest();
-
-		expressionString = "(X, Y, Z) = tuple(a, b, c)";
-		expected = parse("X = a and Y = b and Z = c");
-		evaluationTest();
-	}
-
-	@Test
 	public void testUnionOnExtensionalSets() {
 		Library library = new DefaultLibrary(
 				new UnionOnExtensionalSets(),
@@ -1662,33 +1176,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		expressionString = "A union {x, y} union {z} union B";
 		expected = parse("A union {x, y, z} union B");
 		evaluationTest();
-	}
-	
-	@Test
-	public void testLambda() {
-		List<Rewriter> rewriters = new DefaultLibrary(
-				new Equality(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new LambdaApplication()
-		);
-
-		evaluator = new ExhaustiveRewriter(rewriters);
-
-		expressionString = "lambda f(X) : 2 + f(X)";
-		expected = parse("lambda f(X) : 2 + f(X)");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-
-		expressionString = "if Z = a then f(lambda Z : g(Z)) else 0";
-		expected = parse("if Z = a then f(lambda Z : g(Z)) else 0");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "if X = a then lambda f(X) : f(X) else 1";
-		expected = parse("if X = a then lambda f(X) : f(X) else 1");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "(lambda f(X) : 2 + f(X))(1)";
-		expected = parse("2 + 1");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 	}
 	
 	@Test
@@ -1891,14 +1378,12 @@ public class GrinderTest extends AbstractGrinderTest {
 		unificationCondition = Unification.unificationCondition(expression1, expression2, process);
 		assertEquals(expected, unificationCondition);
 	}
-	
-	private RewritingProcess newRewritingProcessWithCardinalityAndCounts(Rewriter evaluator) {
-		
-		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
-		process.setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
-		CountsDeclaration countsDeclaration = new CountsDeclaration(10);
-		countsDeclaration.setup(process);
-		
-		return process;
+
+
+
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

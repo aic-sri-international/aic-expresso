@@ -253,24 +253,6 @@ public class Equality extends AbstractRewriter {
 	};
 	
 	/**
-	 * If given constraint is an equality binding a set of variables to a constant,
-	 * substitutes them in expression by that constant.
-	 * Can potentially throw {@link SemanticSubstitute#NoException} if such substitutions are not supported
-	 * (this can happen in certain types of complex expressions -- see {@link SemanticSubstitute} for more details).
-	 */
-	public static Expression substituteVariablesByConstantIfTheyAreBoundToItByEquality(Expression expression, Expression constraint, RewritingProcess process) {
-		if (isEquality(constraint)) {
-			Pair<List<Expression>, Expression> variablesListAndConstant = getVariablesListAndConstantOrNullIfNoConstant(constraint, process);
-			if (variablesListAndConstant != null) {
-				for (Expression variable : variablesListAndConstant.first) {
-					expression = SemanticSubstitute.replace(expression, variable, variablesListAndConstant.second, process);
-				}
-			}
-		}
-		return expression;
-	}
-
-	/**
 	 * Assumes that first argument is an equality (with possibly more than two arguments) and returns a pair,
 	 * the first member of which is a collection of the variables in the equality,
 	 * and the second member of which is the first constant present.

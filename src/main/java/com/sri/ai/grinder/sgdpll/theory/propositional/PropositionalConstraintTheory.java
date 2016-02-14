@@ -39,8 +39,8 @@ package com.sri.ai.grinder.sgdpll.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+import static com.sri.ai.grinder.library.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
-import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Random;
@@ -50,9 +50,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
