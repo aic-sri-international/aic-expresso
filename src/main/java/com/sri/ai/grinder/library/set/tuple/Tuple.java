@@ -61,6 +61,11 @@ public class Tuple extends AbstractRewriter {
 	//
 
 	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return expression;
+	}
+	
+	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		// Note: is a NoOpRewriter
 		return expression;

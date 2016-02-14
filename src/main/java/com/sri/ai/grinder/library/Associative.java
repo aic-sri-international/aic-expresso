@@ -48,8 +48,8 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 
 /**
@@ -60,33 +60,7 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public class Associative extends AbstractRewriter {
-
-	private Set<Expression> operators = new LinkedHashSet<Expression>();
-
-	public Associative(Object... operators) {
-		super();
-		this.operators.addAll(Expressions.wrap(operators));
-		// If a single operator and corresponding absorbing element
-		// then I can add a reified test for the operator/functor
-		if (this.operators.size() == 1) {
-			this.setReifiedTests(new HasKind(operators[0]));
-			this.setName(""+operators[0]+" "+Util.camelCaseToSpacedString(getClass().getSimpleName()));
-		}
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, final RewritingProcess process) {
-		Expression functor = expression.getFunctor();
-		if (operators.contains(functor)) {
-			Predicate<Expression> alwaysTrue = Predicates.alwaysTrue();
-			Expression result = Associative
-					.associateWhenSureOperatorIsAssociative(
-							expression, alwaysTrue);
-			return result;
-		}
-		return expression;
-	}
+public class Associative {
 
 	/** A static version of associate when check for associative operator is done, with predicate indicating whether argument of same functor is to be associated. */
 	public static Expression associateWhenSureOperatorIsAssociative(Expression expression) {

@@ -57,7 +57,6 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -97,12 +96,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this(new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), globalObjects);
 	}
 
-	public DefaultRewritingProcess(Expression rootExpression,
-			Rewriter rootRewriter, Map<Expression, Expression> contextualSymbolsAndTypes, Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Map<Object, Object> globalObjects) {
-		this(contextualSymbolsAndTypes, isUniquelyNamedConstantPredicate, globalObjects);
-	}
-	
 	public DefaultRewritingProcess(Map<Expression, Expression> contextualSymbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate, Map<Object, Object> globalObjects) {
 		

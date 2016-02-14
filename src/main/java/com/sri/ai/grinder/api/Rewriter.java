@@ -42,6 +42,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * A rewriter rewrites a expression into another, for example by simplifying it,
@@ -61,7 +62,7 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
  * @author braz
  */
 @Beta
-public interface Rewriter {
+public interface Rewriter extends TopSimplifier {
 	/**
 	 * An unique identifying name for the rewriter (intended to correspond to
 	 * pseudo-code descriptions of the rewriter).

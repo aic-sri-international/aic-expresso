@@ -85,6 +85,11 @@ public class Equivalence extends AbstractRewriter {
 		return result;
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+	
 	public static Expression simplify(Expression expression) {
 		if (expression.get(0).equals(expression.get(1))) {
 			return Expressions.TRUE;

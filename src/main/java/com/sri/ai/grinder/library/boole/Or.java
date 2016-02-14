@@ -48,6 +48,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
@@ -96,6 +97,11 @@ public class Or extends BooleanCommutativeAssociative {
 	@Override
 	protected Object operationOnOperableValues(List<? extends Object> listOfOperableArguments) {
 		return Util.or((Collection<Boolean>)listOfOperableArguments);
+	}
+	
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
 	}
 	
 	public static Expression simplify(Expression disjunction) {

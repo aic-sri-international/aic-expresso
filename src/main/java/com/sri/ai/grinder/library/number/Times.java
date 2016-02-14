@@ -50,6 +50,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.grinder.library.CommutativeAssociativeOnNumbers;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 
 /**
@@ -59,8 +60,12 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
+public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly implements TopSimplifier {
 
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return rewriteAfterBookkeeping(expression, process);
+	}
+	
 	private final static Expression            neutralElement              = Expressions.makeSymbol(1);
 	private final static Expression            absorbingElement            = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);

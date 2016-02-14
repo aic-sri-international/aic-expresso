@@ -330,6 +330,11 @@ public class IfThenElse extends AbstractRewriter {
 		return expression;
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+	
 	public static Expression simplify(Expression ifThenElse) {
 		Expression condition  = condition(ifThenElse);
 		Expression thenBranch = thenBranch(ifThenElse);

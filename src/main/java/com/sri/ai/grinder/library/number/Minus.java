@@ -67,6 +67,11 @@ public class Minus extends AbstractRewriter {
 		return simplify(expression);
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+	
 	static public Expression simplify(Expression expression) {
 		Expression result = expression;
 		

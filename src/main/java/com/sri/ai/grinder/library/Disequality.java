@@ -85,6 +85,20 @@ public class Disequality extends AbstractRewriter {
 		return expression;
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+	
+		Expression equals = Equality.equalityResultIfItIsKnown(expression, process);
+		if (equals != expression) {
+			SyntaxLeaf equalsResult = (SyntaxLeaf) equals.getSyntaxTree();
+			Boolean booleanObject = (Boolean) equalsResult.getValue();
+			boolean booleanValue = booleanObject.booleanValue();
+			return Expressions.makeSymbol(!booleanValue);
+		}
+		
+		return expression;
+	}
+
 	/**
 	 * Returns FALSE if given disequality has equal arguments, TRUE if they contain distinct constants,
 	 * and the disequality itself otherwise.

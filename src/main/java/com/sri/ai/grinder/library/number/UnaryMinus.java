@@ -66,6 +66,11 @@ public class UnaryMinus extends AbstractRewriter {
 		return simplify(expression);
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+	
 	/**
 	 * Simplify a unary minus application if possible.
 	 * @param expression

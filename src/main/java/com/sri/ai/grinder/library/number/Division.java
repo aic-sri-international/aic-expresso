@@ -73,6 +73,11 @@ public class Division extends AbstractRewriter {
 		return simplify(expression);
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+	
 	public static Expression simplify(Expression expression) {
 
 		if (expression.get(1).equals(INFINITY) || expression.get(1).equals(MINUS_INFINITY)) {

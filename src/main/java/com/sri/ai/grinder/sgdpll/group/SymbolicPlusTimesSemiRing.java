@@ -89,7 +89,7 @@ public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements Asso
 
 	@Override
 	public Expression multiply(Expression multiplication, RewritingProcess process) {
-		Expression result = timesRewriter.rewrite(multiplication, process);
+		Expression result = timesRewriter.apply(multiplication, process);
 		return result;
 	}
 

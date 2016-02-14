@@ -45,15 +45,11 @@ import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.greaterThanOrEqualTo;
 
-import java.util.LinkedHashSet;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.BinaryOperator;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * Implements a rewriter for the "greater than or equal to" operation.
@@ -61,19 +57,11 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public class GreaterThanOrEqualTo extends BinaryOperator {
+public class GreaterThanOrEqualTo  implements TopSimplifier {
 
-	public GreaterThanOrEqualTo() {
-		this.functors = new LinkedHashSet<Expression>();
-		this.functors.add(Expressions.makeSymbol(">="));
-		//
-		this.firstType  = Number.class;
-		this.secondType = Number.class;
-	}
-	
 	@Override
-	protected Object operation(Expression expression1, Expression expression2) {
-		return Util.greaterThanOrEqualTo(expression1.rationalValue(), expression2.rationalValue());
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression, process);
 	}
 	
 	/**

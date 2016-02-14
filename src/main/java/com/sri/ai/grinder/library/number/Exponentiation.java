@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.library.number;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
@@ -84,7 +82,7 @@ public class Exponentiation extends AbstractRewriter {
 	 * @return the exponentiation function application
 	 */
 	public static Expression make(Expression base, Rational power) {
-		Expression result = apply(EXPONENTIATION_FUNCTOR, base, power);
+		Expression result = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
 		return result;
 	}
 
@@ -95,7 +93,7 @@ public class Exponentiation extends AbstractRewriter {
 	 * @return the exponentiation function application
 	 */
 	public static Expression make(Expression base, Expression power) {
-		Expression result = apply(EXPONENTIATION_FUNCTOR, base, power);
+		Expression result = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
 		return result;
 	}
 
@@ -109,6 +107,11 @@ public class Exponentiation extends AbstractRewriter {
 		return simplify(expression, process);
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression, process);
+	}
+	
 	/**
 	 * @param expression
 	 * @param process TODO

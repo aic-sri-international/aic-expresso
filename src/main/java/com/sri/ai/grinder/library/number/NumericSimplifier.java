@@ -42,9 +42,9 @@ import static com.sri.ai.util.Util.map;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 
 /**
@@ -65,19 +65,19 @@ public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	
-	private static Rewriter plus = new Plus();
-	private static Rewriter times = new Times();
+	private static TopSimplifier plus = new Plus();
+	private static TopSimplifier times = new Times();
 
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
 				FunctorConstants.TIMES,           (Simplifier) (f, process) ->
-				times.rewrite(f, process),
+				times.apply(f, process),
 
 				FunctorConstants.DIVISION,        (Simplifier) (f, process) ->
 				Division.simplify(f),
 
 				FunctorConstants.PLUS,            (Simplifier) (f, process) ->
-				plus.rewrite(f, process),
+				plus.apply(f, process),
 
 				FunctorConstants.MINUS,           (Simplifier) (f, process) ->
 				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),

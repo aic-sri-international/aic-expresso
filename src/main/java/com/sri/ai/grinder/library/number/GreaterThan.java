@@ -45,16 +45,11 @@ import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.greaterThan;
 
-import java.util.LinkedHashSet;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.library.BinaryOperator;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * Implements a rewriter for the greater than operation.
@@ -62,23 +57,13 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public class GreaterThan extends BinaryOperator {
+public class GreaterThan  implements TopSimplifier {
 
-	public GreaterThan() {
-		this.functors = new LinkedHashSet<Expression>(); 
-		this.functors.add(Expressions.makeSymbol(FunctorConstants.GREATER_THAN));
-		//
-		this.firstType  = Number.class;
-		this.secondType = Number.class;
-		
-		this.setReifiedTests(new HasKind(FunctorConstants.GREATER_THAN));
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression, process);
 	}
 	
-	@Override
-	protected Object operation(Expression expression1, Expression expression2) {
-		return Util.greaterThan(expression1.rationalValue(), expression2.rationalValue());
-	}
-
 	/**
 	 * Receives an application of {@link FunctorConstants.GREATER_THAN} and evaluates it if possible.
 	 * @param greaterThanApplication

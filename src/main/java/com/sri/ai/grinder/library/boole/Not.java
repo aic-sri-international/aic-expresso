@@ -78,6 +78,11 @@ public class Not extends AbstractRewriter {
 		return expression;
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+	
 	public static Expression simplify(Expression formula) {
 		Expression result;
 		if (formula.get(0).equals(Expressions.TRUE)) {

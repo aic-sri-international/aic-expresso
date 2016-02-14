@@ -83,6 +83,17 @@ public class Equality extends AbstractRewriter {
 		}
 	}
 
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		if (expression.numberOfArguments() > 1) {
+			return equalityResultIfItIsKnown(expression, process);
+		}
+		else {
+			// 1 or 0 arguments is equivalent to True
+			return Expressions.TRUE;
+		}
+	}
+
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
 		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsUniquelyNamedConstantPredicate(), process);
 		if (equalityResult != null) {

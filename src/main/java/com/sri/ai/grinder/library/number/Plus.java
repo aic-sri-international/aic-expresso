@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.library.number;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.arrayList;
@@ -54,6 +53,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.grinder.library.CommutativeAssociativeOnNumbers;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 
 /**
@@ -63,8 +63,12 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
+public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly implements TopSimplifier {
 
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return rewriteAfterBookkeeping(expression, process);
+	}
+	
 	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
 
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
@@ -141,12 +145,12 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 		else if (sum.hasFunctor(MINUS) && sum.numberOfArguments() == 2) {
 			result = new ArrayList<Expression>();
 			result.addAll(getSummands(sum.get(0)));
-			result.addAll(getSummands(apply(MINUS, sum.get(1))));
+			result.addAll(getSummands(Expressions.apply(MINUS, sum.get(1))));
 		}
 		else if (sum.hasFunctor(MINUS) && sum.numberOfArguments() == 1) {
 			result = new ArrayList<Expression>();
 			for (Expression argument : sum.getArguments()) {
-				Util.mapIntoList(getSummands(argument), s -> apply(MINUS, s), result);
+				Util.mapIntoList(getSummands(argument), s -> Expressions.apply(MINUS, s), result);
 			}
 		}
 		else {
