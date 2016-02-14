@@ -37,46 +37,21 @@
  */
 package com.sri.ai.grinder.library.boole;
 
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
- * An atomic rewriter of Boolean "not" expressions. Includes related helper methods.
- * 
  * @author braz
  *
  */
 @Beta
-public class Not extends AbstractRewriter {
-
-	public static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
-	
-	public Not() {
-		this.setReifiedTests(new HasKind(FUNCTOR), 
-				             new HasNumberOfArguments(1));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		
-		if (expression.get(0).equals(Expressions.TRUE)) {
-			return Expressions.FALSE;
-		}
-		else if (expression.get(0).equals(Expressions.FALSE)) {
-			return Expressions.TRUE;
-		}
-		else if (expression.get(0).hasFunctor(FUNCTOR) && expression.get(0).numberOfArguments() == 1) {
-			return expression.get(0).get(0);
-		}
-		
-		return expression;
-	}
+public class Not implements TopSimplifier {
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
@@ -101,7 +76,7 @@ public class Not extends AbstractRewriter {
 	}
 
 	public static boolean isNegation(Expression expression) {
-		return expression.hasFunctor(FunctorConstants.NOT);
+		return expression.hasFunctor(NOT);
 	}
 
 	/** Make a "not" application on given expression. */
@@ -122,9 +97,5 @@ public class Not extends AbstractRewriter {
 	 */
 	public static Expression not(Expression expression) {
 		return make(expression);
-	}
-
-	public static Expression getFunctor() {
-		return FUNCTOR;
 	}
 }

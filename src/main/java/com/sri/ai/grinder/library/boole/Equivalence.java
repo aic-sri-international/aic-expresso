@@ -41,44 +41,15 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
- * An atomic rewriter of Boolean equivalence expressions.
- * 
  * @author braz
  *
  */
 @Beta
-public class Equivalence extends AbstractRewriter {
-
-	public final static Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.EQUIVALENCE);
-	
-	public Equivalence() {
-		this.setReifiedTests(new HasKind(FUNCTOR),
-				             new HasNumberOfArguments(2));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-
-		Expression result = Expressions.apply(
-						"or",
-						Expressions.apply(
-								"and",
-								expression.get(0),
-								expression.get(1)
-						),
-						Expressions.apply(
-								"and",
-								Expressions.apply("not", expression.get(0)),
-								Expressions.apply("not", expression.get(1))));
-		
-		return result;
-	}
+public class Equivalence implements TopSimplifier {
 
 	public static boolean isEquivalence(Expression expressionF) {
 		boolean result = expressionF.hasFunctor(FunctorConstants.EQUIVALENCE) && expressionF.numberOfArguments() == 2;

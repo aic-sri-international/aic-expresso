@@ -70,7 +70,7 @@ abstract public class AbstractGroupProblemTypeWithFunctionApplicationExpression 
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, RewritingProcess process) {
 		Util.myAssert(() -> expression.hasFunctor(getFunctorString()), () -> "Expression expected to be application of " + getFunctorString() + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Expression body = IfThenElse.make(set.getCondition(), set.getHead(), additiveIdentityElement());

@@ -47,32 +47,17 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Implements a rewriter for the division operation.
- * 
  * @author braz
  *
  */
 @Beta
-public class Division extends AbstractRewriter {
+public class Division implements TopSimplifier {
 	
-	public Division() {
-		this.setReifiedTests(new HasKind(FunctorConstants.DIVISION),
-						     new HasNumberOfArguments(2));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		return simplify(expression);
-	}
-
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
 		return simplify(expression);

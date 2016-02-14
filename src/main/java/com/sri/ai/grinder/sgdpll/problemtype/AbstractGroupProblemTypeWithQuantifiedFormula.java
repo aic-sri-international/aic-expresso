@@ -60,7 +60,7 @@ abstract public class AbstractGroupProblemTypeWithQuantifiedFormula extends Abst
 	}
 	
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(
 			Expression expression, RewritingProcess process) {
 		
 		QuantifiedExpressionWithABody quantifiedFormula = (QuantifiedExpressionWithABody) expression;

@@ -37,6 +37,14 @@
  */
 package com.sri.ai.grinder.library.boole;
 
+import static com.sri.ai.grinder.library.FunctorConstants.AND;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUIVALENCE;
+import static com.sri.ai.grinder.library.FunctorConstants.IMPLICATION;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.library.FunctorConstants.OR;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,7 +54,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 
 /**
@@ -93,7 +100,7 @@ public class BooleanUtil {
 					return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, newArguments);
 				}
 			} 
-			else if ( functor.equals(Not.FUNCTOR) ) {
+			else if ( functor.equals(NOT) ) {
 				return Expressions.apply(functor, removeUnnecessary(expression.get(0)));
 			}
 		}
@@ -101,23 +108,23 @@ public class BooleanUtil {
 	}
 		
 	private static boolean areEquivalent(Expression literal1, Expression literal2) {
-		if ( literal1.hasFunctor(Not.FUNCTOR) ) {
-			if ( literal2.hasFunctor(Not.FUNCTOR) ) {
+		if ( literal1.hasFunctor(NOT) ) {
+			if ( literal2.hasFunctor(NOT) ) {
 				return areEquivalent(literal1.get(0), literal2.get(0));
 			} 
-			else if ( literal2.hasFunctor(Disequality.FUNCTOR) ) {
-				return areEquivalent(literal1.get(0), Expressions.apply(Equality.FUNCTOR, literal2.get(0), literal2.get(1)));
+			else if ( literal2.hasFunctor(DISEQUALITY) ) {
+				return areEquivalent(literal1.get(0), Expressions.apply(EQUALITY, literal2.get(0), literal2.get(1)));
 			}
 		} 
-		else if ( literal2.hasFunctor(Not.FUNCTOR) ) {
-			if ( literal1.hasFunctor(Disequality.FUNCTOR) ) {
-				return areEquivalent(literal2.get(0), Expressions.apply(Equality.FUNCTOR, literal1.get(0), literal1.get(1)));
+		else if ( literal2.hasFunctor(NOT) ) {
+			if ( literal1.hasFunctor(DISEQUALITY) ) {
+				return areEquivalent(literal2.get(0), Expressions.apply(EQUALITY, literal1.get(0), literal1.get(1)));
 			}
 		} 
-		else if ( literal1.hasFunctor(Disequality.FUNCTOR) && literal2.hasFunctor(Disequality.FUNCTOR) ) {
+		else if ( literal1.hasFunctor(DISEQUALITY) && literal2.hasFunctor(DISEQUALITY) ) {
 			return pairwiseEquivalent(literal1.get(0), literal1.get(1), literal2.get(0), literal2.get(1));
 		}
-		else if ( literal1.hasFunctor(Equality.FUNCTOR) && literal2.hasFunctor(Equality.FUNCTOR) ) {
+		else if ( literal1.hasFunctor(EQUALITY) && literal2.hasFunctor(EQUALITY) ) {
 			for (Expression term1: literal1.getArguments()) {
 				boolean conjunction = true;
 				for (Expression term2: literal2.getArguments()) {
@@ -146,8 +153,8 @@ public class BooleanUtil {
 	 * @return true if expression is of the form "x=y" or "not (x != y)"
 	 */
 	public static boolean isEquality(Expression expression) {
-		return (expression.hasFunctor(Equality.FUNCTOR) && expression.getArguments().size() == 2) || 
-				(expression.hasFunctor(Not.FUNCTOR) && isNotEquality(expression.get(0)));
+		return (expression.hasFunctor(EQUALITY) && expression.getArguments().size() == 2) || 
+				(expression.hasFunctor(NOT) && isNotEquality(expression.get(0)));
 	}
 	
 	/**
@@ -156,7 +163,7 @@ public class BooleanUtil {
 	 * @return true if expression is of the form x=y=...=z"
 	 */
 	public static boolean isMultiEquality(Expression expression) {
-		return (expression.hasFunctor(Equality.FUNCTOR) && expression.getArguments().size()>2);
+		return (expression.hasFunctor(EQUALITY) && expression.getArguments().size()>2);
 	}
 
 	public static Expression expandMultiEquality(Expression expression, Expression mainVar) {
@@ -189,7 +196,7 @@ public class BooleanUtil {
 	 * @return true if expression is either of the form "x=y" or "not (x != y)"
 	 */
 	public static boolean isNotEquality(Expression expression) {
-		return (expression.hasFunctor(Not.FUNCTOR) && isEquality(expression.get(0))) || expression.hasFunctor(Disequality.FUNCTOR);
+		return (expression.hasFunctor(NOT) && isEquality(expression.get(0))) || expression.hasFunctor(DISEQUALITY);
 	}
 
 	/**
@@ -198,7 +205,7 @@ public class BooleanUtil {
 	 * @return true if expression is a conjunction
 	 */
 	public static boolean isConjunction(Expression expression) {
-		return expression.hasFunctor(And.FUNCTOR);
+		return expression.hasFunctor(AND);
 	}
 
 	/**
@@ -207,7 +214,7 @@ public class BooleanUtil {
 	 * @return true if expression is a disjunction
 	 */
 	public static boolean isDisjunction(Expression expression) {
-		return expression.hasFunctor(Or.FUNCTOR);
+		return expression.hasFunctor(OR);
 	}
 
 	/**
@@ -216,7 +223,7 @@ public class BooleanUtil {
 	 * @return true if expression is an implication
 	 */
 	public static boolean isImplication(Expression expression) {
-		return expression.hasFunctor(Implication.FUNCTOR);
+		return expression.hasFunctor(IMPLICATION);
 	}
 
 	/**
@@ -225,7 +232,7 @@ public class BooleanUtil {
 	 * @return true if expression is an Equivalence
 	 */
 	public static boolean isEquivalence(Expression expression) {
-		return expression.hasFunctor(Equivalence.FUNCTOR);
+		return expression.hasFunctor(EQUIVALENCE);
 	}
 
 	/**
@@ -234,7 +241,7 @@ public class BooleanUtil {
 	 * @return true if expression is a disjunction
 	 */
 	public static boolean isNegation(Expression expression) {
-		return expression.hasFunctor(Not.FUNCTOR);
+		return expression.hasFunctor(NOT);
 	}
 
 	/**
@@ -249,14 +256,14 @@ public class BooleanUtil {
 
 	public static Set<Expression> getTerms(Expression expression) {
 		Set<Expression> set = new LinkedHashSet<Expression>();
-		if ( expression.hasFunctor(Equality.FUNCTOR) || expression.hasFunctor(Disequality.FUNCTOR) ) {
+		if ( expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY) ) {
 			set.add(expression.get(0));
 			set.add(expression.get(1));
 		} 
-		else if ( expression.hasFunctor(Not.FUNCTOR) ) {
+		else if ( expression.hasFunctor(NOT) ) {
 			set.addAll(getTerms(expression.get(0)));
 		}
-		else if ( expression.hasFunctor(Or.FUNCTOR) || expression.hasFunctor(And.FUNCTOR) || expression.hasFunctor(Implication.FUNCTOR)) {
+		else if ( expression.hasFunctor(OR) || expression.hasFunctor(AND) || expression.hasFunctor(IMPLICATION)) {
 			for (Expression arg: expression.getArguments()) {
 			set.addAll(getTerms(arg));
 			}

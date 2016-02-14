@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.parser.antlr;
 
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,7 +59,6 @@ import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
@@ -204,7 +205,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// NOT expr #not
 	@Override
 	public Expression visitNot(AntlrGrinderParser.NotContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Not.FUNCTOR, visit(ctx.expr()));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(NOT, visit(ctx.expr()));
 		return result;
 	}
 	

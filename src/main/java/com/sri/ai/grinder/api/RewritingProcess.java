@@ -110,11 +110,7 @@ public interface RewritingProcess extends Cloneable {
 	
 	/**
 	 * 
-	 * @return the process's current contextual constraint. This is a constraint
-	 *         on the values of the free variables for expressions being passed
-	 *         to rewriters, which is a subset of the contextual symbols
-	 *         associated with the process (i.e. not all these variables need
-	 *         necessarily be constrained).
+	 * @return the process's current contextual constraint..
 	 */
 	Expression getContextualConstraint();
 

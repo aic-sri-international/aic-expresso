@@ -57,24 +57,18 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 
 /**
- * Implements a rewriter for the plus operation.
- * 
  * @author braz
  *
  */
 @Beta
 public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly implements TopSimplifier {
 
-	public Expression apply(Expression expression, RewritingProcess process) {
-		return rewriteAfterBookkeeping(expression, process);
-	}
-	
 	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
 
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, RewritingProcess process) {
 		// takes care of infinity arguments before deferring to super method
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;
@@ -83,7 +77,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly imp
 				CommutativeAssociativeOnNumbers.dealWithInfinity(
 						expression,
 						process,
-						(e, p) -> super.rewriteAfterBookkeeping(e, p));
+						(e, p) -> super.apply(e, p));
 		return result;
 	}
 

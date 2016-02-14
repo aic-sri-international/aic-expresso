@@ -54,8 +54,6 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 
 /**
- * An atomic rewriter of Boolean "or" expressions. Includes related helper methods.
- * 
  * @author braz
  *
  */

@@ -41,20 +41,16 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Implements a rewriter for the exponentiation operation.
- * 
  * @author braz
  *
  */
 @Beta
-public class Exponentiation extends AbstractRewriter {
+public class Exponentiation implements TopSimplifier {
 	public static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
 	private static int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));
@@ -95,16 +91,6 @@ public class Exponentiation extends AbstractRewriter {
 	public static Expression make(Expression base, Expression power) {
 		Expression result = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
 		return result;
-	}
-
-	public Exponentiation() {
-		this.setReifiedTests(new HasKind(FunctorConstants.EXPONENTIATION),
-				             new HasNumberOfArguments(2));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		return simplify(expression, process);
 	}
 
 	@Override

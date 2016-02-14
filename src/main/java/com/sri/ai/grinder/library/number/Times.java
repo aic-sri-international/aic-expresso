@@ -54,29 +54,23 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 
 /**
- * Implements a rewriter for the times operation.
- * 
  * @author braz
  *
  */
 @Beta
 public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly implements TopSimplifier {
 
-	public Expression apply(Expression expression, RewritingProcess process) {
-		return rewriteAfterBookkeeping(expression, process);
-	}
-	
 	private final static Expression            neutralElement              = Expressions.makeSymbol(1);
 	private final static Expression            absorbingElement            = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, RewritingProcess process) {
 		// takes care of infinity arguments before deferring to super method
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;
 		}
-		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, process, (e, p) -> super.rewriteAfterBookkeeping(e, p));
+		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, process, (e, p) -> super.apply(e, p));
 		return result;
 	}
 

@@ -45,7 +45,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * API for tuples. Because parsing tuples with single elements is ambiguous with
@@ -55,19 +55,13 @@ import com.sri.ai.grinder.core.AbstractRewriter;
  * @author braz
  */
 @Beta
-public class Tuple extends AbstractRewriter {
+public class Tuple implements TopSimplifier {
 
 	public static final String TUPLE_LABEL = "( . )";
 	//
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-		return expression;
-	}
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// Note: is a NoOpRewriter
 		return expression;
 	}
 	

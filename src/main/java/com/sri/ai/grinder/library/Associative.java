@@ -37,26 +37,16 @@
  */
 package com.sri.ai.grinder.library;
 
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
-import com.sri.ai.util.Util;
 
 /**
- * A rewriter collapsing nested applications of a given iterator into a single
- * one. For example, it can rewrite <code>f(x, f(y,z))</code> into
- * <code>f(x,y,z)</code>.
- * 
  * @author braz
  */
 @Beta

@@ -70,7 +70,6 @@ public class FunctorConstants {
 	public final static String IMPLICATION  = "=>";
 	public final static String IMPLIED  = "<=";
 	public final static String EQUAL  = "=";
-	public final static String INEQUALITY = "!=";
 	public final static String GREATER_THAN = ">";
 	public static final String LESS_THAN = "<";
 	public static final String LESS_THAN_OR_EQUAL_TO = "<=";

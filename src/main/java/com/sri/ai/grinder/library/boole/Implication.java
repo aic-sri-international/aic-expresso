@@ -37,44 +37,20 @@
  */
 package com.sri.ai.grinder.library.boole;
 
+import static com.sri.ai.grinder.library.FunctorConstants.IMPLICATION;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
- * An atomic rewriter of Boolean implication expressions. Includes related helper methods.
- * 
  * @author braz
  *
  */
 @Beta
-public class Implication extends AbstractRewriter {
-
-	public static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.IMPLICATION);
-	
-	public Implication() {
-		this.setReifiedTests(new HasKind(FUNCTOR),
-				             new HasNumberOfArguments(2));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		
-		Expression result = Expressions.apply(
-				"or",
-				Expressions.apply("not", expression.get(0)),
-				expression.get(1));
-		return result;
-	}
-
-	public Expression getFunctor() {
-		return FUNCTOR;
-	}
+public class Implication implements TopSimplifier {
 
 	/**
 	 * Make a material implication:<br>
@@ -87,11 +63,11 @@ public class Implication extends AbstractRewriter {
 	 * @return antecedent => consequent.
 	 */
 	public static Expression make(Expression antecedent, Expression consequent) {
-		return Expressions.apply(FUNCTOR, antecedent, consequent);
+		return Expressions.apply(IMPLICATION, antecedent, consequent);
 	}
 
 	public static boolean isImplication(Expression expressionF) {
-		boolean result = expressionF.hasFunctor(FunctorConstants.IMPLICATION) && expressionF.numberOfArguments() == 2;
+		boolean result = expressionF.hasFunctor(IMPLICATION) && expressionF.numberOfArguments() == 2;
 		return result;
 	}
 

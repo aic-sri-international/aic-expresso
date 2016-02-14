@@ -47,8 +47,6 @@ import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstants
 import com.sri.ai.util.Util;
 
 /**
- * An abstract rewriter for boolean commutative associative expressions.
- * 
  * @author braz
  *
  */
@@ -56,8 +54,8 @@ import com.sri.ai.util.Util;
 public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = super.rewriteAfterBookkeeping(expression, process);
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression result = super.apply(expression, process);
 		if (result.hasFunctor(getFunctor())) {
 			result = processIdempotency(result);
 		}

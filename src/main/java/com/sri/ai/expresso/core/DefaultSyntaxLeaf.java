@@ -110,7 +110,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_specialFunctorSymbols.add(FunctorConstants.IMPLICATION);
 		_specialFunctorSymbols.add(FunctorConstants.IMPLIED);
 		_specialFunctorSymbols.add(FunctorConstants.EQUAL);
-		_specialFunctorSymbols.add(FunctorConstants.INEQUALITY);
+		_specialFunctorSymbols.add(FunctorConstants.DISEQUALITY);
 		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN);
 		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN);
 		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN_OR_EQUAL_TO);

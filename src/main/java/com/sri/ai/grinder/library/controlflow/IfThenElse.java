@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.library.controlflow;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -46,49 +49,27 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.Pair;
 
 /**
- * An atomic rewriter for conditional expressions. Returns the then or else
- * branches directly if condition is trivial. Includes related helper methods.
- * 
  * @author braz
  * 
  */
 @Beta
-public class IfThenElse extends AbstractRewriter {
+public class IfThenElse implements TopSimplifier {
 
-	private static final Expression NOT_FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
 	//
 	private static final SubExpressionAddress _pathToFunctor   = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(-1)));
 	private static final SubExpressionAddress _pathToCondition = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(0)));
 	private static final SubExpressionAddress _pathToThen      = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(1)));
 	private static final SubExpressionAddress _pathToElse      = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(2)));
 
-	public IfThenElse() {
-		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
-	}
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		
-		if (expression.get(0).equals(true)) {
-			return expression.get(1);
-		}
-		if (expression.get(0).equals(false)) {
-			return expression.get(2);
-		}
-		
-		return expression;
-	}
-	
 	/**
 	 * Returns an expression equivalent to <code>if booleanExpression then thenBranch else elseBranch</code>,
 	 * that is <i>not</i> an if-then-else expression with another if-then-else as condition
@@ -317,7 +298,7 @@ public class IfThenElse extends AbstractRewriter {
 	public static Expression equivalentWithNonNegatedCondition(Expression expression) {
 		if (isIfThenElse(expression)) {
 			Pair<Integer, Expression> numberOfNotApplicationsAndArgument =
-					Expressions.getNumberOfConsecutiveApplicationsOfUnaryFunctorAndUnderlyingArgument(condition(expression), NOT_FUNCTOR);
+					Expressions.getNumberOfConsecutiveApplicationsOfUnaryFunctorAndUnderlyingArgument(condition(expression), makeSymbol(NOT));
 			if (numberOfNotApplicationsAndArgument.first != 0) {
 				if (numberOfNotApplicationsAndArgument.first % 2 == 0) {
 					expression = make(numberOfNotApplicationsAndArgument.second, thenBranch(expression), elseBranch(expression));

@@ -43,10 +43,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * Implements the unary MINUS operation.
@@ -54,17 +52,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
  * @author braz
  */
 @Beta
-public class UnaryMinus extends AbstractRewriter {
-
-	public UnaryMinus() {
-		this.setReifiedTests(new HasKind(FunctorConstants.MINUS),
-				             new HasNumberOfArguments(1));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		return simplify(expression);
-	}
+public class UnaryMinus implements TopSimplifier {
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {

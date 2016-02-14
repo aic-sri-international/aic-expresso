@@ -64,7 +64,7 @@ public interface GroupProblemType extends AssociativeCommutativeGroup {
 	 * @return
 	 */
 	Pair<Expression, IndexExpressionsSet>
-	getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
+	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, RewritingProcess process);
 
 	/**
 	 * Generates an expression representing of problem of this type, given its components. 

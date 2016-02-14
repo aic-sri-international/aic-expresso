@@ -639,15 +639,6 @@ public class Expressions {
 		return result;
 	}
 	
-	public static final Function<Expression, Expression> GET_FUNCTOR_OR_SYMBOL = new Function<Expression, Expression>() {
-
-		@Override
-		public Expression apply(Expression object) {
-			Expression expression = object;
-			return expression.getFunctorOrSymbol();
-		}
-	};
-	
 	/**
 	 * Returns a copy of an expressions with its arguments replaced by new arguments,
 	 * with same expression returned if the new arguments turn out to be the same
@@ -673,12 +664,6 @@ public class Expressions {
 			}
 			return apply(expression.getFunctor(), newArguments);
 		}
-	}
-
-	public static boolean isBooleanOperatorApplication(Expression condition) {
-		boolean result = condition.getFunctor() != null &&
-				FunctorConstants.BOOLEAN_FUNCTORS.contains(condition.getFunctor().toString());
-		return result;
 	}
 
 	/**
@@ -1160,24 +1145,6 @@ public class Expressions {
 		}
 		return result;
 	}
-
-	/**
-	 * Given a rewriter <code>R</code> and a function application <code>f(a1, ..., an)</code>,
-	 * returns <code>f(R(a1), ..., R(an))</code>.
-	 */
-	public static final Function<Expression, Expression> IDENTITY_FUNCTION = new Function<Expression, Expression>() {
-		@Override
-		public Expression apply(Expression expression) {
-			return expression;
-		}
-	};
-
-	public static final Predicate<Expression> TRUE_PREDICATE = new Predicate<Expression>() {
-		@Override
-		public boolean apply(Expression input) {
-			return true;
-		}
-	};
 
 	/**
 	 * If expression is a function application of given functor, return a new one with same arguments and new argument given.

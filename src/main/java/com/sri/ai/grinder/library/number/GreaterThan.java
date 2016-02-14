@@ -52,8 +52,6 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
- * Implements a rewriter for the greater than operation.
- * 
  * @author braz
  */
 @Beta

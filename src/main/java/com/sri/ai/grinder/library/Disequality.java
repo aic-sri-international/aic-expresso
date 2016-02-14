@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library;
 
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,15 +46,12 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -62,41 +61,13 @@ import com.sri.ai.util.base.BinaryFunction;
  * @author braz
  */
 @Beta
-public class Disequality extends AbstractRewriter {
+public class Disequality  implements TopSimplifier {
 
-	public  static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.INEQUALITY);
-	//
-	public Disequality() {
-		this.setReifiedTests(new HasKind(FUNCTOR),
-				             new HasNumberOfArguments(2));
-	}
+	public  static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.DISEQUALITY);
 	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-	
-		Expression equals = Equality.equalityResultIfItIsKnown(expression, process);
-		if (equals != expression) {
-			SyntaxLeaf equalsResult = (SyntaxLeaf) equals.getSyntaxTree();
-			Boolean booleanObject = (Boolean) equalsResult.getValue();
-			boolean booleanValue = booleanObject.booleanValue();
-			return Expressions.makeSymbol(!booleanValue);
-		}
-		
-		return expression;
-	}
-
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-	
-		Expression equals = Equality.equalityResultIfItIsKnown(expression, process);
-		if (equals != expression) {
-			SyntaxLeaf equalsResult = (SyntaxLeaf) equals.getSyntaxTree();
-			Boolean booleanObject = (Boolean) equalsResult.getValue();
-			boolean booleanValue = booleanObject.booleanValue();
-			return Expressions.makeSymbol(!booleanValue);
-		}
-		
-		return expression;
+		return simplify(expression, process);
 	}
 
 	/**
@@ -175,7 +146,7 @@ public class Disequality extends AbstractRewriter {
 		if (expression1.equals(expression2)) {
 			return Expressions.FALSE;
 		}
-		return Expressions.apply(FunctorConstants.INEQUALITY, expression1, expression2);
+		return Expressions.apply(DISEQUALITY, expression1, expression2);
 	}
 
 	public static BinaryFunction<Expression, Expression, Expression> MAKE_PAIR_DISEQUALITY = new BinaryFunction<Expression, Expression, Expression>() {
@@ -186,7 +157,7 @@ public class Disequality extends AbstractRewriter {
 	};
 
 	public static boolean isDisequality(Expression expression) {
-		return expression.hasFunctor(FunctorConstants.INEQUALITY);
+		return expression.hasFunctor(DISEQUALITY);
 	}
 	
 	/**

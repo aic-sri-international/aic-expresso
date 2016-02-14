@@ -51,8 +51,7 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 
@@ -71,12 +70,8 @@ import com.sri.ai.util.base.Equals;
  * @author braz
  */
 @Beta
-public abstract class CommutativeAssociative extends AbstractRewriter {
+public abstract class CommutativeAssociative implements TopSimplifier {
 	
-	public CommutativeAssociative() {
-		this.setReifiedTests(new HasKind(getFunctor()));
-	}
-
 	public abstract Object getFunctor();
 	protected abstract Expression getNeutralElement();
 	protected abstract Expression getAbsorbingElement();
@@ -100,7 +95,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	}
 	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, RewritingProcess process) {
 
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;
@@ -138,7 +133,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 		// this next if then else is both an optimization for the case in which there is a single operable,
 		// and a way to make sure
 		// we return the same expression instance when it doesn't change (like x + 2), lest we generate
-		// a distinct but equal instance that would keep being re-evaluated by the same rewriter.
+		// a distinct but equal instance that would keep being re-evaluated by the same manipulator.
 		if (operableArguments.size() == 1) {
 			if (operableArguments.getFirst().equals(getNeutralElementExpression())) {
 				// we don't need to include the neutral element, and are left with non-operable arguments only, done.

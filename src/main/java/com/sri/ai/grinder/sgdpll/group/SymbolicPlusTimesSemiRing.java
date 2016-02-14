@@ -85,11 +85,11 @@ public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements Asso
 		return result;
 	}
 
-	static final private Times timesRewriter = new Times();
+	static final private Times timesSimplifier = new Times();
 
 	@Override
 	public Expression multiply(Expression multiplication, RewritingProcess process) {
-		Expression result = timesRewriter.apply(multiplication, process);
+		Expression result = timesSimplifier.apply(multiplication, process);
 		return result;
 	}
 

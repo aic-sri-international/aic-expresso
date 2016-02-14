@@ -50,10 +50,9 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
@@ -64,34 +63,13 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  */
 @Beta
-public class Equality extends AbstractRewriter {
+public class Equality implements TopSimplifier {
 
 	public static final Expression FUNCTOR = Expressions.makeSymbol("=");
 	
-	public Equality() {
-		this.setReifiedTests(new HasKind(FUNCTOR));
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.numberOfArguments() > 1) {
-			return equalityResultIfItIsKnown(expression, process);
-		}
-		else {
-			// 1 or 0 arguments is equivalent to True
-			return Expressions.TRUE;
-		}
-	}
-
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-		if (expression.numberOfArguments() > 1) {
-			return equalityResultIfItIsKnown(expression, process);
-		}
-		else {
-			// 1 or 0 arguments is equivalent to True
-			return Expressions.TRUE;
-		}
+		return simplify(expression, process);
 	}
 
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {

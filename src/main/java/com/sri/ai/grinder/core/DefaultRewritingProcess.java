@@ -71,7 +71,7 @@ import com.sri.ai.util.collect.StackedHashMap;
 @Beta
 public class DefaultRewritingProcess implements RewritingProcess {
 	
-	// Used to assign unique ids to rewrite processes.
+	// Used to assign unique ids to rewriting processes.
 	private static final AtomicLong  _uniqueIdGenerator = new AtomicLong(0);
 	//
 	private long                         id                                                                    = 0L;
@@ -295,7 +295,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this.globalObjects        = globalObjects;
 		//
 		if (parentProcess != null) {
-			// rewriters must have already been notified and been initialized.
 			setRecursionLevel(parentProcess.getRecursionLevel()+1);
 		}
 		this.types = types;

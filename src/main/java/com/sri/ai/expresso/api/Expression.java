@@ -51,8 +51,7 @@ import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.math.Rational;
 
 /**
- * An Expression is an algebraic expression based on a syntax tree, and wrapped up with
- * information so it can be used by rewriters.
+ * An Expression is an algebraic expression based on a syntax tree.
  * 
  * @author braz
  */

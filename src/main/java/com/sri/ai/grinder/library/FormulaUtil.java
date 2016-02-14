@@ -37,6 +37,12 @@
  */
 package com.sri.ai.grinder.library;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUAL;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -77,12 +83,12 @@ public class FormulaUtil {
 		boolean result = false;
 		
 		// the Boolean constants False and True are formulas;
-		if (expression.equals(Expressions.TRUE) || expression.equals(Expressions.FALSE)) {
+		if (expression.equals(TRUE) || expression.equals(FALSE)) {
 			result = true; 
 		} 
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula.
-		else if ((expression.hasFunctor(FunctorConstants.EQUAL) || expression.hasFunctor(FunctorConstants.INEQUALITY)) &&
+		else if ((expression.hasFunctor(EQUAL) || expression.hasFunctor(DISEQUALITY)) &&
 				expression.numberOfArguments() > 1) {
 			// in this case assume is a formula till proven otherwise
 			result = true;
@@ -95,7 +101,7 @@ public class FormulaUtil {
 			}
 		} 
 		// if phi is a formula, then not(phi) is a formula
-		else if (expression.hasFunctor(FunctorConstants.NOT) && 
+		else if (expression.hasFunctor(NOT) && 
 				 expression.numberOfArguments() == 1) {
 			result = isFormula(expression.get(0), process);
 		}

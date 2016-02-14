@@ -83,14 +83,11 @@ public class SymbolicPlusGroup extends AbstractSymbolicNumbersGroup {
 		}
 		else {
 			Expression sum = Plus.make(arrayList(value1, value2));
-			//result = plusAndMinusRewriter.rewrite(sum, process);
 			result = DefaultPolynomial.make(sum);
 		}
 		return result;
 	}
 
-	// private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
-	
 	@Override
 	protected Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
 		Expression result;
