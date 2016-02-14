@@ -378,6 +378,6 @@ public interface ConstraintTheory extends Theory {
 	RewritingProcess extendWithTestingInformation(RewritingProcess process);
 
 	default RewritingProcess makeRewritingProcessWithTestingInformation() {
-		return extendWithTestingInformation(new DefaultRewritingProcess(null));
+		return extendWithTestingInformation(new DefaultRewritingProcess());
 	}
 }

@@ -128,7 +128,7 @@ public class ConstraintTheoryTester {
 	public static void testSingleVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
 
@@ -160,7 +160,7 @@ public class ConstraintTheoryTester {
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, process);
 
@@ -186,7 +186,7 @@ public class ConstraintTheoryTester {
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
 
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, process);
 
@@ -386,7 +386,7 @@ public class ConstraintTheoryTester {
 	public static void testModelCountingForSingleVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		
 		Symbol variable = makeSymbol(constraintTheory.pickTestingVariableAtRandom(random));
 		
@@ -562,7 +562,7 @@ public class ConstraintTheoryTester {
 	}
 
 	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, GroupProblemType problemType, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
 		

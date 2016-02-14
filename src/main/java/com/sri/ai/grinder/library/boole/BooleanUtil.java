@@ -46,11 +46,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 
 /**
  * A collection of utility routines related to handling boolean expressions.
@@ -250,18 +247,6 @@ public class BooleanUtil {
 		return Expressions.containsAnyOfGivenCollectionAsSubExpression(expression, Lists.newArrayList(element));
 	}
 
-	/**
-	 * 
-	 * @param variable
-	 * @return |type(X)| if variable is X
-	 */
-	public static Expression sizeof(Expression var, RewritingProcess process) {
-		CardinalityOfType cardLogical = new CardinalityOfType();
-		Expression card = Expressions.apply(FunctorConstants.CARDINALITY, var);
-		Expression result = cardLogical.rewrite(card, process);
-		return result;	
-	}
-	
 	public static Set<Expression> getTerms(Expression expression) {
 		Set<Expression> set = new LinkedHashSet<Expression>();
 		if ( expression.hasFunctor(Equality.FUNCTOR) || expression.hasFunctor(Disequality.FUNCTOR) ) {

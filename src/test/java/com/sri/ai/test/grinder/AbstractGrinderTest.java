@@ -142,14 +142,9 @@ abstract public class AbstractGrinderTest {
 	
 	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
 	protected void evaluationTest() {
-		evaluationTest(evaluator);
+		evaluationTest(evaluator, globalObjects, new DefaultRewritingProcess());
 	}
 
-	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
-	protected void evaluationTest(Rewriter evaluator) {
-		evaluationTest(evaluator, globalObjects, new DefaultRewritingProcess(evaluator));
-	}
-	
 	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
 	protected void evaluationTest(RewritingProcess process) {
 		evaluationTest(evaluator, globalObjects, process);
@@ -236,8 +231,7 @@ abstract public class AbstractGrinderTest {
 					fail("tests[i]=" + i + ", " + topExpression + " should have thrown an IllegalArgumentException.");
 				} catch (IllegalArgumentException iae) {
 					// ok this is expected
-					com.sri.ai.grinder.helper.Trace.setTraceLevel(0);
-					com.sri.ai.grinder.helper.Trace.log("-R_: expected IllegalArgumentException thrown:"+iae.getMessage());
+					throw new Error("-R_: expected IllegalArgumentException thrown:"+iae.getMessage());
 				}
 			}
 			else {

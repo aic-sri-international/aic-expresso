@@ -85,7 +85,7 @@ public class SymbolicShell {
 								new InequalityConstraintTheory(false, false),
 								new PropositionalConstraintTheory()));
 		
-		RewritingProcess process = new DefaultRewritingProcess(null);
+		RewritingProcess process = new DefaultRewritingProcess();
 		process = process.newRewritingProcessWith(BOOLEAN_TYPE);
 		process = process.newRewritingProcessWith(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		process = process.newRewritingProcessWith(new IntegerInterval("Integer"));

@@ -39,27 +39,14 @@ package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.helper.Justification;
-import com.sri.ai.grinder.helper.RewriterLogging;
-import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.Util.SelectPairResult;
-import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.BinaryPredicate;
-import com.sri.ai.util.base.Pair;
 
 /**
  * A basic, default implementation of some of the {@link Rewriter} methods.
@@ -76,57 +63,9 @@ public abstract class AbstractRewriter implements Rewriter {
 //	// in order to intercept a particular rewriting action by a rewriter in aic-praise. @author braz
 //	public static TernaryPredicate<Rewriter, Expression, Expression> conditionForBreakpoint;
 	
-	private static final List<Rewriter> _emptyChildList = Collections.unmodifiableList(new ArrayList<Rewriter>());
 	//
 	private String name = null;
 	private List<RewriterTest> reifiedTests = Collections.emptyList(); 
-	private boolean traceInAndOutOfRewriter = GrinderConfiguration.isTraceInAndOutOfAtomicRewriterEnabled();
-
-	/**
-	 * A general rewriting utility which receives an expression, looks for a
-	 * pair of its arguments satisfying a given set of predicates (both
-	 * individually and as a pair), performs a binary operation on them, and
-	 * returns a new expression with the same functor as the original, with the
-	 * pair of arguments removed and the result of the binary operation in the
-	 * original position of the first one. If such a pair is not found, simply
-	 * returns the original expression. If true, argument
-	 * <code>noUnaryApplication</code> prevents the new operation from being a
-	 * unary application, returning instead its only argument (this is useful
-	 * for operators whose singleton application is the same as the identity,
-	 * such as conjunction, disjunction, addition, etc).
-	 */
-	public static Expression expressionAfterBinaryOperationIsPerformedOnPairOfArgumentsSatisfyingPredicates(
-			Expression expression, BinaryFunction<Expression, Expression, Expression> binaryOperation, Predicate<Expression> unaryPredicate1, Predicate<Expression> unaryPredicate2, BinaryPredicate<Expression, Expression> binaryPredicate,
-			boolean noUnaryApplication) {
-
-		SelectPairResult<Expression> pair =
-			Util.selectPairInEitherOrder(expression.getArguments(), unaryPredicate1, unaryPredicate2, binaryPredicate);
-
-		if (pair != null) {
-			Expression operationResult = binaryOperation.apply(pair.satisfiesFirstPredicate, pair.satisfiesSecondPredicate);
-
-			Pair<List<Expression>, List<Expression>> slices =
-				Util.slicesBeforeIAndRestWithoutJ(
-						expression.getArguments(),
-						pair.indexOfFirst, pair.indexOfSecond);
-
-			@SuppressWarnings("unchecked")
-			List<Expression> arguments =
-					Util.addAllToANewList(
-							slices.first,
-							Lists.newArrayList(operationResult),
-							slices.second);
-
-			if (noUnaryApplication && arguments.size() == 1) {
-				return arguments.get(0);
-			}
-
-			Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), arguments);
-			return result;
-		}
-		return expression;
-	}
-	
 	public AbstractRewriter() {
 		super();
 	}
@@ -148,84 +87,13 @@ public abstract class AbstractRewriter implements Rewriter {
 
 	@Override
 	public Expression rewrite(Expression expression, boolean bypassTests, RewritingProcess process){
-		Expression result   = expression;
-		Expression original = expression;
-		
-		String previousRewriterName = null;
-		if (Trace.isEnabled() || Justification.isEnabled()) {
-			previousRewriterName = RewriterLogging.setCurrentRewriterName(getName());
-		}
-		
-		if (isTraceInAndOutOfRewriter()) {
-			if (Trace.isEnabled()) {
-				Trace.in("+" + getName() + "({}) - under context variables = {}, constrained by {}", expression, process.getContextualSymbols(), process.getContextualConstraint());
-			}
-		}
-		
-		if (process.getRootRewriter() == null) {
-			process.setRootRewriter(this);
-		}
-		Expression preProcessing = process.rewritingPreProcessing(this, expression);
-		if (preProcessing != null) {
-			result = preProcessing;
-		} 
-		else if (process.getContextualConstraint().equals(Expressions.FALSE)) {
-			result = Rewriter.FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE;
-		} 
-		else {
-			
-			if (bypassTests || runReifiedTests(expression, process)) {
-				result = rewriteAfterBookkeeping(expression, process);
-			}
-			
-			if (result != original && original == process.getRootExpression()) {
-				process.setRootExpression(result);
-			}
-			process.rewritingPostProcessing(this, original, result);
-		}
-		
-		if (isTraceInAndOutOfRewriter()) {
-			if (Trace.isEnabled()) {
-				if (result != expression) {
-					Trace.out(RewriterLogging.REWRITER_PROFILE_INFO, "-"+getName()+"={}", result);
-				}
-				else {
-					Trace.out(RewriterLogging.REWRITER_PROFILE_INFO, "-"+getName()+" did not apply");
-				}
-			}
-		}
-		
-		if (Trace.isEnabled() || Justification.isEnabled()) {
-			RewriterLogging.setCurrentRewriterName(previousRewriterName);
-		}
-		
-		return result;
+		return rewriteAfterBookkeeping(expression, process);
 	}
 	
 	@Override
 	public Expression rewrite(Expression expression, RewritingProcess process) {
 		// Don't bypass tests by default.
 		return rewrite(expression, false, process);
-	}
-	
-	@Override
-	public Expression rewrite(Expression expression) {
-		RewritingProcess process = makeRewritingProcess(expression);
-		process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(expression, process);
-		return rewrite(expression, process);
-	}
-
-	@Override
-	public Iterator<Rewriter> getChildrenIterator() {
-		return _emptyChildList.iterator();
-	}
-	
-	@Override
-	public void rewritingProcessInitiated(RewritingProcess process) {
-	}
-
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
 	}
 	
 	// END-Rewriter
@@ -235,7 +103,7 @@ public abstract class AbstractRewriter implements Rewriter {
 
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression expression) {
-		DefaultRewritingProcess result = new DefaultRewritingProcess(expression, this);
+		DefaultRewritingProcess result = new DefaultRewritingProcess();
 		return result;
 	}
 
@@ -273,9 +141,5 @@ public abstract class AbstractRewriter implements Rewriter {
 			}
 		}
 		return true;
-	}
-	
-	protected boolean isTraceInAndOutOfRewriter() {
-		return traceInAndOutOfRewriter;
 	}
 }

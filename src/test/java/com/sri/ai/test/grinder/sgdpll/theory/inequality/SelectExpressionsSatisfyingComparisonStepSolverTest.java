@@ -68,7 +68,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		RewritingProcess process = new DefaultRewritingProcess(null);
+		RewritingProcess process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 

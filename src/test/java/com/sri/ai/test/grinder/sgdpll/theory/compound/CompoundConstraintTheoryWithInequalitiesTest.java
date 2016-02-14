@@ -132,7 +132,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
 		Constraint constraint = new CompleteMultiVariableConstraint(compound);
-		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess());
 		constraint = constraint.conjoin(condition, process);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
@@ -266,7 +266,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, process);
 		}

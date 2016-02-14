@@ -76,23 +76,19 @@ import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
-import com.sri.ai.grinder.helper.RewriterFunction;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -204,9 +200,6 @@ public class Expressions {
 		else if (label.equals(IntensionalSet.MULTI_SET_LABEL)) {
 			result = makeDefaultIntensionalMultiSetFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(CardinalityOfType.TYPE_LABEL)) {
-			result = makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
-		}
 		else {
 			result = makeDefaultFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -247,16 +240,6 @@ public class Expressions {
 		Expression labelExpression = makeFromObject(label);
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression result = new DefaultFunctionApplication(labelExpression, subTreeExpressions);
-		return result;
-	}
-
-	private static Expression makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
-		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
-			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
-		}
-		Expression labelExpression = makeFromObject(label);
-		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
-		Expression result = new DefaultSyntacticFunctionApplication(labelExpression, subTreeExpressions);
 		return result;
 	}
 
@@ -421,7 +404,7 @@ public class Expressions {
 					}
 					return e;
 				},
-				new DefaultRewritingProcess(null)
+				new DefaultRewritingProcess()
 				);
 		return result;
 	}
@@ -1182,22 +1165,6 @@ public class Expressions {
 	 * Given a rewriter <code>R</code> and a function application <code>f(a1, ..., an)</code>,
 	 * returns <code>f(R(a1), ..., R(an))</code>.
 	 */
-	public static Expression applyRewriterToArgumentsAndReAssembleFunctionApplication(Rewriter rewriter, Expression expression, RewritingProcess process) {
-		RewriterFunction thisRewriterFunction = new RewriterFunction(rewriter, process);
-		Expression result = applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(thisRewriterFunction, expression);
-		return result;
-	}
-
-	/**
-	 * Given a rewriter <code>R</code> and a list <code>(a1, ..., an)</code>,
-	 * returns <code>(R(a1), ..., R(an))</code>.
-	 */
-	public static List<Expression> passThrough(Rewriter rewriter, List<Expression> expressions, RewritingProcess process) {
-		RewriterFunction thisRewriterFunction = new RewriterFunction(rewriter, process);
-		List<Expression> rewrittenExpressions = Util.mapIntoArrayList(expressions, thisRewriterFunction);
-		return rewrittenExpressions;
-	}
-
 	public static final Function<Expression, Expression> IDENTITY_FUNCTION = new Function<Expression, Expression>() {
 		@Override
 		public Expression apply(Expression expression) {

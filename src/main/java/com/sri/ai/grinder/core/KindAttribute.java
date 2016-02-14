@@ -45,7 +45,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.set.Sets;
 
 /**
@@ -122,27 +121,12 @@ public class KindAttribute implements RewriterTestAttribute {
 		}
 	};
 	//
-	public static final Predicate<Expression> VALUE_TYPE_SYNTACTIC_FUNCTION = new Predicate<Expression>() {
-		@Override
-		public boolean apply(Expression e) {
-			boolean result =
-					CardinalityOfType.isTypeSyntacticFunctionApplication(e);
-			return result;
-		}
-
-		@Override
-		public String toString() {
-			return "type syntactic function";
-		}
-	};
-	
 	public static boolean isKindPredicate(Object kindValue) {
 		boolean result = 
 			kindValue == VALUE_FOR_ALL         || 
 			kindValue == VALUE_THERE_EXISTS    || 
 			kindValue == VALUE_EXTENSIONAL_SET ||
-			kindValue == VALUE_INTENSIONAL_SET ||
-			kindValue == VALUE_TYPE_SYNTACTIC_FUNCTION;
+			kindValue == VALUE_INTENSIONAL_SET;
 		return result;
 	}
 	
@@ -164,9 +148,6 @@ public class KindAttribute implements RewriterTestAttribute {
 		}
 		else if (VALUE_THERE_EXISTS.apply(expression)) {
 			result = VALUE_THERE_EXISTS;
-		}
-		else if (VALUE_TYPE_SYNTACTIC_FUNCTION.apply(expression)) {
-			result = VALUE_TYPE_SYNTACTIC_FUNCTION;
 		}
 		else if ((result = expression.getFunctor()) != null) {
 			// We have a functor, so we will return it as the result as it will be used for the comparison

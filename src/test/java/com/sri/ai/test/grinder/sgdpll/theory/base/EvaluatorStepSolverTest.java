@@ -81,7 +81,7 @@ public class EvaluatorStepSolverTest {
 		variablesAndTypes.put("U", booleanType);
 		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		RewritingProcess process = new DefaultRewritingProcess(null);
+		RewritingProcess process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();

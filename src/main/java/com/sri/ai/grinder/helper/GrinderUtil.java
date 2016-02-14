@@ -76,7 +76,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -98,23 +97,13 @@ import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
-import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnBranch;
-import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
-import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
-import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType.TypeSizeOfSymbolOrType;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
@@ -128,8 +117,6 @@ import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
 import com.sri.ai.util.concurrent.BranchAndMerge;
-import com.sri.ai.util.concurrent.CancelOutstandingOnFailure;
-import com.sri.ai.util.concurrent.CancelOutstandingOnSuccess;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -190,378 +177,6 @@ public class GrinderUtil {
 		return expression;
 	}
 	
-	/**
-	 * Determine whether an expression is a conditional on logical variables.
-	 * For e.g.:
-	 * 
-	 * <pre>
-	 * if X = a then 1 else 2
-	 * 
-	 * and
-	 * 
-	 * if X = a and p(X) then 1 else 2
-	 * </pre>
-	 * 
-	 * are conditionals that are conditioned on the logical variable X.
-	 * 
-	 * @param expressions
-	 *            the expression to be tested.
-	 * @param process
-	 *            the process in which the rewriting is occurring.
-	 * @return true if the passed in expression is a conditional on logical
-	 *         variables, false otherwise.
-	 */
-	public static boolean isConditionalOnLogicalVariables(
-			Expression expression, RewritingProcess process) {
-		boolean result = false;
-	
-		if (IfThenElse.isIfThenElse(expression)) {
-			Expression condition = IfThenElse.condition(expression);
-			if (condition.equals(Expressions.TRUE) || condition.equals(Expressions.FALSE)) {
-				// This is a degenerate case, i.e. no logical variables but
-				// constants for truth or falsehood are present,
-				// which we will consider to be true
-				result = true;
-				// Generate a warning as this shouldn't happen in practice if
-				// expressions have been rewritten correctly before calling
-				// this.
-				Trace.log("WARNING: receiving conditionals with true or false in their conditions, these should already be rewritten: {}", expression);
-			} 
-			else {
-				Pair<Expression, Expression> constraintsAndRest =
-					Expressions.separateEqualityFormulasOnAtomicSymbolsFromRest(condition, process);
-				// If this is constraintsAndRest.first = True it means we are not able to handle
-				if ( ! constraintsAndRest.first.equals(Expressions.TRUE)) {
-					result = true;
-				}
-			}
-		}
-	
-		return result;
-	}
-	
-	/**
-	 * Utility routine for branching a rewrite process based on a condition and
-	 * then merging their results into an if . then . else . structure to the
-	 * caller based on the rewriting that occurs in each branch. Each branch's
-	 * expressions will be constrained appropriately by the condition to ensure
-	 * irrelevant messages are not introduced which can potentially cause cycles
-	 * in acyclic lifted factor graphs.
-	 * 
-	 * @param condition
-	 *            the condition on which the branching of the rewriting is
-	 *            occurring.
-	 * @param thenRewriter
-	 *            The function to perform the rewriting on the then branch.
-	 * @param thenRewriteExpressionArguments
-	 *            The expressions to be used in the then branch computation
-	 *            based on the value of condition = true.
-	 * @param elseRewriter
-	 *            The function to perform the rewriting on the else branch.
-	 * @param elseRewriteExpressionArguments
-	 *            The expressions to be used in the else branch computation
-	 *            based on the value of condition = false.
-	 * @param rewriterNameToCheckBranchReachable
-	 *            an optional name for a rewriter that will be used to simplify 
-	 *            any extensions to the contextual constraints.
-	 * @param rewriterNameOnResultBeforeReturn
-	 *            an optional name for a rewriter that will be the final rewriter 
-	 *            to be applied to the result before it is returned by this function.
-	 * @param process
-	 *            the process in which the rewriting is occurring.
-	 * @return a conditional (possibly simplified to no longer be a conditional
-	 *         if the value of the condition is known) containing the results of
-	 *         branching the rewriting process based on the condition.
-	 */
-	public static Expression branchAndMergeOnACondition(
-			Expression condition,
-			RewriteOnBranch thenRewriter,
-			Expression[] thenRewriteExpressionArguments,
-			RewriteOnBranch elseRewriter,
-			Expression[] elseRewriteExpressionArguments,
-			String rewriterNameToCheckBranchReachable,
-			String rewriterNameOnResultBeforeReturn, 
-			RewritingProcess process) {
-
-		Expression result = null;
-		
-		if (IfThenElse.isIfThenElse(condition)) {
-			// Externalize the condition expression
-			Expression conditionalCondition = IfThenElse.condition(condition);
-			Expression thenCondition        = IfThenElse.thenBranch(condition);
-			Expression elseCondition        = IfThenElse.elseBranch(condition);
-			
-			// Handle the then branch
-			RewritingProcess thenProcess = extendContextualConstraint(conditionalCondition, process);
-			
-			Expression thenBranch = branchAndMergeOnACondition(thenCondition,
-					thenRewriter, thenRewriteExpressionArguments,
-					elseRewriter, elseRewriteExpressionArguments,
-					rewriterNameToCheckBranchReachable, rewriterNameOnResultBeforeReturn, thenProcess);
-			
-			// Handle the else branch
-			Expression       notConditionalCondition = Not.make(conditionalCondition);
-			RewritingProcess elseProcess = extendContextualConstraint(notConditionalCondition, process);
-			
-			Expression elseBranch = branchAndMergeOnACondition(elseCondition,
-					thenRewriter, thenRewriteExpressionArguments,
-					elseRewriter, elseRewriteExpressionArguments,
-					rewriterNameToCheckBranchReachable, rewriterNameOnResultBeforeReturn, elseProcess);
-			
-			result = IfThenElse.make(conditionalCondition, thenBranch, elseBranch);
-		} 
-		else {			
-			List<CallableRewriteOnConditionedBranch> rewriteTasks = new ArrayList<CallableRewriteOnConditionedBranch>();
-			// Create the then branch rewriter task if necessary
-			CallableRewriteOnConditionedBranch thenRewriteTask = new CallableRewriteOnConditionedBranch(
-					!condition.equals(Expressions.FALSE),
-					CallableRewriteOnBranch.BRANCH_TYPE_THEN,
-					condition,
-					thenRewriter,
-					thenRewriteExpressionArguments,
-					rewriterNameToCheckBranchReachable,
-					process);
-			
-			rewriteTasks.add(thenRewriteTask);
-				
-			// Create the else branch rewriter task if necessary
-			CallableRewriteOnConditionedBranch elseRewriteTask = new CallableRewriteOnConditionedBranch(
-					!condition.equals(Expressions.TRUE),
-					CallableRewriteOnBranch.BRANCH_TYPE_ELSE,
-					Not.make(condition),
-					elseRewriter,
-					elseRewriteExpressionArguments,
-					rewriterNameToCheckBranchReachable,
-					process);
-			
-			rewriteTasks.add(elseRewriteTask);
-			
-			CancelOutstandingOnFailure failurePredicate = new CancelOutstandingOnFailure(true);
-			BranchAndMerge.Result<List<Expression>> branchResults = 
-					BranchAndMerge.execute(rewriteTasks,
-							new CancelOutstandingOnSuccess<Expression>(false),
-							failurePredicate);
-			
-			if (branchResults.failureOccurred()) {
-				throw Throwables.propagate(failurePredicate.getThrowable());
-			}
-			
-			List<Expression> results = branchResults.getResult();
-			Expression thenBranch = results.get(0);
-			Expression elseBranch = results.get(1);
-			
-			if (thenBranch == null && elseBranch == null) {
-				// Neither branch could be traversed into based on the
-				// current condition and contextual constraint
-				result = Rewriter.FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE;
-			} 
-			else if (thenBranch != null && elseBranch != null) {
-				// Create if then else, if condition is unknown in advance.
-				// and both branches can be traversed into based on the
-				// current contextual constraint.
-				result = IfThenElse.make(condition, thenBranch, elseBranch);
-			}
-			else if (thenBranch != null) {
-				result = thenBranch;
-			}
-			else {
-				result = elseBranch;
-			}
-		}
-
-		if (rewriterNameOnResultBeforeReturn != null) {
-			result = process.rewrite(rewriterNameOnResultBeforeReturn, result);
-		}
-
-		return result;
-	}
-	
-	/**
-	 * Utility routine for branching on a set of disjunct rewrite tasks and
-	 * merging their results into a disjunction. Will short-circuit execution if
-	 * any of the disjunct rewrite tasks return true as their result.
-	 * 
-	 * @param disjunctRewriters
-	 *            the rewriters for each disjunct.
-	 * @param process
-	 *            the current rewriting process.
-	 * @return a disjunction based on the results of the individual disjunct
-	 *         rewriter calls.
-	 */
-	public static Expression branchAndMergeOnADisjunction(BranchRewriteTask[] disjunctRewriters,
-			RewritingProcess process) {
-		Expression result = Expressions.FALSE; // no disjuncts is equivalent to false.
-		
-		if (disjunctRewriters.length > 0) {
-			List<CallableRewriteOnBranch> disjunctTasks = new ArrayList<CallableRewriteOnBranch>();
-			for (int i = 0; i < disjunctRewriters.length; i++) {
-				disjunctTasks.add(new CallableRewriteOnBranch(CallableRewriteOnBranch.BRANCH_TYPE_OR,
-						disjunctRewriters[i].getRewriteOnBranch(),
-						disjunctRewriters[i].getArguments(),
-						process));
-			}
-			
-			ShortCircuitOnValue shortCircuitOnTrue = new ShortCircuitOnValue(Expressions.TRUE);
-			
-			CancelOutstandingOnFailure failurePredicate = new CancelOutstandingOnFailure(true);
-			BranchAndMerge.Result<List<Expression>> branchResults = 
-					BranchAndMerge.execute(disjunctTasks,
-							shortCircuitOnTrue,
-							failurePredicate);
-			
-			if (branchResults.failureOccurred()) {
-				throw Throwables.propagate(failurePredicate.getThrowable());
-			} 
-			
-			if (shortCircuitOnTrue.isShortCircuited()) {
-				result = Expressions.TRUE;
-			} 
-			else {
-				result = Or.make(branchResults.getResult());
-			}
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Utility routine for branching on a set of conjunct rewrite tasks and
-	 * merging their results into a conjunction. Will short-circuit execution if
-	 * any of the conjunct rewrite tasks return false as their result.
-	 * 
-	 * @param conjunctRewriters
-	 *            the rewriters for each conjunct.
-	 * @param process
-	 *            the current rewriting process.
-	 * @return a conjunction based on the results of the individual conjunct
-	 *         rewriter calls.
-	 */
-	public static Expression branchAndMergeOnAConjunction(BranchRewriteTask[] conjunctRewriters,
-			RewritingProcess process) {
-		Expression result = Expressions.TRUE; // no conjuncts is equivalent to true.
-		
-		if (conjunctRewriters.length > 0) {
-			List<CallableRewriteOnBranch> conjunctTasks = new ArrayList<CallableRewriteOnBranch>();
-			for (int i = 0; i < conjunctRewriters.length; i++) {
-				conjunctTasks.add(new CallableRewriteOnBranch(CallableRewriteOnBranch.BRANCH_TYPE_AND,
-						conjunctRewriters[i].getRewriteOnBranch(),
-						conjunctRewriters[i].getArguments(),
-						process));
-			}
-			
-			ShortCircuitOnValue shortCircuitOnFalse = new ShortCircuitOnValue(Expressions.FALSE);
-			
-			CancelOutstandingOnFailure failurePredicate = new CancelOutstandingOnFailure(true);
-			BranchAndMerge.Result<List<Expression>> branchResults = 
-					BranchAndMerge.execute(conjunctTasks,
-							shortCircuitOnFalse,
-							failurePredicate);
-			
-			if (branchResults.failureOccurred()) {
-				throw Throwables.propagate(failurePredicate.getThrowable());
-			} 
-			
-			if (shortCircuitOnFalse.isShortCircuited()) {
-				result = Expressions.FALSE;
-			} 
-			else {
-				result = And.make(branchResults.getResult());
-			}
-		}
-		
-		return result;
-	}
-
-	/**
-	 * Utility routine for branching on a set of arbitrary rewrite tasks and
-	 * returning their results (ordered the same as the rewrite tasks).
-	 * 
-	 * @param taskRewriters
-	 *            the rewriters for each tasg.
-	 * @param process
-	 *            the current rewriting process.
-	 * @return a list of all of the results (ordered the same as the rewrite
-	 *         tasks) from the rewrite tasks.
-	 */
-	public static List<Expression> branchAndMergeTasks(BranchRewriteTask[] taskRewriters,
-			RewritingProcess process) {
-		List<Expression> result = new ArrayList<Expression>();
-		
-		if (taskRewriters.length > 0) {
-			List<CallableRewriteOnBranch> rewriteTasks = new ArrayList<CallableRewriteOnBranch>();
-			for (int i = 0; i < taskRewriters.length; i++) {
-				rewriteTasks.add(new CallableRewriteOnBranch(CallableRewriteOnBranch.BRANCH_TYPE_TASK,
-						taskRewriters[i].getRewriteOnBranch(),
-						taskRewriters[i].getArguments(),
-						process));
-			}
-			
-			CancelOutstandingOnFailure failurePredicate = new CancelOutstandingOnFailure(true);
-			BranchAndMerge.Result<List<Expression>> branchResults = 
-					BranchAndMerge.execute(rewriteTasks,
-							new CancelOutstandingOnSuccess<Expression>(false),
-							failurePredicate);
-			
-			if (branchResults.failureOccurred()) {
-				throw Throwables.propagate(failurePredicate.getThrowable());
-			} 
-			
-			result.addAll(branchResults.getResult());
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Utility routine for branching on a set of arbitrary rewrite tasks and
-	 * returning their results (ordered the same as the rewrite tasks).
-	 * 
-	 * @param taskRewriters
-	 *            the rewriters for each tasg.
-	 * @param shortCircuitValue
-	 *            a value to short circuit on.
-	 * @param process
-	 *            the current rewriting process.
-	 * @return a list of all of the results (ordered the same as the rewrite
-	 *         tasks) from the rewrite tasks.
-	 */
-	public static List<Expression> branchAndMergeTasks(BranchRewriteTask[] taskRewriters,
-			Expression shortCircuitValue,
-			RewritingProcess process) {
-		List<Expression> result = new ArrayList<Expression>();
-		
-		if (taskRewriters.length > 0) {
-			List<CallableRewriteOnBranch> rewriteTasks = new ArrayList<CallableRewriteOnBranch>();
-			for (int i = 0; i < taskRewriters.length; i++) {
-				rewriteTasks.add(new CallableRewriteOnBranch(CallableRewriteOnBranch.BRANCH_TYPE_TASK,
-						taskRewriters[i].getRewriteOnBranch(),
-						taskRewriters[i].getArguments(),
-						process));
-			}
-			
-			ShortCircuitOnValue shortCircuitOnValue = new ShortCircuitOnValue(shortCircuitValue);
-			
-			CancelOutstandingOnFailure failurePredicate = new CancelOutstandingOnFailure(true);
-			BranchAndMerge.Result<List<Expression>> branchResults = 
-					BranchAndMerge.execute(rewriteTasks,
-							shortCircuitOnValue,
-							failurePredicate);
-			
-			if (branchResults.failureOccurred()) {
-				throw Throwables.propagate(failurePredicate.getThrowable());
-			} 
-			
-			if (shortCircuitOnValue.isShortCircuited()) {
-				result.add(shortCircuitValue);
-			} 
-			else {
-				result.addAll(branchResults.getResult());
-			}
-		}
-		
-		return result;
-	}
-
 	/**
 	 * Returns a rewriting process with contextual symbols extended by an intensional set's indices.
 	 */
@@ -1081,27 +696,6 @@ public class GrinderUtil {
 		// That point will be the spot where the process should have been extended.
 	}
 
-	public static Expression currentContextBranchReachable(String rewriterNameToCheckBranchReachable, RewritingProcess parentProcess, RewritingProcess childProcess) {
-		Expression result = Expressions.TRUE;
-		
-		// if the child process is false or the parent and child process are the
-		// same then just return the child processes value for this (as if
-		// the processes are the same the parent should ideally have already
-		// been simplified).
-		if (childProcess.getContextualConstraint().equals(Expressions.FALSE) ||
-			childProcess == parentProcess) {
-			result = childProcess.getContextualConstraint();
-		} 
-		else {
-			if (rewriterNameToCheckBranchReachable != null) {
-				// Note: check if the child branch is reachable based on the parent context.
-				result = parentProcess.rewrite(rewriterNameToCheckBranchReachable, childProcess.getContextualConstraint());
-			}
-		}
-		
-		return result;
-	}
-
 	@SafeVarargs
 	public static List<Rewriter> addRewritersBefore(List<Rewriter> rewriters,
 			Pair<Class<?>, Rewriter>... rewritersBefore) {
@@ -1186,70 +780,6 @@ public class GrinderUtil {
 		return result;
 	}
 
-	/**
-	 * Indicates whether a expression is <i>known</i> (from a syntactic point of view)
-	 * to be independent from all indices of a scoping expression around it.
-	 * Therefore it can detect that <code>j</code> is independent of <code>i</code> in <code>{ (on i) j }</code>,
-	 * for example, and that <code>g(X)</code> is independent of <code>f(X)</code> in <code>{ (on f(X)) g(X) }</code>,
-	 * but will not detect that
-	 * <code>f(a)</code> is independent of <code>f(X)</code> in <code>{ (on f(X)) f(a) | X != a }</code>.
-	 * <p>
-	 * Note that <b>not known</b> to be independent is not the same as dependent!
-	 * Therefore, a return value of <code>false</code> does not imply dependence.
-	 */
-	public static boolean isKnownToBeIndependentOfScopeIn(Expression expression, Expression scopingExpression, RewritingProcess process) {
-		List<Expression> indices = scopingExpression.getScopedExpressions(process);
-		boolean result = isKnownToBeIndependentOfIndices(expression, indices, process);
-		return result;
-	}
-
-	public static boolean isKnownToBeIndependentOfIndices(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		for (Expression index : indices) {
-			boolean isKnownToBeIndependentOfIndex = isKnownToBeIndependentOfIndex(expression, index, process);
-			if ( ! isKnownToBeIndependentOfIndex) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean isKnownToBeIndependentOfIndex(Expression expression, Expression index, RewritingProcess process) {
-		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
-		while (subExpressionsIterator.hasNext()) {
-			Expression subExpression = subExpressionsIterator.next();
-			boolean subExpressionIsKnownToBeIndependentOfIndex =
-				topExpressionIsKnownToBeIndependentOfIndex(subExpression, index, process);
-			if ( ! subExpressionIsKnownToBeIndependentOfIndex) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static boolean topExpressionIsKnownToBeIndependentOfIndex(Expression expression, Expression index, RewritingProcess process) {
-		// As the index changes its value, the only way an expression can always coincide with it
-		// is by being the index itself; all others will remain with the same value as the index changes,
-		// and will therefore be independent from that change.
-		Expression expressionFunctorOrSymbol = expression.getFunctorOrSymbol();
-		Expression indexFunctorOrSymbol = index.getFunctorOrSymbol();
-		if ( ! expressionFunctorOrSymbol.equals(indexFunctorOrSymbol)) {
-			return true; 
-		}
-		
-		if (expression.numberOfArguments() != index.numberOfArguments()) {
-			return false; // this case actually means that they are dependent for sure, but the method's interface does not allow us to state this, only to state that they are not known to be independent.
-		}
-		
-		// At this point we know the roots are the same and will unify,
-		// so this is really about unifying the arguments.
-		// Two function applications with the same functors will be independent if it is impossible for them to unify.
-		// If it is possible for them to unify (with condition below being TRUE or something not false, and thus possibly satisfiable)
-		// then it is possible that they are dependent.
-		Expression condition = Unification.unificationCondition(expression, index, process);
-		boolean result = condition.equals(Expressions.FALSE);
-		return result;
-	}
-
 	public static List<Expression> getParameters(QuantifiedExpression quantifiedExpression) {
 		IndexExpressionsSet indexExpressions = quantifiedExpression.getIndexExpressions();
 		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions).keySet());
@@ -1258,9 +788,7 @@ public class GrinderUtil {
 
 	/**
 	 * Returns the cardinality of the type of a given variable in the given process,
-	 * trying to find {@link TypeSizeOfSymbolOrType} object in the process global objects
-	 * under key {@link CardinalityOfType#PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE}
-	 * or, failing that, to look for <code>| Type |</code>, for <code>Type</code> the type of the variable,
+	 * looking for <code>| Type |</code>, for <code>Type</code> the type of the variable,
 	 * in the process global objects.
 	 * If the size cannot be determined, returns -1.
 	 * If the size is infinite, returns -2.
@@ -1271,33 +799,18 @@ public class GrinderUtil {
 	public static long getTypeCardinality(Expression symbol, RewritingProcess process) {
 		long result = -1;
 	
-		// first, we try to determine the cardinality of variable's type from {@link TypeSizeOfLogicalVariable) information.
-		TypeSizeOfSymbolOrType typeSizeOfSymbolOrType =
-				(TypeSizeOfSymbolOrType) process
-				.getGlobalObject(CardinalityOfType.PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE);
-		
-		if (typeSizeOfSymbolOrType != null) {
-			Integer size = typeSizeOfSymbolOrType.getSize(symbol, process);
-			if (size != null) {
-				result = size;
-			}
-		}
-	
-		// If that didn't work, we try to find a value for | Type | in the process's global objects.
-		if (result == -1) {
-			Expression variableType = process.getContextualSymbolType(symbol);
-			if (variableType != null) {
-				Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
-				Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
-				if (typeCardinalityValue != null) {
-					result = typeCardinalityValue.intValueExact();
-				}
+		Expression variableType = process.getContextualSymbolType(symbol);
+		if (variableType != null) {
+			Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
+			Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
+			if (typeCardinalityValue != null) {
+				result = typeCardinalityValue.intValueExact();
 			}
 		}
 		
 		// If that didn't work, we try find the Type object:
 		if (result == -1) {
-			Expression variableType = process.getContextualSymbolType(symbol);
+			variableType = process.getContextualSymbolType(symbol);
 			if (variableType != null) {
 				Type type = process.getType(variableType);
 				if (type != null) {

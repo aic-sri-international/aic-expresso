@@ -121,7 +121,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 				variableNamesAndTypes.put("v" + v, integerInterval);
 			}
 			constraintTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
-			RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+			RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 			RandomConditionalExpressionGenerator generator = 
 					new RandomConditionalExpressionGenerator(
 							random, 

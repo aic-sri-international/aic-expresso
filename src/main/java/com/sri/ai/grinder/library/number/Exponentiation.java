@@ -59,10 +59,10 @@ import com.sri.ai.util.math.Rational;
 public class Exponentiation extends AbstractRewriter {
 	public static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
-	private int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));
-	private Rational nonZeroMinAbsValue                     = new Rational(1).divide(new Rational(10).pow(324)); // Note: 324 is based on # digits in numerator of Double.MIN_VALUE
-	private Expression   nonZeroMinPosSymbol                = Expressions.makeSymbol(nonZeroMinAbsValue);
-	private Expression   nonZeroMinNegSymbol                = Expressions.makeSymbol(nonZeroMinAbsValue.negate());
+	private static int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));
+	private static Rational nonZeroMinAbsValue                     = new Rational(1).divide(new Rational(10).pow(324)); // Note: 324 is based on # digits in numerator of Double.MIN_VALUE
+	private static Expression   nonZeroMinPosSymbol                = Expressions.makeSymbol(nonZeroMinAbsValue);
+	private static Expression   nonZeroMinNegSymbol                = Expressions.makeSymbol(nonZeroMinAbsValue.negate());
 	
 	// Note: Experimental Code for determining precision bounds.
 	public static void main(String[] args) {
@@ -106,7 +106,15 @@ public class Exponentiation extends AbstractRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		return simplify(expression, process);
+	}
 
+	/**
+	 * @param expression
+	 * @param process TODO
+	 * @return
+	 */
+	public static Expression simplify(Expression expression, RewritingProcess process) {
 		Expression base = expression.get(0);
 		Expression exponent = expression.get(1);
 
@@ -171,7 +179,7 @@ public class Exponentiation extends AbstractRewriter {
 		return expression;
 	}
 	
-	private Expression boundPrecision(Rational ratValue) {
+	private static Expression boundPrecision(Rational ratValue) {
 		Expression result = null;
 		
 		Rational ratValueAbs = ratValue.abs();

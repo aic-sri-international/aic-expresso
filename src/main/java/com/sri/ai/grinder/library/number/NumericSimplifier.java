@@ -67,7 +67,6 @@ public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	private static Rewriter plus = new Plus();
 	private static Rewriter times = new Times();
-	private static Rewriter exponentiation = new Exponentiation();
 
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
@@ -84,7 +83,7 @@ public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),
 
 				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, process) ->
-				exponentiation.rewrite(f, process),
+				Exponentiation.simplify(f, process),
 
 				FunctorConstants.LESS_THAN,       (Simplifier) (f, process) ->
 				LessThan.simplify(f, process),

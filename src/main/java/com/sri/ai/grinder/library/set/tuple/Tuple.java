@@ -44,11 +44,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.function.InjectiveModule;
-import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 
 /**
  * API for tuples. Because parsing tuples with single elements is ambiguous with
@@ -58,11 +55,7 @@ import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
  * @author braz
  */
 @Beta
-public class Tuple extends AbstractRewriter
-implements
-NoOpRewriter,
-InjectiveModule.Provider,
-MutuallyExclusiveCoDomainsModule.Provider {
+public class Tuple extends AbstractRewriter {
 
 	public static final String TUPLE_LABEL = "( . )";
 	//
@@ -110,28 +103,5 @@ MutuallyExclusiveCoDomainsModule.Provider {
 	
 	public static Expression get(Expression expression, int index) {
 		return getElements(expression).get(index);
-	}
-
-	@Override
-	public boolean haveMutuallyExclusiveCoDomains(Expression expression1, Expression expression2, RewritingProcess process) {
-		boolean result = isTuple(expression1) &&
-				isTuple(expression2) &&
-				size(expression1) != size(expression2);
-		return result;
-	}
-	
-	@Override
-	public Object getInjectiveFunctionToken(Expression expression, RewritingProcess process) {
-		if ( ! isTuple(expression)) {
-			return null;
-		}
-		Expression token = Expressions.makeSymbol("tuple/" + size(expression));
-		return token;
-	}
-
-	@Override
-	public void rewritingProcessInitiated(RewritingProcess process) {
-		InjectiveModule.register(this, process);
-		MutuallyExclusiveCoDomainsModule.register(this, process);
 	}
 }

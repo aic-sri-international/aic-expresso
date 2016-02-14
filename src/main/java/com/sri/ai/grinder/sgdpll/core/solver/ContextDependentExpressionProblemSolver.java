@@ -118,7 +118,7 @@ public class ContextDependentExpressionProblemSolver {
 	
 	public static void main(String[] args) {
 		
-		DefaultRewritingProcess process = new DefaultRewritingProcess(null);
+		DefaultRewritingProcess process = new DefaultRewritingProcess();
 
 		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, new EqualityConstraintTheory(true, true));
 		constraint = constraint.conjoin(parse("X = Y"), process);

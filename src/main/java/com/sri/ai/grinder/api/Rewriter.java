@@ -37,13 +37,10 @@
  */
 package com.sri.ai.grinder.api;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 
 /**
@@ -65,12 +62,6 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
  */
 @Beta
 public interface Rewriter {
-	/**
-	 * Return value returned if the rewriter is called within a
-	 * rewriting process whose contextual constraint evaluates to false.
-	 */
-	Expression FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE = Expressions.makeSymbol("whatever");
-
 	/**
 	 * An unique identifying name for the rewriter (intended to correspond to
 	 * pseudo-code descriptions of the rewriter).
@@ -116,12 +107,6 @@ public interface Rewriter {
 	Expression rewrite(Expression expression, boolean bypassReifiedTests, RewritingProcess process);
 
 	/**
-	 * Same as {@link #rewrite(Expression, RewritingProcess)},
-	 * with a rewriting process made by {@link Rewriter#makeRewritingProcess(Expression)}.
-	 */
-	Expression rewrite(Expression expression);
-
-	/**
 	 * Makes a brand new rewriting process with contextual symbols and constraint
 	 * initialized from the given expression.
 	 * Default implementation creates a {@link DefaultRewritingProcess},
@@ -130,24 +115,4 @@ public interface Rewriter {
 	 * instantiate rewriting process that have other rewriters registered by name).
 	 */
 	RewritingProcess makeRewritingProcess(Expression expression);
-	
-	/**
-	 * Returns an iterator ranging over the children rewriters of this rewriter.
-	 */
-	Iterator<Rewriter> getChildrenIterator();
-
-	/**
-	 * A method to be invoked by rewriting process when it starts. This is
-	 * useful for cases when rewriters need to communicate with other rewriters.
-	 * Only at this point can they be sure all other rewriters are present (and
-	 * find then with {@link RewritingProcess#findModule(Predicate)}.
-	 */
-	void rewritingProcessInitiated(RewritingProcess process);
-
-	/**
-	 * A method to be invoked by rewriting process when it ends.
-	 * 
-	 * @see #rewritingProcessInitiated(RewritingProcess).
-	 */
-	void rewritingProcessFinalized(RewritingProcess process);
 }

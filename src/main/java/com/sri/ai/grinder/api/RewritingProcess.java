@@ -46,10 +46,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.core.RewriteOnce;
-import com.sri.ai.grinder.core.RewriterLookup;
-import com.sri.ai.util.base.IdentityWrapper;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -97,42 +93,6 @@ public interface RewritingProcess extends Cloneable {
 	void setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	/**
-	 * Returns the root expression being rewritten by this process.
-	 */
-	Expression getRootExpression();
-
-	/**
-	 * Sets the root expression being rewritten by this process.
-	 */
-	void setRootExpression(Expression newRoot);
-
-	/** Returns root rewriter of process. */
-	Rewriter getRootRewriter();
-	
-	Rewriter setRootRewriter(Rewriter newRootRewriter);
-	
-	RewriterLookup getRewriterLookup();
-
-	boolean getInterrupted();
-
-	boolean getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess();
-
-	Expression rewrite(Rewriter rewriter, Expression expression);
-
-	/**
-	 * Rewrites an expression within the context of this rewriting process.
-	 * 
-	 * @param rewriterName
-	 *            the name of the rewriter to perform the actual rewriting
-	 *            within the context of this process.
-	 * @param expression
-	 *            the expression to be rewritten.
-	 * @return a rewritten version of the input expression or the original input
-	 *         expression if no rewriting occurred.
-	 */
-	Expression rewrite(String rewriterName, Expression expression);
-	
-	/**
 	 * @return the set of symbols that should be considered free in
 	 *         this specific context.
 	 */
@@ -174,40 +134,6 @@ public interface RewritingProcess extends Cloneable {
 	RewritingProcess extendGlobalObjects(Map<Object, Object> objects, RewritingProcess process);
 	
 	/**
-	 * A method to be called by rewriters in advance of their own rewriting.
-	 * Rewriters are required to directly return its returned value if it is not <code>null</code>.
-	 * This gives the RewritingProcess to chance to do bookkeeping and sometimes intervene,
-	 * such as when it is doing caching, for example.
-	 */
-	Expression rewritingPreProcessing(Rewriter rewriter, Expression expression);	
-
-	/**
-	 * A method to be called by rewriters after their own rewriting
-	 * (they should not do it if they simply used the result of {@link #rewritingPreProcessing(Rewriter, Expression)}).
-	 */
-	void rewritingPostProcessing(Rewriter rewriter, Expression expression, Expression result);
-
-	/**
-	 * Method called when process is completely constructed and ready to start.
-	 */
-	void notifyReadinessOfRewritingProcess();
-	
-	/**
-	 * Method called when process is completed.
-	 */
-	void notifyEndOfRewritingProcess();
-	
-	/**
-	 * Returns the first rewriter among the ones used by this process which satisfies the given predicate.
-	 */
-	Rewriter findModule(Predicate<Rewriter> predicate);
-	
-	/**
-	 * Returns the first rewriter among the ones used by this process which is of a given class.
-	 */
-	Rewriter findModule(Class<?> clazz);
-	
-	/**
 	 * Gets map of global objects.
 	 */
 	ConcurrentHashMap<Object, Object> getGlobalObjects();
@@ -237,23 +163,9 @@ public interface RewritingProcess extends Cloneable {
 	 */
 	Object getGlobalObject(Object key);
 	
-	boolean isRecursive();
-	
 	/** The recursion level of a process. A top process has level 0. */
 	int getRecursionLevel();
 	
-	/**
-	 * A method returning any object meant as an equivalence class for the given expression
-	 * for the purpose of dead-ends detection (see {@link RewriteOnce}).
-	 * Specific types of processes can override this method for the type of expressions it uses.
-	 */
-	Pair<IdentityWrapper, Expression> getExpressionEquivalenceClassForDeadEnd(Expression expression);
-	
-	/**
-	 * Interrupt the rewriting process, will cause a RuntimeException to be thrown during execution at key points in the logic. 
-	 */
-	void interrupt();
-
 	RewritingProcess newRewritingProcessWith(Type type);
 
 	default RewritingProcess put(Collection<Type> types) {

@@ -75,7 +75,11 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;
 		}
-		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, process, (e, p) -> super.rewriteAfterBookkeeping(e, p));
+		Expression result = 
+				CommutativeAssociativeOnNumbers.dealWithInfinity(
+						expression,
+						process,
+						(e, p) -> super.rewriteAfterBookkeeping(e, p));
 		return result;
 	}
 
