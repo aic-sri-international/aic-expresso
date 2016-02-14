@@ -121,7 +121,7 @@ abstract public class AbstractGrinderTest {
 	/**
 	 * A method providing a rewriting process to be used during the test.
 	 * Rewriting processes created for specific tests will extend this one.
-	 * This process used to be hard coded in this class and used to be of a simple kind using {@link Basic}
+	 * This process used to be hard coded in this class and used to be of a simple kind using Basic.
 	 * as a root rewriter.
 	 * However, this caused problems because Basic does not include some module providers
 	 * (the one that specifically created awareness of this problem was {@link Tuple}).

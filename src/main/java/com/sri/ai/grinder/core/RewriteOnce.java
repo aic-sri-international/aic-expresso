@@ -53,7 +53,6 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
-import com.sri.ai.grinder.library.CommonLibrary;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
@@ -83,10 +82,6 @@ public class RewriteOnce extends AbstractRewriter {
 	private long rewriteOnceDeadEndsCacheMaximumSize = GrinderConfiguration.getRewriteDeadEndsCacheMaximumSize();
 	private int rewriteOnceDeadEndsCacheGarbageCollectionPeriod = GrinderConfiguration.getRewriteDeadEndsCacheGarbageCollectionPeriod();
 	
-	public RewriteOnce() {
-		this(CommonLibrary.INSTANCE);
-	}
-
 	public RewriteOnce(List<Rewriter> rewriters) {
 		this("RewriteOnce", rewriters);
 	}

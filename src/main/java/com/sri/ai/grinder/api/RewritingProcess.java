@@ -113,8 +113,6 @@ public interface RewritingProcess extends Cloneable {
 	
 	RewriterLookup getRewriterLookup();
 
-	ChildRewriterCallIntercepter getChildCallIntercepter();
-
 	boolean getInterrupted();
 
 	boolean getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess();
@@ -133,23 +131,6 @@ public interface RewritingProcess extends Cloneable {
 	 *         expression if no rewriting occurred.
 	 */
 	Expression rewrite(String rewriterName, Expression expression);
-	
-	/**
-	 * Rewrites an expression within the context of this rewriting process.
-	 * 
-	 * @param rewriterName
-	 *            the name of the rewriter to perform the actual rewriting
-	 *            within the context of this process.
-	 * @param expression
-	 *            the expression to be rewritten.
-	 * @param childCallIntercepter
-	 *            a rewrite intercepter to be invoked when any child rewrite
-	 *            calls that the rewriter identified by rewriterName makes via
-	 *            this API.
-	 * @return a rewritten version of the input expression or the original input
-	 *         expression if no rewriting occurred.
-	 */
-	Expression rewrite(String rewriterName, Expression expression, ChildRewriterCallIntercepter childCallIntercepter);
 	
 	/**
 	 * @return the set of symbols that should be considered free in

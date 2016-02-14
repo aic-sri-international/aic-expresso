@@ -64,7 +64,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
-import com.sri.ai.grinder.api.ChildRewriterCallIntercepter;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.expression.ExpressionCache;
@@ -132,11 +131,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private static final AtomicLong  _uniqueIdGenerator = new AtomicLong(0);
 	//
 	private long                         id                                                                    = 0L;
-	private DefaultRewritingProcess      parentProcess                                                         = null;
 	private Expression                   rootExpression                                                        = null;
 	private Rewriter                     rootRewriter                                                          = null;
 	private RewriterLookup               rewriterLookup                                                        = null;
-	private ChildRewriterCallIntercepter childCallIntercepter                                                  = null;
 	private Map<Expression, Expression>  contextualSymbolsAndTypes                                             = null;
 	private Expression                   contextualConstraint                                                  = Expressions.TRUE;
 	private Predicate<Expression>        isUniquelyNamedConstantPredicate                                      = null;
@@ -236,15 +233,14 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				rootExpression, 
 				rootRewriter,
 				rewriterLookup,
-				null,
 				contextualSymbolsAndTypes,
 				Expressions.TRUE,
-				isUniquelyNamedConstantPredicate, 
+				isUniquelyNamedConstantPredicate,
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
-				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
+				new ConcurrentHashMap<RewriterKey, ExpressionCache>(), 
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
-				new AtomicBoolean(false), 
-				true,
+				new AtomicBoolean(false),
+				true, 
 				map());
 	}
 
@@ -259,15 +255,14 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				rootExpression, 
 				rootRewriter,
 				rewriterLookup,
-				null,
 				contextualSymbolsAndTypes,
 				contextualConstraint,
-				isUniquelyNamedConstantPredicate, 
+				isUniquelyNamedConstantPredicate,
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
-				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
+				new ConcurrentHashMap<RewriterKey, ExpressionCache>(), 
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
-				new AtomicBoolean(false), 
-				true,
+				new AtomicBoolean(false),
+				true, 
 				map());
 	}
 
@@ -350,98 +345,31 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public Expression rewrite(String rewriterName, Expression expression) {
-		
+
 		checkInterrupted();
-		
+
 		Expression result   = null;
-		
-		// If child calls are to be intercepted
-		if (childCallIntercepter != null) {
-			// NOTE: The following logic supports chaining child rewriter call intercepters, that is when an intercepter
-			// calls a rewriter that is itself an intercepter, in the following way:
-			// 1. When a child process is created from a parent process it will inherit the parents child call intercepter.
-			//    This allows rewriters to create sub-processes within their own logic without breaking the interception
-			//    logic (i.e. you could have an ancestry of rewriting processes that have the same intercepter associated
-			//    with them - however, in most cases this will usually be no longer than 2 in length as rewriters tend
-			//    to only extend the rewriting process passed to them in special cases just before they call a child
-			//    rewriter).
-			// 2. In the simple case (when no chaining needs to be supported), create a child process that
-			//    does not contain a child rewriter call intercepter and use it as the process that
-			//    is passed to the intercepter. This stops the intercepter intercepting its own forwarded rewrite calls,
-			//    i.e. when its intercepted a rewrite and it decides to forward on the rewrite request to the
-			//    intended child rewriter. In addition, this ends up marking a break in a chain of intercepters.
-			// 3. Detect if we have an intercepter chain, this is done by looking back up this rewriting process's
-			//    ancestors. If an ancestor does not have a child rewriter call intercepter then we don't have
-			//    a chain and we can just call the rewriter without one (see step 2 for how a break in the sequence of
-			//    ancestors can occur). However, if an ancestor does have a child rewriter call intercepter and its 
-			//    different than this one, then we do have a chain and we use the ancestors child call intercepter 
-			//    when making the child process that will be passed to this process's child rewriter call intercepter.
-			//    That way if this process's child rewriter call intercepter forwards an intercepted rewrite call
-			//    this will end up getting intercepted by the outer child rewriter call intercepter. 
-			ChildRewriterCallIntercepter outerChildCallIntercepter = null;
-			// Look up this process's ancestors to see if we have an intercepter chain
-			DefaultRewritingProcess rewritingProcessToCheckForOuterChildCallIntercepter = this.parentProcess;
-			while (rewritingProcessToCheckForOuterChildCallIntercepter != null) {
-				if (rewritingProcessToCheckForOuterChildCallIntercepter.childCallIntercepter != null &&
-					rewritingProcessToCheckForOuterChildCallIntercepter.childCallIntercepter != this.childCallIntercepter) {
-					// We have an intercepter chain (as an ancestor in an unbroken chain has a different intercepter
-					// associated with it).
-					outerChildCallIntercepter = rewritingProcessToCheckForOuterChildCallIntercepter.childCallIntercepter;
-					rewritingProcessToCheckForOuterChildCallIntercepter = null;
-				}
-				else if (rewritingProcessToCheckForOuterChildCallIntercepter.childCallIntercepter == null) {
-					// There is a break in child intercepters (see point 2 above) in the ancestry.
-					// Therefore, we don't have an intercepter chain.
-					rewritingProcessToCheckForOuterChildCallIntercepter = null;
-				}
-				else {
-					// Check the next ancestor.
-					rewritingProcessToCheckForOuterChildCallIntercepter = rewritingProcessToCheckForOuterChildCallIntercepter.parentProcess;
-				}
-			}
-		
-			// Create a child process for this intercept call so that the correct child call intercepter (if a chain exists) is passed to or
-			// no intercepter if there is no chain.
-			DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, outerChildCallIntercepter, this.contextualSymbolsAndTypes, this.contextualConstraint);
-			// Call the intercepter and return its result.
-			result = childCallIntercepter.intercept(rewriterName, expression, childCallProcess);
+
+		// No interception needs to be handled, can just call directly with this process (no need to create a child process in this instance).
+		Rewriter rewriter = rewriterLookup.getRewriterFor(rewriterName);
+		if (rewriter == null) {
+			throw new Error(
+					"Rewriting request for rewriter name '" + rewriterName + "' failed because no rewriter with this name is registered "
+							+ "in the rewriting process."
+							+ "One possible way this can happen is to invoke Rewriter.rewrite(Expression) for a rewriter "
+							+ "with an implementation of makeRewritingProcess(Expression expression) "
+							+ "that does not create an adequate RewritingProcess, that is, "
+							+ "one with needed rewriters registered by name "
+							+ "(the default implementation merely creates a DefaultRewritingProcess)."
+							+ "This rewriter can request another rewriter by name that is not registered in the rewriting process.");
 		}
 		else {
-			// No interception needs to be handled, can just call directly with this process (no need to create a child process in this instance).
-			Rewriter rewriter = rewriterLookup.getRewriterFor(rewriterName);
-			if (rewriter == null) {
-				throw new Error(
-						"Rewriting request for rewriter name '" + rewriterName + "' failed because no rewriter with this name is registered "
-								+ "in the rewriting process."
-								+ "One possible way this can happen is to invoke Rewriter.rewrite(Expression) for a rewriter "
-								+ "with an implementation of makeRewritingProcess(Expression expression) "
-								+ "that does not create an adequate RewritingProcess, that is, "
-								+ "one with needed rewriters registered by name "
-								+ "(the default implementation merely creates a DefaultRewritingProcess)."
-								+ "This rewriter can request another rewriter by name that is not registered in the rewriting process.");
-			}
-			else {
-				result = rewriter.rewrite(expression, this);
-			}
+			result = rewriter.rewrite(expression, this);
 		}
-		
+
 		return result;
 	}
 	
-	@Override
-	public Expression rewrite(String rewriterName, Expression expression, ChildRewriterCallIntercepter childCallIntercepter) {
-		
-		checkInterrupted();
-		
-		Rewriter                rewriter         = rewriterLookup.getRewriterFor(rewriterName);
-		// Create a sub-process with the specified child intercepter.
-		DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, childCallIntercepter, this.contextualSymbolsAndTypes, this.contextualConstraint);
-		// Call rewrite on the specified rewriter with this child process
-		Expression result = rewriter.rewrite(expression, childCallProcess);
-		
-		return result;
-	}
-
 	@Override
 	public Set<Expression> getContextualSymbols() {
 		return contextualSymbolsAndTypes.keySet();
@@ -467,7 +395,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			Map<Expression, Expression> subProcesscontextualSymbolsAndTypes, Expression subProcessContextualConstraint) {
 
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this, 
-				this.childCallIntercepter,
 				subProcesscontextualSymbolsAndTypes,
 				subProcessContextualConstraint);
 		
@@ -606,11 +533,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 	
 	@Override
-	public ChildRewriterCallIntercepter getChildCallIntercepter() {
-		return childCallIntercepter;
-	}
-
-	@Override
 	public boolean getInterrupted() {
 		return interrupted.get();
 	}
@@ -651,22 +573,20 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	// Note: private constructors for sub-processes			                        
 	private DefaultRewritingProcess(DefaultRewritingProcess parentProcess,
-			ChildRewriterCallIntercepter childCallIntercepter,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
 			Expression contextualConstraint) {
 		initialize(parentProcess,
 				parentProcess.rootExpression,
 				parentProcess.rootRewriter,
 				parentProcess.rewriterLookup,
-				childCallIntercepter,
 				contextualSymbolsAndTypes,
 				contextualConstraint,
-				parentProcess.isUniquelyNamedConstantPredicate, 
-				parentProcess.globalObjects,
+				parentProcess.isUniquelyNamedConstantPredicate,
+				parentProcess.globalObjects, 
 				parentProcess.rewriterCaches,
 				parentProcess.lookedUpModuleCache,
-				parentProcess.interrupted, 
-				false /* isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess */,
+				parentProcess.interrupted,
+				false /* isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess */, 
 				parentProcess.types
 				);
 		
@@ -684,7 +604,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				process.getRootExpression(),
 				process.getRootRewriter(),
 				process.getRewriterLookup(),
-				process.getChildCallIntercepter(),
 				process.getContextualSymbolsAndTypes(),
 				Expressions.TRUE,
 				process.getIsUniquelyNamedConstantPredicate(),
@@ -706,7 +625,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			Expression rootExpression,
 			Rewriter rootRewriter,
 			RewriterLookup rewriterLookup,
-			ChildRewriterCallIntercepter childCallIntercepter,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
 			Expression contextualConstraint,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
@@ -717,11 +635,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess,
 			Map<Expression, Type> types) {
 		this.id                   = _uniqueIdGenerator.addAndGet(1L);
-		this.parentProcess        = parentProcess;
 		this.rootExpression       = rootExpression;
 		this.rootRewriter         = rootRewriter;
 		this.rewriterLookup       = rewriterLookup;
-		this.childCallIntercepter = childCallIntercepter;
 		//
 		this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
 		this.contextualConstraint          = contextualConstraint;

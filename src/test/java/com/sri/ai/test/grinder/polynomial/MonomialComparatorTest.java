@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.helper;
+package com.sri.ai.test.grinder.polynomial;
 
 import org.junit.Assert;
 import org.junit.Test;

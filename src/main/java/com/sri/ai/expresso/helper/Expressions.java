@@ -68,7 +68,6 @@ import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultBracketedExpression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
@@ -181,10 +180,7 @@ public class Expressions {
 
 	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(Collection<FunctionSignature> randomPredicatesSignatures, Object label, Object... subTreeObjects) {
 		Expression result;
-		if (label.equals("[ . ]")) {
-			result = makeDefaultBracketedExpressionFromLabelAndSubTrees(randomPredicatesSignatures, label, subTreeObjects);
-		}
-		else if (label.equals(ForAll.LABEL)) {
+		if (label.equals(ForAll.LABEL)) {
 			result = makeDefaultUniversallyQuantifiedFormulaFromLabelAndSubTrees(label, subTreeObjects);
 		}
 		else if (label.equals(ThereExists.LABEL)) {
@@ -217,27 +213,6 @@ public class Expressions {
 		return result;
 	}
 	
-	/**
-	 * Makes Expression based on a syntax tree with given label and sub-trees, or {@link Expression}s from whose syntax trees must be used.
-	 */
-	public static Expression makeDefaultBracketedExpressionFromLabelAndSubTrees(Collection<FunctionSignature> randomPredicatesSignatures, Object label, Object... subTreeObjects) {
-//		if (randomPredicatesSignatures == null) {
-//			randomPredicatesSignatures = DefaultBracketedExpression.defaultPredicateSignatures;
-//		}
-//
-//		if (randomPredicatesSignatures == null) {
-//			throw new Error("Making bracketed expression without providing random predicates");
-//		}
-		
-		Expression result;
-		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
-			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
-		}
-		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
-		result = new DefaultBracketedExpression(subTreeExpressions.get(0), randomPredicatesSignatures);
-		return result;
-	}
-
 	private static Expression makeDefaultLambdaExpressionFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
