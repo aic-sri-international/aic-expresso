@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
@@ -33,8 +32,6 @@ public class CompilationTest {
 		Map<String, String> mapFromVariableNameToTypeName;
 		Map<String, String> mapFromUniquelyNamedConstantToTypeName;
 
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		input = Expressions.parse("if X = a then if X = b then 1 else 2 else 3"); 
 		expected = parse("if X = a then 2 else 3");
 		mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "2");

@@ -42,7 +42,6 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.tester.ConstraintTheoryTester;
@@ -92,8 +91,6 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -107,8 +104,6 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -133,8 +128,6 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testSum() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
 				new Random(),
 				3, /* number of indices */
@@ -149,8 +142,6 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testMax() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
 				new Random(),
 				3, /* number of indices */

@@ -108,7 +108,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
-		Constraint trueContextualConstraint = (Constraint) makeTrueConstraint(indices);
+		Constraint trueContextualConstraint = makeTrueConstraint(indices);
 		Expression quantifierFreeConstraint = simplifier.apply(constraint, process);
 		Expression quantifierFreeBody = simplifier.apply(body, process);
 		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);

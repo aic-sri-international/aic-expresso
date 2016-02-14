@@ -4,7 +4,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
@@ -44,8 +43,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 	
 	@Test
 	public void testSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-	
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -57,8 +54,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testMultiVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-	
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -70,8 +65,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-	
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -86,8 +79,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -99,8 +90,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -114,8 +103,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -129,7 +116,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testSum() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
 				makeRandom(),
 				getNumberOfIndices(),
@@ -144,8 +130,6 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Test
 	public void testMax() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
 				makeRandom(),
 				getNumberOfIndices(),

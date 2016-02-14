@@ -50,7 +50,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
@@ -67,8 +66,6 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void test() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),

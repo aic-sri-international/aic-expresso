@@ -55,7 +55,6 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -147,8 +146,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 	
 	@Test
 	public void testSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -160,8 +157,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testMultiVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -173,8 +168,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -186,8 +179,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -199,8 +190,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
@@ -214,8 +203,6 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),

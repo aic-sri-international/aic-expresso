@@ -53,7 +53,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -126,8 +125,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -141,8 +138,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
@@ -156,8 +151,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testSum() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
 				makeRandom(),
 				3, /* number of indices */
@@ -172,8 +165,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testMax() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
 		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
 				makeRandom(),
 				3, /* number of indices */

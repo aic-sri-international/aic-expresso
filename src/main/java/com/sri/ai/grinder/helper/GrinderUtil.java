@@ -59,7 +59,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
-import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
@@ -67,9 +66,7 @@ import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -80,41 +77,30 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.AbstractExtensionalSet;
-import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.MapReplacementFunction;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.util.AICUtilConfiguration;
-import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
-import com.sri.ai.util.concurrent.BranchAndMerge;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -176,15 +162,6 @@ public class GrinderUtil {
 	}
 	
 	/**
-	 * Returns a rewriting process with contextual symbols extended by an intensional set's indices.
-	 */
-	public static RewritingProcess extendContextualSymbolsWithIntensionalSetIndices(Expression intensionalSet, RewritingProcess process) {
-		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(intensionalSet);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, Expressions.TRUE, process);
-		return result;
-	}
-
-	/**
 	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(IndexExpressionsSet indexExpressions, RewritingProcess process) {
@@ -198,14 +175,6 @@ public class GrinderUtil {
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, RewritingProcess process) {
 		return extendContextualSymbolsWithIndexExpressions(new ExtensionalIndexExpressionsSet(indexExpressions), process);
-	}
-
-	/**
-	 * Same as {@link #extendContextualSymbolsWithIndexExpressions(Collection<Expression>, RewritingProcess)},
-	 * but given a single index expression only.
-	 */
-	public static RewritingProcess extendContextualSymbolsWithIndexExpression(Expression indexExpression, RewritingProcess process) {
-		return extendContextualSymbolsWithIndexExpressions(Util.list(indexExpression), process);
 	}
 
 	/**
@@ -694,35 +663,6 @@ public class GrinderUtil {
 		// That point will be the spot where the process should have been extended.
 	}
 
-	@SafeVarargs
-	public static List<Rewriter> addRewritersBefore(List<Rewriter> rewriters,
-			Pair<Class<?>, Rewriter>... rewritersBefore) {
-		for (int i = 0; i < rewritersBefore.length; i++) {
-			addRewriterBefore(rewriters, rewritersBefore[i].first, rewritersBefore[i].second);
-		}
-		return rewriters;
-	}
-
-	public static List<Rewriter> addRewriterBefore(List<Rewriter> rewriters,
-			Class<?> clazzBefore, Rewriter addR) {
-		boolean found = false;
-		for (int i = 0; i < rewriters.size(); i++) {
-			if (clazzBefore == rewriters.get(i).getClass()) {
-				rewriters.add(i, addR);
-				found = true;
-				break;
-			}
-		}
-	
-		if (!found) {
-			throw new IllegalArgumentException(
-					"Cannot find rewriter to add new rewriter before:"
-							+ clazzBefore.getName());
-		}
-	
-		return rewriters;
-	}
-	
 	/**
 	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the context, if any.
 	 */
@@ -743,36 +683,6 @@ public class GrinderUtil {
 			indexExpressions.add(indexExpression);
 		}
 		return new ExtensionalIndexExpressionsSet(indexExpressions);
-	}
-
-	/**
-	 * Disables tracing and justification output, and turned concurrency off.
-	 * This is useful for running tests.
-	 */
-	public static void setTraceAndJustificationOffAndTurnOffConcurrency() {
-		// This is equivalent to using command line options:
-		// -Dgrinder.display.tree.util.ui=false
-		// -Dtrace.level=off
-		// -Djustification.level=off
-		// -Dsriutil.branch.and.merge.threading.enabled=false
-		// Setting here explicitly so its not forgotten.
-		Configuration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
-		BranchAndMerge.reset();
-	}
-
-	/**
-	 * Returns all sub-expressions that are a logical variable.
-	 */
-	public static Collection<Expression> getAllVariables(Expression expression, DefaultRewritingProcess process) {
-		Collection<Expression> result = new LinkedHashSet<Expression>();
-		Util.collect(new SubExpressionsDepthFirstIterator(expression), result, new IsVariable(process));
-		return result;
-	}
-
-	public static List<Expression> getParameters(QuantifiedExpression quantifiedExpression) {
-		IndexExpressionsSet indexExpressions = quantifiedExpression.getIndexExpressions();
-		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions).keySet());
-		return result;
 	}
 
 	/**
@@ -845,50 +755,6 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Finds a satisfying assignment to the (generalized) variables in a formula belonging to
-	 * the given constraint theory,
-	 * by iterating over all assignments
-	 * until a satisfying one is found, or returns null.
-	 * Naturally, this may not stop if any of the types involved is infinite.
-	 * The variables in the formula must be registered as contextual symbols, with their types descriptions, in the rewriting process,
-	 * and the type descriptions must be correspond to a registered {@link Type}s in the rewriting process
-	 * (through the {@link RewritingProcess#putType} and {@link RewritingProcess#putType} methods.
-	 * @param formula
-	 * @param constraintTheory
-	 * @param process
-	 * @return a map representing a satisfying assignment, or null.
-	 */
-	public static Map<Expression, Expression> getSatisfyingAssignmentByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
-		Map<Expression, Expression> satisfyingAssignment = null;
-		Collection<Expression> variables = constraintTheory.getVariablesIn(formula, process);
-		Iterator<Map<Expression, Expression>> assignmentsIterator = new AssignmentsIterator(variables, process);
-		while (satisfyingAssignment == null && assignmentsIterator.hasNext()) {
-			Map<Expression, Expression> assignment = assignmentsIterator.next();
-			Expression formulaWithValuesReplaced = formula.replaceAllOccurrences(new MapReplacementFunction(assignment), process);
-			Expression value = constraintTheory.simplify(formulaWithValuesReplaced, process);
-			if (value.equals(TRUE)) {
-				satisfyingAssignment = assignment;
-			}
-		}
-		return satisfyingAssignment;
-	}
-
-	/**
-	 * Returns the variable type description as registered in the rewriting process,
-	 * or an expression of the form <code>Type(variable)</code>.
-	 * @param variable
-	 * @param process
-	 * @return
-	 */
-	public static Expression getVariableType(Expression variable, RewritingProcess process) {
-		Expression variableType = getType(variable, process);
-		if (variableType == null) {
-			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
-		}
-		return variableType;
-	}
-
-	/**
 	 * Returns a universal quantification of given expression over its free variables,
 	 * with types as registered in rewriting process.
 	 * @param expression
@@ -904,25 +770,6 @@ public class GrinderUtil {
 	public static final Categorical BOOLEAN_TYPE = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
 	public static final IntegerExpressoType INTEGER_TYPE = new IntegerExpressoType();
 	
-	/**
-	 * A method mapping type expressions to {@link Type} objects,
-	 * for general use in Grinder.
-	 * The returned type is in the one registered in the rewriting process, if any,
-	 * or a new one if the expression can be interpreted as a unique type.
-	 * Current recognized type expressions are
-	 * <code>Boolean</code>, <code>Integer</code>, and function applications
-	 * of the type <code>m..n</code>.
-	 * @param typeExpression
-	 * @return
-	 */
-	public static Type fromTypeExpressionToType(Expression typeExpression, RewritingProcess process) {
-		Type type = process.getType(typeExpression);
-		if (type == null) {
-			type = fromTypeExpressionToItsIntrinsicMeaning(typeExpression);
-		}
-		return type;
-	}
-
 	/**
 	 * A method mapping type expressions to their intrinsic {@link Type} objects,
 	 * where "intrinsic" means there is only one possible {@link Type} object

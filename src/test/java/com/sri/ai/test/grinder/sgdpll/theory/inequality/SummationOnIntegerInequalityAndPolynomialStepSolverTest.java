@@ -64,8 +64,6 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void simpleBodyTest() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		RewritingProcess process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
@@ -106,8 +104,6 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyTest() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-	
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		RewritingProcess process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
@@ -148,8 +144,6 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-	
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		RewritingProcess process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
@@ -190,8 +184,6 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-	
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		RewritingProcess process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
