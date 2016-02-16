@@ -174,7 +174,11 @@ public class GrinderUtil {
 	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, RewritingProcess process) {
-		return extendContextualSymbolsWithIndexExpressions(new ExtensionalIndexExpressionsSet(indexExpressions), process);
+		RewritingProcess result = 
+				extendContextualSymbolsWithIndexExpressions(
+						new ExtensionalIndexExpressionsSet(indexExpressions),
+						process);
+		return result;
 	}
 
 	/**

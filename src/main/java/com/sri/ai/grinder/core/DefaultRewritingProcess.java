@@ -50,7 +50,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -71,33 +70,38 @@ import com.sri.ai.util.collect.StackedHashMap;
 @Beta
 public class DefaultRewritingProcess implements RewritingProcess {
 	
-	// Used to assign unique ids to rewriting processes.
-	private static final AtomicLong  _uniqueIdGenerator = new AtomicLong(0);
-	//
-	private long                         id                                                                    = 0L;
-	private Map<Expression, Expression>  contextualSymbolsAndTypes                                             = null;
-	private Expression                   contextualConstraint                                                  = Expressions.TRUE;
-	private Predicate<Expression>        isUniquelyNamedConstantPredicate                                      = null;
-	private int                          recursionLevel                                                        = 0;
-	//
-	private ConcurrentHashMap<Object, Object>               globalObjects       = null;
+	private int recursionLevel = 0;
+	
+	private Map<Expression, Expression>  contextualSymbolsAndTypes = null;
 	private Map<Expression, Type> types = new LinkedHashMap<Expression, Type>();
-	
-	
 
+	private Expression contextualConstraint = Expressions.TRUE;
+	
+	private Predicate<Expression> isUniquelyNamedConstantPredicate = null;
+
+	private Map<Object, Object> globalObjects = null;
+	
 	//
 	// START - Constructors
 
 	public DefaultRewritingProcess() {
-		this(new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), new LinkedHashMap<Object, Object>());
+		this(
+				new LinkedHashMap<Expression, Expression>(), // contextualSymbolsAndTypes
+				new PrologConstantPredicate(), 
+				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
 	public DefaultRewritingProcess(Map<Object, Object> globalObjects) {
-		this(new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), globalObjects);
+		this(
+				new LinkedHashMap<Expression, Expression>(), 
+				new PrologConstantPredicate(), 
+				globalObjects);
 	}
 
-	public DefaultRewritingProcess(Map<Expression, Expression> contextualSymbolsAndTypes,
-			Predicate<Expression> isUniquelyNamedConstantPredicate, Map<Object, Object> globalObjects) {
+	public DefaultRewritingProcess(
+			Map<Expression, Expression> contextualSymbolsAndTypes,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
+			Map<Object, Object> globalObjects) {
 		
 		initialize(null,
 				contextualSymbolsAndTypes, 
@@ -107,29 +111,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				map());
 	}
 
-	public DefaultRewritingProcess(Map<Expression, Expression> contextualSymbolsAndTypes,
-			Expression contextualConstraint, Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Map<Object, Object> globalObjects) {
-		
-		initialize(null,
-				contextualSymbolsAndTypes, 
-				contextualConstraint,
-				isUniquelyNamedConstantPredicate,
-				new ConcurrentHashMap<Object, Object>(globalObjects),
-				map());
-	}
-
 	// END-Constructors
 	//
 	
-	public long getId() {
-		return id;
-	}
-	
-	public void setRecursionLevel(int recursiveLevel) {
-		this.recursionLevel = recursiveLevel;
-	}
-
 	//
 	// START-RewritingProcess
 	@Override
@@ -150,8 +134,10 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public void setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
+	public RewritingProcess setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		DefaultRewritingProcess result = clone();
+		result.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
+		return result;
 	}
 
 	@Override
@@ -176,11 +162,14 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public RewritingProcess newSubProcessWithContext(
-			Map<Expression, Expression> subProcesscontextualSymbolsAndTypes, Expression subProcessContextualConstraint) {
+			Map<Expression, Expression> subProcesscontextualSymbolsAndTypes, 
+			Expression subProcessContextualConstraint) {
 
-		DefaultRewritingProcess result = new DefaultRewritingProcess(this, 
-				subProcesscontextualSymbolsAndTypes,
-				subProcessContextualConstraint);
+		DefaultRewritingProcess result = 
+				new DefaultRewritingProcess(
+						this, 
+						subProcesscontextualSymbolsAndTypes,
+						subProcessContextualConstraint);
 		
 		return result;
 	}
@@ -191,20 +180,13 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		myAssert(() -> process instanceof DefaultRewritingProcess, () -> "Not implemented for other implementations of " + RewritingProcess.class);
 		DefaultRewritingProcess result = new DefaultRewritingProcess((DefaultRewritingProcess) process);
 		Map<Object, Object> newGlobalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
-		result.setGlobalObjects(newGlobalObjects);
+		result.globalObjects = newGlobalObjects;
 		return result;
 	}
 
 	@Override
-	public ConcurrentHashMap<Object, Object> getGlobalObjects() {
+	public Map<Object, Object> getGlobalObjects() {
 		return globalObjects;
-	}
-
-	@Override
-	public void setGlobalObjects(Map<Object, Object> newMap) {
-		// TODO: change method to take ConcurrentHashMap and set globalObjects to it, instead of copying.
-		globalObjects.clear();
-		globalObjects.putAll(newMap);
 	}
 
 	@Override
@@ -244,10 +226,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	//
 	
 	// Note: private constructors for sub-processes			                        
-	private DefaultRewritingProcess(DefaultRewritingProcess parentProcess,
+	private DefaultRewritingProcess(
+			DefaultRewritingProcess parentProcess,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
 			Expression contextualConstraint) {
-		initialize(parentProcess,
+		initialize(
+				parentProcess,
 				contextualSymbolsAndTypes,
 				contextualConstraint,
 				parentProcess.isUniquelyNamedConstantPredicate,
@@ -257,11 +241,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		
 	}
 
-	public static RewritingProcess copyRewritingProcessWithCleanContextAndCaches(RewritingProcess process) {
-		RewritingProcess result = new DefaultRewritingProcess((DefaultRewritingProcess)process);
-		return result;
-	}
-	
 	/** A copy constructor with clean contextual constraint and clean caches. */
 	private DefaultRewritingProcess(DefaultRewritingProcess process) {
 		initialize(
@@ -284,19 +263,18 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			Map<Expression, Expression> contextualSymbolsAndTypes,
 			Expression contextualConstraint,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			ConcurrentHashMap<Object, Object> globalObjects,
+			Map<Object, Object> globalObjects,
 			Map<Expression, Type> types) {
-		this.id                   = _uniqueIdGenerator.addAndGet(1L);
-		//
-		this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
-		this.contextualConstraint          = contextualConstraint;
-		this.isUniquelyNamedConstantPredicate           = isUniquelyNamedConstantPredicate;
-		//
-		this.globalObjects        = globalObjects;
-		//
+		
 		if (parentProcess != null) {
-			setRecursionLevel(parentProcess.getRecursionLevel()+1);
+			recursionLevel = parentProcess.getRecursionLevel() + 1;
 		}
+		this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
+		this.contextualConstraint = contextualConstraint;
+		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
+		//
+		this.globalObjects = globalObjects;
+		//
 		this.types = types;
 	}
 	

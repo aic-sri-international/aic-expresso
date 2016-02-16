@@ -40,7 +40,6 @@ package com.sri.ai.grinder.api;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -89,8 +88,9 @@ public interface RewritingProcess extends Cloneable {
 	
 	/**
 	 * Sets the predicate indicating uniquely named constants.
+	 * @return TODO
 	 */
-	void setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
+	RewritingProcess setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	/**
 	 * @return the set of symbols that should be considered free in
@@ -132,12 +132,7 @@ public interface RewritingProcess extends Cloneable {
 	/**
 	 * Gets map of global objects.
 	 */
-	ConcurrentHashMap<Object, Object> getGlobalObjects();
-	
-	/**
-	 * Sets map of global objects to a new given one.
-	 */
-	void setGlobalObjects(Map<Object, Object> newMap);
+	Map<Object, Object> getGlobalObjects();
 	
 	/**
 	 * Puts a value in a map of global objects under key.
