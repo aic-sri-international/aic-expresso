@@ -35,7 +35,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	protected Expression computeInnerExpression() {
+	protected Expression computeInnerExpressionIfNotContradiction() {
 		return expression;
 	}
 

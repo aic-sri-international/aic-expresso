@@ -229,7 +229,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	@Override
 	public SolutionStep step(Constraint contextualConstraint, Context context) {
 
-		if (getConstraint() == null) {
+		if (getConstraint().isContradiction()) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		

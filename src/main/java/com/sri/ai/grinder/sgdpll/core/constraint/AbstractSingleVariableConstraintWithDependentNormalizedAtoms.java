@@ -176,7 +176,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 								getNegativeNormalizedAtomsIncludingImplicitOnes(context),
 								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, normalizedAtom, context))) {
 			
-			result = null; // contradiction
+			result = makeContradiction(); // contradiction
 		}
 		else {
 			// remove redundant literals and add new one
@@ -200,6 +200,14 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 					setPositiveAndNegativeNormalizedAtoms(newPositiveNormalizedAtoms, newNegativeNormalizedAtoms);
 		}
 		return result;
+	}
+
+	/**
+	 * @return
+	 */
+	@Override
+	public AbstractSingleVariableConstraintWithDependentNormalizedAtoms makeContradiction() {
+		return (AbstractSingleVariableConstraintWithDependentNormalizedAtoms) super.makeContradiction();
 	}
 
 	/**

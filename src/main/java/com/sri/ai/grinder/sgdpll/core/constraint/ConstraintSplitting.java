@@ -66,7 +66,7 @@ public class ConstraintSplitting  {
 	}
 	
 	/**
-	 * Splits given constraint by given literal under a contextual constraint and stores the result and other information (see methods).
+	 * Splits given constraint by given literal under an (optional) contextual constraint and stores the result and other information (see methods).
 	 * @param constraint
 	 * @param literal
 	 * @param context
@@ -90,8 +90,8 @@ public class ConstraintSplitting  {
 			constraintAndLiteralNegationAndContextualConstraint = constraintAndLiteralNegation;
 		}
 		
-		if (constraintAndLiteralAndContextualConstraint != null) {
-			if (constraintAndLiteralNegationAndContextualConstraint != null) {
+		if ( ! constraintAndLiteralAndContextualConstraint.isContradiction()) {
+			if ( ! constraintAndLiteralNegationAndContextualConstraint.isContradiction()) {
 				result = LITERAL_IS_UNDEFINED;
 			}
 			else {
@@ -99,7 +99,7 @@ public class ConstraintSplitting  {
 			}
 		}
 		else {
-			if (constraintAndLiteralNegationAndContextualConstraint != null) {
+			if ( ! constraintAndLiteralNegationAndContextualConstraint.isContradiction()) {
 				result = LITERAL_IS_FALSE;
 			}
 			else {
@@ -147,7 +147,7 @@ public class ConstraintSplitting  {
 	/**
 	 * If the literal is either true or false, this method returns
 	 * the result of conjoining the constraint with the literal or its negation, respectively.
-	 * Otherwise, returns null.
+	 * Otherwise, throws an Error.
 	 * @return
 	 */
 	public Constraint getConstraintConjoinedWithDefinedValueOfLiteral() {
@@ -157,7 +157,7 @@ public class ConstraintSplitting  {
 		case LITERAL_IS_FALSE:
 			return constraintAndLiteralNegation;
 		default:
-			return null;
+			throw new Error("Method undefined for undefined literal");
 		}
 	}
 }

@@ -156,7 +156,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
-			if (lastIndexConstraint == null) {
+			if (lastIndexConstraint.isContradiction()) {
 				return group.additiveIdentityElement();
 			}
 

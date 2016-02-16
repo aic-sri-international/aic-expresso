@@ -53,14 +53,14 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 				result = this;
 			}
 			else {
-				result = null;
+				result = makeContradiction();
 			}
 		}
 		else {
 			SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable, context);
 			SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, context);
-			if (newSingleVariableConstraint == null) {
-				result = null;	
+			if (newSingleVariableConstraint.isContradiction()) {
+				result = makeContradiction();	
 			}
 			else if (newSingleVariableConstraint == singleVariableConstraint) {
 				result = this;
@@ -73,6 +73,14 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 		}
 		
 		return result;
+	}
+
+	/**
+	 * @return
+	 */
+	@Override
+	public DefaultMultiVariableConstraint makeContradiction() {
+		return (DefaultMultiVariableConstraint) super.makeContradiction();
 	}
 	
 	private Expression getSomeVariableFor(Expression literal, Context context) {
@@ -93,14 +101,14 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	}
 	
 	@Override
-	protected Expression computeInnerExpression() {
+	protected Expression computeInnerExpressionIfNotContradiction() {
 		Expression result = And.make(fromVariableToItsConstraint.values());
 		return result;
 	}
 
 	@Override
 	public DefaultMultiVariableConstraint clone() {
-		return (DefaultMultiVariableConstraint) clone();
+		return (DefaultMultiVariableConstraint) super.clone();
 	}
 	
 	@Override
@@ -124,7 +132,7 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	@Override
 	public Expression binding(Expression variable) {
 		SingleVariableConstraint singleVariableConstraint = fromVariableToItsConstraint.get(variable);
-		if (singleVariableConstraint != null) {
+		if ( ! singleVariableConstraint.isContradiction()) {
 		return singleVariableConstraint.binding(variable);
 		}
 		else {

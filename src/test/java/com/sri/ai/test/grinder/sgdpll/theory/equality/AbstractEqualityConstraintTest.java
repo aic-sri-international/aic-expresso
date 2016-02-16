@@ -240,17 +240,17 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
-			if (constraint == null) {
+			if (constraint.isContradiction()) {
 				break;
 			}
 		}
-		if (expected == null && constraint != null) {
+		if (expected == null && !constraint.isContradiction()) {
 			throw new AssertionError("Expected null but was <" + constraint + ">");
 		}
-		else if (expected != null && constraint == null) {
+		else if (expected != null && constraint.isContradiction()) {
 			throw new AssertionError("Expected <" + expected + "> but was null");
 		}
-		else if (expected != null && constraint != null && !expected.equals(constraint)) {
+		else if (expected != null && !constraint.isContradiction() && !expected.equals(constraint)) {
 			SymbolicCommonInterpreter interpreter = new SymbolicCommonInterpreter(constraintTheory);
 			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
 			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);

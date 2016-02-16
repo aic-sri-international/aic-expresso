@@ -231,7 +231,7 @@ public class ConstraintTheoryTester {
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
 			output("\n\nStarting new conjunction");	
-			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
+			for (int j = 0; !constraint.isContradiction() && j != maxNumberOfLiterals; j++) {
 				Expression literal = makeRandomLiteralGivenConstraint.apply(constraint);
 				constraint = addLiteralToConstraintAndTest(random, tester, literal, constraint, literals, testAgainstBruteForce, constraintTheory, context);
 			}
@@ -266,7 +266,7 @@ public class ConstraintTheoryTester {
 			Context context)
 					throws Error {
 		
-		if (constraint == null) {
+		if (constraint.isContradiction()) {
 			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, constraintTheory, context);
 		}
 		else {
@@ -285,7 +285,7 @@ public class ConstraintTheoryTester {
 			Context context)
 					throws Error {
 		
-		if (constraint == null) {
+		if (constraint.isContradiction()) {
 			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, constraintTheory, context);
 		}
 		else {
@@ -419,7 +419,7 @@ public class ConstraintTheoryTester {
 		output("Symbolic result: " + symbolicSolution);
 		
 		if (testAgainstBruteForce) {
-			if (singleVariableConstraint == null) {
+			if (singleVariableConstraint.isContradiction()) {
 				if (!symbolicSolution.equals(ZERO)) {
 					throw new Error("Constraint is contradiction, but symbolic solver does not produce 0, but instead " + symbolicSolution);
 				}
@@ -442,7 +442,7 @@ public class ConstraintTheoryTester {
 
 	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, Context context) {
 		Expression symbolicSolution = 
-				singleVariableConstraint == null?
+				singleVariableConstraint.isContradiction()?
 						ZERO
 						: singleVariableConstraint.modelCount(new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()), context);
 		return symbolicSolution;
@@ -504,7 +504,7 @@ public class ConstraintTheoryTester {
 			int bodyDepth,
 			Context context) {
 		
-		if (constraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
+		if (!constraint.isContradiction()) { // TODO: this would be much more elegant if we did not represent contradictions by null
 			SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 			Expression index = singleVariableConstraint.getVariable();
 			runGroupProblemSolvingTest(random, list(index), constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, context);
@@ -551,7 +551,7 @@ public class ConstraintTheoryTester {
 			Collection<Expression> literals,
 			int bodyDepth, Context context) {
 		
-		if (constraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
+		if (!constraint.isContradiction()) { // TODO: this would be much more elegant if we did not represent contradictions by null
 			Collection<Expression> indices = 
 					pickKElementsWithoutReplacement(
 							constraintTheory.getVariablesForTesting(),

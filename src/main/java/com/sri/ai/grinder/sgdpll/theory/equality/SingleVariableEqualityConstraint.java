@@ -56,6 +56,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
 import com.sri.ai.util.Util;
@@ -156,7 +157,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 			numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable++;
 			long variableDomainSize = getVariableTypeSize(context);
 			if (variableDomainSize >= 0 && numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable == variableDomainSize) {
-				result = null;
+				result = makeContradiction();
 			}
 		}
 		return result;
@@ -164,6 +165,14 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		// and one may ask why not do it as soon as the literal is received, in order to save time.
 		// the reason it is done here is so that we know for sure it is the first disequality
 		// we see against this constant, because those already seen are not re-inserted.
+	}
+
+	/**
+	 * @return
+	 */
+	@Override
+	public SingleVariableEqualityConstraint makeContradiction() {
+		return (SingleVariableEqualityConstraint) super.makeContradiction();
 	}
 	
 	/**
@@ -176,7 +185,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		SingleVariableEqualityConstraint result = null; // initial value never used, but compiler does not realize it
 		for (Expression binaryEquality : binaryLiterals) {
 			result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(binaryEquality, context);
-			if (result == null) {
+			if (result.isContradiction()) {
 				break;
 			}
 		}

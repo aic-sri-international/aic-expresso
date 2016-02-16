@@ -268,7 +268,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 			result = this;
 		}
 		else if (formula.equals(FALSE)) {
-			result = null;
+			result = makeContradiction();
 		}
 		else if (!contains(formula, getVariable(), context)) {
 			result = addExternalLiteral(formula);
@@ -283,7 +283,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 				result = this; // redundant
 			}
 			else if (oppositeSignNormalizedAtoms.contains(normalizedAtom)) {
-				result = null; // contradiction
+				result = makeContradiction(); // contradiction
 			}
 			else {
 				result = conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
@@ -295,6 +295,14 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * @return
+	 */
+	@Override
+	public AbstractSingleVariableConstraint makeContradiction() {
+		return (AbstractSingleVariableConstraint) super.makeContradiction();
 	}
 
 	/**
@@ -327,7 +335,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	
 	
 	@Override
-	protected Expression computeInnerExpression() {
+	protected Expression computeInnerExpressionIfNotContradiction() {
 		List<Expression> conjuncts = list();
 		conjuncts.addAll(positiveNormalizedAtoms);
 		Util.mapIntoList(negativeNormalizedAtoms, n -> fromNormalizedAtomToItsNegationAsLiteral(n), conjuncts);

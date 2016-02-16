@@ -175,7 +175,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		= super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 	
 		if (conjunctionWithSignAndNormalizedAtom == null) {
-			result = null;
+			result = makeContradiction();
 		}
 		else {
 			Expression binding = getPositiveNormalizedAtoms().get(0); // this assumes the original single positive normalized atom stays as the first one in the conjoined constraint
@@ -204,7 +204,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		= super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 	
 		if (conjunctionWithSignAndNormalizedAtom == null) {
-			result = null;
+			result = makeContradiction();
 		}
 		else {
 			Expression binding = normalizedAtom;
@@ -226,8 +226,8 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 			if ( ! isEqualityBindingVariableToItsValue(sign, normalizedAtom, valueVariableIsBoundTo)) {
 				Expression newLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, valueVariableIsBoundTo, context);
 				result = result.conjoinWithLiteral(newLiteral, context);
-				if (result == null) {
-					return null;
+				if (result.isContradiction()) {
+					return result;
 				}
 			}
 		}

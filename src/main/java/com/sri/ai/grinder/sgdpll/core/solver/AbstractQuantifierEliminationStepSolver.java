@@ -145,14 +145,14 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	@Override
 	public SolutionStep step(Constraint contextualConstraint, Context context) {
 
-		if (indexConstraint == null) {
+		if (indexConstraint.isContradiction()) {
 			return new Solution(group.additiveIdentityElement());
 		}
 		
 		SolutionStep result;
 
 		Constraint contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), context);
-		if (contextualConstraintForBody == null) {
+		if (contextualConstraintForBody.isContradiction()) {
 			result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
 		}
 		else {

@@ -1,5 +1,6 @@
 package com.sri.ai.grinder.sgdpll.api;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.library.boole.And.isConjunction;
 import static com.sri.ai.util.Util.myAssert;
@@ -96,8 +97,8 @@ public interface Constraint extends Expression {
 		
 		Constraint result;
 	
-		if (formula == null) {
-			result = null;
+		if (formula.equals(FALSE)) {
+			result = makeContradiction();
 		}
 		else if (formula instanceof Constraint || isConjunction(formula)) {
 			result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.

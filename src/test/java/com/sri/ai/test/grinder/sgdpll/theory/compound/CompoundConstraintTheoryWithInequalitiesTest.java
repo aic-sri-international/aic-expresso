@@ -37,6 +37,7 @@
  */
 package com.sri.ai.test.grinder.sgdpll.theory.compound;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.arrayList;
@@ -232,11 +233,11 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 		
 		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-		expected = null;
+		expected = FALSE;
 		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 		
 		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-		expected = null;
+		expected = FALSE;
 		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 		
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";

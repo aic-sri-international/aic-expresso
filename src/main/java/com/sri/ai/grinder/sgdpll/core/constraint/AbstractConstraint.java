@@ -37,7 +37,10 @@
  */
 package com.sri.ai.grinder.sgdpll.core.constraint;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -87,4 +90,18 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 		result.isContradiction = true;
 		return result;
 	}
+	
+	@Override
+	protected Expression computeInnerExpression() {
+		Expression innerExpression;
+		if (isContradiction) {
+			innerExpression = FALSE;
+		}
+		else {
+			innerExpression = computeInnerExpressionIfNotContradiction();
+		}
+		return innerExpression;
+	}
+
+	abstract protected Expression computeInnerExpressionIfNotContradiction();
 }
