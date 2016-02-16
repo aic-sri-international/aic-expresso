@@ -51,7 +51,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
@@ -81,7 +81,7 @@ public class SymbolicShell {
 								new InequalityConstraintTheory(false, false),
 								new PropositionalConstraintTheory()));
 		
-		RewritingProcess process = new DefaultRewritingProcess();
+		Context process = new DefaultRewritingProcess();
 		process = process.add(BOOLEAN_TYPE);
 		process = process.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		process = process.add(new IntegerInterval("Integer"));
@@ -147,7 +147,7 @@ public class SymbolicShell {
 	 * @param process
 	 * @return 
 	 */
-	private static RewritingProcess evaluate(SymbolicCommonInterpreter evaluator, String inputString, RewritingProcess process) {
+	private static Context evaluate(SymbolicCommonInterpreter evaluator, String inputString, Context process) {
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});
 			if (input.hasFunctor("var")) {

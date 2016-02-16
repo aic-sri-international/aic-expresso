@@ -61,7 +61,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
@@ -86,7 +86,7 @@ import com.sri.ai.util.collect.PredicateIterator;
 public interface ConstraintTheory extends Theory {
 
 	/**
-	 * Returns a simplifier performing the same simplification as {@link #simplify(Expression, RewritingProcess)},
+	 * Returns a simplifier performing the same simplification as {@link #simplify(Expression, Context)},
 	 * but only on the top expression (that is, without recursing to sub-expressions).
 	 * @return
 	 */
@@ -101,14 +101,14 @@ public interface ConstraintTheory extends Theory {
 	 * @return 
 	 * @return
 	 */
-	default boolean isLiteral(Expression expression, RewritingProcess process) {
+	default boolean isLiteral(Expression expression, Context process) {
 		if (expression.equals(TRUE) || expression.equals(FALSE)) {
 			return true;
 		}
 		return isNonTrivialLiteral(expression, process);
 	}
 	
-	default boolean isConjunctiveClause(Expression formula, RewritingProcess process) {
+	default boolean isConjunctiveClause(Expression formula, Context process) {
 		boolean result = forAll(getConjuncts(formula), c -> isLiteral(c, process));
 		return result;
 	}
@@ -119,7 +119,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	boolean isNonTrivialAtom(Expression expression, RewritingProcess process);
+	boolean isNonTrivialAtom(Expression expression, Context process);
 	
 	/**
 	 * Indicates whether an expression is a non-trivial literal in this theory.
@@ -129,12 +129,12 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	default boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
+	default boolean isNonTrivialLiteral(Expression expression, Context process) {
 		boolean result = isNonTrivialAtom(expression, process) || isNonTrivialNegativeLiteral(expression, process);
 		return result;
 	}
 
-	default boolean isNonTrivialNegativeLiteral(Expression expression, RewritingProcess process) {
+	default boolean isNonTrivialNegativeLiteral(Expression expression, Context process) {
 		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), process);
 		return result;
 	}
@@ -146,7 +146,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context process);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -161,7 +161,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process);
+	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context process);
 
 	/**
 	 * Given a single-variable constraint in this theory, returns
@@ -169,7 +169,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process TODO
 	 * @return a {@link ContextDependentExpressionProblemStepSolver} deciding a constraint's satisfiability.
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context process);
 	
 	/**
 	 * Given a single-variable constraint in this theory, returns
@@ -177,7 +177,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process TODO
 	 * @return a {@link ContextDependentExpressionProblemStepSolver} computing a constraint's model count.
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context process);
 
 	/**
 	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
@@ -188,7 +188,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, RewritingProcess process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context process);
 
 	/**
 	 * Returns the negation of a literal.
@@ -200,17 +200,17 @@ public interface ConstraintTheory extends Theory {
 	 * @param process TODO
 	 * @return the negation of literal
 	 */
-	Expression getLiteralNegation(Expression literal, RewritingProcess process);
+	Expression getLiteralNegation(Expression literal, Context process);
 	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
 	 * where a generalized variable is an expression that is not a boolean connective or an interpreted element in this theory
-	 * (see {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, RewritingProcess)}).
+	 * (see {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, Context)}).
 	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	default Collection<Expression> getVariablesIn(Expression expression, RewritingProcess process) {
+	default Collection<Expression> getVariablesIn(Expression expression, Context process) {
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
 		Predicate<Expression> isVariablePredicate = e -> isVariable(e, process);
 		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariablePredicate);
@@ -221,16 +221,16 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Indicates whether an expression is considered a variable in this theory,
 	 * meaning that it is not a constants of any of the registered types in process
-	 * (per {@link RewritingProcess#getTypes()} and {@link RewritingProcess#isUniquelyNamedConstant(Expression)}),
+	 * (per {@link Context#getTypes()} and {@link Context#isUniquelyNamedConstant(Expression)}),
 	 * it is not interpreted in propositional logic
 	 * (per {@link FormulaUtil#isInterpretedInPropositionalLogicIncludingConditionals(Expression)}),
 	 * and is not interpreted in this theory besides boolean connectives
-	 * (per {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, RewritingProcess)}.
+	 * (per {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, Context)}.
 	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	default boolean isVariable(Expression expression, RewritingProcess process) {
+	default boolean isVariable(Expression expression, Context process) {
 		boolean result =
 				!process.isUniquelyNamedConstant(expression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
@@ -332,23 +332,23 @@ public interface ConstraintTheory extends Theory {
 	 * @param random a random generator
 	 * @param process a rewriting process
 	 */
-	Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process);
+	Expression makeRandomAtomOn(String variable, Random random, Context process);
 	
 	/**
-	 * Same as {@link #makeRandomAtomOn(String, Random, RewritingProcess),
+	 * Same as {@link #makeRandomAtomOn(String, Random, Context),
 	 * but applied randomly to one of the test variables.
 	 */
-	default Expression makeRandomAtom(Random random, RewritingProcess process) {
+	default Expression makeRandomAtom(Random random, Context process) {
 		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet().iterator(), random);
 		Expression result = makeRandomAtomOn(variableToBeUsed, random, process);
 		return result;
 	}
 	
 	/**
-	 * Same as {@link #makeRandomAtomOn(String, Random, RewritingProcess) for testing variable
+	 * Same as {@link #makeRandomAtomOn(String, Random, Context) for testing variable
 	 * (returned by {@link #pickTestingVariableAtRandom()}).
 	 */
-	default Expression makeRandomAtomOnTestingVariable(Random random, RewritingProcess process) {
+	default Expression makeRandomAtomOnTestingVariable(Random random, Context process) {
 		Expression result = makeRandomAtomOn(pickTestingVariableAtRandom(random), random, process);
 		return result;
 	}
@@ -359,25 +359,25 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	default Expression makeRandomLiteralOn(String variable, Random random, RewritingProcess process) {
+	default Expression makeRandomLiteralOn(String variable, Random random, Context process) {
 		Expression atom = makeRandomAtomOn(variable, random, process);
 		Expression literal = random.nextBoolean()? atom : getLiteralNegation(atom, process);
 		return literal;
 	}
 
 	/**
-	 * Same as {@link #makeRandomLiteralOn(String, Random, RewritingProcess),
+	 * Same as {@link #makeRandomLiteralOn(String, Random, Context),
 	 * but applied randomly to one of the testing variables.
 	 */
-	default Expression makeRandomLiteral(Random random, RewritingProcess process) {
+	default Expression makeRandomLiteral(Random random, Context process) {
 		String variableToBeUsed = pickTestingVariableAtRandom(random);
 		Expression result = makeRandomLiteralOn(variableToBeUsed, random, process);
 		return result;
 	}
 
-	RewritingProcess extendWithTestingInformation(RewritingProcess process);
+	Context extendWithTestingInformation(Context process);
 
-	default RewritingProcess makeRewritingProcessWithTestingInformation() {
+	default Context makeRewritingProcessWithTestingInformation() {
 		return extendWithTestingInformation(new DefaultRewritingProcess());
 	}
 }

@@ -53,7 +53,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Or;
@@ -79,7 +79,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if the expression passed in is a formula, false otherwise.
 	 */
-	public static boolean isFormula(Expression expression, RewritingProcess process) {
+	public static boolean isFormula(Expression expression, Context process) {
 		boolean result = false;
 		
 		// the Boolean constants False and True are formulas;
@@ -156,7 +156,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if the expression passed in is a quantifier free formula, false otherwise.
 	 */
-	public static boolean isQuantifierFreeFormula(Expression expression, RewritingProcess process) {
+	public static boolean isQuantifierFreeFormula(Expression expression, Context process) {
 		boolean result = false;
 
 		if (isFormula(expression, process)) {
@@ -181,7 +181,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if the expression passed in is a legal formula constant, false otherwise.
 	 */
-	public static boolean isLegalFormulaConstant(Expression expression, RewritingProcess process) {
+	public static boolean isLegalFormulaConstant(Expression expression, Context process) {
 		boolean result = false;
 		
 		// Note: the corresponding paper describes a legal constant as being finite but in the
@@ -202,7 +202,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if the expression passed in is a finite constant, false otherwise.
 	 */
-	public static boolean isFiniteConstant(Expression expression, RewritingProcess process) {
+	public static boolean isFiniteConstant(Expression expression, Context process) {
 		boolean result = false;
 		
 		if (process.isUniquelyNamedConstant(expression)) {
@@ -232,7 +232,7 @@ public class FormulaUtil {
 	 *            term is a constant.
 	 * @return the set of constants present in the given formula (may be empty).
 	 */
-	public static Set<Expression> getConstants(Expression formula, RewritingProcess process) {
+	public static Set<Expression> getConstants(Expression formula, Context process) {
 		Set<Expression> consts = new LinkedHashSet<Expression>();
 		
 		Iterator<Expression> subExpressionsIterator =  new SubExpressionsDepthFirstIterator(formula);
@@ -259,7 +259,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return the positive literals in the formula.
 	 */
-	public static Set<Expression> getPositiveLiterals(Expression formula, RewritingProcess process) {
+	public static Set<Expression> getPositiveLiterals(Expression formula, Context process) {
 		Set<Expression> result = Expressions.getSubExpressionsSatisfying(formula, new Predicate<Expression>() {
 			@Override
 			public boolean apply(Expression arg) {
@@ -279,7 +279,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return the negative literals in the formula.
 	 */
-	public static Set<Expression> getNegativeLiterals(Expression formula, RewritingProcess process) {
+	public static Set<Expression> getNegativeLiterals(Expression formula, Context process) {
 		Set<Expression> result = Expressions.getSubExpressionsSatisfying(formula, new Predicate<Expression>() {
 			@Override
 			public boolean apply(Expression arg) {
@@ -299,7 +299,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if is in NNF form, false otherwise.
 	 */
-	public static boolean isNNF(Expression expression, final RewritingProcess process) {
+	public static boolean isNNF(Expression expression, final Context process) {
 		boolean result = false;
 
 		if (isFormula(expression, process)) {
@@ -334,7 +334,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if is in CNF form, false otherwise.
 	 */
-	public static boolean isCNF(Expression expression, RewritingProcess process) {
+	public static boolean isCNF(Expression expression, Context process) {
 		boolean result = false;
 
 		if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
@@ -361,7 +361,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if is in DNF form, false otherwise.
 	 */
-	public static boolean isDNF(Expression expression, RewritingProcess process) {
+	public static boolean isDNF(Expression expression, Context process) {
 		boolean result = false;
 
 		if (Or.isDisjunction(expression) && expression.numberOfArguments() > 0) {
@@ -388,7 +388,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if a clause, false otherwise.
 	 */
-	public static boolean isClause(Expression expression, RewritingProcess process) {
+	public static boolean isClause(Expression expression, Context process) {
 		boolean result = false;
 		
 		if (Or.isDisjunction(expression) && expression.numberOfArguments() > 0) {
@@ -414,7 +414,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if a conjunction of literals, false otherwise.
 	 */
-	public static boolean isConjunctionOfLiterals(Expression expression, RewritingProcess process) {
+	public static boolean isConjunctionOfLiterals(Expression expression, Context process) {
 		boolean result = false;
 		
 		if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
@@ -444,7 +444,7 @@ public class FormulaUtil {
 	 *            the rewriting process in which the expression is being used.
 	 * @return true if is a 2 argument equality or inequality.
 	 */
-	public static boolean isLiteral(Expression expression, RewritingProcess process) {
+	public static boolean isLiteral(Expression expression, Context process) {
 		boolean result = false;
 
 		if (Equality.isEquality(expression)
@@ -464,7 +464,7 @@ public class FormulaUtil {
 	 * Indicates whether an expression is a conditional formula, that is,
 	 * an if-then-else expression with formulas in its then and else branches.
 	 */
-	public static boolean isConditionalFormula(Expression expressionF, RewritingProcess process) {
+	public static boolean isConditionalFormula(Expression expressionF, Context process) {
 		boolean result =
 				IfThenElse.isIfThenElse(expressionF) &&
 				isFormula(IfThenElse.thenBranch(expressionF), process) &&
@@ -475,7 +475,7 @@ public class FormulaUtil {
 	/**
 	 * Picks first atom in quantifier-free formula satisfying a given predicate.
 	 */
-	public static Expression pickAtomSatisfyingPredicateFromQuantifierFreeFormula(Expression formula, final Predicate<Expression> predicate, final RewritingProcess process) {
+	public static Expression pickAtomSatisfyingPredicateFromQuantifierFreeFormula(Expression formula, final Predicate<Expression> predicate, final Context process) {
 		Function<Expression, Expression> recursiveCallFunction = new Function<Expression, Expression>() {
 			@Override
 			public Expression apply(Expression input) {
@@ -486,7 +486,7 @@ public class FormulaUtil {
 		return result;
 	}
 
-	private static Expression pickAtomSatisfyingPredicateFromQuantifierFreeFormula(Expression formula, Predicate<Expression> predicate, Function<Expression, Expression> recursiveCall, RewritingProcess process) {
+	private static Expression pickAtomSatisfyingPredicateFromQuantifierFreeFormula(Expression formula, Predicate<Expression> predicate, Function<Expression, Expression> recursiveCall, Context process) {
 		Expression result;
 		if (formula.equals(Expressions.TRUE) || formula.equals(Expressions.FALSE)) {
 			result = null;

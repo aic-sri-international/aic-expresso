@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll.api;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.
@@ -100,7 +100,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 			ConstraintTheory constraintTheory,
 			Expression variable,
 			Expression formula,
-			RewritingProcess process) {
+			Context process) {
 		
 		SingleVariableConstraint result = null;
 		if (formula instanceof SingleVariableConstraint) {
@@ -120,7 +120,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	}
 	
 	@Override
-	default SingleVariableConstraint conjoin(Expression formula, RewritingProcess process) {
+	default SingleVariableConstraint conjoin(Expression formula, Context process) {
 		return (SingleVariableConstraint) Constraint.super.conjoin(formula, process);
 	}
 	
@@ -130,7 +130,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 * @param process
 	 * @return
 	 */
-	default Expression satisfiability(Constraint contextualConstraint, RewritingProcess process) {
+	default Expression satisfiability(Constraint contextualConstraint, Context process) {
 		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, process);
 		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint, process);
 		return satisfiability;
@@ -142,7 +142,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 * @param process
 	 * @return
 	 */
-	default Expression modelCount(Constraint contextualConstraint, RewritingProcess process) {
+	default Expression modelCount(Constraint contextualConstraint, Context process) {
 		ContextDependentExpressionProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this, process);
 		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, process);
 		return modelCount;

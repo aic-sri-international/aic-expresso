@@ -49,7 +49,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
@@ -74,12 +74,12 @@ public class BooleansWithDisjunctionGroup implements AssociativeCommutativeGroup
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, Context process) {
 		return Or.make(value1, value2);
 	}
 
 	@Override
-	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
+	public Expression addNTimes(Expression value, Expression n, Context process) {
 		Expression result;
 		if (value.equals(FALSE) || n.equals(ZERO)) {
 			result = FALSE;

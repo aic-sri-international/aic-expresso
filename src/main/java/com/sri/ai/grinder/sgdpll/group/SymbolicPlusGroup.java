@@ -49,7 +49,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
@@ -76,7 +76,7 @@ public class SymbolicPlusGroup extends AbstractSymbolicNumbersGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, Context process) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
 			result = Expressions.makeSymbol(value1.rationalValue().add(value2.rationalValue()));

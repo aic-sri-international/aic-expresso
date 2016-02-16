@@ -48,7 +48,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
@@ -86,39 +86,39 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
+	public Expression simplify(Expression expression, Context process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
 
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
+	public boolean isNonTrivialAtom(Expression expression, Context process) {
 		boolean result = GrinderUtil.isBooleanTyped(expression, process) && !FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
 		return result;
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context process) {
 		return new SingleVariablePropositionalConstraint(variable, constraintTheory);
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context process) {
 		return false; // nothing else is interpreted
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context process) {
 		return new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context process) {
 		return new ModelCountingOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Simplifier simplifier, RewritingProcess process) {
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Simplifier simplifier, Context process) {
 		return new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
 		(group, simplifier, constraintForThisIndex, currentBody);
 	}
@@ -129,12 +129,12 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
+	public Expression makeRandomAtomOn(String variable, Random random, Context process) {
 		return makeSymbol(variable);
 	}
 
 	@Override
-	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
+	public Expression getLiteralNegation(Expression literal, Context process) {
 		Expression result;
 		if (literal.hasFunctor(NOT)) {
 			result = literal.get(0);

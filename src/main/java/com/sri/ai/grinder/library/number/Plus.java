@@ -49,7 +49,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.grinder.library.CommutativeAssociativeOnNumbers;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
@@ -68,7 +68,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly imp
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		// takes care of infinity arguments before deferring to super method
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;

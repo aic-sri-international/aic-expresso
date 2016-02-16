@@ -42,14 +42,14 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.util.Util;
 
 /**
  * An extension of {@link AbstractSingleVariableConstraint}
  * for theories in which there is no interaction between distinct normalized atoms.
- * It simply implements {@link #conjoinNonTrivialSignAndNormalizedAtom(boolean, Expression, RewritingProcess)}
+ * It simply implements {@link #conjoinNonTrivialSignAndNormalizedAtom(boolean, Expression, Context)}
  * to add the new atom to the constraint.
  * 
  * @author braz
@@ -79,7 +79,7 @@ public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedA
 	}
 	
 	@Override
-	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process) {
 		AbstractSingleVariableConstraint result;
 		if (sign) {
 			result = addPositiveNormalizedAtom(normalizedAtom);

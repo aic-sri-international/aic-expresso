@@ -49,7 +49,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
@@ -229,7 +229,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process
 	 * @return
 	 */
-	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, RewritingProcess process);
+	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context process);
 
 	/**
 	 * Returns the literal corresponding to the negation of the given normalized atom.
@@ -262,14 +262,14 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process);
+	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process);
 
 	
 	
 	
 	
 	@Override
-	public SingleVariableConstraint conjoinWithLiteral(Expression formula, RewritingProcess process) {
+	public SingleVariableConstraint conjoinWithLiteral(Expression formula, Context process) {
 		AbstractSingleVariableConstraint result;
 		if (formula.equals(TRUE)) {
 			result = this;
@@ -329,7 +329,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process
 	 * @return
 	 */
-	abstract protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process);
+	abstract protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process);
 
 	
 	

@@ -50,7 +50,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -96,7 +96,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	}
 
 	@Override
-	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		return GrinderUtil.makeProcess(
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
@@ -105,7 +105,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	}
 
 	@Override
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
 		Constraint trueContextualConstraint = makeTrueConstraint(indices);
 		Expression quantifierFreeConstraint = simplifier.apply(constraint, process);
@@ -134,7 +134,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
 			Constraint contextualConstraint,
-			RewritingProcess process) {
+			Context process) {
 		
 		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
@@ -207,7 +207,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
 			ConstraintTheory constraintTheory,
-			RewritingProcess process) {
+			Context process) {
 		
 		Expression body;
 		SingleVariableConstraint lastIndexConstraint = null;

@@ -55,7 +55,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
@@ -151,14 +151,14 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 	
 	@Override
-	public RewritingProcess extendWithTestingInformation(RewritingProcess process) {
+	public Context extendWithTestingInformation(Context process) {
 		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.
 		Map<String, String> mapFromSymbolNamesToTypeNames = new LinkedHashMap<String, String>();
 		for (Map.Entry<String, Type> symbolAndType : getVariableNamesAndTypesForTesting().entrySet()) {
 			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
 		}
 		
-		RewritingProcess result = GrinderUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), process);
+		Context result = GrinderUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), process);
 		return result;
 	}
 	

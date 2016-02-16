@@ -42,9 +42,9 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.util.math.Rational;
 
@@ -78,12 +78,12 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 	
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
 		return getInnerExpression().getImmediateSubExpressionsAndContextsIterator();
 	}
 
 	@Override
-	public List<Expression> getScopedExpressions(RewritingProcess process) {
+	public List<Expression> getScopedExpressions(Context process) {
 		return getInnerExpression().getScopedExpressions(process);
 	}
 
@@ -98,7 +98,7 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		return getInnerExpression().replaceSymbol(symbol, newSymbol, process);
 	}
 

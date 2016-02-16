@@ -50,13 +50,13 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
@@ -75,7 +75,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	private Expression                 functor;
 	private List<Expression>           arguments;
 	private SyntaxTree                 syntaxTree;
-	private List<ExpressionAndContext> expressionAndContexts;
+	private List<ExpressionAndSyntacticContext> expressionAndSyntacticContexts;
 	
 	public DefaultFunctionApplication(Expression functor, List<Expression> arguments) {
 		super();
@@ -84,12 +84,12 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		
 		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), mapIntoObjectArray(arguments, e -> e == null? null : e.getSyntaxTree()));
 		
-		expressionAndContexts = new LinkedList<ExpressionAndContext>();
-		expressionAndContexts.add(new DefaultExpressionAndContext(functor, new IndexAddress(-1)));
+		expressionAndSyntacticContexts = new LinkedList<ExpressionAndSyntacticContext>();
+		expressionAndSyntacticContexts.add(new DefaultExpressionAndSyntacticContext(functor, new IndexAddress(-1)));
 		int i = 0;
 		for (Expression argument : arguments) {
 			Expression conditioningConstraint = getConditioningConstraint(argument, i);
-			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++), new ExtensionalIndexExpressionsSet(Collections.emptyList()), conditioningConstraint));
+			expressionAndSyntacticContexts.add(new DefaultExpressionAndSyntacticContext(argument, new IndexAddress(i++), new ExtensionalIndexExpressionsSet(Collections.emptyList()), conditioningConstraint));
 		}
 	}
 
@@ -158,8 +158,8 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
-		return expressionAndContexts.iterator();
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
+		return expressionAndSyntacticContexts.iterator();
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
 		Expression result = replaceAllOccurrences(symbol, newSymbol, process);
 		return result;

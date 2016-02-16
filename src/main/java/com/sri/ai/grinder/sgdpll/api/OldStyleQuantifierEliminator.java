@@ -6,7 +6,7 @@ import java.util.Map;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 
 /**
@@ -20,21 +20,21 @@ public interface OldStyleQuantifierEliminator {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
+	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context process);
 	
 	/**
 	 * Returns a true constraint for a problem with given indices.
-	 * This is used by the default implementation of {@link #solve(Expression, Collection, RewritingProcess).
+	 * This is used by the default implementation of {@link #solve(Expression, Collection, Context).
 	 * @param indices
 	 * @return
 	 */
 	Constraint makeTrueConstraint(Collection<Expression> indices);
 	
 	/**
-	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, RewritingProcess)}
+	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
 	 * assuming a true contextual constraint.
 	 */
-	default Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
+	default Expression solve(Expression input, Collection<Expression> indices, Context process) {
 		Constraint constraint = makeTrueConstraint(indices);
 		Expression result = solve(indices, constraint, input, process);
 		return result;
@@ -56,12 +56,12 @@ public interface OldStyleQuantifierEliminator {
 	 * @param isUniquelyNamedConstantPredicate
 	 * @return
 	 */
-	RewritingProcess makeProcess(
+	Context makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess
+	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
 	 */
 	default Expression solve(
@@ -72,7 +72,7 @@ public interface OldStyleQuantifierEliminator {
 			Collection<Type> additionalTypes, 
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		RewritingProcess process =
+		Context process =
 				makeProcess(
 						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
 						additionalTypes, isUniquelyNamedConstantPredicate);
@@ -82,7 +82,7 @@ public interface OldStyleQuantifierEliminator {
 	}
 
 	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess
+	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
 	 */
 	default Expression solve(

@@ -39,12 +39,12 @@ package com.sri.ai.grinder.sgdpll.core.constraint;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 
 /**
- * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
+ * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, Context)}
  * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
  * 
  * @author braz
@@ -66,7 +66,7 @@ public class CompleteMultiVariableConstraint extends MultiVariableConstraintWith
 	 * @param process
 	 * @return
 	 */
-	public static Constraint parse(String expressionString, ConstraintTheory constraintTheory, RewritingProcess process) {
+	public static Constraint parse(String expressionString, ConstraintTheory constraintTheory, Context process) {
 		Constraint result = new CompleteMultiVariableConstraint(constraintTheory);
 		result = Expressions.parseAndConjoin(expressionString, result, process);
 		return result;

@@ -42,7 +42,7 @@ import static com.sri.ai.util.Util.list;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
@@ -70,17 +70,17 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	}
 
 	@Override
-	public Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
+	public Iterable<Expression> getPropagatedLiterals(Context process) {
 		return getConstraint().getExternalLiterals();
 	}
 
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
 		return list();
 	}
 
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process) {
 		return new Solution(TRUE);
 	}
 }

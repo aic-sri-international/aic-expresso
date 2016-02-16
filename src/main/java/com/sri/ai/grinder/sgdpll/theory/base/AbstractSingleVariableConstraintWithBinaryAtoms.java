@@ -50,7 +50,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -122,7 +122,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 * @param process
 	 * @return
 	 */
-	abstract protected Expression isolateVariable(Expression atom, RewritingProcess process);
+	abstract protected Expression isolateVariable(Expression atom, Context process);
 
 	public AbstractSingleVariableConstraintWithBinaryAtoms(Expression variable, ConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
@@ -143,7 +143,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	}
 
 	@Override
-	protected Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, RewritingProcess process) {
+	protected Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context process) {
 	
 		Pair<Boolean, Expression> result;
 	
@@ -164,7 +164,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 		return result;
 	}
 
-	private Pair<Boolean, Expression> getEquivalentSignAndAtom(Expression literal, RewritingProcess process) throws Error {
+	private Pair<Boolean, Expression> getEquivalentSignAndAtom(Expression literal, Context process) throws Error {
 		boolean sign;
 		Expression atom = getEquivalentAtomIfPossible(literal, process);
 		if (atom == null) {
@@ -187,7 +187,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 * @return an atom equivalent to literal, or null if there is no such equivalent literal.
 	 * @throws Error if literal is not a valid literal for this theory
 	 */
-	private Expression getEquivalentAtomIfPossible(Expression literal, RewritingProcess process) throws Error {
+	private Expression getEquivalentAtomIfPossible(Expression literal, Context process) throws Error {
 		Expression result;
 		if (literal.hasFunctor(NOT)) {
 			String negatedFunctor = getNegationFunctor(literal.get(0).getFunctor().toString());
@@ -280,11 +280,11 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 
 	/**
 	 * Returns the size of the variable's type
-	 * by using {@link GrinderUtil#getTypeCardinality(Expression, RewritingProcess)}.
+	 * by using {@link GrinderUtil#getTypeCardinality(Expression, Context)}.
 	 * @param process
 	 * @return
 	 */
-	public long getVariableTypeSize(RewritingProcess process) {
+	public long getVariableTypeSize(Context process) {
 		if (cachedIndexTypeSize == -1) {
 			cachedIndexTypeSize = getTypeCardinality(getVariable(), process);
 		}
@@ -298,7 +298,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 * @param process
 	 * @return
 	 */
-	public Expression getVariableTypeExpression(RewritingProcess process) {
+	public Expression getVariableTypeExpression(Context process) {
 		if (cachedVariableType == null) {
 			cachedVariableType = GrinderUtil.getType(getVariable(), process);
 //			cachedVariableType = process.getContextualSymbolType(getVariable());

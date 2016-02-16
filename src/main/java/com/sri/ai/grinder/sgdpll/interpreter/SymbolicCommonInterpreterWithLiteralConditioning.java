@@ -41,7 +41,7 @@ import static com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminatio
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
@@ -71,7 +71,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 * result of super's interpretation, since we expect a symbolic interpreter
 	 * to condition on the literals in order to make the expression succinct.
 	 */
-	@Override public Expression apply(Expression expression, RewritingProcess process) {
+	@Override public Expression apply(Expression expression, Context process) {
 		Expression interpretationResult = super.apply(expression, process);
 		Constraint trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
 		SymbolicCommonInterpreter simplifier =

@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpll.theory.base;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
@@ -67,7 +67,7 @@ public class ConstantStepSolver<T> implements ContextDependentProblemStepSolver<
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolutionStep<T> step(Constraint contextualConstraint, RewritingProcess process) {
+	public ContextDependentProblemStepSolver.SolutionStep<T> step(Constraint contextualConstraint, Context process) {
 		return solution;
 	}	
 }

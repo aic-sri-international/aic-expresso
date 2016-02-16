@@ -43,7 +43,7 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeSemiRing;
@@ -107,7 +107,7 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Expression multiply(Expression multiplication, RewritingProcess process) {
+	public Expression multiply(Expression multiplication, Context process) {
 		return getSemiRing().multiply(multiplication, process);
 	}
 
@@ -117,7 +117,7 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process) {
+	public Expression multiplyNTimes(Expression value, Expression n, Context process) {
 		return getSemiRing().multiplyNTimes(value, n, process);
 	}
 
@@ -132,12 +132,12 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, Context process) {
 		return getSemiRing().add(value1, value2, process);
 	}
 
 	@Override
-	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
+	public Expression addNTimes(Expression value, Expression n, Context process) {
 		return getSemiRing().addNTimes(value, n, process);
 	}
 
@@ -147,7 +147,7 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, RewritingProcess process) {
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context process) {
 		return groupProblemType.getExpressionAndIndexExpressionsFromProblemExpression(expression, process);
 	}
 

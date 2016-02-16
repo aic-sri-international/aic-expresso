@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraintWithIndependentNormalizedAtoms;
@@ -93,7 +93,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process) {
 		return this;
 	}
 
@@ -103,7 +103,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, RewritingProcess process) {
+	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context process) {
 		Pair<Boolean, Expression> result;
 		if (literal.hasFunctor(NOT)) {
 			result = Pair.make(false, literal.get(0));
@@ -115,7 +115,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public SingleVariablePropositionalConstraint conjoin(Expression formula, RewritingProcess process) {
+	public SingleVariablePropositionalConstraint conjoin(Expression formula, Context process) {
 		return (SingleVariablePropositionalConstraint) super.conjoin(formula, process);
 	}
 

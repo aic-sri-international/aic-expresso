@@ -48,30 +48,30 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductInMapIterator;
 
 /**
  * An iterator over assignments to expressions according to their {@link Type} as defined
- * in a {@link RewritingProcess}.
+ * in a {@link Context}.
  * 
  * @author braz
  */
 @Beta
 public class AssignmentsIterator extends CartesianProductInMapIterator<Expression, Expression> {
 
-	public AssignmentsIterator(Collection<Expression> variables, RewritingProcess process) {
+	public AssignmentsIterator(Collection<Expression> variables, Context process) {
 		super(makeMapFromVariablesToIteratorMakers(variables, process));
 	}
 
-	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, RewritingProcess process) {
+	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Context process) {
 		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, process));
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, RewritingProcess process) {
+	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Context process) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
 			Expression typeDescription = GrinderUtil.getType(variable, process);
@@ -81,7 +81,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, RewritingProcess process) {
+	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, Context process) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		ExtensionalIndexExpressionsSet extensionalIndexExpressionsSet;
 		try {
@@ -108,7 +108,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	 * @param process
 	 * @throws Error
 	 */
-	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, RewritingProcess process) throws Error {
+	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, Context process) throws Error {
 		if (typeExpression == null) {
 			throw new Error("Variable " + variable + " is not registered in rewriting process (has no type).");
 		}

@@ -3,7 +3,7 @@ package com.sri.ai.grinder.sgdpll.group;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 /**
@@ -23,7 +23,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 	public abstract Expression additiveIdentityElement();
 
 	@Override
-	public abstract Expression add(Expression value1, Expression value2, RewritingProcess process);
+	public abstract Expression add(Expression value1, Expression value2, Context process);
 
 	@Override
 	public abstract boolean isAdditiveAbsorbingElement(Expression value);
@@ -38,7 +38,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 	protected abstract Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n);
 
 	@Override
-	public Expression addNTimes(Expression valueToBeAdded, Expression n, RewritingProcess process) {
+	public Expression addNTimes(Expression valueToBeAdded, Expression n, Context process) {
 		Expression result;
 		if (n.equals(ZERO)) {
 			result = additiveIdentityElement();

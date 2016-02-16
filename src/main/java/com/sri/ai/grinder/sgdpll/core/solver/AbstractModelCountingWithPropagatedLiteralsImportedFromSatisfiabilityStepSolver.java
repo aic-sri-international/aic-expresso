@@ -43,7 +43,7 @@ import java.util.ArrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
@@ -55,11 +55,11 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
  * It extends {@link AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver}
  * and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
  * step solver, which is obtained through the constraint theory's
- * {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, RewritingProcess)}.
+ * {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)}.
  * However, it is important that the satisfiability step solver provided by the constraint theory
  * be an instance of {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver},
- * because {@link #getPropagatedCNF(RewritingProcess)} is delegated to the satisfiability step solver's
- * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver#getPropagatedCNF(RewritingProcess)}
+ * because {@link #getPropagatedCNF(Context)} is delegated to the satisfiability step solver's
+ * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver#getPropagatedCNF(Context)}
  * method.
  * An error is thrown if this assumption is violated.
  * <p>
@@ -98,7 +98,7 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	 * It overrides caching done by overridden method, but that's fine since satisfiability should be doing that already.
 	 */
 	@Override
-	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(RewritingProcess process) {
+	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context process) {
 		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
 		ContextDependentExpressionProblemStepSolver satisfiability =
 				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), process);
@@ -121,7 +121,7 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	 * delegates to satisfiability step solver.
 	 */
 	@Override
-	final protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
+	final protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
 		throw new Error("Should not be invoked because this class redirects computation to propagated CNF to an internal satisfiability problem");
 	}
 }

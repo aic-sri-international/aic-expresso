@@ -52,19 +52,19 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * A default implementation of {@link RewritingProcess}. By default, the
+ * A default implementation of {@link Context}. By default, the
  * predicate indicating variables uses {@link PrologVariableConvention}.
  * 
  * @author braz
  * @author oreilly
  */
 @Beta
-public class DefaultRewritingProcess implements RewritingProcess {
+public class DefaultRewritingProcess implements Context {
 	
 	private Map<Expression, Expression>  symbolsAndTypes;
 	private Map<Expression, Type> fromTypeExpressionToType;
@@ -119,7 +119,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this.fromTypeExpressionToType = types;
 	}
 
-	// END-RewritingProcess
+	// END-Context
 	//
 	
 	//
@@ -142,7 +142,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	//
-	// START-RewritingProcess
+	// START-Context
 	@Override
 	public boolean isUniquelyNamedConstant(Expression expression) {
 		return getIsUniquelyNamedConstantPredicate().apply(expression);
@@ -160,7 +160,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public RewritingProcess setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		DefaultRewritingProcess result = clone();
 		result.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 		return result;
@@ -208,7 +208,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		return globalObjects.get(key);
 	}
 
-	// END-RewritingProcess
+	// END-Context
 	//
 	
 	//
@@ -225,7 +225,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public RewritingProcess add(Type type) {
+	public Context add(Type type) {
 		DefaultRewritingProcess result = clone();
 		LinkedHashMap<Expression, Type> additionalTypeMap = map(parse(type.getName()), type);
 		result.fromTypeExpressionToType = new StackedHashMap<>(additionalTypeMap, fromTypeExpressionToType);
@@ -254,7 +254,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public RewritingProcess registerIndicesAndTypes(
+	public Context registerIndicesAndTypes(
 			Map<Expression, Expression> expressionsAndTypes) {
 		if (expressionsAndTypes.isEmpty()) { // nothing to do
 			return this;

@@ -44,7 +44,7 @@ import static com.sri.ai.util.Util.thereExists;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Equals;
 
@@ -68,7 +68,7 @@ public class CommutativeAssociativeOnNumbers {
 	 * @param fallback
 	 * @return
 	 */
-	public static Expression dealWithInfinity(Expression expression, RewritingProcess process, BinaryFunction<Expression, RewritingProcess, Expression> fallback) {
+	public static Expression dealWithInfinity(Expression expression, Context process, BinaryFunction<Expression, Context, Expression> fallback) {
 		Expression result;
 		
 		boolean containsInfinity = thereExists(expression.getArguments(), EQUALS_INFINITY);

@@ -60,7 +60,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -120,7 +120,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return (SingleVariableEqualityConstraint) super.getConstraint();
 	}
 	
-	private NumberOfDistinctExpressionsIsLessThanStepSolver getNumberOfDistinctExpressionsIsLessThanStepSolver(RewritingProcess process) {
+	private NumberOfDistinctExpressionsIsLessThanStepSolver getNumberOfDistinctExpressionsIsLessThanStepSolver(Context process) {
 		if ( ! alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade) {
 			long variableTypeSize = getConstraint().getVariableTypeSize(process);
 			if (variableTypeSize >= 0) {
@@ -141,7 +141,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
+	protected Iterable<Expression> getPropagatedLiterals(Context process) {
 		
 		Iterator<Expression> propagatedLiteralsIterator;
 
@@ -184,7 +184,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
 		if ( ! variableIsBoundToUniquelyNamedConstant(process)) {
 			// the following logic only holds if the variable is not bound to a uniquely named constants,
 			// since that eliminates all disequalities to other uniquely named constants as redundant
@@ -252,18 +252,18 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return result;
 	}
 
-	private boolean variableIsBoundToUniquelyNamedConstant(RewritingProcess process) {
+	private boolean variableIsBoundToUniquelyNamedConstant(Context process) {
 		return thereExists(getConstraint().getPositiveNormalizedAtoms(), l -> process.isUniquelyNamedConstant(l.get(1)));
 	}
 
-	private ArrayList<Expression> getVariableDisequals(RewritingProcess process) {
+	private ArrayList<Expression> getVariableDisequals(Context process) {
 		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
 		filter(e -> ! process.isUniquelyNamedConstant(e)). // only Variables
 		collect(Util.toArrayList(10));
 	}
 
-	private LinkedHashSet<Expression> getUniquelyNamedConstantDisequals(RewritingProcess process) {
+	private LinkedHashSet<Expression> getUniquelyNamedConstantDisequals(Context process) {
 		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
 		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
@@ -271,7 +271,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process) {
 		SolutionStep result;
 		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(process) != null) {
 			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(process).step(contextualConstraint, process);

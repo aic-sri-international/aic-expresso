@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.BooleansWithConjunctionGroup;
@@ -70,7 +70,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.AbstractRecursiveExhaustiveSeri
  * (provided through {@link #makeAnotherMapBasedSimplifier()},
  * and delegating quantified expressions to abstract method
  * {@link AbstractCommonInterpreter#evaluateAggregateOperation(
- * AssociativeCommutativeGroup, ExtensionalIndexExpressionsSet, Expression, Expression, RewritingProcess)}.
+ * AssociativeCommutativeGroup, ExtensionalIndexExpressionsSet, Expression, Expression, Context)}.
  *
  * @author braz
  *
@@ -93,7 +93,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesCondition,
 			Expression body,
-			RewritingProcess process) throws Error;
+			Context process) throws Error;
 
 	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
@@ -153,7 +153,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 	private Expression evaluateAggregateOverIntensionalSet(
 			AssociativeCommutativeGroup group,
 			Expression expression,
-			RewritingProcess process) throws Error {
+			Context process) throws Error {
 		
 		IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
@@ -167,7 +167,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 	private Expression evaluateQuantifiedExpression(
 			Expression expression,
 			AssociativeCommutativeGroup group,
-			RewritingProcess process) {
+			Context process) {
 		
 		QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) expression;
 		Expression body = quantifiedExpression.getBody();

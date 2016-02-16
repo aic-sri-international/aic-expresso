@@ -43,7 +43,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -52,7 +52,7 @@ import com.sri.ai.util.collect.StackedHashMap;
 /** 
  * An type of {@link Simplifier} based on maps from functor or syntactic form types to
  * elementary simplifiers in the form of {@link BinaryFunction}s
- * from an {@link Expression} and {@link RewritingProcess} to an {@link Expression},
+ * from an {@link Expression} and {@link Context} to an {@link Expression},
  * which are applied exhaustively, in a top-down manner, to expressions to be simplified. 
  */
 public interface MapBasedSimplifier extends Simplifier {
@@ -87,7 +87,7 @@ public interface MapBasedSimplifier extends Simplifier {
 	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
 			Expression expression,
 			Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers,
-			RewritingProcess process,
+			Context process,
 			Object... additionalSyntacticFormTypesAndSimplifiers) {
 		
 		Map<String, Simplifier>
@@ -108,7 +108,7 @@ public interface MapBasedSimplifier extends Simplifier {
 	 * @param process
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers, RewritingProcess process) {
+	public static Expression simplify(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers, Context process) {
 		RecursiveExhaustiveMapBasedSimplifier simplifier = new RecursiveExhaustiveMapBasedSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
 		Expression result = simplifier.apply(expression, process);
 		return result;

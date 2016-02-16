@@ -47,7 +47,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -90,7 +90,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * @param process the rewriting process
 	 * @return
 	 */
-	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment, RewritingProcess process) {
+	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment, Context process) {
 		return new BruteForceCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment));
 	}
 
@@ -110,7 +110,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 
 	@Override
 	protected Expression evaluateAggregateOperation(
-			AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, RewritingProcess process) throws Error {
+			AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context process) throws Error {
 		
 		process = extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression value = group.additiveIdentityElement();
@@ -130,7 +130,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		return value;
 	}
 
-	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, RewritingProcess process) throws Error {
+	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, Context process) throws Error {
 		Expression expressionEvaluation = extendWith(values, process).apply(expression, process);
 		return expressionEvaluation;
 	}

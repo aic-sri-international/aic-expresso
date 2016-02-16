@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpll.theory.base;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 
@@ -68,7 +68,7 @@ public class ConstantExpressionStepSolver implements ContextDependentExpressionP
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, Context process) {
 		return solution;
 	}
 	

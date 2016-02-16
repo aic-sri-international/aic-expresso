@@ -54,7 +54,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -70,7 +70,7 @@ public class MaximumExpressionStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		RewritingProcess process = new DefaultRewritingProcess();
+		Context process = new DefaultRewritingProcess();
 		process = constraintTheory.extendWithTestingInformation(process);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 
@@ -137,7 +137,7 @@ public class MaximumExpressionStepSolverTest {
 		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, process);	
 	}
 
-	private void runTest(List<String> expressions, String order, Expression orderMinimum, Expression orderMaximum, Expression expected, Constraint contextualConstraint, RewritingProcess process) {
+	private void runTest(List<String> expressions, String order, Expression orderMinimum, Expression orderMaximum, Expression expected, Constraint contextualConstraint, Context process) {
 		ContextDependentProblemStepSolver<Expression> stepSolver =
 				new MaximumExpressionStepSolver(
 						mapIntoArrayList(expressions, Expressions::parse),

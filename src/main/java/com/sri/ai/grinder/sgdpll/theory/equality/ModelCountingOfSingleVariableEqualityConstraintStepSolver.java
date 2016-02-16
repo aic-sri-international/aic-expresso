@@ -45,7 +45,7 @@ import static java.lang.Math.max;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver;
@@ -81,7 +81,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
-			Constraint contextualConstraint, RewritingProcess process) {
+			Constraint contextualConstraint, Context process) {
 
 		Expression solutionExpression;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value

@@ -42,7 +42,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.IMPLICATION;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
@@ -72,7 +72,7 @@ public class Implication implements TopSimplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		return simplify(expression);
 	}
 	

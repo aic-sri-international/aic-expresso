@@ -41,7 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * Object representing an associative commutative semi-ring.
@@ -76,7 +76,7 @@ public interface AssociativeCommutativeSemiRing extends AssociativeCommutativeGr
 	/**
 	 * Performs the semi-rings's multiplicative operation on a function application of the multiplicative operator.
 	 */
-	Expression multiply(Expression multiplication, RewritingProcess process);
+	Expression multiply(Expression multiplication, Context process);
 
 	/**
 	 * Returns the n-th root for an expression, if an exact value exists, or null otherwise. 
@@ -89,5 +89,5 @@ public interface AssociativeCommutativeSemiRing extends AssociativeCommutativeGr
 	/**
 	 * The result of multiplying a value to itself n times, where both value and n may be symbolic expressions.
 	 */
-	Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process);
+	Expression multiplyNTimes(Expression value, Expression n, Context process);
 }

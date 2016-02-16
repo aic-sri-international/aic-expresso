@@ -51,7 +51,7 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
@@ -65,7 +65,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 	public void test() {
 		
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		RewritingProcess process = constraintTheory.makeRewritingProcessWithTestingInformation();
+		Context process = constraintTheory.makeRewritingProcessWithTestingInformation();
 		
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");

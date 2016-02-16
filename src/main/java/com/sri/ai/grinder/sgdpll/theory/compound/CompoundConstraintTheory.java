@@ -60,7 +60,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
@@ -158,7 +158,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		return subConstraintTheories;
 	}
 
-	private ConstraintTheory getConstraintTheory(Expression variable, RewritingProcess process) {
+	private ConstraintTheory getConstraintTheory(Expression variable, Context process) {
 		String typeName = GrinderUtil.getType(variable, process).toString();
 		Type type = process.getType(typeName);
 		
@@ -181,13 +181,13 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
+	public boolean isNonTrivialAtom(Expression expression, Context process) {
 		boolean result = thereExists(getSubConstraintTheories(), t -> t.isNonTrivialAtom(expression, process));
 		return result;
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context process) {
 		ConstraintTheory constraintTheoryForVariable = getConstraintTheory(variable, process);
 		SingleVariableConstraint result = constraintTheoryForVariable.makeSingleVariableConstraint(variable, constraintTheory, process);
 		return result;
@@ -207,7 +207,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context process) {
 		boolean result =
 				thereExists(
 						getSubConstraintTheories(),
@@ -216,28 +216,28 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context process) {
 		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
 		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, process);
 		return result;
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context process) {
 		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
 		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, process);
 		return result;
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, RewritingProcess process) {
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context process) {
 		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
 		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, simplifier, process);
 		return result;
 	}
 
 	@Override
-	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
+	public Expression getLiteralNegation(Expression literal, Context process) {
 		ConstraintTheory constraintTheory =
 				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, process));
 		Expression result = constraintTheory.getLiteralNegation(literal, process);
@@ -245,14 +245,14 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
+	public Expression makeRandomAtomOn(String variable, Random random, Context process) {
 		ConstraintTheory constraintTheory = getConstraintTheory(parse(variable), process);
 		Expression result = constraintTheory.makeRandomAtomOn(variable, random, process);
 		return result;
 	}
 
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
+	public Expression simplify(Expression expression, Context process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
 	}

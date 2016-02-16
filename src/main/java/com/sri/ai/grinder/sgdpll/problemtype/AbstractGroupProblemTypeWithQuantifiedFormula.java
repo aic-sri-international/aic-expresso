@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll.problemtype;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
@@ -61,7 +61,7 @@ abstract public class AbstractGroupProblemTypeWithQuantifiedFormula extends Abst
 	
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(
-			Expression expression, RewritingProcess process) {
+			Expression expression, Context process) {
 		
 		QuantifiedExpressionWithABody quantifiedFormula = (QuantifiedExpressionWithABody) expression;
 		Pair<Expression, IndexExpressionsSet> formulaAndIndices = 

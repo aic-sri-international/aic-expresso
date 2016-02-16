@@ -46,7 +46,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Times;
 
 /**
@@ -88,7 +88,7 @@ public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements Asso
 	static final private Times timesSimplifier = new Times();
 
 	@Override
-	public Expression multiply(Expression multiplication, RewritingProcess process) {
+	public Expression multiply(Expression multiplication, Context process) {
 		Expression result = timesSimplifier.apply(multiplication, process);
 		return result;
 	}
@@ -106,7 +106,7 @@ public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements Asso
 	}
 
 	@Override
-	public Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process) {
+	public Expression multiplyNTimes(Expression value, Expression n, Context process) {
 		throw new Error("Exponentiation not yet implemented.");
 	}
 }

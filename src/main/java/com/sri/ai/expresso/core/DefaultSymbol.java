@@ -46,12 +46,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
@@ -79,7 +79,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
 		return Util.iterator();
 	}
 
@@ -94,7 +94,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		Expression result = this;
 		if (this.equals(symbol)) {
 			result = newSymbol;

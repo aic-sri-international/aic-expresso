@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpll.api;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.base.Pair;
 
@@ -64,7 +64,7 @@ public interface GroupProblemType extends AssociativeCommutativeGroup {
 	 * @return
 	 */
 	Pair<Expression, IndexExpressionsSet>
-	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, RewritingProcess process);
+	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context process);
 
 	/**
 	 * Generates an expression representing of problem of this type, given its components. 

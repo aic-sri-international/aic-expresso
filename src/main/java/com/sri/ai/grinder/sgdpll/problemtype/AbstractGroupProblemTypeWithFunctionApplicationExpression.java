@@ -45,7 +45,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.Util;
@@ -70,7 +70,7 @@ abstract public class AbstractGroupProblemTypeWithFunctionApplicationExpression 
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, RewritingProcess process) {
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context process) {
 		Util.myAssert(() -> expression.hasFunctor(getFunctorString()), () -> "Expression expected to be application of " + getFunctorString() + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Expression body = IfThenElse.make(set.getCondition(), set.getHead(), additiveIdentityElement());

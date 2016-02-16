@@ -39,13 +39,13 @@ package com.sri.ai.grinder.sgdpll.api;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
- * Method {@link #step(Constraint, RewritingProcess)} returns a {@link SolutionStep},
+ * Method {@link #step(Constraint, Context)} returns a {@link SolutionStep},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
  * that, if used to split the contextual constraint
@@ -265,5 +265,5 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * @param process
 	 * @return
 	 */
-	SolutionStep<T> step(Constraint contextualConstraint, RewritingProcess process);
+	SolutionStep<T> step(Constraint contextualConstraint, Context process);
 }

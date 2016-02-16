@@ -39,9 +39,9 @@ package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 
 @Beta
 public interface PruningPredicateMaker {
-	public PruningPredicate apply(Expression expression, PruningPredicate pruningPredicate, ExpressionAndContext subExpressionAndContext);
+	public PruningPredicate apply(Expression expression, PruningPredicate pruningPredicate, ExpressionAndSyntacticContext subExpressionAndSyntacticContext);
 }

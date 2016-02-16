@@ -49,7 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
@@ -94,7 +94,7 @@ import com.sri.ai.util.base.ReplaceByIfEqualTo;
 @Beta
 public class SyntacticSubstitute {
 
-	public static Expression replace(Expression expression, Expression replaced, Expression replacement, RewritingProcess process) {
+	public static Expression replace(Expression expression, Expression replaced, Expression replacement, Context process) {
 		Expression result =
 				expression.replaceAllOccurrences(
 						new ReplaceByIfEqualTo<Expression>(replacement, replaced), null,
@@ -103,7 +103,7 @@ public class SyntacticSubstitute {
 		return result;
 	}
 
-	public static Expression replaceAll(Expression expression, Map<Expression, Expression> fromReplacedToReplacements, RewritingProcess process) {
+	public static Expression replaceAll(Expression expression, Map<Expression, Expression> fromReplacedToReplacements, Context process) {
 		Expression result = expression.replaceAllOccurrences(new MapReplacementFunction(fromReplacedToReplacements), process);
 		return result;
 
@@ -117,7 +117,7 @@ public class SyntacticSubstitute {
 	private static class SubstitutePruningPredicate implements PruningPredicate {
 		List<Expression> allSymbolsInReplacedAndReplacement;
 		
-		public SubstitutePruningPredicate(Expression replaced, Expression replacement, RewritingProcess process) {
+		public SubstitutePruningPredicate(Expression replaced, Expression replacement, Context process) {
 			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, process);
 			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, process);
 			this.allSymbolsInReplacedAndReplacement =
@@ -126,7 +126,7 @@ public class SyntacticSubstitute {
 							freeSymbolsInReplaced);
 		}
 		@Override
-		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, RewritingProcess process) {
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, Context process) {
 			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(process), new GetFunctorOrSymbol());
 			boolean result = Util.intersect(allSymbolsInReplacedAndReplacement, locallyScopedSymbols);
 			return result;

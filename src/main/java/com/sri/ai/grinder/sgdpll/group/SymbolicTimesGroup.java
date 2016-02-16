@@ -47,7 +47,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Times;
@@ -77,7 +77,7 @@ public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, Context process) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
 			result = Expressions.makeSymbol(value1.rationalValue().multiply(value2.rationalValue()));

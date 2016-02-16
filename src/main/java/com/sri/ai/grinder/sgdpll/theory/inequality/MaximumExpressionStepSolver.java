@@ -43,7 +43,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
@@ -97,7 +97,7 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 	
 	@Override
-	public SolutionStep<Expression> step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep<Expression> step(Constraint contextualConstraint, Context process) {
 		SolutionStep<Expression> result;
 		if (maximumSoFar.equals(orderMaximum)) { // short-circuiting if maximum already found
 			result = new Solution<Expression>(orderMaximum);

@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -70,7 +70,7 @@ public class ContextDependentExpressionProblemSolver {
 	 * @param process
 	 * @return
 	 */
-	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint contextualConstraint, RewritingProcess process) {
+	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint contextualConstraint, Context process) {
 		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, process);
 //		System.out.println("Step: " + step);
 //		System.out.println("Contextual constraint: " + contextualConstraint);	

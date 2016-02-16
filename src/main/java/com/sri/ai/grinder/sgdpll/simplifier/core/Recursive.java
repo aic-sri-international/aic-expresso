@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
@@ -76,7 +76,7 @@ public class Recursive implements Simplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		Expression result = apply(base, expression, process);
 		return result;
 		// The reason we use static apply here is to enforce that the 'apply' using recursively is the static one that
@@ -93,7 +93,7 @@ public class Recursive implements Simplifier {
 	 * @param process
 	 * @return
 	 */
-	private static Expression apply(Simplifier base, Expression expression, RewritingProcess process) {
+	private static Expression apply(Simplifier base, Expression expression, Context process) {
 		Expression result = expression;
 		result = base.apply(result, process);
 		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {

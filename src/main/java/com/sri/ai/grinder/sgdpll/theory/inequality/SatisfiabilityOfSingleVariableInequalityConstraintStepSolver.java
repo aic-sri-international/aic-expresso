@@ -46,7 +46,7 @@ import static com.sri.ai.grinder.sgdpll.theory.base.ExpressionConditionedOnLiter
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
@@ -82,7 +82,7 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 	}
 	
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, Context process) {
 		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, process);
 		if (modelCountingStep == null) {
 			return null;

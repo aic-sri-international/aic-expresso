@@ -43,7 +43,7 @@ import java.util.Map;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -68,7 +68,7 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 	}
 
 	@Override
-	public boolean isVariable(Expression expression, RewritingProcess process) {
+	public boolean isVariable(Expression expression, Context process) {
 		return constraintTheory.isVariable(expression, process);
 	}
 
@@ -82,11 +82,11 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 	}
 	
 	@Override
-	public RewritingProcess makeProcess(
+	public Context makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		RewritingProcess result = GrinderUtil.makeProcess(
+		Context result = GrinderUtil.makeProcess(
 						mapFromSymbolNameToTypeName,
 						mapFromCategoricalTypeNameToSizeString, additionalTypes,
 						isUniquelyNamedConstantPredicate);

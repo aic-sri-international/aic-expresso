@@ -53,7 +53,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -109,7 +109,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 * The number of disequalities from uniquely named constants;
 	 * this field is only accurate if {@link #conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance()}
 	 * returns true.
-	 * This is because this field is maintained by {@link #destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean, Expression, RewritingProcess)},
+	 * This is because this field is maintained by {@link #destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean, Expression, Context)},
 	 * which is invoked only in that case.
 	 */
 	private int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
@@ -150,7 +150,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process) {
 		SingleVariableEqualityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable++;
@@ -171,7 +171,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 * into binary literals, then taken by the super class implementation.
 	 */
 	@Override
-	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
+	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, Context process) {
 		Collection<Expression> binaryLiterals = breakMultiTermEquality(literal, process);
 		SingleVariableEqualityConstraint result = null; // initial value never used, but compiler does not realize it
 		for (Expression binaryEquality : binaryLiterals) {
@@ -183,7 +183,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return result;
 	}
 
-	private Collection<Expression> breakMultiTermEquality(Expression literal, RewritingProcess process) {
+	private Collection<Expression> breakMultiTermEquality(Expression literal, Context process) {
 		if (literal.hasFunctor(EQUALITY) && literal.numberOfArguments() > 2) {
 			Collection<Expression> result = list();
 			for (int i = 0; i != literal.numberOfArguments() - 2; i++) {
@@ -229,13 +229,13 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	protected Expression isolateVariable(Expression atom, RewritingProcess process) {
+	protected Expression isolateVariable(Expression atom, Context process) {
 		// do not need to do anything, as variable is supposed to be isolated already for this theory
 		return atom;
 	}
 
 	@Override
-	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process) {
 		Expression result;
 		if (sign1) {
 			if (sign2) {
@@ -297,17 +297,17 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint conjoin(Expression formula, RewritingProcess process) {
+	public SingleVariableEqualityConstraint conjoin(Expression formula, Context process) {
 		return (SingleVariableEqualityConstraint) super.conjoin(formula, process);
 	}
 
 	@Override
-	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(RewritingProcess process) {
+	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context process) {
 		return iterator();
 	}
 
 	@Override
-	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process) {
+	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context process) {
 		return iterator();
 	}
 }

@@ -46,7 +46,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 
@@ -90,7 +90,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	}
 	
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, Context process) {
 		if (distinctExpressionsStepSolver.getUniqueValuesWhenStepSolverWasConstructed().size() >= limit) {
 			return new Solution(FALSE);
 		}

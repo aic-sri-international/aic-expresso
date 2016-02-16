@@ -15,7 +15,7 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
@@ -82,7 +82,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	}
 
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
+	public Expression simplify(Expression expression, Context process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
@@ -98,7 +98,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context process) {
 		boolean result = isApplicationOfTheoryFunctor(expression) || theoryFunctors.contains(expression.toString()); 
 		return result;
 	}
@@ -110,7 +110,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * whether its arguments are valid according to {@link #isValidArgument(Expression, Type)}.
 	 */
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
+	public boolean isNonTrivialAtom(Expression expression, Context process) {
 		boolean result;
 	
 		boolean hasTheoryFunctor = isApplicationOfTheoryFunctor(expression);
@@ -137,7 +137,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * Makes a random atom by uniformly picking among the theory functors and testing variables.
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
+	public Expression makeRandomAtomOn(String variable, Random random, Context process) {
 		Map<String, Type> variablesAndTypes = getVariableNamesAndTypesForTesting();
 		Type type = variablesAndTypes.get(variable);
 		Set<String> allVariables = variablesAndTypes.keySet();
@@ -168,12 +168,12 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	/**
 	 * Default implementation taking care of negations (simply returning the negation's argument)
 	 * and <code>true</code> and <code>false</code> constants,
-	 * referring to {@link #getNonTrivialAtomNegation(Expression atom, RewritingProcess process)}
+	 * referring to {@link #getNonTrivialAtomNegation(Expression atom, Context process)}
 	 * for all remaining cases.
 	 * Throws an error if none of these cases applies.
 	 */
 	@Override
-	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
+	public Expression getLiteralNegation(Expression literal, Context process) {
 		Expression result;
 		
 		if (literal.hasFunctor(NOT) && isApplicationOfTheoryFunctor(literal.get(0))) {

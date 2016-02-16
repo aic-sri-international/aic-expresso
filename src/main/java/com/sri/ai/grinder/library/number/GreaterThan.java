@@ -47,7 +47,7 @@ import static com.sri.ai.util.Util.greaterThan;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 public class GreaterThan  implements TopSimplifier {
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		return simplify(expression, process);
 	}
 	
@@ -68,7 +68,7 @@ public class GreaterThan  implements TopSimplifier {
 	 * @param process TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression greaterThanApplication, RewritingProcess process) {
+	public static Expression simplify(Expression greaterThanApplication, Context process) {
 		Expression result;
 		if (greaterThanApplication.get(0).equals(greaterThanApplication.get(1))) {
 			result = FALSE; // not greater than itself

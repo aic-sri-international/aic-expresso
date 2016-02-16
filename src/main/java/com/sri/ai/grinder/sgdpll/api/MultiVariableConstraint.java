@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpll.api;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * An {@link Constraint} keeping consistency of multiple variables.
@@ -51,7 +51,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface MultiVariableConstraint extends Constraint {
 	
 	@Override
-	default MultiVariableConstraint conjoin(Expression formula, RewritingProcess process) {
+	default MultiVariableConstraint conjoin(Expression formula, Context process) {
 		return (MultiVariableConstraint) Constraint.super.conjoin(formula, process);
 	}
 }

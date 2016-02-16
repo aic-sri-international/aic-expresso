@@ -48,12 +48,12 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
@@ -71,7 +71,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	private   IndexExpressionsSet                    indexExpressions;
 	protected List<Expression>           cachedScopedExpressions;
 	protected SyntaxTree                 cachedSyntaxTree;
-	protected List<ExpressionAndContext> cachedSubExpressionsAndContext;
+	protected List<ExpressionAndSyntacticContext> cachedSubExpressionsAndContext;
 	
 	public AbstractQuantifiedExpression(IndexExpressionsSet indexExpressions) {
 		this.indexExpressions = indexExpressions;
@@ -79,7 +79,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	}
 	
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
 		return cachedSubExpressionsAndContext.iterator();
 	}
 
@@ -89,7 +89,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	}
 
 	@Override
-	public List<Expression> getScopedExpressions(RewritingProcess process) {
+	public List<Expression> getScopedExpressions(Context process) {
 		return cachedScopedExpressions;
 	}
 
@@ -107,11 +107,11 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	public abstract QuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions);
 
 	/**
-	 * A convenience method (for extensions' benefit) generating the {@link ExpressionAndContext} objects with respect to the index expressions.
-	 * Extensions of {@link AbstractQuantifiedExpression} will still need to generate the {@link ExpressionAndContext} objects
+	 * A convenience method (for extensions' benefit) generating the {@link ExpressionAndSyntacticContext} objects with respect to the index expressions.
+	 * Extensions of {@link AbstractQuantifiedExpression} will still need to generate the {@link ExpressionAndSyntacticContext} objects
 	 * referring to other sub-expressions.
 	 */
-	protected List<ExpressionAndContext> makeIndexExpressionSubExpressionsAndContext(List<ExpressionAndContext> result) {
+	protected List<ExpressionAndSyntacticContext> makeIndexExpressionSubExpressionsAndContext(List<ExpressionAndSyntacticContext> result) {
 		
 		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet)getIndexExpressions()).getList();
 		for (int indexExpressionIndex = 0; indexExpressionIndex != indexExpressionsList.size(); indexExpressionIndex++) {
@@ -119,30 +119,30 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 			Expression index = IndexExpressions.getIndex(indexExpression);
 			if (index.getSyntacticFormType().equals("Function application")) {
 				for (int argumentIndex = 0; argumentIndex != index.numberOfArguments(); argumentIndex++) {
-					ExpressionAndContext expressionAndContext = makeAddressForIndexArgument(indexExpressionIndex, index, argumentIndex);
-					result.add(expressionAndContext);
+					ExpressionAndSyntacticContext expressionAndSyntacticContext = makeAddressForIndexArgument(indexExpressionIndex, index, argumentIndex);
+					result.add(expressionAndSyntacticContext);
 				}
 			}
 			Expression type = IndexExpressions.getType(indexExpression);
 			if (indexExpression.hasFunctor(FunctorConstants.IN)) {
-				ExpressionAndContext expressionAndContext = makeAddressForIndexType(indexExpressionIndex, type);
-				result.add(expressionAndContext);
+				ExpressionAndSyntacticContext expressionAndSyntacticContext = makeAddressForIndexType(indexExpressionIndex, type);
+				result.add(expressionAndSyntacticContext);
 			}
 		}
 		
 		return result;
 	}
 
-	private ExpressionAndContext makeAddressForIndexType(int indexExpressionIndex, Expression type) {
+	private ExpressionAndSyntacticContext makeAddressForIndexType(int indexExpressionIndex, Expression type) {
 		SubExpressionAddress address = new IndexExpressionTypeSubExpressionAddress(indexExpressionIndex);
-		ExpressionAndContext expressionAndContext = new DefaultExpressionAndContext(type, address);
-		return expressionAndContext;
+		ExpressionAndSyntacticContext expressionAndSyntacticContext = new DefaultExpressionAndSyntacticContext(type, address);
+		return expressionAndSyntacticContext;
 	}
 
-	private ExpressionAndContext makeAddressForIndexArgument(int indexExpressionIndex, Expression index, int argumentIndex) {
+	private ExpressionAndSyntacticContext makeAddressForIndexArgument(int indexExpressionIndex, Expression index, int argumentIndex) {
 		SubExpressionAddress address = new IndexExpressionArgumentSubExpressionAddress(indexExpressionIndex, argumentIndex);
-		ExpressionAndContext expressionAndContext = new DefaultExpressionAndContext(index.get(argumentIndex), address);
-		return expressionAndContext;
+		ExpressionAndSyntacticContext expressionAndSyntacticContext = new DefaultExpressionAndSyntacticContext(index.get(argumentIndex), address);
+		return expressionAndSyntacticContext;
 	}
 
 	/**

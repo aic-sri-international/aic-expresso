@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpll.problemtype;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 
@@ -82,12 +82,12 @@ abstract public class AbstractGroupProblemType implements GroupProblemType {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, Context process) {
 		return getGroup().add(value1, value2, process);
 	}
 
 	@Override
-	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
+	public Expression addNTimes(Expression value, Expression n, Context process) {
 		return getGroup().addNTimes(value, n, process);
 	}
 

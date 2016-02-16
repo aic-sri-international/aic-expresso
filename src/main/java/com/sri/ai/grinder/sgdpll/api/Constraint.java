@@ -7,7 +7,7 @@ import static com.sri.ai.util.Util.myAssert;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.tester.ConstraintTheoryTester;
 
 /**
@@ -48,7 +48,7 @@ public interface Constraint extends Expression {
 	 * @param process the rewriting process
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	Constraint conjoinWithLiteral(Expression literal, RewritingProcess process);
+	Constraint conjoinWithLiteral(Expression literal, Context process);
 	
 	/**
 	 * Tests whether a literal is contradictory with this constraint
@@ -57,7 +57,7 @@ public interface Constraint extends Expression {
 	 * @param process
 	 * @return
 	 */
-	default boolean implies(Expression literal, RewritingProcess process) {
+	default boolean implies(Expression literal, Context process) {
 		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal, process);
 		boolean result = contradictoryWith(literalNegation, process);
 		return result;
@@ -70,7 +70,7 @@ public interface Constraint extends Expression {
 	 * @param process
 	 * @return
 	 */
-	default boolean contradictoryWith(Expression formula, RewritingProcess process) {
+	default boolean contradictoryWith(Expression formula, Context process) {
 		Constraint conjunction = conjoin(formula, process);
 		boolean result = conjunction == null;
 		return result;
@@ -89,7 +89,7 @@ public interface Constraint extends Expression {
 	 * @param process the rewriting process
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	default Constraint conjoin(Expression formula, RewritingProcess process) {
+	default Constraint conjoin(Expression formula, Context process) {
 		myAssert(
 				() -> isValidConjoinant(formula, process),
 				() -> this.getClass() + " currently only supports conjoining with literals, conjunctive clauses, and constraints, but received " + formula);
@@ -114,7 +114,7 @@ public interface Constraint extends Expression {
 	 * @param process
 	 * @return
 	 */
-	default boolean isValidConjoinant(Expression formula, RewritingProcess process) {
+	default boolean isValidConjoinant(Expression formula, Context process) {
 		boolean result =
 				formula == null
 				|| formula instanceof Constraint
@@ -130,7 +130,7 @@ public interface Constraint extends Expression {
 	 * @param process
 	 * @return the result of conjoining this constraint with all conjuncts of a given conjunction
 	 */
-	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, RewritingProcess process) {
+	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, Context process) {
 		Constraint result;
 		List<Expression> conjuncts = getConjuncts(conjunctiveClause);
 		if (conjuncts.size() == 1) { // this is necessary to avoid an infinite loop
@@ -189,7 +189,7 @@ public interface Constraint extends Expression {
 //	 * Default implementation uses symbolic satisfiability through {@link SGDPLLT}.
 //	 * Specific constraint implementations will typically have more efficient ways to do it.
 //	 */
-//	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
+//	default Constraint project(Collection<Expression> eliminatedIndices, Context process) {
 //		Expression resultExpression =
 //				SymbolicSolver.solve(
 //						new BooleansWithConjunctionGroup(),

@@ -46,12 +46,12 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
@@ -68,7 +68,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 	
 	private ArrayList<Expression>      arguments;
 	private SyntaxTree                 syntaxTree;
-	private List<ExpressionAndContext> expressionAndContexts;
+	private List<ExpressionAndSyntacticContext> expressionAndSyntacticContexts;
 	
 	public DefaultTuple(ArrayList<Expression> arguments) {
 		super();
@@ -76,10 +76,10 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		
 		this.syntaxTree = makeSyntaxTree();
 		
-		expressionAndContexts = new LinkedList<ExpressionAndContext>();
+		expressionAndSyntacticContexts = new LinkedList<ExpressionAndSyntacticContext>();
 		int i = 0;
 		for (Expression argument : arguments) {
-			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++)));
+			expressionAndSyntacticContexts.add(new DefaultExpressionAndSyntacticContext(argument, new IndexAddress(i++)));
 		}
 	}
 
@@ -128,8 +128,8 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
-		return expressionAndContexts.iterator();
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
+		return expressionAndSyntacticContexts.iterator();
 	}
 
 	@Override
@@ -143,7 +143,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
 		Expression result = replaceAllOccurrences(symbol, newSymbol, process);
 		return result;

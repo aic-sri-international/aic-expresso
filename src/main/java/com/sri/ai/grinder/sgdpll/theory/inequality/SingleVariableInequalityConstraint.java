@@ -63,7 +63,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -169,7 +169,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 	
 	@Override
-	protected Expression isolateVariable(Expression atom, RewritingProcess process) {
+	protected Expression isolateVariable(Expression atom, Context process) {
 		Expression result = DifferenceArithmeticSimplifier.isolateVariable(getVariable(), atom);
 //		System.out.println("\nAtom: " + atom);	
 //		System.out.println("Result: " + result);
@@ -177,7 +177,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process) {
 		Expression result;
 		
 		if (sign1) {
@@ -190,7 +190,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		return result;
 	}
 
-	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) throws Error {
+	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context process) throws Error {
 
 		Expression result;
 		
@@ -281,7 +281,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		return result;
 	}
 
-	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context process) {
 
 		Expression result;
 		
@@ -377,18 +377,18 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process) {
 		return this;
 	}
 
 	@Override
-	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(RewritingProcess process) {
+	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context process) {
 		return iterator();
 	}
 
 	List<Expression> cachedImplicitNegativeNormalizedAtoms;
 	@Override
-	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process) {
+	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context process) {
 		if (cachedImplicitNegativeNormalizedAtoms == null) {
 			IntegerInterval interval = getType(process);
 			Expression nonStrictLowerBound = interval.getNonStrictLowerBound();
@@ -413,7 +413,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	 * @param process
 	 * @return
 	 */
-	public IntegerInterval getType(RewritingProcess process) {
+	public IntegerInterval getType(Context process) {
 		if (cachedType == null) {
 			Type type = process.getType(getVariableTypeExpression(process));
 			if (type instanceof IntegerExpressoType) {

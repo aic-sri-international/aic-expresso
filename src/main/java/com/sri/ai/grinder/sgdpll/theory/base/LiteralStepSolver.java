@@ -41,7 +41,7 @@ import static com.sri.ai.grinder.sgdpll.theory.base.ConstantStepSolver.constantS
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
@@ -74,7 +74,7 @@ public class LiteralStepSolver implements ContextDependentProblemStepSolver<Bool
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Constraint contextualConstraint, RewritingProcess process) {
+	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Constraint contextualConstraint, Context process) {
 		ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:

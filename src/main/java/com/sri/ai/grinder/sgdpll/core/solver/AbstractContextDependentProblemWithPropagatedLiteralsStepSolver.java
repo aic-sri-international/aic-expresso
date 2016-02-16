@@ -50,7 +50,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
@@ -66,9 +66,9 @@ import com.sri.ai.util.collect.NestedIterator;
  * In fact, this class allows a generalization of propagated literals in the form of a propagated CNF.
  * <p>
  * Extensions defined which are the propagated literals and propagated CNF
- * through the abstract methods {@link #getPropagatedLiterals(RewritingProcess)} and
- * {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)},
- * which are aggregated by method {@link #getPropagatedLiterals(RewritingProcess)}.
+ * through the abstract methods {@link #getPropagatedLiterals(Context)} and
+ * {@link #getPropagatedCNFBesidesPropagatedLiterals(Context)},
+ * which are aggregated by method {@link #getPropagatedLiterals(Context)}.
  * <p>
  * Such problems will typically involve a {@link Constraint}, so this class provides
  * methods for storing that as well.
@@ -122,12 +122,12 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	}
 	
 	/**
-	 * Provides information for default implementation of {@link #makePropagatedCNF(RewritingProcess)},
+	 * Provides information for default implementation of {@link #makePropagatedCNF(Context)},
 	 * along with {@link #getPropagatedCNFBesidesPropagatedLiterals()}.
 	 * The reason for this division is convenience;
 	 * when an extension only needs to define propagated literals,
-	 * {@link #getPropagatedLiterals(RewritingProcess)}can be used to spare a programmer the chore of defining a CNF iterable.
-	 * This method <i>must</i> be overridden if {@link #makePropagatedCNF(RewritingProcess)} is not;
+	 * {@link #getPropagatedLiterals(Context)}can be used to spare a programmer the chore of defining a CNF iterable.
+	 * This method <i>must</i> be overridden if {@link #makePropagatedCNF(Context)} is not;
 	 * abstract method {@link #usingDefaultImplementationOfMakePropagatedCNF()} ensure extension programmers
 	 * do not forget this.
 	 * If the extension's {@link #usingDefaultImplementationOfMakePropagatedCNF()} returns true,
@@ -135,7 +135,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * Otherwise, it should not be invoked, and if it is an error complaining about that will be thrown.
 	 * @param process
 	 */
-	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
+	protected Iterable<Expression> getPropagatedLiterals(Context process) {
 		if (usingDefaultImplementationOfMakePropagatedCNF()) {
 			throw new Error("This method should have been defined in " + getClass().getSimpleName() + " but was not.");
 		}
@@ -145,23 +145,23 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	}
 	
 	/**
-	 * Provides information for default implementation of {@link #makePropagatedCNF(RewritingProcess)},
-	 * along with {@link #getPropagatedLiterals(RewritingProcess)}.
+	 * Provides information for default implementation of {@link #makePropagatedCNF(Context)},
+	 * along with {@link #getPropagatedLiterals(Context)}.
 	 * The reason for this division is convenience;
 	 * when an extension only needs to define propagated literals,
-	 * {@link #getPropagatedLiterals(RewritingProcess)}can be used to spare a programmer the chore of defining a CNF iterable.
+	 * {@link #getPropagatedLiterals(Context)}can be used to spare a programmer the chore of defining a CNF iterable.
 	 */
-	abstract protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process);
+	abstract protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process);
 
 	/**
 	 * An abstract method forcing extensions to explicitly indicate whether they intend to
-	 * use the default implementation of {@link #makePropagatedCNF(RewritingProcess process)}
+	 * use the default implementation of {@link #makePropagatedCNF(Context process)}
 	 * (either by not overriding it, or by overriding, but invoking the super class implementation).
 	 * This serves as a reminder to extending classes that they must
 	 * override (define, really, as the default implementation doesn't do anything other than error checking)
-	 * at least {@link #getPropagatedLiterals(RewritingProcess)},
-	 * since the default implementation of {@link #makePropagatedCNF(RewritingProcess)} uses
-	 * that and {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)}.
+	 * at least {@link #getPropagatedLiterals(Context)},
+	 * since the default implementation of {@link #makePropagatedCNF(Context)} uses
+	 * that and {@link #getPropagatedCNFBesidesPropagatedLiterals(Context)}.
 	 * 
 	 * @return
 	 */
@@ -169,11 +169,11 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	
 	/**
 	 * Checks if there is a cached propagated CNF stored and, if not,
-	 * computes it with {@link #makePropagatedCNF(RewritingProcess)}.
+	 * computes it with {@link #makePropagatedCNF(Context)}.
 	 * @param process
 	 * @return
 	 */
-	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(RewritingProcess process) {
+	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context process) {
 		
 		if (cachedPropagatedCNF == null) {
 			cachedPropagatedCNF = makePropagatedCNF(process);
@@ -189,22 +189,22 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * Makes a CNF that, if not satisfied, means the solution
 	 * is {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied()}.
 	 * If it is satisfied,
-	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint, RewritingProcess)}.
+	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint, Context)}.
 	 * <p>
-	 * Note that the result of this method is cached and provided by {@link #getPropagatedCNF(RewritingProcess)}.
+	 * Note that the result of this method is cached and provided by {@link #getPropagatedCNF(Context)}.
 	 * Extensions should override <i>this<i> method in order to keep the caching behavior.
 	 * <p>
 	 * This default implementation simply puts together what is provided by
-	 * {@link #getPropagatedLiterals(RewritingProcess)} and {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)},
+	 * {@link #getPropagatedLiterals(Context)} and {@link #getPropagatedCNFBesidesPropagatedLiterals(Context)},
 	 * which are typically a more convenient way for extensions to define this information.
 	 * However, it may be useful in some cases to directly override this method;
 	 * for example, if this information comes from another
 	 * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}'s own
-	 * {@link #makePropagatedCNF(RewritingProcess)}.
+	 * {@link #makePropagatedCNF(Context)}.
 	 * @param process
 	 * @return
 	 */
-	protected ArrayList<ArrayList<Expression>> makePropagatedCNF(RewritingProcess process) {
+	protected ArrayList<ArrayList<Expression>> makePropagatedCNF(Context process) {
 		ArrayList<ArrayList<Expression>> result;
 		
 		Iterable<Iterable<Expression>> propagatedCNFIterable =
@@ -224,10 +224,10 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, RewritingProcess process);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process);
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, Context process) {
 
 		if (getConstraint() == null) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
@@ -266,7 +266,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Constraint contextualConstraint, Context process) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -325,7 +325,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint contextualConstraint, Context process) {
 		for (Expression literal : conjunctiveClause) {
 			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, process);
 

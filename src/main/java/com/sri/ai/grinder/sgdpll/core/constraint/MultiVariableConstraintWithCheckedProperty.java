@@ -47,7 +47,7 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -84,7 +84,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	 */
 	public static
 	interface ContextDependentProblemStepSolverMaker
-	extends BinaryFunction<SingleVariableConstraint, RewritingProcess, ContextDependentExpressionProblemStepSolver> {}
+	extends BinaryFunction<SingleVariableConstraint, Context, ContextDependentExpressionProblemStepSolver> {}
 	
 	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
 	
@@ -100,7 +100,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			Constraint newContextualConstraint,
 			SingleVariableConstraint newSingleVariableConstraint,
 			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
-			RewritingProcess process) {
+			Context process) {
 	
 		MultiVariableConstraintWithCheckedProperty result;
 		if (newSingleVariableConstraint == null || newContextualConstraint == null) {
@@ -150,7 +150,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	}
 	
 	@Override
-	public MultiVariableConstraintWithCheckedProperty conjoin(Expression formula, RewritingProcess process) {
+	public MultiVariableConstraintWithCheckedProperty conjoin(Expression formula, Context process) {
 		MultiVariableConstraintWithCheckedProperty result;
 		
 		Pair<Boolean, MultiVariableConstraintWithCheckedProperty> specializedResult
@@ -173,7 +173,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	 * @param process
 	 * @return
 	 */
-	private Pair<Boolean, MultiVariableConstraintWithCheckedProperty> conjoinSpecializedForConstraintsIfApplicable(Expression formula, RewritingProcess process) {
+	private Pair<Boolean, MultiVariableConstraintWithCheckedProperty> conjoinSpecializedForConstraintsIfApplicable(Expression formula, Context process) {
 		Pair<Boolean, MultiVariableConstraintWithCheckedProperty> result = new Pair<>(false, null);
 		
 		if (formula instanceof SingleVariableConstraint) {
@@ -199,7 +199,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty conjoinWithLiteral(Expression literal, RewritingProcess process) {
+	public MultiVariableConstraintWithCheckedProperty conjoinWithLiteral(Expression literal, Context process) {
 		MultiVariableConstraintWithCheckedProperty result;
 		if (literal.equals(TRUE)) {
 			result = this;
@@ -266,7 +266,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 		return result;
 	}
 
-	private MultiVariableConstraintWithCheckedProperty check(RewritingProcess process) {
+	private MultiVariableConstraintWithCheckedProperty check(Context process) {
 		MultiVariableConstraintWithCheckedProperty result;
 		if (checked) {
 			result = this;

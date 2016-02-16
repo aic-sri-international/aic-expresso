@@ -48,7 +48,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
@@ -121,7 +121,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 	 */
 	@Override
 	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms
-	conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+	conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process) {
 
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms result;
 		
@@ -165,7 +165,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 	}
 
 	private AbstractSingleVariableConstraintWithDependentNormalizedAtoms
-	conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+	conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(boolean sign, Expression normalizedAtom, Context process) {
 	
 		Constraint result;
 	
@@ -194,7 +194,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		// That solution would require the application of external literals one by one, however, whereas the above just copies them all at once.
 	}
 
-	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(boolean sign, Expression normalizedAtom, Context process) {
 	
 		Constraint result;
 	
@@ -221,7 +221,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		return (AbstractSingleVariableConstraintWithDependentNormalizedAtoms) result;
 	}
 
-	private Constraint conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(Constraint result, boolean sign, Iterable<Expression> normalizedAtoms, Expression valueVariableIsBoundTo, RewritingProcess process) {
+	private Constraint conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(Constraint result, boolean sign, Iterable<Expression> normalizedAtoms, Expression valueVariableIsBoundTo, Context process) {
 		for (Expression normalizedAtom : normalizedAtoms) {
 			if ( ! isEqualityBindingVariableToItsValue(sign, normalizedAtom, valueVariableIsBoundTo)) {
 				Expression newLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, valueVariableIsBoundTo, process);
@@ -242,7 +242,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		return result;
 	}
 
-	private Expression rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(boolean sign, Expression normalizedAtom, Expression valueVariableIsBoundTo, RewritingProcess process) {
+	private Expression rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(boolean sign, Expression normalizedAtom, Expression valueVariableIsBoundTo, Context process) {
 		Expression normalizedAtomInTermsOfValueVariableIsBoundTo = apply(normalizedAtom.getFunctor(), valueVariableIsBoundTo, normalizedAtom.get(1));
 		Expression literal = sign? normalizedAtomInTermsOfValueVariableIsBoundTo : not(normalizedAtomInTermsOfValueVariableIsBoundTo);
 		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, process);

@@ -60,7 +60,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
@@ -79,7 +79,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
@@ -460,7 +460,7 @@ public class Expressions {
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
 	 * to make it unique in a given expression.
 	 */
-	public static Expression primedUntilUnique(Expression symbol, Expression expression, RewritingProcess process) {
+	public static Expression primedUntilUnique(Expression symbol, Expression expression, Context process) {
 		LinkedHashSet<Expression> variables = Expressions.getVariableReferences(expression, process.getIsUniquelyNamedConstantPredicate());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
 		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
@@ -482,7 +482,7 @@ public class Expressions {
 	 *         expression.
 	 */
 	public static Expression makeUniqueVariable(
-			String variableName, Expression expression, RewritingProcess process) {
+			String variableName, Expression expression, Context process) {
 		// Variables have a leading captial
 		if (variableName.length() > 0) {
 			String leadingChar = variableName.substring(0, 1);
@@ -674,7 +674,7 @@ public class Expressions {
 	 * such that their conjunction is equivalent to the original condition.
 	 */
 	public static Pair<Expression, Expression> separateEqualityFormulasOnAtomicSymbolsFromRest(
-			Expression expression, RewritingProcess process) {
+			Expression expression, Context process) {
 		
 		// deal with conjunctions first because we can separate their conjuncts into equality formulas and non-equality formulas. 
 		if (expression.hasFunctor("and")) {
@@ -708,9 +708,9 @@ public class Expressions {
 	}
 	
 	final private static class SeparateEqualityFormulasOnAtomicSymbolsFromRest implements Function<Expression, Pair<Expression, Expression>> {
-		private RewritingProcess process;
+		private Context process;
 
-		public SeparateEqualityFormulasOnAtomicSymbolsFromRest(RewritingProcess process) {
+		public SeparateEqualityFormulasOnAtomicSymbolsFromRest(Context process) {
 			super();
 			this.process = process;
 		}
@@ -724,7 +724,7 @@ public class Expressions {
 	public static Pair<Expression, Expression> checkForTrivialResult(
 			Expression condition, List<Expression> equalityFormulaOnAtomicSymbols,
 			List<Expression> nonEqualityFormulasOnAtomicSymbols,
-			RewritingProcess process) {
+			Context process) {
 		
 		Pair<Expression, Expression> trivialResult = null;
 		Equals<Expression> equalsTrue = new Equals<Expression>(TRUE);
@@ -763,7 +763,7 @@ public class Expressions {
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
 	 */
-	public static Expression roundToAGivenPrecision(Expression expression, final int precision, RewritingProcess process) {
+	public static Expression roundToAGivenPrecision(Expression expression, final int precision, Context process) {
 		Function<Expression, Expression> rounder = new Function<Expression, Expression>() {
 			
 			@Override
@@ -927,12 +927,12 @@ public class Expressions {
 	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
 	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, RewritingProcess process) {
+	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, Context process) {
 		return getVariableReferences(expression, process.getIsUniquelyNamedConstantPredicate());
 	}
 
 	/** Returns the set of free variables in an expression, according to a given process. */
-	public static Set<Expression> freeVariables(Expression expression, RewritingProcess process) {
+	public static Set<Expression> freeVariables(Expression expression, Context process) {
 		Set<Expression> freeVariables       = new LinkedHashSet<Expression>(); 
 		Set<Expression> quantifiedVariables = new LinkedHashSet<Expression>();
 		
@@ -942,7 +942,7 @@ public class Expressions {
 	}
 
 	/** Returns the set of free symbols in an expression, according to a given process. */
-	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
+	public static Set<Expression> freeSymbols(Expression expression, Context process) {
 		Set<Expression> freeSymbols = new LinkedHashSet<Expression>(); 
 		Stack<Expression> quantifiedSymbols = new Stack<Expression>();
 		
@@ -954,7 +954,7 @@ public class Expressions {
 	//
 	// PRIVATE METHODS
 	//
-	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, RewritingProcess process) {
+	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, Context process) {
 		// Note: this used to be duplicating Expression.replace a bit, although in a lighter-weight, more efficient manner.
 		// However, since the changes that include a check against unregistered variables during contextual expansion
 		// (that is, constraints expanding the contextual expansion cannot contains variables that are not already in the contextual symbols),
@@ -969,11 +969,11 @@ public class Expressions {
 			}
 		} 
 		else {
-			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
+			Iterator<ExpressionAndSyntacticContext> subExpressionAndSyntacticContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
 			
 			Set<Expression> newLocalQuantifiedVariables = null;
-			while (subExpressionAndContextsIterator.hasNext()) {
-				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
+			while (subExpressionAndSyntacticContextsIterator.hasNext()) {
+				ExpressionAndSyntacticContext subExpressionAndSyntacticContext = subExpressionAndSyntacticContextsIterator.next();
 				
 				// initialize newLocalQuantifiedVariables with an empty collection
 				if (newLocalQuantifiedVariables == null) {
@@ -984,13 +984,13 @@ public class Expressions {
 					newLocalQuantifiedVariables.clear();
 				}
 				
-				for (Expression localVariable : subExpressionAndContext.getIndices()) {
+				for (Expression localVariable : subExpressionAndSyntacticContext.getIndices()) {
 					if (quantifiedVariables.add(localVariable)) {
 						newLocalQuantifiedVariables.add(localVariable);
 					}
 				}
 	
-				freeVariables(subExpressionAndContext.getExpression(), freeVariables, quantifiedVariables, process);
+				freeVariables(subExpressionAndSyntacticContext.getExpression(), freeVariables, quantifiedVariables, process);
 				
 				// Backtrack to what quantifiedVariables was at the beginning of this call; perhaps it would be more efficient to keep this on a stack?
 				quantifiedVariables.removeAll(newLocalQuantifiedVariables);
@@ -1000,7 +1000,7 @@ public class Expressions {
 		return;
 	}
 
-	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Stack<Expression> quantifiedSymbols, RewritingProcess process) {
+	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Stack<Expression> quantifiedSymbols, Context process) {
 		
 		if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (!quantifiedSymbols.contains(expression)) {
@@ -1008,17 +1008,17 @@ public class Expressions {
 			}
 		} 
 		else {
-			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
+			Iterator<ExpressionAndSyntacticContext> subExpressionAndSyntacticContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
 			
-			while (subExpressionAndContextsIterator.hasNext()) {
-				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
+			while (subExpressionAndSyntacticContextsIterator.hasNext()) {
+				ExpressionAndSyntacticContext subExpressionAndSyntacticContext = subExpressionAndSyntacticContextsIterator.next();
 				
-				IndexExpressionsSet indexExpressions = subExpressionAndContext.getIndexExpressions();
+				IndexExpressionsSet indexExpressions = subExpressionAndSyntacticContext.getIndexExpressions();
 				List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 				List<Expression> newQuantifiedSymbols = Util.mapIntoList(indexExpressionsList, IndexExpressions.GET_INDEX);
 				int numberOfPushed = Util.pushAll(quantifiedSymbols, newQuantifiedSymbols);
 				
-				freeSymbols(subExpressionAndContext.getExpression(), freeSymbols, quantifiedSymbols, process);
+				freeSymbols(subExpressionAndSyntacticContext.getExpression(), freeSymbols, quantifiedSymbols, process);
 				
 				Util.popAll(quantifiedSymbols, numberOfPushed);
 			}
@@ -1027,7 +1027,7 @@ public class Expressions {
 		return;
 	}
 
-	public static Map<Expression, Expression> freeSymbolsAndTypes(Expression expression, RewritingProcess process) {
+	public static Map<Expression, Expression> freeSymbolsAndTypes(Expression expression, Context process) {
 		Set<Expression> freeSymbols = freeSymbols(expression, process);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeSymbol : freeSymbols) {
@@ -1036,7 +1036,7 @@ public class Expressions {
 		return result;
 	}
 
-	public static Map<Expression, Expression> freeVariablesAndTypes(Expression expression, RewritingProcess process) {
+	public static Map<Expression, Expression> freeVariablesAndTypes(Expression expression, Context process) {
 		Set<Expression> freeVariables = freeVariables(expression, process);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeVariable : freeVariables) {
@@ -1062,7 +1062,7 @@ public class Expressions {
 	/**
 	 * Determine if all expressions given occur as free variables in another given expression.
 	 */
-	public static boolean expressionsDoNotOccurInAnotherExpressionAsFreeVariables(List<Expression> expressions, Expression anotherExpression, RewritingProcess process) {
+	public static boolean expressionsDoNotOccurInAnotherExpressionAsFreeVariables(List<Expression> expressions, Expression anotherExpression, Context process) {
 		boolean result = true;
 		
 		Set<Expression> freeVariables = freeVariables(anotherExpression, process);
@@ -1089,7 +1089,7 @@ public class Expressions {
 	//
 	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {
 		@Override
-		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, RewritingProcess o2) {
+		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, Context o2) {
 			return true;
 		}
 	};
@@ -1171,11 +1171,11 @@ public class Expressions {
 	 * function returns original subexpressions.
 	 */
 	public static Expression replaceImmediateSubexpressions(Expression expression, Function<Expression, Expression> replacementFunction) {
-		Iterator<ExpressionAndContext> expressionAndContextIterator = expression.getImmediateSubExpressionsAndContextsIterator();
-		while (expressionAndContextIterator.hasNext()) {
-			ExpressionAndContext expressionAndContext = expressionAndContextIterator.next();
-			Expression newExpression = replacementFunction.apply(expressionAndContext.getExpression());
-			Expression result = expressionAndContext.getAddress().replace(expression, newExpression);
+		Iterator<ExpressionAndSyntacticContext> expressionAndSyntacticContextIterator = expression.getImmediateSubExpressionsAndContextsIterator();
+		while (expressionAndSyntacticContextIterator.hasNext()) {
+			ExpressionAndSyntacticContext expressionAndSyntacticContext = expressionAndSyntacticContextIterator.next();
+			Expression newExpression = replacementFunction.apply(expressionAndSyntacticContext.getExpression());
+			Expression result = expressionAndSyntacticContext.getAddress().replace(expression, newExpression);
 			expression = result;
 		}
 		return expression;
@@ -1202,7 +1202,7 @@ public class Expressions {
 	 * @param process
 	 * @return
 	 */
-	public static boolean contains(Expression literal, Expression variable, RewritingProcess process) {
+	public static boolean contains(Expression literal, Expression variable, Context process) {
 		boolean result = thereExists(new SubExpressionsDepthFirstIterator(literal), s -> s.equals(variable));
 		return result;
 	}
@@ -1222,7 +1222,7 @@ public class Expressions {
 		return result;
 	}
 
-	public static Constraint parseAndConjoin(String expressionString, Constraint constraint, RewritingProcess process) {
+	public static Constraint parseAndConjoin(String expressionString, Constraint constraint, Context process) {
 		Constraint result = constraint;
 		Expression expression = parse(expressionString);
 		for (Expression literal : And.getConjuncts(expression)) {

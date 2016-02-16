@@ -41,7 +41,7 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -60,9 +60,9 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
  * <ul>
  * <li> if the group is idempotent, simplify group's identity.
  * <li> if the group is not idempotent, 
- * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, RewritingProcess)} to
- * the literal-free body and {@link SingleVariableConstraint#modelCount(Constraint, RewritingProcess)},
- * followed by {@link ConstraintTheory#simplify(Expression, RewritingProcess)}.
+ * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, Context)} to
+ * the literal-free body and {@link SingleVariableConstraint#modelCount(Constraint, Context)},
+ * followed by {@link ConstraintTheory#simplify(Expression, Context)}.
  * No if then else externalization is performed.
  * </ul>
  * 
@@ -91,7 +91,7 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
+			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context process) {
 		
 		Expression result;
 		if (getGroup().isIdempotent()) {

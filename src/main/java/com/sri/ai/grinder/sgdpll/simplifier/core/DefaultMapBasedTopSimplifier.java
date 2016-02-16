@@ -42,7 +42,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -68,7 +68,7 @@ public class DefaultMapBasedTopSimplifier extends AbstractMapBasedSimplifier imp
 	}
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		Simplifier simplifier;
 		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());

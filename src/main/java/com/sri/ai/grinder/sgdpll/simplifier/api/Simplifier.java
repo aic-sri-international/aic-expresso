@@ -1,7 +1,7 @@
 package com.sri.ai.grinder.sgdpll.simplifier.api;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.util.base.BinaryFunction;
 
 /**
@@ -14,5 +14,5 @@ import com.sri.ai.util.base.BinaryFunction;
  * @author braz
  *
  */
-public interface Simplifier extends BinaryFunction<Expression, RewritingProcess, Expression> {
+public interface Simplifier extends BinaryFunction<Expression, Context, Expression> {
 }

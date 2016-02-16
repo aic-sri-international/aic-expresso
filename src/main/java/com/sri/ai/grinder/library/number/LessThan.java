@@ -47,7 +47,7 @@ import static com.sri.ai.util.Util.lessThan;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 public class LessThan implements TopSimplifier {
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		return simplify(expression, process);
 	}
 	
@@ -68,7 +68,7 @@ public class LessThan implements TopSimplifier {
 	 * @param process TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression lessThanApplication, RewritingProcess process) {
+	public static Expression simplify(Expression lessThanApplication, Context process) {
 		Expression result;
 		if (lessThanApplication.get(0).equals(lessThanApplication.get(1))) {
 			result = FALSE; // not less than itself

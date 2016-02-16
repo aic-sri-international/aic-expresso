@@ -42,7 +42,7 @@ import static com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT.solve;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -84,7 +84,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesConditions,
 			Expression body,
-			RewritingProcess process) throws Error {
+			Context process) throws Error {
 
 		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		

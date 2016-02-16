@@ -50,7 +50,7 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
@@ -103,7 +103,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Constraint contextualConstraint,
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
-			RewritingProcess process) {
+			Context process) {
 		
 		SolutionStep step = 
 				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint, process);
@@ -132,7 +132,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Expression literalFreeBody,
 			RangeAndExceptionsSet values,
 			Constraint contextualConstraint,
-			RewritingProcess process) {
+			Context process) {
 		
 		Expression result;
 		if (values.equals(RangeAndExceptionsSet.EMPTY)) {
@@ -188,7 +188,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 		return result;
 	}
 
-	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, ConstraintTheory constraintTheory, RewritingProcess process) {
+	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, ConstraintTheory constraintTheory, Context process) {
 		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, process);
 		Expression valueAtPoint = constraintTheory.simplify(newBody, process);
 		return valueAtPoint;

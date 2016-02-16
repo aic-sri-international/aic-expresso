@@ -38,7 +38,7 @@
 package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * Represents an immutable set of index expressions of a {@link ContextDependentExpressionProblemStepSolver}.
@@ -79,5 +79,5 @@ public interface IndexExpressionsSet {
 	 * @param newSymbol
 	 * @return
 	 */
-	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
+	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context process);
 }

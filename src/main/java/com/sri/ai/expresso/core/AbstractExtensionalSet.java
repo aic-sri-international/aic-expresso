@@ -6,12 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.ExtensionalSetInterface;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.util.Util;
 
@@ -21,7 +21,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	
 	protected ArrayList<Expression>      elementsDefinitions;
 	protected SyntaxTree                 syntaxTree;
-	protected List<ExpressionAndContext> expressionAndContexts;
+	protected List<ExpressionAndSyntacticContext> expressionAndSyntacticContexts;
 
 	protected abstract String getLabel();
 	
@@ -33,10 +33,10 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 		
 		this.syntaxTree = makeSyntaxTree();
 		
-		expressionAndContexts = new LinkedList<ExpressionAndContext>();
+		expressionAndSyntacticContexts = new LinkedList<ExpressionAndSyntacticContext>();
 		int i = 0;
 		for (Expression element : elementsDefinitions) {
-			expressionAndContexts.add(new DefaultExpressionAndContext(element, new IndexAddress(i++)));
+			expressionAndSyntacticContexts.add(new DefaultExpressionAndSyntacticContext(element, new IndexAddress(i++)));
 		}
 	}
 
@@ -94,8 +94,8 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
-		return expressionAndContexts.iterator();
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
+		return expressionAndSyntacticContexts.iterator();
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
 		Expression result = replaceAllOccurrences(symbol, newSymbol, process);
 		return result;

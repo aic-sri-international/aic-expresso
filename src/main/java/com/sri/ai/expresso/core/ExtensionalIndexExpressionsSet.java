@@ -51,7 +51,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
@@ -92,7 +92,7 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	}
 
 	@Override
-	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
 		List<Expression> newList = replaceElementsNonDestructively(getList(), renameSymbol);
 		IndexExpressionsSet newIndexExpressions;

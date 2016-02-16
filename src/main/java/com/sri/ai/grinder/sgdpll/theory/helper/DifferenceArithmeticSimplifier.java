@@ -53,7 +53,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -97,7 +97,7 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	}
 	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		DAParts parts = makeDifferenceArithmeticTriple(expression);
 		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
 		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives

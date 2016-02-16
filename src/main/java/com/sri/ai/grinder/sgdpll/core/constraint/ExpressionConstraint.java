@@ -2,7 +2,7 @@ package com.sri.ai.grinder.sgdpll.core.constraint;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -35,7 +35,7 @@ public class ExpressionConstraint extends AbstractExpressionWrapper implements C
 	}
 
 	@Override
-	public Constraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
+	public Constraint conjoinWithLiteral(Expression literal, Context process) {
 		Expression conjunction = And.make(expression, literal);
 		ExpressionConstraint result = new ExpressionConstraint(conjunction, constraintTheory);
 		return result;

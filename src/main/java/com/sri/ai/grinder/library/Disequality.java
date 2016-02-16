@@ -47,7 +47,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -66,7 +66,7 @@ public class Disequality  implements TopSimplifier {
 	public  static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.DISEQUALITY);
 	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		return simplify(expression, process);
 	}
 
@@ -74,7 +74,7 @@ public class Disequality  implements TopSimplifier {
 	 * Returns FALSE if given disequality has equal arguments, TRUE if they contain distinct constants,
 	 * and the disequality itself otherwise.
 	 */
-	public static Expression simplify(Expression disequality, RewritingProcess process) {
+	public static Expression simplify(Expression disequality, Context process) {
 		Expression result;
 		if (disequality.get(0).equals(disequality.get(1))) {
 			result = Expressions.FALSE;
@@ -103,7 +103,7 @@ public class Disequality  implements TopSimplifier {
 	/**
 	 * Makes a disequality application on two terms possibly simplifying it (taking constants into account).
 	 */
-	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, RewritingProcess process) {
+	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, Context process) {
 		Expression result;
 		if (term1.equals(term2)) {
 			result = Expressions.FALSE;
@@ -163,7 +163,7 @@ public class Disequality  implements TopSimplifier {
 	/**
 	 * Returns X != c, if 'expression' is c != X, for X a variable and c a constant, or 'expression' otherwise. 
 	 */
-	public static Expression normalize(Expression expression, RewritingProcess process) {
+	public static Expression normalize(Expression expression, Context process) {
 		if (process.isUniquelyNamedConstant(expression.get(0))) {
 			if ( ! process.isUniquelyNamedConstant(expression.get(1))) {
 				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));

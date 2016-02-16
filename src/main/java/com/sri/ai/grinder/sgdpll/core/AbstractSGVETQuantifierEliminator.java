@@ -63,7 +63,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
@@ -107,7 +107,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		this.problemType = problemType;
 	}
 
-	public abstract boolean isVariable(Expression subExpression, RewritingProcess process);
+	public abstract boolean isVariable(Expression subExpression, Context process);
 
 	public SemiRingProblemType getProblemType() {
 		return problemType;
@@ -120,7 +120,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 	}
 	
 	@Override
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context process) {
 			
 		checkInterrupted();
 		
@@ -201,7 +201,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		}
 	}
 	
-	private Partition pickPartition(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+	private Partition pickPartition(Expression expression, Collection<Expression> indices, Context process) {
 		Partition result;
 		if (indices.isEmpty()) {
 			result = null;
@@ -230,17 +230,17 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		return result;
 	}
 	
-	public Function<Partition, Integer> width(RewritingProcess process) {
+	public Function<Partition, Integer> width(Context process) {
 		return partition -> width(partition, process);
 	}
 
-	private int width(Partition partition, RewritingProcess process) {
+	private int width(Partition partition, Context process) {
 		Expression product = product(partition.expressionsOnIndexAndNot.first, process);
 		int result = width(product, process);
 		return result;
 	}
 
-	private int width(Expression expression, RewritingProcess process) {
+	private int width(Expression expression, Context process) {
 		Set<Expression> variables = new LinkedHashSet<Expression>();
 		Iterator<Expression> iterator = new SubExpressionsDepthFirstIterator(expression);
 		while (iterator.hasNext()) {
@@ -253,7 +253,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		return result;
 	}
 
-	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, RewritingProcess process) {
+	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, Context process) {
 		List<Expression> factors = getProblemType().getFactors(expression);
 		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(factors);
 		Expression result;
@@ -311,7 +311,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		return getProblemType().getNthRoot(n, expression);
 	}
 
-	private Expression product(Collection<Expression> factors, RewritingProcess process) {
+	private Expression product(Collection<Expression> factors, Context process) {
 		Expression multiplication = apply(getProblemType().multiplicativeFunctor(), factors);
 		Expression result = getProblemType().multiply(multiplication, process);
 		return result;

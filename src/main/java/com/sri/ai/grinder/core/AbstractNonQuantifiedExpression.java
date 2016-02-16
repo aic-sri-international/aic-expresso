@@ -42,7 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * A basic, default implementation of some of the {@link Expression} methods.
@@ -55,7 +55,7 @@ public abstract class AbstractNonQuantifiedExpression extends AbstractExpression
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public List<Expression> getScopedExpressions(RewritingProcess process) {
+	public List<Expression> getScopedExpressions(Context process) {
 		List<Expression> result = Collections.emptyList();
 		return result;
 	}

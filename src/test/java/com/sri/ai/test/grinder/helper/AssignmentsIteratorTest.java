@@ -49,7 +49,7 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 
@@ -58,7 +58,7 @@ public class AssignmentsIteratorTest  {
 	
 	@Test
 	public void test1() {
-		RewritingProcess process = new DefaultRewritingProcess();
+		Context process = new DefaultRewritingProcess();
 		Type myType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -94,7 +94,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test2() {
-		RewritingProcess process = new DefaultRewritingProcess();
+		Context process = new DefaultRewritingProcess();
 		Type myType = new Categorical("People", 2, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -118,7 +118,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test3() {
-		RewritingProcess process = new DefaultRewritingProcess();
+		Context process = new DefaultRewritingProcess();
 		Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Type petsType = new Categorical("Pets", 3, arrayList(makeSymbol("fido"), makeSymbol("purrs")));
 		Symbol x = makeSymbol("X");

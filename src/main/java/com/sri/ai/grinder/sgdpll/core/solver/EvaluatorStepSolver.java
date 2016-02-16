@@ -46,7 +46,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
@@ -150,7 +150,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, Context process) {
 		SolutionStep result = null;
 		
 		Expression topSimplifiedExpression;
@@ -235,7 +235,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		evaluators.put(new IdentityWrapper(expression), stepSolver);
 	}
 
-	private boolean expressionIsLiteral(Constraint contextualConstraint, RewritingProcess process) {
+	private boolean expressionIsLiteral(Constraint contextualConstraint, Context process) {
 		boolean result = contextualConstraint.getConstraintTheory().isLiteral(expression, process);
 		return result;
 	}

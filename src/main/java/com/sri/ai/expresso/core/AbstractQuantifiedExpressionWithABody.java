@@ -51,14 +51,14 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
@@ -76,7 +76,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 
 	private Expression body;
 	private SyntaxTree cachedSyntaxTree;
-	private List<ExpressionAndContext> cachedSubExpressionsAndContext;
+	private List<ExpressionAndSyntacticContext> cachedSubExpressionsAndContext;
 
 	public AbstractQuantifiedExpressionWithABody(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions);
@@ -111,14 +111,14 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 	
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
+	public Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator() {
 		return cachedSubExpressionsAndContext.iterator();
 	}
 
-	protected List<ExpressionAndContext> makeImmediateSubExpressionsAndContexts() {
-		cachedSubExpressionsAndContext = new LinkedList<ExpressionAndContext>();
+	protected List<ExpressionAndSyntacticContext> makeImmediateSubExpressionsAndContexts() {
+		cachedSubExpressionsAndContext = new LinkedList<ExpressionAndSyntacticContext>();
 		makeIndexExpressionSubExpressionsAndContext(cachedSubExpressionsAndContext);
-		cachedSubExpressionsAndContext.add(new DefaultExpressionAndContext(getBody(), new BodyAddress(), getIndexExpressions(), Expressions.TRUE));
+		cachedSubExpressionsAndContext.add(new DefaultExpressionAndSyntacticContext(getBody(), new BodyAddress(), getIndexExpressions(), Expressions.TRUE));
 		return cachedSubExpressionsAndContext;
 	}
 	
@@ -161,7 +161,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		AbstractQuantifiedExpression result = this;
 		
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -44,7 +44,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 	
 	@Override
-	public DefaultMultiVariableConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
+	public DefaultMultiVariableConstraint conjoinWithLiteral(Expression literal, Context process) {
 		DefaultMultiVariableConstraint result;
 		
 		Expression variable = getSomeVariableFor(literal, process);
@@ -77,7 +77,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 		return result;
 	}
 	
-	private Expression getSomeVariableFor(Expression literal, RewritingProcess process) {
+	private Expression getSomeVariableFor(Expression literal, Context process) {
 		Expression result = min(constraintTheory.getVariablesIn(literal, process), (e1, e2) -> e1.compareTo(e2));
 		return result;
 	}
@@ -86,7 +86,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	 * @param variable
 	 * @return
 	 */
-	protected SingleVariableConstraint getConstraintFor(Expression variable, RewritingProcess process) {
+	protected SingleVariableConstraint getConstraintFor(Expression variable, Context process) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
 			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, process);
@@ -112,7 +112,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 
 	@Override
-	public MultiVariableConstraint conjoin(Expression formula, RewritingProcess process) {
+	public MultiVariableConstraint conjoin(Expression formula, Context process) {
 		myAssert(
 				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint,
 				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);

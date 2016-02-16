@@ -41,7 +41,7 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * Object representing an associative commutative group.
@@ -67,12 +67,12 @@ public interface AssociativeCommutativeGroup {
 	/**
 	 * Performs the group's additive operation on two values.
 	 */
-	Expression add(Expression value1, Expression value2, RewritingProcess process);
+	Expression add(Expression value1, Expression value2, Context process);
 
 	/**
 	 * The result of adding a value to itself n times, where both value and n may be symbolic expressions.
 	 */
-	Expression addNTimes(Expression value, Expression n, RewritingProcess process);
+	Expression addNTimes(Expression value, Expression n, Context process);
 
 	/** Indicates whether group's operator is idempotent. */
 	boolean isIdempotent();

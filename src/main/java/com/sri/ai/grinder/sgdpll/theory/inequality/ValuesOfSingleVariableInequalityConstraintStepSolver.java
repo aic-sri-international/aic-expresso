@@ -70,7 +70,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Minus;
@@ -153,7 +153,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 
 	@Override
-	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
+	protected Iterable<Expression> getPropagatedLiterals(Context process) {
 		
 		// System.out.println("getPropagatedLiterals:");
 		// System.out.println("constraint: " + constraint);
@@ -229,7 +229,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return result;
 	}
 
-	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(RewritingProcess process) {
+	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(Context process) {
 		if (strictLowerBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 			
@@ -261,7 +261,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return strictLowerBoundsIncludingImplicitOnes;
 	}
 
-	private ArrayList<Expression> getNonStrictUpperBoundsIncludingImplicitOnes(RewritingProcess process) {
+	private ArrayList<Expression> getNonStrictUpperBoundsIncludingImplicitOnes(Context process) {
 		if (nonStrictUpperBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 			
@@ -311,7 +311,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return equals;
 	}
 
-	private ArrayList<Expression> getNonEqualityComparisons(RewritingProcess process) {
+	private ArrayList<Expression> getNonEqualityComparisons(Context process) {
 		if (nonEqualityComparisons == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 
@@ -385,12 +385,12 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
 		return list();
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.
@@ -606,13 +606,13 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return successor.clone();
 	}
 
-	private IntegerInterval getType(RewritingProcess process) {
+	private IntegerInterval getType(Context process) {
 		return getConstraint().getType(process);
 	}
 	
 	private Expression typeStrictLowerBound;
 	
-	private Expression getTypeStrictLowerBound(RewritingProcess process) {
+	private Expression getTypeStrictLowerBound(Context process) {
 		if (typeStrictLowerBound == null) {
 			IntegerInterval type = getType(process);
 			Expression nonStrictLowerBound = type.getNonStrictLowerBound();
@@ -626,13 +626,13 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return typeStrictLowerBound;
 	}
 
-	private Expression getTypeNonStrictUpperBound(RewritingProcess process) {
+	private Expression getTypeNonStrictUpperBound(Context process) {
 		IntegerInterval type = getType(process);
 		Expression result = type.getNonStrictUpperBound();
 		return result;
 	}
 
-	private Expression applyAndSimplify(String comparison, ArrayList<Expression> arguments, RewritingProcess process) {
+	private Expression applyAndSimplify(String comparison, ArrayList<Expression> arguments, Context process) {
 		Expression unsimplifiedAtom = apply(comparison, arguments);
 		Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);
 		return result;

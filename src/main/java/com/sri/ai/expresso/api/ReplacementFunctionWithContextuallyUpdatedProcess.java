@@ -39,7 +39,7 @@ package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * A type of replacement function to be used by Expression's replace function.
@@ -50,5 +50,5 @@ import com.sri.ai.grinder.api.RewritingProcess;
  */
 @Beta
 public interface ReplacementFunctionWithContextuallyUpdatedProcess extends Function<Expression, Expression> {
-	public Expression apply(Expression expression, RewritingProcess process);
+	public Expression apply(Expression expression, Context process);
 }

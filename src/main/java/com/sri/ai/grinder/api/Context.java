@@ -47,10 +47,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 
 /**
- * A rewriting process gathers all information that needs to be kept and
- * manipulated during a concerted application symbolic processing.
+ * A Context object gathers all information that needs to be kept and
+ * manipulated during a concerted application of symbolic processing.
  * It keeps several pieces of data, such as a collection of "global" objects
- * (really, rewriting process-specific objects), types, level of recursion,
+ * (really, rewriting context-specific objects), types, level of recursion,
  * whether an expression is a uniquely named constant, etc.
  * It also keeps a contextual constraint on some of the free variables,
  * meaning that any returned result needs to be true
@@ -59,9 +59,9 @@ import com.sri.ai.expresso.api.Type;
  * @author braz
  */
 @Beta
-public interface RewritingProcess extends Cloneable {
+public interface Context extends Cloneable {
 
-	RewritingProcess clone();
+	Context clone();
 	
 	/**
 	 * Returns the predicate indicating uniquely named constants.
@@ -72,7 +72,7 @@ public interface RewritingProcess extends Cloneable {
 	 * Return a clone of this process with the given predicate indicating uniquely named constants.
 	 * @return
 	 */
-	RewritingProcess setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
+	Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
 	boolean isUniquelyNamedConstant(Expression expression);
@@ -99,14 +99,14 @@ public interface RewritingProcess extends Cloneable {
 	 * Create a new sub-rewriting process and registers the symbols
 	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
-	RewritingProcess registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
+	Context registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
 	 * Creates a new rewriting process identical to a given one but for additional global objects.
 	 * @param objects
 	 * @return
 	 */
-	RewritingProcess putAllGlobalObjects(Map<Object, Object> objects);
+	Context putAllGlobalObjects(Map<Object, Object> objects);
 	
 	/**
 	 * Gets map of global objects.
@@ -116,7 +116,7 @@ public interface RewritingProcess extends Cloneable {
 	/**
 	 * Returns a cloned rewriting process with a value in a map of global objects under key.
 	 */
-	RewritingProcess putGlobalObject(Object key, Object value);
+	Context putGlobalObject(Object key, Object value);
 	
 	/**
 	 * Indicates whether map of global objects contains key.
@@ -128,10 +128,10 @@ public interface RewritingProcess extends Cloneable {
 	 */
 	Object getGlobalObject(Object key);
 	
-	RewritingProcess add(Type type);
+	Context add(Type type);
 
-	default RewritingProcess addAll(Collection<Type> types) {
-		RewritingProcess result = this;
+	default Context addAll(Collection<Type> types) {
+		Context result = this;
 		for (Type type : types) {
 			result = result.add(type);
 		}

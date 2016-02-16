@@ -8,7 +8,7 @@ import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -30,7 +30,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
  * <p>
  * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
  * under contextual constraint <code>Z = alice</code>,
- * {@link EvaluatorStepSolver#step(Constraint, RewritingProcess)} is
+ * {@link EvaluatorStepSolver#step(Constraint, Context)} is
  * invoked with contextual constraint <code>Z = alice and X != john</code>.
  * The solution step will depend on literal <code>Y != bob</code>.
  * <p>
@@ -42,12 +42,12 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
  * <p>
  * Because these two sub-problems have literal-free bodies <code>2</code> and <code>3</code>,
  * they will be solved by the extension's
- * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(Constraint, SingleVariableConstraint, Expression, RewritingProcess)}
+ * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(Constraint, SingleVariableConstraint, Expression, Context)}
  * (which for sums with constant bodies will be equal to the model count of the index constraint
  * under the contextual constraint times the constant).
  * <p>
  * Extending classes must define method
- * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(Constraint, SingleVariableConstraint, Expression, RewritingProcess)
+ * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(Constraint, SingleVariableConstraint, Expression, Context)
  * to solve the case in which the body is its given literal-free version,
  * for the given contextual constraint and index constraint.
  * <p>
@@ -90,7 +90,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			Constraint contextualConstraint,
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
-			RewritingProcess process);
+			Context process);
 
 	@Override
 	public AbstractQuantifierEliminationStepSolver clone() {
@@ -143,7 +143,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint contextualConstraint, Context process) {
 
 		if (indexConstraint == null) {
 			return new Solution(group.additiveIdentityElement());
@@ -185,7 +185,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private SolutionStep resultIfLiteralContainsIndex(Constraint contextualConstraint, Expression literal, RewritingProcess process) {
+	private SolutionStep resultIfLiteralContainsIndex(Constraint contextualConstraint, Expression literal, Context process) {
 		
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
@@ -221,14 +221,14 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private Expression solveSubProblem(Constraint newIndexConstraint, Constraint contextualConstraint, RewritingProcess process) {
+	private Expression solveSubProblem(Constraint newIndexConstraint, Constraint contextualConstraint, Context process) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = (SingleVariableConstraint) newIndexConstraint;
 		ContextDependentExpressionProblemStepSolver subProblem = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		Expression result = subProblem.solve(contextualConstraint, process);
 		return result;
 	}
 
-	protected Expression combine(Expression solution1, Expression solution2, Constraint contextualConstraint, RewritingProcess process) {
+	protected Expression combine(Expression solution1, Expression solution2, Constraint contextualConstraint, Context process) {
 		Expression result;
 		if (isIfThenElse(solution1)) {
 			// (if C1 then A1 else A2) op solution2 ---> if C1 then (A1 op solution2) else (A2 op solution2)

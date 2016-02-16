@@ -45,7 +45,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
@@ -53,7 +53,7 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 
 /**
  * A default implementation of a {@link IntensionalSet}.
@@ -90,12 +90,12 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 		return cachedSyntaxTree;
 	}
 
-	private List<ExpressionAndContext> makeImmediateSubExpressionsAndContexts() {
-		cachedSubExpressionsAndContext = new LinkedList<ExpressionAndContext>();
+	private List<ExpressionAndSyntacticContext> makeImmediateSubExpressionsAndContexts() {
+		cachedSubExpressionsAndContext = new LinkedList<ExpressionAndSyntacticContext>();
 		makeIndexExpressionSubExpressionsAndContext(cachedSubExpressionsAndContext);
-		cachedSubExpressionsAndContext.add(new DefaultExpressionAndContext(getHead(), new HeadAddress(), getIndexExpressions(), getCondition()));
+		cachedSubExpressionsAndContext.add(new DefaultExpressionAndSyntacticContext(getHead(), new HeadAddress(), getIndexExpressions(), getCondition()));
 		if ( ! getCondition().equals(Expressions.TRUE)) {
-			cachedSubExpressionsAndContext.add(new DefaultExpressionAndContext(getCondition(), new ConditionAddress(), getIndexExpressions(), Expressions.TRUE));
+			cachedSubExpressionsAndContext.add(new DefaultExpressionAndSyntacticContext(getCondition(), new ConditionAddress(), getIndexExpressions(), Expressions.TRUE));
 		}
 		return cachedSubExpressionsAndContext;
 	}
@@ -106,7 +106,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
 		IntensionalSet result = this;
 		
 		IndexExpressionsSet newIndexExpressions = getIndexExpressions().replaceSymbol(symbol, newSymbol, process);

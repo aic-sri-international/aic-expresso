@@ -46,7 +46,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
@@ -59,7 +59,7 @@ import com.sri.ai.util.math.Rational;
 public class Division implements TopSimplifier {
 	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		return simplify(expression);
 	}
 	

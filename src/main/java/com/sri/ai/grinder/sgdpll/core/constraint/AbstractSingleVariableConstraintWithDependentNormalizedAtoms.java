@@ -49,7 +49,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.util.Util;
 
@@ -57,7 +57,7 @@ import com.sri.ai.util.Util;
  * An implementation of {@link AbstractSingleVariableConstraint} for theories
  * in which there is interaction between normalized atoms.
  * It provides functionality to check contradiction and redundancies among them, 
- * based on {@link #getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean, Expression, boolean, Expression, RewritingProcess)},
+ * based on {@link #getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean, Expression, boolean, Expression, Context)},
  * to be provided by extensions,
  * which must produce a literal not involving the constraint variable
  * that is equivalent to whether a sign and normalized atom pair implies another.
@@ -78,7 +78,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * Default implementation is <code>nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process))</code>.
 	 * @return
 	 */
-	protected Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
+	protected Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(Context process) {
 		return nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process));
 	}
 
@@ -88,7 +88,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * Default implementation is <code>nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process))</code>.
 	 * @return
 	 */
-	protected Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
+	protected Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(Context process) {
 		return nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process));
 	}
 
@@ -103,16 +103,16 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * stating that X is out of these bounds, and making redundant normalized atoms saying X is within these bounds.
 	 * @param process
 	 * @return an iterator over implicit normalized atoms.
-	 * @see #getImplicitNegativeNormalizedAtomsIterator(RewritingProcess)
+	 * @see #getImplicitNegativeNormalizedAtomsIterator(Context)
 	 */
-	abstract protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(RewritingProcess process);
+	abstract protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context process);
 
 	/**
-	 * Analogous to {@link #getImplicitPositiveNormalizedAtomsIterator(RewritingProcess)}.
+	 * Analogous to {@link #getImplicitPositiveNormalizedAtomsIterator(Context)}.
 	 * @param process
 	 * @return
 	 */
-	abstract protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process);
+	abstract protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context process);
 
 	public AbstractSingleVariableConstraintWithDependentNormalizedAtoms(Expression variable, ConstraintTheory constraintTheory) {
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
@@ -144,7 +144,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * @return
 	 */
 	@Override
-	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process) {
 		
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms result;
 		// OPTIMIZATION
@@ -213,7 +213,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * @param process
 	 * @return
 	 */
-	private boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+	private boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process) {
 		Expression sign1Atom1ImpliesSign2Atom2 = getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(sign1, atom1, sign2, atom2, process);
 		boolean result;
 		if (sign1Atom1ImpliesSign2Atom2.equals(TRUE)) {
@@ -244,5 +244,5 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * @param process
 	 * @return
 	 */
-	abstract protected Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
+	abstract protected Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process);
 }

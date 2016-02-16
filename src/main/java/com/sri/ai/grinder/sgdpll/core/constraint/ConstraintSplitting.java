@@ -7,7 +7,7 @@ import static com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting.Resu
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 
 /**
@@ -61,7 +61,7 @@ public class ConstraintSplitting  {
 	 * @param literal
 	 * @param process
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, RewritingProcess process) {
+	public ConstraintSplitting(Constraint constraint, Expression literal, Context process) {
 		this(constraint, literal, null, process);
 	}
 	
@@ -71,7 +71,7 @@ public class ConstraintSplitting  {
 	 * @param literal
 	 * @param process
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, RewritingProcess process) {
+	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, Context process) {
 		this.constraint = constraint;
 		this.literal = literal;
 		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, process);

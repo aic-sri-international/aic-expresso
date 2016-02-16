@@ -41,7 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
 import com.sri.ai.util.Util;
@@ -54,7 +54,7 @@ import com.sri.ai.util.Util;
 public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, Context process) {
 		Expression result = super.apply(expression, process);
 		if (result.hasFunctor(getFunctor())) {
 			result = processIdempotency(result);

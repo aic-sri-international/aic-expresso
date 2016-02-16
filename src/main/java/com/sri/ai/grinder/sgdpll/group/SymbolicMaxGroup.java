@@ -46,7 +46,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
 
@@ -71,7 +71,7 @@ public class SymbolicMaxGroup extends AbstractSymbolicNumbersGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, Context process) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) {
 			Rational rationalValue1 = value1.rationalValue();
