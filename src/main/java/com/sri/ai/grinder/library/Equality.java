@@ -113,7 +113,7 @@ public class Equality implements TopSimplifier {
 			return true; // both are the same expression
 		}
 		else if ( process.isVariable(expression1) && process.isVariable(expression2) &&
-				Util.notNullAndDistinct(process.getContextualSymbolType(expression1), process.getContextualSymbolType(expression2))){
+				Util.notNullAndDistinct(process.getTypeOfRegisteredSymbol(expression1), process.getTypeOfRegisteredSymbol(expression2))){
 			return false; // distinct variables with different types, so not equal under current assumption that types do not overlap (which will probably be removed in the future).
 		}
 		else {

@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.sgdpll.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.sgdpll.core.DPLLUtil.extendProcessWith;
 import static com.sri.ai.util.Util.camelCaseToSpacedString;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -57,6 +56,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
@@ -158,7 +158,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
 		}
 		
-		RewritingProcess result = extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), process);
+		RewritingProcess result = GrinderUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), process);
 		return result;
 	}
 	

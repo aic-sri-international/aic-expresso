@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpll.interpreter;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbolsWithIndexExpressions;
 import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndex;
 import static com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
@@ -52,6 +51,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -60,7 +60,6 @@ import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.AbstractOldStyleQuantifierEliminator;
-import com.sri.ai.grinder.sgdpll.core.DPLLUtil;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -98,7 +97,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 
 	@Override
 	public RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return DPLLUtil.makeProcess(
+		return GrinderUtil.makeProcess(
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
 				additionalTypes,
@@ -140,8 +139,6 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
 		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
-		
-		process = extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		
 		Expression currentBody = quantifierFreeBody;
 		

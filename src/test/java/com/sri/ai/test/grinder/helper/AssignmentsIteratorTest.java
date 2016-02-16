@@ -52,7 +52,6 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
-import com.sri.ai.grinder.helper.GrinderUtil;
 
 
 public class AssignmentsIteratorTest  {
@@ -83,8 +82,8 @@ public class AssignmentsIteratorTest  {
 				"{X=people4, Y=people4}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		process = process.newRewritingProcessWith(myType);
-		process = GrinderUtil.extendContextualSymbols(map(x, myTypeExpression, y, myTypeExpression), process);
+		process = process.add(myType);
+		process = process.registerIndicesAndTypes(map(x, myTypeExpression, y, myTypeExpression));
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
 		String actual = join("\n", assignmentsIterator);
 		
@@ -107,8 +106,8 @@ public class AssignmentsIteratorTest  {
 				"{X=mary, Y=mary}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		process = process.newRewritingProcessWith(myType);
-		process = GrinderUtil.extendContextualSymbols(map(x, myTypeExpression, y, myTypeExpression), process);
+		process = process.add(myType);
+		process = process.registerIndicesAndTypes(map(x, myTypeExpression, y, myTypeExpression));
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
 		String actual = join("\n", assignmentsIterator);
 		
@@ -141,9 +140,9 @@ public class AssignmentsIteratorTest  {
 
 		Symbol myPeopleTypeExpression = makeSymbol(peopleType.getName());
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
-		process = process.newRewritingProcessWith(peopleType);
-		process = process.newRewritingProcessWith(petsType);
-		process = GrinderUtil.extendContextualSymbols(map(x, myPeopleTypeExpression, y, myPetsTypeExpression), process);
+		process = process.add(peopleType);
+		process = process.add(petsType);
+		process = process.registerIndicesAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
 		String actual = join("\n", assignmentsIterator);
 		

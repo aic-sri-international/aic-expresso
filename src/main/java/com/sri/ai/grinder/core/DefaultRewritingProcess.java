@@ -37,19 +37,16 @@
  */
 package com.sri.ai.grinder.core;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
-import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
+import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -69,12 +66,10 @@ import com.sri.ai.util.collect.StackedHashMap;
 @Beta
 public class DefaultRewritingProcess implements RewritingProcess {
 	
-	private int recursionLevel = 0;
-	
-	private Map<Expression, Expression>  contextualSymbolsAndTypes = null;
-	private Map<Expression, Type> types = new LinkedHashMap<Expression, Type>();
+	private Map<Expression, Expression>  symbolsAndTypes;
+	private Map<Expression, Type> fromTypeExpressionToType;
 
-	private Predicate<Expression> isUniquelyNamedConstantPredicate = null;
+	private Predicate<Expression> isUniquelyNamedConstantPredicate;
 
 	private Map<Object, Object> globalObjects = null;
 	
@@ -83,7 +78,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	public DefaultRewritingProcess() {
 		this(
-				new LinkedHashMap<Expression, Expression>(), // contextualSymbolsAndTypes
+				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
 				new PrologConstantPredicate(), 
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
@@ -96,20 +91,56 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	public DefaultRewritingProcess(
-			Map<Expression, Expression> contextualSymbolsAndTypes,
+			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 		
-		initialize(null,
-				contextualSymbolsAndTypes, 
-				isUniquelyNamedConstantPredicate,
-				new ConcurrentHashMap<Object, Object>(globalObjects),
+		initialize(
+				symbolsAndTypes,
+				isUniquelyNamedConstantPredicate, 
+				globalObjects,
 				map());
 	}
 
 	// END-Constructors
 	//
 	
+	private void initialize(
+			Map<Expression, Expression> symbolsAndTypes,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
+			Map<Object, Object> globalObjects,
+			Map<Expression, Type> types) {
+		
+		this.symbolsAndTypes = symbolsAndTypes;
+		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
+		//
+		this.globalObjects = globalObjects;
+		//
+		this.fromTypeExpressionToType = types;
+	}
+
+	// END-RewritingProcess
+	//
+	
+	//
+	//  PROTECTED METHODS
+	//
+	
+	//
+	// PRIVATE METHODS
+	//
+	
+	@Override
+	public DefaultRewritingProcess clone() {
+		DefaultRewritingProcess result = null;
+		try {
+			result = (DefaultRewritingProcess) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	//
 	// START-RewritingProcess
 	@Override
@@ -119,8 +150,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public boolean isVariable(Expression expression) {
-		boolean result = IsVariable.isVariable(expression,
-				isUniquelyNamedConstantPredicate);
+		boolean result = IsVariable.isVariable(expression, isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
@@ -137,41 +167,18 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public Set<Expression> getContextualSymbols() {
-		return contextualSymbolsAndTypes.keySet();
+	public Set<Expression> getRegisteredSymbols() {
+		return symbolsAndTypes.keySet();
 	}
 
 	@Override
-	public Map<Expression, Expression> getContextualSymbolsAndTypes() {
-		return contextualSymbolsAndTypes;
+	public Map<Expression, Expression> getSymbolsAndTypes() {
+		return symbolsAndTypes;
 	}
 
 	@Override
-	public Expression getContextualSymbolType(Expression variable) {
-		return contextualSymbolsAndTypes.get(variable);
-	}
-
-	@Override
-	public RewritingProcess newSubProcessWithContext(
-			Map<Expression, Expression> subProcesscontextualSymbolsAndTypes, 
-			Expression subProcessContextualConstraint) {
-
-		DefaultRewritingProcess result = 
-				new DefaultRewritingProcess(
-						this, 
-						subProcesscontextualSymbolsAndTypes,
-						subProcessContextualConstraint);
-		
-		return result;
-	}
-
-	@Override
-	public RewritingProcess extendGlobalObjects(Map<Object, Object> objects, RewritingProcess process) {
-		myAssert(() -> process instanceof DefaultRewritingProcess, () -> "Not implemented for other implementations of " + RewritingProcess.class);
-		DefaultRewritingProcess result = new DefaultRewritingProcess((DefaultRewritingProcess) process);
-		Map<Object, Object> newGlobalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
-		result.globalObjects = newGlobalObjects;
-		return result;
+	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
+		return symbolsAndTypes.get(symbol);
 	}
 
 	@Override
@@ -180,13 +187,17 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public DefaultRewritingProcess putGlobalObject(Object key, Object value) {
+	public DefaultRewritingProcess putAllGlobalObjects(Map<Object, Object> objects) {
 		DefaultRewritingProcess result = clone();
-		Map<Object, Object> newGlobalObjects = new StackedHashMap<>(map(key, value), result.getGlobalObjects());
-		result.globalObjects = newGlobalObjects;
+		result.globalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
 		return result;
 	}
-	
+
+	@Override
+	public DefaultRewritingProcess putGlobalObject(Object key, Object value) {
+		return putAllGlobalObjects(map(key, value));
+	}
+
 	@Override
 	public boolean containsGlobalObjectKey(Object key) {
 		return globalObjects.containsKey(key);
@@ -197,11 +208,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		return globalObjects.get(key);
 	}
 
-	@Override
-	public int getRecursionLevel() {
-		return recursionLevel;
-	}
-	
 	// END-RewritingProcess
 	//
 	
@@ -213,69 +219,16 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	// PRIVATE METHODS
 	//
 	
-	// Note: private constructors for sub-processes			                        
-	private DefaultRewritingProcess(
-			DefaultRewritingProcess parentProcess,
-			Map<Expression, Expression> contextualSymbolsAndTypes,
-			Expression contextualConstraint) {
-		initialize(
-				parentProcess,
-				contextualSymbolsAndTypes,
-				parentProcess.isUniquelyNamedConstantPredicate,
-				parentProcess.globalObjects,
-				parentProcess.types
-				);
-		
-	}
-
-	/** A copy constructor with clean contextual constraint and clean caches. */
-	private DefaultRewritingProcess(DefaultRewritingProcess process) {
-		initialize(
-				null, // parentProcess,
-				process.getContextualSymbolsAndTypes(),
-				process.getIsUniquelyNamedConstantPredicate(),
-				process.getGlobalObjects(),
-				process.types);
-	}
-	
-	
-	@Override
-	public DefaultRewritingProcess clone() {
-		return new DefaultRewritingProcess(this);
-	}
-	
-	private void initialize(
-			DefaultRewritingProcess parentProcess,
-			Map<Expression, Expression> contextualSymbolsAndTypes,
-			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Map<Object, Object> globalObjects,
-			Map<Expression, Type> types) {
-		
-		if (parentProcess != null) {
-			recursionLevel = parentProcess.getRecursionLevel() + 1;
-		}
-		this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
-		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
-		//
-		this.globalObjects = globalObjects;
-		//
-		this.types = types;
-	}
-	
 	@Override
 	public String toString() {
-		return "Rewriting process with context " + getContextualSymbolsAndTypes();
+		return "Rewriting process with symbols: " + getSymbolsAndTypes();
 	}
 
 	@Override
-	public RewritingProcess newRewritingProcessWith(Type type) {
-		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
-		result.types = new LinkedHashMap<>(result.types);
-		result.types.put(parse(type.getName()), type);
-		Expression unknownTypeSize = apply(CARDINALITY, type.getName());
-		if ( ! type.cardinality().equals(unknownTypeSize)) { // the reason for this test is not storing two equal but distinct instances in case some code replaces one by the other, creating a new expression that is equal but not the same instance, which we assume throughout expresso not to happen
-			result = result.putGlobalObject(unknownTypeSize, type.cardinality());
-		}
+	public RewritingProcess add(Type type) {
+		DefaultRewritingProcess result = clone();
+		LinkedHashMap<Expression, Type> additionalTypeMap = map(parse(type.getName()), type);
+		result.fromTypeExpressionToType = new StackedHashMap<>(additionalTypeMap, fromTypeExpressionToType);
 		return result;
 	}
 
@@ -288,7 +241,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public Type getType(Expression typeExpression) {
-		Type result = types.get(typeExpression);
+		Type result = fromTypeExpressionToType.get(typeExpression);
 		if (result == null) {
 			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression);
 		}
@@ -297,6 +250,56 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public Collection<Type> getTypes() {
-		return Collections.unmodifiableCollection(types.values());
+		return Collections.unmodifiableCollection(fromTypeExpressionToType.values());
+	}
+
+	@Override
+	public RewritingProcess registerIndicesAndTypes(
+			Map<Expression, Expression> expressionsAndTypes) {
+		if (expressionsAndTypes.isEmpty()) { // nothing to do
+			return this;
+		}
+		
+		Map<Expression, Expression> newSymbolsAndTypes = 
+				createNewSymbolsAndTypes(expressionsAndTypes);
+		
+		DefaultRewritingProcess result = clone();
+		result.symbolsAndTypes = newSymbolsAndTypes;
+		
+		return result;
+	}
+
+	private Map<Expression, Expression> createNewSymbolsAndTypes(Map<Expression, Expression> expressionsAndTypes) {
+		Map<Expression, Expression> symbolsAndTypes = 
+				getTypesOfIndicesFunctorsOrSymbols(expressionsAndTypes); // returns a fresh map, so we can use it below without copying
+		Map<Expression, Expression> newSymbolsAndTypes = 
+				new StackedHashMap<Expression, Expression>(symbolsAndTypes, getSymbolsAndTypes());
+		return newSymbolsAndTypes;
+	}
+
+	/**
+	 * Gets a freshly built map from indices to their types and returns a map from their functors-or-symbols
+	 * (that is, their functors if they are function application, and themselves if they are symbols)
+	 * to their types.
+	 * A function has a type of the form <code>'->'('x'(T1, ..., Tn), R)</code>, where <code>T1,...,Tn</code>
+	 * are the types of their arguments and <code>R</code> are their co-domain.
+	 */
+	private Map<Expression, Expression> getTypesOfIndicesFunctorsOrSymbols(Map<Expression, Expression> fromIndicesToType) {
+		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
+			Expression index     = entry.getKey();
+			Expression indexType = entry.getValue();
+			if (index.getSyntacticFormType().equals("Symbol")) {
+				result.put(index, indexType);
+			}
+			else if (index.getSyntacticFormType().equals("Function application")) {
+				Expression typeOfFunctor = getTypeOfFunctor(index, indexType, this);
+				result.put(index.getFunctorOrSymbol(), typeOfFunctor);
+			}
+			else {
+				throw new Error("getTypesOfIndicesFunctorsOrSymbols not supported for expressions other than symbols and function applications, but invoked on " + index);
+			}
+		}
+		return result;
 	}
 }

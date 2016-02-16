@@ -70,7 +70,7 @@ public interface RewritingProcess extends Cloneable {
 	
 	/**
 	 * Return a clone of this process with the given predicate indicating uniquely named constants.
-	 * @return TODO
+	 * @return
 	 */
 	RewritingProcess setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
@@ -81,35 +81,32 @@ public interface RewritingProcess extends Cloneable {
 	boolean isVariable(Expression expression);
 
 	/**
-	 * @return the set of symbols that should be considered free in
-	 *         this specific context.
+	 * @return the set of registered symbols.
 	 */
-	Set<Expression> getContextualSymbols();
+	Set<Expression> getRegisteredSymbols();
 	
 	/**
-	 * @return the types of all contextual symbols.
+	 * @return the types of all registered symbols.
 	 */
-	Map<Expression, Expression> getContextualSymbolsAndTypes();
+	Map<Expression, Expression> getSymbolsAndTypes();
 	
 	/**
-	 * @return the type of a contextual symbol.
+	 * @return the type of a registered symbol.
 	 */
-	Expression getContextualSymbolType(Expression symbol);
+	Expression getTypeOfRegisteredSymbol(Expression symbol);
 	
 	/**
-	 * Create a new sub-rewriting process with it own context.
+	 * Create a new sub-rewriting process and registers the symbols
+	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
-	RewritingProcess newSubProcessWithContext(
-			Map<Expression, Expression> subProcessContextualSymbolsAndTypes,
-			Expression contextualConstraint);
+	RewritingProcess registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
 	 * Creates a new rewriting process identical to a given one but for additional global objects.
 	 * @param objects
-	 * @param process
 	 * @return
 	 */
-	RewritingProcess extendGlobalObjects(Map<Object, Object> objects, RewritingProcess process);
+	RewritingProcess putAllGlobalObjects(Map<Object, Object> objects);
 	
 	/**
 	 * Gets map of global objects.
@@ -131,20 +128,17 @@ public interface RewritingProcess extends Cloneable {
 	 */
 	Object getGlobalObject(Object key);
 	
-	/** The recursion level of a process. A top process has level 0. */
-	int getRecursionLevel();
-	
-	RewritingProcess newRewritingProcessWith(Type type);
+	RewritingProcess add(Type type);
 
-	default RewritingProcess put(Collection<Type> types) {
+	default RewritingProcess addAll(Collection<Type> types) {
 		RewritingProcess result = this;
 		for (Type type : types) {
-			result = result.newRewritingProcessWith(type);
+			result = result.add(type);
 		}
 		return result;
 	}
 	
-	Type getType(String name);
+	Type getType(String typeStringRepresentation);
 	
 	Type getType(Expression typeExpression);
 	

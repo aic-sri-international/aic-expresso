@@ -63,16 +63,17 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.list;
+import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
@@ -86,20 +87,17 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.NotContainedBy;
-import com.sri.ai.util.base.Pair;
-import com.sri.ai.util.collect.StackedHashMap;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -111,54 +109,11 @@ import com.sri.ai.util.math.Rational;
 public class GrinderUtil {
 
 	/**
-	 * Takes an expression and, if it is an if then else, rearranges it so that
-	 * conditions on logical variables are separated from other tests and on top
-	 * if then else's. This assumes that only logical variables are arguments to
-	 * equalities and disequalities, an assumption that will have to be reviewed
-	 * later.
-	 * 
-	 * @param expressions
-	 *            the expression to be tested.
-	 * @param process
-	 *            the process in which the rewriting is occurring.
-	 * @return a rewritten expression if expression was a conditional on logical
-	 *         variables that needed to be separated out, otherwise expression
-	 *         unchanged is returned.
-	 *         More specifically, if the input expression is of the form
-	 *         if LV and Rest then Alpha else Beta,
-	 *         where "LV and Rest" is a possible decomposition of the condition into
-	 *         a logical variable equalities formula and a remainder,
-	 *         it returns
-	 *         if LV then if Rest then Alpha else Beta else Beta  
-	 */
-	public static Expression makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
-			Expression expression, RewritingProcess process) {
-		if (IfThenElse.isIfThenElse(expression)) {
-			Expression condition = IfThenElse.condition(expression);
-			Pair<Expression, Expression> constraintsAndRest = Expressions
-					.separateEqualityFormulasOnAtomicSymbolsFromRest(condition, process);
-			// If either of these are the expression "true" then I don't need to make a change.
-			if (!Expressions.TRUE.equals(constraintsAndRest.first)
-					&& !Expressions.TRUE.equals(constraintsAndRest.second)) {
-				Expression thenBranch = makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
-						IfThenElse.thenBranch(expression), process);
-				Expression elseBranch = makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
-						IfThenElse.elseBranch(expression), process);
-				Expression result = IfThenElse.make(constraintsAndRest.first,
-						IfThenElse.make(constraintsAndRest.second, thenBranch,
-								elseBranch), elseBranch);
-				return result;
-			}
-		}
-		return expression;
-	}
-	
-	/**
 	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(IndexExpressionsSet indexExpressions, RewritingProcess process) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, Expressions.TRUE, process);
+		RewritingProcess result = process.registerIndicesAndTypes(indexToTypeMap);
 		return result;
 	}
 
@@ -174,99 +129,151 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Extends a process's contextual symbols with free variables found in a given expression and returns the new resulting process.
-	 * This method should be used only as a setup method; during ordinary processing, all free variables should already be in the context.
-	 * IMPORTANT: if a problem is defined by a few separate expressions that may share a free variable
-	 * (typical case is a unit test with an input expression, a contextual constraint and perhaps an expected result)
-	 * then one must NOT extend the context with the free variables from these separate expressions one expression at a time,
-	 * because this will consider the occurrences of that shared free variable as of distinct variables,
-	 * and each extension will shadow the previous ones.
-	 * Instead, one must create a tuple of expressions and extend the context with them all at the same time.
+	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the context, if any.
 	 */
-	public static RewritingProcess extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(Expression expression, RewritingProcess process) {
-		Set<Expression> freeSymbols = Expressions.freeSymbols(expression, process);
-		Map<Expression, Expression> fromSymbolToType = new LinkedHashMap<Expression, Expression>();
-		for (Expression symbol : freeSymbols) {
-			fromSymbolToType.put(symbol, null);
+	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
+		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, process);
+		return result;
+	}
+
+	/**
+	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
+	 */
+	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
+		List<Expression> indexExpressions = new LinkedList<Expression>();
+		for (Expression index : indices) {
+			Expression type = process.getTypeOfRegisteredSymbol(index);
+			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
+			indexExpressions.add(indexExpression);
 		}
-		RewritingProcess result = extendContextualSymbols(fromSymbolToType, process);
+		return new ExtensionalIndexExpressionsSet(indexExpressions);
+	}
+
+	public static RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess());			
+		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
 	/**
-	 * Same as {@link #extendContextualSymbolsAndConstraint(Map<Expression, Expression>, Expression, RewritingProcess)},
-	 * assuming a true constraint.
-	 */
-	public static RewritingProcess extendContextualSymbols(Map<Expression, Expression> freeSymbolsAndTypes, RewritingProcess process) {
-		RewritingProcess result = extendContextualSymbolsAndConstraint(freeSymbolsAndTypes, Expressions.TRUE, process);
-		return result;
-	}
-
-	/**
-	 * Extend the rewriting processes's contextual symbols and constraints.
-	 * Returns the same process instance if there are no changes.
-	 * 
-	 * @param extendingContextualSymbolsAndTypes
-	 *            a map from variables to their types that
-	 *            should be added to the a new sub-process of the process passed
-	 *            in.
-	 * @param additionalConstraints
-	 *            additional context (i.e. a formula) to extend the contextual 
-	 *            constraint by.
+	 * @param mapFromSymbolNameToTypeName
+	 * @param additionalTypes
+	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process with its contextual symbols and
-	 *         constraints extended by the arguments passed in,
-	 *         possibly the same as input process if no changes are made.
+	 * @return
 	 */
-	public static RewritingProcess extendContextualSymbolsAndConstraint(
-			Map<Expression, Expression> extendingContextualSymbolsAndTypes,
-			Expression additionalConstraints, 
+	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<Type> additionalTypes, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+		Collection<Type> allTypes =
+				getCategoricalTypes(
+						mapFromSymbolNameToTypeName,
+						mapFromCategoricalTypeNameToSizeString,
+						isUniquelyNamedConstantPredicate,
+						process);
+		allTypes.addAll(additionalTypes);
+		
+		return extendProcessWith(mapFromSymbolNameToTypeName, allTypes, process);
+	}
+
+	/**
+	 * @param mapFromSymbolNameToTypeName
+	 * @param types
+	 * @param process
+	 * @return
+	 */
+	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<? extends Type> types, RewritingProcess process) {
+		List<Expression> symbolDeclarations = new ArrayList<>();
+		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
+			String symbolName = variableNameAndTypeName.getKey();
+			String typeName   = variableNameAndTypeName.getValue();
+			
+			symbolDeclarations.add(parse(symbolName + " in " + typeName));
+		}
+		process = extendContextualSymbolsWithIndexExpressions(symbolDeclarations, process);
+					
+		for (Type type : types) {
+			process = process.add(type);
+			process = process.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
+		}
+		
+		return process;
+	}
+
+	/**
+	 * Returns a universal quantification of given expression over its free variables,
+	 * with types as registered in rewriting process.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	public static Expression universallyQuantifyFreeVariables(Expression expression, RewritingProcess process) {
+		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, process);
+		Expression universallyQuantified = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
+		return universallyQuantified;
+	}
+
+	/**
+	 * @param mapFromSymbolNameToTypeName
+	 * @param mapFromCategoricalTypeNameToSizeString
+	 * @param isUniquelyNamedConstantPredicate
+	 * @param process
+	 * @return
+	 */
+	public static Collection<Type> getCategoricalTypes(
+			Map<String, String> mapFromSymbolNameToTypeName,
+			Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			RewritingProcess process) {
 		
-		if (extendingContextualSymbolsAndTypes.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
-			return process;
+		Collection<Type> categoricalTypes = new LinkedList<Type>();
+		for (Map.Entry<String, String> typeNameAndSizeString : mapFromCategoricalTypeNameToSizeString.entrySet()) {
+			String typeExpressionString = typeNameAndSizeString.getKey();
+			String sizeString = typeNameAndSizeString.getValue();
+			
+			// check if already present and, if not, make it
+			Categorical type = (Categorical) process.getType(typeExpressionString);
+			if (type == null) {
+				if (typeExpressionString.equals("Boolean")) {
+					type = BOOLEAN_TYPE;
+				}
+				else {
+					ArrayList<Expression> knownConstants = 
+							getKnownUniquelyNamedConstaintsOf(
+									typeExpressionString,
+									mapFromSymbolNameToTypeName,
+									isUniquelyNamedConstantPredicate,
+									process);
+					type = 
+							new Categorical(
+									typeExpressionString,
+									parseInt(sizeString),
+									knownConstants);
+				}
+			}
+			categoricalTypes.add(type);
 		}
-		
-		doNotAcceptTypesContainingTypeExpression(extendingContextualSymbolsAndTypes);
-		
-		process = renameExistingContextualSymbolsIfThereAreCollisions(extendingContextualSymbolsAndTypes, process);
-		
-		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = createNewMapOfContextualSymbolsAndTypes(extendingContextualSymbolsAndTypes, process);
-		// Note: StackedHashMap shares original entries with the original process's map
-		
-		RewritingProcess result = process.newSubProcessWithContext(newMapOfContextualSymbolsAndTypes, null);
-	
-		return result;
+		return categoricalTypes;
 	}
 
 	/**
-	 * Gets a map from indices to their types and returns a map from their functors-or-symbols
-	 * (that is, their functors if they are function application, and themselves if they are symbols)
-	 * to their types.
-	 * A function has a type of the form <code>'->'('x'(T1, ..., Tn), R)</code>, where <code>T1,...,Tn</code>
-	 * are the types of their arguments and <code>R</code> are their co-domain.
+	 * @param typeName
+	 * @param mapFromSymbolNameToTypeName
+	 * @param process
+	 * @return
 	 */
-	public static Map<Expression, Expression> getTypesOfIndicesFunctorsOrSymbols(Map<Expression, Expression> fromIndicesToType, RewritingProcess process) {
-		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
-		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
-			Expression index     = entry.getKey();
-			Expression indexType = entry.getValue();
-			if (index.getSyntacticFormType().equals("Symbol")) {
-				result.put(index, indexType);
-			}
-			else if (index.getSyntacticFormType().equals("Function application")) {
-				Expression typeOfFunctor = getTypeOfFunctor(index, indexType, process);
-				result.put(index.getFunctorOrSymbol(), typeOfFunctor);
-			}
-			else {
-				throw new Error("getTypesOfIndicesFunctorsOrSymbols not supported for expressions other than symbols and function applications, but invoked on " + index);
+	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+		ArrayList<Expression> knownConstants = new ArrayList<Expression>();
+		for (Map.Entry<String, String> symbolNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
+			if (symbolNameAndTypeName.getValue().equals(typeName)) {
+				Expression symbol = makeSymbol(symbolNameAndTypeName.getKey());
+				if (isUniquelyNamedConstantPredicate.apply(symbol)) {
+					knownConstants.add(symbol);
+				}
 			}
 		}
-		return result;
+		return knownConstants;
 	}
-	
+
 	/**
 	 * Gets a function application and its type <code>T</code>, and returns the inferred type of its functor,
 	 * which is <code>'->'('x'(T1, ..., Tn), T)</code>, where <code>T1,...,Tn</code> are the types.
@@ -409,7 +416,7 @@ public class GrinderUtil {
 				result = makeSymbol("Number");
 			}
 			else {
-				result = process.getContextualSymbolType(expression);
+				result = process.getTypeOfRegisteredSymbol(expression);
 
 				if (result == null) {
 					Type type = getFirstSatisfyingPredicateOrNull(process.getTypes(), t -> t.contains(expression));
@@ -494,88 +501,6 @@ public class GrinderUtil {
 		return result;
 	}
 
-	private static RewritingProcess renameExistingContextualSymbolsIfThereAreCollisions(Map<Expression, Expression> extendingcontextualSymbolsAndTypes, RewritingProcess process) {
-		for (Map.Entry<Expression, Expression> extendingContextualSymbolAndType : extendingcontextualSymbolsAndTypes.entrySet()) {
-			Expression extendingContextualSymbol = extendingContextualSymbolAndType.getKey();
-			if (process.getContextualSymbols().contains(extendingContextualSymbol)) {
-				process = shadowContextualSymbol(extendingContextualSymbol, process);
-			}
-		}
-		return process;
-	}
-
-	/** Replaces all occurrences of contextualSymbol in process' contextual symbols and constraint. */
-	private static RewritingProcess shadowContextualSymbol(Expression contextualSymbol, RewritingProcess process) {
-		// determines new unique name for contextualSymbol -- important: needs to start with capital letter to keep being recognized as a variable, not a constant!
-		Expression newContextualSymbol = Expressions.prefixedUntilUnique(contextualSymbol, "Shadowed ", new NotContainedBy<Expression>(process.getContextualSymbols()));
-		
-		// makes new contextual symbols and types map
-		Map<Expression, Expression> newcontextualSymbolsAndTypes = new LinkedHashMap<Expression, Expression>(process.getContextualSymbolsAndTypes());
-
-		// replaces occurrences of contextualSymbol in types;
-		// variables do not occur in types at this point (Jan/2014) but will when system is more general
-		// needs to be on syntax tree because otherwise process will be extended during Expression.replace and we may be in infinite loop.
-		for (Map.Entry<Expression, Expression> someContextualSymbolAndType : process.getContextualSymbolsAndTypes().entrySet()) {
-			Expression type = someContextualSymbolAndType.getValue();
-			if (type != null) {
-				Expression someContextualSymbol = someContextualSymbolAndType.getKey();
-				Expression newType = type.replaceAllOccurrences(contextualSymbol, newContextualSymbol, process);
-				if (newType != type) {
-					newcontextualSymbolsAndTypes.put(someContextualSymbol, newType);
-				}
-			}
-		}
-		
-		// replaces key in contextualSymbol's entry by its new symbol
-		newcontextualSymbolsAndTypes.put(newContextualSymbol, newcontextualSymbolsAndTypes.get(contextualSymbol));
-		newcontextualSymbolsAndTypes.remove(contextualSymbol);
-		
-		// assembles new process
-		RewritingProcess newProcess = process.newSubProcessWithContext(newcontextualSymbolsAndTypes, null);
-		
-		return newProcess;
-	}
-
-	private static void doNotAcceptTypesContainingTypeExpression(Map<Expression, Expression> extendingcontextualSymbolsAndTypes) throws Error {
-		for (Map.Entry entry : extendingcontextualSymbolsAndTypes.entrySet()) {
-			if (entry.getValue() != null && ((Expression)entry.getValue()).hasFunctor("type")) {
-				throw new Error("'type' occurring in types extending context: " + entry);
-			}
-		}
-	}
-
-	private static StackedHashMap<Expression, Expression> createNewMapOfContextualSymbolsAndTypes(Map<Expression, Expression> indexToTypeMap, RewritingProcess process) {
-		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = new StackedHashMap<Expression, Expression>(process.getContextualSymbolsAndTypes());
-		if (indexToTypeMap != null) {
-			Map<Expression, Expression> symbolsToTypeMap2 = getTypesOfIndicesFunctorsOrSymbols(indexToTypeMap, process);
-			//System.out.println("Symbols to type: " + symbolsToTypeMap2);	
-			newMapOfContextualSymbolsAndTypes.putAll(symbolsToTypeMap2);
-		}
-		return newMapOfContextualSymbolsAndTypes;
-	}
-
-	/**
-	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the context, if any.
-	 */
-	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
-		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, process);
-		return result;
-	}
-
-	/**
-	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
-	 */
-	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
-		List<Expression> indexExpressions = new LinkedList<Expression>();
-		for (Expression index : indices) {
-			Expression type = process.getContextualSymbolType(index);
-			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
-			indexExpressions.add(indexExpression);
-		}
-		return new ExtensionalIndexExpressionsSet(indexExpressions);
-	}
-
 	/**
 	 * Returns the cardinality of the type of a given variable in the given process,
 	 * looking for <code>| Type |</code>, for <code>Type</code> the type of the variable,
@@ -589,7 +514,7 @@ public class GrinderUtil {
 	public static long getTypeCardinality(Expression symbol, RewritingProcess process) {
 		long result = -1;
 	
-		Expression variableType = process.getContextualSymbolType(symbol);
+		Expression variableType = process.getTypeOfRegisteredSymbol(symbol);
 		if (variableType != null) {
 			Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
 			Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
@@ -600,7 +525,7 @@ public class GrinderUtil {
 		
 		// If that didn't work, we try find the Type object:
 		if (result == -1) {
-			variableType = process.getContextualSymbolType(symbol);
+			variableType = process.getTypeOfRegisteredSymbol(symbol);
 			if (variableType != null) {
 				Type type = process.getType(variableType);
 				if (type != null) {
@@ -645,19 +570,6 @@ public class GrinderUtil {
 		return result;
 	}
 
-	/**
-	 * Returns a universal quantification of given expression over its free variables,
-	 * with types as registered in rewriting process.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	public static Expression universallyQuantifyFreeVariables(Expression expression, RewritingProcess process) {
-		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, process);
-		Expression universallyQuantified = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
-		return universallyQuantified;
-	}
-
 	public static final Categorical BOOLEAN_TYPE = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
 	public static final IntegerExpressoType INTEGER_TYPE = new IntegerExpressoType();
 	
@@ -689,27 +601,5 @@ public class GrinderUtil {
 			type = null;
 		}
 		return type;
-	}
-
-	public static Expression makeAnd(Expression conjunct1, Expression conjunct2) {
-		Expression result = null;
-		List<Expression> conjuncts = new ArrayList<Expression>();
-		if (And.isConjunction(conjunct1)) {
-			conjuncts.addAll(conjunct1.getArguments());
-		}
-		else {
-			conjuncts.add(conjunct1);
-		}
-		
-		if (And.isConjunction(conjunct2)) {
-			conjuncts.addAll(conjunct2.getArguments());
-		}
-		else {
-			conjuncts.add(conjunct2);
-		}
-		
-		result = And.make(conjuncts);
-		
-		return result;
 	}
 }

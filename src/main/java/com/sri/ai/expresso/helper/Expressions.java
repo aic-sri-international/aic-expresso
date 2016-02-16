@@ -1031,7 +1031,7 @@ public class Expressions {
 		Set<Expression> freeSymbols = freeSymbols(expression, process);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeSymbol : freeSymbols) {
-			result.put(freeSymbol, process.getContextualSymbolType(freeSymbol));
+			result.put(freeSymbol, process.getTypeOfRegisteredSymbol(freeSymbol));
 		}
 		return result;
 	}
@@ -1040,7 +1040,7 @@ public class Expressions {
 		Set<Expression> freeVariables = freeVariables(expression, process);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeVariable : freeVariables) {
-			result.put(freeVariable, process.getContextualSymbolType(freeVariable));
+			result.put(freeVariable, process.getTypeOfRegisteredSymbol(freeVariable));
 		}
 		return result;
 	}
