@@ -55,7 +55,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -75,8 +74,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private Map<Expression, Expression>  contextualSymbolsAndTypes = null;
 	private Map<Expression, Type> types = new LinkedHashMap<Expression, Type>();
 
-	private Expression contextualConstraint = Expressions.TRUE;
-	
 	private Predicate<Expression> isUniquelyNamedConstantPredicate = null;
 
 	private Map<Object, Object> globalObjects = null;
@@ -105,7 +102,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		
 		initialize(null,
 				contextualSymbolsAndTypes, 
-				Expressions.TRUE,
 				isUniquelyNamedConstantPredicate,
 				new ConcurrentHashMap<Object, Object>(globalObjects),
 				map());
@@ -153,11 +149,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public Expression getContextualSymbolType(Expression variable) {
 		return contextualSymbolsAndTypes.get(variable);
-	}
-
-	@Override
-	public Expression getContextualConstraint() {
-		return contextualConstraint;
 	}
 
 	@Override
@@ -230,7 +221,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		initialize(
 				parentProcess,
 				contextualSymbolsAndTypes,
-				contextualConstraint,
 				parentProcess.isUniquelyNamedConstantPredicate,
 				parentProcess.globalObjects,
 				parentProcess.types
@@ -243,7 +233,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		initialize(
 				null, // parentProcess,
 				process.getContextualSymbolsAndTypes(),
-				Expressions.TRUE,
 				process.getIsUniquelyNamedConstantPredicate(),
 				process.getGlobalObjects(),
 				process.types);
@@ -258,7 +247,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private void initialize(
 			DefaultRewritingProcess parentProcess,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
-			Expression contextualConstraint,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects,
 			Map<Expression, Type> types) {
@@ -267,7 +255,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			recursionLevel = parentProcess.getRecursionLevel() + 1;
 		}
 		this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
-		this.contextualConstraint = contextualConstraint;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 		//
 		this.globalObjects = globalObjects;

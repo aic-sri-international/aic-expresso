@@ -97,12 +97,6 @@ public interface RewritingProcess extends Cloneable {
 	Expression getContextualSymbolType(Expression symbol);
 	
 	/**
-	 * 
-	 * @return the process's current contextual constraint..
-	 */
-	Expression getContextualConstraint();
-
-	/**
 	 * Create a new sub-rewriting process with it own context.
 	 */
 	RewritingProcess newSubProcessWithContext(

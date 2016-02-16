@@ -111,13 +111,6 @@ import com.sri.ai.util.math.Rational;
 public class GrinderUtil {
 
 	/**
-	 * The key of a global object of rewriting processes that prevents the check again free variables in additional constraints
-	 * (that is, that are not in the contextual symbols).
-	 * This is used for when global free variables are being determined. It should not be used in normal circumstances.
-	 */
-	public static final String DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES = "Do not require added contextual constraint free variables to be in contextual symbols";
-
-	/**
 	 * Takes an expression and, if it is an if then else, rearranges it so that
 	 * conditions on logical variables are separated from other tests and on top
 	 * if then else's. This assumes that only logical variables are arguments to
@@ -181,26 +174,6 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Extend the rewriting processes's contextual constraint by an additional
-	 * constraint.
-	 * 
-	 * @param additionalConstraints
-	 *            additional context to extend the contextual constraint by.
-	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process constrained by
-	 *         'process.getContexualConstraint() and additionalConstraints'.
-	 */
-	public static RewritingProcess extendContextualConstraint(Expression additionalConstraints, RewritingProcess process) {
-		
-		return extendContextualSymbolsAndConstraint(
-				new LinkedHashMap<Expression, Expression>(),
-				additionalConstraints,
-				process);
-	}
-	
-	/**
 	 * Extends a process's contextual symbols with free variables found in a given expression and returns the new resulting process.
 	 * This method should be used only as a setup method; during ordinary processing, all free variables should already be in the context.
 	 * IMPORTANT: if a problem is defined by a few separate expressions that may share a free variable
@@ -226,6 +199,45 @@ public class GrinderUtil {
 	 */
 	public static RewritingProcess extendContextualSymbols(Map<Expression, Expression> freeSymbolsAndTypes, RewritingProcess process) {
 		RewritingProcess result = extendContextualSymbolsAndConstraint(freeSymbolsAndTypes, Expressions.TRUE, process);
+		return result;
+	}
+
+	/**
+	 * Extend the rewriting processes's contextual symbols and constraints.
+	 * Returns the same process instance if there are no changes.
+	 * 
+	 * @param extendingContextualSymbolsAndTypes
+	 *            a map from variables to their types that
+	 *            should be added to the a new sub-process of the process passed
+	 *            in.
+	 * @param additionalConstraints
+	 *            additional context (i.e. a formula) to extend the contextual 
+	 *            constraint by.
+	 * @param process
+	 *            the process in which the rewriting is occurring and whose
+	 *            contextual constraint is to be updated.
+	 * @return a sub-rewriting process with its contextual symbols and
+	 *         constraints extended by the arguments passed in,
+	 *         possibly the same as input process if no changes are made.
+	 */
+	public static RewritingProcess extendContextualSymbolsAndConstraint(
+			Map<Expression, Expression> extendingContextualSymbolsAndTypes,
+			Expression additionalConstraints, 
+			RewritingProcess process) {
+		
+		if (extendingContextualSymbolsAndTypes.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
+			return process;
+		}
+		
+		doNotAcceptTypesContainingTypeExpression(extendingContextualSymbolsAndTypes);
+		
+		process = renameExistingContextualSymbolsIfThereAreCollisions(extendingContextualSymbolsAndTypes, process);
+		
+		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = createNewMapOfContextualSymbolsAndTypes(extendingContextualSymbolsAndTypes, process);
+		// Note: StackedHashMap shares original entries with the original process's map
+		
+		RewritingProcess result = process.newSubProcessWithContext(newMapOfContextualSymbolsAndTypes, null);
+	
 		return result;
 	}
 
@@ -482,47 +494,6 @@ public class GrinderUtil {
 		return result;
 	}
 
-	/**
-	 * Extend the rewriting processes's contextual symbols and constraints.
-	 * Returns the same process instance if there are no changes.
-	 * 
-	 * @param extendingContextualSymbolsAndTypes
-	 *            a map from variables to their types that
-	 *            should be added to the a new sub-process of the process passed
-	 *            in.
-	 * @param additionalConstraints
-	 *            additional context (i.e. a formula) to extend the contextual 
-	 *            constraint by.
-	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process with its contextual symbols and
-	 *         constraints extended by the arguments passed in,
-	 *         possibly the same as input process if no changes are made.
-	 */
-	public static RewritingProcess extendContextualSymbolsAndConstraint(
-			Map<Expression, Expression> extendingContextualSymbolsAndTypes,
-			Expression additionalConstraints, 
-			RewritingProcess process) {
-		
-		if (extendingContextualSymbolsAndTypes.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
-			return process;
-		}
-		
-		doNotAcceptTypesContainingTypeExpression(extendingContextualSymbolsAndTypes);
-		
-		process = renameExistingContextualSymbolsIfThereAreCollisions(extendingContextualSymbolsAndTypes, process);
-		
-		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = createNewMapOfContextualSymbolsAndTypes(extendingContextualSymbolsAndTypes, process);
-		// Note: StackedHashMap shares original entries with the original process's map
-		
-		Expression newContextualConstraint = checkAndAddNewConstraints(additionalConstraints, newMapOfContextualSymbolsAndTypes, process);
-		
-		RewritingProcess result = process.newSubProcessWithContext(newMapOfContextualSymbolsAndTypes, newContextualConstraint);
-
-		return result;
-	}
-
 	private static RewritingProcess renameExistingContextualSymbolsIfThereAreCollisions(Map<Expression, Expression> extendingcontextualSymbolsAndTypes, RewritingProcess process) {
 		for (Map.Entry<Expression, Expression> extendingContextualSymbolAndType : extendingcontextualSymbolsAndTypes.entrySet()) {
 			Expression extendingContextualSymbol = extendingContextualSymbolAndType.getKey();
@@ -559,11 +530,8 @@ public class GrinderUtil {
 		newcontextualSymbolsAndTypes.put(newContextualSymbol, newcontextualSymbolsAndTypes.get(contextualSymbol));
 		newcontextualSymbolsAndTypes.remove(contextualSymbol);
 		
-		// replaces contextualSymbol in the constraint
-		Expression newContextualConstraint = process.getContextualConstraint().replaceAllOccurrences(contextualSymbol, newContextualSymbol, process);
-		
 		// assembles new process
-		RewritingProcess newProcess = process.newSubProcessWithContext(newcontextualSymbolsAndTypes, newContextualConstraint);
+		RewritingProcess newProcess = process.newSubProcessWithContext(newcontextualSymbolsAndTypes, null);
 		
 		return newProcess;
 	}
@@ -584,45 +552,6 @@ public class GrinderUtil {
 			newMapOfContextualSymbolsAndTypes.putAll(symbolsToTypeMap2);
 		}
 		return newMapOfContextualSymbolsAndTypes;
-	}
-
-	private static Expression checkAndAddNewConstraints(Expression additionalConstraints, StackedHashMap<Expression, Expression> newMapOfcontextualSymbolsAndTypes, RewritingProcess process) throws Error {
-		Expression newContextualConstraint = process.getContextualConstraint();
-		// Only extend the contextual constraint with formulas
-		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
-			checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(additionalConstraints, newMapOfcontextualSymbolsAndTypes, process);
-			// Construct a conjunct of contextual constraints extended by the additional context
-			newContextualConstraint = GrinderUtil.makeAnd(newContextualConstraint, additionalConstraints);
-		} 
-		else {
-			// Note: commenting out for now due to the bloat caused in the trace output.
-			// Trace.log("INFO: Not a formula to extend contextual constraint by: {}", additionalConstraints);
-		}
-		return newContextualConstraint;
-	}
-
-	private static void checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfContextualSymbolsAndTypes, RewritingProcess process) throws Error {
-		
-		// For now, we are only adding the free variables (rather than free symbols as indicated by the method's name)
-		// because we want to have the flexibility of manipulating constants without them having to have been added to context in advance,
-		// which requires primitive constants registration, user constant registration/declaration, and either type declaration or inference,
-		// all of these things being either burdensome or yet to be implemented.
-
-		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-		if (! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
-				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
-
-			String message =
-					"Extending contextual constraint with additional constraint <" + additionalConstraints +
-					"> containing unknown free symbol " + Util.join(Util.subtract(freeSymbolsInAdditionalConstraints, newMapOfContextualSymbolsAndTypes.keySet())) + 
-					" (current contextual symbols are {" + Util.join(newMapOfContextualSymbolsAndTypes.keySet()) + "})";
-			throw new Error(message);
-		}
-		// The check above ensures that the additional constraints only use variables that are already known.
-		// When this fails, the cause is a failure in the code somewhere to extend the process with scoping variables.
-		// The easiest way to debug this is to place a breakpoint at the line above and, when it is reached, inspect the stack,
-		// looking for the point in which the expression being process involves variables not in the process contextual symbols.
-		// That point will be the spot where the process should have been extended.
 	}
 
 	/**
