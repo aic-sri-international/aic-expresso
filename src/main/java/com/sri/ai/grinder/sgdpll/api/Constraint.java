@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 
 /**
  * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
@@ -40,7 +40,7 @@ public interface Constraint extends Expression {
 	ConstraintTheory getConstraintTheory();
 	
 	/**
-	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
+	 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
 	 * a given literal, or null if they are contradictory.
 	 * <p>
 	 * At this point, the formula should be either a literal, or a {@link Constraint}.
@@ -78,7 +78,7 @@ public interface Constraint extends Expression {
 	}
 
 	/**
-	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
+	 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
 	 * a given formula, or null if they are contradictory.
 	 * <p>
 	 * At this point, the formula should be either a literal, or a {@link Constraint}.

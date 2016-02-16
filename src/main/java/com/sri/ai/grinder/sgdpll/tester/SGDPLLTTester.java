@@ -78,13 +78,13 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
- * A class for testing a {@link ConstraintTheory} and its unsatisfiability detection.
+ * A class for testing SGDPLL(T) main components.
  * 
  * @author braz
  *
  */
 @Beta
-public class ConstraintTheoryTester {
+public class SGDPLLTTester {
 	
 	private static final int NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE = 1;
 
@@ -136,7 +136,7 @@ public class ConstraintTheoryTester {
 
 		boolean isComplete = constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable();
 
-		TestRunner tester = isComplete? ConstraintTheoryTester::testCompleteSatisfiability : ConstraintTheoryTester::testIncompleteSatisfiability;
+		TestRunner tester = isComplete? SGDPLLTTester::testCompleteSatisfiability : SGDPLLTTester::testIncompleteSatisfiability;
 		
 		String problemName = (isComplete? "complete" : "incomplete") + " satisfiability for single-variable constraints";
 		
@@ -164,7 +164,7 @@ public class ConstraintTheoryTester {
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
-		TestRunner tester = ConstraintTheoryTester::testIncompleteSatisfiability; // DefaultMultiVariableConstraint is incomplete
+		TestRunner tester = SGDPLLTTester::testIncompleteSatisfiability; // DefaultMultiVariableConstraint is incomplete
 		
 		runTesterGivenConjunctionsOfLiterals(random, "incomplete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, constraintTheory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
@@ -190,7 +190,7 @@ public class ConstraintTheoryTester {
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
-		TestRunner tester = ConstraintTheoryTester::testCompleteSatisfiability; // CompleteMultiVariableConstraint is complete
+		TestRunner tester = SGDPLLTTester::testCompleteSatisfiability; // CompleteMultiVariableConstraint is complete
 		
 		runTesterGivenConjunctionsOfLiterals(random, "complete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, constraintTheory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
@@ -304,7 +304,7 @@ public class ConstraintTheoryTester {
 		if (testAgainstBruteForce) {
 			output("SolverUnderAssignment thinks it is satisfiable. Current constraint is " + constraint);	
 			Expression literalsConjunction = And.make(literals);
-			boolean isUnsatisfiable = ! ConstraintTheoryTester.isSatisfiableByBruteForce(literalsConjunction, constraintTheory, context);;
+			boolean isUnsatisfiable = ! SGDPLLTTester.isSatisfiableByBruteForce(literalsConjunction, constraintTheory, context);;
 			if (isUnsatisfiable) {
 				String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
 						constraintTheory.getClass().getSimpleName() + " says it is satisfiable. " +
@@ -331,9 +331,7 @@ public class ConstraintTheoryTester {
 		if (testAgainstBruteForce) {
 			output("SolverUnderAssignment thinks it is unsatisfiable.");	
 			Expression formula = And.make(literals);
-			boolean isSatisfiable = ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, context);
-			//		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, context);
-			//		boolean isSatisfiable = satisfyingAssignment != null;
+			boolean isSatisfiable = SGDPLLTTester.isSatisfiableByBruteForce(formula, constraintTheory, context);
 			if (isSatisfiable) {
 				String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
 						constraintTheory.getClass().getSimpleName() + " says it is not. "
@@ -504,11 +502,9 @@ public class ConstraintTheoryTester {
 			int bodyDepth,
 			Context context) {
 		
-		if (!constraint.isContradiction()) { // TODO: this would be much more elegant if we did not represent contradictions by null
-			SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
-			Expression index = singleVariableConstraint.getVariable();
-			runGroupProblemSolvingTest(random, list(index), constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, context);
-		}
+		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
+		Expression index = singleVariableConstraint.getVariable();
+		runGroupProblemSolvingTest(random, list(index), constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, context);
 	}
 
 	/**
@@ -551,14 +547,12 @@ public class ConstraintTheoryTester {
 			Collection<Expression> literals,
 			int bodyDepth, Context context) {
 		
-		if (!constraint.isContradiction()) { // TODO: this would be much more elegant if we did not represent contradictions by null
-			Collection<Expression> indices = 
-					pickKElementsWithoutReplacement(
-							constraintTheory.getVariablesForTesting(),
-							numberOfIndices,
-							random);
-			runGroupProblemSolvingTest(random, indices, constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, context);
-		}
+		Collection<Expression> indices = 
+				pickKElementsWithoutReplacement(
+						constraintTheory.getVariablesForTesting(),
+						numberOfIndices,
+						random);
+		runGroupProblemSolvingTest(random, indices, constraint, problemType, testAgainstBruteForce, constraintTheory, bodyDepth, context);
 	}
 
 	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, GroupProblemType problemType, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {

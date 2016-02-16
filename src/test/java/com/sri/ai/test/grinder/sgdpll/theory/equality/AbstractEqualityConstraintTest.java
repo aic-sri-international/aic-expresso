@@ -61,7 +61,7 @@ import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
-import com.sri.ai.grinder.sgdpll.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstraint;
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
@@ -81,7 +81,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	
 	@Test
 	public void testSingleVariableConstraints() {
-		ConstraintTheoryTester.testSingleVariableConstraints(
+		SGDPLLTTester.testSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -92,7 +92,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testMultiVariableConstraints() {
-		ConstraintTheoryTester.testMultiVariableConstraints(
+		SGDPLLTTester.testMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -103,7 +103,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
-		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -114,7 +114,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
-		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -125,7 +125,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -138,7 +138,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Max(),
@@ -151,7 +151,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testSum() {
-		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
 				makeRandom(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
@@ -165,7 +165,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testMax() {
-		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
 				makeRandom(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),

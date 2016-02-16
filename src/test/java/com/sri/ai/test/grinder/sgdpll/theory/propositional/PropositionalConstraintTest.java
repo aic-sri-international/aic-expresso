@@ -44,7 +44,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
-import com.sri.ai.grinder.sgdpll.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryTest;
 
@@ -58,7 +58,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testSingleVariableConstraints() {
-		ConstraintTheoryTester.testSingleVariableConstraints(
+		SGDPLLTTester.testSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -69,7 +69,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testMultiVariableConstraints() {
-		ConstraintTheoryTester.testMultiVariableConstraints(
+		SGDPLLTTester.testMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -80,7 +80,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
-		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -91,7 +91,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -104,7 +104,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
@@ -117,7 +117,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
-		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -128,7 +128,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testSum() {
-		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
 				new Random(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
@@ -142,7 +142,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 
 	@Test
 	public void testMax() {
-		ConstraintTheoryTester.testGroupProblemSolvingForMultipleIndices(
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
 				new Random(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),

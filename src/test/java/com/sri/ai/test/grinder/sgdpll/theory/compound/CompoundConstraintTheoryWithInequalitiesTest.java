@@ -66,7 +66,7 @@ import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLitera
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
@@ -147,7 +147,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 	
 	@Test
 	public void testSingleVariableConstraints() {
-		ConstraintTheoryTester.testSingleVariableConstraints(
+		SGDPLLTTester.testSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -158,7 +158,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testMultiVariableConstraints() {
-		ConstraintTheoryTester.testMultiVariableConstraints(
+		SGDPLLTTester.testMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -169,7 +169,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
-		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -180,7 +180,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
-		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
@@ -191,7 +191,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
-		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -204,7 +204,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		ConstraintTheoryTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
