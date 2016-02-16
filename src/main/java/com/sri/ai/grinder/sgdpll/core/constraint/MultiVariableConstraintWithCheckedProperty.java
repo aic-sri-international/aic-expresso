@@ -46,7 +46,6 @@ import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -67,11 +66,10 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressionWrapper implements MultiVariableConstraint {
+public class MultiVariableConstraintWithCheckedProperty extends AbstractConstraint implements MultiVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
-	private ConstraintTheory constraintTheory;
 	private Constraint contextualConstraint;
 	private SingleVariableConstraint singleVariableConstraint;
 	private boolean checked;
@@ -107,7 +105,13 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			result = null;
 		}
 		else {
-			result = new MultiVariableConstraintWithCheckedProperty(newContextualConstraint, newSingleVariableConstraint, contextDependentProblemStepSolverMaker);
+			result = 
+					new MultiVariableConstraintWithCheckedProperty(
+							newContextualConstraint.getConstraintTheory(), 
+							newContextualConstraint, 
+							newSingleVariableConstraint, 
+							contextDependentProblemStepSolverMaker, 
+							false);
 			result = result.check(context);
 		}
 		
@@ -116,7 +120,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 
 	public MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory, ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
-		this.constraintTheory = constraintTheory;
+		super(constraintTheory);
 		this.contextualConstraint = null;
 		this.singleVariableConstraint = null;
 		this.checked = false;
@@ -134,21 +138,19 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	 * @param singleVariableConstraint
 	 */
 	private MultiVariableConstraintWithCheckedProperty(
+			ConstraintTheory constraintTheory,
 			Constraint contextualConstraint,
 			SingleVariableConstraint singleVariableConstraint,
-			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
-		this.constraintTheory = contextualConstraint.getConstraintTheory();
+			ContextDependentProblemStepSolverMaker contextDependentProblemMaker,
+			boolean isContradiction) {
+		super(constraintTheory);
 		this.contextualConstraint = contextualConstraint;
 		this.singleVariableConstraint = singleVariableConstraint;
 		this.checked = false;
 		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
+		this.isContradiction = isContradiction;
 	}
 
-	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
-	}
-	
 	@Override
 	public MultiVariableConstraintWithCheckedProperty conjoin(Expression formula, Context context) {
 		MultiVariableConstraintWithCheckedProperty result;
@@ -208,9 +210,9 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			result = null;
 		}
 		else {
-			Collection<Expression> variablesInLiteral = constraintTheory.getVariablesIn(literal, context);
+			Collection<Expression> variablesInLiteral = getConstraintTheory().getVariablesIn(literal, context);
 			if (variablesInLiteral.isEmpty()) {
-				Expression literalSimplifiedToConstant = constraintTheory.simplify(literal, context);
+				Expression literalSimplifiedToConstant = getConstraintTheory().simplify(literal, context);
 //				System.out.println("constraint: " + this);	
 //				System.out.println("literal: " + literal);	
 //				System.out.println("literal simplified to constant: " + literalSimplifiedToConstant);	
@@ -249,10 +251,15 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			}
 			else {
 				Expression firstVariable = getFirstOrNull(variablesInLiteral);
-				SingleVariableConstraint newSingleVariableConstraint = constraintTheory.makeSingleVariableConstraint(firstVariable, constraintTheory, context);
+				SingleVariableConstraint newSingleVariableConstraint = getConstraintTheory().makeSingleVariableConstraint(firstVariable, getConstraintTheory(), context);
 				newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
 				if (newSingleVariableConstraint != null) {
-					result = new MultiVariableConstraintWithCheckedProperty(this, newSingleVariableConstraint, contextDependentProblemStepSolverMaker);
+					result = new MultiVariableConstraintWithCheckedProperty(
+							getConstraintTheory(),
+							this, 
+							newSingleVariableConstraint, 
+							contextDependentProblemStepSolverMaker,
+							false);
 					// the use of 'this' here does not mean that *this* constraint has to be provided as the contextual constraint.
 					// any empty multi-variable constraint would do.
 					// It is just that at this point we know 'this' to be an empty constraint and use it as a conveniently already available one.

@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -23,24 +22,23 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper implements MultiVariableConstraint {
+public class DefaultMultiVariableConstraint extends AbstractConstraint implements MultiVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
-	private ConstraintTheory constraintTheory;
 	private Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint;
-
+	
 	public DefaultMultiVariableConstraint(ConstraintTheory constraintTheory) {
 		this(constraintTheory, Util.map());
 	}
 	
 	private DefaultMultiVariableConstraint(ConstraintTheory constraintTheory, Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint) {
-		this.constraintTheory = constraintTheory;
+		super(constraintTheory);
 		this.fromVariableToItsConstraint = fromVariableToItsConstraint;
 	}
 	
 	private DefaultMultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint) {
-		return new DefaultMultiVariableConstraint(constraintTheory, newFromVariableToItsConstraint);
+		return new DefaultMultiVariableConstraint(getConstraintTheory(), newFromVariableToItsConstraint);
 	}
 	
 	@Override
@@ -78,7 +76,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 	
 	private Expression getSomeVariableFor(Expression literal, Context context) {
-		Expression result = min(constraintTheory.getVariablesIn(literal, context), (e1, e2) -> e1.compareTo(e2));
+		Expression result = min(getConstraintTheory().getVariablesIn(literal, context), (e1, e2) -> e1.compareTo(e2));
 		return result;
 	}
 
@@ -89,7 +87,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	protected SingleVariableConstraint getConstraintFor(Expression variable, Context context) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, context);
+			result = getConstraintTheory().makeSingleVariableConstraint(variable, getConstraintTheory(), context);
 		}
 		return result;
 	}
@@ -101,16 +99,10 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 
 	@Override
-	public Expression clone() {
-		DefaultMultiVariableConstraint result = new DefaultMultiVariableConstraint(constraintTheory, new LinkedHashMap<>(fromVariableToItsConstraint));
-		return result;
+	public DefaultMultiVariableConstraint clone() {
+		return (DefaultMultiVariableConstraint) clone();
 	}
 	
-	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
-	}
-
 	@Override
 	public MultiVariableConstraint conjoin(Expression formula, Context context) {
 		myAssert(

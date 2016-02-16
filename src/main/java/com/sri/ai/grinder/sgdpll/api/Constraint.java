@@ -155,6 +155,21 @@ public interface Constraint extends Expression {
 	 * @return
 	 */
 	Expression binding(Expression variable);
+	
+	/**
+	 * Indicates whether constraint is contradiction.
+	 * @return
+	 */
+	boolean isContradiction();
+	
+	/**
+	 * Make contradictory version of this constraint;
+	 * this means the contradiction is of the same "type" as this contradiction
+	 * (for example, same constraint theory, among other details),
+	 * but is a contradiction.
+	 * @return
+	 */
+	Constraint makeContradiction();
 
 //	/**
 //	 * Returns, in time constant in the size of the constraint,

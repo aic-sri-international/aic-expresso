@@ -131,4 +131,10 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 			return null;
 		}
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

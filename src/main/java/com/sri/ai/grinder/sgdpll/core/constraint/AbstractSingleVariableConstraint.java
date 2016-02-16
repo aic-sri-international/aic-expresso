@@ -48,7 +48,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -69,7 +68,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public abstract class AbstractSingleVariableConstraint extends AbstractExpressionWrapper implements SingleVariableConstraint {
+public abstract class AbstractSingleVariableConstraint extends AbstractConstraint implements SingleVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -77,7 +76,6 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	private ArrayList<Expression> positiveNormalizedAtoms;
 	private ArrayList<Expression> negativeNormalizedAtoms;
 	private List<Expression> externalLiterals; // literals not on variable
-	private ConstraintTheory constraintTheory;
 	
 	public AbstractSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory) {
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
@@ -89,12 +87,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
 			ConstraintTheory constraintTheory) {
-		
+		super(constraintTheory);
 		this.variable = variable;
 		this.positiveNormalizedAtoms = positiveNormalizedAtoms;
 		this.negativeNormalizedAtoms = negativeNormalizedAtoms;
 		this.externalLiterals = externalLiterals;
-		this.constraintTheory = constraintTheory;
 	}
 
 	/**
@@ -112,11 +109,12 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param other
 	 */
 	protected AbstractSingleVariableConstraint (AbstractSingleVariableConstraint other) {
+		super(other.getConstraintTheory());
 		this.variable = other.variable;
 		this.positiveNormalizedAtoms = other.positiveNormalizedAtoms;
 		this.negativeNormalizedAtoms = other.negativeNormalizedAtoms;
 		this.externalLiterals = other.externalLiterals;
-		this.constraintTheory = other.constraintTheory;
+		this.isContradiction = other.isContradiction;
 	}
 	
 	@Override
@@ -176,11 +174,6 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	@Override
 	public List<Expression> getExternalLiterals() {
 		return Collections.unmodifiableList(externalLiterals);
-	}
-
-	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
 	}
 
 	//////////// THEORY RULES

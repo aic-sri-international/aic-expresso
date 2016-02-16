@@ -310,4 +310,10 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context context) {
 		return iterator();
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

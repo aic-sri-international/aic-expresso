@@ -1,7 +1,6 @@
 package com.sri.ai.grinder.sgdpll.core.constraint;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -17,27 +16,21 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
  * @author braz
  *
  */
-public class ExpressionConstraint extends AbstractExpressionWrapper implements Constraint {
+public class ExpressionConstraint extends AbstractConstraint {
 
 	private static final long serialVersionUID = 1L;
 
 	private Expression expression;
-	private ConstraintTheory constraintTheory;
 	
 	public ExpressionConstraint(Expression expression, ConstraintTheory constraintTheory) {
+		super(constraintTheory);
 		this.expression = expression;
-		this.constraintTheory = constraintTheory;
 	}
 	
-	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
-	}
-
 	@Override
 	public Constraint conjoinWithLiteral(Expression literal, Context context) {
 		Expression conjunction = And.make(expression, literal);
-		ExpressionConstraint result = new ExpressionConstraint(conjunction, constraintTheory);
+		ExpressionConstraint result = new ExpressionConstraint(conjunction, getConstraintTheory());
 		return result;
 	}
 

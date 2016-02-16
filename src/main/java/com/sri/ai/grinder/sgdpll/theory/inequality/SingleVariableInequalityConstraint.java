@@ -425,4 +425,10 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		}
 		return cachedType ;
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
