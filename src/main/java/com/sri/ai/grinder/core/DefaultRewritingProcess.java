@@ -176,7 +176,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public RewritingProcess extendGlobalObjects(Map<Object, Object> objects, RewritingProcess process) {
-		// OPTIMIZATION: this can be made much more efficient by making processes immutable and keeping a reference to the original pointer.
 		myAssert(() -> process instanceof DefaultRewritingProcess, () -> "Not implemented for other implementations of " + RewritingProcess.class);
 		DefaultRewritingProcess result = new DefaultRewritingProcess((DefaultRewritingProcess) process);
 		Map<Object, Object> newGlobalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
@@ -190,13 +189,11 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
-	public Object putGlobalObject(Object key, Object value) {
-		return globalObjects.put(key, value);
-	}
-
-	@Override
-	public Object removeGlobalObject(Object key) {
-		return globalObjects.remove(key);
+	public DefaultRewritingProcess putGlobalObject(Object key, Object value) {
+		DefaultRewritingProcess result = clone();
+		Map<Object, Object> newGlobalObjects = new StackedHashMap<>(map(key, value), result.getGlobalObjects());
+		result.globalObjects = newGlobalObjects;
+		return result;
 	}
 	
 	@Override
@@ -280,7 +277,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public String toString() {
-		return "Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
+		return "Rewriting process with context " + getContextualSymbolsAndTypes();
 	}
 
 	@Override
@@ -290,7 +287,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		result.types.put(parse(type.getName()), type);
 		Expression unknownTypeSize = apply(CARDINALITY, type.getName());
 		if ( ! type.cardinality().equals(unknownTypeSize)) { // the reason for this test is not storing two equal but distinct instances in case some code replaces one by the other, creating a new expression that is equal but not the same instance, which we assume throughout expresso not to happen
-			result.putGlobalObject(unknownTypeSize, type.cardinality());
+			result = result.putGlobalObject(unknownTypeSize, type.cardinality());
 		}
 		return result;
 	}

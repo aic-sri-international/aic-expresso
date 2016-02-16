@@ -57,7 +57,6 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.base.TernaryProcedure;
@@ -238,14 +237,6 @@ public abstract class AbstractExpression implements Expression {
 							.apply(this, replacementFunction, subExpressionAndContext, process);
 				}
 
-				RewritingProcess subProcess;
-				if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
-					subProcess = GrinderUtil.extendContextualSymbolsAndConstraint(subExpressionAndContext, process);
-				}
-				else {
-					subProcess = process;
-				}
-
 				Expression replacementSubExpression =
 						originalSubExpression.replace(
 								replacementFunctionForThisSubExpressionAndContext,
@@ -253,7 +244,7 @@ public abstract class AbstractExpression implements Expression {
 								prunePredicateForThisSubExpressionAndContext,
 								makeSpecificSubExpressionAndContextPrunePredicate,
 								onlyTheFirstOne,
-								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, subProcess);
+								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, process);
 
 				if (replacementSubExpression != originalSubExpression) {
 					result = result.replace(subExpressionAndContext.setExpression(replacementSubExpression));

@@ -64,7 +64,10 @@ public class CardinalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
 				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
-				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; }
+				{ 
+					Expression cardinality = (Expression) process.getGlobalObject(f); 
+					Expression result = cardinality == null? f : cardinality;
+					return result; }
 				);
 	}
 

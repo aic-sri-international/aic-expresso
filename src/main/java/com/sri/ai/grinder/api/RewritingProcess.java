@@ -45,28 +45,16 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * A rewriting process gathers all information that needs to be kept and
- * manipulated during a concerted application of several rewritings on an
- * expression. It is available to every rewriting during its operation as part
- * of the process. It keeps several pieces of data, such as the root expression
- * being manipulated, global objects, annotations on expressions, etc. It also
- * provides methods for pre- and post-processing bookkeeping.
- * <p>
- * The reason it keeps a root expression is for cache maintenance. Rewritten
- * expressions are kept in a cache. When the cache reaches a certain size, the
- * cache is purged of expressions not reachable from the root expression (they
- * are assumed to have been part of the process in the past, but are considered
- * irrelevant now).
- * <p>
- * TODO: FIXME: Clones or sub-processes are current sharing global objects with their parents.
- * This means there is no way of adding a new global object to the child without affecting the parent,
- * which is unexpected and error-prone.
- * However, simply copying the old global objects to a new map and modifying the copy
- * will be much more expensive.
- * {@link StackedHashMap} could help but it should be modified to "collapse" after its height reaches a limit.
+ * manipulated during a concerted application symbolic processing.
+ * It keeps several pieces of data, such as a collection of "global" objects
+ * (really, rewriting process-specific objects), types, level of recursion,
+ * whether an expression is a uniquely named constant, etc.
+ * It also keeps a contextual constraint on some of the free variables,
+ * meaning that any returned result needs to be true
+ * only under it.
  * 
  * @author braz
  */
@@ -75,23 +63,23 @@ public interface RewritingProcess extends Cloneable {
 
 	RewritingProcess clone();
 	
-	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
-	boolean isUniquelyNamedConstant(Expression expression);
-
-	/** Indicates whether a given expression is not a variable. */
-	boolean isVariable(Expression expression);
-
 	/**
 	 * Returns the predicate indicating uniquely named constants.
 	 */
 	Predicate<Expression> getIsUniquelyNamedConstantPredicate();
 	
 	/**
-	 * Sets the predicate indicating uniquely named constants.
+	 * Return a clone of this process with the given predicate indicating uniquely named constants.
 	 * @return TODO
 	 */
 	RewritingProcess setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
+	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
+	boolean isUniquelyNamedConstant(Expression expression);
+
+	/** Indicates whether a given expression is not a uniquely named constant. */
+	boolean isVariable(Expression expression);
+
 	/**
 	 * @return the set of symbols that should be considered free in
 	 *         this specific context.
@@ -135,14 +123,9 @@ public interface RewritingProcess extends Cloneable {
 	Map<Object, Object> getGlobalObjects();
 	
 	/**
-	 * Puts a value in a map of global objects under key.
+	 * Returns a cloned rewriting process with a value in a map of global objects under key.
 	 */
-	Object putGlobalObject(Object key, Object value);
-	
-	/**
-	 * Removes value in a map of global objects under key.
-	 */
-	Object removeGlobalObject(Object key);
+	RewritingProcess putGlobalObject(Object key, Object value);
 	
 	/**
 	 * Indicates whether map of global objects contains key.

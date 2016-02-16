@@ -74,7 +74,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
@@ -182,25 +181,6 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Extend the rewriting processes's contextual symbols and constraints
-	 * with the indices and condition from an intensionally defined set.
-	 * 
-	 * @param intensionalSet
-	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process with its contextual symbols and
-	 *         constraints extended by the indices and condition of the intensionally defined set passed in.
-	 */
-	public static RewritingProcess extendContextualSymbolsAndConstraintWithIntensionalSet(
-			Expression intensionalSet, RewritingProcess process) {
-		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(intensionalSet);
-		Expression conditionOnExpansion = ((IntensionalSet) intensionalSet).getCondition();
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, conditionOnExpansion, process);
-		return result;
-	}
-
-	/**
 	 * Extend the rewriting processes's contextual constraint by an additional
 	 * constraint.
 	 * 
@@ -218,28 +198,6 @@ public class GrinderUtil {
 				new LinkedHashMap<Expression, Expression>(),
 				additionalConstraints,
 				process);
-	}
-	
-	/**
-	 * Extend the rewriting processes's contextual symbols and constraints.
-	 * 
-	 * @param expressionAndContext
-	 *            an expression that possibly scopes new symbols that
-	 *            should be added to the a new sub-process of the process passed
-	 *            in, with a context that encodes a condition on that context.
-	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process with its contextual symbols and
-	 *         constraints extended by the expression and context passed in.
-	 */
-	public static RewritingProcess extendContextualSymbolsAndConstraint(
-			ExpressionAndContext expressionAndContext, 
-			RewritingProcess process) {
-		Map<Expression, Expression> fromIndexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(expressionAndContext.getIndexExpressions());
-		Expression conditionOnExpression = expressionAndContext.getConstrainingCondition();
-		RewritingProcess result = extendContextualSymbolsAndConstraint(fromIndexToTypeMap, conditionOnExpression, process);
-		return result;
 	}
 	
 	/**

@@ -109,7 +109,7 @@ public class DPLLUtil {
 					
 		for (Type type : types) {
 			process = process.newRewritingProcessWith(type);
-			process.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
+			process = process.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
 		}
 		
 		return process;
