@@ -79,8 +79,8 @@ public class RecursiveExhaustiveMapBasedSimplifier extends AbstractMapBasedSimpl
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		Expression result = recursiveExhaustiveSimplifier.apply(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		Expression result = recursiveExhaustiveSimplifier.apply(expression, context);
 		return result;
 	}
 }

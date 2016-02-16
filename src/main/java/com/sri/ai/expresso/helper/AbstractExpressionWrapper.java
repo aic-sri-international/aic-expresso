@@ -83,8 +83,8 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 
 	@Override
-	public List<Expression> getScopedExpressions(Context process) {
-		return getInnerExpression().getScopedExpressions(process);
+	public List<Expression> getScopedExpressions(Context context) {
+		return getInnerExpression().getScopedExpressions(context);
 	}
 
 	@Override
@@ -98,8 +98,8 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
-		return getInnerExpression().replaceSymbol(symbol, newSymbol, process);
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
+		return getInnerExpression().replaceSymbol(symbol, newSymbol, context);
 	}
 
 	@Override

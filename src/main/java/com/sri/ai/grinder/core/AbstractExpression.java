@@ -85,107 +85,107 @@ public abstract class AbstractExpression implements Expression {
 	protected Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
 	
 	@Override
-	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, Context process) {
-		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, null, process);
+	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, Context context) {
+		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, null, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, Context process) {
-		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, null, process);
+	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, Context context) {
+		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, null, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, Context process) {
-		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, process);
+	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, Context context) {
+		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, Context process) {
-		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, process);
+	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, Context context) {
+		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, Context process) {
-		return replaceFirstOccurrence(replacementFunction, null, null, process);
+	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, Context context) {
+		return replaceFirstOccurrence(replacementFunction, null, null, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, Context process) {
-		return replaceAllOccurrences(replacementFunction, null, null, process);
+	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, Context context) {
+		return replaceAllOccurrences(replacementFunction, null, null, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, Context process) {
-		return replaceFirstOccurrence(replacementFunction, prunePredicate, null, process);
+	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, Context context) {
+		return replaceFirstOccurrence(replacementFunction, prunePredicate, null, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, Context process) {
-		return replaceAllOccurrences(replacementFunction, prunePredicate, null, process);
+	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, Context context) {
+		return replaceAllOccurrences(replacementFunction, prunePredicate, null, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, Context process) {
+	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, Context context) {
 		return replace(
 				replacementFunction, makeSpecificSubExpressionAndSyntacticContextReplacementFunction,
 				prunePredicate, makeSpecificSubExpressionAndSyntacticContextPrunePredicate,
-				true, false, false, null, process);
+				true, false, false, null, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, Context process) {
+	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, Context context) {
 		return replace(
 				replacementFunction, makeSpecificSubExpressionAndSyntacticContextReplacementFunction,
 				prunePredicate, makeSpecificSubExpressionAndSyntacticContextPrunePredicate,
-				false, false, false, null, process);
+				false, false, false, null, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replaceFirstOccurrence(replacementFunction, null, listener, process);
+	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replaceFirstOccurrence(replacementFunction, null, listener, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replaceAllOccurrences(replacementFunction, null, listener, process);
+	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replaceAllOccurrences(replacementFunction, null, listener, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, listener, process);
+	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, listener, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, listener, process);
+	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, listener, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, listener, process);
+	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, listener, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, listener, process);
+	public Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replaceAllOccurrences(new ReplaceByIfEqualTo<Expression>(replacement, replaced), prunePredicate, listener, context);
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replace(replacementFunction, true /* only the first one */, prunePredicate, false, listener, process);
+	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replace(replacementFunction, true /* only the first one */, prunePredicate, false, listener, context);
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
-		return replace(replacementFunction, false /* not only the first one */, prunePredicate, false, listener, process);
+	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
+		return replace(replacementFunction, false /* not only the first one */, prunePredicate, false, listener, context);
 	}
 
 	@Override
 	public Expression replace(
 			Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne,
-			PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, Context> listener, Context process) {
+			PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, Context> listener, Context context) {
 
-		return replace(replacementFunction, null, prunePredicate, null, onlyTheFirstOne, ignoreTopExpression, false, listener, process);
+		return replace(replacementFunction, null, prunePredicate, null, onlyTheFirstOne, ignoreTopExpression, false, listener, context);
 	}
 	
 	@Override
@@ -197,16 +197,16 @@ public abstract class AbstractExpression implements Expression {
 			boolean onlyTheFirstOne, 
 			boolean ignoreTopExpression, 
 			boolean replaceOnChildrenBeforeTopExpression, 
-			TernaryProcedure<Expression, Expression, Context> listener, Context process) {
+			TernaryProcedure<Expression, Expression, Context> listener, Context context) {
 		
-		if (prunePredicate != null && prunePredicate.apply(this, replacementFunction, process)) {
+		if (prunePredicate != null && prunePredicate.apply(this, replacementFunction, context)) {
 			return this;
 		}
 		
 		Expression result = this;
 		
 		if ( ! ignoreTopExpression && ! replaceOnChildrenBeforeTopExpression) { // if replaceOnChildrenBeforeTopExpression, this is done later in the function
-			result = applyReplacementFunction(replacementFunction, result, process);
+			result = applyReplacementFunction(replacementFunction, result, context);
 		}
 
 		if (result == this) { // if no change in top expression, or need to change children first:
@@ -234,7 +234,7 @@ public abstract class AbstractExpression implements Expression {
 				if (makeSpecificSubExpressionAndSyntacticContextReplacementFunction != null) {
 					replacementFunctionForThisSubExpressionAndSyntacticContext =
 							makeSpecificSubExpressionAndSyntacticContextReplacementFunction
-							.apply(this, replacementFunction, subExpressionAndSyntacticContext, process);
+							.apply(this, replacementFunction, subExpressionAndSyntacticContext, context);
 				}
 
 				Expression replacementSubExpression =
@@ -244,7 +244,7 @@ public abstract class AbstractExpression implements Expression {
 								prunePredicateForThisSubExpressionAndSyntacticContext,
 								makeSpecificSubExpressionAndSyntacticContextPrunePredicate,
 								onlyTheFirstOne,
-								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, process);
+								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, context);
 
 				if (replacementSubExpression != originalSubExpression) {
 					result = result.replace(subExpressionAndSyntacticContext.setExpression(replacementSubExpression));
@@ -255,22 +255,22 @@ public abstract class AbstractExpression implements Expression {
 			}
 			
 			if (! ignoreTopExpression && replaceOnChildrenBeforeTopExpression) {
-				result = applyReplacementFunction(replacementFunction, result, process);
+				result = applyReplacementFunction(replacementFunction, result, context);
 				
 			}
 		}
 
 		if (listener != null) {
-			listener.apply(this, result, process);
+			listener.apply(this, result, context);
 		}
 		
 		return result;
 	}
 
-	private static Expression applyReplacementFunction(Function<Expression, Expression> replacementFunction, Expression expression, Context process) {
+	private static Expression applyReplacementFunction(Function<Expression, Expression> replacementFunction, Expression expression, Context context) {
 		Expression result;
 		if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
-			result = ((ReplacementFunctionWithContextuallyUpdatedProcess) replacementFunction).apply(expression, process);
+			result = ((ReplacementFunctionWithContextuallyUpdatedProcess) replacementFunction).apply(expression, context);
 		}
 		else {
 			result = replacementFunction.apply(expression);

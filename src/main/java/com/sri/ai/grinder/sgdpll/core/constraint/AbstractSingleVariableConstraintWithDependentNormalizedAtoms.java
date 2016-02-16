@@ -75,21 +75,21 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	/**
 	 * Returns an iterator to positive normalized atoms, including implicit ones
 	 * (for example, for bounded integers, the type bounds on the variable).
-	 * Default implementation is <code>nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process))</code>.
+	 * Default implementation is <code>nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(context))</code>.
 	 * @return
 	 */
-	protected Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(Context process) {
-		return nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process));
+	protected Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(Context context) {
+		return nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(context));
 	}
 
 	/**
 	 * Returns an iterator to negative normalized atoms, including implicit ones
 	 * (for example, for bounded integers, the type bounds on the variable).
-	 * Default implementation is <code>nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process))</code>.
+	 * Default implementation is <code>nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(context))</code>.
 	 * @return
 	 */
-	protected Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(Context process) {
-		return nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process));
+	protected Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(Context context) {
+		return nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(context));
 	}
 
 	/**
@@ -101,18 +101,18 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * act as if these atoms where actually part of the constraint,
 	 * which will result in contradicting normalized atoms
 	 * stating that X is out of these bounds, and making redundant normalized atoms saying X is within these bounds.
-	 * @param process
+	 * @param context
 	 * @return an iterator over implicit normalized atoms.
 	 * @see #getImplicitNegativeNormalizedAtomsIterator(Context)
 	 */
-	abstract protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context process);
+	abstract protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context context);
 
 	/**
 	 * Analogous to {@link #getImplicitPositiveNormalizedAtomsIterator(Context)}.
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	abstract protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context process);
+	abstract protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context context);
 
 	public AbstractSingleVariableConstraintWithDependentNormalizedAtoms(Expression variable, ConstraintTheory constraintTheory) {
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
@@ -140,11 +140,11 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * while having access to the literal already broken down into sign and normalized atom.
 	 * @param sign
 	 * @param normalizedAtom
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	@Override
-	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process) {
+	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context context) {
 		
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms result;
 		// OPTIMIZATION
@@ -158,23 +158,23 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 		boolean oppositeSign = sign? false : true;
 		if (
 				thereExists(
-						getPositiveNormalizedAtomsIncludingImplicitOnes(process),
-						p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, normalizedAtom, process))
+						getPositiveNormalizedAtomsIncludingImplicitOnes(context),
+						p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, normalizedAtom, context))
 						||
 						thereExists(
-								getNegativeNormalizedAtomsIncludingImplicitOnes(process),
-								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, normalizedAtom, process))) {
+								getNegativeNormalizedAtomsIncludingImplicitOnes(context),
+								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, normalizedAtom, context))) {
 			
 			result = this; // redundant
 		}
 		else if (
 				thereExists(
-						getPositiveNormalizedAtomsIncludingImplicitOnes(process),
-						p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, normalizedAtom, process))
+						getPositiveNormalizedAtomsIncludingImplicitOnes(context),
+						p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, normalizedAtom, context))
 						||
 						thereExists(
-								getNegativeNormalizedAtomsIncludingImplicitOnes(process),
-								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, normalizedAtom, process))) {
+								getNegativeNormalizedAtomsIncludingImplicitOnes(context),
+								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, normalizedAtom, context))) {
 			
 			result = null; // contradiction
 		}
@@ -183,11 +183,11 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 			ArrayList<Expression> newPositiveNormalizedAtoms = 
 					removeFromArrayListNonDestructively(
 							getPositiveNormalizedAtoms(),
-							p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, true,  p, process));
+							p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, true,  p, context));
 			ArrayList<Expression> newNegativeNormalizedAtoms = 
 					removeFromArrayListNonDestructively(
 							getNegativeNormalizedAtoms(),
-							p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, false, p, process));
+							p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, false, p, context));
 			
 			if (sign) {
 				newPositiveNormalizedAtoms.add(normalizedAtom);
@@ -210,11 +210,11 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * @param atom1
 	 * @param sign2
 	 * @param atom2
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	private boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process) {
-		Expression sign1Atom1ImpliesSign2Atom2 = getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(sign1, atom1, sign2, atom2, process);
+	private boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context context) {
+		Expression sign1Atom1ImpliesSign2Atom2 = getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(sign1, atom1, sign2, atom2, context);
 		boolean result;
 		if (sign1Atom1ImpliesSign2Atom2.equals(TRUE)) {
 			result = true;
@@ -223,7 +223,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 			result = false;
 		}
 		else {
-			Expression simplifiedImplies = getConstraintTheory().simplify(sign1Atom1ImpliesSign2Atom2, process);
+			Expression simplifiedImplies = getConstraintTheory().simplify(sign1Atom1ImpliesSign2Atom2, context);
 			result = simplifiedImplies.equals(TRUE);
 		}
 		return result;
@@ -241,8 +241,8 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * @param atom1
 	 * @param sign2
 	 * @param atom2
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	abstract protected Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process);
+	abstract protected Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context context);
 }

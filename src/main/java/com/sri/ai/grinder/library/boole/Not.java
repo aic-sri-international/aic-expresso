@@ -54,7 +54,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 public class Not implements TopSimplifier {
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
+	public Expression apply(Expression expression, Context context) {
 		return simplify(expression);
 	}
 	

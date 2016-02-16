@@ -79,5 +79,5 @@ public interface IndexExpressionsSet {
 	 * @param newSymbol
 	 * @return
 	 */
-	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context process);
+	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context context);
 }

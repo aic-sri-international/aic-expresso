@@ -70,32 +70,32 @@ public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.TIMES,           (Simplifier) (f, process) ->
-				times.apply(f, process),
+				FunctorConstants.TIMES,           (Simplifier) (f, context) ->
+				times.apply(f, context),
 
-				FunctorConstants.DIVISION,        (Simplifier) (f, process) ->
+				FunctorConstants.DIVISION,        (Simplifier) (f, context) ->
 				Division.simplify(f),
 
-				FunctorConstants.PLUS,            (Simplifier) (f, process) ->
-				plus.apply(f, process),
+				FunctorConstants.PLUS,            (Simplifier) (f, context) ->
+				plus.apply(f, context),
 
-				FunctorConstants.MINUS,           (Simplifier) (f, process) ->
+				FunctorConstants.MINUS,           (Simplifier) (f, context) ->
 				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),
 
-				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, process) ->
-				Exponentiation.simplify(f, process),
+				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, context) ->
+				Exponentiation.simplify(f, context),
 
-				FunctorConstants.LESS_THAN,       (Simplifier) (f, process) ->
-				LessThan.simplify(f, process),
+				FunctorConstants.LESS_THAN,       (Simplifier) (f, context) ->
+				LessThan.simplify(f, context),
 
-				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, process) ->
-				LessThanOrEqualTo.simplify(f, process),
+				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, context) ->
+				LessThanOrEqualTo.simplify(f, context),
 
-				FunctorConstants.GREATER_THAN,              (Simplifier) (f, process) ->
-				GreaterThan.simplify(f, process),
+				FunctorConstants.GREATER_THAN,              (Simplifier) (f, context) ->
+				GreaterThan.simplify(f, context),
 
-				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, process) ->
-				GreaterThanOrEqualTo.simplify(f, process)
+				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, context) ->
+				GreaterThanOrEqualTo.simplify(f, context)
 				);
 	}
 

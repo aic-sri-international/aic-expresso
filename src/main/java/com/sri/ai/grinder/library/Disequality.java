@@ -66,15 +66,15 @@ public class Disequality  implements TopSimplifier {
 	public  static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.DISEQUALITY);
 	
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		return simplify(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		return simplify(expression, context);
 	}
 
 	/**
 	 * Returns FALSE if given disequality has equal arguments, TRUE if they contain distinct constants,
 	 * and the disequality itself otherwise.
 	 */
-	public static Expression simplify(Expression disequality, Context process) {
+	public static Expression simplify(Expression disequality, Context context) {
 		Expression result;
 		if (disequality.get(0).equals(disequality.get(1))) {
 			result = Expressions.FALSE;
@@ -82,7 +82,7 @@ public class Disequality  implements TopSimplifier {
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
 			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
-			Util.collect(disequality.getArguments(), constants, process.getIsUniquelyNamedConstantPredicate(), nonConstants);
+			Util.collect(disequality.getArguments(), constants, context.getIsUniquelyNamedConstantPredicate(), nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.TRUE;
 			}
@@ -103,12 +103,12 @@ public class Disequality  implements TopSimplifier {
 	/**
 	 * Makes a disequality application on two terms possibly simplifying it (taking constants into account).
 	 */
-	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, Context process) {
+	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, Context context) {
 		Expression result;
 		if (term1.equals(term2)) {
 			result = Expressions.FALSE;
 		}
-		else if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
+		else if (context.isUniquelyNamedConstant(term1) && context.isUniquelyNamedConstant(term2)) {
 			result = Expressions.TRUE;
 		}
 		else {
@@ -163,9 +163,9 @@ public class Disequality  implements TopSimplifier {
 	/**
 	 * Returns X != c, if 'expression' is c != X, for X a variable and c a constant, or 'expression' otherwise. 
 	 */
-	public static Expression normalize(Expression expression, Context process) {
-		if (process.isUniquelyNamedConstant(expression.get(0))) {
-			if ( ! process.isUniquelyNamedConstant(expression.get(1))) {
+	public static Expression normalize(Expression expression, Context context) {
+		if (context.isUniquelyNamedConstant(expression.get(0))) {
+			if ( ! context.isUniquelyNamedConstant(expression.get(1))) {
 				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}

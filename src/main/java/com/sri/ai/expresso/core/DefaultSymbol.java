@@ -94,7 +94,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
 		Expression result = this;
 		if (this.equals(symbol)) {
 			result = newSymbol;

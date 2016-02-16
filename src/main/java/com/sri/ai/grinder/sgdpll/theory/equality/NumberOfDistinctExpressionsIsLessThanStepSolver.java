@@ -90,7 +90,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	}
 	
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context process) {
+	public SolutionStep step(Constraint contextualConstraint, Context context) {
 		if (distinctExpressionsStepSolver.getUniqueValuesWhenStepSolverWasConstructed().size() >= limit) {
 			return new Solution(FALSE);
 		}
@@ -99,7 +99,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 			return new Solution(TRUE);
 		}
 
-		SolutionStep step = distinctExpressionsStepSolver.step(contextualConstraint, process);
+		SolutionStep step = distinctExpressionsStepSolver.step(contextualConstraint, context);
 		if (step.itDepends()) {
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsTrue = clone();
 			subStepSolverWhenFormulaIsTrue.distinctExpressionsStepSolver = (DistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();

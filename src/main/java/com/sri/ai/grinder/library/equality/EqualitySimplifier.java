@@ -63,11 +63,11 @@ public class EqualitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.EQUALITY,        (Simplifier) (f, process) ->
-				Equality.simplify(f, process),
+				FunctorConstants.EQUALITY,        (Simplifier) (f, context) ->
+				Equality.simplify(f, context),
 
-				FunctorConstants.DISEQUALITY,     (Simplifier) (f, process) ->
-				Disequality.simplify(f, process)				);
+				FunctorConstants.DISEQUALITY,     (Simplifier) (f, context) ->
+				Disequality.simplify(f, context)				);
 	}
 
 	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {

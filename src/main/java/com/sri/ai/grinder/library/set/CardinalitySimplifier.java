@@ -49,7 +49,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimp
 
 /**
  * A {@link Simplifier} with a cardinality simplifier
- * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).))
+ * (cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).))
  * 
  * @author braz
  *
@@ -63,9 +63,9 @@ public class CardinalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier
 	
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
+				FunctorConstants.CARDINALITY,     (Simplifier) (f, context) ->
 				{ 
-					Expression cardinality = (Expression) process.getGlobalObject(f); 
+					Expression cardinality = (Expression) context.getGlobalObject(f); 
 					Expression result = cardinality == null? f : cardinality;
 					return result; }
 				);

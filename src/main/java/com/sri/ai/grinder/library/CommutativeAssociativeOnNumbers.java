@@ -64,18 +64,18 @@ public class CommutativeAssociativeOnNumbers {
 	 * if they contain {@link Expressions#MINUS_INFINITY} but not {@link Expressions#INFINITY}, returns MINUS_INFINITY;
 	 * if they contain both or none, returns the result provided by fallback function
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @param fallback
 	 * @return
 	 */
-	public static Expression dealWithInfinity(Expression expression, Context process, BinaryFunction<Expression, Context, Expression> fallback) {
+	public static Expression dealWithInfinity(Expression expression, Context context, BinaryFunction<Expression, Context, Expression> fallback) {
 		Expression result;
 		
 		boolean containsInfinity = thereExists(expression.getArguments(), EQUALS_INFINITY);
 		boolean containsMinusInfinity = thereExists(expression.getArguments(), EQUALS_MINUS_INFINITY);
 		if (containsInfinity) {
 			if (containsMinusInfinity) {
-				result = fallback.apply(expression, process);
+				result = fallback.apply(expression, context);
 			}
 			else {
 				result = INFINITY;
@@ -86,7 +86,7 @@ public class CommutativeAssociativeOnNumbers {
 				result = MINUS_INFINITY;
 			}
 			else {
-				result = fallback.apply(expression, process);
+				result = fallback.apply(expression, context);
 			}
 		}
 		return result;

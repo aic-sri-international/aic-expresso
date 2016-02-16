@@ -61,10 +61,10 @@ public class Pipeline implements Simplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
+	public Expression apply(Expression expression, Context context) {
 		Expression current = expression;
 		for (Simplifier simplifier : simplifiers) {
-			current = simplifier.apply(current, process);
+			current = simplifier.apply(current, context);
 		}
 		return current;
 	}

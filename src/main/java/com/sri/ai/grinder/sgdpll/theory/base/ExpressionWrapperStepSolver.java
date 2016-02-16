@@ -79,10 +79,10 @@ public class ExpressionWrapperStepSolver<T> implements ContextDependentExpressio
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context process) {
+	public SolutionStep step(Constraint contextualConstraint, Context context) {
 		
 		ContextDependentProblemStepSolver.SolutionStep<T> step =
-				base.step(contextualConstraint, process);
+				base.step(contextualConstraint, context);
 
 		SolutionStep result;
 		

@@ -97,7 +97,7 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	}
 	
 	@Override
-	public Expression apply(Expression expression, Context process) {
+	public Expression apply(Expression expression, Context context) {
 		DAParts parts = makeDifferenceArithmeticTriple(expression);
 		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
 		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives

@@ -78,8 +78,8 @@ public class EvaluatorStepSolverTest {
 		variablesAndTypes.put("U", booleanType);
 		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context process = new DefaultRewritingProcess();
-		process = constraintTheory.extendWithTestingInformation(process);
+		Context context = new DefaultRewritingProcess();
+		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
 		
@@ -88,46 +88,46 @@ public class EvaluatorStepSolverTest {
 		
 		expressionString = "0";
 		expected = parse("0");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "I > J";
 		expected = parse("I > J");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "I > J and I < J";
 		expected = parse("false");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "(if I > J then 1 else 2) + (if I <= J then 30 else 40)";
 		expected = parse("if I > J then 41 else 32");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "(if I > J then 1 else 2) + (if I <= J then 3 else 4)";
 		expected = parse("5");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "(if I > J then if P or Q then 1 else 2 else 5) + (if I <= J then 3 else if not Q then 4 else -3)";
 		expected = parse("if I > J then if P then if not Q then 5 else -2 else if Q then -2 else 6 else 8");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "(if I > J then if P or X = a or Y != b then 1 else 2 else 5) + (if I <= J then 3 else if not (X != a or Y = c and Q) then 4 else -3)";
 		expected = parse("if I > J then if P then if X != a then -2 else if Y = c then if Q then -2 else 5 else 5 else if X = a then if Y = c then if Q then -2 else 5 else 5 else if Y != b then -2 else -1 else 8");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "if P and Q and R then 1 else 0";
 		expected = parse("if P then if Q then if R then 1 else 0 else 0 else 0");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 		
 		expressionString = "if P and Q and R and S and T and U then 1 else 0";
 		expected = parse("if P then if Q then if R then if S then if T then if U then 1 else 0 else 0 else 0 else 0 else 0 else 0");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, context);	
 	}
 
-	private void runTest(String expressionString, Expression expected, Constraint contextualConstraint, TopSimplifier topSimplifier, Context process) {
+	private void runTest(String expressionString, Expression expected, Constraint contextualConstraint, TopSimplifier topSimplifier, Context context) {
 		Expression expression = parse(expressionString);
 		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression, topSimplifier);
 		System.out.println("Evaluating " + expression);
-		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, process);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, context);
 		System.out.println(expression + " -----> " + solution + "\n");
 		assertEquals(expected, solution);
 	}

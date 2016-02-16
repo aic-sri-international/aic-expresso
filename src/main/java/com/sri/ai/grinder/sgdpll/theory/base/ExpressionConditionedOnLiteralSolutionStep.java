@@ -64,16 +64,16 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 	 * @param solutionIfTrue
 	 * @param solutionIfFalse
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	public static SolutionStep
-	stepDependingOnLiteral(Expression literal, Expression solutionIfTrue, Expression solutionIfFalse, Constraint contextualConstraint, Context process) {
+	stepDependingOnLiteral(Expression literal, Expression solutionIfTrue, Expression solutionIfFalse, Constraint contextualConstraint, Context context) {
 		
 		SolutionStep result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
 		ContextDependentProblemStepSolver.SolutionStep<Boolean> step =
-				literalStepSolver.step(contextualConstraint, process);
+				literalStepSolver.step(contextualConstraint, context);
 		if (step.itDepends()) {
 			result =
 					new ItDependsOn(

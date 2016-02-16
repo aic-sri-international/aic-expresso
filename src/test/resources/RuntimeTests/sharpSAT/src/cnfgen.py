@@ -268,4 +268,4 @@ if __name__ == "__main__":
 
     ending = time.time()
     difference = int(1000000*(ending - starting))
-    print "The entire process took %s seconds."%(difference)    
+    print "The entire context took %s seconds."%(difference)    

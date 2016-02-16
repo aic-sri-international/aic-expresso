@@ -48,6 +48,6 @@ public interface ReplacementFunctionMaker {
 
 	public Function<Expression, Expression>
 	apply(
-			Expression expression, Function<Expression, Expression> replacementFunction, ExpressionAndSyntacticContext subExpressionAndSyntacticContext, Context process);
+			Expression expression, Function<Expression, Expression> replacementFunction, ExpressionAndSyntacticContext subExpressionAndSyntacticContext, Context context);
 
 }

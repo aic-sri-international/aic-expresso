@@ -82,13 +82,13 @@ abstract public class AbstractGroupProblemType implements GroupProblemType {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context process) {
-		return getGroup().add(value1, value2, process);
+	public Expression add(Expression value1, Expression value2, Context context) {
+		return getGroup().add(value1, value2, context);
 	}
 
 	@Override
-	public Expression addNTimes(Expression value, Expression n, Context process) {
-		return getGroup().addNTimes(value, n, process);
+	public Expression addNTimes(Expression value, Expression n, Context context) {
+		return getGroup().addNTimes(value, n, context);
 	}
 
 	@Override

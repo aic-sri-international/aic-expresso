@@ -61,7 +61,7 @@ abstract public class AbstractGroupProblemTypeWithQuantifiedFormula extends Abst
 	
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(
-			Expression expression, Context process) {
+			Expression expression, Context context) {
 		
 		QuantifiedExpressionWithABody quantifiedFormula = (QuantifiedExpressionWithABody) expression;
 		Pair<Expression, IndexExpressionsSet> formulaAndIndices = 

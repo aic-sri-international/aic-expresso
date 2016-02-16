@@ -80,14 +80,14 @@ public interface MapBasedSimplifier extends Simplifier {
 	 * @param expression
 	 * @param functionApplicationSimplifiers
 	 * @param syntacticFormTypeSimplifiers
-	 * @param process
+	 * @param context
 	 * @param additionalSyntacticFormTypesAndSimplifiers additional syntactic form types and corresponding simplifiers
 	 * @return
 	 */
 	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
 			Expression expression,
 			Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers,
-			Context process,
+			Context context,
 			Object... additionalSyntacticFormTypesAndSimplifiers) {
 		
 		Map<String, Simplifier>
@@ -95,7 +95,7 @@ public interface MapBasedSimplifier extends Simplifier {
 		
 		putAll(mySyntacticFormTypeSimplifiers, additionalSyntacticFormTypesAndSimplifiers);
 		
-		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
+		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, context);
 		return result;
 	}
 
@@ -105,12 +105,12 @@ public interface MapBasedSimplifier extends Simplifier {
 	 * @param expression
 	 * @param functionApplicationSimplifiers
 	 * @param syntacticFormSimplifiers
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers, Context process) {
+	public static Expression simplify(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers, Context context) {
 		RecursiveExhaustiveMapBasedSimplifier simplifier = new RecursiveExhaustiveMapBasedSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
-		Expression result = simplifier.apply(expression, process);
+		Expression result = simplifier.apply(expression, context);
 		return result;
 	}
 }

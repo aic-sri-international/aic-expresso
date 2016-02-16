@@ -150,11 +150,11 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process) {
+	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context) {
 		SingleVariableEqualityConstraint result = this;
-		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
+		if (!sign && context.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable++;
-			long variableDomainSize = getVariableTypeSize(process);
+			long variableDomainSize = getVariableTypeSize(context);
 			if (variableDomainSize >= 0 && numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable == variableDomainSize) {
 				result = null;
 			}
@@ -171,11 +171,11 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 * into binary literals, then taken by the super class implementation.
 	 */
 	@Override
-	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, Context process) {
-		Collection<Expression> binaryLiterals = breakMultiTermEquality(literal, process);
+	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, Context context) {
+		Collection<Expression> binaryLiterals = breakMultiTermEquality(literal, context);
 		SingleVariableEqualityConstraint result = null; // initial value never used, but compiler does not realize it
 		for (Expression binaryEquality : binaryLiterals) {
-			result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(binaryEquality, process);
+			result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(binaryEquality, context);
 			if (result == null) {
 				break;
 			}
@@ -183,7 +183,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return result;
 	}
 
-	private Collection<Expression> breakMultiTermEquality(Expression literal, Context process) {
+	private Collection<Expression> breakMultiTermEquality(Expression literal, Context context) {
 		if (literal.hasFunctor(EQUALITY) && literal.numberOfArguments() > 2) {
 			Collection<Expression> result = list();
 			for (int i = 0; i != literal.numberOfArguments() - 2; i++) {
@@ -229,22 +229,22 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	protected Expression isolateVariable(Expression atom, Context process) {
+	protected Expression isolateVariable(Expression atom, Context context) {
 		// do not need to do anything, as variable is supposed to be isolated already for this theory
 		return atom;
 	}
 
 	@Override
-	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process) {
+	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context context) {
 		Expression result;
 		if (sign1) {
 			if (sign2) {
 				// X = Y => X = Z iff Y = Z
-				result = Equality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
+				result = Equality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), context);
 			}
 			else {
 				// X = Y => X != Z iff Y != Z
-				result = Disequality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
+				result = Disequality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), context);
 			}
 		}
 		else {
@@ -297,17 +297,17 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint conjoin(Expression formula, Context process) {
-		return (SingleVariableEqualityConstraint) super.conjoin(formula, process);
+	public SingleVariableEqualityConstraint conjoin(Expression formula, Context context) {
+		return (SingleVariableEqualityConstraint) super.conjoin(formula, context);
 	}
 
 	@Override
-	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context process) {
+	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context context) {
 		return iterator();
 	}
 
 	@Override
-	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context process) {
+	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context context) {
 		return iterator();
 	}
 }

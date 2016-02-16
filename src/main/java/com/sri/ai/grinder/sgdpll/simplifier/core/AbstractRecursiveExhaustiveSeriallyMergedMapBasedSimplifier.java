@@ -93,8 +93,8 @@ public abstract class AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifie
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		Expression result = simplifier.apply(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		Expression result = simplifier.apply(expression, context);
 		return result;
 	}
 

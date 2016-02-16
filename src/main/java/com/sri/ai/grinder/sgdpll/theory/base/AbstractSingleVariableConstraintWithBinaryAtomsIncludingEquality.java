@@ -121,7 +121,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 	 */
 	@Override
 	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms
-	conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process) {
+	conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context context) {
 
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms result;
 		
@@ -130,24 +130,24 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 //		}
 		
 		if ( ! propagateAllLiteralsWhenVariableIsBound) { // disabled; just do the default
-			result = super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
+			result = super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 		}
 		else if (onlyConstraintOnVariableIsBinding()) {
-			result = conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(sign, normalizedAtom, process);
+			result = conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(sign, normalizedAtom, context);
 //			System.out.println("Propagated:");	
 //			System.out.println("Original: " + this);	
-//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, process)));	
+//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, context)));	
 //			System.out.println("After   : " + result);	
 		}
 		else if (sign && normalizedAtom.hasFunctor(EQUALITY)) {
-			result = conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(sign, normalizedAtom, process);
+			result = conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(sign, normalizedAtom, context);
 //			System.out.println("Propagated:");	
 //			System.out.println("Original: " + this);	
-//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, process)));	
+//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, context)));	
 //			System.out.println("After   : " + result);	
 		}
 		else {
-			result = super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
+			result = super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 		}
 		
 		return result;
@@ -165,14 +165,14 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 	}
 
 	private AbstractSingleVariableConstraintWithDependentNormalizedAtoms
-	conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(boolean sign, Expression normalizedAtom, Context process) {
+	conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(boolean sign, Expression normalizedAtom, Context context) {
 	
 		Constraint result;
 	
 		// first, use super's implementation to detect inconsistencies
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms
 		conjunctionWithSignAndNormalizedAtom
-		= super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
+		= super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 	
 		if (conjunctionWithSignAndNormalizedAtom == null) {
 			result = null;
@@ -182,8 +182,8 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 			// create a fresh constraint with the binding and external literals only
 			result = makeSimplification(arrayList(binding), arrayList(), getExternalLiterals());
 			// apply new normalized atom after replacing constraint's variable by its value (making it an external literal)
-			Expression newExternalLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, binding.get(1), process);
-			result = result.conjoinWithLiteral(newExternalLiteral, process);
+			Expression newExternalLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, binding.get(1), context);
+			result = result.conjoinWithLiteral(newExternalLiteral, context);
 		}
 	
 		return (AbstractSingleVariableConstraintWithDependentNormalizedAtoms) result;
@@ -194,14 +194,14 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		// That solution would require the application of external literals one by one, however, whereas the above just copies them all at once.
 	}
 
-	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(boolean sign, Expression normalizedAtom, Context process) {
+	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(boolean sign, Expression normalizedAtom, Context context) {
 	
 		Constraint result;
 	
 		// first, use super's implementation to detect inconsistencies
 		AbstractSingleVariableConstraintWithDependentNormalizedAtoms
 		conjunctionWithSignAndNormalizedAtom
-		= super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
+		= super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 	
 		if (conjunctionWithSignAndNormalizedAtom == null) {
 			result = null;
@@ -212,20 +212,20 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 			// create a fresh constraint with the binding only and external literals
 			result = makeSimplification(arrayList(binding), arrayList(), getExternalLiterals());
 			// convert all other normalized atoms to external literals with valueVariableIsBoundTo standing for constraint's variable
-			result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result,  true, in(getPositiveNormalizedAtomsIncludingImplicitOnes(process)), valueVariableIsBoundTo, process);
+			result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result,  true, in(getPositiveNormalizedAtomsIncludingImplicitOnes(context)), valueVariableIsBoundTo, context);
 			if (result != null) {
-				result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result, false, in(getNegativeNormalizedAtomsIncludingImplicitOnes(process)), valueVariableIsBoundTo, process);
+				result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result, false, in(getNegativeNormalizedAtomsIncludingImplicitOnes(context)), valueVariableIsBoundTo, context);
 			}
 		}
 	
 		return (AbstractSingleVariableConstraintWithDependentNormalizedAtoms) result;
 	}
 
-	private Constraint conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(Constraint result, boolean sign, Iterable<Expression> normalizedAtoms, Expression valueVariableIsBoundTo, Context process) {
+	private Constraint conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(Constraint result, boolean sign, Iterable<Expression> normalizedAtoms, Expression valueVariableIsBoundTo, Context context) {
 		for (Expression normalizedAtom : normalizedAtoms) {
 			if ( ! isEqualityBindingVariableToItsValue(sign, normalizedAtom, valueVariableIsBoundTo)) {
-				Expression newLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, valueVariableIsBoundTo, process);
-				result = result.conjoinWithLiteral(newLiteral, process);
+				Expression newLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, valueVariableIsBoundTo, context);
+				result = result.conjoinWithLiteral(newLiteral, context);
 				if (result == null) {
 					return null;
 				}
@@ -242,10 +242,10 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		return result;
 	}
 
-	private Expression rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(boolean sign, Expression normalizedAtom, Expression valueVariableIsBoundTo, Context process) {
+	private Expression rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(boolean sign, Expression normalizedAtom, Expression valueVariableIsBoundTo, Context context) {
 		Expression normalizedAtomInTermsOfValueVariableIsBoundTo = apply(normalizedAtom.getFunctor(), valueVariableIsBoundTo, normalizedAtom.get(1));
 		Expression literal = sign? normalizedAtomInTermsOfValueVariableIsBoundTo : not(normalizedAtomInTermsOfValueVariableIsBoundTo);
-		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, process);
+		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, context);
 		return simplifiedLiteral;
 	}
 

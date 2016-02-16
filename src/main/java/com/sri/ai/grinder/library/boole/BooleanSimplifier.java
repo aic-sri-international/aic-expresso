@@ -67,22 +67,22 @@ public class BooleanSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.AND,             (Simplifier) (f, process) ->
+				FunctorConstants.AND,             (Simplifier) (f, context) ->
 				And.simplify(f),
 
-				FunctorConstants.OR,              (Simplifier) (f, process) ->
+				FunctorConstants.OR,              (Simplifier) (f, context) ->
 				Or.simplify(f),
 
-				FunctorConstants.NOT,             (Simplifier) (f, process) ->
+				FunctorConstants.NOT,             (Simplifier) (f, context) ->
 				Not.simplify(f),
 
-				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, process) ->
+				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, context) ->
 				IfThenElse.simplify(f),
 
-				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, process) ->
+				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, context) ->
 				Equivalence.simplify(f),
 
-				FunctorConstants.IMPLICATION,     (Simplifier) (f, process) ->
+				FunctorConstants.IMPLICATION,     (Simplifier) (f, context) ->
 				Implication.simplify(f)
 				);
 	}

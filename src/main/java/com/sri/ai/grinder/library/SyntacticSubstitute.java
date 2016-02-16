@@ -94,22 +94,22 @@ import com.sri.ai.util.base.ReplaceByIfEqualTo;
 @Beta
 public class SyntacticSubstitute {
 
-	public static Expression replace(Expression expression, Expression replaced, Expression replacement, Context process) {
+	public static Expression replace(Expression expression, Expression replaced, Expression replacement, Context context) {
 		Expression result =
 				expression.replaceAllOccurrences(
 						new ReplaceByIfEqualTo<Expression>(replacement, replaced), null,
-						new SubstitutePruningPredicate(replaced, replacement, process), null,
-						process);
+						new SubstitutePruningPredicate(replaced, replacement, context), null,
+						context);
 		return result;
 	}
 
-	public static Expression replaceAll(Expression expression, Map<Expression, Expression> fromReplacedToReplacements, Context process) {
-		Expression result = expression.replaceAllOccurrences(new MapReplacementFunction(fromReplacedToReplacements), process);
+	public static Expression replaceAll(Expression expression, Map<Expression, Expression> fromReplacedToReplacements, Context context) {
+		Expression result = expression.replaceAllOccurrences(new MapReplacementFunction(fromReplacedToReplacements), context);
 		return result;
 
 //		// Used to be as below but that is incorrect as one of the new variables may be replaced by another new variable coming later.
 //		for (Map.Entry<Expression, Expression> entry : fromReplacedToReplacements.entrySet()) {
-//			expression = replace(expression, entry.getKey(), entry.getValue(), process);
+//			expression = replace(expression, entry.getKey(), entry.getValue(), context);
 //		}
 //		return expression;
 	}
@@ -117,17 +117,17 @@ public class SyntacticSubstitute {
 	private static class SubstitutePruningPredicate implements PruningPredicate {
 		List<Expression> allSymbolsInReplacedAndReplacement;
 		
-		public SubstitutePruningPredicate(Expression replaced, Expression replacement, Context process) {
-			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, process);
-			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, process);
+		public SubstitutePruningPredicate(Expression replaced, Expression replacement, Context context) {
+			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, context);
+			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, context);
 			this.allSymbolsInReplacedAndReplacement =
 					Util.union(
 							freeSymbolsInReplacement,
 							freeSymbolsInReplaced);
 		}
 		@Override
-		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, Context process) {
-			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(process), new GetFunctorOrSymbol());
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, Context context) {
+			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(context), new GetFunctorOrSymbol());
 			boolean result = Util.intersect(allSymbolsInReplacedAndReplacement, locallyScopedSymbols);
 			return result;
 		}

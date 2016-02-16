@@ -221,7 +221,7 @@ public class DefaultRewritingProcess implements Context {
 	
 	@Override
 	public String toString() {
-		return "Rewriting process with symbols: " + getSymbolsAndTypes();
+		return "Context with symbols: " + getSymbolsAndTypes();
 	}
 
 	@Override

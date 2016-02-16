@@ -43,12 +43,12 @@ import com.sri.ai.grinder.api.Context;
 
 /**
  * A type of replacement function to be used by Expression's replace function.
- * that receives the current rewriting process as well as the expression.
+ * that receives the current context as well as the expression.
  * 
  * @author braz
  * 
  */
 @Beta
 public interface ReplacementFunctionWithContextuallyUpdatedProcess extends Function<Expression, Expression> {
-	public Expression apply(Expression expression, Context process);
+	public Expression apply(Expression expression, Context context);
 }

@@ -133,9 +133,9 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * If the extension's {@link #usingDefaultImplementationOfMakePropagatedCNF()} returns true,
 	 * this method must be overridden and a suitable definition provided, or an error asking for that will be thrown.
 	 * Otherwise, it should not be invoked, and if it is an error complaining about that will be thrown.
-	 * @param process
+	 * @param context
 	 */
-	protected Iterable<Expression> getPropagatedLiterals(Context process) {
+	protected Iterable<Expression> getPropagatedLiterals(Context context) {
 		if (usingDefaultImplementationOfMakePropagatedCNF()) {
 			throw new Error("This method should have been defined in " + getClass().getSimpleName() + " but was not.");
 		}
@@ -151,11 +151,11 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * when an extension only needs to define propagated literals,
 	 * {@link #getPropagatedLiterals(Context)}can be used to spare a programmer the chore of defining a CNF iterable.
 	 */
-	abstract protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process);
+	abstract protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context context);
 
 	/**
 	 * An abstract method forcing extensions to explicitly indicate whether they intend to
-	 * use the default implementation of {@link #makePropagatedCNF(Context process)}
+	 * use the default implementation of {@link #makePropagatedCNF(Context context)}
 	 * (either by not overriding it, or by overriding, but invoking the super class implementation).
 	 * This serves as a reminder to extending classes that they must
 	 * override (define, really, as the default implementation doesn't do anything other than error checking)
@@ -170,13 +170,13 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	/**
 	 * Checks if there is a cached propagated CNF stored and, if not,
 	 * computes it with {@link #makePropagatedCNF(Context)}.
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context process) {
+	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context context) {
 		
 		if (cachedPropagatedCNF == null) {
-			cachedPropagatedCNF = makePropagatedCNF(process);
+			cachedPropagatedCNF = makePropagatedCNF(context);
 		}
 		
 //		System.out.println("\nconstraint: " + constraint);	
@@ -201,17 +201,17 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * for example, if this information comes from another
 	 * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}'s own
 	 * {@link #makePropagatedCNF(Context)}.
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	protected ArrayList<ArrayList<Expression>> makePropagatedCNF(Context process) {
+	protected ArrayList<ArrayList<Expression>> makePropagatedCNF(Context context) {
 		ArrayList<ArrayList<Expression>> result;
 		
 		Iterable<Iterable<Expression>> propagatedCNFIterable =
 				in(
 						NestedIterator.make(
-								fromLiteralsToCNF(getPropagatedLiterals(process)),
-								getPropagatedCNFBesidesPropagatedLiterals(process)));
+								fromLiteralsToCNF(getPropagatedLiterals(context)),
+								getPropagatedCNFBesidesPropagatedLiterals(context)));
 		
 		result = storeIterableOfIterablesInArrayListOfArrayLists(propagatedCNFIterable);
 		
@@ -224,16 +224,16 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context context);
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context process) {
+	public SolutionStep step(Constraint contextualConstraint, Context context) {
 
 		if (getConstraint() == null) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		
-		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(process), contextualConstraint, process);
+		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), contextualConstraint, context);
 		
 		SolutionStep result;
 		if (propagatedCNFIsSatisfiedStep == null) {
@@ -246,7 +246,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		else if (propagatedCNFIsSatisfiedStep.getValue().equals(TRUE)) {
-			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint, process);
+			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint, context);
 		}
 		else {
 			throw new Error("Illegal value returned");
@@ -260,13 +260,13 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * is satisfied by a contextual constraint.
 	 * @param cnf
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return <code>null</code> if the contextual constraint is found to be self-contradictory,
 	 * an instance of {@link ItDependsOn} with a literal, if whether the CNF is satisfied or not depends on that literal,
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Constraint contextualConstraint, Context process) {
+	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Constraint contextualConstraint, Context context) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -281,7 +281,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			boolean clauseIsSatisfied = false;
 			for ( /* literalIndex already initialized at this point */ ; literalIndex != clause.size(); literalIndex++) {
 				Expression literal = clause.get(literalIndex);
-				ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, process);
+				ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, context);
 				
 				switch (contextualConstraintSplitting.getResult()) {
 				case LITERAL_IS_UNDEFINED:
@@ -319,15 +319,15 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * is defined by a contextual constraint (that is, all of its literals or their negations are implied by the contextual constraint).
 	 * @param conjunctiveClause
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return <code>null</code> if the contextual constraint is found to be self-contradictory,
 	 * an instance of {@link ItDependsOn} with a literal, if whether the conjunctive clause is satisfied or not depends on that literal,
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint contextualConstraint, Context process) {
+	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint contextualConstraint, Context context) {
 		for (Expression literal : conjunctiveClause) {
-			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, process);
+			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, context);
 
 			switch (contextualConstraintSplitting.getResult()) {
 			case LITERAL_IS_UNDEFINED:

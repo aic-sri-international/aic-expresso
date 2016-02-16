@@ -87,10 +87,10 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	/**
 	 * Creates a new interpreter with current assignment extended by new ones.
 	 * @param extendingAssignment new value of assignments
-	 * @param process the rewriting process
+	 * @param context the context
 	 * @return
 	 */
-	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment, Context process) {
+	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment, Context context) {
 		return new BruteForceCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment));
 	}
 
@@ -110,28 +110,28 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 
 	@Override
 	protected Expression evaluateAggregateOperation(
-			AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context process) throws Error {
+			AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
 		
-		process = extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		context = extendContextualSymbolsWithIndexExpressions(indexExpressions, context);
 		Expression value = group.additiveIdentityElement();
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, process);
+		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, context);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
 			Expression indicesConditionEvaluation = 
-					evaluateGivenValuesAndCheckForBeingAConstant(indicesCondition, values, process);
+					evaluateGivenValuesAndCheckForBeingAConstant(indicesCondition, values, context);
 			if (indicesConditionEvaluation.equals(FALSE)) {
 				continue;
 			}
-			Expression bodyEvaluation = evaluateGivenValuesAndCheckForBeingAConstant(body, values, process);
+			Expression bodyEvaluation = evaluateGivenValuesAndCheckForBeingAConstant(body, values, context);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;
 			}
-			value = group.add(value, bodyEvaluation, process);
+			value = group.add(value, bodyEvaluation, context);
 		}
 		return value;
 	}
 
-	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, Context process) throws Error {
-		Expression expressionEvaluation = extendWith(values, process).apply(expression, process);
+	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, Context context) throws Error {
+		Expression expressionEvaluation = extendWith(values, context).apply(expression, context);
 		return expressionEvaluation;
 	}
 }

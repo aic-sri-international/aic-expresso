@@ -76,8 +76,8 @@ public class Recursive implements Simplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		Expression result = apply(base, expression, process);
+	public Expression apply(Expression expression, Context context) {
+		Expression result = apply(base, expression, context);
 		return result;
 		// The reason we use static apply here is to enforce that the 'apply' using recursively is the static one that
 		// only uses the base simplifier, as opposed to Recursive.apply, which could be overloaded and doing something else.
@@ -90,20 +90,20 @@ public class Recursive implements Simplifier {
 	 * 
 	 * @param base
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	private static Expression apply(Simplifier base, Expression expression, Context process) {
+	private static Expression apply(Simplifier base, Expression expression, Context context) {
 		Expression result = expression;
-		result = base.apply(result, process);
+		result = base.apply(result, context);
 		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			List<Expression> originalArguments = result.getArguments();
 			ArrayList<Expression> simplifiedArguments =
-					mapIntoArrayList(originalArguments, e -> apply(base, e, process));
+					mapIntoArrayList(originalArguments, e -> apply(base, e, context));
 			if ( ! sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds up cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
 				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
 			}
-			result = base.apply(result, process);
+			result = base.apply(result, context);
 		}
 	
 		return result;

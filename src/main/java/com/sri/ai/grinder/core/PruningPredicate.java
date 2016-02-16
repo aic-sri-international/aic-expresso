@@ -44,5 +44,5 @@ import com.sri.ai.grinder.api.Context;
 
 @Beta
 public interface PruningPredicate {
-	public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, Context process);
+	public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, Context context);
 }

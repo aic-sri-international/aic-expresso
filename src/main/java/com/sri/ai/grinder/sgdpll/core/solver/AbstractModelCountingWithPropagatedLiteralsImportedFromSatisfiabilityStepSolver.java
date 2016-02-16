@@ -98,10 +98,10 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	 * It overrides caching done by overridden method, but that's fine since satisfiability should be doing that already.
 	 */
 	@Override
-	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context process) {
+	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context context) {
 		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
 		ContextDependentExpressionProblemStepSolver satisfiability =
-				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), process);
+				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), context);
 		AbstractContextDependentProblemWithPropagatedLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {
 			satisfiabilityWithPropagatedLiterals =
@@ -113,7 +113,7 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 					+ ", but theory " + constraintTheory.getClass() + " provided instead an instance of"
 					+ satisfiability.getClass());
 		}
-		return satisfiabilityWithPropagatedLiterals.getPropagatedCNF(process);
+		return satisfiabilityWithPropagatedLiterals.getPropagatedCNF(context);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	 * delegates to satisfiability step solver.
 	 */
 	@Override
-	final protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
+	final protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context context) {
 		throw new Error("Should not be invoked because this class redirects computation to propagated CNF to an internal satisfiability problem");
 	}
 }

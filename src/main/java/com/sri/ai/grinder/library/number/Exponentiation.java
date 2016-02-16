@@ -94,16 +94,16 @@ public class Exponentiation implements TopSimplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		return simplify(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		return simplify(expression, context);
 	}
 	
 	/**
 	 * @param expression
-	 * @param process TODO
+	 * @param context TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, Context process) {
+	public static Expression simplify(Expression expression, Context context) {
 		Expression base = expression.get(0);
 		Expression exponent = expression.get(1);
 

@@ -67,11 +67,11 @@ public class ContextDependentExpressionProblemSolver {
 	 * Returns the solution for a problem using a step solver, or null if the contextual constraint is found to be inconsistent.
 	 * @param stepSolver
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint contextualConstraint, Context process) {
-		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, process);
+	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint contextualConstraint, Context context) {
+		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, context);
 //		System.out.println("Step: " + step);
 //		System.out.println("Contextual constraint: " + contextualConstraint);	
 		if (step == null) {
@@ -85,7 +85,7 @@ public class ContextDependentExpressionProblemSolver {
 				split = step.getConstraintSplitting();
 			}
 			else {
-				split = new ConstraintSplitting(contextualConstraint, splitter, process);
+				split = new ConstraintSplitting(contextualConstraint, splitter, context);
 			}
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
@@ -96,8 +96,8 @@ public class ContextDependentExpressionProblemSolver {
 //				System.out.println("Contextual constraint: " + contextualConstraint);	
 //				System.out.println("Constraint and literal: " + split.getConstraintAndLiteral());	
 //				System.out.println("Constraint and literal negation: " + split.getConstraintAndLiteralNegation());	
-				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral(), process);
-				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation(), process);
+				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral(), context);
+				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation(), context);
 				if (subSolution1 == null || subSolution2 == null) {
 					return null;
 				}
@@ -106,7 +106,7 @@ public class ContextDependentExpressionProblemSolver {
 				}
 			case LITERAL_IS_TRUE:
 			case LITERAL_IS_FALSE:
-				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral(), process);
+				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral(), context);
 			default:
 				throw new Error("Undefined value");
 			}
@@ -118,19 +118,19 @@ public class ContextDependentExpressionProblemSolver {
 	
 	public static void main(String[] args) {
 		
-		DefaultRewritingProcess process = new DefaultRewritingProcess();
+		DefaultRewritingProcess context = new DefaultRewritingProcess();
 
 		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, new EqualityConstraintTheory(true, true));
-		constraint = constraint.conjoin(parse("X = Y"), process);
-		constraint = constraint.conjoin(parse("X = Z"), process);
-		constraint = constraint.conjoin(parse("X != W"), process);
-		constraint = constraint.conjoin(parse("X != U"), process);
+		constraint = constraint.conjoin(parse("X = Y"), context);
+		constraint = constraint.conjoin(parse("X = Z"), context);
+		constraint = constraint.conjoin(parse("X != W"), context);
+		constraint = constraint.conjoin(parse("X != U"), context);
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
 		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true));
 		
-		Expression result = solve(problem, contextualConstraint, process);
+		Expression result = solve(problem, contextualConstraint, context);
 		
 		System.out.println("result: " + result);	
 	}

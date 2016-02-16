@@ -169,7 +169,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 	
 	@Override
-	protected Expression isolateVariable(Expression atom, Context process) {
+	protected Expression isolateVariable(Expression atom, Context context) {
 		Expression result = DifferenceArithmeticSimplifier.isolateVariable(getVariable(), atom);
 //		System.out.println("\nAtom: " + atom);	
 //		System.out.println("Result: " + result);
@@ -177,20 +177,20 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context process) {
+	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context context) {
 		Expression result;
 		
 		if (sign1) {
-			result = getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(atom1, sign2, atom2, process);
+			result = getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(atom1, sign2, atom2, context);
 		}
 		else {
-			result = getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(atom1, sign2, atom2, process);
+			result = getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(atom1, sign2, atom2, context);
 		}
 		
 		return result;
 	}
 
-	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context process) throws Error {
+	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context context) throws Error {
 
 		Expression result;
 		
@@ -281,7 +281,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		return result;
 	}
 
-	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context process) {
+	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context context) {
 
 		Expression result;
 		
@@ -377,20 +377,20 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context) {
 		return this;
 	}
 
 	@Override
-	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context process) {
+	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context context) {
 		return iterator();
 	}
 
 	List<Expression> cachedImplicitNegativeNormalizedAtoms;
 	@Override
-	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context process) {
+	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context context) {
 		if (cachedImplicitNegativeNormalizedAtoms == null) {
-			IntegerInterval interval = getType(process);
+			IntegerInterval interval = getType(context);
 			Expression nonStrictLowerBound = interval.getNonStrictLowerBound();
 			Expression nonStrictUpperBound = interval.getNonStrictUpperBound();
 			cachedImplicitNegativeNormalizedAtoms = list();
@@ -410,12 +410,12 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	
 	/**
 	 * Returns the {@link IntegerInterval} type of the constraint's variable.
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	public IntegerInterval getType(Context process) {
+	public IntegerInterval getType(Context context) {
 		if (cachedType == null) {
-			Type type = process.getType(getVariableTypeExpression(process));
+			Type type = context.getType(getVariableTypeExpression(context));
 			if (type instanceof IntegerExpressoType) {
 				cachedType = new IntegerInterval("-infinity..infinity");
 			}

@@ -81,23 +81,23 @@ public class SymbolicShell {
 								new InequalityConstraintTheory(false, false),
 								new PropositionalConstraintTheory()));
 		
-		Context process = new DefaultRewritingProcess();
-		process = process.add(BOOLEAN_TYPE);
-		process = process.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
-		process = process.add(new IntegerInterval("Integer"));
+		Context context = new DefaultRewritingProcess();
+		context = context.add(BOOLEAN_TYPE);
+		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
+		context = context.add(new IntegerInterval("Integer"));
 		
-		process = process.registerIndicesAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
 
-		process = process.registerIndicesAndTypes(map(makeSymbol("X"), makeSymbol("People")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("Y"), makeSymbol("People")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("Z"), makeSymbol("People")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("X"), makeSymbol("People")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("Y"), makeSymbol("People")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("Z"), makeSymbol("People")));
 
-		process = process.registerIndicesAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
-		process = process.registerIndicesAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
 		
 		help();
 
@@ -114,7 +114,7 @@ public class SymbolicShell {
 				);
 		for (String example : examples) {
 			System.out.println(consoleIterator.getPrompt() + example);
-			evaluate(evaluator, example, process);
+			evaluate(evaluator, example, context);
 		}
 
 		while (consoleIterator.hasNext()) {
@@ -124,7 +124,7 @@ public class SymbolicShell {
 			}
 			else if (input.startsWith("show")) {
 				System.out.println("\n" +
-						join(mapIntoList(process.getSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
+						join(mapIntoList(context.getSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
 			}
 			else if (input.equals("debug")) {
 				debug = !debug;
@@ -134,7 +134,7 @@ public class SymbolicShell {
 				help();
 			}
 			else {
-				process = evaluate(evaluator, input, process);
+				context = evaluate(evaluator, input, context);
 			}
 		}
 		
@@ -144,27 +144,27 @@ public class SymbolicShell {
 	/**
 	 * @param evaluator
 	 * @param inputString
-	 * @param process
+	 * @param context
 	 * @return 
 	 */
-	private static Context evaluate(SymbolicCommonInterpreter evaluator, String inputString, Context process) {
+	private static Context evaluate(SymbolicCommonInterpreter evaluator, String inputString, Context context) {
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});
 			if (input.hasFunctor("var")) {
 				Expression variable = input.get(0);
 				Expression type = input.get(1);
-				process = process.registerIndicesAndTypes(map(variable, type));
+				context = context.registerIndicesAndTypes(map(variable, type));
 				System.out.println();	
-				return process;
+				return context;
 			}
-			Expression result = evaluator.apply(input, process);
+			Expression result = evaluator.apply(input, context);
 			System.out.println("\n" + result + "\n");
 		} catch (Error e) {
 			dealWith(e);
 		} catch (Exception e) {
 			dealWith(e);
 		}
-		return process;
+		return context;
 	}
 
 	private static void dealWith(Throwable e) {

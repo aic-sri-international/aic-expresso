@@ -58,17 +58,17 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 public class GreaterThan  implements TopSimplifier {
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		return simplify(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		return simplify(expression, context);
 	}
 	
 	/**
 	 * Receives an application of {@link FunctorConstants.GREATER_THAN} and evaluates it if possible.
 	 * @param greaterThanApplication
-	 * @param process TODO
+	 * @param context TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression greaterThanApplication, Context process) {
+	public static Expression simplify(Expression greaterThanApplication, Context context) {
 		Expression result;
 		if (greaterThanApplication.get(0).equals(greaterThanApplication.get(1))) {
 			result = FALSE; // not greater than itself

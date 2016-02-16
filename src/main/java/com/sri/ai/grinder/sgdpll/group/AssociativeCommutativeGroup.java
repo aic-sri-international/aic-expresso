@@ -67,12 +67,12 @@ public interface AssociativeCommutativeGroup {
 	/**
 	 * Performs the group's additive operation on two values.
 	 */
-	Expression add(Expression value1, Expression value2, Context process);
+	Expression add(Expression value1, Expression value2, Context context);
 
 	/**
 	 * The result of adding a value to itself n times, where both value and n may be symbolic expressions.
 	 */
-	Expression addNTimes(Expression value, Expression n, Context process);
+	Expression addNTimes(Expression value, Expression n, Context context);
 
 	/** Indicates whether group's operator is idempotent. */
 	boolean isIdempotent();

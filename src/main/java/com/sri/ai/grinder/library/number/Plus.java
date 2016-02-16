@@ -68,7 +68,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly imp
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
+	public Expression apply(Expression expression, Context context) {
 		// takes care of infinity arguments before deferring to super method
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;
@@ -76,7 +76,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly imp
 		Expression result = 
 				CommutativeAssociativeOnNumbers.dealWithInfinity(
 						expression,
-						process,
+						context,
 						(e, p) -> super.apply(e, p));
 		return result;
 	}

@@ -79,7 +79,7 @@ public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedA
 	}
 	
 	@Override
-	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process) {
+	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context context) {
 		AbstractSingleVariableConstraint result;
 		if (sign) {
 			result = addPositiveNormalizedAtom(normalizedAtom);

@@ -76,7 +76,7 @@ public interface AssociativeCommutativeSemiRing extends AssociativeCommutativeGr
 	/**
 	 * Performs the semi-rings's multiplicative operation on a function application of the multiplicative operator.
 	 */
-	Expression multiply(Expression multiplication, Context process);
+	Expression multiply(Expression multiplication, Context context);
 
 	/**
 	 * Returns the n-th root for an expression, if an exact value exists, or null otherwise. 
@@ -89,5 +89,5 @@ public interface AssociativeCommutativeSemiRing extends AssociativeCommutativeGr
 	/**
 	 * The result of multiplying a value to itself n times, where both value and n may be symbolic expressions.
 	 */
-	Expression multiplyNTimes(Expression value, Expression n, Context process);
+	Expression multiplyNTimes(Expression value, Expression n, Context context);
 }

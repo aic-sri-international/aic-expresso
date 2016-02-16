@@ -70,17 +70,17 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	}
 
 	@Override
-	public Iterable<Expression> getPropagatedLiterals(Context process) {
+	public Iterable<Expression> getPropagatedLiterals(Context context) {
 		return getConstraint().getExternalLiterals();
 	}
 
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context context) {
 		return list();
 	}
 
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context context) {
 		return new Solution(TRUE);
 	}
 }

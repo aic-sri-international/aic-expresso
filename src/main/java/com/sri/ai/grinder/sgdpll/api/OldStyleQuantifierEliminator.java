@@ -20,7 +20,7 @@ public interface OldStyleQuantifierEliminator {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context process);
+	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context);
 	
 	/**
 	 * Returns a true constraint for a problem with given indices.
@@ -34,9 +34,9 @@ public interface OldStyleQuantifierEliminator {
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
 	 * assuming a true contextual constraint.
 	 */
-	default Expression solve(Expression input, Collection<Expression> indices, Context process) {
+	default Expression solve(Expression input, Collection<Expression> indices, Context context) {
 		Constraint constraint = makeTrueConstraint(indices);
-		Expression result = solve(indices, constraint, input, process);
+		Expression result = solve(indices, constraint, input, context);
 		return result;
 	}
 
@@ -49,7 +49,7 @@ public interface OldStyleQuantifierEliminator {
 	// Convenience:
 	
 	/**
-	 * Makes an appropriate rewriting process with the given data for SGDPLL2, which does not require a contextual constraint.
+	 * Makes an appropriate context with the given data for SGDPLL2, which does not require a contextual constraint.
 	 * @param mapFromSymbolNameToTypeName
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param additionalTypes
@@ -72,12 +72,12 @@ public interface OldStyleQuantifierEliminator {
 			Collection<Type> additionalTypes, 
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		Context process =
+		Context context =
 				makeProcess(
 						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
 						additionalTypes, isUniquelyNamedConstantPredicate);
 		
-		Expression result = solve(expression, indices, process);
+		Expression result = solve(expression, indices, context);
 		return result;
 	}
 

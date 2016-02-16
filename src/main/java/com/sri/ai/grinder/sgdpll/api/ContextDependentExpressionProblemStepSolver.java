@@ -64,11 +64,11 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Constraint, Context)}
 	 * on this step solver.
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default Expression solve(Constraint contextualConstraint, Context process) {
-		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint, process);
+	default Expression solve(Constraint contextualConstraint, Context context) {
+		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint, context);
 		return result;
 	}
 
@@ -152,9 +152,9 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
 	 * will bring the problem closer to a solution.
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	@Override
-	SolutionStep step(Constraint contextualConstraint, Context process);
+	SolutionStep step(Constraint contextualConstraint, Context context);
 }

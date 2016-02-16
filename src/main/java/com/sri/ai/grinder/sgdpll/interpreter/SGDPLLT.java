@@ -105,12 +105,12 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	}
 
 	@Override
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context process) {
-		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
+		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
 		Constraint trueContextualConstraint = makeTrueConstraint(indices);
-		Expression quantifierFreeConstraint = simplifier.apply(constraint, process);
-		Expression quantifierFreeBody = simplifier.apply(body, process);
-		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
+		Expression quantifierFreeConstraint = simplifier.apply(constraint, context);
+		Expression quantifierFreeBody = simplifier.apply(body, context);
+		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, context);
 		return result;
 	}
 
@@ -124,7 +124,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	 * @param indicesCondition
 	 * @param body
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	public static Expression solve(
@@ -134,7 +134,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
 			Constraint contextualConstraint,
-			Context process) {
+			Context context) {
 		
 		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
@@ -152,7 +152,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			// This would also re-use body if it happens to be a constraint.
 			Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
 					SGDPLLT.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
-							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, constraintTheory, process);
+							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, constraintTheory, context);
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
@@ -166,11 +166,11 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 				SingleVariableConstraint constraintForThisIndex =
 						i == numberOfIndices - 1?
 								lastIndexConstraint
-								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, process);
+								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, context);
 				currentBody =
 						constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-								group, constraintForThisIndex, currentBody, simplifier, process).
-						solve(contextualConstraint, process);
+								group, constraintForThisIndex, currentBody, simplifier, context).
+						solve(contextualConstraint, context);
 			}
 		}
 		else {
@@ -180,7 +180,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 		// Normalize final result.
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(currentBody, topSimplifier);
-		currentBody = evaluator.solve(contextualConstraint, process);
+		currentBody = evaluator.solve(contextualConstraint, context);
 		
 		return currentBody;
 	}
@@ -197,7 +197,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	 * @param indexExpressions
 	 * @param quantifierFreeIndicesCondition
 	 * @param quantifierFreeBody
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	private static Pair<Expression, SingleVariableConstraint>
@@ -207,20 +207,20 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
 			ConstraintTheory constraintTheory,
-			Context process) {
+			Context context) {
 		
 		Expression body;
 		SingleVariableConstraint lastIndexConstraint = null;
 		Expression lastIndex = getIndex(getLast(indexExpressions.getList()));
 		try {
 			body = quantifierFreeBody;
-			lastIndexConstraint = SingleVariableConstraint.make(constraintTheory, lastIndex, quantifierFreeIndicesCondition, process);
+			lastIndexConstraint = SingleVariableConstraint.make(constraintTheory, lastIndex, quantifierFreeIndicesCondition, context);
 			return Pair.make(body, lastIndexConstraint);
 		} catch (Error e) { /* proceed to default case below */ }
 		
 		// did not work out because condition is not SingleVariableConstraint on last index
 		body = IfThenElse.make(quantifierFreeIndicesCondition, quantifierFreeBody, group.additiveIdentityElement());
-		lastIndexConstraint = constraintTheory.makeSingleVariableConstraint(lastIndex, constraintTheory, process);
+		lastIndexConstraint = constraintTheory.makeSingleVariableConstraint(lastIndex, constraintTheory, context);
 		Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint = Pair.make(body, lastIndexConstraint);
 		
 		return bodyAndLastIndexConstraint;

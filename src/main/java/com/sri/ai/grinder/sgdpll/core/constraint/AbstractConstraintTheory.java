@@ -151,14 +151,14 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 	
 	@Override
-	public Context extendWithTestingInformation(Context process) {
+	public Context extendWithTestingInformation(Context context) {
 		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.
 		Map<String, String> mapFromSymbolNamesToTypeNames = new LinkedHashMap<String, String>();
 		for (Map.Entry<String, Type> symbolAndType : getVariableNamesAndTypesForTesting().entrySet()) {
 			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
 		}
 		
-		Context result = GrinderUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), process);
+		Context result = GrinderUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), context);
 		return result;
 	}
 	

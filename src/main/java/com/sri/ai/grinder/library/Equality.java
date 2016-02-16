@@ -68,24 +68,24 @@ public class Equality implements TopSimplifier {
 	public static final Expression FUNCTOR = Expressions.makeSymbol("=");
 	
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		return simplify(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		return simplify(expression, context);
 	}
 
-	public static Expression equalityResultIfItIsKnown(Expression expression, Context process) {
-		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsUniquelyNamedConstantPredicate(), process);
+	public static Expression equalityResultIfItIsKnown(Expression expression, Context context) {
+		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, context.getIsUniquelyNamedConstantPredicate(), context);
 		if (equalityResult != null) {
 			return Expressions.makeSymbol(equalityResult);
 		}
 		return expression;
 	}
 
-	private static Boolean equalityResultIfItIsKnownOrNull(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate, Context process) {
+	private static Boolean equalityResultIfItIsKnownOrNull(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate, Context context) {
 		int maxIndex = expression.numberOfArguments() - 1;
 		for (int i = 0; i != maxIndex; i++) {
 			Boolean equalityOfPair =
 				equalityOfPairIfItIsKnownOrNull(
-						expression.get(i), expression.get(i+1), isUniquelyNamedConstantPredicate, process);
+						expression.get(i), expression.get(i+1), isUniquelyNamedConstantPredicate, context);
 			if (equalityOfPair == null) {
 				return null;
 			}
@@ -97,7 +97,7 @@ public class Equality implements TopSimplifier {
 	}
 
 	private static Boolean equalityOfPairIfItIsKnownOrNull(
-			Expression expression1, Expression expression2, Predicate<Expression> isUniquelyNamedConstantPredicate, Context process) {
+			Expression expression1, Expression expression2, Predicate<Expression> isUniquelyNamedConstantPredicate, Context context) {
 		if (isUniquelyNamedConstantPredicate.apply(expression1)) {
 			if (isUniquelyNamedConstantPredicate.apply(expression2)) {
 				return expression1.equals(expression2); // two constants; true if they are equal, false if they are distinct
@@ -112,8 +112,8 @@ public class Equality implements TopSimplifier {
 		else if (expression1.equals(expression2)) {
 			return true; // both are the same expression
 		}
-		else if ( process.isVariable(expression1) && process.isVariable(expression2) &&
-				Util.notNullAndDistinct(process.getTypeOfRegisteredSymbol(expression1), process.getTypeOfRegisteredSymbol(expression2))){
+		else if ( context.isVariable(expression1) && context.isVariable(expression2) &&
+				Util.notNullAndDistinct(context.getTypeOfRegisteredSymbol(expression1), context.getTypeOfRegisteredSymbol(expression2))){
 			return false; // distinct variables with different types, so not equal under current assumption that types do not overlap (which will probably be removed in the future).
 		}
 		else {
@@ -126,9 +126,9 @@ public class Equality implements TopSimplifier {
 	 * returns an equivalent equality with first argument guaranteed not to be a constant,
 	 * guaranteeing that original instance is returned if both arguments are variables.
 	 */
-	public static Expression makeSureFirstArgumentIsNotAConstant(Expression twoArgumentEquality, Context process) {
+	public static Expression makeSureFirstArgumentIsNotAConstant(Expression twoArgumentEquality, Context context) {
 		Expression result = twoArgumentEquality;
-		if (process.isUniquelyNamedConstant(twoArgumentEquality.get(0))) {
+		if (context.isUniquelyNamedConstant(twoArgumentEquality.get(0))) {
 			result = make(twoArgumentEquality.get(1), twoArgumentEquality.get(0));
 		}
 		return result;
@@ -169,12 +169,12 @@ public class Equality implements TopSimplifier {
 	/**
 	 * Makes an equality application on two terms possibly simplifying it (taking constants into account).
 	 */
-	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, Context process) {
+	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, Context context) {
 		Expression result;
 		if (term1.equals(term2)) {
 			result = Expressions.TRUE;
 		}
-		else if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
+		else if (context.isUniquelyNamedConstant(term1) && context.isUniquelyNamedConstant(term2)) {
 			result = Expressions.FALSE;
 		}
 		else {
@@ -188,7 +188,7 @@ public class Equality implements TopSimplifier {
 	 * returning {@link Expressions.FALSE} if there is more than one uniquely named constant in arguments,
 	 * and returning {@link Expressions.TRUE} if all arguments are identical.
 	 */
-	public static Expression makeWithConstantSimplification(Expression equality, Context process) {
+	public static Expression makeWithConstantSimplification(Expression equality, Context context) {
 		
 		Collection<Expression> arguments = equality.getArguments();
 		
@@ -198,7 +198,7 @@ public class Equality implements TopSimplifier {
 		Expression constant = null;
 		
 		for (Expression argument : arguments) {
-			if (process.isUniquelyNamedConstant(argument)) {
+			if (context.isUniquelyNamedConstant(argument)) {
 				if (constant == null) {
 					constant = argument;
 				}
@@ -247,15 +247,15 @@ public class Equality implements TopSimplifier {
 	 * and the second member of which is the first constant present.
 	 * Returns null if there are no constants in the equality arguments.
 	 */
-	public static Pair<List<Expression>, Expression> getVariablesListAndConstantOrNullIfNoConstant(Expression equality, Context process) {
+	public static Pair<List<Expression>, Expression> getVariablesListAndConstantOrNullIfNoConstant(Expression equality, Context context) {
 		Pair<List<Expression>, Expression> result;
 		List<Expression> variables = new LinkedList<Expression>();
 		List<Expression> constants = new LinkedList<Expression>();
-		Predicate<Expression> notIsConstant = Predicates.not(process.getIsUniquelyNamedConstantPredicate());
+		Predicate<Expression> notIsConstant = Predicates.not(context.getIsUniquelyNamedConstantPredicate());
 		Util.collectOrReturnFalseIfElementDoesNotFitEither(
 				equality.getArguments(),
 				variables, notIsConstant,
-				constants, process.getIsUniquelyNamedConstantPredicate());
+				constants, context.getIsUniquelyNamedConstantPredicate());
 		if (constants.isEmpty()) {
 			result = null;
 		}
@@ -270,15 +270,15 @@ public class Equality implements TopSimplifier {
 	 * the first member of which is a set of the variables in the equality,
 	 * and the second member of which is a set of constants in the equality.
 	 */
-	public static Pair<Set<Expression>, Set<Expression>> getVariablesListAndConstantsList(Expression equality, Context process) {
+	public static Pair<Set<Expression>, Set<Expression>> getVariablesListAndConstantsList(Expression equality, Context context) {
 		Pair<Set<Expression>, Set<Expression>> result;
 		Set<Expression> variables = new LinkedHashSet<Expression>();
 		Set<Expression> constants = new LinkedHashSet<Expression>();
-		Predicate<Expression> notIsConstant = Predicates.not(process.getIsUniquelyNamedConstantPredicate());
+		Predicate<Expression> notIsConstant = Predicates.not(context.getIsUniquelyNamedConstantPredicate());
 		Util.collectOrReturnFalseIfElementDoesNotFitEither(
 				equality.getArguments(),
 				variables, notIsConstant,
-				constants, process.getIsUniquelyNamedConstantPredicate());
+				constants, context.getIsUniquelyNamedConstantPredicate());
 		result = Pair.make(variables, constants);
 		return result;
 	}
@@ -307,10 +307,10 @@ public class Equality implements TopSimplifier {
 	 * Returns X = c, if 'expression' is c = X, for X a variable and c a constant, or 'expression' otherwise.
 	 * It actually works for any other functor as well. 
 	 */
-	public static Expression normalize(Expression expression, Context process) {
+	public static Expression normalize(Expression expression, Context context) {
 		if (expression.numberOfArguments() == 2
-				&& process.isUniquelyNamedConstant(expression.get(0))) {
-			if ( ! process.isUniquelyNamedConstant(expression.get(1))) {
+				&& context.isUniquelyNamedConstant(expression.get(0))) {
+			if ( ! context.isUniquelyNamedConstant(expression.get(1))) {
 				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}
@@ -336,7 +336,7 @@ public class Equality implements TopSimplifier {
 	 * returns a pair of equality literals (L1, L2) such that "L1 and L2 <=> L", and such that the only variable in L1 is V.
 	 * Returns <code>null</code> if it is not an equality literal.
 	 */
-	public static Pair<Expression, Expression> separateVariableLiteral(Expression variable, Expression literal, Context process) {
+	public static Pair<Expression, Expression> separateVariableLiteral(Expression variable, Expression literal, Context context) {
 		Pair<Expression, Expression> result;
 		if (literal.equals(Expressions.TRUE) | literal.equals(Expressions.FALSE)) {
 			result = Pair.make(literal, literal);
@@ -354,7 +354,7 @@ public class Equality implements TopSimplifier {
 				result = Pair.make(Expressions.TRUE, literal);
 			}
 			else {
-				Pair<Set<Expression>, Set<Expression>> variablesAndConstants = getVariablesListAndConstantsList(literal, process);
+				Pair<Set<Expression>, Set<Expression>> variablesAndConstants = getVariablesListAndConstantsList(literal, context);
 				Set<Expression> constants = variablesAndConstants.second;
 				if (constants.size() > 1) { // can't be equal to distinct constants
 					result = Pair.make(Expressions.FALSE, Expressions.FALSE);
@@ -409,15 +409,15 @@ public class Equality implements TopSimplifier {
 	/**
 	 * Checks an expression for equality or disequality (top) simplification.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 */
-	public static Expression simplifyIfEqualityOrDisequality(Expression expression, Context process) {
+	public static Expression simplifyIfEqualityOrDisequality(Expression expression, Context context) {
 		Expression result;
 		if (isEquality(expression)) {
-			result = simplify(expression, process);
+			result = simplify(expression, context);
 		}
 		else if (Disequality.isDisequality(expression)) {
-			result = Disequality.simplify(expression, process);
+			result = Disequality.simplify(expression, context);
 		}
 		else {
 			result = expression;
@@ -430,7 +430,7 @@ public class Equality implements TopSimplifier {
 	 * and the equality itself otherwise.
 	 * Note that this is much faster than eliminating duplicates as well, which requires constructing another equality.
 	 */
-	public static Expression simplify(Expression equality, Context process) {
+	public static Expression simplify(Expression equality, Context context) {
 		Expression result;
 		if (Util.allEqual(equality.getArguments())) {
 			result = Expressions.TRUE;
@@ -438,7 +438,7 @@ public class Equality implements TopSimplifier {
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
 			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
-			Util.collect(equality.getArguments(), constants, process.getIsUniquelyNamedConstantPredicate(), nonConstants);
+			Util.collect(equality.getArguments(), constants, context.getIsUniquelyNamedConstantPredicate(), nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.FALSE;
 			}

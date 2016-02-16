@@ -97,45 +97,45 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Indicates whether an expression is a literal in this theory.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return 
 	 * @return
 	 */
-	default boolean isLiteral(Expression expression, Context process) {
+	default boolean isLiteral(Expression expression, Context context) {
 		if (expression.equals(TRUE) || expression.equals(FALSE)) {
 			return true;
 		}
-		return isNonTrivialLiteral(expression, process);
+		return isNonTrivialLiteral(expression, context);
 	}
 	
-	default boolean isConjunctiveClause(Expression formula, Context process) {
-		boolean result = forAll(getConjuncts(formula), c -> isLiteral(c, process));
+	default boolean isConjunctiveClause(Expression formula, Context context) {
+		boolean result = forAll(getConjuncts(formula), c -> isLiteral(c, context));
 		return result;
 	}
 
 	/**
 	 * Indicates whether an expression is a non-trivial atom in this theory.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	boolean isNonTrivialAtom(Expression expression, Context process);
+	boolean isNonTrivialAtom(Expression expression, Context context);
 	
 	/**
 	 * Indicates whether an expression is a non-trivial literal in this theory.
 	 * This is defined as its being either a non-trivial atom, or a non-trivial negative literals,
 	 * which in turn is the negation of a non-trivial atom.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default boolean isNonTrivialLiteral(Expression expression, Context process) {
-		boolean result = isNonTrivialAtom(expression, process) || isNonTrivialNegativeLiteral(expression, process);
+	default boolean isNonTrivialLiteral(Expression expression, Context context) {
+		boolean result = isNonTrivialAtom(expression, context) || isNonTrivialNegativeLiteral(expression, context);
 		return result;
 	}
 
-	default boolean isNonTrivialNegativeLiteral(Expression expression, Context process) {
-		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), process);
+	default boolean isNonTrivialNegativeLiteral(Expression expression, Context context) {
+		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), context);
 		return result;
 	}
 	
@@ -143,10 +143,10 @@ public interface ConstraintTheory extends Theory {
 	 * Make a new single-variable constraint for this constraint theory.
 	 * @param variable 
 	 * @param constraintTheory the constraint theory of the application (not necessarily <code>this</code> because <code>this</code> may be a sub-constraint theory in a compound one
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context process);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -158,26 +158,26 @@ public interface ConstraintTheory extends Theory {
 	 * Indicates whether an expression is an application of a function belonging to this theory,
 	 * or a constant belonging to this theory.
 	 * @param term
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context process);
+	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context);
 
 	/**
 	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ContextDependentExpressionProblemStepSolver} deciding its satisfiability.
-	 * @param process TODO
+	 * @param context TODO
 	 * @return a {@link ContextDependentExpressionProblemStepSolver} deciding a constraint's satisfiability.
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context);
 	
 	/**
 	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ContextDependentExpressionProblemStepSolver} computing its model count.
-	 * @param process TODO
+	 * @param context TODO
 	 * @return a {@link ContextDependentExpressionProblemStepSolver} computing a constraint's model count.
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
 
 	/**
 	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
@@ -185,10 +185,10 @@ public interface ConstraintTheory extends Theory {
 	 * @param constraint
 	 * @param currentBody
 	 * @param simplifier
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context);
 
 	/**
 	 * Returns the negation of a literal.
@@ -197,22 +197,22 @@ public interface ConstraintTheory extends Theory {
 	 * For example, for equality
 	 * we may prefer the negation of <code>X = a</code> to be represented as <code>X != a</code> instead of <code> not X = a</code>.
 	 * @param literal the literal
-	 * @param process TODO
+	 * @param context TODO
 	 * @return the negation of literal
 	 */
-	Expression getLiteralNegation(Expression literal, Context process);
+	Expression getLiteralNegation(Expression literal, Context context);
 	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
 	 * where a generalized variable is an expression that is not a boolean connective or an interpreted element in this theory
 	 * (see {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, Context)}).
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default Collection<Expression> getVariablesIn(Expression expression, Context process) {
+	default Collection<Expression> getVariablesIn(Expression expression, Context context) {
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
-		Predicate<Expression> isVariablePredicate = e -> isVariable(e, process);
+		Predicate<Expression> isVariablePredicate = e -> isVariable(e, context);
 		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariablePredicate);
 		LinkedHashSet<Expression> variables = addAllToSet(variablesIterator);
 		return variables;
@@ -220,22 +220,22 @@ public interface ConstraintTheory extends Theory {
 
 	/**
 	 * Indicates whether an expression is considered a variable in this theory,
-	 * meaning that it is not a constants of any of the registered types in process
+	 * meaning that it is not a constants of any of the registered types in context
 	 * (per {@link Context#getTypes()} and {@link Context#isUniquelyNamedConstant(Expression)}),
 	 * it is not interpreted in propositional logic
 	 * (per {@link FormulaUtil#isInterpretedInPropositionalLogicIncludingConditionals(Expression)}),
 	 * and is not interpreted in this theory besides boolean connectives
 	 * (per {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, Context)}.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default boolean isVariable(Expression expression, Context process) {
+	default boolean isVariable(Expression expression, Context context) {
 		boolean result =
-				!process.isUniquelyNamedConstant(expression)
+				!context.isUniquelyNamedConstant(expression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
-				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process)
-				&& !thereExists(process.getTypes(), t -> t.contains(expression));
+				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
+				&& !thereExists(context.getTypes(), t -> t.contains(expression));
 		return result;
 	}
 
@@ -267,7 +267,7 @@ public interface ConstraintTheory extends Theory {
 	Collection<Type> getTypesForTesting();
 	
 	/**
-	 * Provides types that must be present in the rewriting process while using theory,
+	 * Provides types that must be present in the context while using theory,
 	 * even if no testing variable is associated with them.
 	 * Default implementation is no types; override for introducing them.
 	 * @return
@@ -330,17 +330,17 @@ public interface ConstraintTheory extends Theory {
 	 * Returns a random atom in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
 	 * @param random a random generator
-	 * @param process a rewriting process
+	 * @param context a context
 	 */
-	Expression makeRandomAtomOn(String variable, Random random, Context process);
+	Expression makeRandomAtomOn(String variable, Random random, Context context);
 	
 	/**
 	 * Same as {@link #makeRandomAtomOn(String, Random, Context),
 	 * but applied randomly to one of the test variables.
 	 */
-	default Expression makeRandomAtom(Random random, Context process) {
+	default Expression makeRandomAtom(Random random, Context context) {
 		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet().iterator(), random);
-		Expression result = makeRandomAtomOn(variableToBeUsed, random, process);
+		Expression result = makeRandomAtomOn(variableToBeUsed, random, context);
 		return result;
 	}
 	
@@ -348,20 +348,20 @@ public interface ConstraintTheory extends Theory {
 	 * Same as {@link #makeRandomAtomOn(String, Random, Context) for testing variable
 	 * (returned by {@link #pickTestingVariableAtRandom()}).
 	 */
-	default Expression makeRandomAtomOnTestingVariable(Random random, Context process) {
-		Expression result = makeRandomAtomOn(pickTestingVariableAtRandom(random), random, process);
+	default Expression makeRandomAtomOnTestingVariable(Random random, Context context) {
+		Expression result = makeRandomAtomOn(pickTestingVariableAtRandom(random), random, context);
 		return result;
 	}
 
 	/**
 	 * @param variable
 	 * @param random
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default Expression makeRandomLiteralOn(String variable, Random random, Context process) {
-		Expression atom = makeRandomAtomOn(variable, random, process);
-		Expression literal = random.nextBoolean()? atom : getLiteralNegation(atom, process);
+	default Expression makeRandomLiteralOn(String variable, Random random, Context context) {
+		Expression atom = makeRandomAtomOn(variable, random, context);
+		Expression literal = random.nextBoolean()? atom : getLiteralNegation(atom, context);
 		return literal;
 	}
 
@@ -369,13 +369,13 @@ public interface ConstraintTheory extends Theory {
 	 * Same as {@link #makeRandomLiteralOn(String, Random, Context),
 	 * but applied randomly to one of the testing variables.
 	 */
-	default Expression makeRandomLiteral(Random random, Context process) {
+	default Expression makeRandomLiteral(Random random, Context context) {
 		String variableToBeUsed = pickTestingVariableAtRandom(random);
-		Expression result = makeRandomLiteralOn(variableToBeUsed, random, process);
+		Expression result = makeRandomLiteralOn(variableToBeUsed, random, context);
 		return result;
 	}
 
-	Context extendWithTestingInformation(Context process);
+	Context extendWithTestingInformation(Context context);
 
 	default Context makeRewritingProcessWithTestingInformation() {
 		return extendWithTestingInformation(new DefaultRewritingProcess());

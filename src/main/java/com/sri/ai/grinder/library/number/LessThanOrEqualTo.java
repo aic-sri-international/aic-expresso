@@ -58,17 +58,17 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 public class LessThanOrEqualTo  implements TopSimplifier {
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		return simplify(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		return simplify(expression, context);
 	}
 	
 	/**
 	 * Receives an application of {@link FunctorConstants.LESS_THAN_OR_EQUAL_TO} and evaluates it if possible.
 	 * @param lessThanOrEqualToApplication
-	 * @param process TODO
+	 * @param context TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression lessThanOrEqualToApplication, Context process) {
+	public static Expression simplify(Expression lessThanOrEqualToApplication, Context context) {
 		Expression result;
 		if (lessThanOrEqualToApplication.get(0).equals(lessThanOrEqualToApplication.get(1))) {
 			result = TRUE; // yes, it is less than or equal to itself

@@ -81,14 +81,14 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
-			Constraint contextualConstraint, Context process) {
+			Constraint contextualConstraint, Context context) {
 
 		Expression solutionExpression;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value
 			solutionExpression = ONE;
 		}
 		else {
-			SolutionStep step = numberOfDistinctExpressionsStepSolver.step(contextualConstraint, process);
+			SolutionStep step = numberOfDistinctExpressionsStepSolver.step(contextualConstraint, context);
 			if (step.itDepends()) {
 				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifTrue = clone();
 				ifTrue.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();
@@ -99,9 +99,9 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			}
 			long numberOfNonAvailableValues = step.getValue().longValue();
 
-			long variableDomainSize = getConstraint().getVariableTypeSize(process);
+			long variableDomainSize = getConstraint().getVariableTypeSize(context);
 			if (variableDomainSize == -1) {
-				Expression variableDomain = getConstraint().getVariableTypeExpression(process);
+				Expression variableDomain = getConstraint().getVariableTypeExpression(context);
 				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
 				solutionExpression = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
 			}

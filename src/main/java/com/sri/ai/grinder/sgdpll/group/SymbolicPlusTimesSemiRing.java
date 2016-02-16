@@ -88,8 +88,8 @@ public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements Asso
 	static final private Times timesSimplifier = new Times();
 
 	@Override
-	public Expression multiply(Expression multiplication, Context process) {
-		Expression result = timesSimplifier.apply(multiplication, process);
+	public Expression multiply(Expression multiplication, Context context) {
+		Expression result = timesSimplifier.apply(multiplication, context);
 		return result;
 	}
 
@@ -106,7 +106,7 @@ public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements Asso
 	}
 
 	@Override
-	public Expression multiplyNTimes(Expression value, Expression n, Context process) {
+	public Expression multiplyNTimes(Expression value, Expression n, Context context) {
 		throw new Error("Exponentiation not yet implemented.");
 	}
 }

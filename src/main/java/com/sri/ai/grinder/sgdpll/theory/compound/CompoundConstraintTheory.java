@@ -158,20 +158,20 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		return subConstraintTheories;
 	}
 
-	private ConstraintTheory getConstraintTheory(Expression variable, Context process) {
-		String typeName = GrinderUtil.getType(variable, process).toString();
-		Type type = process.getType(typeName);
+	private ConstraintTheory getConstraintTheory(Expression variable, Context context) {
+		String typeName = GrinderUtil.getType(variable, context).toString();
+		Type type = context.getType(typeName);
 		
 		ConstraintTheory result =
 				getFirstSatisfyingPredicateOrNull(
 						getSubConstraintTheories(),
 						t -> t.isSuitableFor(variable, type));
 
-		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, process));
+		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, context));
 		
 		return result;
 		
-//		Expression type = GrinderUtil.getType(variable, process);
+//		Expression type = GrinderUtil.getType(variable, context);
 //		if (type == null) {
 //			throw new Error(getClass() + " could not identify the type of " + variable + " and therefore not its sub-constraint theory either.");
 //		}
@@ -181,15 +181,15 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, Context process) {
-		boolean result = thereExists(getSubConstraintTheories(), t -> t.isNonTrivialAtom(expression, process));
+	public boolean isNonTrivialAtom(Expression expression, Context context) {
+		boolean result = thereExists(getSubConstraintTheories(), t -> t.isNonTrivialAtom(expression, context));
 		return result;
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context process) {
-		ConstraintTheory constraintTheoryForVariable = getConstraintTheory(variable, process);
-		SingleVariableConstraint result = constraintTheoryForVariable.makeSingleVariableConstraint(variable, constraintTheory, process);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
+		ConstraintTheory constraintTheoryForVariable = getConstraintTheory(variable, context);
+		SingleVariableConstraint result = constraintTheoryForVariable.makeSingleVariableConstraint(variable, constraintTheory, context);
 		return result;
 	}
 
@@ -207,53 +207,53 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context process) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
 		boolean result =
 				thereExists(
 						getSubConstraintTheories(),
-						t -> t.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process));
+						t -> t.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context));
 		return result;
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context process) {
-		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
-		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, process);
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), context);
+		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context process) {
-		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
-		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, process);
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), context);
+		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context process) {
-		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
-		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, simplifier, process);
+	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
+		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), context);
+		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, simplifier, context);
 		return result;
 	}
 
 	@Override
-	public Expression getLiteralNegation(Expression literal, Context process) {
+	public Expression getLiteralNegation(Expression literal, Context context) {
 		ConstraintTheory constraintTheory =
-				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, process));
-		Expression result = constraintTheory.getLiteralNegation(literal, process);
+				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, context));
+		Expression result = constraintTheory.getLiteralNegation(literal, context);
 		return result;
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context process) {
-		ConstraintTheory constraintTheory = getConstraintTheory(parse(variable), process);
-		Expression result = constraintTheory.makeRandomAtomOn(variable, random, process);
+	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
+		ConstraintTheory constraintTheory = getConstraintTheory(parse(variable), context);
+		Expression result = constraintTheory.makeRandomAtomOn(variable, random, context);
 		return result;
 	}
 
 	@Override
-	public Expression simplify(Expression expression, Context process) {
-		Expression result = simplifier.apply(expression, process);
+	public Expression simplify(Expression expression, Context context) {
+		Expression result = simplifier.apply(expression, context);
 		return result;
 	}
 

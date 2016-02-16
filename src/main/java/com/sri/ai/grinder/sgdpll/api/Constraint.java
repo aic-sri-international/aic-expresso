@@ -45,21 +45,21 @@ public interface Constraint extends Expression {
 	 * At this point, the formula should be either a literal, or a {@link Constraint}.
 	 * 
 	 * @param literal the literal to be conjoined.
-	 * @param process the rewriting process
+	 * @param context the context
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	Constraint conjoinWithLiteral(Expression literal, Context process);
+	Constraint conjoinWithLiteral(Expression literal, Context context);
 	
 	/**
 	 * Tests whether a literal is contradictory with this constraint
 	 * by checking whether conjoining it with the literal's negation produces a contradiction.
 	 * @param literal
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default boolean implies(Expression literal, Context process) {
-		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal, process);
-		boolean result = contradictoryWith(literalNegation, process);
+	default boolean implies(Expression literal, Context context) {
+		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal, context);
+		boolean result = contradictoryWith(literalNegation, context);
 		return result;
 	}
 
@@ -67,11 +67,11 @@ public interface Constraint extends Expression {
 	 * Tests whether a formula is contradictory with this constraint
 	 * by checking whether conjoining them produces a contradiction.
 	 * @param formula
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default boolean contradictoryWith(Expression formula, Context process) {
-		Constraint conjunction = conjoin(formula, process);
+	default boolean contradictoryWith(Expression formula, Context context) {
+		Constraint conjunction = conjoin(formula, context);
 		boolean result = conjunction == null;
 		return result;
 	}
@@ -86,12 +86,12 @@ public interface Constraint extends Expression {
 	 * of conjoining with (certain types of) constraints than simply treating them as a formula
 	 * 
 	 * @param formula the formula to be conjoined.
-	 * @param process the rewriting process
+	 * @param context the context
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	default Constraint conjoin(Expression formula, Context process) {
+	default Constraint conjoin(Expression formula, Context context) {
 		myAssert(
-				() -> isValidConjoinant(formula, process),
+				() -> isValidConjoinant(formula, context),
 				() -> this.getClass() + " currently only supports conjoining with literals, conjunctive clauses, and constraints, but received " + formula);
 		
 		Constraint result;
@@ -100,10 +100,10 @@ public interface Constraint extends Expression {
 			result = null;
 		}
 		else if (formula instanceof Constraint || isConjunction(formula)) {
-			result = conjoinWithConjunctiveClause(formula, process); // for now, all Constraints are conjunctions. This will probably change in the future.
+			result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
-			result = conjoinWithLiteral(formula, process);
+			result = conjoinWithLiteral(formula, context);
 		}
 	
 		return result;
@@ -111,14 +111,14 @@ public interface Constraint extends Expression {
 
 	/**
 	 * @param formula
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default boolean isValidConjoinant(Expression formula, Context process) {
+	default boolean isValidConjoinant(Expression formula, Context context) {
 		boolean result =
 				formula == null
 				|| formula instanceof Constraint
-				|| getConstraintTheory().isConjunctiveClause(formula, process);
+				|| getConstraintTheory().isConjunctiveClause(formula, context);
 		return result;
 	}
 
@@ -127,19 +127,19 @@ public interface Constraint extends Expression {
 	 * (note that if <code>conjunction</code> is not an application of <code>and</code>,
 	 * it will be considered a unit conjunction with itself the only conjunct.
 	 * @param conjunctiveClause
-	 * @param process
+	 * @param context
 	 * @return the result of conjoining this constraint with all conjuncts of a given conjunction
 	 */
-	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, Context process) {
+	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
 		Constraint result;
 		List<Expression> conjuncts = getConjuncts(conjunctiveClause);
 		if (conjuncts.size() == 1) { // this is necessary to avoid an infinite loop
-			result = conjoinWithLiteral(conjuncts.get(0), process);
+			result = conjoinWithLiteral(conjuncts.get(0), context);
 		}
 		else {
 			result = this;
 			for (Expression literal : conjuncts) {
-				result = result.conjoin(literal, process);
+				result = result.conjoin(literal, context);
 				if (result == null) {
 					break;
 				}
@@ -189,7 +189,7 @@ public interface Constraint extends Expression {
 //	 * Default implementation uses symbolic satisfiability through {@link SGDPLLT}.
 //	 * Specific constraint implementations will typically have more efficient ways to do it.
 //	 */
-//	default Constraint project(Collection<Expression> eliminatedIndices, Context process) {
+//	default Constraint project(Collection<Expression> eliminatedIndices, Context context) {
 //		Expression resultExpression =
 //				SymbolicSolver.solve(
 //						new BooleansWithConjunctionGroup(),
@@ -197,7 +197,7 @@ public interface Constraint extends Expression {
 //						condition,
 //						body,
 //						getConstraintTheory().makeSingleVariableConstraint(null),
-//						process);
+//						context);
 //		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
 //		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);
 //		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);

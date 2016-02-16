@@ -65,12 +65,12 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly im
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
+	public Expression apply(Expression expression, Context context) {
 		// takes care of infinity arguments before deferring to super method
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;
 		}
-		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, process, (e, p) -> super.apply(e, p));
+		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, context, (e, p) -> super.apply(e, p));
 		return result;
 	}
 
@@ -144,7 +144,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly im
 	 * including a singleton list with the expression itself if it is not a product
 	 * (since then it can be considered the only multiplicand in a "unary product").
 	 */
-	public static List<Expression> getMultiplicands(Expression expression, Context process) {
+	public static List<Expression> getMultiplicands(Expression expression, Context context) {
 		if (expression.hasFunctor("*")) {
 			return expression.getArguments();
 		}

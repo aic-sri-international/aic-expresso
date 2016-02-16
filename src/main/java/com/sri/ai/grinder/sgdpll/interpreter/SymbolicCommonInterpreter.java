@@ -84,15 +84,15 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesConditions,
 			Expression body,
-			Context process) throws Error {
+			Context context) throws Error {
 
-		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		context = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, context);
 		
 		// TODO: OPTIMIZATION: this *severely* slows down the algorithm
 		// we need to organize things so that we do not depend of pre-simplifications like this
 		// but do them once on the fly.
-		Expression quantifierFreeBody = apply(body, process);
-		Expression quantifierFreeIndicesCondition = apply(indicesConditions, process);
+		Expression quantifierFreeBody = apply(body, context);
+		Expression quantifierFreeIndicesCondition = apply(indicesConditions, context);
 
 //		Expression quantifierFreeBody = body;
 //		Expression quantifierFreeIndicesCondition = indicesConditions;
@@ -108,7 +108,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 						quantifierFreeIndicesCondition,
 						quantifierFreeBody,
 						contextualConstraint,
-						process);
+						context);
 		
 		return result;
 	}

@@ -59,31 +59,31 @@ public class ConstraintSplitting  {
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param constraint
 	 * @param literal
-	 * @param process
+	 * @param context
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, Context process) {
-		this(constraint, literal, null, process);
+	public ConstraintSplitting(Constraint constraint, Expression literal, Context context) {
+		this(constraint, literal, null, context);
 	}
 	
 	/**
 	 * Splits given constraint by given literal under a contextual constraint and stores the result and other information (see methods).
 	 * @param constraint
 	 * @param literal
-	 * @param process
+	 * @param context
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, Context process) {
+	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, Context context) {
 		this.constraint = constraint;
 		this.literal = literal;
-		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, process);
-		constraintAndLiteral         = constraint.conjoin(        literal, process);
-		constraintAndLiteralNegation = constraint.conjoin(literalNegation, process);
+		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, context);
+		constraintAndLiteral         = constraint.conjoin(        literal, context);
+		constraintAndLiteralNegation = constraint.conjoin(literalNegation, context);
 		
 		Constraint constraintAndLiteralAndContextualConstraint;
 		Constraint constraintAndLiteralNegationAndContextualConstraint;
 
 		if (contextualConstraint != null) {
-			constraintAndLiteralAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteral, process);
-			constraintAndLiteralNegationAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteralNegation, process);
+			constraintAndLiteralAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteral, context);
+			constraintAndLiteralNegationAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteralNegation, context);
 		}
 		else {
 			constraintAndLiteralAndContextualConstraint = constraintAndLiteral;

@@ -92,8 +92,8 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	}
 
 	@Override
-	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
-		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
+	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
+		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, context);
 		List<Expression> newList = replaceElementsNonDestructively(getList(), renameSymbol);
 		IndexExpressionsSet newIndexExpressions;
 		if (newList != getList()) {

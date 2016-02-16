@@ -69,7 +69,7 @@ public interface Context extends Cloneable {
 	Predicate<Expression> getIsUniquelyNamedConstantPredicate();
 	
 	/**
-	 * Return a clone of this process with the given predicate indicating uniquely named constants.
+	 * Return a clone of this context with the given predicate indicating uniquely named constants.
 	 * @return
 	 */
 	Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
@@ -96,13 +96,13 @@ public interface Context extends Cloneable {
 	Expression getTypeOfRegisteredSymbol(Expression symbol);
 	
 	/**
-	 * Create a new sub-rewriting process and registers the symbols
+	 * Create a new sub-context and registers the symbols
 	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
 	Context registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
-	 * Creates a new rewriting process identical to a given one but for additional global objects.
+	 * Creates a new context identical to a given one but for additional global objects.
 	 * @param objects
 	 * @return
 	 */
@@ -114,7 +114,7 @@ public interface Context extends Cloneable {
 	Map<Object, Object> getGlobalObjects();
 	
 	/**
-	 * Returns a cloned rewriting process with a value in a map of global objects under key.
+	 * Returns a cloned context with a value in a map of global objects under key.
 	 */
 	Context putGlobalObject(Object key, Object value);
 	

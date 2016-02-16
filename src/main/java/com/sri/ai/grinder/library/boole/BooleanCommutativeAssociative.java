@@ -54,8 +54,8 @@ import com.sri.ai.util.Util;
 public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
-		Expression result = super.apply(expression, process);
+	public Expression apply(Expression expression, Context context) {
+		Expression result = super.apply(expression, context);
 		if (result.hasFunctor(getFunctor())) {
 			result = processIdempotency(result);
 		}

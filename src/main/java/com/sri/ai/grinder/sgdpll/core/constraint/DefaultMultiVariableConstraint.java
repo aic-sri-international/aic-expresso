@@ -44,13 +44,13 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 	
 	@Override
-	public DefaultMultiVariableConstraint conjoinWithLiteral(Expression literal, Context process) {
+	public DefaultMultiVariableConstraint conjoinWithLiteral(Expression literal, Context context) {
 		DefaultMultiVariableConstraint result;
 		
-		Expression variable = getSomeVariableFor(literal, process);
+		Expression variable = getSomeVariableFor(literal, context);
 		if (variable == null) {
 			// the literal has no variables.
-			Expression literalEvaluation = getConstraintTheory().simplify(literal, process);
+			Expression literalEvaluation = getConstraintTheory().simplify(literal, context);
 			if (literalEvaluation.equals(TRUE)) {
 				result = this;
 			}
@@ -59,8 +59,8 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 			}
 		}
 		else {
-			SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable, process);
-			SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
+			SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable, context);
+			SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, context);
 			if (newSingleVariableConstraint == null) {
 				result = null;	
 			}
@@ -77,8 +77,8 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 		return result;
 	}
 	
-	private Expression getSomeVariableFor(Expression literal, Context process) {
-		Expression result = min(constraintTheory.getVariablesIn(literal, process), (e1, e2) -> e1.compareTo(e2));
+	private Expression getSomeVariableFor(Expression literal, Context context) {
+		Expression result = min(constraintTheory.getVariablesIn(literal, context), (e1, e2) -> e1.compareTo(e2));
 		return result;
 	}
 
@@ -86,10 +86,10 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	 * @param variable
 	 * @return
 	 */
-	protected SingleVariableConstraint getConstraintFor(Expression variable, Context process) {
+	protected SingleVariableConstraint getConstraintFor(Expression variable, Context context) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, process);
+			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, context);
 		}
 		return result;
 	}
@@ -112,18 +112,18 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 
 	@Override
-	public MultiVariableConstraint conjoin(Expression formula, Context process) {
+	public MultiVariableConstraint conjoin(Expression formula, Context context) {
 		myAssert(
-				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint,
+				() -> getConstraintTheory().isLiteral(formula, context) || formula instanceof Constraint,
 				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
 		
 		MultiVariableConstraint result;
 
 		if (formula instanceof Constraint) {
-			result = (MultiVariableConstraint) conjoinWithConjunctiveClause(formula, process);
+			result = (MultiVariableConstraint) conjoinWithConjunctiveClause(formula, context);
 		}
 		else {
-			result = conjoinWithLiteral(formula, process);
+			result = conjoinWithLiteral(formula, context);
 		}
 
 		return result;

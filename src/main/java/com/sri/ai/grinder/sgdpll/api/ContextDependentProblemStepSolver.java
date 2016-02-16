@@ -262,8 +262,8 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
 	 * will bring the problem closer to a solution.
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	SolutionStep<T> step(Constraint contextualConstraint, Context process);
+	SolutionStep<T> step(Constraint contextualConstraint, Context context);
 }

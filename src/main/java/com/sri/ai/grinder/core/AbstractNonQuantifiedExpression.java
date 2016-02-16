@@ -55,7 +55,7 @@ public abstract class AbstractNonQuantifiedExpression extends AbstractExpression
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public List<Expression> getScopedExpressions(Context process) {
+	public List<Expression> getScopedExpressions(Context context) {
 		List<Expression> result = Collections.emptyList();
 		return result;
 	}

@@ -57,8 +57,8 @@ public class IsVariable implements Predicate<Expression> {
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 	}
 
-	public IsVariable(Context process) {
-		this(process.getIsUniquelyNamedConstantPredicate());
+	public IsVariable(Context context) {
+		this(context.getIsUniquelyNamedConstantPredicate());
 	}
 
 	@Override

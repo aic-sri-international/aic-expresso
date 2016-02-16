@@ -153,15 +153,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 
 	@Override
-	protected Iterable<Expression> getPropagatedLiterals(Context process) {
+	protected Iterable<Expression> getPropagatedLiterals(Context context) {
 		
 		// System.out.println("getPropagatedLiterals:");
 		// System.out.println("constraint: " + constraint);
-		// System.out.println("strict lower bounds: " + join(getStrictLowerBounds(process)));
-		// System.out.println("non-strict upper bounds: " + join(getNonStrictUpperBounds(process)));
+		// System.out.println("strict lower bounds: " + join(getStrictLowerBounds(context)));
+		// System.out.println("non-strict upper bounds: " + join(getNonStrictUpperBounds(context)));
 		// System.out.println("pairs of equals to variable: " + join(pairsOfEquals()));
 		// System.out.println("equals to variable: " + join(getEquals()));
-		// System.out.println("non-equality comparisons: " + join(getNonEqualityComparisons(process)));
+		// System.out.println("non-equality comparisons: " + join(getNonEqualityComparisons(context)));
 		
 		Iterator<Expression> propagatedEqualities;
 		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
@@ -174,7 +174,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					functionIterator(
 							pairsOfEqualsToVariableIterator,
 							p -> {
-								Expression result = Equality.makeWithConstantSimplification(p.first, p.second, process);
+								Expression result = Equality.makeWithConstantSimplification(p.first, p.second, context);
 								// System.out.println("Unsimplified equality of equals: " + p.first + " = " + p.second);	
 								// System.out.println("constraint is: " + constraint);	
 								// System.out.println("Simplified to: " + result);	
@@ -200,14 +200,14 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					functionIterator(
 							new CartesianProductIterator<Expression>(
 									() -> getEquals().iterator(),
-									() -> getNonEqualityComparisons(process).iterator()
+									() -> getNonEqualityComparisons(context).iterator()
 									),
 									equalAndNonEqualityComparison -> {
 										Expression equal = equalAndNonEqualityComparison.get(0);
 										Expression nonEqualityComparison = equalAndNonEqualityComparison.get(1);
 										Expression termBeingCompared = nonEqualityComparison.get(1);
 										Expression unsimplifiedAtom = apply(nonEqualityComparison.getFunctor(), equal, termBeingCompared);
-										Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);
+										Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, context);
 										// System.out.println("Unsimplified comparison of equal and term in non-equality comparison: " + unsimplifiedAtom);	
 										// System.out.println("Non-equality comparison was: " + nonEqualityComparison);	
 										// System.out.println("constraint is: " + constraint);	
@@ -229,7 +229,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return result;
 	}
 
-	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(Context process) {
+	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(Context context) {
 		if (strictLowerBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 			
@@ -249,7 +249,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					), 
 					e -> apply(MINUS, e.get(1), ONE)); // atom is (not (X < Y)), e.g., X >= Y, so X > Y - 1 and Y - 1 is a strict lower bound
 			
-			Expression typeStrictLowerBound = getTypeStrictLowerBound(process);
+			Expression typeStrictLowerBound = getTypeStrictLowerBound(context);
 			
 			Iterator<Expression> strictLowerBoundsIterator = new NestedIterator<>(
 					strictLowerBoundsFromPositiveNormalizedAtomsIterator,
@@ -261,7 +261,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return strictLowerBoundsIncludingImplicitOnes;
 	}
 
-	private ArrayList<Expression> getNonStrictUpperBoundsIncludingImplicitOnes(Context process) {
+	private ArrayList<Expression> getNonStrictUpperBoundsIncludingImplicitOnes(Context context) {
 		if (nonStrictUpperBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 			
@@ -281,7 +281,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					), 
 					e -> e.get(1));
 			
-			Expression typeNonStrictUpperBound = getTypeNonStrictUpperBound(process);
+			Expression typeNonStrictUpperBound = getTypeNonStrictUpperBound(context);
 			
 			Iterator<Expression> nonStrictUpperBoundsIterator = new NestedIterator<>(
 					nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator,
@@ -311,7 +311,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return equals;
 	}
 
-	private ArrayList<Expression> getNonEqualityComparisons(Context process) {
+	private ArrayList<Expression> getNonEqualityComparisons(Context context) {
 		if (nonEqualityComparisons == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 
@@ -324,14 +324,14 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			Iterator<Expression> fromNegativeNormalizedAtoms =
 					functionIterator(
 							inequalitiesConstraint.getNegativeNormalizedAtoms(), // negative normalized atom is never an equality
-							e -> inequalitiesConstraint.getConstraintTheory().getLiteralNegation(e, process)
+							e -> inequalitiesConstraint.getConstraintTheory().getLiteralNegation(e, context)
 							);
 
 			Expression variableIsGreaterThanTypeStrictLowerBound =
-					apply(GREATER_THAN, getConstraint().getVariable(), getTypeStrictLowerBound(process));
+					apply(GREATER_THAN, getConstraint().getVariable(), getTypeStrictLowerBound(context));
 
 			Expression variableIsLessThanOrEqualToTypeNonStrictUpperBound =
-					apply(LESS_THAN_OR_EQUAL_TO, getConstraint().getVariable(), getTypeNonStrictUpperBound(process));
+					apply(LESS_THAN_OR_EQUAL_TO, getConstraint().getVariable(), getTypeNonStrictUpperBound(context));
 
 			Iterator<Expression> all =
 					new NestedIterator<Expression>(
@@ -385,12 +385,12 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context context) {
 		return list();
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context context) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.
@@ -413,7 +413,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			if (initialMaximumStrictLowerBoundStepSolver == null) {
 				maximumStrictLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getStrictLowerBoundsIncludingImplicitOnes(process),
+						getStrictLowerBoundsIncludingImplicitOnes(context),
 						LESS_THAN_SYMBOL, // use total order <
 						MINUS_INFINITY,
 						INFINITY); // at first, I placed the type minimum and maximum strict lower bounds here. This is incorrect because if the type maximum is, say, 4, and I have "X > 3 and X > I" (3 is the maximum strict lower bounds for values in the type), the step solver short-circuits and returns 3, without ever even looking at I. Looking at I is needed because if I is greater than 3 than this constraint is unsatisfiable.
@@ -421,7 +421,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				maximumStrictLowerBoundStepSolver = initialMaximumStrictLowerBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, process);
+			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, context);
 			if (maximumStrictLowerBoundStep.itDepends()) {
 				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -437,7 +437,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getNonStrictUpperBoundsIncludingImplicitOnes(process),
+						getNonStrictUpperBoundsIncludingImplicitOnes(context),
 						GREATER_THAN_SYMBOL, // use total order > since "minimum" is maximum under it
 						INFINITY, // "minimum" is maximum value because we are operating on the inverse order
 						MINUS_INFINITY); // "maximum" is minimum value because we are operating on the inverse order
@@ -445,7 +445,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				minimumNonStrictUpperBoundStepSolver = initialMinimumNonStrictUpperBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, process);
+			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, context);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
 				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -463,13 +463,13 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				ContextDependentProblemStepSolver<Boolean> lowerBoundIsLessThanUpperBoundStepSolver;
 				if (initialLowerBoundIsLessThanUpperBoundStepSolver == null) {
-					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), process);
+					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), context);
 					lowerBoundIsLessThanUpperBoundStepSolver = new LiteralStepSolver(lowerBoundIsLessThanUpperBound);
 				}
 				else {
 					lowerBoundIsLessThanUpperBoundStepSolver = initialLowerBoundIsLessThanUpperBoundStepSolver;
 				}
-				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(contextualConstraint, process);
+				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(contextualConstraint, context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -493,7 +493,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					disequalsGreaterThanGreatestStrictLowerBoundStepSolver = initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 				}
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step
-				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint, process);
+				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint, context);
 				if (step.itDepends()) {
 					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsTrue();
@@ -516,7 +516,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					disequalsWithinBoundsStepSolver = initialDisequalsWithinBoundsStepSolver;
 				}
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step2
-				= disequalsWithinBoundsStepSolver.step(contextualConstraint, process);
+				= disequalsWithinBoundsStepSolver.step(contextualConstraint, context);
 				if (step2.itDepends()) {
 					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsTrue();
@@ -528,7 +528,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
 				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
 
-				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), process);
+				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
 
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
 				DistinctExpressionsStepSolver distinctExpressionsStepSolver;
@@ -542,7 +542,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					else {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					}
-					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint, process);
+					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint, context);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
@@ -574,7 +574,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					solutionExpression = new RangeAndExceptionsSet.Singleton(getFirst(getEquals()));
 				}
 				else {
-					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint, process);
+					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint, context);
 					if (distinctDisequalsStep.itDepends()) {
 						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();
@@ -606,15 +606,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return successor.clone();
 	}
 
-	private IntegerInterval getType(Context process) {
-		return getConstraint().getType(process);
+	private IntegerInterval getType(Context context) {
+		return getConstraint().getType(context);
 	}
 	
 	private Expression typeStrictLowerBound;
 	
-	private Expression getTypeStrictLowerBound(Context process) {
+	private Expression getTypeStrictLowerBound(Context context) {
 		if (typeStrictLowerBound == null) {
-			IntegerInterval type = getType(process);
+			IntegerInterval type = getType(context);
 			Expression nonStrictLowerBound = type.getNonStrictLowerBound();
 			if (Expressions.isNumber(nonStrictLowerBound)) {
 				typeStrictLowerBound = makeSymbol(nonStrictLowerBound.intValue() - 1);
@@ -626,15 +626,15 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		return typeStrictLowerBound;
 	}
 
-	private Expression getTypeNonStrictUpperBound(Context process) {
-		IntegerInterval type = getType(process);
+	private Expression getTypeNonStrictUpperBound(Context context) {
+		IntegerInterval type = getType(context);
 		Expression result = type.getNonStrictUpperBound();
 		return result;
 	}
 
-	private Expression applyAndSimplify(String comparison, ArrayList<Expression> arguments, Context process) {
+	private Expression applyAndSimplify(String comparison, ArrayList<Expression> arguments, Context context) {
 		Expression unsimplifiedAtom = apply(comparison, arguments);
-		Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);
+		Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, context);
 		return result;
 	}
 }

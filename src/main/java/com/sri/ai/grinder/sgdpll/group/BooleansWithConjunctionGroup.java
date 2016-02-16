@@ -74,12 +74,12 @@ public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context process) {
+	public Expression add(Expression value1, Expression value2, Context context) {
 		return And.make(value1, value2);
 	}
 
 	@Override
-	public Expression addNTimes(Expression value, Expression n, Context process) {
+	public Expression addNTimes(Expression value, Expression n, Context context) {
 		Expression result;
 		if (value.equals(TRUE) || n.equals(ZERO)) {
 			result = TRUE;
@@ -92,8 +92,8 @@ public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup
 			Expression condition  = IfThenElse.condition(n);
 			Expression thenBranch = IfThenElse.thenBranch(n);
 			Expression elseBranch = IfThenElse.elseBranch(n);
-			Expression newThenBranch = addNTimes(value, thenBranch, process);
-			Expression newElseBranch = addNTimes(value, elseBranch, process);
+			Expression newThenBranch = addNTimes(value, thenBranch, context);
+			Expression newElseBranch = addNTimes(value, elseBranch, context);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
 		else {

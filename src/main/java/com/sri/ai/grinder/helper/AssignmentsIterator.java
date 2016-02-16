@@ -62,26 +62,26 @@ import com.sri.ai.util.collect.CartesianProductInMapIterator;
 @Beta
 public class AssignmentsIterator extends CartesianProductInMapIterator<Expression, Expression> {
 
-	public AssignmentsIterator(Collection<Expression> variables, Context process) {
-		super(makeMapFromVariablesToIteratorMakers(variables, process));
+	public AssignmentsIterator(Collection<Expression> variables, Context context) {
+		super(makeMapFromVariablesToIteratorMakers(variables, context));
 	}
 
-	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Context process) {
-		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, process));
+	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Context context) {
+		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, context));
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Context process) {
+	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Context context) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
-			Expression typeDescription = GrinderUtil.getType(variable, process);
-			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, process);
+			Expression typeDescription = GrinderUtil.getType(variable, context);
+			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, context);
 		}
 		return fromVariableToIteratorMaker;
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, Context process) {
+	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, Context context) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		ExtensionalIndexExpressionsSet extensionalIndexExpressionsSet;
 		try {
@@ -94,9 +94,9 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 			Expression variable = IndexExpressions.getIndex(indexExpression);
 			Expression typeDescription = IndexExpressions.getType(indexExpression);
 			if (typeDescription == null) {
-				typeDescription = GrinderUtil.getType(variable, process);
+				typeDescription = GrinderUtil.getType(variable, context);
 			}
-			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, process);
+			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, context);
 		}
 		return fromVariableToIteratorMaker;
 	}
@@ -105,16 +105,16 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	 * @param fromVariableToIteratorMaker
 	 * @param variable
 	 * @param typeExpression
-	 * @param process
+	 * @param context
 	 * @throws Error
 	 */
-	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, Context process) throws Error {
+	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, Context context) throws Error {
 		if (typeExpression == null) {
-			throw new Error("Variable " + variable + " is not registered in rewriting process (has no type).");
+			throw new Error("Variable " + variable + " is not registered in context (has no type).");
 		}
-		Type type = process.getType(typeExpression);
+		Type type = context.getType(typeExpression);
 		if (type == null) {
-			throw new Error("Variable " + variable + " has type " + typeExpression + " but rewriting process contains no type with this name.");
+			throw new Error("Variable " + variable + " has type " + typeExpression + " but context contains no type with this name.");
 		}
 		fromVariableToIteratorMaker.put(variable, () -> type.iterator());
 	}

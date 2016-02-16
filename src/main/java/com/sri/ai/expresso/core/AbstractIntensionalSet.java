@@ -106,12 +106,12 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
 		IntensionalSet result = this;
 		
-		IndexExpressionsSet newIndexExpressions = getIndexExpressions().replaceSymbol(symbol, newSymbol, process);
-		Expression newHead                      = getHead().replaceSymbol(symbol, newSymbol, process);
-		Expression newCondition                 = getCondition().replaceSymbol(symbol, newSymbol, process);
+		IndexExpressionsSet newIndexExpressions = getIndexExpressions().replaceSymbol(symbol, newSymbol, context);
+		Expression newHead                      = getHead().replaceSymbol(symbol, newSymbol, context);
+		Expression newCondition                 = getCondition().replaceSymbol(symbol, newSymbol, context);
 		
 		result = replaceIfNeeded(newIndexExpressions, newHead, newCondition);
 

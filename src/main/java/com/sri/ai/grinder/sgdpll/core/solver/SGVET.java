@@ -68,8 +68,8 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 	}
 
 	@Override
-	public boolean isVariable(Expression expression, Context process) {
-		return constraintTheory.isVariable(expression, process);
+	public boolean isVariable(Expression expression, Context context) {
+		return constraintTheory.isVariable(expression, context);
 	}
 
 	@Override

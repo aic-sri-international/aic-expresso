@@ -61,7 +61,7 @@ public class Tuple implements TopSimplifier {
 	//
 
 	@Override
-	public Expression apply(Expression expression, Context process) {
+	public Expression apply(Expression expression, Context context) {
 		return expression;
 	}
 	

@@ -5,20 +5,20 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 
 /**
- * A {@link Function<Expression, Expression>} version of looking up an expression's type given a rewriting process.
+ * A {@link Function<Expression, Expression>} version of looking up an expression's type given a context.
  */
 public class GetType implements Function<Expression, Expression> {
 
-	private Context process;
+	private Context context;
 
-	public GetType(Context process) {
+	public GetType(Context context) {
 		super();
-		this.process = process;
+		this.context = context;
 	}
 
 	@Override
 	public Expression apply(Expression input) {
-		Expression result = GrinderUtil.getType(input, process);
+		Expression result = GrinderUtil.getType(input, context);
 		return result;
 	}
 }

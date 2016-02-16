@@ -103,10 +103,10 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Constraint contextualConstraint,
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
-			Context process) {
+			Context context) {
 		
 		SolutionStep step = 
-				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint, process);
+				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint, context);
 		if (step == null) {
 			return null;
 		}
@@ -123,7 +123,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 		}
 		RangeAndExceptionsSet values = (RangeAndExceptionsSet) step.getValue();
 		
-		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, contextualConstraint, process);
+		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, contextualConstraint, context);
 		return new Solution(result);
 	}
 
@@ -132,7 +132,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Expression literalFreeBody,
 			RangeAndExceptionsSet values,
 			Constraint contextualConstraint,
-			Context process) {
+			Context context) {
 		
 		Expression result;
 		if (values.equals(RangeAndExceptionsSet.EMPTY)) {
@@ -143,7 +143,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			if (values instanceof RangeAndExceptionsSet.Singleton) {
 				Expression value = ((RangeAndExceptionsSet.Singleton)values).getSingleValue();
 				Expression valueAtPoint = 
-						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, process));
+						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, context));
 				result = valueAtPoint;
 			}
 			else {
@@ -177,20 +177,20 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 									variable,
 									disequal,
 									constraintTheory,
-									process);
+									context);
 					argumentsForSubtraction.add(apply(MINUS, valueAtDisequal));
 				}
 				Expression intervalSummationMinusValuesAtDisequals =
 						apply(PLUS, argumentsForSubtraction);
-				result = DefaultPolynomial.make(constraintTheory.simplify(intervalSummationMinusValuesAtDisequals, process));
+				result = DefaultPolynomial.make(constraintTheory.simplify(intervalSummationMinusValuesAtDisequals, context));
 			}
 		}
 		return result;
 	}
 
-	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, ConstraintTheory constraintTheory, Context process) {
-		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, process);
-		Expression valueAtPoint = constraintTheory.simplify(newBody, process);
+	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, ConstraintTheory constraintTheory, Context context) {
+		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, context);
+		Expression valueAtPoint = constraintTheory.simplify(newBody, context);
 		return valueAtPoint;
 	}
 

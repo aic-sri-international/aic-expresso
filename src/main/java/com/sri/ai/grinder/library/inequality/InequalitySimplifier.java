@@ -68,17 +68,17 @@ public class InequalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier 
 	
 	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				LESS_THAN_OR_EQUAL_TO,    (Simplifier) (f, process) ->
-				LessThanOrEqualTo.simplify(f, process),
+				LESS_THAN_OR_EQUAL_TO,    (Simplifier) (f, context) ->
+				LessThanOrEqualTo.simplify(f, context),
 
-				LESS_THAN,                (Simplifier) (f, process) ->
-				LessThan.simplify(f, process),
+				LESS_THAN,                (Simplifier) (f, context) ->
+				LessThan.simplify(f, context),
 				
-				GREATER_THAN_OR_EQUAL_TO, (Simplifier) (f, process) ->
-				GreaterThanOrEqualTo.simplify(f, process),
+				GREATER_THAN_OR_EQUAL_TO, (Simplifier) (f, context) ->
+				GreaterThanOrEqualTo.simplify(f, context),
 
-				GREATER_THAN,             (Simplifier) (f, process) ->
-				GreaterThan.simplify(f, process)
+				GREATER_THAN,             (Simplifier) (f, context) ->
+				GreaterThan.simplify(f, context)
 				);
 	}
 

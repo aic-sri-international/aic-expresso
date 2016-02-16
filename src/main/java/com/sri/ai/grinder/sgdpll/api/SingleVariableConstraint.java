@@ -100,7 +100,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 			ConstraintTheory constraintTheory,
 			Expression variable,
 			Expression formula,
-			Context process) {
+			Context context) {
 		
 		SingleVariableConstraint result = null;
 		if (formula instanceof SingleVariableConstraint) {
@@ -113,38 +113,38 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 		
 		// if formula is not appropriate constraint, create a new one and conjoin with formula
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, process).conjoin(formula, process);
+			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, context).conjoin(formula, context);
 		}
 		
 		return result;
 	}
 	
 	@Override
-	default SingleVariableConstraint conjoin(Expression formula, Context process) {
-		return (SingleVariableConstraint) Constraint.super.conjoin(formula, process);
+	default SingleVariableConstraint conjoin(Expression formula, Context context) {
+		return (SingleVariableConstraint) Constraint.super.conjoin(formula, context);
 	}
 	
 	/**
-	 * Returns the satisfiability of this single-variable constraint under a contextual constraint and process.
+	 * Returns the satisfiability of this single-variable constraint under a contextual constraint and context.
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default Expression satisfiability(Constraint contextualConstraint, Context process) {
-		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, process);
-		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint, process);
+	default Expression satisfiability(Constraint contextualConstraint, Context context) {
+		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
+		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint, context);
 		return satisfiability;
 	}
 	
 	/**
-	 * Returns the model count of this single-variable constraint under a contextual constraint and process.
+	 * Returns the model count of this single-variable constraint under a contextual constraint and context.
 	 * @param contextualConstraint
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	default Expression modelCount(Constraint contextualConstraint, Context process) {
-		ContextDependentExpressionProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this, process);
-		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, process);
+	default Expression modelCount(Constraint contextualConstraint, Context context) {
+		ContextDependentExpressionProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this, context);
+		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, context);
 		return modelCount;
 	}
 	

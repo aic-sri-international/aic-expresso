@@ -74,7 +74,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	private ConstraintTheory constraintTheory;
 	private int depth;
 	private NullaryFunction<Expression> leafGenerator;
-	private Context process;
+	private Context context;
 	
 	/**
 	 * Constructs a random conditional expression generator based on given parameters.
@@ -82,15 +82,15 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	 * @param constraintTheory the constraint theory used to generate the literals in the conditional's conditions
 	 * @param depth the depth of the conditional tree
 	 * @param leafGenerator a generators for expressions appearing at the leaves of the conditional tree
-	 * @param process
+	 * @param context
 	 */
-	public RandomConditionalExpressionGenerator(Random random, ConstraintTheory constraintTheory, int depth, NullaryFunction<Expression> leafGenerator, Context process) {
+	public RandomConditionalExpressionGenerator(Random random, ConstraintTheory constraintTheory, int depth, NullaryFunction<Expression> leafGenerator, Context context) {
 		super();
 		this.random = random;
 		this.constraintTheory = constraintTheory;
 		this.depth = depth;
 		this.leafGenerator = leafGenerator;
-		this.process = process;
+		this.context = context;
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 			result = leafGenerator.apply();
 		}
 		else {
-			Expression literal = constraintTheory.makeRandomLiteral(random, process);
+			Expression literal = constraintTheory.makeRandomLiteral(random, context);
 			result = IfThenElse.make(literal, apply(depth - 1), apply(depth - 1));
 		}
 		return result;
@@ -121,14 +121,14 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 				variableNamesAndTypes.put("v" + v, integerInterval);
 			}
 			constraintTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
-			Context process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+			Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 			RandomConditionalExpressionGenerator generator = 
 					new RandomConditionalExpressionGenerator(
 							random, 
 							constraintTheory, 
 							4, 
 							() -> makeSymbol(random.nextDouble()), 
-							process);
+							context);
 			
 			System.out.println();
 			System.out.println();

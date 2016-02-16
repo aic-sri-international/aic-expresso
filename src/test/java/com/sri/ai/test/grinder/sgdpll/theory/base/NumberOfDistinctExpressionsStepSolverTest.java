@@ -63,15 +63,15 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 	public void test() {
 		
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		Context process = constraintTheory.makeRewritingProcessWithTestingInformation();
+		Context context = constraintTheory.makeRewritingProcessWithTestingInformation();
 		
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
-		Constraint contextualConstraint = CompleteMultiVariableConstraint.parse(contextualConstraintString, constraintTheory, process);
+		Constraint contextualConstraint = CompleteMultiVariableConstraint.parse(contextualConstraintString, constraintTheory, context);
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsStepSolver stepSolver = new NumberOfDistinctExpressionsStepSolver(list);
 
-		SolutionStep step = stepSolver.step(contextualConstraint, process);
+		SolutionStep step = stepSolver.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getLiteral());
 		
@@ -79,7 +79,7 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenLiteralIsFalse();
 
 		// if X = c, the number of distinct values can be 3 or 4, depending on whether Y = a, or Y = b
-		step = stepSolverIfXEqualsC.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsC.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getLiteral());
 
@@ -87,12 +87,12 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXEqualsCAndYIsDifferentFromA = step.getStepSolverForWhenLiteralIsFalse();
 
 		// if X = c and Y = a, the number of distinct values is 3 (a, b, c)
-		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("3"), step.getValue());
 
 		// if X = c and Y != a, the number of distinct values is 3 or 4, depending on Y = c
-		step = stepSolverIfXEqualsCAndYIsDifferentFromA.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsCAndYIsDifferentFromA.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getLiteral());
 
@@ -100,50 +100,50 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenLiteralIsFalse();
 
 		// if X = c and Y != a and Y = c, the number of distinct values is 3
-		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("3"), step.getValue());
 
 		// if X = c and Y != a and Y != c, the number of distinct values is 4
-		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("4"), step.getValue());
 
 		// if X = c and Y = a, the number of distinct values is 3 (a, b, c)
-		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("3"), step.getValue());
 
 		// using again just to make sure it produces the same result
-		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, process);
+		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("3"), step.getValue());
 		
 
 		// if X != c, the number of distinct value will now depend on Y = a
-		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getLiteral());
 
 		// using again just to make sure it produces the same result
-		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getLiteral());
 		
 		// if X != c, the number of distinct values can be 4 or 5, depending on whether Y = a, or Y = b
-		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getLiteral());
 
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenLiteralIsTrue();
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenLiteralIsFalse();
 
-		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("4"), step.getValue());
 		
 		// if however Y != a, limit will depend on Y = c
-		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromA.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromA.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getLiteral());
 		
@@ -151,12 +151,12 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenLiteralIsFalse();
 
 		// if Y = c, then there are 4 distinct values
-		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("4"), step.getValue());
 		
 		// if Y != c, then Y is also unique and the number of distinct values is 5
-		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint, process);
+		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint, context);
 		assertEquals(false, step.itDepends());
 		assertEquals(parse("5"), step.getValue());
 	}

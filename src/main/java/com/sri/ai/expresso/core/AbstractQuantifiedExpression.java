@@ -89,7 +89,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	}
 
 	@Override
-	public List<Expression> getScopedExpressions(Context process) {
+	public List<Expression> getScopedExpressions(Context context) {
 		return cachedScopedExpressions;
 	}
 

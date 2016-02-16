@@ -192,7 +192,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context process) {
+	public SolutionStep step(Constraint contextualConstraint, Context context) {
 		
 		if (expressions.size() < 2) {
 			return makeSolutionStepWhenThereAreNoPairs();
@@ -201,12 +201,12 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 		if (hasPair()) {
 
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, process);
+			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, context);
 
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
 
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
+			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, context);
 			if (split.getResult().equals(ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
 				return null;
 			}
@@ -226,10 +226,10 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			}
 			
 			if (literalIsTrue) {
-				return stepSolverForWhenLiteralIsTrue.step(split.getConstraintAndLiteral(), process);
+				return stepSolverForWhenLiteralIsTrue.step(split.getConstraintAndLiteral(), context);
 			}
 			else if (literalIsFalse) {
-				return stepSolverForWhenLiteralIsFalse.step(split.getConstraintAndLiteralNegation(), process);
+				return stepSolverForWhenLiteralIsFalse.step(split.getConstraintAndLiteralNegation(), context);
 			}
 			else {
 				return new ItDependsOn(literal, split, stepSolverForWhenLiteralIsTrue, stepSolverForWhenLiteralIsFalse);

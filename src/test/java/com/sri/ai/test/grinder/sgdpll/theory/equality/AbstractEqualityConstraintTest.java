@@ -183,8 +183,8 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
 		ConstraintTheory constraintTheory = makeConstraintTheory();
 		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
-		Context process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
-		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), process);
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), context);
 		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
 	}
 
@@ -237,9 +237,9 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Context process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
-			constraint = constraint.conjoin(literal, process);
+			constraint = constraint.conjoin(literal, context);
 			if (constraint == null) {
 				break;
 			}
@@ -253,8 +253,8 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		else if (expected != null && constraint != null && !expected.equals(constraint)) {
 			SymbolicCommonInterpreter interpreter = new SymbolicCommonInterpreter(constraintTheory);
 			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
-			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, process);
-			Expression equivalent = interpreter.apply(universallyQuantified, process);
+			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);
+			Expression equivalent = interpreter.apply(universallyQuantified, context);
 			if (equivalent.equals(FALSE)) {
 				throw new Error("Expected <" + expected + "> but got <" + constraint + ">, which is not equivalent either");
 			}

@@ -161,14 +161,14 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
 		AbstractQuantifiedExpression result = this;
 		
-		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
+		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, context);
 		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) getIndexExpressions()).getList();
 		IndexExpressionsSet newIndexExpressions = new ExtensionalIndexExpressionsSet(replaceElementsNonDestructively(indexExpressionsList, renameSymbol));
 		
-		Expression newBody = getBody().replaceSymbol(symbol, newSymbol, process);
+		Expression newBody = getBody().replaceSymbol(symbol, newSymbol, context);
 		
 		result = replaceIfNeeded(newIndexExpressions, newBody);
 

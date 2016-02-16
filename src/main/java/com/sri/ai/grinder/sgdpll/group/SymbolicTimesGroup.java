@@ -77,14 +77,14 @@ public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context process) {
+	public Expression add(Expression value1, Expression value2, Context context) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
 			result = Expressions.makeSymbol(value1.rationalValue().multiply(value2.rationalValue()));
 		}
 		else {
 			Expression multiplication = Times.make(arrayList(value1, value2));
-			result = numericSimplifier.apply(multiplication, process);
+			result = numericSimplifier.apply(multiplication, context);
 		}
 		return result;
 	}

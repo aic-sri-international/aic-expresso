@@ -226,10 +226,10 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * on <code>X</code>, and to <code>Y = X</code> for a constraint on <code>Y</code>.
 	 * @param variable
 	 * @param literal
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context process);
+	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context context);
 
 	/**
 	 * Returns the literal corresponding to the negation of the given normalized atom.
@@ -259,17 +259,17 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * 
 	 * @param sign
 	 * @param atom
-	 * @param process 
+	 * @param context 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process);
+	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context);
 
 	
 	
 	
 	
 	@Override
-	public SingleVariableConstraint conjoinWithLiteral(Expression formula, Context process) {
+	public SingleVariableConstraint conjoinWithLiteral(Expression formula, Context context) {
 		AbstractSingleVariableConstraint result;
 		if (formula.equals(TRUE)) {
 			result = this;
@@ -277,11 +277,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		else if (formula.equals(FALSE)) {
 			result = null;
 		}
-		else if (!contains(formula, getVariable(), process)) {
+		else if (!contains(formula, getVariable(), context)) {
 			result = addExternalLiteral(formula);
 		}
 		else {
-			Pair<Boolean, Expression> signAndNormalizedAtom = fromLiteralOnVariableToSignAndNormalizedAtom(getVariable(), formula, process);
+			Pair<Boolean, Expression> signAndNormalizedAtom = fromLiteralOnVariableToSignAndNormalizedAtom(getVariable(), formula, context);
 			boolean    sign = signAndNormalizedAtom.first;
 			Expression normalizedAtom = signAndNormalizedAtom.second;
 			ArrayList<Expression>     sameSignNormalizedAtoms = sign? positiveNormalizedAtoms : negativeNormalizedAtoms;
@@ -293,11 +293,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 				result = null; // contradiction
 			}
 			else {
-				result = conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
+				result = conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, context);
 				if (conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() && result != this && result != null) {
 					// the condition above guarantees that result is not null and that the "new atom" is indeed new;
 					// if the instance is a new one (not 'this'), then the atom is not redundant.
-					result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, process);
+					result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, context);
 				}
 			}
 		}
@@ -326,10 +326,10 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * 
 	 * @param sign
 	 * @param normalizedAtom
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	abstract protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context process);
+	abstract protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, Context context);
 
 	
 	

@@ -119,10 +119,10 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 * For example, if <code>X</code> is the constraint's variable and we have atom <code>Y + 1 < X + 2</code>,
 	 * a valid return value is <code>Y - 1 < X</code>.
 	 * @param atom
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	abstract protected Expression isolateVariable(Expression atom, Context process);
+	abstract protected Expression isolateVariable(Expression atom, Context context);
 
 	public AbstractSingleVariableConstraintWithBinaryAtoms(Expression variable, ConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
@@ -143,15 +143,15 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	}
 
 	@Override
-	protected Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context process) {
+	protected Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context context) {
 	
 		Pair<Boolean, Expression> result;
 	
-		Pair<Boolean, Expression> signAndAtom = getEquivalentSignAndAtom(literal, process);
+		Pair<Boolean, Expression> signAndAtom = getEquivalentSignAndAtom(literal, context);
 		boolean sign = signAndAtom.first;
 		Expression atom = signAndAtom.second;
 		
-		Expression atomWithIsolatedVariable = isolateVariable(atom, process);
+		Expression atomWithIsolatedVariable = isolateVariable(atom, context);
 		
 		Pair<Boolean, Expression> signAndNormalFunctor = getEquivalentSignAndNormalFunctor(sign, atomWithIsolatedVariable);
 		sign = signAndNormalFunctor.first;
@@ -164,9 +164,9 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 		return result;
 	}
 
-	private Pair<Boolean, Expression> getEquivalentSignAndAtom(Expression literal, Context process) throws Error {
+	private Pair<Boolean, Expression> getEquivalentSignAndAtom(Expression literal, Context context) throws Error {
 		boolean sign;
-		Expression atom = getEquivalentAtomIfPossible(literal, process);
+		Expression atom = getEquivalentAtomIfPossible(literal, context);
 		if (atom == null) {
 			// must be a negation (otherwise atom would be the same as literal)
 			atom = literal.get(0);
@@ -187,7 +187,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 * @return an atom equivalent to literal, or null if there is no such equivalent literal.
 	 * @throws Error if literal is not a valid literal for this theory
 	 */
-	private Expression getEquivalentAtomIfPossible(Expression literal, Context process) throws Error {
+	private Expression getEquivalentAtomIfPossible(Expression literal, Context context) throws Error {
 		Expression result;
 		if (literal.hasFunctor(NOT)) {
 			String negatedFunctor = getNegationFunctor(literal.get(0).getFunctor().toString());
@@ -281,12 +281,12 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	/**
 	 * Returns the size of the variable's type
 	 * by using {@link GrinderUtil#getTypeCardinality(Expression, Context)}.
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	public long getVariableTypeSize(Context process) {
+	public long getVariableTypeSize(Context context) {
 		if (cachedIndexTypeSize == -1) {
-			cachedIndexTypeSize = getTypeCardinality(getVariable(), process);
+			cachedIndexTypeSize = getTypeCardinality(getVariable(), context);
 		}
 		return cachedIndexTypeSize;
 	}
@@ -295,13 +295,13 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	
 	/**
 	 * Return an expression describing the variable's type.
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	public Expression getVariableTypeExpression(Context process) {
+	public Expression getVariableTypeExpression(Context context) {
 		if (cachedVariableType == null) {
-			cachedVariableType = GrinderUtil.getType(getVariable(), process);
-//			cachedVariableType = process.getContextualSymbolType(getVariable());
+			cachedVariableType = GrinderUtil.getType(getVariable(), context);
+//			cachedVariableType = context.getContextualSymbolType(getVariable());
 //			if (cachedVariableType == null) {
 //				cachedVariableType = new DefaultSyntacticFunctionApplication(TYPE, getVariable());
 //			}

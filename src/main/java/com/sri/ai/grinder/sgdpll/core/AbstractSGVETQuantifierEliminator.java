@@ -107,7 +107,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		this.problemType = problemType;
 	}
 
-	public abstract boolean isVariable(Expression subExpression, Context process);
+	public abstract boolean isVariable(Expression subExpression, Context context);
 
 	public SemiRingProblemType getProblemType() {
 		return problemType;
@@ -120,14 +120,14 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 	}
 	
 	@Override
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context process) {
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 			
 		checkInterrupted();
 		
 		Expression result;
 		if (getDebug()) {
 			System.out.println("SGVE(T) input: " + body);	
-			System.out.println("Width        : " + width(body, process));
+			System.out.println("Width        : " + width(body, context));
 		}
 
 		Partition partition;
@@ -136,22 +136,22 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		}
 		else {
 			Expression factoredConditionalsExpression =
-					factoredConditionalsWithAbsorbingElseClause(body, process);
-			partition = pickPartition(factoredConditionalsExpression, indices, process);
+					factoredConditionalsWithAbsorbingElseClause(body, context);
+			partition = pickPartition(factoredConditionalsExpression, indices, context);
 		}
 
 		if (partition == null) {
 			if (basicOutput) {
 				System.out.println("No partition");	
 			}
-			result = subSolver.solve(indices, constraint, body, process);
+			result = subSolver.solve(indices, constraint, body, context);
 		}
 		else {
-			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);
+			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, context);
 			if (basicOutput) {
 				System.out.println("Eliminating: " + getFirst(partition.index));	
 				System.out.println("From       : " + indexSubProblemExpression);	
-				System.out.println("Width      : " + width(indexSubProblemExpression, process) + " out of " + indices.size() + " indices");	
+				System.out.println("Width      : " + width(indexSubProblemExpression, context) + " out of " + indices.size() + " indices");	
 			}
 
 			// We now invoke the subsolver for summing the index out of the factors it is in.
@@ -160,22 +160,22 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 			// In the future, we should try to re-use that internal representation and re-index it appropriately, but for now
 			// we rewrite the program in a way that the current constraint becomes a part of the input expression.
 			// This will be equivalent to using it as a constraint, but will cause the constraint to be re-built.
-			// BTW, the call to "project" below will also re-process the constraint for the same reason: re-indexing.
+			// BTW, the call to "project" below will also re-context the constraint for the same reason: re-indexing.
 			// In the future it should also re-use the representation.
 			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
 			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
-			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, process);
+			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, context);
 
 			if (basicOutput) {
 				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
 			}
 
 			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
-			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
+			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, context);
 			Constraint trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
 			Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
-			result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, process);
-			result = getProblemType().multiply(result, process);
+			result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, context);
+			result = getProblemType().multiply(result, context);
 		}
 
 		return result;
@@ -201,7 +201,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		}
 	}
 	
-	private Partition pickPartition(Expression expression, Collection<Expression> indices, Context process) {
+	private Partition pickPartition(Expression expression, Collection<Expression> indices, Context context) {
 		Partition result;
 		if (indices.isEmpty()) {
 			result = null;
@@ -209,7 +209,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		else {
 			List<Expression> factors = getProblemType().getFactors(expression);
 			List<Partition> allPartitions = mapIntoList(indices, makePartition(indices, factors));
-			result = argmin(allPartitions, width(process)); // min-fill heuristics
+			result = argmin(allPartitions, width(context)); // min-fill heuristics
 			if (result.isTrivial()) {
 				result = null; // no need to incur in the overhead for partitioning
 			}
@@ -230,22 +230,22 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		return result;
 	}
 	
-	public Function<Partition, Integer> width(Context process) {
-		return partition -> width(partition, process);
+	public Function<Partition, Integer> width(Context context) {
+		return partition -> width(partition, context);
 	}
 
-	private int width(Partition partition, Context process) {
-		Expression product = product(partition.expressionsOnIndexAndNot.first, process);
-		int result = width(product, process);
+	private int width(Partition partition, Context context) {
+		Expression product = product(partition.expressionsOnIndexAndNot.first, context);
+		int result = width(product, context);
 		return result;
 	}
 
-	private int width(Expression expression, Context process) {
+	private int width(Expression expression, Context context) {
 		Set<Expression> variables = new LinkedHashSet<Expression>();
 		Iterator<Expression> iterator = new SubExpressionsDepthFirstIterator(expression);
 		while (iterator.hasNext()) {
 			Expression subExpression = iterator.next();
-			if (isVariable(subExpression, process)) {
+			if (isVariable(subExpression, context)) {
 				variables.add(subExpression);
 			}
 		}
@@ -253,7 +253,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		return result;
 	}
 
-	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, Context process) {
+	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, Context context) {
 		List<Expression> factors = getProblemType().getFactors(expression);
 		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(factors);
 		Expression result;
@@ -261,7 +261,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 			result = expression;
 		}
 		else {
-			result = product(factorsAfterFactoringConditionals, process);
+			result = product(factorsAfterFactoringConditionals, context);
 		}
 		return result;
 	}
@@ -311,9 +311,9 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 		return getProblemType().getNthRoot(n, expression);
 	}
 
-	private Expression product(Collection<Expression> factors, Context process) {
+	private Expression product(Collection<Expression> factors, Context context) {
 		Expression multiplication = apply(getProblemType().multiplicativeFunctor(), factors);
-		Expression result = getProblemType().multiply(multiplication, process);
+		Expression result = getProblemType().multiply(multiplication, context);
 		return result;
 	}
 	

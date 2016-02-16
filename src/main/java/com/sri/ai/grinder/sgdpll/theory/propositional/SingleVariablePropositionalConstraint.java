@@ -93,7 +93,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context process) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context) {
 		return this;
 	}
 
@@ -103,7 +103,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context process) {
+	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, Context context) {
 		Pair<Boolean, Expression> result;
 		if (literal.hasFunctor(NOT)) {
 			result = Pair.make(false, literal.get(0));
@@ -115,8 +115,8 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public SingleVariablePropositionalConstraint conjoin(Expression formula, Context process) {
-		return (SingleVariablePropositionalConstraint) super.conjoin(formula, process);
+	public SingleVariablePropositionalConstraint conjoin(Expression formula, Context context) {
+		return (SingleVariablePropositionalConstraint) super.conjoin(formula, context);
 	}
 
 	@Override

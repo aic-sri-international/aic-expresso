@@ -58,20 +58,20 @@ public interface GroupProblemType extends AssociativeCommutativeGroup {
 	/**
 	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
 	 * and indices for DPLL to solve.
-	 * The index types are assumed to be stored in the rewriting process.
+	 * The index types are assumed to be stored in the context.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	Pair<Expression, IndexExpressionsSet>
-	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context process);
+	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context);
 
 	/**
 	 * Generates an expression representing of problem of this type, given its components. 
 	 * @param index
 	 * @param constraint
 	 * @param body
-	 * @param process
+	 * @param context
 	 * @return
 	 */
 	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);

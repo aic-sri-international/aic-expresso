@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMerg
  * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
  * <li> {@link BooleanSimplifier}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
  * <li> {@link NumericSimplifier}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link CardinalitySimplifier}: cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).
+ * <li> {@link CardinalitySimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
  * </ul>
  * 
  * @author braz

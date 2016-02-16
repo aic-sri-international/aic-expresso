@@ -131,15 +131,15 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
 		Constraint constraint = new CompleteMultiVariableConstraint(compound);
-		Context process = compound.extendWithTestingInformation(new DefaultRewritingProcess());
-		constraint = constraint.conjoin(condition, process);
+		Context context = compound.extendWithTestingInformation(new DefaultRewritingProcess());
+		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
 		
 		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
-		Expression result = interpreter.apply(input, process);
+		Expression result = interpreter.apply(input, context);
 		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);
 	}
@@ -253,9 +253,9 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Context process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
-			constraint = constraint.conjoin(literal, process);
+			constraint = constraint.conjoin(literal, context);
 		}
 		assertEquals(expected, constraint);
 	}

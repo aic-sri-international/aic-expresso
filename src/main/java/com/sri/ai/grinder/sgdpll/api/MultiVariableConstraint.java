@@ -51,7 +51,7 @@ import com.sri.ai.grinder.api.Context;
 public interface MultiVariableConstraint extends Constraint {
 	
 	@Override
-	default MultiVariableConstraint conjoin(Expression formula, Context process) {
-		return (MultiVariableConstraint) Constraint.super.conjoin(formula, process);
+	default MultiVariableConstraint conjoin(Expression formula, Context context) {
+		return (MultiVariableConstraint) Constraint.super.conjoin(formula, context);
 	}
 }

@@ -57,8 +57,8 @@ public interface Theory {
 	 * by their values, if their values are defined by some of their arguments
 	 * (such as <code>X + 0</code> being equal to <code>X</code>.
 	 * @param expression
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	Expression simplify(Expression expression, Context process);
+	Expression simplify(Expression expression, Context context);
 }

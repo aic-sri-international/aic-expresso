@@ -84,7 +84,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 	 * @param indexExpressions
 	 * @param indicesCondition
 	 * @param body
-	 * @param process
+	 * @param context
 	 * @return
 	 * @throws Error
 	 */
@@ -93,7 +93,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesCondition,
 			Expression body,
-			Context process) throws Error;
+			Context context) throws Error;
 
 	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
@@ -153,26 +153,26 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 	private Expression evaluateAggregateOverIntensionalSet(
 			AssociativeCommutativeGroup group,
 			Expression expression,
-			Context process) throws Error {
+			Context context) throws Error {
 		
 		IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
 		// the set is intensional, but not the set of index expressions!
 		Expression result =
 				evaluateAggregateOperation(
-						group, indexExpressions, intensionalSet.getCondition(), intensionalSet.getHead(), process);
+						group, indexExpressions, intensionalSet.getCondition(), intensionalSet.getHead(), context);
 		return result;
 	}
 
 	private Expression evaluateQuantifiedExpression(
 			Expression expression,
 			AssociativeCommutativeGroup group,
-			Context process) {
+			Context context) {
 		
 		QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) expression;
 		Expression body = quantifiedExpression.getBody();
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
-		Expression result = evaluateAggregateOperation(group, indexExpressions, TRUE, body, process);
+		Expression result = evaluateAggregateOperation(group, indexExpressions, TRUE, body, context);
 		return result;
 	}
 }

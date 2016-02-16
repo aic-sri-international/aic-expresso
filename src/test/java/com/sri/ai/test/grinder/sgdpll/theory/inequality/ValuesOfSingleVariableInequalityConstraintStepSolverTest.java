@@ -60,8 +60,8 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context process = new DefaultRewritingProcess();
-		process = constraintTheory.extendWithTestingInformation(process);
+		Context context = new DefaultRewritingProcess();
+		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 
 		Expression variable;
@@ -71,39 +71,39 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 		variable = parse("I");
 		constraintString = "true";
 		expected = parse("aboveAndUpTo(-1, 4)");
-		runTest(variable, constraintString, expected, contextualConstraint, process);
+		runTest(variable, constraintString, expected, contextualConstraint, context);
 		
 		variable = parse("I");
 		constraintString = "false";
 		expected = parse("{}");
-		runTest(variable, constraintString, expected, contextualConstraint, process);
+		runTest(variable, constraintString, expected, contextualConstraint, context);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I";
 		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2)");
-		runTest(variable, constraintString, expected, contextualConstraint, process);
+		runTest(variable, constraintString, expected, contextualConstraint, context);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I and I != 2";
 		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, contextualConstraint, process);
+		runTest(variable, constraintString, expected, contextualConstraint, context);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I and I != 2 and I != K";
 		expected = parse("if 3 > J then if 0 < J then if K + 1 <= J then aboveAndUpTo(-1, J - 1) - { K } else aboveAndUpTo(-1, J - 1) else {} else if K <= 2 then if 2 = K then aboveAndUpTo(-1, 2) - { K } else aboveAndUpTo(-1, 2) - { 2, K } else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, contextualConstraint, process);
+		runTest(variable, constraintString, expected, contextualConstraint, context);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression expected, Constraint contextualConstraint, Context process) {
+	private void runTest(Expression variable, String constraintString, Expression expected, Constraint contextualConstraint, Context context) {
 		Constraint constraint
 		= new SingleVariableInequalityConstraint(
 				variable, true, contextualConstraint.getConstraintTheory());
-		constraint = constraint.conjoin(parse(constraintString), process);
+		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new ValuesOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 		
-		Expression actual = stepSolver.solve(contextualConstraint, process);
+		Expression actual = stepSolver.solve(contextualConstraint, context);
 
 		System.out.println(
 				"Variable " + variable + "\nhas possible values:\n" + actual

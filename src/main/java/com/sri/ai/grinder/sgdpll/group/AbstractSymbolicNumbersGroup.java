@@ -23,7 +23,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 	public abstract Expression additiveIdentityElement();
 
 	@Override
-	public abstract Expression add(Expression value1, Expression value2, Context process);
+	public abstract Expression add(Expression value1, Expression value2, Context context);
 
 	@Override
 	public abstract boolean isAdditiveAbsorbingElement(Expression value);
@@ -38,7 +38,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 	protected abstract Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n);
 
 	@Override
-	public Expression addNTimes(Expression valueToBeAdded, Expression n, Context process) {
+	public Expression addNTimes(Expression valueToBeAdded, Expression n, Context context) {
 		Expression result;
 		if (n.equals(ZERO)) {
 			result = additiveIdentityElement();
@@ -47,8 +47,8 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 			Expression condition  = IfThenElse.condition(n);
 			Expression thenBranch = IfThenElse.thenBranch(n);
 			Expression elseBranch = IfThenElse.elseBranch(n);
-			Expression newThenBranch = addNTimes(valueToBeAdded, thenBranch, process);
-			Expression newElseBranch = addNTimes(valueToBeAdded, elseBranch, process);
+			Expression newThenBranch = addNTimes(valueToBeAdded, thenBranch, context);
+			Expression newElseBranch = addNTimes(valueToBeAdded, elseBranch, context);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
 		else if (IfThenElse.isIfThenElse(valueToBeAdded)) {
@@ -56,8 +56,8 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 			Expression thenBranch = IfThenElse.thenBranch(valueToBeAdded);
 			Expression elseBranch = IfThenElse.elseBranch(valueToBeAdded);
 			
-			Expression newThenBranch = addNTimes(thenBranch, n, process);
-			Expression newElseBranch = addNTimes(elseBranch, n, process);
+			Expression newThenBranch = addNTimes(thenBranch, n, context);
+			Expression newElseBranch = addNTimes(elseBranch, n, context);
 			
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		}

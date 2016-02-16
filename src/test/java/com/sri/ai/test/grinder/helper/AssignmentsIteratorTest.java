@@ -58,7 +58,7 @@ public class AssignmentsIteratorTest  {
 	
 	@Test
 	public void test1() {
-		Context process = new DefaultRewritingProcess();
+		Context context = new DefaultRewritingProcess();
 		Type myType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -82,9 +82,9 @@ public class AssignmentsIteratorTest  {
 				"{X=people4, Y=people4}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		process = process.add(myType);
-		process = process.registerIndicesAndTypes(map(x, myTypeExpression, y, myTypeExpression));
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
+		context = context.add(myType);
+		context = context.registerIndicesAndTypes(map(x, myTypeExpression, y, myTypeExpression));
+		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), context);
 		String actual = join("\n", assignmentsIterator);
 		
 		// System.out.println(actual);	
@@ -94,7 +94,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test2() {
-		Context process = new DefaultRewritingProcess();
+		Context context = new DefaultRewritingProcess();
 		Type myType = new Categorical("People", 2, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -106,9 +106,9 @@ public class AssignmentsIteratorTest  {
 				"{X=mary, Y=mary}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		process = process.add(myType);
-		process = process.registerIndicesAndTypes(map(x, myTypeExpression, y, myTypeExpression));
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
+		context = context.add(myType);
+		context = context.registerIndicesAndTypes(map(x, myTypeExpression, y, myTypeExpression));
+		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), context);
 		String actual = join("\n", assignmentsIterator);
 		
 		// System.out.println(actual);	
@@ -118,7 +118,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test3() {
-		Context process = new DefaultRewritingProcess();
+		Context context = new DefaultRewritingProcess();
 		Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Type petsType = new Categorical("Pets", 3, arrayList(makeSymbol("fido"), makeSymbol("purrs")));
 		Symbol x = makeSymbol("X");
@@ -140,10 +140,10 @@ public class AssignmentsIteratorTest  {
 
 		Symbol myPeopleTypeExpression = makeSymbol(peopleType.getName());
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
-		process = process.add(peopleType);
-		process = process.add(petsType);
-		process = process.registerIndicesAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
+		context = context.add(peopleType);
+		context = context.add(petsType);
+		context = context.registerIndicesAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
+		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), context);
 		String actual = join("\n", assignmentsIterator);
 		
 		// System.out.println(actual);	

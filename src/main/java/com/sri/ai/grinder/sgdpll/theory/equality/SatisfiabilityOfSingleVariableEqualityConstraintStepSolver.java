@@ -120,9 +120,9 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return (SingleVariableEqualityConstraint) super.getConstraint();
 	}
 	
-	private NumberOfDistinctExpressionsIsLessThanStepSolver getNumberOfDistinctExpressionsIsLessThanStepSolver(Context process) {
+	private NumberOfDistinctExpressionsIsLessThanStepSolver getNumberOfDistinctExpressionsIsLessThanStepSolver(Context context) {
 		if ( ! alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade) {
-			long variableTypeSize = getConstraint().getVariableTypeSize(process);
+			long variableTypeSize = getConstraint().getVariableTypeSize(context);
 			if (variableTypeSize >= 0) {
 				numberOfDistinctExpressionsIsLessThanStepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver((int) variableTypeSize, getConstraint().getDisequals());
 			}
@@ -141,7 +141,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected Iterable<Expression> getPropagatedLiterals(Context process) {
+	protected Iterable<Expression> getPropagatedLiterals(Context context) {
 		
 		Iterator<Expression> propagatedLiteralsIterator;
 
@@ -184,21 +184,21 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context process) {
-		if ( ! variableIsBoundToUniquelyNamedConstant(process)) {
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context context) {
+		if ( ! variableIsBoundToUniquelyNamedConstant(context)) {
 			// the following logic only holds if the variable is not bound to a uniquely named constants,
 			// since that eliminates all disequalities to other uniquely named constants as redundant
 	
-			long variableDomainSize = getConstraint().getVariableTypeSize(process);
+			long variableDomainSize = getConstraint().getVariableTypeSize(context);
 			if (variableDomainSize >= 0 &&
 					getConstraint().numberOfDisequals() >= variableDomainSize) {
 				// the following procedure can be very expensive but the condition above will rarely be satisfied
 	
-				ArrayList<Expression> variableDisequals = getVariableDisequals(process);
-				Set<Expression> uniquelyNamedConstantDisequals = getUniquelyNamedConstantDisequals(process);
+				ArrayList<Expression> variableDisequals = getVariableDisequals(context);
+				Set<Expression> uniquelyNamedConstantDisequals = getUniquelyNamedConstantDisequals(context);
 		
-				Expression typeExpression = GrinderUtil.getType(getConstraint().getVariable(), process);
-				Type type = process.getType(typeExpression);
+				Expression typeExpression = GrinderUtil.getType(getConstraint().getVariable(), context);
+				Type type = context.getType(typeExpression);
 				ArrayList<Expression> remainingUniquelyNamedConstants =
 						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! uniquelyNamedConstantDisequals.contains(c)));
 	
@@ -252,29 +252,29 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return result;
 	}
 
-	private boolean variableIsBoundToUniquelyNamedConstant(Context process) {
-		return thereExists(getConstraint().getPositiveNormalizedAtoms(), l -> process.isUniquelyNamedConstant(l.get(1)));
+	private boolean variableIsBoundToUniquelyNamedConstant(Context context) {
+		return thereExists(getConstraint().getPositiveNormalizedAtoms(), l -> context.isUniquelyNamedConstant(l.get(1)));
 	}
 
-	private ArrayList<Expression> getVariableDisequals(Context process) {
+	private ArrayList<Expression> getVariableDisequals(Context context) {
 		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
-		filter(e -> ! process.isUniquelyNamedConstant(e)). // only Variables
+		filter(e -> ! context.isUniquelyNamedConstant(e)). // only Variables
 		collect(Util.toArrayList(10));
 	}
 
-	private LinkedHashSet<Expression> getUniquelyNamedConstantDisequals(Context process) {
+	private LinkedHashSet<Expression> getUniquelyNamedConstantDisequals(Context context) {
 		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
-		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
+		filter(e -> context.isUniquelyNamedConstant(e)). // only constants
 		collect(toLinkedHashSet());
 	}
 
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context context) {
 		SolutionStep result;
-		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(process) != null) {
-			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(process).step(contextualConstraint, process);
+		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(context) != null) {
+			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(context).step(contextualConstraint, context);
 			if (numberStep.itDepends()) {
 				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsTrue = clone();
 				stepSolverIfExpressionIsTrue.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenLiteralIsTrue());

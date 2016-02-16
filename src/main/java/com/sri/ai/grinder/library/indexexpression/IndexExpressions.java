@@ -274,19 +274,19 @@ public class IndexExpressions {
 		return new ExtensionalIndexExpressionsSet(indexExpressions);
 	}
 
-	public static Expression getIndexExpressionForVariableFromcontextualSymbolsAndTypes(Expression expression, Context process) {
-		Expression type = process.getTypeOfRegisteredSymbol(expression);
+	public static Expression getIndexExpressionForVariableFromcontextualSymbolsAndTypes(Expression expression, Context context) {
+		Expression type = context.getTypeOfRegisteredSymbol(expression);
 		Expression indexExpression = makeIndexExpression(expression, type);
 		return indexExpression;
 	}
 
-	public static Expression renameSymbol(Expression indexExpression, Expression symbol, Expression newSymbol, Context process) {
+	public static Expression renameSymbol(Expression indexExpression, Expression symbol, Expression newSymbol, Context context) {
 		Expression result;
 		Expression index = getIndex(indexExpression);
 		if (indexExpression.hasFunctor(FunctorConstants.IN)) {
 			Expression type = getType(indexExpression);
-			Expression newIndex = index.replaceSymbol(symbol, newSymbol, process);
-			Expression newType  =  type.replaceSymbol(symbol, newSymbol, process);
+			Expression newIndex = index.replaceSymbol(symbol, newSymbol, context);
+			Expression newType  =  type.replaceSymbol(symbol, newSymbol, context);
 			if (newIndex != index || newType != type) {
 				result = makeIndexExpression(newIndex, newType);
 			}
@@ -295,7 +295,7 @@ public class IndexExpressions {
 			}
 		}
 		else {
-			result = index.replaceSymbol(symbol, newSymbol, process);
+			result = index.replaceSymbol(symbol, newSymbol, context);
 		}
 		return result;
 	}

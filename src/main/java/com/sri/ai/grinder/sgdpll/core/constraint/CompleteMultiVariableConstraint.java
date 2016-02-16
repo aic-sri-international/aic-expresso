@@ -63,12 +63,12 @@ public class CompleteMultiVariableConstraint extends MultiVariableConstraintWith
 	 * Creates a new instance and conjoins each conjunct in the parse of expressionString to it.
 	 * @param expressionString
 	 * @param constraintTheory
-	 * @param process
+	 * @param context
 	 * @return
 	 */
-	public static Constraint parse(String expressionString, ConstraintTheory constraintTheory, Context process) {
+	public static Constraint parse(String expressionString, ConstraintTheory constraintTheory, Context context) {
 		Constraint result = new CompleteMultiVariableConstraint(constraintTheory);
-		result = Expressions.parseAndConjoin(expressionString, result, process);
+		result = Expressions.parseAndConjoin(expressionString, result, context);
 		return result;
 	}
 }

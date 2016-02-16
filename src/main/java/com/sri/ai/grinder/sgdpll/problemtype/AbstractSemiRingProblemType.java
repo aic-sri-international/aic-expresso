@@ -107,8 +107,8 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Expression multiply(Expression multiplication, Context process) {
-		return getSemiRing().multiply(multiplication, process);
+	public Expression multiply(Expression multiplication, Context context) {
+		return getSemiRing().multiply(multiplication, context);
 	}
 
 	@Override
@@ -117,8 +117,8 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Expression multiplyNTimes(Expression value, Expression n, Context process) {
-		return getSemiRing().multiplyNTimes(value, n, process);
+	public Expression multiplyNTimes(Expression value, Expression n, Context context) {
+		return getSemiRing().multiplyNTimes(value, n, context);
 	}
 
 	@Override
@@ -132,13 +132,13 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context process) {
-		return getSemiRing().add(value1, value2, process);
+	public Expression add(Expression value1, Expression value2, Context context) {
+		return getSemiRing().add(value1, value2, context);
 	}
 
 	@Override
-	public Expression addNTimes(Expression value, Expression n, Context process) {
-		return getSemiRing().addNTimes(value, n, process);
+	public Expression addNTimes(Expression value, Expression n, Context context) {
+		return getSemiRing().addNTimes(value, n, context);
 	}
 
 	@Override
@@ -147,8 +147,8 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context process) {
-		return groupProblemType.getExpressionAndIndexExpressionsFromProblemExpression(expression, process);
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
+		return groupProblemType.getExpressionAndIndexExpressionsFromProblemExpression(expression, context);
 	}
 
 	@Override

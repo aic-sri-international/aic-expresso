@@ -173,9 +173,9 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
-		Expression result = replaceAllOccurrences(symbol, newSymbol, process);
+		Expression result = replaceAllOccurrences(symbol, newSymbol, context);
 		return result;
 	}
 

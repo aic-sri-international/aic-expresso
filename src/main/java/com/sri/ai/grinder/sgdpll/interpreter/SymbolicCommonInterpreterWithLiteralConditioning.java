@@ -71,8 +71,8 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 * result of super's interpretation, since we expect a symbolic interpreter
 	 * to condition on the literals in order to make the expression succinct.
 	 */
-	@Override public Expression apply(Expression expression, Context process) {
-		Expression interpretationResult = super.apply(expression, process);
+	@Override public Expression apply(Expression expression, Context context) {
+		Expression interpretationResult = super.apply(expression, context);
 		Constraint trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
 		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory());
@@ -82,7 +82,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		// but should set it off, or just remove the functionality altogether if it is not used anywhere else.
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
-		Expression result = evaluator.solve(trueConstraint, process);
+		Expression result = evaluator.solve(trueConstraint, context);
 		return result;
 	}
 }

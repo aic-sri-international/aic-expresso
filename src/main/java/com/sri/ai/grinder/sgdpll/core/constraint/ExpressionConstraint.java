@@ -35,7 +35,7 @@ public class ExpressionConstraint extends AbstractExpressionWrapper implements C
 	}
 
 	@Override
-	public Constraint conjoinWithLiteral(Expression literal, Context process) {
+	public Constraint conjoinWithLiteral(Expression literal, Context context) {
 		Expression conjunction = And.make(expression, literal);
 		ExpressionConstraint result = new ExpressionConstraint(conjunction, constraintTheory);
 		return result;
