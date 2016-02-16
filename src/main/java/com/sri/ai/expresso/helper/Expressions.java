@@ -83,7 +83,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
-import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
@@ -664,45 +663,6 @@ public class Expressions {
 		}
 	}
 
-	public static Pair<Expression, Expression> checkForTrivialResult(
-			Expression condition, List<Expression> equalityFormulaOnAtomicSymbols,
-			List<Expression> nonEqualityFormulasOnAtomicSymbols,
-			Context context) {
-		
-		Pair<Expression, Expression> trivialResult = null;
-		Equals<Expression> equalsTrue = new Equals<Expression>(TRUE);
-		boolean allAreConstraintParts = Util.forAll(nonEqualityFormulasOnAtomicSymbols, equalsTrue);
-		if (allAreConstraintParts) {
-			trivialResult = new Pair<Expression, Expression>(condition, TRUE);
-		}
-		boolean allAreNonConstraintParts = Util.forAll(equalityFormulaOnAtomicSymbols, equalsTrue);
-		if (allAreNonConstraintParts) {
-			trivialResult = new Pair<Expression, Expression>(TRUE, condition);
-		}
-		return trivialResult;
-	}
-
-	public static boolean isEqualityFormulaOnAtomicSymbols(Expression expression) {
-		 if ( ! expression.getSyntacticFormType().equals("Function application")) {
-			 return false;
-		 }
-		 if (expression.hasFunctor("=") || expression.hasFunctor("!=")) {
-			 return true;
-		 }
-		 if (FunctorConstants.BOOLEAN_FUNCTORS.contains(expression.getFunctor().toString())) {
-			 boolean result = Util.forAll(expression.getArguments(), isEqualityFormulaOnAtomicSymbols);
-			 return result;
-		 }
-		 return false;
-	}
-	
-	private static Predicate<Expression> isEqualityFormulaOnAtomicSymbols = new Predicate<Expression>() {
-		@Override
-		public boolean apply(Expression expression) {
-			return isEqualityFormulaOnAtomicSymbols(expression);
-		}
-	};
-	
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
 	 */
@@ -790,55 +750,6 @@ public class Expressions {
 		List<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i != list1.size(); i++) {
 			result.add(Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, list1.get(i), list2.get(i)));
-		}
-		return result;
-	}
-
-	/**
-	 * A small class for gathering the information regarding an index separator to some value in a given condition
-	 * @author braz
-	 */
-	public static class BoundIndexInformation {
-		/** The separator index */
-		public Expression index;
-		
-		/** One of the values the index is separator to. */
-		public Expression value;
-		
-		/** The index expressions minus the one on the separator index. */
-		public IndexExpressionsSet indexExpressionsWithoutBoundIndex;
-	}
-
-	/**
-	 * Returns a {@link BoundIndexInformation} object for the first index (among those defined in indexExpressions)
-	 * separator in a given formula.
-	 */
-	public static BoundIndexInformation getBoundIndexInformation(Expression formula, IndexExpressionsSet indexExpressions) {
-		BoundIndexInformation result = null;
-		for (Expression conjunct : And.getConjuncts(formula)) {
-			if (Equality.isEquality(conjunct)) {
-				Collection<Expression> indexOrNothing = Util.list();
-				Collection<Expression> remaining = Util.list();
-		
-				Util.collectFirstN(
-						Equality.getSymbolsBoundToSomethingElse(conjunct),
-						1,
-						new IndexExpressions.IsIndexIn(indexExpressions),
-						indexOrNothing,
-						remaining);
-				
-				List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
-				if (indexOrNothing.size() == 1) {
-					result = new BoundIndexInformation();
-					result.index = Util.getFirst(indexOrNothing);
-					result.value = Util.getFirst(remaining);
-					result.indexExpressionsWithoutBoundIndex =
-							new ExtensionalIndexExpressionsSet(
-									Util.removeNonDestructively(
-									indexExpressionsList, new IndexExpressions.HasIndex(result.index)));
-					break;
-				}
-			}
 		}
 		return result;
 	}
