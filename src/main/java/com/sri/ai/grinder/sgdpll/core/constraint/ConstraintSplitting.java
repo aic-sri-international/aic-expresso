@@ -62,36 +62,14 @@ public class ConstraintSplitting  {
 	 * @param context
 	 */
 	public ConstraintSplitting(Constraint constraint, Expression literal, Context context) {
-		this(constraint, literal, null, context);
-	}
-	
-	/**
-	 * Splits given constraint by given literal under an (optional) contextual constraint and stores the result and other information (see methods).
-	 * @param constraint
-	 * @param literal
-	 * @param context
-	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, Context context) {
 		this.constraint = constraint;
 		this.literal = literal;
 		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, context);
 		constraintAndLiteral         = constraint.conjoin(        literal, context);
 		constraintAndLiteralNegation = constraint.conjoin(literalNegation, context);
 		
-		Constraint constraintAndLiteralAndContextualConstraint;
-		Constraint constraintAndLiteralNegationAndContextualConstraint;
-
-		if (contextualConstraint != null) {
-			constraintAndLiteralAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteral, context);
-			constraintAndLiteralNegationAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteralNegation, context);
-		}
-		else {
-			constraintAndLiteralAndContextualConstraint = constraintAndLiteral;
-			constraintAndLiteralNegationAndContextualConstraint = constraintAndLiteralNegation;
-		}
-		
-		if ( ! constraintAndLiteralAndContextualConstraint.isContradiction()) {
-			if ( ! constraintAndLiteralNegationAndContextualConstraint.isContradiction()) {
+		if ( ! constraintAndLiteral.isContradiction()) {
+			if ( ! constraintAndLiteralNegation.isContradiction()) {
 				result = LITERAL_IS_UNDEFINED;
 			}
 			else {
@@ -99,7 +77,7 @@ public class ConstraintSplitting  {
 			}
 		}
 		else {
-			if ( ! constraintAndLiteralNegationAndContextualConstraint.isContradiction()) {
+			if ( ! constraintAndLiteralNegation.isContradiction()) {
 				result = LITERAL_IS_FALSE;
 			}
 			else {

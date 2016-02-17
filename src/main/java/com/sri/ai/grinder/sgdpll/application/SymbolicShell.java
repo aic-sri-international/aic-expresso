@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
@@ -81,7 +81,7 @@ public class SymbolicShell {
 								new InequalityConstraintTheory(false, false),
 								new PropositionalConstraintTheory()));
 		
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = context.add(BOOLEAN_TYPE);
 		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		context = context.add(new IntegerInterval("Integer"));

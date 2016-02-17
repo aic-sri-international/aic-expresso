@@ -55,7 +55,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -132,7 +132,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
 		Constraint constraint = new CompleteMultiVariableConstraint(compound);
-		Context context = compound.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = compound.extendWithTestingInformation(new DefaultContext());
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
@@ -254,7 +254,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 		}

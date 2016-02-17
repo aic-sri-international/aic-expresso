@@ -97,7 +97,7 @@ public interface Constraint extends Expression {
 		
 		Constraint result;
 	
-		if (formula.equals(FALSE)) {
+		if (isContradiction(formula)) {
 			result = makeContradiction();
 		}
 		else if (formula instanceof Constraint || isConjunction(formula)) {
@@ -108,6 +108,19 @@ public interface Constraint extends Expression {
 		}
 	
 		return result;
+	}
+
+	/**
+	 * Tests whether an expression is a contradiction (that is, equal to false),
+	 * by first checking if it is a {@link Constraint} and using {@link #isContradiction()},
+	 * and only if that fails, using <code>equals(FALSE)</code>.
+	 * This avoids the unnecessary generation of an {@link Expression} form for {@link Constraint}s
+	 * that only make it under demand.
+	 * @param formula
+	 * @return
+	 */
+	default boolean isContradiction(Expression formula) {
+		return (formula instanceof Constraint && ((Constraint)formula).isContradiction()) || formula.equals(FALSE);
 	}
 
 	/**

@@ -45,6 +45,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
 
 /**
  * A Context object gathers all information that needs to be kept and
@@ -59,7 +60,7 @@ import com.sri.ai.expresso.api.Type;
  * @author braz
  */
 @Beta
-public interface Context extends Cloneable {
+public interface Context extends Cloneable, Constraint {
 
 	Context clone();
 	

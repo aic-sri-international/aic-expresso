@@ -52,8 +52,12 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.IsVariable;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
+import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -64,8 +68,12 @@ import com.sri.ai.util.collect.StackedHashMap;
  * @author oreilly
  */
 @Beta
-public class DefaultRewritingProcess implements Context {
+public class DefaultContext extends AbstractExpressionWrapper implements Context {
 	
+	private static final long serialVersionUID = 1L;
+
+	private Constraint innerConstraint;
+
 	private Map<Expression, Expression>  symbolsAndTypes;
 	private Map<Expression, Type> fromTypeExpressionToType;
 
@@ -76,26 +84,59 @@ public class DefaultRewritingProcess implements Context {
 	//
 	// START - Constructors
 
-	public DefaultRewritingProcess() {
+	public DefaultContext() {
 		this(
+				null,
 				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
 				new PrologConstantPredicate(), 
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
-	public DefaultRewritingProcess(Map<Object, Object> globalObjects) {
+	public DefaultContext(Map<Object, Object> globalObjects) {
 		this(
+				null,
 				new LinkedHashMap<Expression, Expression>(), 
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
 
-	public DefaultRewritingProcess(
+	public DefaultContext(
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 		
 		initialize(
+				null,
+				symbolsAndTypes,
+				isUniquelyNamedConstantPredicate, 
+				globalObjects,
+				map());
+	}
+
+	public DefaultContext(ConstraintTheory constraintTheory) {
+		this(
+				constraintTheory,
+				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
+				new PrologConstantPredicate(), 
+				new LinkedHashMap<Object, Object>()); // globalObjects
+	}
+	
+	public DefaultContext(ConstraintTheory constraintTheory, Map<Object, Object> globalObjects) {
+		this(
+				constraintTheory,
+				new LinkedHashMap<Expression, Expression>(), 
+				new PrologConstantPredicate(), 
+				globalObjects);
+	}
+
+	public DefaultContext(
+			ConstraintTheory constraintTheory,
+			Map<Expression, Expression> symbolsAndTypes,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
+			Map<Object, Object> globalObjects) {
+		
+		initialize(
+				constraintTheory,
 				symbolsAndTypes,
 				isUniquelyNamedConstantPredicate, 
 				globalObjects,
@@ -106,10 +147,15 @@ public class DefaultRewritingProcess implements Context {
 	//
 	
 	private void initialize(
+			ConstraintTheory constraintTheory,
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects,
 			Map<Expression, Type> types) {
+		
+		this.innerConstraint = 
+				constraintTheory == null
+				? null : new CompleteMultiVariableConstraint(constraintTheory);
 		
 		this.symbolsAndTypes = symbolsAndTypes;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
@@ -131,10 +177,10 @@ public class DefaultRewritingProcess implements Context {
 	//
 	
 	@Override
-	public DefaultRewritingProcess clone() {
-		DefaultRewritingProcess result = null;
+	public DefaultContext clone() {
+		DefaultContext result = null;
 		try {
-			result = (DefaultRewritingProcess) super.clone();
+			result = (DefaultContext) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -161,7 +207,7 @@ public class DefaultRewritingProcess implements Context {
 
 	@Override
 	public Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		DefaultRewritingProcess result = clone();
+		DefaultContext result = clone();
 		result.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 		return result;
 	}
@@ -187,14 +233,14 @@ public class DefaultRewritingProcess implements Context {
 	}
 
 	@Override
-	public DefaultRewritingProcess putAllGlobalObjects(Map<Object, Object> objects) {
-		DefaultRewritingProcess result = clone();
+	public DefaultContext putAllGlobalObjects(Map<Object, Object> objects) {
+		DefaultContext result = clone();
 		result.globalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
 		return result;
 	}
 
 	@Override
-	public DefaultRewritingProcess putGlobalObject(Object key, Object value) {
+	public DefaultContext putGlobalObject(Object key, Object value) {
 		return putAllGlobalObjects(map(key, value));
 	}
 
@@ -226,7 +272,7 @@ public class DefaultRewritingProcess implements Context {
 
 	@Override
 	public Context add(Type type) {
-		DefaultRewritingProcess result = clone();
+		DefaultContext result = clone();
 		LinkedHashMap<Expression, Type> additionalTypeMap = map(parse(type.getName()), type);
 		result.fromTypeExpressionToType = new StackedHashMap<>(additionalTypeMap, fromTypeExpressionToType);
 		return result;
@@ -263,7 +309,7 @@ public class DefaultRewritingProcess implements Context {
 		Map<Expression, Expression> newSymbolsAndTypes = 
 				createNewSymbolsAndTypes(expressionsAndTypes);
 		
-		DefaultRewritingProcess result = clone();
+		DefaultContext result = clone();
 		result.symbolsAndTypes = newSymbolsAndTypes;
 		
 		return result;
@@ -301,5 +347,39 @@ public class DefaultRewritingProcess implements Context {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public ConstraintTheory getConstraintTheory() {
+		return innerConstraint.getConstraintTheory();
+	}
+
+	@Override
+	public DefaultContext conjoinWithLiteral(Expression literal, Context context) {
+		DefaultContext result = clone();
+		result.innerConstraint = innerConstraint.conjoinWithLiteral(literal, context);
+		return result;
+	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		return innerConstraint.binding(variable);
+	}
+
+	@Override
+	public boolean isContradiction() {
+		return innerConstraint.isContradiction();
+	}
+
+	@Override
+	public DefaultContext makeContradiction() {
+		DefaultContext result = clone();
+		result.innerConstraint = innerConstraint.makeContradiction();
+		return result;
+	}
+
+	@Override
+	protected Expression computeInnerExpression() {
+		return innerConstraint;
 	}
 }

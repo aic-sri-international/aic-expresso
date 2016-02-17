@@ -191,7 +191,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
 		SolutionStep result;
-		ConstraintSplitting split = new ConstraintSplitting(getIndexConstraint(), literal, contextualConstraint, context);
+		ConstraintSplitting split = new ConstraintSplitting(getIndexConstraint(), literal, context);
 		Expression solutionValue;
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:

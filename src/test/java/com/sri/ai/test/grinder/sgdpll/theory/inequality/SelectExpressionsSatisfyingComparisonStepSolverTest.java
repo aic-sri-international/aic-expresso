@@ -52,7 +52,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
@@ -68,7 +68,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 

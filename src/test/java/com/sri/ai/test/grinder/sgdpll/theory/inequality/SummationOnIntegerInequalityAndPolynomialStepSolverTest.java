@@ -48,7 +48,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -65,7 +65,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void simpleBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 
@@ -105,7 +105,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 	
@@ -145,7 +145,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 	
@@ -185,7 +185,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 	

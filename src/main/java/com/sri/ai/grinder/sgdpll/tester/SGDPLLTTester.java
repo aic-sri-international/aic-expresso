@@ -60,7 +60,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
@@ -128,7 +128,7 @@ public class SGDPLLTTester {
 	public static void testSingleVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, context);
 
@@ -160,7 +160,7 @@ public class SGDPLLTTester {
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
@@ -186,7 +186,7 @@ public class SGDPLLTTester {
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
 
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
@@ -384,7 +384,7 @@ public class SGDPLLTTester {
 	public static void testModelCountingForSingleVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
 		
 		Symbol variable = makeSymbol(constraintTheory.pickTestingVariableAtRandom(random));
 		
@@ -556,7 +556,7 @@ public class SGDPLLTTester {
 	}
 
 	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, GroupProblemType problemType, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess());
+		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, context);
 		

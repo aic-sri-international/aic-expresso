@@ -49,7 +49,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
@@ -78,7 +78,7 @@ public class EvaluatorStepSolverTest {
 		variablesAndTypes.put("U", booleanType);
 		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = new DefaultRewritingProcess();
+		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
