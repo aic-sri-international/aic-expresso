@@ -71,6 +71,8 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
+		context = contextualConstraint;
+
 		List<String> expressionStrings;
 		Expression bound;
 		Expression expected;

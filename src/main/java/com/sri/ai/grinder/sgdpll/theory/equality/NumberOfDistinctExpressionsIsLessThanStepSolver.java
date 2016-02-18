@@ -90,6 +90,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	
 	@Override
 	public SolutionStep step(Context contextualConstraint, Context context) {
+		context = contextualConstraint;
 		if (distinctExpressionsStepSolver.getUniqueValuesWhenStepSolverWasConstructed().size() >= limit) {
 			return new Solution(FALSE);
 		}

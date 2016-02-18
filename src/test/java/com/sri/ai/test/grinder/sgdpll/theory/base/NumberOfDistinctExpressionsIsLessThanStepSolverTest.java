@@ -76,6 +76,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsIsLessThanStepSolver stepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, list);
 
+		context = contextualConstraint;
+
 		SolutionStep step = stepSolver.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getLiteral());

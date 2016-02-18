@@ -73,6 +73,8 @@ public class MaximumExpressionStepSolverTest {
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 		
+		context = contextualConstraint;
+
 		List<String> expressionStrings;
 		String order;
 		Expression orderMinimum;

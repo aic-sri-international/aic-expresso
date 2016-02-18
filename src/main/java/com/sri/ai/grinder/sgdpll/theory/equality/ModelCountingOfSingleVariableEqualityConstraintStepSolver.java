@@ -81,6 +81,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
 			Context contextualConstraint, Context context) {
+		context = contextualConstraint;
 
 		Expression solutionExpression;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value

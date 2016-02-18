@@ -72,6 +72,8 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsStepSolver stepSolver = new NumberOfDistinctExpressionsStepSolver(list);
 
+		context = contextualConstraint;
+
 		SolutionStep step = stepSolver.step(contextualConstraint, context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getLiteral());

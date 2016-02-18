@@ -79,7 +79,9 @@ public class EvaluatorStepSolverTest {
 		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
-		
+
+		context = contextualConstraint;
+
 		String expressionString;
 		Expression expected;
 		

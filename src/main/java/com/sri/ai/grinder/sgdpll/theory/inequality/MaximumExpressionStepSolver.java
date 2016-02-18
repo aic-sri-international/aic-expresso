@@ -97,6 +97,7 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	
 	@Override
 	public SolutionStep<Expression> step(Context contextualConstraint, Context context) {
+		context = contextualConstraint;
 		SolutionStep<Expression> result;
 		if (maximumSoFar.equals(orderMaximum)) { // short-circuiting if maximum already found
 			result = new Solution<Expression>(orderMaximum);

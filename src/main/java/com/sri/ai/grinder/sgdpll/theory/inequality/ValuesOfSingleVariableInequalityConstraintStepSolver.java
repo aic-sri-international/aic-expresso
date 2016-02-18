@@ -396,6 +396,8 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 		// Therefore, the constraint is satisfiable if and only if U - L > D
 		// where D is the number of disequals.
 
+		context = contextualConstraint;
+
 		Expression solutionExpression;
 		
 		// successor keeps track of updates to non-splitting inner step solvers so far.

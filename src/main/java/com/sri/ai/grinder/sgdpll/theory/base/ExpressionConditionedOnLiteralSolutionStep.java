@@ -68,7 +68,8 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 	 */
 	public static SolutionStep
 	stepDependingOnLiteral(Expression literal, Expression solutionIfTrue, Expression solutionIfFalse, Context contextualConstraint, Context context) {
-		
+		context = contextualConstraint;
+
 		SolutionStep result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
 		ContextDependentProblemStepSolver.SolutionStep<Boolean> step =
