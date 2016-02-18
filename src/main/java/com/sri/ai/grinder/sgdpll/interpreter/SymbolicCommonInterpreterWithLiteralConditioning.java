@@ -81,7 +81,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		// but should set it off, or just remove the functionality altogether if it is not used anywhere else.
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
-		Expression result = evaluator.solve(trueConstraint, context);
+		Expression result = evaluator.solve(trueConstraint);
 		return result;
 	}
 }

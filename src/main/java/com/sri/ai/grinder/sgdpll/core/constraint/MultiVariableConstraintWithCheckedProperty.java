@@ -312,7 +312,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		}
 		else {
 			ContextDependentExpressionProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
-			Expression solution = problem.solve(tail, context);
+			Expression solution = problem.solve(tail);
 			if (solution == null) { // tail is found to be inconsistent with given context
 				result = makeContradiction();
 			}

@@ -437,12 +437,11 @@ public class SGDPLLTTester {
 		}
 	}
 
-	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, Context context) {
-		Context contextualConstraint = new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory(), context);
+	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, Context contextualConstraint) {
 		Expression symbolicSolution = 
 				singleVariableConstraint.isContradiction()?
 						ZERO
-						: singleVariableConstraint.modelCount(contextualConstraint, context);
+						: singleVariableConstraint.modelCount(contextualConstraint);
 		return symbolicSolution;
 	}
 

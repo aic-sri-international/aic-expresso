@@ -58,14 +58,14 @@ public class ConstraintSplitting {
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param literal
 	 * @param constraint
-	 * @param context
+	 * @param contextualConstraint
 	 */
-	public ConstraintSplitting(Expression literal, Constraint constraint, Context context) {
+	public ConstraintSplitting(Expression literal, Constraint constraint, Context contextualConstraint) {
 		this.constraint = constraint;
 		this.literal = literal;
-		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, context);
-		constraintAndLiteral         = constraint.conjoin(        literal, context);
-		constraintAndLiteralNegation = constraint.conjoin(literalNegation, context);
+		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, contextualConstraint);
+		constraintAndLiteral         = constraint.conjoin(        literal, contextualConstraint);
+		constraintAndLiteralNegation = constraint.conjoin(literalNegation, contextualConstraint);
 		
 		if ( ! constraintAndLiteral.isContradiction()) {
 			if ( ! constraintAndLiteralNegation.isContradiction()) {

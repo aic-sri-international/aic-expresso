@@ -67,7 +67,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
@@ -116,7 +116,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 		ExpressionWrapperStepSolver<List<Expression>> wrapInList
 		= new ExpressionWrapperStepSolver<>(stepSolver, selection -> apply("list", selection));
 
-		Expression solution = ContextDependentExpressionProblemSolver.solve(wrapInList, contextualConstraint, context);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(wrapInList, contextualConstraint);
 		System.out.println("Elements in " + expressions + " which are less than " + bound + ": " + solution);
 		assertEquals(expected, solution);
 	}

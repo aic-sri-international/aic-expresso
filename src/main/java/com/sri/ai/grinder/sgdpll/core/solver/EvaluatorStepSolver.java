@@ -150,6 +150,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 
 	@Override
 	public SolutionStep step(Context contextualConstraint, Context context) {
+		context = contextualConstraint;
 		SolutionStep result = null;
 		
 		Expression topSimplifiedExpression;

@@ -60,7 +60,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
@@ -103,7 +103,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new ValuesOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 		
-		Expression actual = stepSolver.solve(contextualConstraint, context);
+		Expression actual = stepSolver.solve(contextualConstraint);
 
 		System.out.println(
 				"Variable " + variable + "\nhas possible values:\n" + actual

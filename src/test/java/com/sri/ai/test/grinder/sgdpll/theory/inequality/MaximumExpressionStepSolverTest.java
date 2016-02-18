@@ -69,7 +69,7 @@ public class MaximumExpressionStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 		
@@ -144,7 +144,7 @@ public class MaximumExpressionStepSolverTest {
 						orderMinimum,
 						orderMaximum);
 
-		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, context);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint);
 		System.out.println("Maximum of " + expressions + " for order " + order + ": " + solution);
 		assertEquals(expected, solution);
 	}

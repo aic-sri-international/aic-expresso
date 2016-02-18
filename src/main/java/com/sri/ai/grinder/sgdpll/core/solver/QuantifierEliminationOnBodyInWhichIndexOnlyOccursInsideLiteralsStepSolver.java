@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
  * <li> if the group is idempotent, simplify group's identity.
  * <li> if the group is not idempotent, 
  * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, Context)} to
- * the literal-free body and {@link SingleVariableConstraint#modelCount(Context, Context)},
+ * the literal-free body and {@link SingleVariableConstraint#modelCount(Context)},
  * followed by {@link ConstraintTheory#simplify(Expression, Context)}.
  * No if then else externalization is performed.
  * </ul>
@@ -91,14 +91,15 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context contextualConstraint, Context context) {
-		
+		context = contextualConstraint;
+
 		Expression result;
 		if (getGroup().isIdempotent()) {
 			Expression conditionForSatisfiability = indexConstraint.satisfiability(contextualConstraint, context);
 			result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
 		}
 		else {
-			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(contextualConstraint, context), context);
+			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(contextualConstraint), context);
 			result = getConstraintTheory().simplify(result, context);
 		}
 		

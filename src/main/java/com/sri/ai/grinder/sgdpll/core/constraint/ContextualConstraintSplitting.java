@@ -17,10 +17,13 @@ public class ContextualConstraintSplitting extends ConstraintSplitting {
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param literal
 	 * @param contextualConstraint
-	 * @param context
 	 */
-	public ContextualConstraintSplitting(Expression literal, Context contextualConstraint, Context context) {
-		super(literal, contextualConstraint, context);
+	public ContextualConstraintSplitting(Expression literal, Context contextualConstraint) {
+		super(literal, contextualConstraint, contextualConstraint);
+		// the above may seem odd, but we are simply splitting the contextual constraint.
+		// Because we need a Context for that to happen (because of type information, etc),
+		// we use the contextual constraint itself.
+		// The constraint information inside the second contextual constraint will be redudant.
 	}
 	
 	@Override

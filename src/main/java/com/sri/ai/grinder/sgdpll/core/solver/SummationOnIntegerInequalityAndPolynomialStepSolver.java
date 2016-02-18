@@ -103,7 +103,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Expression literalFreeBody,
 			Context contextualConstraint,
 			Context context) {
-		
+		context = contextualConstraint;
+
 		SolutionStep step = 
 				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint, context);
 		if (step == null) {

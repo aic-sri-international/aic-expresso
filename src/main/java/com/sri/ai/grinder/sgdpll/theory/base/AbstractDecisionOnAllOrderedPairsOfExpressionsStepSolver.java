@@ -205,7 +205,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
 
-			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint, context);
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint);
 			if (split.getResult().equals(ContextualConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
 				return null;
 			}

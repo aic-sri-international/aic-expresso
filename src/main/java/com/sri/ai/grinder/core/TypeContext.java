@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -87,24 +88,35 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 
 	public TypeContext() {
 		this(
+				null,
+				new LinkedHashMap<Expression, Expression>(),
+				new PrologConstantPredicate(), // symbolsAndTypes
+				new LinkedHashMap<Object, Object>()); // globalObjects
+	}
+
+	public TypeContext(ConstraintTheory constraintTheory) {
+		this(
+				constraintTheory,
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), // symbolsAndTypes
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
-	public TypeContext(Map<Object, Object> globalObjects) {
+	public TypeContext(ConstraintTheory constraintTheory, Map<Object, Object> globalObjects) {
 		this(
+				constraintTheory,
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
 
 	public TypeContext(
+			ConstraintTheory constraintTheory,
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 
-		this.constraintTheory = null;
+		this.constraintTheory = constraintTheory;
 		
 		this.symbolsAndTypes = symbolsAndTypes;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
@@ -305,6 +317,9 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 
 	@Override
 	public ConstraintTheory getConstraintTheory() {
+		myAssert( 
+				() -> constraintTheory != null, 
+				() -> "Trying to obtain a constraint theory from a " + TypeContext.class + " instance without one.");
 		return constraintTheory;
 	}
 

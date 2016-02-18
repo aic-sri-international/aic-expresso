@@ -65,7 +65,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void simpleBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
@@ -105,7 +105,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 	
@@ -145,7 +145,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 	
@@ -185,7 +185,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext();
+		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
 		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 	
@@ -222,7 +222,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 						(SingleVariableInequalityConstraint) constraint,
 						body, new SymbolicCommonInterpreter(constraintTheory));
 		
-		Expression actual = stepSolver.solve(contextualConstraint, context);
+		Expression actual = stepSolver.solve(contextualConstraint);
 
 		expected = simplify(expected, contextualConstraint, context);
 		

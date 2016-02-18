@@ -170,7 +170,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 				currentBody =
 						constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
 								group, constraintForThisIndex, currentBody, simplifier, context).
-						solve(contextualConstraint, context);
+						solve(contextualConstraint);
 			}
 		}
 		else {
@@ -180,7 +180,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 		// Normalize final result.
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(currentBody, topSimplifier);
-		currentBody = evaluator.solve(contextualConstraint, context);
+		currentBody = evaluator.solve(contextualConstraint);
 		
 		return currentBody;
 	}

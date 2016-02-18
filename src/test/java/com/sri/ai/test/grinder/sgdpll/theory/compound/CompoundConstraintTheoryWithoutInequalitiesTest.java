@@ -92,17 +92,17 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 	@Test
 	public void basicTests() {
 		
-		ConstraintTheory compound = makeConstraintTheory();
+		ConstraintTheory compoundConstraintTheory = makeConstraintTheory();
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
-		Context context = compound.extendWithTestingInformation(new TypeContext());
-		Constraint constraint = new CompleteMultiVariableConstraint(compound, context);
+		Context context = compoundConstraintTheory.extendWithTestingInformation(new TypeContext(compoundConstraintTheory));
+		Constraint constraint = new CompleteMultiVariableConstraint(compoundConstraintTheory, context);
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
 		
-		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
+		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compoundConstraintTheory);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		Expression result = interpreter.apply(input, context);

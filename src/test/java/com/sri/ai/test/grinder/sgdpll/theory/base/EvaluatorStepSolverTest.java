@@ -124,7 +124,7 @@ public class EvaluatorStepSolverTest {
 		Expression expression = parse(expressionString);
 		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression, topSimplifier);
 		System.out.println("Evaluating " + expression);
-		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, context);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint);
 		System.out.println(expression + " -----> " + solution + "\n");
 		assertEquals(expected, solution);
 	}

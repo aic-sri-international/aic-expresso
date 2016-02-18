@@ -132,19 +132,20 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 */
 	default Expression satisfiability(Context contextualConstraint, Context context) {
 		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
-		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint, context);
+		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint);
 		return satisfiability;
 	}
 	
 	/**
 	 * Returns the model count of this single-variable constraint under a contextual constraint and context.
 	 * @param contextualConstraint
-	 * @param context
 	 * @return
 	 */
-	default Expression modelCount(Context contextualConstraint, Context context) {
-		ContextDependentExpressionProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this, context);
-		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, context);
+	default Expression modelCount(Context contextualConstraint) {
+		ContextDependentExpressionProblemStepSolver modelCountingStepSolver = 
+				getConstraintTheory()
+				.getSingleVariableConstraintModelCountingStepSolver(this, contextualConstraint);
+		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint);
 		return modelCount;
 	}
 	

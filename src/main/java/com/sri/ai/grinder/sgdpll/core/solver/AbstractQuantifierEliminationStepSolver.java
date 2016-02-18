@@ -182,7 +182,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	@Override
 	public SolutionStep step(Context contextualConstraint, Context context) {
-
+		context = contextualConstraint;
+		
 		if (indexConstraint.isContradiction()) {
 			return new Solution(group.additiveIdentityElement());
 		}
@@ -224,7 +225,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	private SolutionStep resultIfLiteralContainsIndex(Expression literal, Context contextualConstraint, Context context) {
-		
+		context = contextualConstraint;
+
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
@@ -262,7 +264,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	private Expression solveSubProblem(Constraint newIndexConstraint, Context contextualConstraint, Context context) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = (SingleVariableConstraint) newIndexConstraint;
 		ContextDependentExpressionProblemStepSolver subProblem = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
-		Expression result = subProblem.solve(contextualConstraint, context);
+		Expression result = subProblem.solve(contextualConstraint);
 		return result;
 	}
 
@@ -270,7 +272,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		Expression result;
 		if (isIfThenElse(solution1)) {
 			// (if C1 then A1 else A2) op solution2 ---> if C1 then (A1 op solution2) else (A2 op solution2)
-			ContextualConstraintSplitting split = new ContextualConstraintSplitting(condition(solution1), contextualConstraint, context);
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(condition(solution1), contextualConstraint);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;
@@ -291,7 +293,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		}
 		else if (isIfThenElse(solution2)) {
 			// solution1 op (if C2 then B1 else B2) ---> if C2 then (solution1 op B2) else (solution1 op B2)
-			ContextualConstraintSplitting split = new ContextualConstraintSplitting(condition(solution2), contextualConstraint, context);
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(condition(solution2), contextualConstraint);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;

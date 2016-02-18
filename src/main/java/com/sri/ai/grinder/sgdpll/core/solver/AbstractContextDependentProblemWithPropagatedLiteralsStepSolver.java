@@ -228,7 +228,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 
 	@Override
 	public SolutionStep step(Context contextualConstraint, Context context) {
-
+		context = contextualConstraint;
 		if (getConstraint().isContradiction()) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
@@ -282,7 +282,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			for ( /* literalIndex already initialized at this point */ ; literalIndex != clause.size(); literalIndex++) {
 				Expression literal = clause.get(literalIndex);
 				ContextualConstraintSplitting contextualConstraintSplitting = 
-						new ContextualConstraintSplitting(literal, contextualConstraint, context);
+						new ContextualConstraintSplitting(literal, contextualConstraint);
 				
 				switch (contextualConstraintSplitting.getResult()) {
 				case LITERAL_IS_UNDEFINED:
@@ -328,7 +328,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context contextualConstraint, Context context) {
 		for (Expression literal : conjunctiveClause) {
-			ContextualConstraintSplitting contextualConstraintSplitting = new ContextualConstraintSplitting(literal, contextualConstraint, context);
+			ContextualConstraintSplitting contextualConstraintSplitting = new ContextualConstraintSplitting(literal, contextualConstraint);
 
 			switch (contextualConstraintSplitting.getResult()) {
 			case LITERAL_IS_UNDEFINED:
