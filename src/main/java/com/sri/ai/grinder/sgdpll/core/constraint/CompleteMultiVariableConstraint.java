@@ -53,7 +53,7 @@ public class CompleteMultiVariableConstraint extends MultiVariableConstraintWith
 
 	private static final long serialVersionUID = 1L;
 
-	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory, Context typeContext) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p));
+	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory, Context contextualConstraint) {
+		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), contextualConstraint);
 	}
 }

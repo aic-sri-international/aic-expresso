@@ -111,7 +111,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 			MultiVariableConstraintWithCheckedProperty newMultiVariableConstraintWithCheckedProperty = 
 					new MultiVariableConstraintWithCheckedProperty(
 							constraintTheory, 
-							contextDependentProblemStepSolverMaker);
+							contextDependentProblemStepSolverMaker, 
+							tail); // "constraint content" of tail does not matter because result will be a contradiction and never use it. Still, it would be nice to clean this, as it is unclear. One way would be for objects of this class to keep track of their "pure" type context.
 			result = newMultiVariableConstraintWithCheckedProperty.makeContradiction();
 			// TODO: perhaps this should be cached
 		}
@@ -130,12 +131,13 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 
 	public MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory, 
-			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
+			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
+			Context contextualConstraint) {
 		
 		this(
 				constraintTheory, 
 				null,
-				null, 
+				contextualConstraint, // initial tail is the contextual constraint 
 				contextDependentProblemMaker);
 	}
 	
@@ -159,7 +161,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		this.checked = false;
 		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 	}
-
+	
 	@Override
 	public MultiVariableConstraintWithCheckedProperty conjoin(Expression formula, Context context) {
 		MultiVariableConstraintWithCheckedProperty result;
@@ -299,7 +301,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	public MultiVariableConstraintWithCheckedProperty makeContradiction() {
 		return (MultiVariableConstraintWithCheckedProperty) super.makeContradiction();
 	}
-
+	
 	private MultiVariableConstraintWithCheckedProperty check(Context context) {
 		MultiVariableConstraintWithCheckedProperty result;
 		if (checked) {
