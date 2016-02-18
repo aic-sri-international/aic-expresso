@@ -42,7 +42,6 @@ import static com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminatio
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
@@ -73,7 +72,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 */
 	@Override public Expression apply(Expression expression, Context context) {
 		Expression interpretationResult = super.apply(expression, context);
-		Constraint trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
+		Context trueConstraint = context.conjoin(new CompleteMultiVariableConstraint(getConstraintTheory()), context);
 		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory());
 		// TODO: given that we are only using the top simplifier from the simplifier above,

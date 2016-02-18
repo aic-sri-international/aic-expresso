@@ -105,7 +105,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		MultiVariableConstraintWithCheckedProperty result;
 		if (newSingleVariableConstraint.isContradiction() || newContextualConstraint.isContradiction()) {
 			MultiVariableConstraintWithCheckedProperty newMultiVariableConstraintWithCheckedProperty = 
-					new MultiVariableConstraintWithCheckedProperty(null, contextDependentProblemStepSolverMaker);
+					new MultiVariableConstraintWithCheckedProperty(constraintTheory, contextDependentProblemStepSolverMaker);
 			result = newMultiVariableConstraintWithCheckedProperty.makeContradiction();
 			// TODO: perhaps this should be cached
 		}
@@ -115,8 +115,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 							newContextualConstraint.getConstraintTheory(), 
 							newContextualConstraint, 
 							newSingleVariableConstraint, 
-							contextDependentProblemStepSolverMaker, 
-							false);
+							contextDependentProblemStepSolverMaker);
 			result = result.check(context);
 		}
 		
@@ -125,11 +124,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 
 	public MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory, ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
-		super(constraintTheory);
-		this.contextualConstraint = null;
-		this.singleVariableConstraint = null;
-		this.checked = false;
-		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
+		this(constraintTheory, null, null, contextDependentProblemMaker);
 	}
 	
 	/**
@@ -146,14 +141,12 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 			ConstraintTheory constraintTheory,
 			Constraint contextualConstraint,
 			SingleVariableConstraint singleVariableConstraint,
-			ContextDependentProblemStepSolverMaker contextDependentProblemMaker,
-			boolean isContradiction) {
+			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
 		super(constraintTheory);
 		this.contextualConstraint = contextualConstraint;
 		this.singleVariableConstraint = singleVariableConstraint;
 		this.checked = false;
 		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
-		this.isContradiction = isContradiction;
 	}
 
 	@Override
@@ -263,11 +256,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 							getConstraintTheory(),
 							this, 
 							newSingleVariableConstraint, 
-							contextDependentProblemStepSolverMaker,
-							false);
-					// the use of 'this' here does not mean that *this* constraint has to be provided as the contextual constraint.
-					// any empty multi-variable constraint would do.
-					// It is just that at this point we know 'this' to be an empty constraint and use it as a conveniently already available one.
+							contextDependentProblemStepSolverMaker);
 					result = result.check(context);
 				}
 				else {
@@ -293,7 +282,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		}
 		else {
 			ContextDependentExpressionProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, context);
-			Expression solution = problem.solve(contextualConstraint, context);
+			Context contextualConstraintAsContext = context.conjoin(contextualConstraint, context);
+			Expression solution = problem.solve(contextualConstraintAsContext, context);
 			if (solution == null) { // contextual constraint is found to be inconsistent
 				result = makeContradiction();
 			}

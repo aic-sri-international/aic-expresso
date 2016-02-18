@@ -45,7 +45,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.core.AbstractSGVETQuantifierEliminator;
@@ -73,8 +72,8 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 	}
 
 	@Override
-	public Constraint makeTrueConstraint(Collection<Expression> indices) {
-		return new CompleteMultiVariableConstraint(constraintTheory);
+	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
+		return context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 	}
 	
 	public ConstraintTheory getConstraintTheory() {

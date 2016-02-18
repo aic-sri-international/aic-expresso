@@ -26,16 +26,17 @@ public interface OldStyleQuantifierEliminator {
 	 * Returns a true constraint for a problem with given indices.
 	 * This is used by the default implementation of {@link #solve(Expression, Collection, Context).
 	 * @param indices
+	 * @param context TODO
 	 * @return
 	 */
-	Constraint makeTrueConstraint(Collection<Expression> indices);
+	Context makeTrueConstraint(Collection<Expression> indices, Context context);
 	
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
 	 * assuming a true contextual constraint.
 	 */
 	default Expression solve(Expression input, Collection<Expression> indices, Context context) {
-		Constraint constraint = makeTrueConstraint(indices);
+		Constraint constraint = makeTrueConstraint(indices, context);
 		Expression result = solve(indices, constraint, input, context);
 		return result;
 	}

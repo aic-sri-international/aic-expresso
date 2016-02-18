@@ -200,7 +200,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				// "intercept" literals containing the index and split the quantifier based on it
 				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
 					Expression literalOnIndex = bodyStep.getLiteral();
-					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, context);
+					result = resultIfLiteralContainsIndex(literalOnIndex, contextualConstraint, context);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
@@ -222,7 +222,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private SolutionStep resultIfLiteralContainsIndex(Constraint contextualConstraint, Expression literal, Context context) {
+	private SolutionStep resultIfLiteralContainsIndex(Expression literal, Constraint contextualConstraint, Context context) {
 		
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)

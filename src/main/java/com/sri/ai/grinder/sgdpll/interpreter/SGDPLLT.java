@@ -91,8 +91,8 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	}
 
 	@Override
-	public Constraint makeTrueConstraint(Collection<Expression> indices) {
-		return new CompleteMultiVariableConstraint(constraintTheory);
+	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
+		return context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
-		Constraint trueContextualConstraint = makeTrueConstraint(indices);
+		Context trueContextualConstraint = makeTrueConstraint(indices, context);
 		Expression quantifierFreeConstraint = simplifier.apply(constraint, context);
 		Expression quantifierFreeBody = simplifier.apply(body, context);
 		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, context);
@@ -133,7 +133,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
-			Constraint contextualConstraint,
+			Context contextualConstraint,
 			Context context) {
 		
 		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));

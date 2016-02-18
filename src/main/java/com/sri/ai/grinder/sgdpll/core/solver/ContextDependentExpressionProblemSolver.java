@@ -118,9 +118,9 @@ public class ContextDependentExpressionProblemSolver {
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		context = context.conjoin(new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true)), context);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true)), context);
 		
-		Expression result = solve(problem, context, context);
+		Expression result = solve(problem, contextualConstraint, context);
 		
 		System.out.println("result: " + result);	
 	}

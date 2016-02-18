@@ -69,7 +69,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		context = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 
 		List<String> expressionStrings;
 		Expression bound;
@@ -78,35 +78,35 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 		expressionStrings = list("I", "J");
 		bound = parse("J");
 		expected = parse("if I < J then list(I) else list()");
-		runTest(expressionStrings, bound, expected, context);	
+		runTest(expressionStrings, bound, expected, contextualConstraint, context);	
 		
 		expressionStrings = list("I", "2", "J");
 		bound = parse("3");
 		expected = parse("if I < 3 then if J < 3 then list(I, 2, J) else list(I, 2) else if J < 3 then list(2, J) else list(2)");
-		runTest(expressionStrings, bound, expected, context);	
+		runTest(expressionStrings, bound, expected, contextualConstraint, context);	
 		
 		expressionStrings = list();
 		bound = parse("3");
 		expected = parse("list()");
-		runTest(expressionStrings, bound, expected, context);	
+		runTest(expressionStrings, bound, expected, contextualConstraint, context);	
 
 		expressionStrings = list("I", "2", "J");
 		bound = parse("infinity");
 		expected = parse("list(I, 2, J)");
-		runTest(expressionStrings, bound, expected, context);	
+		runTest(expressionStrings, bound, expected, contextualConstraint, context);	
 
 		expressionStrings = list("I", "2", "J");
 		bound = parse("-infinity");
 		expected = parse("list()");
-		runTest(expressionStrings, bound, expected, context);	
+		runTest(expressionStrings, bound, expected, contextualConstraint, context);	
 		
 		expressionStrings = list("I", "2", "infinity");
 		bound = parse("3");
 		expected = parse("if I < 3 then list(I, 2) else list(2)");
-		runTest(expressionStrings, bound, expected, context);	
+		runTest(expressionStrings, bound, expected, contextualConstraint, context);	
 	}
 
-	private void runTest(List<String> expressions, Expression bound, Expression expected, Context context) {
+	private void runTest(List<String> expressions, Expression bound, Expression expected, Context contextualConstraint, Context context) {
 		ContextDependentProblemStepSolver<List<Expression>> stepSolver =
 				new SelectExpressionsSatisfyingComparisonStepSolver(
 						mapIntoArrayList(expressions, Expressions::parse),
@@ -116,7 +116,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 		ExpressionWrapperStepSolver<List<Expression>> wrapInList
 		= new ExpressionWrapperStepSolver<>(stepSolver, selection -> apply("list", selection));
 
-		Expression solution = ContextDependentExpressionProblemSolver.solve(wrapInList, context, context);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(wrapInList, contextualConstraint, context);
 		System.out.println("Elements in " + expressions + " which are less than " + bound + ": " + solution);
 		assertEquals(expected, solution);
 	}

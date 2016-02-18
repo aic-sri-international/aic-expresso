@@ -62,7 +62,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 
 		Expression variable;
 		String constraintString;
@@ -94,7 +94,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 		runTest(variable, constraintString, expected, contextualConstraint, context);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression expected, Constraint contextualConstraint, Context context) {
+	private void runTest(Expression variable, String constraintString, Expression expected, Context contextualConstraint, Context context) {
 		Constraint constraint
 		= new SingleVariableInequalityConstraint(
 				variable, true, contextualConstraint.getConstraintTheory());

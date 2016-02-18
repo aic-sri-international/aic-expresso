@@ -67,7 +67,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 
 		Expression variable;
 		String constraintString;
@@ -107,7 +107,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 	
 		Expression variable;
 		String constraintString;
@@ -147,7 +147,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 	
 		Expression variable;
 		String constraintString;
@@ -187,7 +187,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 	
 		Expression variable;
 		String constraintString;
@@ -210,7 +210,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		runTest(variable, constraintString, body, expected, contextualConstraint, context);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Constraint contextualConstraint, Context context) {
+	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Context contextualConstraint, Context context) {
 		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
 		Constraint constraint
 		= new SingleVariableInequalityConstraint(
