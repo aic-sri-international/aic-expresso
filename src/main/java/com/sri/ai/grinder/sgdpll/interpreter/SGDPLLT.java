@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.AbstractOldStyleQuantifierEliminator;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
@@ -92,7 +92,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 
 	@Override
 	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
-		return new CompleteMultiVariableConstraint(constraintTheory, context);
+		return new CompleteMultiVariableContext(constraintTheory, context);
 	}
 
 	@Override

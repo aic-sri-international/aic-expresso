@@ -59,11 +59,14 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * A default implementation of {@link Context}. By default, the
+ * An implementation of {@link Context} that contains type and symbol
+ * information but no constraint (that is, it stands for the expression {@link TRUE}.
+ * <p>
+ * By default, the
  * predicate indicating variables uses {@link PrologVariableConvention}.
  * 
  * @author braz
@@ -323,8 +326,8 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 		return constraintTheory;
 	}
 
-	private CompleteMultiVariableConstraint makeTrueConstraint(ConstraintTheory constraintTheory) {
-		CompleteMultiVariableConstraint result = new CompleteMultiVariableConstraint(constraintTheory, this);
+	private CompleteMultiVariableContext makeTrueConstraint(ConstraintTheory constraintTheory) {
+		CompleteMultiVariableContext result = new CompleteMultiVariableContext(constraintTheory, this);
 		return result;
 	}
 	

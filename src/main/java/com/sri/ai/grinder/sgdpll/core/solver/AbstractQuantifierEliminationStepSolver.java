@@ -80,12 +80,12 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
  * <p>
  * Because these two sub-problems have literal-free bodies <code>2</code> and <code>3</code>,
  * they will be solved by the extension's
- * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint, Expression, Context, Context)}
+ * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint, Expression, Context)}
  * (which for sums with constant bodies will be equal to the model count of the index constraint
  * under the contextual constraint times the constant).
  * <p>
  * Extending classes must define method
- * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint, Expression, Context, Context)
+ * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint, Expression, Context)
  * to solve the case in which the body is its given literal-free version,
  * for the given contextual constraint and index constraint.
  * <p>
@@ -127,8 +127,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	protected abstract SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
-			Context contextualConstraint,
-			Context context);
+			Context contextualConstraint);
 
 	@Override
 	public AbstractQuantifierEliminationStepSolver clone() {
@@ -201,7 +200,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				// "intercept" literals containing the index and split the quantifier based on it
 				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
 					Expression literalOnIndex = bodyStep.getLiteral();
-					result = resultIfLiteralContainsIndex(literalOnIndex, contextualConstraint, contextualConstraint);
+					result = resultIfLiteralContainsIndex(literalOnIndex, contextualConstraint);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
@@ -216,36 +215,34 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			else { // body is already literal free
 				result
 				= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-						indexConstraint, bodyStep.getValue(), contextualConstraint, contextualConstraint);
+						indexConstraint, bodyStep.getValue(), contextualConstraint);
 			}
 		}
 
 		return result;
 	}
 
-	private SolutionStep resultIfLiteralContainsIndex(Expression literal, Context contextualConstraint, Context context) {
-		context = contextualConstraint;
-
+	private SolutionStep resultIfLiteralContainsIndex(Expression literal, Context contextualConstraint) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
 		SolutionStep result;
-		ConstraintSplitting split = new ConstraintSplitting(literal, getIndexConstraint(), context);
+		ConstraintSplitting split = new ConstraintSplitting(literal, getIndexConstraint(), contextualConstraint);
 		Expression solutionValue;
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:
 			solutionValue = null;
 			break;
 		case LITERAL_IS_UNDEFINED:
-			Expression subSolution1 = solveSubProblem(split.getConstraintAndLiteral(),         contextualConstraint, context);
-			Expression subSolution2 = solveSubProblem(split.getConstraintAndLiteralNegation(), contextualConstraint, context);
-			solutionValue = combine(subSolution1, subSolution2, contextualConstraint, context);
+			Expression subSolution1 = solveSubProblem(split.getConstraintAndLiteral(),         contextualConstraint);
+			Expression subSolution2 = solveSubProblem(split.getConstraintAndLiteralNegation(), contextualConstraint);
+			solutionValue = combine(subSolution1, subSolution2, contextualConstraint);
 			break;
 		case LITERAL_IS_TRUE:
-			solutionValue = solveSubProblem(split.getConstraintAndLiteral(), contextualConstraint, context);
+			solutionValue = solveSubProblem(split.getConstraintAndLiteral(), contextualConstraint);
 			break;
 		case LITERAL_IS_FALSE:
-			solutionValue = solveSubProblem(split.getConstraintAndLiteralNegation(), contextualConstraint, context);
+			solutionValue = solveSubProblem(split.getConstraintAndLiteralNegation(), contextualConstraint);
 			break;
 		default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + split.getResult());
 		}
@@ -260,14 +257,14 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private Expression solveSubProblem(Constraint newIndexConstraint, Context contextualConstraint, Context context) {
+	private Expression solveSubProblem(Constraint newIndexConstraint, Context contextualConstraint) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = (SingleVariableConstraint) newIndexConstraint;
 		ContextDependentExpressionProblemStepSolver subProblem = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		Expression result = subProblem.solve(contextualConstraint);
 		return result;
 	}
 
-	protected Expression combine(Expression solution1, Expression solution2, Context contextualConstraint, Context context) {
+	protected Expression combine(Expression solution1, Expression solution2, Context contextualConstraint) {
 		Expression result;
 		if (isIfThenElse(solution1)) {
 			// (if C1 then A1 else A2) op solution2 ---> if C1 then (A1 op solution2) else (A2 op solution2)
@@ -277,15 +274,15 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				result = null;
 				break;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral(), context);
-				Expression subSolution2 = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteralNegation(), context);
+				Expression subSolution1 = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral());
+				Expression subSolution2 = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteralNegation());
 				result = IfThenElse.make(condition(solution1), subSolution1, subSolution2, true);
 				break;
 			case LITERAL_IS_TRUE:
-				result = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral(), context);
+				result = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral());
 				break;
 			case LITERAL_IS_FALSE:
-				result = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteral(), context);
+				result = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteral());
 				break;
 			default: throw new Error("Unrecognized result for " + ContextualConstraintSplitting.class + ": " + split.getResult());
 			}
@@ -298,21 +295,21 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				result = null;
 				break;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral(), context);
-				Expression subSolution2 = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation(), context);
+				Expression subSolution1 = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral());
+				Expression subSolution2 = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation());
 				result = IfThenElse.make(condition(solution2), subSolution1, subSolution2, true);
 				break;
 			case LITERAL_IS_TRUE:
-				result = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral(), context);
+				result = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral());
 				break;
 			case LITERAL_IS_FALSE:
-				result = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation(), context);
+				result = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation());
 				break;
 			default: throw new Error("Unrecognized result for " + ContextualConstraintSplitting.class + ": " + split.getResult());
 			}
 		}
 		else {
-			result = group.add(solution1, solution2, context);
+			result = group.add(solution1, solution2, contextualConstraint);
 		}
 		return result;
 	}

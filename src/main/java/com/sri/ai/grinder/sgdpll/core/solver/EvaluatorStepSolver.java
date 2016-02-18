@@ -160,8 +160,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			topSimplifiedExpression = topSimplifier.apply(this.expression, contextualConstraint);
 		}
 		
-		if (expressionIsLiteral(contextualConstraint, contextualConstraint)) {
-			result = stepDependingOnLiteral(topSimplifiedExpression, TRUE, FALSE, contextualConstraint, contextualConstraint);
+		if (expressionIsLiteral(contextualConstraint)) {
+			result = stepDependingOnLiteral(topSimplifiedExpression, TRUE, FALSE, contextualConstraint);
 		}
 		else if (subExpressionIndex != topSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = topSimplifiedExpression.get(subExpressionIndex);
@@ -234,8 +234,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		evaluators.put(new IdentityWrapper(expression), stepSolver);
 	}
 
-	private boolean expressionIsLiteral(Context contextualConstraint, Context context) {
-		boolean result = contextualConstraint.getConstraintTheory().isLiteral(expression, context);
+	private boolean expressionIsLiteral(Context contextualConstraint) {
+		boolean result = contextualConstraint.getConstraintTheory().isLiteral(expression, contextualConstraint);
 		return result;
 	}
 	

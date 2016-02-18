@@ -42,18 +42,18 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 
 /**
- * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, Context)}
- * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
+ * A multi-variable context that detects unsatisfiability
+ * insofar as the single-variable constraint theories detect it themselves.
  * 
  * @author braz
  *
  */
 @Beta
-public class CompleteMultiVariableConstraint extends MultiVariableConstraintWithCheckedProperty {
+public class CompleteMultiVariableContext extends MultiVariableContextWithCheckedProperty {
 
 	private static final long serialVersionUID = 1L;
 
-	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory, Context contextualConstraint) {
+	public CompleteMultiVariableContext(ConstraintTheory constraintTheory, Context contextualConstraint) {
 		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), contextualConstraint);
 	}
 }

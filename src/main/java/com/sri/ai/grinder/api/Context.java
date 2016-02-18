@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
  * @author braz
  */
 @Beta
-public interface Context extends Cloneable, Constraint {
+public interface Context extends Constraint, Cloneable {
 
 	Context clone();
 	

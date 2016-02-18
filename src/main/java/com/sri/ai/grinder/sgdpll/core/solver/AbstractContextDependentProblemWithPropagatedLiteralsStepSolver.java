@@ -189,7 +189,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * Makes a CNF that, if not satisfied, means the solution
 	 * is {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied()}.
 	 * If it is satisfied,
-	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context, Context)}.
+	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context)}.
 	 * <p>
 	 * Note that the result of this method is cached and provided by {@link #getPropagatedCNF(Context)}.
 	 * Extensions should override <i>this<i> method in order to keep the caching behavior.
@@ -224,7 +224,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint, Context context);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint);
 
 	@Override
 	public SolutionStep step(Context contextualConstraint) {
@@ -232,7 +232,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		
-		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(contextualConstraint), contextualConstraint, contextualConstraint);
+		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(contextualConstraint), contextualConstraint);
 		
 		SolutionStep result;
 		if (propagatedCNFIsSatisfiedStep == null) {
@@ -245,7 +245,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		else if (propagatedCNFIsSatisfiedStep.getValue().equals(TRUE)) {
-			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint, contextualConstraint);
+			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint);
 		}
 		else {
 			throw new Error("Illegal value returned");
@@ -259,13 +259,12 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * is satisfied by a contextual constraint.
 	 * @param cnf
 	 * @param contextualConstraint
-	 * @param context
 	 * @return <code>null</code> if the contextual constraint is found to be self-contradictory,
 	 * an instance of {@link ItDependsOn} with a literal, if whether the CNF is satisfied or not depends on that literal,
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context contextualConstraint, Context context) {
+	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context contextualConstraint) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -319,13 +318,12 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * is defined by a contextual constraint (that is, all of its literals or their negations are implied by the contextual constraint).
 	 * @param conjunctiveClause
 	 * @param contextualConstraint
-	 * @param context
 	 * @return <code>null</code> if the contextual constraint is found to be self-contradictory,
 	 * an instance of {@link ItDependsOn} with a literal, if whether the conjunctive clause is satisfied or not depends on that literal,
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context contextualConstraint, Context context) {
+	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context contextualConstraint) {
 		for (Expression literal : conjunctiveClause) {
 			ContextualConstraintSplitting contextualConstraintSplitting = new ContextualConstraintSplitting(literal, contextualConstraint);
 

@@ -52,7 +52,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.NumberOfDistinctExpressionsStepSolver;
 
@@ -67,7 +67,7 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
 		Context contextualConstraint = 
-				new CompleteMultiVariableConstraint(constraintTheory, context)
+				new CompleteMultiVariableContext(constraintTheory, context)
 				.conjoin(parse(contextualConstraintString), context);
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsStepSolver stepSolver = new NumberOfDistinctExpressionsStepSolver(list);

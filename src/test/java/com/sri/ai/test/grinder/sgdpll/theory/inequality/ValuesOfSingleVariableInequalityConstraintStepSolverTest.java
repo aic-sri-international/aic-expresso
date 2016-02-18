@@ -45,11 +45,9 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.inequality.SingleVariableInequalityConstraint;
 import com.sri.ai.grinder.sgdpll.theory.inequality.ValuesOfSingleVariableInequalityConstraintStepSolver;
@@ -60,11 +58,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext(constraintTheory);
-		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
-
-		context = contextualConstraint;
+		Context contextualConstraint = constraintTheory.makeContextualConstraintWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -73,34 +67,34 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 		variable = parse("I");
 		constraintString = "true";
 		expected = parse("aboveAndUpTo(-1, 4)");
-		runTest(variable, constraintString, expected, contextualConstraint, context);
+		runTest(variable, constraintString, expected, contextualConstraint);
 		
 		variable = parse("I");
 		constraintString = "false";
 		expected = parse("{}");
-		runTest(variable, constraintString, expected, contextualConstraint, context);
+		runTest(variable, constraintString, expected, contextualConstraint);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I";
 		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2)");
-		runTest(variable, constraintString, expected, contextualConstraint, context);
+		runTest(variable, constraintString, expected, contextualConstraint);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I and I != 2";
 		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, contextualConstraint, context);
+		runTest(variable, constraintString, expected, contextualConstraint);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I and I != 2 and I != K";
 		expected = parse("if 3 > J then if 0 < J then if K + 1 <= J then aboveAndUpTo(-1, J - 1) - { K } else aboveAndUpTo(-1, J - 1) else {} else if K <= 2 then if 2 = K then aboveAndUpTo(-1, 2) - { K } else aboveAndUpTo(-1, 2) - { 2, K } else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, contextualConstraint, context);
+		runTest(variable, constraintString, expected, contextualConstraint);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression expected, Context contextualConstraint, Context context) {
+	private void runTest(Expression variable, String constraintString, Expression expected, Context contextualConstraint) {
 		Constraint constraint
 		= new SingleVariableInequalityConstraint(
 				variable, true, contextualConstraint.getConstraintTheory());
-		constraint = constraint.conjoin(parse(constraintString), context);
+		constraint = constraint.conjoin(parse(constraintString), contextualConstraint);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new ValuesOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);

@@ -53,16 +53,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
 
 /**
- * An {@link Constraint} on multiple variables,
+ * An {@link Context} on multiple variables,
  * with the ability to ensure all single-variable constraints that are part of it
  * have a property determined by a {@link ContextDependentExpressionProblemStepSolver},
  * or otherwise the total constraint is deemed unsatisfiable.
@@ -71,7 +69,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class MultiVariableConstraintWithCheckedProperty extends AbstractConstraint implements Context, MultiVariableConstraint {
+public class MultiVariableContextWithCheckedProperty extends AbstractConstraint implements Context {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -94,7 +92,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	/**
 	 * Creates a new {@link Context} from a {@link SingleVariableConstraint} and a {@link Context},
 	 * by either returning a contradiction if either is contradictory,
-	 * or a new {@link MultiVariableConstraintWithCheckedProperty} otherwise.
+	 * or a new {@link MultiVariableContextWithCheckedProperty} otherwise.
 	 * @param constraintTheory
 	 * @param head
 	 * @param tail
@@ -113,9 +111,9 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 			result = tail.makeContradiction();
 		}
 		else {
-			MultiVariableConstraintWithCheckedProperty 
+			MultiVariableContextWithCheckedProperty 
 			uncheckedMultiVariableConstraintWithCheckedProperty = 
-			new MultiVariableConstraintWithCheckedProperty(
+			new MultiVariableContextWithCheckedProperty(
 					tail.getConstraintTheory(), 
 					head, 
 					tail, 
@@ -128,7 +126,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		return result;
 	}
 
-	public MultiVariableConstraintWithCheckedProperty(
+	public MultiVariableContextWithCheckedProperty(
 			ConstraintTheory constraintTheory, 
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
 			Context contextualConstraint) {
@@ -141,7 +139,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 	
 	/**
-	 * Constructs a {@link MultiVariableConstraintWithCheckedProperty} from a head and a tail constraints,
+	 * Constructs a {@link MultiVariableContextWithCheckedProperty} from a head and a tail constraints,
 	 * which is only correct if the {@link SingleVariableConstraint}'s variable does not appear
 	 * in the tail constraint.
 	 * Note also that this does not check the checked property.
@@ -149,7 +147,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	 * @param head
 	 * @param tail
 	 */
-	private MultiVariableConstraintWithCheckedProperty(
+	private MultiVariableContextWithCheckedProperty(
 			ConstraintTheory constraintTheory,
 			SingleVariableConstraint head,
 			Context tail,
@@ -207,9 +205,9 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 				result = pair(false, null);
 			}
 		}
-		else if (formula instanceof MultiVariableConstraintWithCheckedProperty) {
-			MultiVariableConstraintWithCheckedProperty formulaAsMultiVariableConstraint = (MultiVariableConstraintWithCheckedProperty) formula;
-			// if formula is itself a MultiVariableConstraintWithCheckedProperty,
+		else if (formula instanceof MultiVariableContextWithCheckedProperty) {
+			MultiVariableContextWithCheckedProperty formulaAsMultiVariableConstraint = (MultiVariableContextWithCheckedProperty) formula;
+			// if formula is itself a MultiVariableContextWithCheckedProperty,
 			// we conjoin its two known parts individually.
 			// Their own inner structure will also be efficiently exploited by these conjunctions.
 			Context conjunction = this;
@@ -301,12 +299,12 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	 * @return
 	 */
 	@Override
-	public MultiVariableConstraintWithCheckedProperty makeContradiction() {
-		return (MultiVariableConstraintWithCheckedProperty) super.makeContradiction();
+	public MultiVariableContextWithCheckedProperty makeContradiction() {
+		return (MultiVariableContextWithCheckedProperty) super.makeContradiction();
 	}
 	
-	private MultiVariableConstraintWithCheckedProperty check(Context context) {
-		MultiVariableConstraintWithCheckedProperty result;
+	private MultiVariableContextWithCheckedProperty check(Context context) {
+		MultiVariableContextWithCheckedProperty result;
 		if (checked) {
 			result = this;
 		}
@@ -352,8 +350,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty clone() {
-		return (MultiVariableConstraintWithCheckedProperty) super.clone();
+	public MultiVariableContextWithCheckedProperty clone() {
+		return (MultiVariableContextWithCheckedProperty) super.clone();
 	}
 
 	/////////// Context methods
@@ -364,8 +362,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		MultiVariableConstraintWithCheckedProperty result = clone();
+	public MultiVariableContextWithCheckedProperty setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		MultiVariableContextWithCheckedProperty result = clone();
 		Context newTail = tail.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		result.tail = newTail;
 		return result;
@@ -397,16 +395,16 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes) {
-		MultiVariableConstraintWithCheckedProperty result = clone();
+	public MultiVariableContextWithCheckedProperty registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes) {
+		MultiVariableContextWithCheckedProperty result = clone();
 		Context newTail = tail.registerIndicesAndTypes(indicesAndTypes);
 		result.tail = newTail;
 		return result;
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty putAllGlobalObjects(Map<Object, Object> objects) {
-		MultiVariableConstraintWithCheckedProperty result = clone();
+	public MultiVariableContextWithCheckedProperty putAllGlobalObjects(Map<Object, Object> objects) {
+		MultiVariableContextWithCheckedProperty result = clone();
 		Context newTail = tail.putAllGlobalObjects(objects);
 		result.tail = newTail;
 		return result;
@@ -418,8 +416,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty putGlobalObject(Object key, Object value) {
-		MultiVariableConstraintWithCheckedProperty result = clone();
+	public MultiVariableContextWithCheckedProperty putGlobalObject(Object key, Object value) {
+		MultiVariableContextWithCheckedProperty result = clone();
 		Context newTail = tail.putGlobalObject(key, value);
 		result.tail = newTail;
 		return result;
@@ -436,8 +434,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 
 	@Override
-	public MultiVariableConstraintWithCheckedProperty add(Type type) {
-		MultiVariableConstraintWithCheckedProperty result = clone();
+	public MultiVariableContextWithCheckedProperty add(Type type) {
+		MultiVariableContextWithCheckedProperty result = clone();
 		Context newTail = tail.add(type);
 		result.tail = newTail;
 		return result;

@@ -69,7 +69,7 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
@@ -185,11 +185,11 @@ public class SGDPLLTTester {
 		
 		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(constraintTheory, context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
-		TestRunner tester = SGDPLLTTester::testCompleteSatisfiability; // CompleteMultiVariableConstraint is complete
+		TestRunner tester = SGDPLLTTester::testCompleteSatisfiability; // CompleteMultiVariableContext is complete
 		
 		runTesterGivenConjunctionsOfLiterals(random, "complete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, constraintTheory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}

@@ -70,7 +70,7 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
-			Context contextualConstraint, Context context) {
+			Context contextualConstraint) {
 		
 		boolean variableIsNotConstrained = 
 				getConstraint().getPositiveNormalizedAtoms().isEmpty() && getConstraint().getNegativeNormalizedAtoms().isEmpty();

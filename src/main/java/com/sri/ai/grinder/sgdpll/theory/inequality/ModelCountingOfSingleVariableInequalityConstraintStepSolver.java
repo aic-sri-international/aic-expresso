@@ -411,8 +411,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 	// instead and make the changes there.
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint, Context context) {
-		context = contextualConstraint;
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.
@@ -434,7 +433,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			if (initialMaximumStrictLowerBoundStepSolver == null) {
 				maximumStrictLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getStrictLowerBoundsIncludingImplicitOnes(context),
+						getStrictLowerBoundsIncludingImplicitOnes(contextualConstraint),
 						LESS_THAN_SYMBOL, // use total order <
 						MINUS_INFINITY,
 						INFINITY); // at first, I placed the type minimum and maximum strict lower bounds here. This is incorrect because if the type maximum is, say, 4, and I have "X > 3 and X > I" (3 is the maximum strict lower bounds for values in the type), the step solver short-circuits and returns 3, without ever even looking at I. Looking at I is needed because if I is greater than 3 than this constraint is unsatisfiable.
@@ -458,7 +457,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getNonStrictUpperBoundsIncludingImplicitOnes(context),
+						getNonStrictUpperBoundsIncludingImplicitOnes(contextualConstraint),
 						GREATER_THAN_SYMBOL, // use total order > since "minimum" is maximum under it
 						INFINITY, // "minimum" is maximum value because we are operating on the inverse order
 						MINUS_INFINITY); // "maximum" is minimum value because we are operating on the inverse order
@@ -488,7 +487,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			else {
 				ContextDependentProblemStepSolver<Boolean> lowerBoundIsLessThanUpperBoundStepSolver;
 				if (initialLowerBoundIsLessThanUpperBoundStepSolver == null) {
-					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), context);
+					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), contextualConstraint);
 					lowerBoundIsLessThanUpperBoundStepSolver = new LiteralStepSolver(lowerBoundIsLessThanUpperBound);
 				}
 				else {
@@ -553,7 +552,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
 				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
 
-				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
+				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), contextualConstraint);
 
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
 				DistinctExpressionsStepSolver distinctExpressionsStepSolver;
@@ -614,7 +613,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					}
 					Expression numberOfDistinctDisequals = makeSymbol(distinctDisequalsStep.getValue().numberOfArguments());
 					ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, numberOfDistinctDisequals);
-					solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, context);
+					solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, contextualConstraint);
 				}
 			}
 		}

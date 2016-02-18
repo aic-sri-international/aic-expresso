@@ -90,17 +90,15 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context contextualConstraint, Context context) {
-		context = contextualConstraint;
-
+			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context contextualConstraint) {
 		Expression result;
 		if (getGroup().isIdempotent()) {
-			Expression conditionForSatisfiability = indexConstraint.satisfiability(contextualConstraint, context);
+			Expression conditionForSatisfiability = indexConstraint.satisfiability(contextualConstraint);
 			result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
 		}
 		else {
-			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(contextualConstraint), context);
-			result = getConstraintTheory().simplify(result, context);
+			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(contextualConstraint), contextualConstraint);
+			result = getConstraintTheory().simplify(result, contextualConstraint);
 		}
 		
 		return new Solution(result);

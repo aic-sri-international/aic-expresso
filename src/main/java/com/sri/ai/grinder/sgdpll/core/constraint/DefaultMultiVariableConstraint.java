@@ -12,17 +12,19 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 
 /**
  * An {@link Constraint} on multiple variables.
+ * Unlike {@link MultiVariableContextWithCheckedProperty} and its extension
+ * {@link CompleteMultiVariableContext}, it does not check for satisfiability
+ * or any other property, but simply keeps an aggregate of single-variable constraints.
  * 
  * @author braz
  *
  */
-public class DefaultMultiVariableConstraint extends AbstractConstraint implements MultiVariableConstraint {
+public class DefaultMultiVariableConstraint extends AbstractConstraint implements Constraint {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -112,15 +114,15 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	}
 	
 	@Override
-	public MultiVariableConstraint conjoin(Expression formula, Context context) {
+	public Constraint conjoin(Expression formula, Context context) {
 		myAssert(
 				() -> getConstraintTheory().isLiteral(formula, context) || formula instanceof Constraint,
 				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
 		
-		MultiVariableConstraint result;
+		Constraint result;
 
 		if (formula instanceof Constraint) {
-			result = (MultiVariableConstraint) conjoinWithConjunctiveClause(formula, context);
+			result = conjoinWithConjunctiveClause(formula, context);
 		}
 		else {
 			result = conjoinWithLiteral(formula, context);

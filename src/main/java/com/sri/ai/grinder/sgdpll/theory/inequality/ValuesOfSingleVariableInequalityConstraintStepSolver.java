@@ -389,14 +389,12 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint, Context context) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.
 		// Therefore, the constraint is satisfiable if and only if U - L > D
 		// where D is the number of disequals.
-
-		context = contextualConstraint;
 
 		Expression solutionExpression;
 		
@@ -414,7 +412,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			if (initialMaximumStrictLowerBoundStepSolver == null) {
 				maximumStrictLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getStrictLowerBoundsIncludingImplicitOnes(context),
+						getStrictLowerBoundsIncludingImplicitOnes(contextualConstraint),
 						LESS_THAN_SYMBOL, // use total order <
 						MINUS_INFINITY,
 						INFINITY); // at first, I placed the type minimum and maximum strict lower bounds here. This is incorrect because if the type maximum is, say, 4, and I have "X > 3 and X > I" (3 is the maximum strict lower bounds for values in the type), the step solver short-circuits and returns 3, without ever even looking at I. Looking at I is needed because if I is greater than 3 than this constraint is unsatisfiable.
@@ -438,7 +436,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getNonStrictUpperBoundsIncludingImplicitOnes(context),
+						getNonStrictUpperBoundsIncludingImplicitOnes(contextualConstraint),
 						GREATER_THAN_SYMBOL, // use total order > since "minimum" is maximum under it
 						INFINITY, // "minimum" is maximum value because we are operating on the inverse order
 						MINUS_INFINITY); // "maximum" is minimum value because we are operating on the inverse order
@@ -464,7 +462,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				ContextDependentProblemStepSolver<Boolean> lowerBoundIsLessThanUpperBoundStepSolver;
 				if (initialLowerBoundIsLessThanUpperBoundStepSolver == null) {
-					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), context);
+					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), contextualConstraint);
 					lowerBoundIsLessThanUpperBoundStepSolver = new LiteralStepSolver(lowerBoundIsLessThanUpperBound);
 				}
 				else {
@@ -529,7 +527,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
 				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
 
-				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
+				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), contextualConstraint);
 
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
 				DistinctExpressionsStepSolver distinctExpressionsStepSolver;

@@ -46,7 +46,7 @@ import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
@@ -116,7 +116,7 @@ public class ContextDependentExpressionProblemSolver {
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
+		Context contextualConstraint = new CompleteMultiVariableContext(constraintTheory, context);
 		
 		Expression result = solve(problem, contextualConstraint);
 		

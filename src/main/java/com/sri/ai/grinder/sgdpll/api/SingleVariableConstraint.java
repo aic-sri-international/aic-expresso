@@ -127,11 +127,10 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	/**
 	 * Returns the satisfiability of this single-variable constraint under a contextual constraint and context.
 	 * @param contextualConstraint
-	 * @param context
 	 * @return
 	 */
-	default Expression satisfiability(Context contextualConstraint, Context context) {
-		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
+	default Expression satisfiability(Context contextualConstraint) {
+		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, contextualConstraint);
 		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint);
 		return satisfiability;
 	}

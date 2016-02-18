@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 
 /**
  * An extension of {@link SymbolicCommonInterpreter} whose results
@@ -72,7 +72,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 */
 	@Override public Expression apply(Expression expression, Context context) {
 		Expression interpretationResult = super.apply(expression, context);
-		Context trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory(), context);
+		Context trueConstraint = new CompleteMultiVariableContext(getConstraintTheory(), context);
 		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory());
 		// TODO: given that we are only using the top simplifier from the simplifier above,

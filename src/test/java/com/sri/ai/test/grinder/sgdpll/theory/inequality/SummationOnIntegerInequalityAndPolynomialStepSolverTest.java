@@ -53,7 +53,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.core.solver.SummationOnIntegerInequalityAndPolynomialStepSolver;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
@@ -65,11 +65,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void simpleBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new TypeContext(constraintTheory);
-		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
-
-		context = contextualConstraint;
+		Context contextualConstraint = constraintTheory.makeContextualConstraintWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -81,27 +77,27 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 		constraintString = "true";
 		expected = parse("10");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I != 3";
 		expected = parse("7");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I < 3";
 		expected = parse("3");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "false";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I > 3 and I < 3";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I > 1 and I < 3 and I != 2";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 	}
 
 	@Test
@@ -109,7 +105,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
+		Context contextualConstraint = new CompleteMultiVariableContext(constraintTheory, context);
 	
 		context = contextualConstraint;
 
@@ -123,27 +119,27 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 		constraintString = "true";
 		expected = parse("25");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I != 3";
 		expected = parse("18");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I < 3";
 		expected = parse("5");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "false";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I > 3 and I < 3";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I > 1 and I < 3 and I != 2";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 	}
 	
 	@Test
@@ -151,7 +147,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
+		Context contextualConstraint = new CompleteMultiVariableContext(constraintTheory, context);
 	
 		context = contextualConstraint;
 
@@ -165,27 +161,27 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 		constraintString = "true";
 		expected = parse("-5*J + 35");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I != 3";
 		expected = parse("-4*J + 25");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I < 3";
 		expected = parse("-3*J + 8");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "false";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I > 3 and I < 3";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I > 1 and I < 3 and I != 2";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 	}
 
 	@Test
@@ -193,7 +189,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new TypeContext(constraintTheory);
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
+		Context contextualConstraint = new CompleteMultiVariableContext(constraintTheory, context);
 	
 		context = contextualConstraint;
 
@@ -207,24 +203,23 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	
 		constraintString = "I != J";
 		expected = parse("-1*J^2 + -4*J + 34");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I <= J and I != J";
 		expected = parse("1/3 * J ^ 3 + -1.5 * J ^ 2 + 7/6 * J");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 		
 		constraintString = "I < J and I > J";
 		expected = parse("0");
-		runTest(variable, constraintString, body, expected, contextualConstraint, context);
+		runTest(variable, constraintString, body, expected, contextualConstraint);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Context contextualConstraint, Context context) {
-		context = contextualConstraint;
+	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Context contextualConstraint) {
 		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
 		Constraint constraint
 		= new SingleVariableInequalityConstraint(
 				variable, true, constraintTheory);
-		constraint = constraint.conjoin(parse(constraintString), context);
+		constraint = constraint.conjoin(parse(constraintString), contextualConstraint);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new SummationOnIntegerInequalityAndPolynomialStepSolver(
@@ -233,15 +228,15 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		
 		Expression actual = stepSolver.solve(contextualConstraint);
 
-		expected = simplify(expected, contextualConstraint, context);
+		expected = simplify(expected, contextualConstraint);
 		
 		System.out.println(
-				"sum({{ (on " + variable + " in " + GrinderUtil.getType(variable, context) + ") " + 
+				"sum({{ (on " + variable + " in " + GrinderUtil.getType(variable, contextualConstraint) + ") " + 
 						body + " : " + constraintString + " }} = " + actual + "\n");
 		
 		if (!expected.equals(actual)) {
 			Expression difference = apply(MINUS, expected, actual);
-			Expression differenceResult = simplify(difference, contextualConstraint, context);
+			Expression differenceResult = simplify(difference, contextualConstraint);
 			if (!differenceResult.equals(ZERO)) {
 				System.err.println("Expressions are not equal and even difference is not zero");	
 				System.err.println("Expected: " + expected);
@@ -256,10 +251,9 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	/**
 	 * @param expression
 	 * @param contextualConstraint
-	 * @param context
 	 * @return
 	 */
-	private Expression simplify(Expression expression, Context contextualConstraint, Context context) {
-		return contextualConstraint.getConstraintTheory().simplify(expression, context);
+	private Expression simplify(Expression expression, Context contextualConstraint) {
+		return contextualConstraint.getConstraintTheory().simplify(expression, contextualConstraint);
 	}
 }

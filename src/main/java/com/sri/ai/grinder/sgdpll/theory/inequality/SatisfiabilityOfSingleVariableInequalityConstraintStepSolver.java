@@ -104,7 +104,7 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 
 		// result = new Solution(simplifiedSatisfiable); // used to be like this; not good, for if simplifiedSatisfiable is inconsistent with contextual constraint, it is not equal to 'false', becoming incomplete even if the contextual constraint is complete.
 
-		result = stepDependingOnLiteral(simplifiedSatisfiable, TRUE, FALSE, contextualConstraint, contextualConstraint);
+		result = stepDependingOnLiteral(simplifiedSatisfiable, TRUE, FALSE, contextualConstraint);
 
 		return result;
 	}

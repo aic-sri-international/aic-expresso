@@ -46,7 +46,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 
 /**
@@ -96,7 +96,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 //		Expression quantifierFreeBody = body;
 //		Expression quantifierFreeIndicesCondition = indicesConditions;
 
-		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
+		Context contextualConstraint = new CompleteMultiVariableContext(constraintTheory, context);
 
 		Expression result =
 				solve(
