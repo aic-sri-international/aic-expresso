@@ -149,8 +149,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	}
 
 	@Override
-	public SolutionStep step(Context contextualConstraint, Context context) {
-		context = contextualConstraint;
+	public SolutionStep step(Context contextualConstraint) {
 		SolutionStep result = null;
 		
 		Expression topSimplifiedExpression;
@@ -158,17 +157,17 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			topSimplifiedExpression = expression;
 		}
 		else {
-			topSimplifiedExpression = topSimplifier.apply(this.expression, context);
+			topSimplifiedExpression = topSimplifier.apply(this.expression, contextualConstraint);
 		}
 		
-		if (expressionIsLiteral(contextualConstraint, context)) {
-			result = stepDependingOnLiteral(topSimplifiedExpression, TRUE, FALSE, contextualConstraint, context);
+		if (expressionIsLiteral(contextualConstraint, contextualConstraint)) {
+			result = stepDependingOnLiteral(topSimplifiedExpression, TRUE, FALSE, contextualConstraint, contextualConstraint);
 		}
 		else if (subExpressionIndex != topSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = topSimplifiedExpression.get(subExpressionIndex);
 			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
 					getEvaluatorFor(subExpression, false /* not known to be top-simplified already */);
-			SolutionStep subExpressionStep = subExpressionEvaluator.step(contextualConstraint, context);
+			SolutionStep subExpressionStep = subExpressionEvaluator.step(contextualConstraint);
 
 			if (subExpressionStep == null) {
 				return null;
@@ -191,14 +190,14 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 				nextStepSolver = clone();
 				((EvaluatorStepSolver) nextStepSolver).setEvaluatorFor(subExpression, subExpressionEvaluator);
 				((EvaluatorStepSolver) nextStepSolver).subExpressionIndex++;
-				result = nextStepSolver.step(contextualConstraint, context);
+				result = nextStepSolver.step(contextualConstraint);
 			}
 			else {
 				Expression expressionWithSubExpressionReplacedByItsValue
 				= topSimplifiedExpression.set(subExpressionIndex, subExpressionStep.getValue());
 
 				Expression topSimplifiedAfterSubExpressionEvaluation
-				= topSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, context);
+				= topSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, contextualConstraint);
 
 				if (topSimplifiedAfterSubExpressionEvaluation == subExpression) {
 					// topSimplified turns out to be the sub-expression itself
@@ -210,7 +209,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 					// try to reuse evaluator if available, or a make a new one, and use it
 					ContextDependentExpressionProblemStepSolver nextStepSolver
 					= getEvaluatorFor(topSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
-					result = nextStepSolver.step(contextualConstraint, context);
+					result = nextStepSolver.step(contextualConstraint);
 				}
 			}
 		}

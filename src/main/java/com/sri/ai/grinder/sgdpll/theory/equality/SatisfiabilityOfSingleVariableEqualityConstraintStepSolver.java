@@ -274,7 +274,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		context = contextualConstraint;
 		SolutionStep result;
 		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(context) != null) {
-			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(context).step(contextualConstraint, context);
+			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(context).step(contextualConstraint);
 			if (numberStep.itDepends()) {
 				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsTrue = clone();
 				stepSolverIfExpressionIsTrue.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenLiteralIsTrue());

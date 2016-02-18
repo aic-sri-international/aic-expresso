@@ -442,7 +442,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			else {
 				maximumStrictLowerBoundStepSolver = initialMaximumStrictLowerBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, context);
+			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint);
 			if (maximumStrictLowerBoundStep.itDepends()) {
 				ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -466,7 +466,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			else {
 				minimumNonStrictUpperBoundStepSolver = initialMinimumNonStrictUpperBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, context);
+			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
 				ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -494,7 +494,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 				else {
 					lowerBoundIsLessThanUpperBoundStepSolver = initialLowerBoundIsLessThanUpperBoundStepSolver;
 				}
-				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(contextualConstraint, context);
+				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(contextualConstraint);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -518,7 +518,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					disequalsGreaterThanGreatestStrictLowerBoundStepSolver = initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 				}
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step
-				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint, context);
+				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint);
 				if (step.itDepends()) {
 					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsTrue();
@@ -541,7 +541,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					disequalsWithinBoundsStepSolver = initialDisequalsWithinBoundsStepSolver;
 				}
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step2
-				= disequalsWithinBoundsStepSolver.step(contextualConstraint, context);
+				= disequalsWithinBoundsStepSolver.step(contextualConstraint);
 				if (step2.itDepends()) {
 					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsTrue();
@@ -567,7 +567,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					else {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					}
-					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint, context);
+					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 						ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
@@ -603,7 +603,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					solutionExpression = ONE;
 				}
 				else {
-					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint, context);
+					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint);
 					if (distinctDisequalsStep.itDepends()) {
 						ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();

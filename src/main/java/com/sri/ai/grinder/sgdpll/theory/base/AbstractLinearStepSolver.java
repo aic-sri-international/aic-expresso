@@ -114,22 +114,21 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 	}
 	
 	@Override
-	public SolutionStep<T> step(Context contextualConstraint, Context context) {
-		context = contextualConstraint;
+	public SolutionStep<T> step(Context contextualConstraint) {
 		SolutionStep<T> result;
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, context);
+			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, contextualConstraint);
 			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;
 				break;
 			case LITERAL_IS_TRUE:
-				result = makeSubStepSolverWhenLiteralIsTrue().step(contextualConstraint, context);
+				result = makeSubStepSolverWhenLiteralIsTrue().step(contextualConstraint);
 				break;
 			case LITERAL_IS_FALSE:
-				result = makeSubStepSolverWhenLiteralIsFalse().step(contextualConstraint, context);
+				result = makeSubStepSolverWhenLiteralIsFalse().step(contextualConstraint);
 				break;
 			case LITERAL_IS_UNDEFINED:
 				result = new ItDependsOn<T>(

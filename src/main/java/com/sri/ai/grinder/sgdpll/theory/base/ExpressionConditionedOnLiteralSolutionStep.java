@@ -73,7 +73,7 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 		SolutionStep result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
 		ContextDependentProblemStepSolver.SolutionStep<Boolean> step =
-				literalStepSolver.step(contextualConstraint, context);
+				literalStepSolver.step(contextualConstraint);
 		if (step.itDepends()) {
 			result =
 					new ItDependsOn(

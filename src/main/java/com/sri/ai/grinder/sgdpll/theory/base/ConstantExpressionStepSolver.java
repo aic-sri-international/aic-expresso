@@ -67,7 +67,7 @@ public class ConstantExpressionStepSolver implements ContextDependentExpressionP
 	}
 
 	@Override
-	public SolutionStep step(Context contextualConstraint, Context context) {
+	public SolutionStep step(Context contextualConstraint) {
 		return solution;
 	}
 	

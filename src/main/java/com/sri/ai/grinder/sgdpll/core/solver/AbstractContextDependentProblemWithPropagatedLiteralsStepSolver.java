@@ -227,13 +227,12 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint, Context context);
 
 	@Override
-	public SolutionStep step(Context contextualConstraint, Context context) {
-		context = contextualConstraint;
+	public SolutionStep step(Context contextualConstraint) {
 		if (getConstraint().isContradiction()) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		
-		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), contextualConstraint, context);
+		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(contextualConstraint), contextualConstraint, contextualConstraint);
 		
 		SolutionStep result;
 		if (propagatedCNFIsSatisfiedStep == null) {
@@ -246,7 +245,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		else if (propagatedCNFIsSatisfiedStep.getValue().equals(TRUE)) {
-			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint, context);
+			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint, contextualConstraint);
 		}
 		else {
 			throw new Error("Illegal value returned");

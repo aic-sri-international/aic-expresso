@@ -88,7 +88,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			solutionExpression = ONE;
 		}
 		else {
-			SolutionStep step = numberOfDistinctExpressionsStepSolver.step(contextualConstraint, context);
+			SolutionStep step = numberOfDistinctExpressionsStepSolver.step(contextualConstraint);
 			if (step.itDepends()) {
 				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifTrue = clone();
 				ifTrue.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();

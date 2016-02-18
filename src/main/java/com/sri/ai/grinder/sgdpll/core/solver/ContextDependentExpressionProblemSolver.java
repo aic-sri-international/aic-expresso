@@ -67,7 +67,7 @@ public class ContextDependentExpressionProblemSolver {
 	 * @return
 	 */
 	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context contextualConstraint) {
-		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, contextualConstraint);
+		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint);
 		if (step == null) {
 			// contextual constraint is found to be inconsistent
 			return null;

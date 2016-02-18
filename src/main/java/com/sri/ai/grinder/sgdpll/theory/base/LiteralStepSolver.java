@@ -73,7 +73,7 @@ public class LiteralStepSolver implements ContextDependentProblemStepSolver<Bool
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Context contextualConstraint, Context context) {
+	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Context contextualConstraint) {
 		ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint);
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:

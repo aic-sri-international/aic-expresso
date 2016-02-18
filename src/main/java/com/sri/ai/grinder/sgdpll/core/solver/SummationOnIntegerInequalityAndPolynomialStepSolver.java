@@ -106,7 +106,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 		context = contextualConstraint;
 
 		SolutionStep step = 
-				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint, context);
+				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint);
 		if (step == null) {
 			return null;
 		}

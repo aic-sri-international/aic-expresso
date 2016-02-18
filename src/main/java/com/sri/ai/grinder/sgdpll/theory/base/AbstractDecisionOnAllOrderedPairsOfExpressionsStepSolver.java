@@ -191,7 +191,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public SolutionStep step(Context contextualConstraint, Context context) {
+	public SolutionStep step(Context contextualConstraint) {
 		
 		if (expressions.size() < 2) {
 			return makeSolutionStepWhenThereAreNoPairs();
@@ -200,7 +200,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 		if (hasPair()) {
 
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, context);
+			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, contextualConstraint);
 
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
@@ -225,10 +225,10 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			}
 			
 			if (literalIsTrue) {
-				return stepSolverForWhenLiteralIsTrue.step(split.getConstraintAndLiteral(), context);
+				return stepSolverForWhenLiteralIsTrue.step(split.getConstraintAndLiteral());
 			}
 			else if (literalIsFalse) {
-				return stepSolverForWhenLiteralIsFalse.step(split.getConstraintAndLiteralNegation(), context);
+				return stepSolverForWhenLiteralIsFalse.step(split.getConstraintAndLiteralNegation());
 			}
 			else {
 				return new ItDependsOn(literal, split, stepSolverForWhenLiteralIsTrue, stepSolverForWhenLiteralIsFalse);

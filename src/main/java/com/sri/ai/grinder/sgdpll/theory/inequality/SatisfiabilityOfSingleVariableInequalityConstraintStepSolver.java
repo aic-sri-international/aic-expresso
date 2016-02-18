@@ -82,9 +82,8 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 	}
 	
 	@Override
-	public SolutionStep step(Context contextualConstraint, Context context) {
-		context = contextualConstraint;
-		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, context);
+	public SolutionStep step(Context contextualConstraint) {
+		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint);
 		if (modelCountingStep == null) {
 			return null;
 		}
@@ -101,11 +100,11 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 		
 		Expression satisfiable;
 		satisfiable = apply(GREATER_THAN, modelCountingStep.getValue(), ZERO);
-		Expression simplifiedSatisfiable = constraint.getConstraintTheory().simplify(satisfiable, context);
+		Expression simplifiedSatisfiable = constraint.getConstraintTheory().simplify(satisfiable, contextualConstraint);
 
 		// result = new Solution(simplifiedSatisfiable); // used to be like this; not good, for if simplifiedSatisfiable is inconsistent with contextual constraint, it is not equal to 'false', becoming incomplete even if the contextual constraint is complete.
 
-		result = stepDependingOnLiteral(simplifiedSatisfiable, TRUE, FALSE, contextualConstraint, context);
+		result = stepDependingOnLiteral(simplifiedSatisfiable, TRUE, FALSE, contextualConstraint, contextualConstraint);
 
 		return result;
 	}

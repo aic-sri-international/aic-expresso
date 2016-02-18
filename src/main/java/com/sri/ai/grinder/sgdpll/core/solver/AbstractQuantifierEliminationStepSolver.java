@@ -68,7 +68,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
  * <p>
  * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
  * under contextual constraint <code>Z = alice</code>,
- * {@link EvaluatorStepSolver#step(Context, Context)} is
+ * {@link EvaluatorStepSolver#step(Context)} is
  * invoked with contextual constraint <code>Z = alice and X != john</code>.
  * The solution step will depend on literal <code>Y != bob</code>.
  * <p>
@@ -181,8 +181,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	@Override
-	public SolutionStep step(Context contextualConstraint, Context context) {
-		context = contextualConstraint;
+	public SolutionStep step(Context contextualConstraint) {
 		
 		if (indexConstraint.isContradiction()) {
 			return new Solution(group.additiveIdentityElement());
@@ -190,19 +189,19 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		
 		SolutionStep result;
 
-		Context contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), context);
+		Context contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), contextualConstraint);
 		if (contextualConstraintForBody.isContradiction()) {
 			result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
 		}
 		else {
 			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(contextualConstraint.getConstraintTheory());
-			SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody, context);
+			SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody);
 
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
 				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
 					Expression literalOnIndex = bodyStep.getLiteral();
-					result = resultIfLiteralContainsIndex(literalOnIndex, contextualConstraint, context);
+					result = resultIfLiteralContainsIndex(literalOnIndex, contextualConstraint, contextualConstraint);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
@@ -217,7 +216,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			else { // body is already literal free
 				result
 				= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-						indexConstraint, bodyStep.getValue(), contextualConstraint, context);
+						indexConstraint, bodyStep.getValue(), contextualConstraint, contextualConstraint);
 			}
 		}
 
