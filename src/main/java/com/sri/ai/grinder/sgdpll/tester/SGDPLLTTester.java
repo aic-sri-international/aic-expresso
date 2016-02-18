@@ -569,6 +569,29 @@ public class SGDPLLTTester {
 		
 		Expression body = makeBody(random, problemType, constraintTheory, bodyDepth, context);
 		Expression problem = makeProblem(indices, constraint, body, problemType, context);
+		
+		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, constraintTheory, context);
+	}
+
+	/**
+	 * @param problem
+	 * @param indices
+	 * @param constraint
+	 * @param body
+	 * @param testAgainstBruteForce
+	 * @param constraintTheory
+	 * @param context
+	 * @throws Error
+	 */
+	public static void runGroupProblemSolvingTestOnProblem(
+			Expression problem, 
+			Collection<Expression> indices, 
+			Constraint constraint, 
+			Expression body, 
+			boolean testAgainstBruteForce, 
+			ConstraintTheory constraintTheory, 
+			Context context) {
+		
 		Collection<Expression> freeVariables = getFreeVariableMinusIndices(indices, constraint, body, context);
 		
 		String problemDescription = problem.toString();

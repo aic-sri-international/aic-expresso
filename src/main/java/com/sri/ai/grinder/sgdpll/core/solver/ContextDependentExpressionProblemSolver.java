@@ -47,7 +47,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
@@ -62,7 +61,6 @@ import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstrain
  */
 @Beta
 public class ContextDependentExpressionProblemSolver {
-
 	/**
 	 * Returns the solution for a problem using a step solver, or null if the contextual constraint is found to be inconsistent.
 	 * @param stepSolver
@@ -72,8 +70,6 @@ public class ContextDependentExpressionProblemSolver {
 	 */
 	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint contextualConstraint, Context context) {
 		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, context);
-//		System.out.println("Step: " + step);
-//		System.out.println("Contextual constraint: " + contextualConstraint);	
 		if (step == null) {
 			// contextual constraint is found to be inconsistent
 			return null;
@@ -91,11 +87,6 @@ public class ContextDependentExpressionProblemSolver {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
 			case LITERAL_IS_UNDEFINED:
-//				System.out.println("Step solver constraint: " + ((SatisfiabilityOfSingleVariableEqualityConstraintStepSolver)stepSolver).getConstraint());
-//				System.out.println("Step: " + step);
-//				System.out.println("Contextual constraint: " + contextualConstraint);	
-//				System.out.println("Constraint and literal: " + split.getConstraintAndLiteral());	
-//				System.out.println("Constraint and literal negation: " + split.getConstraintAndLiteralNegation());	
 				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral(), context);
 				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation(), context);
 				if (subSolution1 == null || subSolution2 == null) {
@@ -104,11 +95,10 @@ public class ContextDependentExpressionProblemSolver {
 				else {
 					return IfThenElse.make(splitter, subSolution1, subSolution2, true);
 				}
-			case LITERAL_IS_TRUE:
-			case LITERAL_IS_FALSE:
+			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
 				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral(), context);
 			default:
-				throw new Error("Undefined value");
+				throw new Error("Undefined " + ConstraintSplitting.class + " result value: " + split.getResult());
 			}
 		}
 		else {
@@ -128,9 +118,9 @@ public class ContextDependentExpressionProblemSolver {
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true));
+		context = context.conjoin(new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true)), context);
 		
-		Expression result = solve(problem, contextualConstraint, context);
+		Expression result = solve(problem, context, context);
 		
 		System.out.println("result: " + result);	
 	}

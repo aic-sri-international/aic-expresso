@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoObjectArray;
@@ -217,7 +218,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			"+", "-", "*", "/", "^",
 			"and", "or", "<=>", "=>",
 			"=", "!=", ">", "<", "<=", ">=",
-			"union", "intersection", "in", "\\"
+			"union", "intersection", "in", "\\", INTEGER_INTERVAL, "\'..\'"
 			);
 	
 	@Override
@@ -239,7 +240,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			}
 			else if (infixFunctionsStrings.contains(getFunctor().toString())) {
 				List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
-				if (hasFunctor(FunctorConstants.INTEGER_INTERVAL) && numberOfArguments() == 2) {
+				if (hasFunctor(INTEGER_INTERVAL) && numberOfArguments() == 2) {
 					// no spaces between functor and arguments
 					result = subExpressionsStrings.get(0) + FunctorConstants.INTEGER_INTERVAL + subExpressionsStrings.get(1);
 				}

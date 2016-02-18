@@ -56,7 +56,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultContext;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
@@ -72,8 +71,8 @@ public class MaximumExpressionStepSolverTest {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
 		Context context = new DefaultContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-
+		context = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		
 		List<String> expressionStrings;
 		String order;
 		Expression orderMinimum;
@@ -85,59 +84,59 @@ public class MaximumExpressionStepSolverTest {
 		order = LESS_THAN;
 		orderMinimum = MINUS_INFINITY;
 		orderMaximum = INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("I", "J");
 		expected = parse("if I > J then J else I");
 		order = GREATER_THAN;
 		orderMinimum = INFINITY;
 		orderMaximum = MINUS_INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("2", "3", "J");
 		expected = parse("if 3 < J then J else 3");
 		order = LESS_THAN;
 		orderMinimum = MINUS_INFINITY;
 		orderMaximum = INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("2", "I", "3", "J");
 		expected = parse("if 2 < I then if I < J then J else I else if 3 < J then J else 3");
 		order = LESS_THAN;
 		orderMinimum = MINUS_INFINITY;
 		orderMaximum = INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("1", "2");
 		expected = parse("2");
 		order = LESS_THAN;
 		orderMinimum = MINUS_INFINITY;
 		orderMaximum = INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("1", "2");
 		expected = parse("1");
 		order = GREATER_THAN;
 		orderMinimum = INFINITY;
 		orderMaximum = MINUS_INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("1", "-infinity");
 		expected = parse("1");
 		order = LESS_THAN;
 		orderMinimum = MINUS_INFINITY;
 		orderMaximum = INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 		
 		expressionStrings = list("1", "infinity");
 		expected = parse("infinity");
 		order = LESS_THAN;
 		orderMinimum = MINUS_INFINITY;
 		orderMaximum = INFINITY;
-		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, contextualConstraint, context);	
+		runTest(expressionStrings, order, orderMinimum, orderMaximum, expected, context);	
 	}
 
-	private void runTest(List<String> expressions, String order, Expression orderMinimum, Expression orderMaximum, Expression expected, Constraint contextualConstraint, Context context) {
+	private void runTest(List<String> expressions, String order, Expression orderMinimum, Expression orderMaximum, Expression expected, Context context) {
 		ContextDependentProblemStepSolver<Expression> stepSolver =
 				new MaximumExpressionStepSolver(
 						mapIntoArrayList(expressions, Expressions::parse),
@@ -145,7 +144,7 @@ public class MaximumExpressionStepSolverTest {
 						orderMinimum,
 						orderMaximum);
 
-		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, context);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, context, context);
 		System.out.println("Maximum of " + expressions + " for order " + order + ": " + solution);
 		assertEquals(expected, solution);
 	}

@@ -144,4 +144,19 @@ public interface Context extends Cloneable, Constraint {
 	Type getType(Expression typeExpression);
 	
 	Collection<Type> getTypes();
+	
+	// Constraint method (specializing return value to Context):
+	
+	@Override
+	Context conjoinWithLiteral(Expression literal, Context context);
+	
+	@Override
+	default Context conjoin(Expression formula, Context context) {
+		return (Context) Constraint.super.conjoin(formula, context);
+	}
+
+	@Override
+	default Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
+		return (Context) Constraint.super.conjoinWithConjunctiveClause(conjunctiveClause, context);
+	}
 }

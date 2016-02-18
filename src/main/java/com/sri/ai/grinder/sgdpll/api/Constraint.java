@@ -100,13 +100,18 @@ public interface Constraint extends Expression {
 		if (isContradiction(formula)) {
 			result = makeContradiction();
 		}
+//      Warning: tempting, but incorrect, because 'formula' may not be indexed on same variables as 'this'
+//      Also, testing equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
+//		else if (formula instanceof Constraint && this.equals(TRUE)) {
+//			result = (Constraint) formula;
+//		}
 		else if (formula instanceof Constraint || isConjunction(formula)) {
 			result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
 			result = conjoinWithLiteral(formula, context);
 		}
-	
+
 		return result;
 	}
 
@@ -146,6 +151,7 @@ public interface Constraint extends Expression {
 	 */
 	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
 		Constraint result;
+
 		List<Expression> conjuncts = getConjuncts(conjunctiveClause);
 		if (conjuncts.size() == 1) { // this is necessary to avoid an infinite loop
 			result = conjoinWithLiteral(conjuncts.get(0), context);
@@ -159,6 +165,7 @@ public interface Constraint extends Expression {
 				}
 			}
 		}
+
 		return result;
 	}
 	

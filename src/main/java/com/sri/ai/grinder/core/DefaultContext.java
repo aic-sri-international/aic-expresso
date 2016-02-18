@@ -267,7 +267,7 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	
 	@Override
 	public String toString() {
-		return "Context with symbols: " + getSymbolsAndTypes();
+		return "Context " + (innerConstraint != null? innerConstraint + ", " : "") + "symbols: " + getSymbolsAndTypes();
 	}
 
 	@Override
@@ -352,6 +352,39 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return innerConstraint.getConstraintTheory();
+	}
+
+	@Override
+	public DefaultContext conjoin(Expression formula, Context context) {
+		DefaultContext result = clone();
+		if (result.innerConstraint == null) {
+			result.takeConstraintAsItsOwnIfPossible(formula);
+		}
+		else {
+			result.innerConstraint = result.innerConstraint.conjoin(formula, context);
+		}
+		return result;
+	}
+
+	@Override
+	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
+		DefaultContext result = clone();
+		if (result.innerConstraint == null) {
+			result.takeConstraintAsItsOwnIfPossible(conjunctiveClause);
+		}
+		else {
+			result.innerConstraint = result.innerConstraint.conjoinWithConjunctiveClause(conjunctiveClause, context);
+		}
+		return result;
+	}
+
+	private void takeConstraintAsItsOwnIfPossible(Expression conjunctiveClause) throws Error {
+		if (conjunctiveClause instanceof Constraint) {
+			innerConstraint = (Constraint) conjunctiveClause;
+		}
+		else {
+			throw new Error("Context without defined constraint theory being conjoined with non-constraint expression " + conjunctiveClause);
+		}
 	}
 
 	@Override
