@@ -58,6 +58,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -72,7 +73,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	
 	private static final long serialVersionUID = 1L;
 
-	private Constraint innerConstraint;
+	private ConstraintTheory constraintTheory;
 
 	private Map<Expression, Expression>  symbolsAndTypes;
 	private Map<Expression, Type> fromTypeExpressionToType;
@@ -103,7 +104,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 
-		this.innerConstraint = null;
+		this.constraintTheory = null;
 		
 		this.symbolsAndTypes = symbolsAndTypes;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
@@ -220,7 +221,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	
 	@Override
 	public String toString() {
-		return "Context " + (innerConstraint != null? innerConstraint + ", " : "") + "symbols: " + getSymbolsAndTypes();
+		return "Context with: " + getSymbolsAndTypes();
 	}
 
 	@Override
@@ -304,71 +305,73 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 
 	@Override
 	public ConstraintTheory getConstraintTheory() {
-		return innerConstraint.getConstraintTheory();
+		return constraintTheory;
 	}
 
-	@Override
-	public TypeContext conjoin(Expression formula, Context context) {
-		TypeContext result = clone();
-		if (result.innerConstraint == null) {
-			result.takeConstraintAsItsOwnIfPossible(formula);
+	private CompleteMultiVariableConstraint makeTrueConstraint(ConstraintTheory constraintTheory) {
+		CompleteMultiVariableConstraint result = new CompleteMultiVariableConstraint(constraintTheory, this);
+		return result;
+	}
+	
+	private ConstraintTheory constraintTheoryToUse(Expression conjoinant) {
+		ConstraintTheory result;
+		if (constraintTheory != null) {
+			result = constraintTheory;
+		}
+		else if (conjoinant instanceof Constraint) {
+			result = ((Constraint) conjoinant).getConstraintTheory();
 		}
 		else {
-			result.innerConstraint = result.innerConstraint.conjoin(formula, context);
+			throw new Error("Conjoining with default context but there is no constraint theory available");
 		}
+		return result;
+	}
+	
+	@Override
+	public Context conjoin(Expression formula, Context context) {
+		Context result = 
+				makeTrueConstraint(constraintTheoryToUse(formula))
+				.conjoin(formula, context);
 		return result;
 	}
 
 	@Override
 	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
-		TypeContext result = clone();
-		if (result.innerConstraint == null) {
-			result.takeConstraintAsItsOwnIfPossible(conjunctiveClause);
-		}
-		else {
-			result.innerConstraint = result.innerConstraint.conjoinWithConjunctiveClause(conjunctiveClause, context);
-		}
+		Context result = 
+				makeTrueConstraint(constraintTheoryToUse(conjunctiveClause))
+				.conjoinWithConjunctiveClause(conjunctiveClause, context);
 		return result;
 	}
 
-	private void takeConstraintAsItsOwnIfPossible(Expression conjunctiveClause) throws Error {
-		if (conjunctiveClause instanceof Constraint) {
-			innerConstraint = (Constraint) conjunctiveClause;
-		}
-		else {
-			throw new Error("Context without defined constraint theory being conjoined with non-constraint expression " + conjunctiveClause);
-		}
-	}
-
 	@Override
-	public TypeContext conjoinWithLiteral(Expression literal, Context context) {
-		TypeContext result = clone();
-		result.innerConstraint = innerConstraint.conjoinWithLiteral(literal, context);
+	public Context conjoinWithLiteral(Expression literal, Context context) {
+		Context result = 
+				makeTrueConstraint(constraintTheoryToUse(literal))
+				.conjoinWithLiteral(literal, context);
 		return result;
 	}
 
 	@Override
 	public Expression binding(Expression variable) {
-		return innerConstraint != null? innerConstraint.binding(variable) : null;
+		return null;
 	}
 
 	@Override
 	public boolean isContradiction() {
-		return innerConstraint != null && innerConstraint.isContradiction();
+		return false;
 	}
 
 	@Override
-	public TypeContext makeContradiction() {
-		if (innerConstraint == null) {
+	public Context makeContradiction() {
+		if (constraintTheory == null) {
 			throw new Error("Should not be making a contradiction out of a TypeContext without a constraint");
 		}
-		TypeContext result = clone();
-		result.innerConstraint = innerConstraint.makeContradiction();
+		Context result = makeTrueConstraint(constraintTheory).makeContradiction();
 		return result;
 	}
 
 	@Override
 	protected Expression computeInnerExpression() {
-		return innerConstraint == null? TRUE : innerConstraint;
+		return TRUE;
 	}
 }
