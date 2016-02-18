@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
 
 /**
  * An abstract context-dependent problem step solver
@@ -119,7 +119,7 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();
 			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, context);
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, context);
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint, context);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;

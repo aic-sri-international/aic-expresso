@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 import com.sri.ai.util.base.PairOf;
 
@@ -205,13 +205,13 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
 
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, context);
-			if (split.getResult().equals(ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint, context);
+			if (split.getResult().equals(ContextualConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
 				return null;
 			}
 			
-			boolean literalIsTrue  =  split.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
-			boolean literalIsFalse = !literalIsTrue && split.getResult() == ConstraintSplitting.Result.LITERAL_IS_FALSE;
+			boolean literalIsTrue  =  split.getResult() == ContextualConstraintSplitting.Result.LITERAL_IS_TRUE;
+			boolean literalIsFalse = !literalIsTrue && split.getResult() == ContextualConstraintSplitting.Result.LITERAL_IS_FALSE;
 			boolean undefined = !literalIsTrue && !literalIsFalse;
 			boolean needSubStepSolverForWhenLiteralIsTrue  = literalIsTrue  || undefined;
 			boolean needSubStepSolverForWhenLiteralIsFalse = literalIsFalse || undefined;
@@ -225,10 +225,10 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			}
 			
 			if (literalIsTrue) {
-				return stepSolverForWhenLiteralIsTrue.step((Context) split.getConstraintAndLiteral(), context);
+				return stepSolverForWhenLiteralIsTrue.step(split.getConstraintAndLiteral(), context);
 			}
 			else if (literalIsFalse) {
-				return stepSolverForWhenLiteralIsFalse.step((Context) split.getConstraintAndLiteralNegation(), context);
+				return stepSolverForWhenLiteralIsFalse.step(split.getConstraintAndLiteralNegation(), context);
 			}
 			else {
 				return new ItDependsOn(literal, split, stepSolverForWhenLiteralIsTrue, stepSolverForWhenLiteralIsFalse);

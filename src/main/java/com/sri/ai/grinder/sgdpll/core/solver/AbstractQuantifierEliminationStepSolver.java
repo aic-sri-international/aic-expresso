@@ -52,6 +52,7 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
@@ -228,7 +229,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
 		SolutionStep result;
-		ConstraintSplitting split = new ConstraintSplitting(getIndexConstraint(), literal, context);
+		ConstraintSplitting split = new ConstraintSplitting(literal, getIndexConstraint(), context);
 		Expression solutionValue;
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:
@@ -269,44 +270,44 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		Expression result;
 		if (isIfThenElse(solution1)) {
 			// (if C1 then A1 else A2) op solution2 ---> if C1 then (A1 op solution2) else (A2 op solution2)
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, condition(solution1), context);
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(condition(solution1), contextualConstraint, context);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;
 				break;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = combine(thenBranch(solution1), solution2, (Context) split.getConstraintAndLiteral(), context);
-				Expression subSolution2 = combine(elseBranch(solution1), solution2, (Context) split.getConstraintAndLiteralNegation(), context);
+				Expression subSolution1 = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral(), context);
+				Expression subSolution2 = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteralNegation(), context);
 				result = IfThenElse.make(condition(solution1), subSolution1, subSolution2, true);
 				break;
 			case LITERAL_IS_TRUE:
-				result = combine(thenBranch(solution1), solution2, (Context) split.getConstraintAndLiteral(), context);
+				result = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral(), context);
 				break;
 			case LITERAL_IS_FALSE:
-				result = combine(elseBranch(solution1), solution2, (Context) split.getConstraintAndLiteral(), context);
+				result = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteral(), context);
 				break;
-			default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + split.getResult());
+			default: throw new Error("Unrecognized result for " + ContextualConstraintSplitting.class + ": " + split.getResult());
 			}
 		}
 		else if (isIfThenElse(solution2)) {
 			// solution1 op (if C2 then B1 else B2) ---> if C2 then (solution1 op B2) else (solution1 op B2)
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, condition(solution2), context);
+			ContextualConstraintSplitting split = new ContextualConstraintSplitting(condition(solution2), contextualConstraint, context);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;
 				break;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = combine(solution1, thenBranch(solution2), (Context) split.getConstraintAndLiteral(), context);
-				Expression subSolution2 = combine(solution1, elseBranch(solution2), (Context) split.getConstraintAndLiteralNegation(), context);
+				Expression subSolution1 = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral(), context);
+				Expression subSolution2 = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation(), context);
 				result = IfThenElse.make(condition(solution2), subSolution1, subSolution2, true);
 				break;
 			case LITERAL_IS_TRUE:
-				result = combine(solution1, thenBranch(solution2), (Context) split.getConstraintAndLiteral(), context);
+				result = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral(), context);
 				break;
 			case LITERAL_IS_FALSE:
-				result = combine(solution1, elseBranch(solution2), (Context) split.getConstraintAndLiteralNegation(), context);
+				result = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation(), context);
 				break;
-			default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + split.getResult());
+			default: throw new Error("Unrecognized result for " + ContextualConstraintSplitting.class + ": " + split.getResult());
 			}
 		}
 		else {

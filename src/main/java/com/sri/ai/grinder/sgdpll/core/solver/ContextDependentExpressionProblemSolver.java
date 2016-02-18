@@ -47,7 +47,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstraint;
@@ -75,19 +75,19 @@ public class ContextDependentExpressionProblemSolver {
 		}
 		else if (step.itDepends()) {
 			Expression splitter = step.getLiteral();
-			ConstraintSplitting split;
+			ContextualConstraintSplitting split;
 			if (step.getConstraintSplitting() != null) {
-				split = step.getConstraintSplitting();
+				split = (ContextualConstraintSplitting) step.getConstraintSplitting();
 			}
 			else {
-				split = new ConstraintSplitting(contextualConstraint, splitter, context);
+				split = new ContextualConstraintSplitting(splitter, contextualConstraint, context);
 			}
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), (Context) split.getConstraintAndLiteral(), context);
-				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), (Context) split.getConstraintAndLiteralNegation(), context);
+				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral(), context);
+				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation(), context);
 				if (subSolution1 == null || subSolution2 == null) {
 					return null;
 				}
@@ -95,9 +95,9 @@ public class ContextDependentExpressionProblemSolver {
 					return IfThenElse.make(splitter, subSolution1, subSolution2, true);
 				}
 			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
-				return solve(stepSolver, (Context) split.getConstraintConjoinedWithDefinedValueOfLiteral(), context);
+				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral(), context);
 			default:
-				throw new Error("Undefined " + ConstraintSplitting.class + " result value: " + split.getResult());
+				throw new Error("Undefined " + ContextualConstraintSplitting.class + " result value: " + split.getResult());
 			}
 		}
 		else {

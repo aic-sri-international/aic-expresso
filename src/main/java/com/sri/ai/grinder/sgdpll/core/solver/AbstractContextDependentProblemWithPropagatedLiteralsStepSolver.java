@@ -53,7 +53,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 
@@ -281,7 +281,8 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			boolean clauseIsSatisfied = false;
 			for ( /* literalIndex already initialized at this point */ ; literalIndex != clause.size(); literalIndex++) {
 				Expression literal = clause.get(literalIndex);
-				ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, context);
+				ContextualConstraintSplitting contextualConstraintSplitting = 
+						new ContextualConstraintSplitting(literal, contextualConstraint, context);
 				
 				switch (contextualConstraintSplitting.getResult()) {
 				case LITERAL_IS_UNDEFINED:
@@ -294,7 +295,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 				case LITERAL_IS_TRUE:
 					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the contextual constraint below
 				case LITERAL_IS_FALSE:
-					contextualConstraint = (Context) contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
+					contextualConstraint = contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
 					break;
 				case CONSTRAINT_IS_CONTRADICTORY:
 					return null;
@@ -327,7 +328,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context contextualConstraint, Context context) {
 		for (Expression literal : conjunctiveClause) {
-			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, context);
+			ContextualConstraintSplitting contextualConstraintSplitting = new ContextualConstraintSplitting(literal, contextualConstraint, context);
 
 			switch (contextualConstraintSplitting.getResult()) {
 			case LITERAL_IS_UNDEFINED:
@@ -335,7 +336,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			case LITERAL_IS_FALSE:
 			case LITERAL_IS_TRUE:
 				// register and move to next literal
-				contextualConstraint = (Context) contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
+				contextualConstraint = contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
 				break;
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;

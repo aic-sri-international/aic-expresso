@@ -34,7 +34,7 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
  *
  */
 @Beta
-public class ConstraintSplitting  {
+public class ConstraintSplitting {
 
 	/**
 	 * The four possible result of splitting a constraint by a literal. See {@link ConstraintSplitting}.
@@ -56,11 +56,11 @@ public class ConstraintSplitting  {
 
 	/**
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
-	 * @param constraint
 	 * @param literal
+	 * @param constraint
 	 * @param context
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, Context context) {
+	public ConstraintSplitting(Expression literal, Constraint constraint, Context context) {
 		this.constraint = constraint;
 		this.literal = literal;
 		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, context);
