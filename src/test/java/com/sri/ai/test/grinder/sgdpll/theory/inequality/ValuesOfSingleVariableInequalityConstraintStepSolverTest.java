@@ -45,7 +45,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultContext;
+import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
@@ -60,9 +60,9 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultContext();
+		Context context = new TypeContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
 		Expression variable;
 		String constraintString;

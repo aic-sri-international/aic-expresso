@@ -72,7 +72,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 */
 	@Override public Expression apply(Expression expression, Context context) {
 		Expression interpretationResult = super.apply(expression, context);
-		Context trueConstraint = context.conjoin(new CompleteMultiVariableConstraint(getConstraintTheory()), context);
+		Context trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory(), context);
 		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory());
 		// TODO: given that we are only using the top simplifier from the simplifier above,

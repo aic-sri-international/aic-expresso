@@ -183,10 +183,10 @@ public class SGDPLLTTester {
 	public static void testCompleteMultiVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
-
 		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 		
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory, context);
+
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
 		TestRunner tester = SGDPLLTTester::testCompleteSatisfiability; // CompleteMultiVariableConstraint is complete
@@ -438,7 +438,7 @@ public class SGDPLLTTester {
 	}
 
 	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, Context context) {
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory(), context);
 		Expression symbolicSolution = 
 				singleVariableConstraint.isContradiction()?
 						ZERO

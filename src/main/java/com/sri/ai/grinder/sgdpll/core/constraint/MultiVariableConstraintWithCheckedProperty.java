@@ -43,9 +43,13 @@ import static com.sri.ai.expresso.helper.Expressions.contains;
 import static com.sri.ai.util.Util.getFirstOrNull;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
@@ -66,9 +70,11 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class MultiVariableConstraintWithCheckedProperty extends AbstractConstraint implements MultiVariableConstraint {
+public class MultiVariableConstraintWithCheckedProperty extends AbstractConstraint implements Context, MultiVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
+	
+	private Context typeContext; // extending Context by inclusion
 	
 	private SingleVariableConstraint head; // constraint on last variable
 	private Constraint tail; // constraint on variables but the last one; works as contextual constraint for head when checking property
@@ -89,23 +95,27 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	/**
 	 * Creates a new {@link MultiVariableConstraintWithCheckedProperty} from a {@link SingleVariableConstraint} and a {@link Constraint},
 	 * returning null if either is null.
+	 * @param constraintTheory
 	 * @param head
 	 * @param tail
-	 * @param constraintTheory TODO
 	 * @param context
 	 * @return
 	 */
 	public static MultiVariableConstraintWithCheckedProperty makeAndCheck(
+			ConstraintTheory constraintTheory,
 			SingleVariableConstraint head,
 			Constraint tail,
-			ConstraintTheory constraintTheory,
 			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
+			Context typeContext,
 			Context context) {
 	
 		MultiVariableConstraintWithCheckedProperty result;
 		if (head.isContradiction() || tail.isContradiction()) {
 			MultiVariableConstraintWithCheckedProperty newMultiVariableConstraintWithCheckedProperty = 
-					new MultiVariableConstraintWithCheckedProperty(constraintTheory, contextDependentProblemStepSolverMaker);
+					new MultiVariableConstraintWithCheckedProperty(
+							constraintTheory, 
+							contextDependentProblemStepSolverMaker, 
+							typeContext);
 			result = newMultiVariableConstraintWithCheckedProperty.makeContradiction();
 			// TODO: perhaps this should be cached
 		}
@@ -115,7 +125,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 							tail.getConstraintTheory(), 
 							head, 
 							tail, 
-							contextDependentProblemStepSolverMaker);
+							contextDependentProblemStepSolverMaker, 
+							typeContext);
 			result = result.check(context);
 		}
 		
@@ -123,12 +134,16 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 
 	public MultiVariableConstraintWithCheckedProperty(
-			ConstraintTheory constraintTheory, ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
+			ConstraintTheory constraintTheory, 
+			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
+			Context typeContext) {
+		
 		this(
 				constraintTheory, 
 				null,
 				null, 
-				contextDependentProblemMaker);
+				contextDependentProblemMaker, 
+				typeContext);
 	}
 	
 	/**
@@ -139,17 +154,20 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	 * Because of these issues, the constructor is private.
 	 * @param head
 	 * @param tail
+	 * @param typeContext TODO
 	 */
 	private MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory,
 			SingleVariableConstraint head,
 			Constraint tail,
-			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
+			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
+			Context typeContext) {
 		super(constraintTheory);
-		this.head = head;
 		this.tail = tail;
+		this.head = head;
 		this.checked = false;
 		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
+		this.typeContext = typeContext;
 	}
 
 	@Override
@@ -182,7 +200,16 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulaAsSingleVariableConstraint = (SingleVariableConstraint) formula;
 			if ( ! contains(this, formulaAsSingleVariableConstraint.getVariable(), context)) { // TODO: using contains here is overkill
-				result = Pair.make(true, makeAndCheck(formulaAsSingleVariableConstraint, this, getConstraintTheory(), contextDependentProblemStepSolverMaker, context));
+				result = 
+						Pair.make(
+								true, 
+								makeAndCheck(
+										getConstraintTheory(), 
+										formulaAsSingleVariableConstraint, 
+										this, 
+										contextDependentProblemStepSolverMaker,
+										typeContext,
+										context));
 				// if the variable is new to this constraint, we can simply tack on its constraint under it. 
 			}
 		}
@@ -247,7 +274,14 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 					result = this;
 				}
 				else {
-					result = makeAndCheck(newHead, newTail, getConstraintTheory(), contextDependentProblemStepSolverMaker, context);
+					result = 
+							makeAndCheck(
+									getConstraintTheory(), 
+									newHead, 
+									newTail, 
+									contextDependentProblemStepSolverMaker,
+									typeContext,
+									context);
 				}
 			}
 			else {
@@ -259,7 +293,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 							getConstraintTheory(),
 							newSingleVariableConstraint, 
 							this, 
-							contextDependentProblemStepSolverMaker);
+							contextDependentProblemStepSolverMaker, 
+							typeContext);
 					result = result.check(context);
 				}
 				else {
@@ -333,5 +368,113 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 			result = tail.binding(variable);
 		}
 		return result;
+	}
+
+	/////////// Context methods
+	
+	@Override
+	public MultiVariableConstraintWithCheckedProperty clone() {
+		return (MultiVariableConstraintWithCheckedProperty) super.clone();
+	}
+
+
+	@Override
+	public Predicate<Expression> getIsUniquelyNamedConstantPredicate() {
+		return typeContext.getIsUniquelyNamedConstantPredicate();
+	}
+
+	@Override
+	public MultiVariableConstraintWithCheckedProperty setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		MultiVariableConstraintWithCheckedProperty result = clone();
+		Context newTypeContext = typeContext.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
+		result.typeContext = newTypeContext;
+		return result;
+	}
+
+	@Override
+	public boolean isUniquelyNamedConstant(Expression expression) {
+		return typeContext.isUniquelyNamedConstant(expression);
+	}
+
+	@Override
+	public boolean isVariable(Expression expression) {
+		return typeContext.isVariable(expression);
+	}
+
+	@Override
+	public Set<Expression> getRegisteredSymbols() {
+		return typeContext.getRegisteredSymbols();
+	}
+
+	@Override
+	public Map<Expression, Expression> getSymbolsAndTypes() {
+		return typeContext.getSymbolsAndTypes();
+	}
+
+	@Override
+	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
+		return typeContext.getTypeOfRegisteredSymbol(symbol);
+	}
+
+	@Override
+	public MultiVariableConstraintWithCheckedProperty registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes) {
+		MultiVariableConstraintWithCheckedProperty result = clone();
+		Context newTypeContext = typeContext.registerIndicesAndTypes(indicesAndTypes);
+		result.typeContext = newTypeContext;
+		return result;
+	}
+
+	@Override
+	public MultiVariableConstraintWithCheckedProperty putAllGlobalObjects(Map<Object, Object> objects) {
+		MultiVariableConstraintWithCheckedProperty result = clone();
+		Context newTypeContext = typeContext.putAllGlobalObjects(objects);
+		result.typeContext = newTypeContext;
+		return result;
+	}
+
+	@Override
+	public Map<Object, Object> getGlobalObjects() {
+		return typeContext.getGlobalObjects();
+	}
+
+	@Override
+	public MultiVariableConstraintWithCheckedProperty putGlobalObject(Object key, Object value) {
+		MultiVariableConstraintWithCheckedProperty result = clone();
+		Context newTypeContext = typeContext.putGlobalObject(key, value);
+		result.typeContext = newTypeContext;
+		return result;
+	}
+
+	@Override
+	public boolean containsGlobalObjectKey(Object key) {
+		return typeContext.containsGlobalObjectKey(key);
+	}
+
+	@Override
+	public Object getGlobalObject(Object key) {
+		return typeContext.getGlobalObject(key);
+	}
+
+	@Override
+	public MultiVariableConstraintWithCheckedProperty add(Type type) {
+		MultiVariableConstraintWithCheckedProperty result = clone();
+		Context newTypeContext = typeContext.add(type);
+		result.typeContext = newTypeContext;
+		return result;
+	}
+
+	@Override
+	public Type getType(String typeStringRepresentation) {
+		return typeContext.getType(typeStringRepresentation);
+	}
+
+	@Override
+	public Type getType(Expression typeExpression) {
+		return typeContext.getType(typeExpression);
+	}
+
+	@Override
+	public Collection<Type> getTypes() {
+		return typeContext.getTypes();
 	}
 }

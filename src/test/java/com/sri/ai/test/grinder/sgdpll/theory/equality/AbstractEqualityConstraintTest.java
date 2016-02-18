@@ -235,8 +235,8 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
-		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 			if (constraint.isContradiction()) {

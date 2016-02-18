@@ -70,8 +70,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
 		int limit = 5;
 		Context contextualConstraint = 
-				context.conjoin(new CompleteMultiVariableConstraint(constraintTheory)
-				.conjoin(parse(contextualConstraintString), context), context);
+				new CompleteMultiVariableConstraint(constraintTheory, context)
+				.conjoin(parse(contextualConstraintString), context);
 		
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsIsLessThanStepSolver stepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, list);

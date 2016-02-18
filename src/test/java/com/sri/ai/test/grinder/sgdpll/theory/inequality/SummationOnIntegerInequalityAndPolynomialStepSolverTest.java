@@ -48,7 +48,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultContext;
+import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -65,9 +65,9 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void simpleBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultContext();
+		Context context = new TypeContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
 		Expression variable;
 		String constraintString;
@@ -105,9 +105,9 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultContext();
+		Context context = new TypeContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 	
 		Expression variable;
 		String constraintString;
@@ -145,9 +145,9 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultContext();
+		Context context = new TypeContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 	
 		Expression variable;
 		String constraintString;
@@ -185,9 +185,9 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context context = new DefaultContext();
+		Context context = new TypeContext();
 		context = constraintTheory.extendWithTestingInformation(context);
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 	
 		Expression variable;
 		String constraintString;

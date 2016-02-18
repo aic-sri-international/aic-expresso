@@ -67,8 +67,8 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
 		Context contextualConstraint = 
-				context.conjoin(new CompleteMultiVariableConstraint(constraintTheory)
-				.conjoin(parse(contextualConstraintString), context), context);
+				new CompleteMultiVariableConstraint(constraintTheory, context)
+				.conjoin(parse(contextualConstraintString), context);
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsStepSolver stepSolver = new NumberOfDistinctExpressionsStepSolver(list);
 

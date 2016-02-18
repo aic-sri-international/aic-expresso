@@ -92,7 +92,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 
 	@Override
 	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
-		return context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		return new CompleteMultiVariableConstraint(constraintTheory, context);
 	}
 
 	@Override

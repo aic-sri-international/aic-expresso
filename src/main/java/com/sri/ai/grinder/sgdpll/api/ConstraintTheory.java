@@ -62,7 +62,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultContext;
+import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
@@ -378,6 +378,6 @@ public interface ConstraintTheory extends Theory {
 	Context extendWithTestingInformation(Context context);
 
 	default Context makeContextualConstraintWithTestingInformation() {
-		return extendWithTestingInformation(new DefaultContext());
+		return extendWithTestingInformation(new TypeContext());
 	}
 }

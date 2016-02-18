@@ -96,8 +96,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 //		Expression quantifierFreeBody = body;
 //		Expression quantifierFreeIndicesCondition = indicesConditions;
 
-		Context contextualConstraint = 
-				context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 
 		Expression result =
 				solve(

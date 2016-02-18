@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.core;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
@@ -67,7 +68,7 @@ import com.sri.ai.util.collect.StackedHashMap;
  * @author oreilly
  */
 @Beta
-public class DefaultContext extends AbstractExpressionWrapper implements Context {
+public class TypeContext extends AbstractExpressionWrapper implements Context {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -83,21 +84,21 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	//
 	// START - Constructors
 
-	public DefaultContext() {
+	public TypeContext() {
 		this(
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), // symbolsAndTypes
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
-	public DefaultContext(Map<Object, Object> globalObjects) {
+	public TypeContext(Map<Object, Object> globalObjects) {
 		this(
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
 
-	public DefaultContext(
+	public TypeContext(
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
@@ -129,10 +130,10 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	//
 	
 	@Override
-	public DefaultContext clone() {
-		DefaultContext result = null;
+	public TypeContext clone() {
+		TypeContext result = null;
 		try {
-			result = (DefaultContext) super.clone();
+			result = (TypeContext) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -158,8 +159,8 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	}
 
 	@Override
-	public Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		DefaultContext result = clone();
+	public TypeContext setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		TypeContext result = clone();
 		result.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 		return result;
 	}
@@ -185,14 +186,14 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	}
 
 	@Override
-	public DefaultContext putAllGlobalObjects(Map<Object, Object> objects) {
-		DefaultContext result = clone();
+	public TypeContext putAllGlobalObjects(Map<Object, Object> objects) {
+		TypeContext result = clone();
 		result.globalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
 		return result;
 	}
 
 	@Override
-	public DefaultContext putGlobalObject(Object key, Object value) {
+	public TypeContext putGlobalObject(Object key, Object value) {
 		return putAllGlobalObjects(map(key, value));
 	}
 
@@ -223,8 +224,8 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	}
 
 	@Override
-	public Context add(Type type) {
-		DefaultContext result = clone();
+	public TypeContext add(Type type) {
+		TypeContext result = clone();
 		LinkedHashMap<Expression, Type> additionalTypeMap = map(parse(type.getName()), type);
 		result.fromTypeExpressionToType = new StackedHashMap<>(additionalTypeMap, fromTypeExpressionToType);
 		return result;
@@ -252,7 +253,7 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	}
 
 	@Override
-	public Context registerIndicesAndTypes(
+	public TypeContext registerIndicesAndTypes(
 			Map<Expression, Expression> expressionsAndTypes) {
 		if (expressionsAndTypes.isEmpty()) { // nothing to do
 			return this;
@@ -261,7 +262,7 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 		Map<Expression, Expression> newSymbolsAndTypes = 
 				createNewSymbolsAndTypes(expressionsAndTypes);
 		
-		DefaultContext result = clone();
+		TypeContext result = clone();
 		result.symbolsAndTypes = newSymbolsAndTypes;
 		
 		return result;
@@ -307,8 +308,8 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	}
 
 	@Override
-	public DefaultContext conjoin(Expression formula, Context context) {
-		DefaultContext result = clone();
+	public TypeContext conjoin(Expression formula, Context context) {
+		TypeContext result = clone();
 		if (result.innerConstraint == null) {
 			result.takeConstraintAsItsOwnIfPossible(formula);
 		}
@@ -320,7 +321,7 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 
 	@Override
 	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
-		DefaultContext result = clone();
+		TypeContext result = clone();
 		if (result.innerConstraint == null) {
 			result.takeConstraintAsItsOwnIfPossible(conjunctiveClause);
 		}
@@ -340,31 +341,34 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 	}
 
 	@Override
-	public DefaultContext conjoinWithLiteral(Expression literal, Context context) {
-		DefaultContext result = clone();
+	public TypeContext conjoinWithLiteral(Expression literal, Context context) {
+		TypeContext result = clone();
 		result.innerConstraint = innerConstraint.conjoinWithLiteral(literal, context);
 		return result;
 	}
 
 	@Override
 	public Expression binding(Expression variable) {
-		return innerConstraint.binding(variable);
+		return innerConstraint != null? innerConstraint.binding(variable) : null;
 	}
 
 	@Override
 	public boolean isContradiction() {
-		return innerConstraint.isContradiction();
+		return innerConstraint != null && innerConstraint.isContradiction();
 	}
 
 	@Override
-	public DefaultContext makeContradiction() {
-		DefaultContext result = clone();
+	public TypeContext makeContradiction() {
+		if (innerConstraint == null) {
+			throw new Error("Should not be making a contradiction out of a TypeContext without a constraint");
+		}
+		TypeContext result = clone();
 		result.innerConstraint = innerConstraint.makeContradiction();
 		return result;
 	}
 
 	@Override
 	protected Expression computeInnerExpression() {
-		return innerConstraint;
+		return innerConstraint == null? TRUE : innerConstraint;
 	}
 }

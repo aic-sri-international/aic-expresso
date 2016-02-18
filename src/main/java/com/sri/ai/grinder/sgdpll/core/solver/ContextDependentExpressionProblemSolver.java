@@ -42,7 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultContext;
+import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
@@ -108,7 +108,7 @@ public class ContextDependentExpressionProblemSolver {
 	public static void main(String[] args) {
 		
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		DefaultContext context = new DefaultContext();
+		TypeContext context = new TypeContext();
 		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
 		constraint = constraint.conjoin(parse("X = Y"), context);
 		constraint = constraint.conjoin(parse("X = Z"), context);
@@ -117,7 +117,7 @@ public class ContextDependentExpressionProblemSolver {
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		Context contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 		
 		Expression result = solve(problem, contextualConstraint, context);
 		

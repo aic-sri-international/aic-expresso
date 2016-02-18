@@ -73,7 +73,7 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 
 	@Override
 	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
-		return context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
+		return new CompleteMultiVariableConstraint(constraintTheory, context);
 	}
 	
 	public ConstraintTheory getConstraintTheory() {
