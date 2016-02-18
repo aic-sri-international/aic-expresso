@@ -114,24 +114,6 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 		
-		initialize(
-				constraintTheory,
-				symbolsAndTypes,
-				isUniquelyNamedConstantPredicate, 
-				globalObjects,
-				map());
-	}
-
-	// END-Constructors
-	//
-	
-	private void initialize(
-			ConstraintTheory constraintTheory,
-			Map<Expression, Expression> symbolsAndTypes,
-			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Map<Object, Object> globalObjects,
-			Map<Expression, Type> types) {
-		
 		this.innerConstraint = 
 				constraintTheory == null
 				? null : new CompleteMultiVariableConstraint(constraintTheory);
@@ -141,8 +123,13 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 		//
 		this.globalObjects = globalObjects;
 		//
-		this.fromTypeExpressionToType = types;
+		this.fromTypeExpressionToType = map();
 	}
+
+	// END-Constructors
+	//
+	
+	
 
 	// END-Context
 	//
