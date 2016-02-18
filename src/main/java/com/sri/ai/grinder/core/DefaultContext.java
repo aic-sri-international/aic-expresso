@@ -57,7 +57,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -86,37 +85,24 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 
 	public DefaultContext() {
 		this(
-				null,
-				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
-				new PrologConstantPredicate(), 
+				new LinkedHashMap<Expression, Expression>(),
+				new PrologConstantPredicate(), // symbolsAndTypes
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
-	public DefaultContext(ConstraintTheory constraintTheory) {
+	public DefaultContext(Map<Object, Object> globalObjects) {
 		this(
-				constraintTheory,
-				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
-				new PrologConstantPredicate(), 
-				new LinkedHashMap<Object, Object>()); // globalObjects
-	}
-	
-	public DefaultContext(ConstraintTheory constraintTheory, Map<Object, Object> globalObjects) {
-		this(
-				constraintTheory,
-				new LinkedHashMap<Expression, Expression>(), 
+				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
 
 	public DefaultContext(
-			ConstraintTheory constraintTheory,
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
-		
-		this.innerConstraint = 
-				constraintTheory == null
-				? null : new CompleteMultiVariableConstraint(constraintTheory);
+
+		this.innerConstraint = null;
 		
 		this.symbolsAndTypes = symbolsAndTypes;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;

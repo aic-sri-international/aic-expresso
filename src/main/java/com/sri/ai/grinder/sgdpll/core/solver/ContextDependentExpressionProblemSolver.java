@@ -108,7 +108,7 @@ public class ContextDependentExpressionProblemSolver {
 	public static void main(String[] args) {
 		
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		DefaultContext context = new DefaultContext(constraintTheory);
+		DefaultContext context = new DefaultContext();
 		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
 		constraint = constraint.conjoin(parse("X = Y"), context);
 		constraint = constraint.conjoin(parse("X = Z"), context);

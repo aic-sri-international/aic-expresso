@@ -89,21 +89,21 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	/**
 	 * Creates a new {@link MultiVariableConstraintWithCheckedProperty} from a {@link SingleVariableConstraint} and a {@link Constraint},
 	 * returning null if either is null.
-	 * @param newTail
-	 * @param newHead
+	 * @param head
+	 * @param tail
 	 * @param constraintTheory TODO
 	 * @param context
 	 * @return
 	 */
 	public static MultiVariableConstraintWithCheckedProperty makeAndCheck(
-			Constraint newTail,
-			SingleVariableConstraint newHead,
+			SingleVariableConstraint head,
+			Constraint tail,
 			ConstraintTheory constraintTheory,
 			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
 			Context context) {
 	
 		MultiVariableConstraintWithCheckedProperty result;
-		if (newHead.isContradiction() || newTail.isContradiction()) {
+		if (head.isContradiction() || tail.isContradiction()) {
 			MultiVariableConstraintWithCheckedProperty newMultiVariableConstraintWithCheckedProperty = 
 					new MultiVariableConstraintWithCheckedProperty(constraintTheory, contextDependentProblemStepSolverMaker);
 			result = newMultiVariableConstraintWithCheckedProperty.makeContradiction();
@@ -112,9 +112,9 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		else {
 			result = 
 					new MultiVariableConstraintWithCheckedProperty(
-							newTail.getConstraintTheory(), 
-							newTail, 
-							newHead, 
+							tail.getConstraintTheory(), 
+							head, 
+							tail, 
 							contextDependentProblemStepSolverMaker);
 			result = result.check(context);
 		}
@@ -137,17 +137,17 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	 * in the tail constraint.
 	 * Note also that this does not check the checked property.
 	 * Because of these issues, the constructor is private.
-	 * @param tail
 	 * @param head
+	 * @param tail
 	 */
 	private MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory,
-			Constraint tail,
 			SingleVariableConstraint head,
+			Constraint tail,
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
 		super(constraintTheory);
-		this.tail = tail;
 		this.head = head;
+		this.tail = tail;
 		this.checked = false;
 		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 	}
@@ -182,7 +182,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulaAsSingleVariableConstraint = (SingleVariableConstraint) formula;
 			if ( ! contains(this, formulaAsSingleVariableConstraint.getVariable(), context)) { // TODO: using contains here is overkill
-				result = Pair.make(true, makeAndCheck(this, formulaAsSingleVariableConstraint, getConstraintTheory(), contextDependentProblemStepSolverMaker, context));
+				result = Pair.make(true, makeAndCheck(formulaAsSingleVariableConstraint, this, getConstraintTheory(), contextDependentProblemStepSolverMaker, context));
 				// if the variable is new to this constraint, we can simply tack on its constraint under it. 
 			}
 		}
@@ -247,7 +247,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 					result = this;
 				}
 				else {
-					result = makeAndCheck(newTail, newHead, getConstraintTheory(), contextDependentProblemStepSolverMaker, context);
+					result = makeAndCheck(newHead, newTail, getConstraintTheory(), contextDependentProblemStepSolverMaker, context);
 				}
 			}
 			else {
@@ -257,8 +257,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 				if ( ! newSingleVariableConstraint.isContradiction()) {
 					result = new MultiVariableConstraintWithCheckedProperty(
 							getConstraintTheory(),
-							this, 
 							newSingleVariableConstraint, 
+							this, 
 							contextDependentProblemStepSolverMaker);
 					result = result.check(context);
 				}

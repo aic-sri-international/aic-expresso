@@ -378,6 +378,6 @@ public interface ConstraintTheory extends Theory {
 	Context extendWithTestingInformation(Context context);
 
 	default Context makeContextualConstraintWithTestingInformation() {
-		return extendWithTestingInformation(new DefaultContext(this));
+		return extendWithTestingInformation(new DefaultContext());
 	}
 }

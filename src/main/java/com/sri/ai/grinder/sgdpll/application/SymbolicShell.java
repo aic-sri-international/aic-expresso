@@ -82,7 +82,7 @@ public class SymbolicShell {
 				new SymbolicCommonInterpreterWithLiteralConditioning(
 						constraintTheory);
 		
-		Context context = new DefaultContext(constraintTheory);
+		Context context = new DefaultContext();
 		context = context.add(BOOLEAN_TYPE);
 		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		context = context.add(new IntegerInterval("Integer"));

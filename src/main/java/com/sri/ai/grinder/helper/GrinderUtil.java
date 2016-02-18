@@ -152,7 +152,7 @@ public class GrinderUtil {
 	}
 
 	public static Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
-		Context result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultContext(constraintTheory));			
+		Context result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultContext());			
 		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
