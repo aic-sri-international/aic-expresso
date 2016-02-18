@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 import com.sri.ai.util.base.PairOf;
 
@@ -67,7 +67,7 @@ import com.sri.ai.util.base.PairOf;
  * and 
  * {@link #makeSubStepSolverForWhenLiteralIsFalse()}
  * which must be step solvers for the same problem, but which are
- * allowed to assume the literal to be defined as true and false in the contextual constraint, respectively.
+ * allowed to assume the literal to be defined as true and false in the context, respectively.
  *
  * @author braz
  *
@@ -191,7 +191,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public SolutionStep step(Context contextualConstraint) {
+	public SolutionStep step(Context context) {
 		
 		if (expressions.size() < 2) {
 			return makeSolutionStepWhenThereAreNoPairs();
@@ -200,18 +200,18 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 		if (hasPair()) {
 
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, contextualConstraint);
+			Expression literal = context.getConstraintTheory().simplify(unsimplifiedLiteral, context);
 
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
 
-			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint);
-			if (split.getResult().equals(ContextualConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
+			ContextSplitting split = new ContextSplitting(literal, context);
+			if (split.getResult().equals(ContextSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
 				return null;
 			}
 			
-			boolean literalIsTrue  =  split.getResult() == ContextualConstraintSplitting.Result.LITERAL_IS_TRUE;
-			boolean literalIsFalse = !literalIsTrue && split.getResult() == ContextualConstraintSplitting.Result.LITERAL_IS_FALSE;
+			boolean literalIsTrue  =  split.getResult() == ContextSplitting.Result.LITERAL_IS_TRUE;
+			boolean literalIsFalse = !literalIsTrue && split.getResult() == ContextSplitting.Result.LITERAL_IS_FALSE;
 			boolean undefined = !literalIsTrue && !literalIsFalse;
 			boolean needSubStepSolverForWhenLiteralIsTrue  = literalIsTrue  || undefined;
 			boolean needSubStepSolverForWhenLiteralIsFalse = literalIsFalse || undefined;

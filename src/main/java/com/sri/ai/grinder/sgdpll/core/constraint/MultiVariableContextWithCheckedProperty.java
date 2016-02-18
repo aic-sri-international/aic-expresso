@@ -74,7 +74,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	private static final long serialVersionUID = 1L;
 	
 	private SingleVariableConstraint head; // constraint on last variable
-	private Context tail; // constraint on variables but the last one; works as contextual constraint for head when checking property
+	private Context tail; // constraint on variables but the last one; works as context for head when checking property
 	private boolean checked;
 	
 	/**
@@ -129,12 +129,12 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	public MultiVariableContextWithCheckedProperty(
 			ConstraintTheory constraintTheory, 
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
-			Context contextualConstraint) {
+			Context context) {
 		
 		this(
 				constraintTheory, 
 				null, // no head at first
-				contextualConstraint, // initial tail is the contextual constraint 
+				context, // initial tail is the context 
 				contextDependentProblemMaker);
 	}
 	

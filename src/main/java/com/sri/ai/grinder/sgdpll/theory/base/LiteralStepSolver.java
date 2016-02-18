@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 
 /**
  * A context-dependent problem step solver
@@ -73,8 +73,8 @@ public class LiteralStepSolver implements ContextDependentProblemStepSolver<Bool
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Context contextualConstraint) {
-		ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint);
+	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Context context) {
+		ContextSplitting split = new ContextSplitting(literal, context);
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:
 			return null;

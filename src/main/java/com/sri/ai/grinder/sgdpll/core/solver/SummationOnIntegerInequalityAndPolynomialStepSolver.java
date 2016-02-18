@@ -101,10 +101,10 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
-			Context contextualConstraint) {
+			Context context) {
 
 		SolutionStep step = 
-				valuesOfSingleVariableInequalityConstraintStepSolver.step(contextualConstraint);
+				valuesOfSingleVariableInequalityConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;
 		}
@@ -121,7 +121,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 		}
 		RangeAndExceptionsSet values = (RangeAndExceptionsSet) step.getValue();
 		
-		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, contextualConstraint);
+		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, context);
 		return new Solution(result);
 	}
 
@@ -129,18 +129,18 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Expression variable,
 			Expression literalFreeBody,
 			RangeAndExceptionsSet values,
-			Context contextualConstraint) {
+			Context context) {
 		
 		Expression result;
 		if (values.equals(RangeAndExceptionsSet.EMPTY)) {
 			result = ZERO;
 		}
 		else {
-			ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
+			ConstraintTheory constraintTheory = context.getConstraintTheory();
 			if (values instanceof RangeAndExceptionsSet.Singleton) {
 				Expression value = ((RangeAndExceptionsSet.Singleton)values).getSingleValue();
 				Expression valueAtPoint = 
-						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, contextualConstraint));
+						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, context));
 				result = valueAtPoint;
 			}
 			else {
@@ -174,12 +174,12 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 									variable,
 									disequal,
 									constraintTheory,
-									contextualConstraint);
+									context);
 					argumentsForSubtraction.add(apply(MINUS, valueAtDisequal));
 				}
 				Expression intervalSummationMinusValuesAtDisequals =
 						apply(PLUS, argumentsForSubtraction);
-				result = DefaultPolynomial.make(constraintTheory.simplify(intervalSummationMinusValuesAtDisequals, contextualConstraint));
+				result = DefaultPolynomial.make(constraintTheory.simplify(intervalSummationMinusValuesAtDisequals, context));
 			}
 		}
 		return result;

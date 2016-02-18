@@ -218,7 +218,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, true);
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		Constraint constraint = new CompleteMultiVariableContext(constraintTheory, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);

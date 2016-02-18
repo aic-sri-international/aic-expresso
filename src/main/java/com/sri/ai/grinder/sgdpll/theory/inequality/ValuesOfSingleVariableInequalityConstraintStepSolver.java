@@ -389,7 +389,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.
@@ -412,7 +412,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			if (initialMaximumStrictLowerBoundStepSolver == null) {
 				maximumStrictLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getStrictLowerBoundsIncludingImplicitOnes(contextualConstraint),
+						getStrictLowerBoundsIncludingImplicitOnes(context),
 						LESS_THAN_SYMBOL, // use total order <
 						MINUS_INFINITY,
 						INFINITY); // at first, I placed the type minimum and maximum strict lower bounds here. This is incorrect because if the type maximum is, say, 4, and I have "X > 3 and X > I" (3 is the maximum strict lower bounds for values in the type), the step solver short-circuits and returns 3, without ever even looking at I. Looking at I is needed because if I is greater than 3 than this constraint is unsatisfiable.
@@ -420,7 +420,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				maximumStrictLowerBoundStepSolver = initialMaximumStrictLowerBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint);
+			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(context);
 			if (maximumStrictLowerBoundStep.itDepends()) {
 				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -436,7 +436,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
-						getNonStrictUpperBoundsIncludingImplicitOnes(contextualConstraint),
+						getNonStrictUpperBoundsIncludingImplicitOnes(context),
 						GREATER_THAN_SYMBOL, // use total order > since "minimum" is maximum under it
 						INFINITY, // "minimum" is maximum value because we are operating on the inverse order
 						MINUS_INFINITY); // "maximum" is minimum value because we are operating on the inverse order
@@ -444,7 +444,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				minimumNonStrictUpperBoundStepSolver = initialMinimumNonStrictUpperBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint);
+			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(context);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
 				ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -462,13 +462,13 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 			else {
 				ContextDependentProblemStepSolver<Boolean> lowerBoundIsLessThanUpperBoundStepSolver;
 				if (initialLowerBoundIsLessThanUpperBoundStepSolver == null) {
-					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), contextualConstraint);
+					Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), context);
 					lowerBoundIsLessThanUpperBoundStepSolver = new LiteralStepSolver(lowerBoundIsLessThanUpperBound);
 				}
 				else {
 					lowerBoundIsLessThanUpperBoundStepSolver = initialLowerBoundIsLessThanUpperBoundStepSolver;
 				}
-				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(contextualConstraint);
+				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -492,7 +492,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					disequalsGreaterThanGreatestStrictLowerBoundStepSolver = initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 				}
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step
-				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint);
+				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(context);
 				if (step.itDepends()) {
 					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsTrue();
@@ -515,7 +515,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					disequalsWithinBoundsStepSolver = initialDisequalsWithinBoundsStepSolver;
 				}
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step2
-				= disequalsWithinBoundsStepSolver.step(contextualConstraint);
+				= disequalsWithinBoundsStepSolver.step(context);
 				if (step2.itDepends()) {
 					ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsTrue();
@@ -527,7 +527,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
 				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
 
-				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), contextualConstraint);
+				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
 
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
 				DistinctExpressionsStepSolver distinctExpressionsStepSolver;
@@ -541,7 +541,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					else {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					}
-					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint);
+					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
@@ -573,7 +573,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 					solutionExpression = new RangeAndExceptionsSet.Singleton(getFirst(getEquals()));
 				}
 				else {
-					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(contextualConstraint);
+					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(context);
 					if (distinctDisequalsStep.itDepends()) {
 						ValuesOfSingleVariableInequalityConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();

@@ -64,7 +64,7 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
  * An error is thrown if this assumption is violated.
  * <p>
  * This class already defines that the model count is zero if the constraint is not satisfiable according to the
- * satisfiability step solver due to propagated literals and propagated CNF not being satisfied by the contextual constraint.
+ * satisfiability step solver due to propagated literals and propagated CNF not being satisfied by the context.
  * Extensions still need to provide methods
  * to compute the final solution when propagated literals and propagated CNF are satisfied.
  * 

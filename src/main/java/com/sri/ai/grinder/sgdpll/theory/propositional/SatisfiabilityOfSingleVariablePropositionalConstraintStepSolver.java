@@ -79,7 +79,7 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	}
 
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
 		return new Solution(TRUE);
 	}
 }

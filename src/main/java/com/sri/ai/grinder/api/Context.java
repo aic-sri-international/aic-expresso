@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
  * It keeps several pieces of data, such as a collection of "global" objects
  * (really, rewriting context-specific objects), types, level of recursion,
  * whether an expression is a uniquely named constant, etc.
- * It also keeps a contextual constraint on some of the free variables,
+ * It also keeps a context on some of the free variables,
  * meaning that any returned result needs to be true
  * only under it.
  * 

@@ -172,8 +172,7 @@ public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyle
 
 			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
 			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, context);
-			Constraint trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices, context);
-			Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
+			Constraint constraintOnRemainingIndices = context; // the constraint is already represented in indexSubProblemSolution
 			result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, context);
 			result = getProblemType().multiply(result, context);
 		}

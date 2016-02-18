@@ -48,8 +48,8 @@ import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
  * Method {@link #step(Context)} returns a {@link SolutionStep},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
- * that, if used to split the contextual constraint
- * (by conjoining the contextual constraint with the literal and with its negation, successively),
+ * that, if used to split the context
+ * (by conjoining the context with the literal and with its negation, successively),
  * will help disambiguate the problem.
  * 
  * @author braz
@@ -66,7 +66,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * <p>
 	 * While it is correct to just re-use the step solver returning the {@link ItDependsOn} object,
 	 * it would then wastefully check again for all the expressions that had already been enforced true or false
-	 * by the contextual constraint.
+	 * by the context.
 	 * By allowing a step solver to clone itself, we are able to provide sub-step solvers
 	 * that already know when to continue the search from.
 	 * <p>
@@ -102,7 +102,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	/**
 	 * A solution step of a {@link ContextDependentProblemStepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
-	 * unless the contextual constraint be restricted according to the literal returned by {@link #getLiteral()}.
+	 * unless the context be restricted according to the literal returned by {@link #getLiteral()}.
 	 * Otherwise, the expression returned by {@link #getValue()} is the solution.
 	 * @author braz
 	 *
@@ -124,7 +124,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		
 		/**
 		 * Returns a {@link ContextDependentProblemStepSolver} to be used for finding the final solution
-		 * in case the literal is defined as true by the contextual constraint.
+		 * in case the literal is defined as true by the context.
 		 * This is merely an optimization, and using the original step solver should still work,
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
@@ -139,7 +139,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		
 		/**
 		 * For solutions depending on a split, provides the constraint splitting
-		 * for the contextual constraint and literal used, if available,
+		 * for the context and literal used, if available,
 		 * or null otherwise.
 		 * @return
 		 */
@@ -155,7 +155,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		
 		/**
 		 * Represents a solution step in which the final solution depends on the definition of a given expression
-		 * by the contextual constraint.
+		 * by the context.
 		 * Step solvers specialized for whether expression is true or false can be provided
 		 * that already know about the definition of expression either way, for efficiency;
 		 * however, if this step solver is provided instead, things still work because 
@@ -259,10 +259,10 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 
 	/**
 	 * Returns a solution step for the problem: either the solution itself, if independent
-	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
+	 * on the values for free variables, or a literal that, if used to split the context,
 	 * will bring the problem closer to a solution.
-	 * @param contextualConstraint
+	 * @param context
 	 * @return
 	 */
-	SolutionStep<T> step(Context contextualConstraint);
+	SolutionStep<T> step(Context context);
 }

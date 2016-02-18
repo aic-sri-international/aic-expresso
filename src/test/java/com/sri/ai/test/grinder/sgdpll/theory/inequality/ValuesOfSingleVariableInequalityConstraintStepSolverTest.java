@@ -58,7 +58,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
-		Context contextualConstraint = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -67,39 +67,39 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 		variable = parse("I");
 		constraintString = "true";
 		expected = parse("aboveAndUpTo(-1, 4)");
-		runTest(variable, constraintString, expected, contextualConstraint);
+		runTest(variable, constraintString, expected, context);
 		
 		variable = parse("I");
 		constraintString = "false";
 		expected = parse("{}");
-		runTest(variable, constraintString, expected, contextualConstraint);
+		runTest(variable, constraintString, expected, context);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I";
 		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2)");
-		runTest(variable, constraintString, expected, contextualConstraint);
+		runTest(variable, constraintString, expected, context);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I and I != 2";
 		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, contextualConstraint);
+		runTest(variable, constraintString, expected, context);
 		
 		variable = parse("I");
 		constraintString = "I < 3 and J > I and I != 2 and I != K";
 		expected = parse("if 3 > J then if 0 < J then if K + 1 <= J then aboveAndUpTo(-1, J - 1) - { K } else aboveAndUpTo(-1, J - 1) else {} else if K <= 2 then if 2 = K then aboveAndUpTo(-1, 2) - { K } else aboveAndUpTo(-1, 2) - { 2, K } else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, contextualConstraint);
+		runTest(variable, constraintString, expected, context);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression expected, Context contextualConstraint) {
+	private void runTest(Expression variable, String constraintString, Expression expected, Context context) {
 		Constraint constraint
 		= new SingleVariableInequalityConstraint(
-				variable, true, contextualConstraint.getConstraintTheory());
-		constraint = constraint.conjoin(parse(constraintString), contextualConstraint);
+				variable, true, context.getConstraintTheory());
+		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new ValuesOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 		
-		Expression actual = stepSolver.solve(contextualConstraint);
+		Expression actual = stepSolver.solve(context);
 
 		System.out.println(
 				"Variable " + variable + "\nhas possible values:\n" + actual

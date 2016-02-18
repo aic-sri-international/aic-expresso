@@ -58,7 +58,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 
 	/**
 	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory,
-	 * which conditions on literals but does <i>not</i> simplifying literals according to contextual constraint.
+	 * which conditions on literals but does <i>not</i> simplifying literals according to context.
 	 * @param constraintTheory
 	 */
 	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory) {

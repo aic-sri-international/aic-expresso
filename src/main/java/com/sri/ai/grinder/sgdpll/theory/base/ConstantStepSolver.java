@@ -42,7 +42,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
 /**
- * A step solver always returning a constant solution regardless of the contextual constraint.
+ * A step solver always returning a constant solution regardless of the context.
  *
  * @author braz
  *
@@ -66,7 +66,7 @@ public class ConstantStepSolver<T> implements ContextDependentProblemStepSolver<
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolutionStep<T> step(Context contextualConstraint) {
+	public ContextDependentProblemStepSolver.SolutionStep<T> step(Context context) {
 		return solution;
 	}	
 }

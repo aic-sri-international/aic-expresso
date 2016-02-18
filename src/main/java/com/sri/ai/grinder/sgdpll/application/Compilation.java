@@ -75,7 +75,7 @@ public class Compilation {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		OldStyleQuantifierEliminator solver = new SGDPLLT(new CommonSimplifier().getTopSimplifier(), problemType, constraintTheory);
+		OldStyleQuantifierEliminator solver = new SGDPLLT(new CommonSimplifier().getTopSimplifier(), problemType);
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}

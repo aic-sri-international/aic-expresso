@@ -42,12 +42,10 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
-import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstraint;
@@ -61,25 +59,25 @@ import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstrain
 @Beta
 public class ContextDependentExpressionProblemSolver {
 	/**
-	 * Returns the solution for a problem using a step solver, or null if the contextual constraint is found to be inconsistent.
+	 * Returns the solution for a problem using a step solver, or null if the context is found to be inconsistent.
 	 * @param stepSolver
-	 * @param contextualConstraint
+	 * @param context
 	 * @return
 	 */
-	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context contextualConstraint) {
-		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint);
+	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(context);
 		if (step == null) {
-			// contextual constraint is found to be inconsistent
+			// context is found to be inconsistent
 			return null;
 		}
 		else if (step.itDepends()) {
 			Expression splitter = step.getLiteral();
-			ContextualConstraintSplitting split;
+			ContextSplitting split;
 			if (step.getConstraintSplitting() != null) {
-				split = (ContextualConstraintSplitting) step.getConstraintSplitting();
+				split = (ContextSplitting) step.getConstraintSplitting();
 			}
 			else {
-				split = new ContextualConstraintSplitting(splitter, contextualConstraint);
+				split = new ContextSplitting(splitter, context);
 			}
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
@@ -96,7 +94,7 @@ public class ContextDependentExpressionProblemSolver {
 			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
 				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral());
 			default:
-				throw new Error("Undefined " + ContextualConstraintSplitting.class + " result value: " + split.getResult());
+				throw new Error("Undefined " + ContextSplitting.class + " result value: " + split.getResult());
 			}
 		}
 		else {
@@ -107,7 +105,7 @@ public class ContextDependentExpressionProblemSolver {
 	public static void main(String[] args) {
 		
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		TypeContext context = new TypeContext(constraintTheory);
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
 		constraint = constraint.conjoin(parse("X = Y"), context);
 		constraint = constraint.conjoin(parse("X = Z"), context);
@@ -116,9 +114,7 @@ public class ContextDependentExpressionProblemSolver {
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		Context contextualConstraint = new CompleteMultiVariableContext(constraintTheory, context);
-		
-		Expression result = solve(problem, contextualConstraint);
+		Expression result = solve(problem, context);
 		
 		System.out.println("result: " + result);	
 	}

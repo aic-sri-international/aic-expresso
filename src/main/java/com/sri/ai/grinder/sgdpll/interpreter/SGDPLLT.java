@@ -60,7 +60,6 @@ import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.AbstractOldStyleQuantifierEliminator;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
@@ -80,19 +79,12 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	private TopSimplifier topSimplifier;
 	private Simplifier simplifier;
 	private GroupProblemType problemType;
-	private ConstraintTheory constraintTheory;
 	
-	public SGDPLLT(TopSimplifier topSimplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
+	public SGDPLLT(TopSimplifier topSimplifier, GroupProblemType problemType) {
 		super();
 		this.topSimplifier = topSimplifier;
 		this.simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		this.problemType = problemType;
-		this.constraintTheory = constraintTheory;
-	}
-
-	@Override
-	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
-		return new CompleteMultiVariableContext(constraintTheory, context);
 	}
 
 	@Override
@@ -107,10 +99,9 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
-		Context trueContextualConstraint = makeTrueConstraint(indices, context);
 		Expression quantifierFreeConstraint = simplifier.apply(constraint, context);
 		Expression quantifierFreeBody = simplifier.apply(body, context);
-		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, context);
+		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, context);
 		return result;
 	}
 
@@ -118,12 +109,11 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	 * Solves an aggregate operation based on a group operation.
 	 * This is defined as the operation applied to the instantiations of a
 	 * quantifier-free body for each assignment to a set of indices satisfying a given condition,
-	 * under a given contextual constraint. 
+	 * under a given context. 
 	 * @param group
 	 * @param indexExpressions
 	 * @param indicesCondition
 	 * @param body
-	 * @param contextualConstraint
 	 * @param context
 	 * @return
 	 */
@@ -133,12 +123,11 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
-			Context contextualConstraint,
 			Context context) {
 		
 		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
-		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
+		ConstraintTheory constraintTheory = context.getConstraintTheory();
 		
 		Expression currentBody = quantifierFreeBody;
 		
@@ -170,7 +159,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 				currentBody =
 						constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
 								group, constraintForThisIndex, currentBody, simplifier, context).
-						solve(contextualConstraint);
+						solve(context);
 			}
 		}
 		else {
@@ -180,7 +169,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 		// Normalize final result.
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(currentBody, topSimplifier);
-		currentBody = evaluator.solve(contextualConstraint);
+		currentBody = evaluator.solve(context);
 		
 		return currentBody;
 	}

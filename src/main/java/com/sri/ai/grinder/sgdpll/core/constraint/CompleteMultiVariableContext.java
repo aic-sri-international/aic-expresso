@@ -53,7 +53,7 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 
 	private static final long serialVersionUID = 1L;
 
-	public CompleteMultiVariableContext(ConstraintTheory constraintTheory, Context contextualConstraint) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), contextualConstraint);
+	public CompleteMultiVariableContext(ConstraintTheory constraintTheory, Context context) {
+		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), context);
 	}
 }

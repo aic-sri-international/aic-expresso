@@ -53,7 +53,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 
@@ -219,20 +219,20 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	}
 
 	/**
-	 * The solution to be provided if any of the propagated literals is not satisfied by the contextual constraint.
-	 * @return The solution to be provided if any of the propagated literals is not satisfied by the contextual constraint.
+	 * The solution to be provided if any of the propagated literals is not satisfied by the context.
+	 * @return The solution to be provided if any of the propagated literals is not satisfied by the context.
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context);
 
 	@Override
-	public SolutionStep step(Context contextualConstraint) {
+	public SolutionStep step(Context context) {
 		if (getConstraint().isContradiction()) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		
-		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(contextualConstraint), contextualConstraint);
+		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), context);
 		
 		SolutionStep result;
 		if (propagatedCNFIsSatisfiedStep == null) {
@@ -245,7 +245,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
 		else if (propagatedCNFIsSatisfiedStep.getValue().equals(TRUE)) {
-			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint);
+			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(context);
 		}
 		else {
 			throw new Error("Illegal value returned");
@@ -256,15 +256,15 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	
 	/**
 	 * A convenience method for testing whether a CNF, represented as an iterable of iterables of Expressions,
-	 * is satisfied by a contextual constraint.
+	 * is satisfied by a context.
 	 * @param cnf
-	 * @param contextualConstraint
-	 * @return <code>null</code> if the contextual constraint is found to be self-contradictory,
+	 * @param context
+	 * @return <code>null</code> if the context is found to be self-contradictory,
 	 * an instance of {@link ItDependsOn} with a literal, if whether the CNF is satisfied or not depends on that literal,
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context contextualConstraint) {
+	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context context) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -279,21 +279,20 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			boolean clauseIsSatisfied = false;
 			for ( /* literalIndex already initialized at this point */ ; literalIndex != clause.size(); literalIndex++) {
 				Expression literal = clause.get(literalIndex);
-				ContextualConstraintSplitting contextualConstraintSplitting = 
-						new ContextualConstraintSplitting(literal, contextualConstraint);
+				ContextSplitting split = new ContextSplitting(literal, context);
 				
-				switch (contextualConstraintSplitting.getResult()) {
+				switch (split.getResult()) {
 				case LITERAL_IS_UNDEFINED:
 					AbstractContextDependentProblemWithPropagatedLiteralsStepSolver subStepSolver
 					= MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF
 					? makeCopyConsideringPropagatedCNFFromNowOn(clauseIndex, literalIndex)
 							: this;
-					return new ItDependsOn(literal, contextualConstraintSplitting, subStepSolver, subStepSolver); // literal is necessary, but undefined
+					return new ItDependsOn(literal, split, subStepSolver, subStepSolver); // literal is necessary, but undefined
 					// OPTIMIZATION: instead of returning the first undefined literal, we could look whether some clause is already unsatisfied
 				case LITERAL_IS_TRUE:
-					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the contextual constraint below
+					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the context below
 				case LITERAL_IS_FALSE:
-					contextualConstraint = contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
+					context = split.getConstraintConjoinedWithDefinedValueOfLiteral();
 					break;
 				case CONSTRAINT_IS_CONTRADICTORY:
 					return null;
@@ -315,25 +314,25 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 
 	/**
 	 * A convenience method for testing whether a conjunctive clause, represented as an iterable of Expressions,
-	 * is defined by a contextual constraint (that is, all of its literals or their negations are implied by the contextual constraint).
+	 * is defined by a context (that is, all of its literals or their negations are implied by the context).
 	 * @param conjunctiveClause
-	 * @param contextualConstraint
-	 * @return <code>null</code> if the contextual constraint is found to be self-contradictory,
+	 * @param context
+	 * @return <code>null</code> if the context is found to be self-contradictory,
 	 * an instance of {@link ItDependsOn} with a literal, if whether the conjunctive clause is satisfied or not depends on that literal,
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context contextualConstraint) {
+	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context context) {
 		for (Expression literal : conjunctiveClause) {
-			ContextualConstraintSplitting contextualConstraintSplitting = new ContextualConstraintSplitting(literal, contextualConstraint);
+			ContextSplitting split = new ContextSplitting(literal, context);
 
-			switch (contextualConstraintSplitting.getResult()) {
+			switch (split.getResult()) {
 			case LITERAL_IS_UNDEFINED:
-				return new ItDependsOn(literal, contextualConstraintSplitting, clone(), clone()); // necessary but undefined
+				return new ItDependsOn(literal, split, clone(), clone()); // necessary but undefined
 			case LITERAL_IS_FALSE:
 			case LITERAL_IS_TRUE:
 				// register and move to next literal
-				contextualConstraint = contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
+				context = split.getContextConjoinedWithDefinedValueOfLiteral();
 				break;
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;

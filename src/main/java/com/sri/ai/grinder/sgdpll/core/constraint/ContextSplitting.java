@@ -11,19 +11,19 @@ import com.sri.ai.grinder.api.Context;
  *
  */
 @Beta
-public class ContextualConstraintSplitting extends ConstraintSplitting {
+public class ContextSplitting extends ConstraintSplitting {
 
 	/**
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param literal
-	 * @param contextualConstraint
+	 * @param context
 	 */
-	public ContextualConstraintSplitting(Expression literal, Context contextualConstraint) {
-		super(literal, contextualConstraint, contextualConstraint);
-		// the above may seem odd, but we are simply splitting the contextual constraint.
+	public ContextSplitting(Expression literal, Context context) {
+		super(literal, context, context);
+		// the above may seem odd, but we are simply splitting the context.
 		// Because we need a Context for that to happen (because of type information, etc),
-		// we use the contextual constraint itself.
-		// The constraint information inside the second contextual constraint will be redudant.
+		// we use the context itself.
+		// The constraint information inside the second context will be redudant.
 	}
 	
 	@Override
@@ -35,7 +35,7 @@ public class ContextualConstraintSplitting extends ConstraintSplitting {
 	 * Same thing as {@link #getConstraint()}, but with a specialized name.
 	 * @return
 	 */
-	public Context getContextualConstraint() {
+	public Context getContext() {
 		return getConstraint();
 	}
 
@@ -48,7 +48,7 @@ public class ContextualConstraintSplitting extends ConstraintSplitting {
 	 * Same thing as {@link #getConstraintAndLiteral()}, but with a specialized name.
 	 * @return
 	 */
-	public Context getContextualConstraintAndLiteral() {
+	public Context getContextAndLiteral() {
 		return getConstraintAndLiteral();
 	}
 
@@ -61,7 +61,7 @@ public class ContextualConstraintSplitting extends ConstraintSplitting {
 	 * Same thing as {@link #getConstraintAndLiteralNegation()}, but with a specialized name.
 	 * @return
 	 */
-	public Context getContextualConstraintAndLiteralNegation() {
+	public Context getContextAndLiteralNegation() {
 		return getConstraintAndLiteralNegation();
 	}
 
@@ -74,7 +74,7 @@ public class ContextualConstraintSplitting extends ConstraintSplitting {
 	 * Same thing as {@link #getConstraintConjoinedWithDefinedValueOfLiteral()}, but with a specialized name.
 	 * @return
 	 */
-	public Context getContextualConstraintConjoinedWithDefinedValueOfLiteral() {
+	public Context getContextConjoinedWithDefinedValueOfLiteral() {
 		return getConstraintConjoinedWithDefinedValueOfLiteral();
 	}
 }

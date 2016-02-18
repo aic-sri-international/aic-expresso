@@ -49,8 +49,8 @@ import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSo
  * Method {@link #step(Context)} returns a {@link SolutionStep},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
- * that, if used to split the contextual constraint
- * (by conjoining the contextual constraint with the literal and with its negation, successively),
+ * that, if used to split the context
+ * (by conjoining the context with the literal and with its negation, successively),
  * will help disambiguate the problem.
  * 
  * @author braz
@@ -63,11 +63,11 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * Convenience method invoking
 	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Context)}
 	 * on this step solver.
-	 * @param contextualConstraint
+	 * @param context
 	 * @return
 	 */
-	default Expression solve(Context contextualConstraint) {
-		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint);
+	default Expression solve(Context context) {
+		Expression result = ContextDependentExpressionProblemSolver.solve(this, context);
 		return result;
 	}
 
@@ -82,7 +82,7 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	public static interface SolutionStep extends ContextDependentProblemStepSolver.SolutionStep<Expression> {
 		/**
 		 * Returns a {@link ContextDependentExpressionProblemStepSolver} to be used for finding the final solution
-		 * in case the literal is defined as true by the contextual constraint.
+		 * in case the literal is defined as true by the context.
 		 * This is merely an optimization, and using the original step solver should still work,
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
@@ -148,11 +148,11 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 
 	/**
 	 * Returns a solution step for the problem: either the solution itself, if independent
-	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
+	 * on the values for free variables, or a literal that, if used to split the context,
 	 * will bring the problem closer to a solution.
-	 * @param contextualConstraint
+	 * @param context
 	 * @return
 	 */
 	@Override
-	SolutionStep step(Context contextualConstraint);
+	SolutionStep step(Context context);
 }

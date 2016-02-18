@@ -58,11 +58,11 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 
 	/**
 	 * Produces a solution step based on value of literal, with corresponding given solutions
-	 * (if literal is not defined by contextual constraint, a {@link ItDependsOn} step is returned).
+	 * (if literal is not defined by context, a {@link ItDependsOn} step is returned).
 	 * @param literal
 	 * @param solutionIfTrue
 	 * @param solutionIfFalse
-	 * @param contextualConstraint
+	 * @param context
 	 * @return
 	 */
 	public static SolutionStep
@@ -70,12 +70,12 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 			Expression literal, 
 			Expression solutionIfTrue, 
 			Expression solutionIfFalse, 
-			Context contextualConstraint) {
+			Context context) {
 		
 		SolutionStep result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
 		ContextDependentProblemStepSolver.SolutionStep<Boolean> step =
-				literalStepSolver.step(contextualConstraint);
+				literalStepSolver.step(context);
 		if (step.itDepends()) {
 			result =
 					new ItDependsOn(

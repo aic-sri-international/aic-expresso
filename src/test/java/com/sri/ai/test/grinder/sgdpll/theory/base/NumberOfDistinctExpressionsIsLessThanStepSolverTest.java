@@ -54,7 +54,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
 
@@ -64,21 +63,17 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 	public void test() {
 		
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		
-		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
+		String contextString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
 		int limit = 5;
-		Context contextualConstraint = 
-				new CompleteMultiVariableContext(constraintTheory, context)
-				.conjoin(parse(contextualConstraintString), context);
+		context = context.conjoin(parse(contextString), context);
 		
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsIsLessThanStepSolver stepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, list);
 
-		context = contextualConstraint;
-
-		SolutionStep step = stepSolver.step(contextualConstraint);
+		SolutionStep step = stepSolver.step(context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getLiteral());
 		
@@ -86,23 +81,23 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenLiteralIsFalse();
 
 		// if X = c, the number of distinct values is at most 4, so it will never reach the limit
-		step = stepSolverIfXEqualsC.step(contextualConstraint);
+		step = stepSolverIfXEqualsC.step(context);
 		assertEquals(false, step.itDepends());
 		assertEquals(TRUE, step.getValue());
 
 		// using again just to make sure it produces the same result
-		step = stepSolverIfXEqualsC.step(contextualConstraint);
+		step = stepSolverIfXEqualsC.step(context);
 		assertEquals(false, step.itDepends());
 		assertEquals(TRUE, step.getValue());
 		
 
 		// if X != c, the number of distinct values will now depend on Y = a
-		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint);
+		step = stepSolverIfXIsDifferentFromC.step(context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getLiteral());
 
 		// using again just to make sure it produces the same result
-		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint);
+		step = stepSolverIfXIsDifferentFromC.step(context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getLiteral());
 		
@@ -111,12 +106,12 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenLiteralIsFalse();
 
 		// ok, moving on, assuming Y = a, limit will not be reached
-		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(contextualConstraint);
+		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(context);
 		assertEquals(false, step.itDepends());
 		assertEquals(TRUE, step.getValue());
 		
 		// if however Y != a, limit will depend on Y = c
-		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromA.step(contextualConstraint);
+		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromA.step(context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getLiteral());
 		
@@ -124,12 +119,12 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		ContextDependentExpressionProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenLiteralIsFalse();
 
 		// if Y = c, then limit is not going to be reached
-		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(contextualConstraint);
+		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(context);
 		assertEquals(false, step.itDepends());
 		assertEquals(TRUE, step.getValue());
 		
 		// if Y != c, then limit is reached
-		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint);
+		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC.step(context);
 		assertEquals(false, step.itDepends());
 		assertEquals(FALSE, step.getValue());
 	}

@@ -181,7 +181,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
 		ConstraintTheory constraintTheory = makeConstraintTheory();
 		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), context);
 		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
 	}
@@ -234,7 +234,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		Constraint constraint = new CompleteMultiVariableContext(constraintTheory, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);

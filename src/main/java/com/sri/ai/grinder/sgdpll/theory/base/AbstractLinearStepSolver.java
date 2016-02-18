@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.ContextualConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 
 /**
  * An abstract context-dependent problem step solver
@@ -114,21 +114,21 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 	}
 	
 	@Override
-	public SolutionStep<T> step(Context contextualConstraint) {
+	public SolutionStep<T> step(Context context) {
 		SolutionStep<T> result;
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, contextualConstraint);
-			ContextualConstraintSplitting split = new ContextualConstraintSplitting(literal, contextualConstraint);
+			Expression literal = context.getConstraintTheory().simplify(unsimplifiedLiteral, context);
+			ContextSplitting split = new ContextSplitting(literal, context);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				result = null;
 				break;
 			case LITERAL_IS_TRUE:
-				result = makeSubStepSolverWhenLiteralIsTrue().step(contextualConstraint);
+				result = makeSubStepSolverWhenLiteralIsTrue().step(context);
 				break;
 			case LITERAL_IS_FALSE:
-				result = makeSubStepSolverWhenLiteralIsFalse().step(contextualConstraint);
+				result = makeSubStepSolverWhenLiteralIsFalse().step(context);
 				break;
 			case LITERAL_IS_UNDEFINED:
 				result = new ItDependsOn<T>(

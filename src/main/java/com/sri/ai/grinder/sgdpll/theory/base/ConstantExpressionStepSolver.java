@@ -43,7 +43,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 
 /**
- * A step solver always returning a constant expression solution regardless of the contextual constraint.
+ * A step solver always returning a constant expression solution regardless of the context.
  *
  * @author braz
  *
@@ -67,7 +67,7 @@ public class ConstantExpressionStepSolver implements ContextDependentExpressionP
 	}
 
 	@Override
-	public SolutionStep step(Context contextualConstraint) {
+	public SolutionStep step(Context context) {
 		return solution;
 	}
 	

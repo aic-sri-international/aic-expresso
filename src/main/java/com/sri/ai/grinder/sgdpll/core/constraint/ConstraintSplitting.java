@@ -12,14 +12,14 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
 
 /**
  * A helper class containing information regarding the splitting a constraint by a literal in the most efficient way possible,
- * optionally under a contextual constraint.
+ * optionally under a context.
  * <p>
- * The contextual constraint is used to decide which of the two possible fragments is satisfiable or not.
+ * The context is used to decide which of the two possible fragments is satisfiable or not.
  * It is not conjoined in the constraints provided by {@link #getConstraintAndLiteral()}
  * and {@link #getConstraintAndLiteralNegation()}.
  * <p>
- * Whether satisfiability given the contextual constraint is detected or not
- * depends on the completeness of the particular implementation of the given contextual constraint.
+ * Whether satisfiability given the context is detected or not
+ * depends on the completeness of the particular implementation of the given context.
  * <p>
  * Four results are possible:
  * <ul>
@@ -58,14 +58,14 @@ public class ConstraintSplitting {
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param literal
 	 * @param constraint
-	 * @param contextualConstraint
+	 * @param context
 	 */
-	public ConstraintSplitting(Expression literal, Constraint constraint, Context contextualConstraint) {
+	public ConstraintSplitting(Expression literal, Constraint constraint, Context context) {
 		this.constraint = constraint;
 		this.literal = literal;
-		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, contextualConstraint);
-		constraintAndLiteral         = constraint.conjoin(        literal, contextualConstraint);
-		constraintAndLiteralNegation = constraint.conjoin(literalNegation, contextualConstraint);
+		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, context);
+		constraintAndLiteral         = constraint.conjoin(        literal, context);
+		constraintAndLiteralNegation = constraint.conjoin(literalNegation, context);
 		
 		if ( ! constraintAndLiteral.isContradiction()) {
 			if ( ! constraintAndLiteralNegation.isContradiction()) {
@@ -102,7 +102,7 @@ public class ConstraintSplitting {
 	
 	/**
 	 * Return conjunction of constraint and literal
-	 * (contextual constraint is not conjoined; it is only used to decide whether
+	 * (context is not conjoined; it is only used to decide whether
 	 * conjunction of constraint and literal is satisfiable).
 	 * @return
 	 */
@@ -112,7 +112,7 @@ public class ConstraintSplitting {
 	
 	/**
 	 * Return conjunction of constraint and literal negation
-	 * (contextual constraint is not conjoined; it is only used to decide whether
+	 * (context is not conjoined; it is only used to decide whether
 	 * conjunction of constraint and literal is satisfiable).
 	 * @return
 	 */

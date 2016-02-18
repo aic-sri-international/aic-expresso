@@ -22,21 +22,11 @@ public interface OldStyleQuantifierEliminator {
 	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context);
 	
 	/**
-	 * Returns a true constraint for a problem with given indices.
-	 * This is used by the default implementation of {@link #solve(Expression, Collection, Context).
-	 * @param indices
-	 * @param context TODO
-	 * @return
-	 */
-	Context makeTrueConstraint(Collection<Expression> indices, Context context);
-	
-	/**
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
-	 * assuming a true contextual constraint.
+	 * assuming a true context.
 	 */
 	default Expression solve(Expression input, Collection<Expression> indices, Context context) {
-		Constraint constraint = makeTrueConstraint(indices, context);
-		Expression result = solve(indices, constraint, input, context);
+		Expression result = solve(indices, context, input, context);
 		return result;
 	}
 
@@ -49,7 +39,7 @@ public interface OldStyleQuantifierEliminator {
 	// Convenience:
 	
 	/**
-	 * Makes an appropriate context with the given data for SGDPLL2, which does not require a contextual constraint.
+	 * Makes an appropriate context with the given data for SGDPLL2, which does not require a context.
 	 * @param mapFromSymbolNameToTypeName
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param additionalTypes

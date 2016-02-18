@@ -127,7 +127,7 @@ public class SGDPLLTTester {
 	public static void testSingleVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, context);
 
@@ -159,7 +159,7 @@ public class SGDPLLTTester {
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, context);
 
@@ -183,7 +183,7 @@ public class SGDPLLTTester {
 	public static void testCompleteMultiVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(constraintTheory, context);
 
@@ -383,7 +383,7 @@ public class SGDPLLTTester {
 	public static void testModelCountingForSingleVariableConstraints(
 			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		
 		Symbol variable = makeSymbol(constraintTheory.pickTestingVariableAtRandom(random));
 		
@@ -437,11 +437,11 @@ public class SGDPLLTTester {
 		}
 	}
 
-	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, Context contextualConstraint) {
+	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, Context context) {
 		Expression symbolicSolution = 
 				singleVariableConstraint.isContradiction()?
 						ZERO
-						: singleVariableConstraint.modelCount(contextualConstraint);
+						: singleVariableConstraint.modelCount(context);
 		return symbolicSolution;
 	}
 
@@ -555,7 +555,7 @@ public class SGDPLLTTester {
 	}
 
 	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, GroupProblemType problemType, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
-		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
+		Context context = constraintTheory.makeContextWithTestingInformation();
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, context);
 		

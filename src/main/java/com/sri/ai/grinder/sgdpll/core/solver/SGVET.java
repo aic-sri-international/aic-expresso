@@ -48,7 +48,6 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.core.AbstractSGVETQuantifierEliminator;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
@@ -62,7 +61,7 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 	private ConstraintTheory constraintTheory;
 	
 	public SGVET(TopSimplifier topSimplifier, SemiRingProblemType problemType, ConstraintTheory constraintTheory) {
-		super(new SGDPLLT(topSimplifier, problemType, constraintTheory), problemType);
+		super(new SGDPLLT(topSimplifier, problemType), problemType);
 		this.constraintTheory = constraintTheory;
 	}
 
@@ -71,11 +70,6 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 		return constraintTheory.isVariable(expression, context);
 	}
 
-	@Override
-	public Context makeTrueConstraint(Collection<Expression> indices, Context context) {
-		return new CompleteMultiVariableContext(constraintTheory, context);
-	}
-	
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
