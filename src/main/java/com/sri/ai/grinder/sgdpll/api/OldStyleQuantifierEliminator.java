@@ -7,7 +7,6 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.PrologConstantPredicate;
 
 /**
  * Interface to classes able to eliminate quantification (for a fixed group) over given indices, constraint and body.
@@ -55,15 +54,17 @@ public interface OldStyleQuantifierEliminator {
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param additionalTypes
 	 * @param isUniquelyNamedConstantPredicate
+	 * @param constraintTheory TODO
 	 * @return
 	 */
 	Context makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory);
 	
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
+	 * @param constraintTheory TODO
 	 */
 	default Expression solve(
 			Expression expression, 
@@ -71,28 +72,15 @@ public interface OldStyleQuantifierEliminator {
 			Map<String, String> mapFromSymbolNameToTypeName, 
 			Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, 
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			Predicate<Expression> isUniquelyNamedConstantPredicate, 
+			ConstraintTheory constraintTheory) {
 		
 		Context context =
 				makeProcess(
 						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
-						additionalTypes, isUniquelyNamedConstantPredicate);
+						additionalTypes, isUniquelyNamedConstantPredicate, constraintTheory);
 		
 		Expression result = solve(expression, indices, context);
 		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
-	 * given the data required to build it.
-	 */
-	default Expression solve(
-			Expression expression,
-			Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, 
-			Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes) {
-		
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
 	}
 }

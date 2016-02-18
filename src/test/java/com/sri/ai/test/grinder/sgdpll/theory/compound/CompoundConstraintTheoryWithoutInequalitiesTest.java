@@ -220,7 +220,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
+		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 		}

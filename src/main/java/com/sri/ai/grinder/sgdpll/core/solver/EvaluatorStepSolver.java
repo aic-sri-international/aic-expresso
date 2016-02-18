@@ -47,7 +47,6 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.IdentityWrapper;
@@ -235,7 +234,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		evaluators.put(new IdentityWrapper(expression), stepSolver);
 	}
 
-	private boolean expressionIsLiteral(Constraint contextualConstraint, Context context) {
+	private boolean expressionIsLiteral(Context contextualConstraint, Context context) {
 		boolean result = contextualConstraint.getConstraintTheory().isLiteral(expression, context);
 		return result;
 	}

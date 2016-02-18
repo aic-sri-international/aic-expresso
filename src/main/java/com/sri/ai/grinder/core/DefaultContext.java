@@ -92,27 +92,6 @@ public class DefaultContext extends AbstractExpressionWrapper implements Context
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
-	public DefaultContext(Map<Object, Object> globalObjects) {
-		this(
-				null,
-				new LinkedHashMap<Expression, Expression>(), 
-				new PrologConstantPredicate(), 
-				globalObjects);
-	}
-
-	public DefaultContext(
-			Map<Expression, Expression> symbolsAndTypes,
-			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Map<Object, Object> globalObjects) {
-		
-		initialize(
-				null,
-				symbolsAndTypes,
-				isUniquelyNamedConstantPredicate, 
-				globalObjects,
-				map());
-	}
-
 	public DefaultContext(ConstraintTheory constraintTheory) {
 		this(
 				constraintTheory,

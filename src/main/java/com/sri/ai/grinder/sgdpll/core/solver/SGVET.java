@@ -83,12 +83,12 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 	@Override
 	public Context makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
 		
 		Context result = GrinderUtil.makeProcess(
 						mapFromSymbolNameToTypeName,
 						mapFromCategoricalTypeNameToSizeString, additionalTypes,
-						isUniquelyNamedConstantPredicate);
+						isUniquelyNamedConstantPredicate, constraintTheory);
 		return result;
 	}
 }

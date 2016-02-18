@@ -48,7 +48,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
@@ -121,7 +120,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 				variableNamesAndTypes.put("v" + v, integerInterval);
 			}
 			constraintTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
-			Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
+			Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 			RandomConditionalExpressionGenerator generator = 
 					new RandomConditionalExpressionGenerator(
 							random, 

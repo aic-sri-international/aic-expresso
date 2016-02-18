@@ -45,10 +45,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 
 /**
  * A Context object gathers all information that needs to be kept and
@@ -161,18 +158,5 @@ public interface Context extends Cloneable, Constraint {
 	@Override
 	default Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
 		return (Context) Constraint.super.conjoinWithConjunctiveClause(conjunctiveClause, context);
-	}
-
-	/**
-	 * Creates a new instance and conjoins each conjunct in the parse of expressionString to it.
-	 * @param expressionString
-	 * @param constraintTheory
-	 * @param context
-	 * @return
-	 */
-	public static Context parse(String expressionString, ConstraintTheory constraintTheory, Context context) {
-		Constraint trueConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Context result = Expressions.parseAndConjoin(expressionString, trueConstraint, context);
-		return result;
 	}
 }

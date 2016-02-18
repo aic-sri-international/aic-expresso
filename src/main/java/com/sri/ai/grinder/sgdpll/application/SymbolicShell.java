@@ -74,14 +74,15 @@ public class SymbolicShell {
 	
 	public static void main(String[] args) {
 
+		CompoundConstraintTheory constraintTheory = new CompoundConstraintTheory(
+				new EqualityConstraintTheory(false, true),
+				new InequalityConstraintTheory(false, false),
+				new PropositionalConstraintTheory());
 		SymbolicCommonInterpreter evaluator =
 				new SymbolicCommonInterpreterWithLiteralConditioning(
-						new CompoundConstraintTheory(
-								new EqualityConstraintTheory(false, true),
-								new InequalityConstraintTheory(false, false),
-								new PropositionalConstraintTheory()));
+						constraintTheory);
 		
-		Context context = new DefaultContext();
+		Context context = new DefaultContext(constraintTheory);
 		context = context.add(BOOLEAN_TYPE);
 		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		context = context.add(new IntegerInterval("Integer"));

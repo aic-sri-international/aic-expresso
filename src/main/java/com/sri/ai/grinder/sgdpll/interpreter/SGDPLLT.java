@@ -96,12 +96,12 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	}
 
 	@Override
-	public Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
 		return GrinderUtil.makeProcess(
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
 				additionalTypes,
-				isUniquelyNamedConstantPredicate) ;
+				isUniquelyNamedConstantPredicate, constraintTheory) ;
 	}
 
 	@Override

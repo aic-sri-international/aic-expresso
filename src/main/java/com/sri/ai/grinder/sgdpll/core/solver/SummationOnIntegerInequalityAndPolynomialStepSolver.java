@@ -54,7 +54,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
@@ -131,7 +130,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Expression variable,
 			Expression literalFreeBody,
 			RangeAndExceptionsSet values,
-			Constraint contextualConstraint,
+			Context contextualConstraint,
 			Context context) {
 		
 		Expression result;

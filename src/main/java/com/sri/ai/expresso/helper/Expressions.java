@@ -92,7 +92,6 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;
@@ -1073,18 +1072,6 @@ public class Expressions {
 		List<Expression> result = mapIntoList(
 				new ZipIterator(argumentIterators),
 				arguments -> apply(functor, arguments));
-		return result;
-	}
-
-	public static Context parseAndConjoin(String expressionString, Constraint constraint, Context context) {
-		Context result = context.conjoin(constraint, context);
-		Expression expression = parse(expressionString);
-		for (Expression literal : And.getConjuncts(expression)) {
-			result = result.conjoin(literal, context);
-			if (result == null) {
-				return null;
-			}
-		}
 		return result;
 	}
 }

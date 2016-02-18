@@ -70,8 +70,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 
 	private static final long serialVersionUID = 1L;
 	
-	private Constraint contextualConstraint;
-	private SingleVariableConstraint singleVariableConstraint;
+	private Constraint preludeConstraint; // constraint on variables but the last one
+	private SingleVariableConstraint lastVariableConstraint; // constraint on last variable
 	private boolean checked;
 	
 	/**
@@ -89,21 +89,21 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	/**
 	 * Creates a new {@link MultiVariableConstraintWithCheckedProperty} from a {@link SingleVariableConstraint} and a {@link Constraint},
 	 * returning null if either is null.
-	 * @param newContextualConstraint
+	 * @param newPreludeConstraint
 	 * @param newSingleVariableConstraint
 	 * @param constraintTheory TODO
 	 * @param context
 	 * @return
 	 */
 	public static MultiVariableConstraintWithCheckedProperty makeAndCheck(
-			Constraint newContextualConstraint,
+			Constraint newPreludeConstraint,
 			SingleVariableConstraint newSingleVariableConstraint,
 			ConstraintTheory constraintTheory,
 			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
 			Context context) {
 	
 		MultiVariableConstraintWithCheckedProperty result;
-		if (newSingleVariableConstraint.isContradiction() || newContextualConstraint.isContradiction()) {
+		if (newSingleVariableConstraint.isContradiction() || newPreludeConstraint.isContradiction()) {
 			MultiVariableConstraintWithCheckedProperty newMultiVariableConstraintWithCheckedProperty = 
 					new MultiVariableConstraintWithCheckedProperty(constraintTheory, contextDependentProblemStepSolverMaker);
 			result = newMultiVariableConstraintWithCheckedProperty.makeContradiction();
@@ -112,8 +112,8 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		else {
 			result = 
 					new MultiVariableConstraintWithCheckedProperty(
-							newContextualConstraint.getConstraintTheory(), 
-							newContextualConstraint, 
+							newPreludeConstraint.getConstraintTheory(), 
+							newPreludeConstraint, 
 							newSingleVariableConstraint, 
 							contextDependentProblemStepSolverMaker);
 			result = result.check(context);
@@ -128,23 +128,23 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	}
 	
 	/**
-	 * Constructs a {@link MultiVariableConstraintWithCheckedProperty} from a contextual constraint
+	 * Constructs a {@link MultiVariableConstraintWithCheckedProperty} from a prelude constraint
 	 * and a {@link SingleVariableConstraint},
 	 * which is only correct if the {@link SingleVariableConstraint}'s variable does not appear
-	 * in the contextual constraint.
+	 * in the prelude constraint.
 	 * Note also that this does not check the checked property.
 	 * Because of these issues, the constructor is private.
-	 * @param contextualConstraint
-	 * @param singleVariableConstraint
+	 * @param preludeConstraint
+	 * @param lastVariableConstraint
 	 */
 	private MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory,
-			Constraint contextualConstraint,
+			Constraint preludeConstraint,
 			SingleVariableConstraint singleVariableConstraint,
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
 		super(constraintTheory);
-		this.contextualConstraint = contextualConstraint;
-		this.singleVariableConstraint = singleVariableConstraint;
+		this.preludeConstraint = preludeConstraint;
+		this.lastVariableConstraint = singleVariableConstraint;
 		this.checked = false;
 		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 	}
@@ -186,11 +186,11 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 		else if (formula instanceof MultiVariableConstraintWithCheckedProperty) {
 			MultiVariableConstraintWithCheckedProperty formulaAsMultiVariableConstraint = (MultiVariableConstraintWithCheckedProperty) formula;
 			MultiVariableConstraintWithCheckedProperty conjunction = this;
-			if (formulaAsMultiVariableConstraint.contextualConstraint != null) {
-				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.contextualConstraint, context);
+			if (formulaAsMultiVariableConstraint.preludeConstraint != null) {
+				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.preludeConstraint, context);
 			}
-			if (formulaAsMultiVariableConstraint.singleVariableConstraint != null) {
-				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.singleVariableConstraint, context);
+			if (formulaAsMultiVariableConstraint.lastVariableConstraint != null) {
+				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.lastVariableConstraint, context);
 			}
 			result = Pair.make(true, conjunction);
 		}
@@ -216,16 +216,16 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 //				System.out.println("literal simplified to constant: " + literalSimplifiedToConstant);	
 				result = conjoinWithLiteral(literalSimplifiedToConstant, context);
 			}
-			else if (singleVariableConstraint != null) {
+			else if (lastVariableConstraint != null) {
 				SingleVariableConstraint newSingleVariableConstraint;
-				Constraint newContextualConstraint;
-				if (variablesInLiteral.contains(singleVariableConstraint.getVariable())) {
-					newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, context);
-					newContextualConstraint = contextualConstraint;
+				Constraint newPreludeConstraint;
+				if (variablesInLiteral.contains(lastVariableConstraint.getVariable())) {
+					newSingleVariableConstraint = lastVariableConstraint.conjoin(literal, context);
+					newPreludeConstraint = preludeConstraint;
 				}
 				else {
-					newSingleVariableConstraint = singleVariableConstraint;
-					newContextualConstraint = contextualConstraint.conjoin(literal, context);
+					newSingleVariableConstraint = lastVariableConstraint;
+					newPreludeConstraint = preludeConstraint.conjoin(literal, context);
 				}
 		
 				// optional, but good:
@@ -233,18 +233,18 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 				// up the chain so they are integrated and simplified in the corresponding single-variable constraints
 				if ( ! newSingleVariableConstraint.isContradiction()) {
 					for (Expression externalLiteral : newSingleVariableConstraint.getExternalLiterals()) {
-						if ( ! newContextualConstraint.isContradiction()) {
-							newContextualConstraint = newContextualConstraint.conjoin(externalLiteral, context);
+						if ( ! newPreludeConstraint.isContradiction()) {
+							newPreludeConstraint = newPreludeConstraint.conjoin(externalLiteral, context);
 						}
 					}
 					newSingleVariableConstraint = newSingleVariableConstraint.makeSimplificationWithoutExternalLiterals();
 				}
 
-				if (newSingleVariableConstraint == singleVariableConstraint && newContextualConstraint == contextualConstraint) { // in case nothing changed
+				if (newSingleVariableConstraint == lastVariableConstraint && newPreludeConstraint == preludeConstraint) { // in case nothing changed
 					result = this;
 				}
 				else {
-					result = makeAndCheck(newContextualConstraint, newSingleVariableConstraint, getConstraintTheory(), contextDependentProblemStepSolverMaker, context);
+					result = makeAndCheck(newPreludeConstraint, newSingleVariableConstraint, getConstraintTheory(), contextDependentProblemStepSolverMaker, context);
 				}
 			}
 			else {
@@ -281,10 +281,10 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 			result = this;
 		}
 		else {
-			ContextDependentExpressionProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, context);
-			Context contextualConstraintAsContext = context.conjoin(contextualConstraint, context);
-			Expression solution = problem.solve(contextualConstraintAsContext, context);
-			if (solution == null) { // contextual constraint is found to be inconsistent
+			ContextDependentExpressionProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(lastVariableConstraint, context);
+			Context preludeConstraintAsContext = context.conjoin(preludeConstraint, context);
+			Expression solution = problem.solve(preludeConstraintAsContext, context);
+			if (solution == null) { // prelude constraint is found to be inconsistent with context
 				result = makeContradiction();
 			}
 			else if (solution.equals(FALSE)) { // the single-variable constraint does not exhibit the property in all contexts, so the total constraint does not either.
@@ -301,20 +301,20 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	@Override
 	protected Expression computeInnerExpressionIfNotContradiction() {
 		Expression result;
-		if (contextualConstraint == null) {
-			if (singleVariableConstraint == null) {
+		if (preludeConstraint == null) {
+			if (lastVariableConstraint == null) {
 				result = TRUE;
 			}
 			else {
-				result = singleVariableConstraint;
+				result = lastVariableConstraint;
 			}
 		}
 		else {
-			if (singleVariableConstraint == null) {
-				result = contextualConstraint;
+			if (lastVariableConstraint == null) {
+				result = preludeConstraint;
 			}
 			else {
-				result = And.make(contextualConstraint, singleVariableConstraint);
+				result = And.make(preludeConstraint, lastVariableConstraint);
 			}
 		}
 		return result;
@@ -323,11 +323,11 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractConstrai
 	@Override
 	public Expression binding(Expression variable) {
 		Expression result;
-		if ( ! singleVariableConstraint.isContradiction() && singleVariableConstraint.getVariable().equals(variable)) {
-			result = singleVariableConstraint.binding();
+		if ( ! lastVariableConstraint.isContradiction() && lastVariableConstraint.getVariable().equals(variable)) {
+			result = lastVariableConstraint.binding();
 		}
 		else {
-			result = contextualConstraint.binding(variable);
+			result = preludeConstraint.binding(variable);
 		}
 		return result;
 	}

@@ -250,7 +250,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	 * @param context
 	 * @return
 	 */
-	private Expression simplify(Expression expression, Constraint contextualConstraint, Context context) {
+	private Expression simplify(Expression expression, Context contextualConstraint, Context context) {
 		return contextualConstraint.getConstraintTheory().simplify(expression, context);
 	}
 }

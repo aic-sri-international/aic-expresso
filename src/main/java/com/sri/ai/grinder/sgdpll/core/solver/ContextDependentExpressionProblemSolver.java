@@ -107,9 +107,9 @@ public class ContextDependentExpressionProblemSolver {
 	
 	public static void main(String[] args) {
 		
-		DefaultContext context = new DefaultContext();
-
-		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, new EqualityConstraintTheory(true, true));
+		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
+		DefaultContext context = new DefaultContext(constraintTheory);
+		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
 		constraint = constraint.conjoin(parse("X = Y"), context);
 		constraint = constraint.conjoin(parse("X = Z"), context);
 		constraint = constraint.conjoin(parse("X != W"), context);
@@ -117,7 +117,7 @@ public class ContextDependentExpressionProblemSolver {
 		
 		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true)), context);
+		Context contextualConstraint = context.conjoin(new CompleteMultiVariableConstraint(constraintTheory), context);
 		
 		Expression result = solve(problem, contextualConstraint, context);
 		

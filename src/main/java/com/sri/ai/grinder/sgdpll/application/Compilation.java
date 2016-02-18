@@ -89,7 +89,7 @@ public class Compilation {
 		
 		// Solve the problem.
 		List<Expression> indices = Util.list(); // no indices; we want to keep all variables
-		Expression result = solver.solve(inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);	
+		Expression result = solver.solve(inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate, constraintTheory);	
 		
 		if (solverListener != null) {
 			solverListener.apply(null);

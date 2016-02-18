@@ -52,7 +52,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -183,7 +182,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
 		ConstraintTheory constraintTheory = makeConstraintTheory();
 		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
+		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), context);
 		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
 	}
@@ -237,7 +236,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Context context = constraintTheory.extendWithTestingInformation(new DefaultContext());
+		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 			if (constraint.isContradiction()) {
