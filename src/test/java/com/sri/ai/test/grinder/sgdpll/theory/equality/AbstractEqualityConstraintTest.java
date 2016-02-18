@@ -55,7 +55,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
@@ -236,7 +235,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
 		Context context = constraintTheory.makeContextualConstraintWithTestingInformation();
-		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory, context);
+		Constraint constraint = new CompleteMultiVariableConstraint(constraintTheory, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 			if (constraint.isContradiction()) {

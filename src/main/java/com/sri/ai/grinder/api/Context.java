@@ -159,4 +159,7 @@ public interface Context extends Cloneable, Constraint {
 	default Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
 		return (Context) Constraint.super.conjoinWithConjunctiveClause(conjunctiveClause, context);
 	}
+	
+	@Override
+	Context makeContradiction();
 }

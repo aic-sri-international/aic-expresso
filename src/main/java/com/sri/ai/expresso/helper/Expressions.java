@@ -1052,10 +1052,9 @@ public class Expressions {
 	 * Indicates whether the first expression has the second one as a sub-expression.
 	 * @param literal
 	 * @param variable
-	 * @param context
 	 * @return
 	 */
-	public static boolean contains(Expression literal, Expression variable, Context context) {
+	public static boolean contains(Expression literal, Expression variable) {
 		boolean result = thereExists(new SubExpressionsDepthFirstIterator(literal), s -> s.equals(variable));
 		return result;
 	}

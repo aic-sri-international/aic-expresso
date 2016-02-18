@@ -270,7 +270,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 		else if (formula.equals(FALSE)) {
 			result = makeContradiction();
 		}
-		else if (!contains(formula, getVariable(), context)) {
+		else if (!contains(formula, getVariable())) {
 			result = addExternalLiteral(formula);
 		}
 		else {
