@@ -44,7 +44,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
@@ -192,7 +191,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context context) {
+	public SolutionStep step(Context contextualConstraint, Context context) {
 		
 		if (expressions.size() < 2) {
 			return makeSolutionStepWhenThereAreNoPairs();
@@ -226,10 +225,10 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			}
 			
 			if (literalIsTrue) {
-				return stepSolverForWhenLiteralIsTrue.step(split.getConstraintAndLiteral(), context);
+				return stepSolverForWhenLiteralIsTrue.step((Context) split.getConstraintAndLiteral(), context);
 			}
 			else if (literalIsFalse) {
-				return stepSolverForWhenLiteralIsFalse.step(split.getConstraintAndLiteralNegation(), context);
+				return stepSolverForWhenLiteralIsFalse.step((Context) split.getConstraintAndLiteralNegation(), context);
 			}
 			else {
 				return new ItDependsOn(literal, split, stepSolverForWhenLiteralIsTrue, stepSolverForWhenLiteralIsFalse);

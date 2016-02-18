@@ -41,7 +41,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
@@ -79,7 +78,7 @@ public class ExpressionWrapperStepSolver<T> implements ContextDependentExpressio
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context context) {
+	public SolutionStep step(Context contextualConstraint, Context context) {
 		
 		ContextDependentProblemStepSolver.SolutionStep<T> step =
 				base.step(contextualConstraint, context);

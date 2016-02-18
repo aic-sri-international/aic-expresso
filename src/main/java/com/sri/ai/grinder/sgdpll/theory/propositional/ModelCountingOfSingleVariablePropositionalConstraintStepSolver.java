@@ -43,7 +43,6 @@ import static com.sri.ai.expresso.helper.Expressions.TWO;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver;
 
 /**
@@ -71,7 +70,7 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
-			Constraint contextualConstraint, Context context) {
+			Context contextualConstraint, Context context) {
 		
 		boolean variableIsNotConstrained = 
 				getConstraint().getPositiveNormalizedAtoms().isEmpty() && getConstraint().getNegativeNormalizedAtoms().isEmpty();

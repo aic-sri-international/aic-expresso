@@ -82,7 +82,7 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 	}
 	
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context context) {
+	public SolutionStep step(Context contextualConstraint, Context context) {
 		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, context);
 		if (modelCountingStep == null) {
 			return null;

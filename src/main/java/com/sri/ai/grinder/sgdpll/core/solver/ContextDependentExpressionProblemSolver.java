@@ -44,7 +44,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.DefaultContext;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
@@ -68,7 +67,7 @@ public class ContextDependentExpressionProblemSolver {
 	 * @param context
 	 * @return
 	 */
-	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint contextualConstraint, Context context) {
+	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context contextualConstraint, Context context) {
 		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, context);
 		if (step == null) {
 			// contextual constraint is found to be inconsistent
@@ -87,8 +86,8 @@ public class ContextDependentExpressionProblemSolver {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral(), context);
-				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation(), context);
+				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), (Context) split.getConstraintAndLiteral(), context);
+				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), (Context) split.getConstraintAndLiteralNegation(), context);
 				if (subSolution1 == null || subSolution2 == null) {
 					return null;
 				}
@@ -96,7 +95,7 @@ public class ContextDependentExpressionProblemSolver {
 					return IfThenElse.make(splitter, subSolution1, subSolution2, true);
 				}
 			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
-				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral(), context);
+				return solve(stepSolver, (Context) split.getConstraintConjoinedWithDefinedValueOfLiteral(), context);
 			default:
 				throw new Error("Undefined " + ConstraintSplitting.class + " result value: " + split.getResult());
 			}

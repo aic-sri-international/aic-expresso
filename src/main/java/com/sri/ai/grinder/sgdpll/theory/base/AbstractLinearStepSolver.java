@@ -42,7 +42,6 @@ import static com.sri.ai.util.Util.myAssert;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 
@@ -115,7 +114,7 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 	}
 	
 	@Override
-	public SolutionStep<T> step(Constraint contextualConstraint, Context context) {
+	public SolutionStep<T> step(Context contextualConstraint, Context context) {
 		SolutionStep<T> result;
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();

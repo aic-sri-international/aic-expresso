@@ -46,7 +46,7 @@ import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSo
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
- * Method {@link #step(Constraint, Context)} returns a {@link SolutionStep},
+ * Method {@link #step(Context, Context)} returns a {@link SolutionStep},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
  * that, if used to split the contextual constraint
@@ -61,13 +61,13 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 
 	/**
 	 * Convenience method invoking
-	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Constraint, Context)}
+	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Context, Context)}
 	 * on this step solver.
 	 * @param contextualConstraint
 	 * @param context
 	 * @return
 	 */
-	default Expression solve(Constraint contextualConstraint, Context context) {
+	default Expression solve(Context contextualConstraint, Context context) {
 		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint, context);
 		return result;
 	}
@@ -156,5 +156,5 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * @return
 	 */
 	@Override
-	SolutionStep step(Constraint contextualConstraint, Context context);
+	SolutionStep step(Context contextualConstraint, Context context);
 }

@@ -43,7 +43,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
@@ -61,7 +60,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
  * <li> if the group is idempotent, simplify group's identity.
  * <li> if the group is not idempotent, 
  * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, Context)} to
- * the literal-free body and {@link SingleVariableConstraint#modelCount(Constraint, Context)},
+ * the literal-free body and {@link SingleVariableConstraint#modelCount(Context, Context)},
  * followed by {@link ConstraintTheory#simplify(Expression, Context)}.
  * No if then else externalization is performed.
  * </ul>
@@ -91,7 +90,7 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
+			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context contextualConstraint, Context context) {
 		
 		Expression result;
 		if (getGroup().isIdempotent()) {

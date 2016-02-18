@@ -100,9 +100,9 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 
 	@Override
 	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			Constraint contextualConstraint,
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
+			Context contextualConstraint,
 			Context context) {
 		
 		SolutionStep step = 

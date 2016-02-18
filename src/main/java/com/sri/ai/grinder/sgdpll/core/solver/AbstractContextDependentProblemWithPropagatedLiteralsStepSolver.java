@@ -189,7 +189,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * Makes a CNF that, if not satisfied, means the solution
 	 * is {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied()}.
 	 * If it is satisfied,
-	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint, Context)}.
+	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context, Context)}.
 	 * <p>
 	 * Note that the result of this method is cached and provided by {@link #getPropagatedCNF(Context)}.
 	 * Extensions should override <i>this<i> method in order to keep the caching behavior.
@@ -224,10 +224,10 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context context);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint, Context context);
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, Context context) {
+	public SolutionStep step(Context contextualConstraint, Context context) {
 
 		if (getConstraint().isContradiction()) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
@@ -266,7 +266,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Constraint contextualConstraint, Context context) {
+	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context contextualConstraint, Context context) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -294,7 +294,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 				case LITERAL_IS_TRUE:
 					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the contextual constraint below
 				case LITERAL_IS_FALSE:
-					contextualConstraint = contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
+					contextualConstraint = (Context) contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
 					break;
 				case CONSTRAINT_IS_CONTRADICTORY:
 					return null;
@@ -325,7 +325,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint contextualConstraint, Context context) {
+	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context contextualConstraint, Context context) {
 		for (Expression literal : conjunctiveClause) {
 			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, context);
 
@@ -335,7 +335,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			case LITERAL_IS_FALSE:
 			case LITERAL_IS_TRUE:
 				// register and move to next literal
-				contextualConstraint = contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
+				contextualConstraint = (Context) contextualConstraintSplitting.getConstraintConjoinedWithDefinedValueOfLiteral();
 				break;
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;

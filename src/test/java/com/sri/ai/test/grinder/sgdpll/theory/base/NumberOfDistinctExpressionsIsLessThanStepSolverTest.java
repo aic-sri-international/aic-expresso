@@ -54,7 +54,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
 
@@ -69,7 +68,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");
 		int limit = 5;
-		Context contextualConstraint = emptyContext.conjoin(CompleteMultiVariableConstraint.parse(contextualConstraintString, constraintTheory, emptyContext), emptyContext);
+		Context contextualConstraint = emptyContext.conjoin(Context.parse(contextualConstraintString, constraintTheory, emptyContext), emptyContext);
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsIsLessThanStepSolver stepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, list);
 

@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpll.theory.base;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
 /**
@@ -67,7 +66,7 @@ public class ConstantStepSolver<T> implements ContextDependentProblemStepSolver<
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolutionStep<T> step(Constraint contextualConstraint, Context context) {
+	public ContextDependentProblemStepSolver.SolutionStep<T> step(Context contextualConstraint, Context context) {
 		return solution;
 	}	
 }

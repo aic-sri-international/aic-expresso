@@ -74,7 +74,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.LiteralStepSolver;
@@ -390,7 +389,7 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolver extends Abstra
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, Context context) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context contextualConstraint, Context context) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.

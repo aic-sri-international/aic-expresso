@@ -1076,8 +1076,8 @@ public class Expressions {
 		return result;
 	}
 
-	public static Constraint parseAndConjoin(String expressionString, Constraint constraint, Context context) {
-		Constraint result = constraint;
+	public static Context parseAndConjoin(String expressionString, Constraint constraint, Context context) {
+		Context result = context.conjoin(constraint, context);
 		Expression expression = parse(expressionString);
 		for (Expression literal : And.getConjuncts(expression)) {
 			result = result.conjoin(literal, context);

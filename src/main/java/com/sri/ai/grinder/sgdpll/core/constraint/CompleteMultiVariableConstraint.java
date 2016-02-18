@@ -38,9 +38,7 @@
 package com.sri.ai.grinder.sgdpll.core.constraint;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 
 /**
@@ -57,18 +55,5 @@ public class CompleteMultiVariableConstraint extends MultiVariableConstraintWith
 
 	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
 		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p));
-	}
-
-	/**
-	 * Creates a new instance and conjoins each conjunct in the parse of expressionString to it.
-	 * @param expressionString
-	 * @param constraintTheory
-	 * @param context
-	 * @return
-	 */
-	public static Constraint parse(String expressionString, ConstraintTheory constraintTheory, Context context) {
-		Constraint result = new CompleteMultiVariableConstraint(constraintTheory);
-		result = Expressions.parseAndConjoin(expressionString, result, context);
-		return result;
 	}
 }

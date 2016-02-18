@@ -42,11 +42,10 @@ import static com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.ItDependsOn;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.Solution;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
+import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
 /**
  * Provides a static method for generating {@link Expression}-valued solution steps based on a literal.
@@ -68,7 +67,7 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 	 * @return
 	 */
 	public static SolutionStep
-	stepDependingOnLiteral(Expression literal, Expression solutionIfTrue, Expression solutionIfFalse, Constraint contextualConstraint, Context context) {
+	stepDependingOnLiteral(Expression literal, Expression solutionIfTrue, Expression solutionIfFalse, Context contextualConstraint, Context context) {
 		
 		SolutionStep result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
