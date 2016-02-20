@@ -157,6 +157,13 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	
 	@Override
 	default Expression binding(Expression variable) {
-		return binding(getVariable());
+		Expression result;
+		if ( ! isContradiction() && variable.equals(getVariable())) {
+			result = binding();
+		}
+		else {
+			result = null;
+		}
+		return result;
 	}
 }

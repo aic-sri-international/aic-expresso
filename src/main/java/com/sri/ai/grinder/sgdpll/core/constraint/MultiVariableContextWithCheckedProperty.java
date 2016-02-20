@@ -340,7 +340,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	@Override
 	public Expression binding(Expression variable) {
 		Expression result;
-		if ( head != null && ! head.isContradiction() && head.getVariable().equals(variable)) {
+		if ( head != null && head.getVariable().equals(variable)) {
 			result = head.binding();
 		}
 		else {

@@ -44,6 +44,7 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.in;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -249,14 +250,40 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		return simplifiedLiteral;
 	}
 
-	@Override
-	public Expression binding() {
-		if (onlyConstraintOnVariableIsBinding()) {
-			Expression binding = getPositiveNormalizedAtoms().get(0);
-			return binding;
+	/**
+	 * Returns an iterator to terms constrained to be equal to variable.
+	 * @return
+	 */
+	public Iterator<Expression> getEqualsIterator() {
+		return 
+				getPositiveNormalizedAtoms()
+				.stream()
+				.filter(e -> e.hasFunctor(EQUALITY))
+				.map(e -> e.get(1)) // second arguments of Variable = Term
+				.iterator();
+	}
+	
+	/** Returns one of the expressions to which the variable is bound to, or null if there aren't any. */
+	public Expression getABoundValueOrNull() {
+		Expression result;
+		if (isContradiction()) {
+			result = null;
 		}
 		else {
-			return null;
+			Iterator<Expression> equalsIterator = getEqualsIterator();
+			if (equalsIterator.hasNext()) {
+				result = equalsIterator.next();
+			}
+			else {
+				result = null;
+			}
 		}
+		return result;
+	}
+
+	@Override
+	public Expression binding() {
+		Expression result = getABoundValueOrNull();
+		return result;
 	}
 }

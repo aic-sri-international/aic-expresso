@@ -264,29 +264,6 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	/**
-	 * Returns an iterator to terms constrained to be equal to variable.
-	 * @return
-	 */
-	public Iterator<Expression> getEqualsIterator() {
-		return getPositiveNormalizedAtoms().stream().
-		map(e -> e.get(1)) // second arguments of Variable = Term
-		.iterator();
-	}
-	
-	/** Returns one of the expressions to which the variable is bound to, or null if there aren't any. */
-	public Expression getABoundValueOrNull() {
-		Expression result;
-		Iterator<Expression> equalsIterator = getEqualsIterator();
-		if (equalsIterator.hasNext()) {
-			result = equalsIterator.next();
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	/**
 	 * Returns an iterator to terms constrained to be disequal to variable.
 	 * @return
 	 */
@@ -319,9 +296,13 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return iterator();
 	}
 
-	@Override
-	public Expression binding(Expression variable) {
-		// TODO Auto-generated method stub
-		return null;
+	@Override // slightly more efficient specialization
+	public Iterator<Expression> getEqualsIterator() {
+		return 
+				getPositiveNormalizedAtoms()
+				.stream()
+				// no need for this filter: .filter(e -> e.hasFunctor(EQUALITY))
+				.map(e -> e.get(1)) // second arguments of Variable = Term
+				.iterator();
 	}
 }

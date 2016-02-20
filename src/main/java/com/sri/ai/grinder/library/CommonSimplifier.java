@@ -37,13 +37,17 @@
  */
 package com.sri.ai.grinder.library;
 
+import static com.sri.ai.util.Util.map;
+
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.set.CardinalitySimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 
 /**
@@ -64,6 +68,13 @@ public class CommonSimplifier extends RecursiveExhaustiveSeriallyMergedMapBasedS
 	
 	public CommonSimplifier() {
 		super(
+//				new DefaultMapBasedTopSimplifier(
+//						map(),
+//						map("Symbol", (Simplifier) (e, c) -> {
+//							Expression binding = c.binding(e);
+//							return binding != null? binding : e;
+//						})
+//						),
 				new BooleanSimplifier(),
 				new NumericSimplifier(),
 				new EqualitySimplifier(),

@@ -48,7 +48,10 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.Recursive;
+import com.sri.ai.grinder.sgdpll.simplifier.core.TopExhaustive;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.collect.StackedHashMap;
 
@@ -68,7 +71,7 @@ fully evaluated.
 
 Its step is:
 
-E <- top-simplify E if not already so
+E <- exhaustively top-simplify E if not already so
 
 if E is literal
     split on it with sub step solvers true and false
@@ -93,7 +96,7 @@ else if SEIndex != E.numberOfArguments
             Evaluator'.SEIndex++ // go to next sub-expression
             return Evaluator'.step
         else
-            E' <- top-simplify(E[SE/SEvalue])
+            E' <- exhaustively top-simplify(E[SE/SEvalue])
 		    if E' == SE // E has been reduced to SE itself, which we just evaluated
 		        return SEStep
             else
@@ -109,28 +112,43 @@ else
 public class EvaluatorStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Expression expression;
-	private boolean alreadyTopSimplified;
+	private boolean alreadyExhaustivelyTopSimplified;
 	private int subExpressionIndex;
 	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
 	private TopSimplifier topSimplifier;
+	private TopSimplifier exhaustiveTopSimplifier;
+	private Simplifier totalSimplifier;
 	
 	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier) {
-		this(expression, topSimplifier, false /* not known to be top-simplified */);
+		this(
+				expression, 
+				topSimplifier, 
+				new TopExhaustive(topSimplifier), 
+				new Recursive(new TopExhaustive(topSimplifier)), 
+				false /* not known to be top-simplified */);
 	}
 	
 	/**
 	 * A constructor informing whether expression is already top-simplified (for efficiency).
 	 * @param expression
 	 * @param topSimplifier
-	 * @param alreadyTopSimplified
+	 * @param alreadyExhaustivelyTopSimplified
 	 */
-	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier, boolean alreadyTopSimplified) {
+	private EvaluatorStepSolver(
+			Expression expression, 
+			TopSimplifier topSimplifier, 
+			TopSimplifier exhaustiveTopSimplifier, 
+			Simplifier totalSimplifier, 
+			boolean alreadyTopSimplified) {
+		
 		super();
 		this.expression = expression;
 		this.subExpressionIndex = 0;
 		this.evaluators = map();
 		this.topSimplifier = topSimplifier;
-		this.alreadyTopSimplified = alreadyTopSimplified;
+		this.alreadyExhaustivelyTopSimplified = alreadyTopSimplified;
+		this.exhaustiveTopSimplifier = exhaustiveTopSimplifier;
+		this.totalSimplifier = totalSimplifier;
 	}
 
 	@Override
@@ -150,21 +168,22 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 
 	@Override
 	public SolutionStep step(Context context) {
-		SolutionStep result = null;
+		SolutionStep result;
 		
-		Expression topSimplifiedExpression;
-		if (alreadyTopSimplified) {
-			topSimplifiedExpression = expression;
+		Expression exhaustivelyTopSimplifiedExpression;
+		if (alreadyExhaustivelyTopSimplified) {
+			exhaustivelyTopSimplifiedExpression = expression;
 		}
 		else {
-			topSimplifiedExpression = topSimplifier.apply(this.expression, context);
+			exhaustivelyTopSimplifiedExpression = exhaustiveTopSimplifier.apply(expression, context);
 		}
 		
-		if (expressionIsLiteral(context)) {
-			result = stepDependingOnLiteral(topSimplifiedExpression, TRUE, FALSE, context);
+		if (context.isLiteral(exhaustivelyTopSimplifiedExpression)) {
+			Expression completelySimplifiedLiteral = totalSimplifier.apply(exhaustivelyTopSimplifiedExpression, context);
+			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
 		}
-		else if (subExpressionIndex != topSimplifiedExpression.numberOfArguments()) {
-			Expression subExpression = topSimplifiedExpression.get(subExpressionIndex);
+		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
+			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
 			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
 					getEvaluatorFor(subExpression, false /* not known to be top-simplified already */);
 			SolutionStep subExpressionStep = subExpressionEvaluator.step(context);
@@ -194,12 +213,12 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			}
 			else {
 				Expression expressionWithSubExpressionReplacedByItsValue
-				= topSimplifiedExpression.set(subExpressionIndex, subExpressionStep.getValue());
+				= exhaustivelyTopSimplifiedExpression.set(subExpressionIndex, subExpressionStep.getValue());
 
-				Expression topSimplifiedAfterSubExpressionEvaluation
-				= topSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, context);
+				Expression exhaustivelyTopSimplifiedAfterSubExpressionEvaluation
+				= exhaustiveTopSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, context);
 
-				if (topSimplifiedAfterSubExpressionEvaluation == subExpression) {
+				if (exhaustivelyTopSimplifiedAfterSubExpressionEvaluation == subExpression) {
 					// topSimplified turns out to be the sub-expression itself
 					// we already know the result for that: the non-dependent subExpressionStep itself.
 					return subExpressionStep;
@@ -208,13 +227,13 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 					// topSimplified is either a former sub-expression, or new.
 					// try to reuse evaluator if available, or a make a new one, and use it
 					ContextDependentExpressionProblemStepSolver nextStepSolver
-					= getEvaluatorFor(topSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
+					= getEvaluatorFor(exhaustivelyTopSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
 					result = nextStepSolver.step(context);
 				}
 			}
 		}
 		else {
-			result = new Solution(topSimplifiedExpression);
+			result = new Solution(exhaustivelyTopSimplifiedExpression);
 		}
 		
 		return result;
@@ -223,7 +242,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	private ContextDependentExpressionProblemStepSolver getEvaluatorFor(Expression expression, boolean alreadyTopSimplified) {
 		ContextDependentExpressionProblemStepSolver result	= evaluators.get(expression);
 		if (result == null) {
-			result = new EvaluatorStepSolver(expression, topSimplifier, alreadyTopSimplified);
+			result = new EvaluatorStepSolver(expression, topSimplifier, exhaustiveTopSimplifier, totalSimplifier, alreadyTopSimplified);
+			setEvaluatorFor(expression, result);
 		}
 		return result;
 	}
@@ -234,11 +254,6 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		evaluators.put(new IdentityWrapper(expression), stepSolver);
 	}
 
-	private boolean expressionIsLiteral(Context context) {
-		boolean result = context.getConstraintTheory().isLiteral(expression, context);
-		return result;
-	}
-	
 	@Override
 	public String toString() {
 		return "Evaluate " + expression + " from " + subExpressionIndex + "-th sub-expression on";

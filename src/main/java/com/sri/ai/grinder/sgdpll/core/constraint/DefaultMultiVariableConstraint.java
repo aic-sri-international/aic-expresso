@@ -116,7 +116,7 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	@Override
 	public Constraint conjoin(Expression formula, Context context) {
 		myAssert(
-				() -> getConstraintTheory().isLiteral(formula, context) || formula instanceof Constraint,
+				() -> context.isLiteral(formula) || formula instanceof Constraint,
 				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
 		
 		Constraint result;
@@ -134,11 +134,6 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	@Override
 	public Expression binding(Expression variable) {
 		SingleVariableConstraint singleVariableConstraint = fromVariableToItsConstraint.get(variable);
-		if ( ! singleVariableConstraint.isContradiction()) {
 		return singleVariableConstraint.binding(variable);
-		}
-		else {
-			return null;
-		}
 	}
 }

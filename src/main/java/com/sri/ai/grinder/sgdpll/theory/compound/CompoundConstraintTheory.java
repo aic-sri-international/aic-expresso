@@ -170,14 +170,6 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, context));
 		
 		return result;
-		
-//		Expression type = GrinderUtil.getType(variable, context);
-//		if (type == null) {
-//			throw new Error(getClass() + " could not identify the type of " + variable + " and therefore not its sub-constraint theory either.");
-//		}
-//		else {
-//			return fromTypeToConstraintTheories.get(type.toString());
-//		}
 	}
 	
 	@Override
