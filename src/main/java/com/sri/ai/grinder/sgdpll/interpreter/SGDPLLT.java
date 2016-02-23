@@ -157,9 +157,10 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 								lastIndexConstraint
 								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, context);
 				currentBody =
-						constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-								group, constraintForThisIndex, currentBody, simplifier, context).
-						solve(context);
+						constraintTheory
+						.getSingleVariableConstraintQuantifierEliminatorStepSolver(
+								group, constraintForThisIndex, currentBody, simplifier, context)
+						.solve(context);
 			}
 		}
 		else {

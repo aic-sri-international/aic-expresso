@@ -72,10 +72,8 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		return new EqualityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
-	
-
 	// DO NOT CHANGE TEST PARAMETERS! IMPLEMENTATIONS HAVE RUN-TIME HISTORY WRITTEN DOWN
-	// AND CHANGING THE TEST WILL MAKE THE TRACKIGN OF PROGRESS IMPOSSIBLE
+	// AND CHANGING THE TEST WILL ERASE THE TRACKING OF PROGRESS SO FAR
 	
 	@Test
 	public void testSingleVariableConstraints() {

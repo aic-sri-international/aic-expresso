@@ -39,7 +39,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 	}
 
 	// DO NOT CHANGE TEST PARAMETERS! IMPLEMENTATIONS HAVE RUN-TIME HISTORY WRITTEN DOWN
-	// AND CHANGING THE TEST WILL MAKE THE TRACKIGN OF PROGRESS IMPOSSIBLE
+	// AND CHANGING THE TEST WILL ERASE THE TRACKING OF PROGRESS SO FAR
 	
 	@Test
 	public void testSingleVariableConstraints() {

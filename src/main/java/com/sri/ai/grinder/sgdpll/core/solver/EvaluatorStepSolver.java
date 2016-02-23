@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.sgdpll.theory.base.ExpressionConditionedOnLiteralSolutionStep.stepDependingOnLiteral;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.collect.StackedHashMap.stackedHashMap;
 
 import java.util.Map;
 
@@ -53,7 +54,6 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.Recursive;
 import com.sri.ai.grinder.sgdpll.simplifier.core.TopExhaustive;
 import com.sri.ai.util.base.IdentityWrapper;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * A step solver for symbolically evaluating an expression.
@@ -115,42 +115,19 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	private boolean alreadyExhaustivelyTopSimplified;
 	private int subExpressionIndex;
 	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
-	private TopSimplifier topSimplifier;
 	private TopSimplifier exhaustiveTopSimplifier;
 	private Simplifier totalSimplifier;
 	
 	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier) {
-		this(
-				expression, 
-				topSimplifier, 
-				new TopExhaustive(topSimplifier), 
-				new Recursive(new TopExhaustive(topSimplifier)), 
-				false /* not known to be top-simplified */);
-	}
-	
-	/**
-	 * A constructor informing whether expression is already top-simplified (for efficiency).
-	 * @param expression
-	 * @param topSimplifier
-	 * @param alreadyExhaustivelyTopSimplified
-	 */
-	private EvaluatorStepSolver(
-			Expression expression, 
-			TopSimplifier topSimplifier, 
-			TopSimplifier exhaustiveTopSimplifier, 
-			Simplifier totalSimplifier, 
-			boolean alreadyTopSimplified) {
-		
 		super();
 		this.expression = expression;
 		this.subExpressionIndex = 0;
 		this.evaluators = map();
-		this.topSimplifier = topSimplifier;
-		this.alreadyExhaustivelyTopSimplified = alreadyTopSimplified;
-		this.exhaustiveTopSimplifier = exhaustiveTopSimplifier;
-		this.totalSimplifier = totalSimplifier;
+		this.alreadyExhaustivelyTopSimplified = false;
+		this.exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
+		this.totalSimplifier = new Recursive(this.exhaustiveTopSimplifier);
 	}
-
+	
 	@Override
 	public EvaluatorStepSolver clone() {
 		EvaluatorStepSolver result = null;
@@ -159,6 +136,14 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
+		return result;
+	}
+	
+	private EvaluatorStepSolver cloneWithAnotherExpression(Expression newExpression, boolean alreadyExhaustivelyTopSimplified) {
+		EvaluatorStepSolver result = clone();
+		result.expression = newExpression;
+		result.subExpressionIndex = 0;
+		result.alreadyExhaustivelyTopSimplified = alreadyExhaustivelyTopSimplified;
 		return result;
 	}
 	
@@ -185,7 +170,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
 			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
-					getEvaluatorFor(subExpression, false /* not known to be top-simplified already */);
+					getEvaluatorFor(subExpression, false /* not known to be exhaustively top-simplified already */);
 			SolutionStep subExpressionStep = subExpressionEvaluator.step(context);
 
 			if (subExpressionStep == null) {
@@ -239,19 +224,18 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		return result;
 	}
 
-	private ContextDependentExpressionProblemStepSolver getEvaluatorFor(Expression expression, boolean alreadyTopSimplified) {
-		ContextDependentExpressionProblemStepSolver result	= evaluators.get(expression);
+	private ContextDependentExpressionProblemStepSolver getEvaluatorFor(Expression anotherExpression, boolean alreadyExhaustivelyTopSimplified) {
+		ContextDependentExpressionProblemStepSolver result	= evaluators.get(anotherExpression);
 		if (result == null) {
-			result = new EvaluatorStepSolver(expression, topSimplifier, exhaustiveTopSimplifier, totalSimplifier, alreadyTopSimplified);
-			setEvaluatorFor(expression, result);
+			result = cloneWithAnotherExpression(anotherExpression, alreadyExhaustivelyTopSimplified);
+			setEvaluatorFor(anotherExpression, result);
 		}
 		return result;
 	}
 
 	private void setEvaluatorFor(Expression expression, ContextDependentExpressionProblemStepSolver stepSolver) {
 		// make new map based on old one, without altering it
-		evaluators = new StackedHashMap<IdentityWrapper, ContextDependentExpressionProblemStepSolver>(evaluators);
-		evaluators.put(new IdentityWrapper(expression), stepSolver);
+		evaluators = stackedHashMap(new IdentityWrapper(expression), stepSolver, evaluators);
 	}
 
 	@Override
