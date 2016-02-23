@@ -139,7 +139,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		Expression result = interpreter.apply(input, context);
-		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
+		Expression expectedProduct = parse("if P then if not Q then if Y != a then if Y != b then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);
 	}
 	

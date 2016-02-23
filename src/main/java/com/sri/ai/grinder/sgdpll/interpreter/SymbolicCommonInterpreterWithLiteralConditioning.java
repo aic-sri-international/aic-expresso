@@ -75,10 +75,6 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		Context trueConstraint = new CompleteMultiVariableContext(getConstraintTheory(), context);
 		SymbolicCommonInterpreter simplifier =
 				new SymbolicCommonInterpreter(getConstraintTheory());
-		// TODO: given that we are only using the top simplifier from the simplifier above,
-		// we don't need the "simplify given constraint" setting.
-		// Not touching it now because I am in the middle of something else,
-		// but should set it off, or just remove the functionality altogether if it is not used anywhere else.
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
 		Expression result = evaluator.solve(trueConstraint);

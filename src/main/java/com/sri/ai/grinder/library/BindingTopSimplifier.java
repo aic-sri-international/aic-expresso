@@ -37,38 +37,29 @@
  */
 package com.sri.ai.grinder.library;
 
+import static com.sri.ai.util.Util.map;
+
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.library.number.NumericSimplifier;
-import com.sri.ai.grinder.library.set.CardinalitySimplifier;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
- * A {@link Simplifier} aggregating:
- * 
- * <ul>
- * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
- * <li> {@link BooleanSimplifier}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
- * <li> {@link NumericSimplifier}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link CardinalitySimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
- * </ul>
+ * A {@link TopSimplifier} replacing symbols by their bound value from context, if any.
  * 
  * @author braz
  *
  */
 @Beta
-public class CommonSimplifier extends RecursiveExhaustiveSeriallyMergedMapBasedSimplifier {
-	
-	public CommonSimplifier() {
+public class BindingTopSimplifier extends DefaultMapBasedTopSimplifier {
+	public BindingTopSimplifier() {
 		super(
-				new BindingTopSimplifier(),
-				new BooleanSimplifier(),
-				new NumericSimplifier(),
-				new EqualitySimplifier(),
-				new InequalitySimplifier(),
-				new CardinalitySimplifier());
+				map(),
+				map("Symbol", (Simplifier) (e, c) -> {
+					Expression binding = c.binding(e);
+					return binding != null? binding : e;
+				})
+				);
 	}
 }

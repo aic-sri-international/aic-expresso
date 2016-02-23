@@ -47,10 +47,14 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 
 /**
- * An extension of {@link AbstractCommonInterpreter} re-using {@link CommonSimplifier}
+ * An extension of {@link AbstractCommonInterpreter}
+ * re-using {@link CommonSimplifier}
  * (provided by {@link #makeAnotherMapBasedSimplifier()},
+ * a constraint theory's top simplifiers,
  * and augmented with symbolic solvers for
  * summations, and universal and existentially quantified formulas.
  *
@@ -70,6 +74,15 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	public SymbolicCommonInterpreter(ConstraintTheory constraintTheory) {
 		super();
 		this.constraintTheory = constraintTheory;
+	}
+
+	@Override
+	public MapBasedSimplifier makeAnotherMapBasedSimplifier() {
+		SeriallyMergedMapBasedTopSimplifier result = 
+				new SeriallyMergedMapBasedTopSimplifier(
+						new CommonSimplifier(), 
+						constraintTheory.getTopSimplifier());
+		return result;
 	}
 
 	public ConstraintTheory getConstraintTheory() {

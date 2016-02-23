@@ -74,6 +74,16 @@ public abstract class AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifie
 	private Simplifier simplifier;
 	
 	public AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier() {
+		// do not invoke initializeSimplifiers() here,
+		// because this would invoke the implementation of abstract methods extending classes
+		// before their constructors were done running.
+	}
+
+	/**
+	 * This must be invoked after construction so that extending classes constructions
+	 * have a chance to run before abstract methods are invoked.
+	 */
+	private void initializeSimplifiers() {
 		this.topSimplifier = 
 				new SeriallyMergedMapBasedTopSimplifier(
 						makeFunctionApplicationSimplifiers(), 
@@ -81,20 +91,34 @@ public abstract class AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifie
 						makeAnotherMapBasedSimplifier());
 		this.simplifier = new Recursive(new TopExhaustive(this.topSimplifier));
 	}
+	
+	public SeriallyMergedMapBasedTopSimplifier getTopSimplifier() {
+		if (topSimplifier == null) {
+			initializeSimplifiers();
+		}
+		return topSimplifier;
+	}
+
+	public Simplifier getSimplifier() {
+		if (simplifier == null) {
+			initializeSimplifiers();
+		}
+		return simplifier;
+	}
 
 	@Override
 	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
-		return topSimplifier.getFunctionApplicationSimplifiers();
+		return getTopSimplifier().getFunctionApplicationSimplifiers();
 	}
 
 	@Override
 	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
-		return topSimplifier.getSyntacticFormTypeSimplifiers();
+		return getTopSimplifier().getSyntacticFormTypeSimplifiers();
 	}
 
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		Expression result = simplifier.apply(expression, context);
+		Expression result = getSimplifier().apply(expression, context);
 		return result;
 	}
 
