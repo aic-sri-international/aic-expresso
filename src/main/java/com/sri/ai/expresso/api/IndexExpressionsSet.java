@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Context;
 
 /**
- * Represents an immutable set of index expressions of a {@link ContextDependentExpressionProblemStepSolver}.
+ * Represents an immutable set of index expressions of an intensional set.
  * The representation may be either extensional or intensional or a mix (by using a union of sets).
  * 
  * @author braz

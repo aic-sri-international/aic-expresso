@@ -119,21 +119,4 @@ public class ConstraintSplitting {
 	public Constraint getConstraintAndLiteralNegation() {
 		return constraintAndLiteralNegation;
 	}
-	
-	/**
-	 * If the literal is either true or false, this method returns
-	 * the result of conjoining the constraint with the literal or its negation, respectively.
-	 * Otherwise, throws an Error.
-	 * @return
-	 */
-	public Constraint getConstraintConjoinedWithDefinedValueOfLiteral() {
-		switch (getResult()) {
-		case LITERAL_IS_TRUE:
-			return constraintAndLiteral;
-		case LITERAL_IS_FALSE:
-			return constraintAndLiteralNegation;
-		default:
-			throw new Error("Method undefined for undefined literal");
-		}
-	}
 }

@@ -48,7 +48,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
@@ -147,7 +146,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public Expression setHeadAndCondition(Expression newHead, Expression newCondition) {
+	public IntensionalSet setHeadAndCondition(Expression newHead, Expression newCondition) {
 		IntensionalSet result = this;
 		if (newHead != getHead() || newCondition != getCondition()) {
 			result = make(getIndexExpressions(), newHead, newCondition);
@@ -156,7 +155,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public QuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions) {
+	public IntensionalSet setIndexExpressions(IndexExpressionsSet newIndexExpressions) {
 		IntensionalSet result = this;
 		if (newIndexExpressions != getIndexExpressions()) {
 			result = make(newIndexExpressions, getHead(), getCondition());

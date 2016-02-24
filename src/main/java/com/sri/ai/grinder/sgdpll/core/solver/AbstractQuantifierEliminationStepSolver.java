@@ -207,9 +207,15 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
 					subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsTrue();
 					subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsFalse();
-					result = new ItDependsOn(bodyStep.getLiteral(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
-					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same context,
+					
+					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from
+					// the context it is returning to,
 					// but from the context conjoined with the index constraint.
+					// In order to provide two contexts to work with the sequel step solvers,
+					// we calculate the splittings here.
+					ContextSplitting split = new ContextSplitting(bodyStep.getLiteral(), context);
+					
+					result = new ItDependsOn(bodyStep.getLiteral(), split, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
 				}
 			}
 			else { // body is already literal free

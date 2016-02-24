@@ -92,6 +92,7 @@ public abstract class AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifie
 		this.simplifier = new Recursive(new TopExhaustive(this.topSimplifier));
 	}
 	
+	@Override
 	public SeriallyMergedMapBasedTopSimplifier getTopSimplifier() {
 		if (topSimplifier == null) {
 			initializeSimplifiers();

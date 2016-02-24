@@ -290,9 +290,11 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 					return new ItDependsOn(literal, split, subStepSolver, subStepSolver); // literal is necessary, but undefined
 					// OPTIMIZATION: instead of returning the first undefined literal, we could look whether some clause is already unsatisfied
 				case LITERAL_IS_TRUE:
-					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the context below
+					clauseIsSatisfied = true;
+					context = split.getContextAndLiteral();
+					break;
 				case LITERAL_IS_FALSE:
-					context = split.getConstraintConjoinedWithDefinedValueOfLiteral();
+					context = split.getContextAndLiteralNegation();
 					break;
 				case CONSTRAINT_IS_CONTRADICTORY:
 					return null;
@@ -329,10 +331,13 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			switch (split.getResult()) {
 			case LITERAL_IS_UNDEFINED:
 				return new ItDependsOn(literal, split, clone(), clone()); // necessary but undefined
-			case LITERAL_IS_FALSE:
 			case LITERAL_IS_TRUE:
-				// register and move to next literal
-				context = split.getContextConjoinedWithDefinedValueOfLiteral();
+				// register in context that literal is true and move to next literal
+				context = split.getContextAndLiteral();
+				break;
+			case LITERAL_IS_FALSE:
+				// register in context that literal is false and move to next literal
+				context = split.getContextAndLiteralNegation();
 				break;
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;

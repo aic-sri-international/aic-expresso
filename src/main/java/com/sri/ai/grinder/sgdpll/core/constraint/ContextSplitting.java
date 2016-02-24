@@ -64,17 +64,4 @@ public class ContextSplitting extends ConstraintSplitting {
 	public Context getContextAndLiteralNegation() {
 		return getConstraintAndLiteralNegation();
 	}
-
-	@Override
-	public Context getConstraintConjoinedWithDefinedValueOfLiteral() {
-		return (Context) super.getConstraintConjoinedWithDefinedValueOfLiteral();
-	}
-
-	/**
-	 * Same thing as {@link #getConstraintConjoinedWithDefinedValueOfLiteral()}, but with a specialized name.
-	 * @return
-	 */
-	public Context getContextConjoinedWithDefinedValueOfLiteral() {
-		return getConstraintConjoinedWithDefinedValueOfLiteral();
-	}
 }

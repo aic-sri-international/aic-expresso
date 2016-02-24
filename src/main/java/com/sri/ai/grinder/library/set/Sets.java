@@ -37,11 +37,15 @@
  */
 package com.sri.ai.grinder.library.set;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.myAssert;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
@@ -240,6 +244,56 @@ public class Sets {
 	 */
 	public static SyntaxTree getLabel(Expression setExpression) {
 		SyntaxTree result = SyntaxTrees.wrap(setExpression.getSyntaxTree().getLabel());
+		return result;
+	}
+
+	/**
+	 * Transforms an application of a associative commutative function to an intensional set with one or more indices
+	 * to an equivalent expression in which intensional sets have a single index each.
+	 * An example is <code>sum( {{ (on X in 1..10, Y in 1..10) 3 | X != Y }} )</code>
+	 * being transformed to <code>sum( {{ (on X in 1..10) sum({{ (on Y in 1..10) 3 | X != Y }}) | true }} )</code>
+	 * @param functionApplicationOnIntensionalSet
+	 * @return
+	 */
+	public static 
+	Expression 
+	expandApplicationOfAssociativeCommutativeFunction(Expression functionApplicationOnIntensionalSet) {
+		Expression functor = functionApplicationOnIntensionalSet.getFunctor();
+		IntensionalSet intensionalSet = (IntensionalSet) functionApplicationOnIntensionalSet.get(0);
+		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
+		myAssert( () -> indexExpressions.getList().size() == 0, () -> "There must be at least one index expression");
+		Expression result = expandApplicationOfAssociativeCommutativeFunctionFrom(functor, intensionalSet, indexExpressions, 0);
+		return result;
+	}
+
+	private static 
+	Expression 
+	expandApplicationOfAssociativeCommutativeFunctionFrom(
+			Expression functor,
+			IntensionalSet intensionalSet,
+			ExtensionalIndexExpressionsSet indexExpressions, 
+			int i) {
+		
+		Expression result;
+	
+		int numberOfIndexExpressions = indexExpressions.getList().size();
+		if (numberOfIndexExpressions == 1) {
+			result = intensionalSet;
+		}
+		else if (i == numberOfIndexExpressions - 1) {
+			Expression iThIndexExpression = indexExpressions.getList().get(i);
+			ExtensionalIndexExpressionsSet indexExpressionsSetWithIthIndexExpressionOnly = new ExtensionalIndexExpressionsSet(iThIndexExpression);
+			result = intensionalSet.setIndexExpressions(indexExpressionsSetWithIthIndexExpressionOnly);
+		}
+		else {
+			Expression iThIndexExpression = indexExpressions.getList().get(i);
+			ExtensionalIndexExpressionsSet indexExpressionsSetWithIthIndexExpressionOnly = new ExtensionalIndexExpressionsSet(iThIndexExpression);
+			Expression innerHead = expandApplicationOfAssociativeCommutativeFunctionFrom(functor, intensionalSet, indexExpressions, i + 1);
+			IntensionalSet innerSet = intensionalSet.setHeadAndCondition(innerHead, TRUE);
+			innerSet = innerSet.setIndexExpressions(indexExpressionsSetWithIthIndexExpressionOnly);
+			result = Expressions.apply(functor, innerSet);
+		}
+		
 		return result;
 	}
 }

@@ -93,8 +93,11 @@ public interface IntensionalSet extends QuantifiedExpression {
 	/**
 	 * Returns a new instance with the head and condition replaced by given new ones.
 	 */
-	public Expression setHeadAndCondition(Expression head, Expression newCondition);
+	public IntensionalSet setHeadAndCondition(Expression newHead, Expression newCondition);
 
+	@Override
+	public IntensionalSet setIndexExpressions(IndexExpressionsSet newIndexExpressions);
+	
 	public static Expression make(Object label, IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		Expression result;
 		if (label.equals(UNI_SET_LABEL)) {
