@@ -117,7 +117,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			ifFalse.valuesOfSingleVariableInequalityConstraintStepSolver =
 					(ValuesOfSingleVariableInequalityConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsFalse();
-			return new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), ifTrue, ifFalse);
+			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 		}
 		RangeAndExceptionsSet values = (RangeAndExceptionsSet) step.getValue();
 		

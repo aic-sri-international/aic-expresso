@@ -93,7 +93,7 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenLiteralIsTrue();
 			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
 			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenLiteralIsFalse();
-			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getConstraintSplitting(), ifTrue, ifFalse);
+			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getContextSplitting(), ifTrue, ifFalse);
 		}
 
 		SolutionStep result;

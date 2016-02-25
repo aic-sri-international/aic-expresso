@@ -106,7 +106,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse = clone();
 			subStepSolverWhenFormulaIsFalse.distinctExpressionsStepSolver = (DistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse();
 
-			return new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
+			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
 		}
 		else {
 			return new Solution(makeSymbol(step.getValue().numberOfArguments() < limit));

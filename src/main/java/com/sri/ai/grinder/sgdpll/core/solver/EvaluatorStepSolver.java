@@ -237,7 +237,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 				result =
 						new ItDependsOn(
 								subExpressionStep.getLiteral(),
-								subExpressionStep.getConstraintSplitting(),
+								subExpressionStep.getContextSplitting(),
 								ifTrue,
 								ifFalse);
 			}

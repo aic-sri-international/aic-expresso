@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
@@ -143,13 +143,13 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		 * or null otherwise.
 		 * @return
 		 */
-		ConstraintSplitting getConstraintSplitting();
+		ContextSplitting getContextSplitting();
 	}
 	
 	public static class ItDependsOn<T> implements SolutionStep<T> {
 
 		private Expression literal;
-		private ConstraintSplitting constraintSplitting;
+		private ContextSplitting constraintSplitting;
 		private ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsTrue;
 		private ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsFalse;
 		
@@ -166,12 +166,12 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		 */
 		public ItDependsOn(
 				Expression literal,
-				ConstraintSplitting constraintSplitting,
+				ContextSplitting contextSplitting,
 				ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsTrue,
 				ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsFalse) {
 			super();
 			this.literal = literal;
-			this.constraintSplitting = constraintSplitting;
+			this.constraintSplitting = contextSplitting;
 			this.stepSolverIfExpressionIsTrue  = stepSolverIfExpressionIsTrue;
 			this.stepSolverIfExpressionIsFalse = stepSolverIfExpressionIsFalse;
 		}
@@ -192,7 +192,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public ConstraintSplitting getConstraintSplitting() {
+		public ContextSplitting getContextSplitting() {
 			return constraintSplitting;
 		}
 
@@ -252,7 +252,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public ConstraintSplitting getConstraintSplitting() {
+		public ContextSplitting getContextSplitting() {
 			return null;
 		}
 	}

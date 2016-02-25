@@ -94,7 +94,7 @@ public class ExpressionWrapperStepSolver<T> implements ContextDependentExpressio
 
 			result = new ItDependsOn(
 					step.getLiteral(),
-					step.getConstraintSplitting(),
+					step.getContextSplitting(),
 					subIfTrue,
 					subIfFalse);
 		}

@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
@@ -107,10 +107,10 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 
 		public ItDependsOn(
 				Expression literal,
-				ConstraintSplitting constraintSplitting,
+				ContextSplitting contextSplitting,
 				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue,
 				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse) {
-			super(literal, constraintSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+			super(literal, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
 		}
 		
 		@Override

@@ -80,7 +80,7 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 			result =
 					new ItDependsOn(
 							step.getLiteral(),
-							step.getConstraintSplitting(),
+							step.getContextSplitting(),
 							constantExpressionStepSolver(solutionIfTrue),
 							constantExpressionStepSolver(solutionIfFalse));
 		}

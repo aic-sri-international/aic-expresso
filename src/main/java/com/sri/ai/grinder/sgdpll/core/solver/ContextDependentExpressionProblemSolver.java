@@ -72,7 +72,7 @@ public class ContextDependentExpressionProblemSolver {
 		}
 		else if (step.itDepends()) {
 			Expression splitter = step.getLiteral();
-			ContextSplitting split = (ContextSplitting) step.getConstraintSplitting();
+			ContextSplitting split = (ContextSplitting) step.getContextSplitting();
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
@@ -88,7 +88,7 @@ public class ContextDependentExpressionProblemSolver {
 			// there is no reason for step solvers to return 'itDepends' steps when the literal is true (or false),
 			// because in that case they can always simply add the literal (or its negation) to the context
 			// and take another step. However, we include these possibilities here for safety.
-			// At some point it may make sense to simply remove these as valid possibilities.	
+			// TODO: At some point it may make sense to simply remove these as valid possibilities.	
 			case LITERAL_IS_TRUE: 
 				return solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral());
 			case LITERAL_IS_FALSE:
