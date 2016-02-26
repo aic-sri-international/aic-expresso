@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -183,14 +182,6 @@ public interface Polynomial extends Expression {
 		return result;
 	}
  
-	/**
-	 * 
-	 * @return the set of non-numeric constant factors contained within this
-	 *         Polynomial.
-	 */
-	Set<Expression> getNonNumericConstantFactors();
-	// TODO: seems unnecessary in the Polynomial API, maybe should remove it.
-	
 	/**
 	 * The degree of a polynomial is the highest degree of its terms.
 	 * 

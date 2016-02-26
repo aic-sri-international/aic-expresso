@@ -42,7 +42,6 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -403,19 +402,6 @@ public class DefaultPolynomialTest {
 		
 		Assert.assertFalse(makePolynomial("0", "(x, y)").isOne());
 		Assert.assertFalse(makePolynomial("x + 1", "(x, y)").isOne());
-	}
-	
-	@Test
-	public void testGetNonNumericConstantFactors() {
-		Assert.assertEquals(Collections.emptySet(), makePolynomial("0", "(x, y)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, y)").getArguments()), makePolynomial("3*x^2*y^4", "(x, y)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, 3*y^4)").getArguments()), makePolynomial("3*x^2*y^4", "tuple(x)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("(y, 3*x^2)").getArguments()), makePolynomial("3*x^2*y^4", "tuple(y)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("tuple(x^2*y^4)").getArguments()), makePolynomial("3*x^2*y^4", "tuple(3)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, y)").getArguments()), makePolynomial("3*x^2*y^4", "(x, y, 3)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, y, z)").getArguments()), makePolynomial("3*x^2*y^4 + z + 10", "(x, y, z)").getNonNumericConstantFactors());
-		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, 3*y^4, 10*z)").getArguments()), makePolynomial("3*x^2*y^4 + 10*z", "tuple(x)").getNonNumericConstantFactors());
-
 	}
 	
 	@Test

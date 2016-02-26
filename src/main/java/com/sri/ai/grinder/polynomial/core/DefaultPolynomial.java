@@ -95,7 +95,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	private List<Expression>              variables          = null;
 	private MonomialComparator            monomialComparator        = null;
 	private List<Monomial>                orderedSummands           = null;
-	private Set<Expression>               nonNumericConstantFactors = null;
 	private Map<List<Rational>, Monomial> signatureTermMap          = null;
 
 	public static Polynomial make(Expression expression) {
@@ -220,11 +219,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public List<Monomial> getOrderedSummands() {
 		return orderedSummands;
-	}
-
-	@Override
-	public Set<Expression> getNonNumericConstantFactors() {
-		return nonNumericConstantFactors;
 	}
 
 	@Override
@@ -614,11 +608,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			}
 			this.signatureTermMap.put(signature, monomial);
 		}
-		this.nonNumericConstantFactors = new LinkedHashSet<>();
-		for (Monomial monomial : orderedSummands) {
-			this.nonNumericConstantFactors.addAll(monomial.getOrderedNonNumericFactors());
-		}
-		this.nonNumericConstantFactors = Collections.unmodifiableSet(this.nonNumericConstantFactors);
 		this.signatureTermMap          = Collections.unmodifiableMap(this.signatureTermMap);
 	}
 	
