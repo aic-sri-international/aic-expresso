@@ -79,7 +79,7 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
 		
-		Context result = GrinderUtil.makeProcess(
+		Context result = GrinderUtil.makeContext(
 						mapFromSymbolNameToTypeName,
 						mapFromCategoricalTypeNameToSizeString, additionalTypes,
 						isUniquelyNamedConstantPredicate, constraintTheory);
