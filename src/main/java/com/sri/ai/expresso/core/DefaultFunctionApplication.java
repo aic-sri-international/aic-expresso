@@ -218,7 +218,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			"+", "-", "*", "/", "^",
 			"and", "or", "<=>", "=>",
 			"=", "!=", ">", "<", "<=", ">=",
-			"union", "intersection", "in", "\\", INTEGER_INTERVAL, "\'..\'"
+			"union", "intersection", "in", "\\", INTEGER_INTERVAL, "'\\'..\\''"
 			);
 	
 	@Override
@@ -238,20 +238,23 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			else if (hasFunctor(FunctorConstants.NOT) && numberOfArguments() == 1) {
 				result = "not " + stringAsSubExpression(get(0), precedence);
 			}
-			else if (infixFunctionsStrings.contains(getFunctor().toString())) {
-				List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
-				if (hasFunctor(INTEGER_INTERVAL) && numberOfArguments() == 2) {
-					// no spaces between functor and arguments
-					result = subExpressionsStrings.get(0) + FunctorConstants.INTEGER_INTERVAL + subExpressionsStrings.get(1);
+			else {
+				String functorString = getFunctor().toString();
+				if (infixFunctionsStrings.contains(functorString)) {
+					List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
+					if (hasFunctor(INTEGER_INTERVAL) && numberOfArguments() == 2) {
+						// no spaces between functor and arguments
+						result = subExpressionsStrings.get(0) + ".." + subExpressionsStrings.get(1);
+					}
+					else {
+						result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+					}
 				}
 				else {
-					result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+					String functorRepresentation = getFunctor() instanceof Symbol? functorString : "(" + getFunctor() + ")";
+					String argumentsRepresentation = Util.join(", ", getArguments());
+					result = functorRepresentation + "(" + argumentsRepresentation + ")";
 				}
-			}
-			else {
-				String functorRepresentation = getFunctor() instanceof Symbol? getFunctor().toString() : "(" + getFunctor() + ")";
-				String argumentsRepresentation = Util.join(", ", getArguments());
-				result = functorRepresentation + "(" + argumentsRepresentation + ")";
 			}
 		}
 		return result;

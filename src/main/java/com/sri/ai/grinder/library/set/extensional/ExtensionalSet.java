@@ -57,7 +57,6 @@ import com.sri.ai.util.Util;
 @Beta
 public class ExtensionalSet {
 
-	public static final String SET_NORMALIZATION_STATE_KEY = "set normalization state";
 	public static final String UNI_SET_LABEL = "{ . }";
 	public static final String MULTI_SET_LABEL = "{{ . }}";
 

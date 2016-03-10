@@ -80,6 +80,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.AbstractExtensionalSet;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
@@ -96,6 +97,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
+import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.util.Util;
@@ -391,6 +393,11 @@ public class GrinderUtil {
 		}
 		else if (isComparisonFunctionApplication(expression)) {
 				result = makeSymbol("Boolean");
+		}
+		else if (Sets.isIntensionalMultiSet(expression)) {
+			IntensionalSet set = (IntensionalSet) expression;
+			Expression headType = getType(set.getHead(), context);
+			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
 		else if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (expression.getValue() instanceof Integer) {

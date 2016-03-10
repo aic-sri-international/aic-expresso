@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+t * Copyright (c) 2013, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -62,12 +62,13 @@ import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintThe
 public class EvaluatorStepSolverTest {
 
 	@Test
-	public void test() {
+	public void testEvaluationOfFunctionApplications() {
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
 				new InequalityConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
+
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
@@ -115,6 +116,69 @@ public class EvaluatorStepSolverTest {
 		
 		expressionString = "if P and Q and R and S and T and U then 1 else 0";
 		expected = parse("if P then if Q then if R then if S then if T then if U then 1 else 0 else 0 else 0 else 0 else 0 else 0");
+		runTest(expressionString, expected, topSimplifier, context);	
+	}
+
+	@Test
+	public void testEvaluationOfQuantifiedExpressions() {
+		ConstraintTheory constraintTheory
+		= new CompoundConstraintTheory(
+				new EqualityConstraintTheory(false, true),
+				new InequalityConstraintTheory(false, true),
+				new PropositionalConstraintTheory());
+
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Type booleanType = variablesAndTypes.get("P");
+		variablesAndTypes.put("S", booleanType);
+		variablesAndTypes.put("T", booleanType);
+		variablesAndTypes.put("U", booleanType);
+		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		
+		Context context = constraintTheory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+
+		String expressionString;
+		Expression expected;
+		
+		expressionString = "sum( {{ (on I in 1..10) 3 | I != 4 and P }} )";
+		expected = parse("if P then 27 else 0");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "sum( {{ (on ) 3 | I != 4 and P }} )";
+		expected = parse("if I != 4 then if P then 3 else 0 else 0");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "sum( {{ (on ) 3 | P and not P }} )";
+		expected = parse("0");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "sum( {{ (on I in 1..10, J in 1..2) 3 | I != 4 }} )";
+		expected = parse("54");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "sum( {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} )";
+		expected = parse("54");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		
+		expressionString = "max( {{ (on I in 1..10) 3 | I != 4 and P }} )";
+		expected = parse("if P then 3 else -infinity");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "max( {{ (on ) 3 | I != 4 and P }} )";
+		expected = parse("if I != 4 then if P then 3 else -infinity else -infinity");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "max( {{ (on ) 3 | P and not P }} )";
+		expected = parse("-infinity");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "max( {{ (on I in 1..10, J in 1..2) 3 | I != 4 }} )";
+		expected = parse("3");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		expressionString = "max( {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} )";
+		expected = parse("3");
 		runTest(expressionString, expected, topSimplifier, context);	
 	}
 
