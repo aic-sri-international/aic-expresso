@@ -93,7 +93,11 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public boolean isNonTrivialAtom(Expression expression, Context context) {
-		boolean result = GrinderUtil.isBooleanTyped(expression, context) && !FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
+		Object syntacticFormType = expression.getSyntacticFormType();
+		boolean result = 
+				(syntacticFormType.equals("Symbol") || syntacticFormType.equals("Function application")) &&
+				GrinderUtil.isBooleanTyped(expression, context) && 
+				!FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
 		return result;
 	}
 	

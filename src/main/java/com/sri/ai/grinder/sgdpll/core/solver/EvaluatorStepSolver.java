@@ -42,7 +42,9 @@ import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
+import static com.sri.ai.grinder.library.FunctorConstants.OR;
 import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.set.Sets.expandApplicationOfAssociativeCommutativeFunction;
@@ -54,8 +56,12 @@ import static com.sri.ai.util.collect.StackedHashMap.stackedHashMap;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -66,6 +72,8 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.group.BooleansWithConjunctionGroup;
+import com.sri.ai.grinder.sgdpll.group.BooleansWithDisjunctionGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicMaxGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicTimesGroup;
@@ -202,6 +210,26 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression functionOnSet = apply(SUM, intensionalSet);
 			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, intensionalSet, context);
 		}
+		else if (expression.getSyntacticFormType().equals("For all")) {
+			// for all I : Body ---> and ( {{ (on I) Body }} )
+			AssociativeCommutativeGroup group = new BooleansWithConjunctionGroup();
+			UniversallyQuantifiedFormula forAll = (UniversallyQuantifiedFormula) expression;
+			IndexExpressionsSet indexExpressions = forAll.getIndexExpressions();
+			Expression body = forAll.getBody();
+			IntensionalSet set = new DefaultIntensionalMultiSet(indexExpressions, body, TRUE);
+			Expression functionOnSet = apply(AND, set);
+			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, set, context);
+		}
+		else if (expression.getSyntacticFormType().equals("There exists")) {
+			// there exists I : Body ---> or ( {{ (on I) Body }} )
+			AssociativeCommutativeGroup group = new BooleansWithDisjunctionGroup();
+			ExistentiallyQuantifiedFormula thereExists = (ExistentiallyQuantifiedFormula) expression;
+			IndexExpressionsSet indexExpressions = thereExists.getIndexExpressions();
+			Expression body = thereExists.getBody();
+			IntensionalSet set = new DefaultIntensionalMultiSet(indexExpressions, body, TRUE);
+			Expression functionOnSet = apply(OR, set);
+			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, set, context);
+		}
 		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
 			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
@@ -281,9 +309,9 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		else {
 			ConstraintTheory constraintTheory = context.getConstraintTheory();
 		
-			Expression sumOnSingleIndexSets = expandApplicationOfAssociativeCommutativeFunction(functionOnSet);
+			Expression functionOnSingleIndexSets = expandApplicationOfAssociativeCommutativeFunction(functionOnSet);
 		
-			IntensionalSet firstSet = (IntensionalSet) sumOnSingleIndexSets.get(0);
+			IntensionalSet firstSet = (IntensionalSet) functionOnSingleIndexSets.get(0);
 			ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) firstSet.getIndexExpressions();
 			Expression indexExpression = indexExpressions.getList().get(0);
 			Expression index = IndexExpressions.getIndex(indexExpression);

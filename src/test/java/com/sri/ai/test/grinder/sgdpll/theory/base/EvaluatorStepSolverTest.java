@@ -120,7 +120,7 @@ public class EvaluatorStepSolverTest {
 	}
 
 	@Test
-	public void testEvaluationOfQuantifiedExpressions() {
+	public void testEvaluationOfGroupOperationsOnSets() {
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
@@ -180,26 +180,94 @@ public class EvaluatorStepSolverTest {
 		expressionString = "max( {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} )";
 		expected = parse("3");
 		runTest(expressionString, expected, topSimplifier, context);	
+	}
 
+	@Test
+	public void testEvaluationOfCardinalityExpressions() {
+		ConstraintTheory constraintTheory
+		= new CompoundConstraintTheory(
+				new EqualityConstraintTheory(false, true),
+				new InequalityConstraintTheory(false, true),
+				new PropositionalConstraintTheory());
+	
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Type booleanType = variablesAndTypes.get("P");
+		variablesAndTypes.put("S", booleanType);
+		variablesAndTypes.put("T", booleanType);
+		variablesAndTypes.put("U", booleanType);
+		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		
+		Context context = constraintTheory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+	
+		String expressionString;
+		Expression expected;
 		
 		expressionString = "| {{ (on I in 1..10) 3 | I != 4 and P }} |";
 		expected = parse("if P then 9 else 0");
 		runTest(expressionString, expected, topSimplifier, context);	
-
+	
 		expressionString = "| {{ (on ) 3 | I != 4 and P }} |";
 		expected = parse("if I != 4 then if P then 1 else 0 else 0");
 		runTest(expressionString, expected, topSimplifier, context);	
-
+	
 		expressionString = "| {{ (on ) 3 | P and not P }} |";
 		expected = parse("0");
 		runTest(expressionString, expected, topSimplifier, context);	
-
+	
 		expressionString = "| {{ (on I in 1..10, J in 1..2) 3 | I != 4 }} |";
 		expected = parse("18");
 		runTest(expressionString, expected, topSimplifier, context);	
-
+	
 		expressionString = "| {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} |";
 		expected = parse("18");
+		runTest(expressionString, expected, topSimplifier, context);	
+	}
+
+	@Test
+	public void testEvaluationOfQuantifiedExpressions() {
+		ConstraintTheory constraintTheory
+		= new CompoundConstraintTheory(
+				new EqualityConstraintTheory(false, true),
+				new InequalityConstraintTheory(false, true),
+				new PropositionalConstraintTheory());
+	
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Type booleanType = variablesAndTypes.get("P");
+		variablesAndTypes.put("S", booleanType);
+		variablesAndTypes.put("T", booleanType);
+		variablesAndTypes.put("U", booleanType);
+		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		
+		Context context = constraintTheory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+	
+		String expressionString;
+		Expression expected;
+		
+		expressionString = "for all I in 1..10 : (I != 4 or I = 4) and P";
+		expected = parse("P");
+		runTest(expressionString, expected, topSimplifier, context);	
+	
+		expressionString = "for all I in 1..10 : for all J in 1..2 : I != 4";
+		expected = parse("false");
+		runTest(expressionString, expected, topSimplifier, context);	
+	
+		expressionString = "for all I in 1..10 : for all P in Boolean : I != 4 or I = 4 and (P or not P)";
+		expected = parse("true");
+		runTest(expressionString, expected, topSimplifier, context);	
+
+		
+		expressionString = "there exists I in 1..10 : I != 4 and P";
+		expected = parse("P");
+		runTest(expressionString, expected, topSimplifier, context);	
+	
+		expressionString = "there exists I in 1..10 : there exists J in 1..2 : I != 4 and J != 1";
+		expected = parse("true");
+		runTest(expressionString, expected, topSimplifier, context);	
+	
+		expressionString = "there exists I in 1..10 : there exists P in Boolean : I != 4 and P";
+		expected = parse("true");
 		runTest(expressionString, expected, topSimplifier, context);	
 	}
 
