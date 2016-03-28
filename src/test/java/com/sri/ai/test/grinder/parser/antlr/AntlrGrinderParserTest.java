@@ -1498,6 +1498,42 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "* x";
 		testFail(string);
 	}
+	
+	@Test
+	public void testIntegerInterval () {
+		String string;
+		string = "1..10";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"));
+		
+		string = "-infinity..10";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "infinity"), "10"));
+		
+		string = "10..infinity";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "10", "infinity"));
+		
+		string = "-infinity..infinity";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "infinity"), "infinity"));
+	
+		string = "(I*2 +J)..100";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("*", "I", "2"), "J"), 
+				"100"));
+		
+		string = "-1..10";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "-1", "10"));
+
+		string = "3*10..100";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("*", "3", "10"), 
+				"100"
+			));
+		
+		string = "1 + 1..10";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+",
+				"1",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10")));
+	}
 
 	@Test
 	public void testMinus () {

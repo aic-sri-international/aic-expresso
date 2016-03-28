@@ -27,12 +27,12 @@ expr :
      | NOT expr #not
        // negative, e.g.: 2 * -1 -> 2 * (-1)
      | '-' expr #negative // We set the unary minus to higher precedence
-       // NOTE:  P)arentheses, E)xponents, ( M)ultiplication, D)ivision ), ( A)ddition, S)ubtraction )
+       // NOTE:  P)arentheses, E)xponents, ( M)ultiplication, D)ivision and special case of Integer Interval '..' ), ( A)ddition, S)ubtraction )
        // see: http://en.wikipedia.org/wiki/Order_of_operations
        // exponentiation, e.g. 2^3^4 -> 2^(3^4)
      |<assoc=right> base=expr '^' exponent=expr #Exponentiation
-       // multiplication or division, e.g.: 2*3/2 -> 2*(3/2)
-     | leftop=expr op=('*' | '/') rightop=expr #multiplicationOrDivision
+       // multiplication or division or an Integer Interval, e.g.: 2*3/2 -> 2*(3/2)
+     | leftop=expr op=('*' | '/' | '..') rightop=expr #multiplicationOrDivisionOrIntegerInterval
        // addition or subtraction, e.g.: 1-2+3 -> (1-2)+3
      | leftop=expr op=('+' | '-') rightop=expr #additionOrSubtraction
        // set intersection, e.g.: {a, b, c} intersection {b}
@@ -144,6 +144,7 @@ BICONDITIONAL           : '<=>' ;
 EXPONENTIATION          : '^' ;
 DIVIDE                  : '/' ;
 TIMES                   : '*' ;
+INTEGER_INTERVAL        : '..' ;
 PLUS                    : '+' ;
 SUBTRACT                : '-' ;
 // Comparison
@@ -171,7 +172,7 @@ PERIOD                  : '.' ;
 
 RATIONAL
     : ('0' | '1'..'9' '0'..'9'*)
-    | ('0'..'9')+ '.' ('0'..'9')* EXPONENT? FLOAT_TYPE_SUFFIX?
+    | ('0'..'9')+ '.' ('0'..'9')+ EXPONENT? FLOAT_TYPE_SUFFIX?
     | '.' ('0'..'9')+ EXPONENT? FLOAT_TYPE_SUFFIX?
     | ('0'..'9')+ EXPONENT FLOAT_TYPE_SUFFIX?
     | ('0'..'9')+ FLOAT_TYPE_SUFFIX

@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.NotNull;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -114,7 +113,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	}
 	
 	@Override 
-	public Expression visitCartesianProduct(@NotNull AntlrGrinderParser.CartesianProductContext ctx) { 
+	public Expression visitCartesianProduct(AntlrGrinderParser.CartesianProductContext ctx) { 
 		Object[] arguments = new Object[1+ctx.additionalargs.size()];
 		arguments[0] = newSymbol(ctx.firstarg.getText());
 		for (int i = 0; i < ctx.additionalargs.size(); i++) {
@@ -125,7 +124,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	}
 	
 	@Override 
-	public Expression visitFunctionType(@NotNull AntlrGrinderParser.FunctionTypeContext ctx) { 
+	public Expression visitFunctionType(AntlrGrinderParser.FunctionTypeContext ctx) { 
 		Object[] arguments  = new Object[2];
 		if (ctx.domaintypes.size() == 1) {
 			arguments[0] = newSymbol(ctx.domaintypes.get(0).getText());
@@ -232,11 +231,17 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// multiplication or division, e.g.: 2*3/2 -> 2*(3/2)
-	// numerator=expr op=('*' | '/') denominator=expr #multiplicationOrDivision
+	// multiplication or division or integer interval, e.g.: 2*3/2 -> 2*(3/2)
+	// numerator=expr op=('*' | '/' | '..') denominator=expr #multiplicationOrDivisionOrIntegerInterval
 	@Override
-	public Expression visitMultiplicationOrDivision(AntlrGrinderParser.MultiplicationOrDivisionContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
+	public Expression visitMultiplicationOrDivisionOrIntegerInterval(AntlrGrinderParser.MultiplicationOrDivisionOrIntegerIntervalContext ctx) {
+		Expression result;	
+		if (ctx.op.getText().equals("..")) {			
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, visit(ctx.leftop), visit(ctx.rightop)); 
+		}
+		else {			
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
+		}		
 		result = possiblyFlatten(result);
 		return result;
 	}

@@ -37,7 +37,6 @@
  */
 package com.sri.ai.expresso.helper;
 
-import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 
@@ -80,7 +79,6 @@ import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -387,21 +385,7 @@ public class Expressions {
 	}
 	
 	public static Expression parse(String string, Parser.ErrorListener errorListener) {
-		// Temporary hack translating 1..10 to Integer(1,10) so it can be parsed, and back
-		string = string.replaceAll("(-?[0-9]+)\\.\\.([0-9]+)", "Integer($1,$2)");
-		string = string.replaceAll("(-infinity)\\.\\.([0-9]+)", "Integer(-infinity,$2)");
-		string = string.replaceAll("(-?[0-9]+)\\.\\.(infinity)", "Integer($1,$2)");
-		string = string.replaceAll("-infinity\\.\\.infinity", "Integer(-infinity,infinity)");
 		Expression result = parser.parse(string, errorListener);
-		result = result.replaceAllOccurrences(
-				e -> {
-					if (e.hasFunctor("Integer") && e.numberOfArguments() == 2) {
-						return apply(INTEGER_INTERVAL, e.get(0), e.get(1));
-					}
-					return e;
-				},
-				new TypeContext()
-				);
 		return result;
 	}
 	
