@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
  * A {@link Simplifier} with a cardinality simplifier
@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimp
  *
  */
 @Beta
-public class CardinalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+public class CardinalitySimplifier extends DefaultMapBasedTopSimplifier {
 	
 	public CardinalitySimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

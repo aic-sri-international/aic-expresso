@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll.application;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+import static com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver.solve;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -53,8 +54,10 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
+import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
-import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
@@ -78,9 +81,7 @@ public class SymbolicShell {
 				new EqualityConstraintTheory(false, true),
 				new InequalityConstraintTheory(false, false),
 				new PropositionalConstraintTheory());
-		SymbolicCommonInterpreter evaluator =
-				new SymbolicCommonInterpreterWithLiteralConditioning(
-						constraintTheory);
+		Simplifier evaluator = makeEvaluator(constraintTheory);
 		
 		Context context = new TypeContext(constraintTheory);
 		context = context.add(BOOLEAN_TYPE);
@@ -107,15 +108,26 @@ public class SymbolicShell {
 		Collection<String> examples = list(
 				"sum({{ (on X in People)  3 }})",
 				"sum({{ (on X in People)  3 |  X != Y }})",
+				"product({{ (on X in People)  3 |  X != Y }})",
+				"| {{ (on X in People)  3 |  X != Y }} |",
+				"max({{ (on X in People)  3 |  X != Y }})",
 				"sum({{ (on X in People, Y in People)  3 |  X != Y }})",
 				"sum({{ (on X in People)  3 |  X != Y and X != ann }})",
 				"sum({{ (on X in People, P in Boolean)  3 |  X != ann }})",
 				"sum({{ (on X in People, P in Boolean)  3 |  X != ann and not P }})",
 				"sum({{ (on X in People, Y in People)  if X = ann and Y != bob then 2 else 0  |  for all Z in People : Z = ann => X = Z }})"
+				
+				, "sum({{ (on I in 1..100)  I }})"
+				, "sum({{ (on I in 1..100)  I | I != 3 and I != 5 and I != 500 }})"
+				, "sum({{ (on I in 1..100)  I | I != J and I != 5 and I != 500 }})"
+				, "sum({{ (on I in 1..100)  (I - J)^2 }})"
+				, "sum({{ (on I in 1..100)  if I != K then (I - J)^2 else 0 }})"
+				
 				);
 		for (String example : examples) {
 			System.out.println(consoleIterator.getPrompt() + example);
 			evaluate(evaluator, example, context);
+			System.out.println("\n\n\n\n\n");
 		}
 
 		while (consoleIterator.hasNext()) {
@@ -143,12 +155,22 @@ public class SymbolicShell {
 	}
 
 	/**
+	 * Makes a {@link Simplifier} based on a {@link EvaluatorStepSolver} for a given constraint theory.
+	 * @param constraintTheory
+	 * @return
+	 */
+	public static Simplifier makeEvaluator(ConstraintTheory constraintTheory) {
+		return (e, c) -> solve(new EvaluatorStepSolver(e, constraintTheory.getTopSimplifier()), c);
+	}
+
+	/**
 	 * @param evaluator
 	 * @param inputString
 	 * @param context
 	 * @return 
 	 */
-	private static Context evaluate(SymbolicCommonInterpreter evaluator, String inputString, Context context) {
+	private static Context evaluate(Simplifier evaluator, String inputString, Context context) {
+		
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});
 			if (input.hasFunctor("var")) {

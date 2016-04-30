@@ -51,7 +51,7 @@ import com.sri.ai.grinder.library.number.GreaterThanOrEqualTo;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
  * A {@link Simplifier} with inequality functions (<code>> <, >=, <=</code>)
@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimp
  *
  */
 @Beta
-public class InequalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+public class InequalitySimplifier extends DefaultMapBasedTopSimplifier {
 	
 	public InequalitySimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

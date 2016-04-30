@@ -124,7 +124,8 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 					&&
 					forAll(expression.getArguments(),
 							e -> {
-								String typeName = GrinderUtil.getType(e, context).toString();
+								Expression typeExpression = GrinderUtil.getType(e, context);
+								String typeName = typeExpression.toString();
 								Type eType = context.getType(typeName);
 								return isValidArgument(e, eType);
 							});

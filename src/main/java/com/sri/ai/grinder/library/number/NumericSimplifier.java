@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
  * A {@link Simplifier} with common numeric functions:
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimp
  *
  */
 @Beta
-public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+public class NumericSimplifier extends DefaultMapBasedTopSimplifier {
 	
 	public NumericSimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

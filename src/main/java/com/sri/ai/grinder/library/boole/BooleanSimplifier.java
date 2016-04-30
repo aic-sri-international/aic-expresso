@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
  * A {@link Simplifier} with commonly boolean connectives plus conditionals:
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimp
  *
  */
 @Beta
-public class BooleanSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+public class BooleanSimplifier extends DefaultMapBasedTopSimplifier {
 	
 	public BooleanSimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

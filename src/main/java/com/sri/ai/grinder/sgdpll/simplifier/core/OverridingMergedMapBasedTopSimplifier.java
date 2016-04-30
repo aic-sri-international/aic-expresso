@@ -56,7 +56,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
  *
  */
 @Beta
-public class OverridingMergedMapBasedSimplifier extends DefaultMapBasedTopSimplifier {
+public class OverridingMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimplifier {
 	
 	/**
 	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers,
@@ -65,7 +65,7 @@ public class OverridingMergedMapBasedSimplifier extends DefaultMapBasedTopSimpli
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public OverridingMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+	public OverridingMergedMapBasedTopSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
 				union ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
 				union ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
@@ -80,7 +80,7 @@ public class OverridingMergedMapBasedSimplifier extends DefaultMapBasedTopSimpli
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public OverridingMergedMapBasedSimplifier(
+	public OverridingMergedMapBasedTopSimplifier(
 			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {

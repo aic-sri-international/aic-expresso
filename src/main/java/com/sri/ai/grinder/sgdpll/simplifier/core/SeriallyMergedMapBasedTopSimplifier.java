@@ -57,9 +57,9 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
  * That is to say, the new simplifier only acts if the old one has nothing to say about it,
  * thus complementing it.
  * Therefore, this class is useful for adding functionality to a simplifier,
- * as opposed to overriding functionality (as done by {@link OverridingMergedMapBasedSimplifier}). 
+ * as opposed to overriding functionality (as done by {@link OverridingMergedMapBasedTopSimplifier}). 
  * 
- * @see OverridingMergedMapBasedSimplifier
+ * @see OverridingMergedMapBasedTopSimplifier
  * 
  * @author braz
  *
@@ -78,7 +78,6 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 		super(
 				merge ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
 				merge ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
-				
 	}
 
 	/**
@@ -96,7 +95,6 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 		super(
 				merge ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
 				merge ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
-				
 	}
 	
 	private static Map<String, Simplifier> merge(Iterator<Map<String, Simplifier>> simplifiersIterator) {

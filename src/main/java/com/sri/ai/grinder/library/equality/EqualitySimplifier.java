@@ -46,7 +46,7 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
  * A {@link Simplifier} with equality functions (<code>=, !=</code>)
@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveMapBasedSimp
  *
  */
 @Beta
-public class EqualitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+public class EqualitySimplifier extends DefaultMapBasedTopSimplifier {
 	
 	public EqualitySimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
