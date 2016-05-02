@@ -62,7 +62,8 @@ import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
-import com.sri.ai.util.collect.ConsoleIterator;
+import com.sri.ai.util.console.ConsoleIterator;
+import com.sri.ai.util.console.DefaultConsoleIterator;
 
 /**
  * Provides a shell for use of {@link SymbolicCommonInterpreter}.
@@ -103,7 +104,7 @@ public class SymbolicShell {
 		
 		help();
 
-		ConsoleIterator consoleIterator = new ConsoleIterator();
+		ConsoleIterator consoleIterator = new DefaultConsoleIterator();
 		
 		Collection<String> examples = list(
 				"sum({{ (on X in People)  3 }})",
