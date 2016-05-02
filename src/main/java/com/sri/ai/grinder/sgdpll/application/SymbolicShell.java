@@ -46,7 +46,9 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoList;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -102,9 +104,9 @@ public class SymbolicShell {
 		context = context.registerIndicesAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
 		
-		help();
-
 		ConsoleIterator consoleIterator = new DefaultConsoleIterator();
+		
+		help(consoleIterator);
 		
 		Collection<String> examples = list(
 				"sum({{ (on X in People)  3 }})",
@@ -126,33 +128,33 @@ public class SymbolicShell {
 				
 				);
 		for (String example : examples) {
-			System.out.println(consoleIterator.getPrompt() + example);
-			evaluate(evaluator, example, context);
-			System.out.println("\n\n\n\n\n");
+			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
+			evaluate(consoleIterator, evaluator, example, context);
+			consoleIterator.getOutputWriter().println("\n\n\n\n\n");
 		}
 
 		while (consoleIterator.hasNext()) {
 			String input = consoleIterator.next();
 			if (input.equals("")) {
-				System.out.println();	
+				consoleIterator.getOutputWriter().println();	
 			}
 			else if (input.startsWith("show")) {
-				System.out.println("\n" +
+				consoleIterator.getOutputWriter().println("\n" +
 						join(mapIntoList(context.getSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
 			}
 			else if (input.equals("debug")) {
 				debug = !debug;
-				System.out.println("\nDebug toggled to " + debug + "\n");	
+				consoleIterator.getOutputWriter().println("\nDebug toggled to " + debug + "\n");	
 			}
 			else if (input.equals("help")) {
-				help();
+				help(consoleIterator);
 			}
 			else {
-				context = evaluate(evaluator, input, context);
+				context = evaluate(consoleIterator, evaluator, input, context);
 			}
 		}
 		
-		System.out.println("\nGood bye.");	
+		consoleIterator.getOutputWriter().println("\nGood bye.");	
 	}
 
 	/**
@@ -170,7 +172,7 @@ public class SymbolicShell {
 	 * @param context
 	 * @return 
 	 */
-	private static Context evaluate(Simplifier evaluator, String inputString, Context context) {
+	private static Context evaluate(ConsoleIterator consoleIterator, Simplifier evaluator, String inputString, Context context) {
 		
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});
@@ -178,25 +180,25 @@ public class SymbolicShell {
 				Expression variable = input.get(0);
 				Expression type = input.get(1);
 				context = context.registerIndicesAndTypes(map(variable, type));
-				System.out.println();	
+				consoleIterator.getOutputWriter().println();	
 				return context;
 			}
 			Expression result = evaluator.apply(input, context);
-			System.out.println("\n" + result + "\n");
+			consoleIterator.getOutputWriter().println("\n" + result + "\n");
 		} catch (Error e) {
-			dealWith(e);
+			dealWith(consoleIterator, e);
 		} catch (Exception e) {
-			dealWith(e);
+			dealWith(consoleIterator, e);
 		}
 		return context;
 	}
 
-	private static void dealWith(Throwable e) {
+	private static void dealWith(ConsoleIterator consoleIterator, Throwable e) {
 		if (debug) {
-			e.printStackTrace();
+			e.printStackTrace(consoleIterator.getErrorWriter());
 		}
 		else {
-			System.out.println("\n" + throwableMessage(e) + "\n");
+			consoleIterator.getErrorWriter().println("\n" + throwableMessage(e) + "\n");
 		}
 	}
 
@@ -214,53 +216,55 @@ public class SymbolicShell {
 	/**
 	 * 
 	 */
-	private static void help() {
-		System.out.println("***********************************************************************************");
-		System.out.println("");
-		System.out.println("Welcome to SRI AIC expresso symbolic interpreter");
-		System.out.println("");
-		System.out.println("Pre-defined types are:");
-		System.out.println("- 'Boolean' with constants 'true' and 'false',");
-		System.out.println("                 pre-defined variables P, Q, R, S");
-		System.out.println("- 'Integer' with pre-defined variables I, J, K");
-		System.out.println("- Integer intevals can be used in summations: sum({{(on I in 1..10) I}});");
-		System.out.println("- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran',");
-		System.out.println("                                       pre-defined variables X, Y, Z");
-		System.out.println("");
-		System.out.println("Capitalized symbols (other than types) are considered variables");
-		System.out.println("");
-		System.out.println("The language includes:");
-		System.out.println("");
-		System.out.println("- if-then-else");
-		System.out.println("- equality (=, !=)");
-		System.out.println("- boolean operators: 'and', 'or', 'not', '=>', '<=>'");
-		System.out.println("- numeric operators: +, -, *, /, ^, <, >, <=, >=");
-		System.out.println("");
-		System.out.println("- universal and existential quantification:");
-		System.out.println("- for all X in <Type> : <Formula>");
-		System.out.println("- there exists X in <Type> : <Formula>");
-		System.out.println("");
-		System.out.println("- aggregates over intensionally-defined multi-sets:");
-		System.out.println("-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})");
-		System.out.println("- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})");
-		System.out.println("-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})");
-		System.out.println("- the 'on' clause indicates the set indices; all other variables are free variables");
-		System.out.println("  and the result may depend on them");
-		System.out.println("");
-		System.out.println("- cardinality over intensionally-defined multi-sets:");
-		System.out.println("-      | ({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }}) |");
-		System.out.println("");
-		System.out.println("Global inference only works on equality and propositions");
-		System.out.println("This means the system knows P and (P => Q) implies Q,");
-		System.out.println("and that X != Y and Y = Z implies X != Z,");
-		System.out.println("but does not know that X < Y and Y < Z implies X < Z.");
-		System.out.println("");
-		System.out.println("'show' shows declared variables and their types");
-		System.out.println("'debug' toggles debugging information");
-		System.out.println("'quit', 'exit', 'hasta la vista, baby', among others, leave the application");
-		System.out.println("'help' shows this information again");
-		System.out.println("");
-		System.out.println("***********************************************************************************");
-		System.out.println("");
+	private static void help(ConsoleIterator consoleIterator) {
+		List<String> helpLines = Arrays.asList(
+				"***********************************************************************************",
+				"",
+				"Welcome to SRI AIC expresso symbolic interpreter",
+				"",
+				"Pre-defined types are:",
+				"- 'Boolean' with constants 'true' and 'false',",
+				"                 pre-defined variables P, Q, R, S",
+				"- 'Integer' with pre-defined variables I, J, K",
+				"- Integer intevals can be used in summations: sum({{(on I in 1..10) I}});",
+				"- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran',",
+				"                                       pre-defined variables X, Y, Z",
+				"",
+				"Capitalized symbols (other than types) are considered variables",
+				"",
+				"The language includes:",
+				"",
+				"- if-then-else",
+				"- equality (=, !=)",
+				"- boolean operators: 'and', 'or', 'not', '=>', '<=>'",
+				"- numeric operators: +, -, *, /, ^, <, >, <=, >=",
+				"",
+				"- universal and existential quantification:",
+				"- for all X in <Type> : <Formula>",
+				"- there exists X in <Type> : <Formula>",
+				"",
+				"- aggregates over intensionally-defined multi-sets:",
+				"-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"- the 'on' clause indicates the set indices; all other variables are free variables",
+				"  and the result may depend on them",
+				"",
+				"- cardinality over intensionally-defined multi-sets:",
+				"-      | ({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }}) |",
+				"",
+				"Global inference only works on equality and propositions",
+				"This means the system knows P and (P => Q) implies Q,",
+				"and that X != Y and Y = Z implies X != Z,",
+				"but does not know that X < Y and Y < Z implies X < Z.",
+				"",
+				"'show' shows declared variables and their types",
+				"'debug' toggles debugging information",
+				"'quit', 'exit', 'hasta la vista, baby', among others, leave the application",
+				"'help' shows this information again",
+				"",
+				"***********************************************************************************",
+				"");
+		helpLines.forEach(line -> consoleIterator.getOutputWriter().println(line));
 	}
 }
