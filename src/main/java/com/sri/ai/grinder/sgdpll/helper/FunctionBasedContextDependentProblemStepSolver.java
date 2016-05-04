@@ -35,48 +35,59 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
-
-import static com.sri.ai.expresso.helper.Expressions.apply;
-
-import java.util.List;
+package com.sri.ai.grinder.sgdpll.helper;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractExpressionsSequenceStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractSelectionStepSolver;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 
 /**
- * A context-dependent problem step solver deciding which in a set of expressions that satisfy
- * a comparison according to a given functor and bound.
- * <p>
- * Unlike many step solvers finding Expression-typed solutions, this one
- * is not an extension of {@link ContextDependentExpressionProblemStepSolver}
- * because it extends {@link AbstractExpressionsSequenceStepSolver},
- * which does not necessarily have Expression-typed solutions.
- * This has the disadvantage of requiring the use of
- * generic {@link ContextDependentProblemStepSolver#SolutionStep},
- * instead of its more common specialization
- * {@link ContextDependentExpressionProblemStepSolver#SolutionStep}.
+ * A context-dependent expression problem step solver
+ * based on applying a given function to the result of another
+ * context-dependent expression problem step solver.
  *
  * @author braz
  *
  */
 @Beta
-public class SelectExpressionsSatisfyingComparisonStepSolver extends AbstractSelectionStepSolver {
+public class FunctionBasedContextDependentProblemStepSolver implements ContextDependentExpressionProblemStepSolver {
 
-	private String functor;
-	private Expression bound;
+	private Function<Expression, Expression> function;
+	private ContextDependentExpressionProblemStepSolver base;
 	
-	public SelectExpressionsSatisfyingComparisonStepSolver(List<Expression> expressions, String functor, Expression bound) {
-		super(expressions);
-		this.functor = functor;
-		this.bound = bound;
+	public FunctionBasedContextDependentProblemStepSolver(
+			Function<Expression, Expression> function,
+			ContextDependentExpressionProblemStepSolver base) {
+		super();
+		this.function = function;
+		this.base = base;
 	}
-	
+
 	@Override
-	protected Expression makeLiteralBasedOn(Expression currentExpression) {
-		return apply(functor, currentExpression, bound);
+	public ContextDependentExpressionProblemStepSolver clone() {
+		ContextDependentExpressionProblemStepSolver result = null;
+		try {
+			result = (ContextDependentExpressionProblemStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	@Override
+	public SolutionStep step(Context context) {
+		SolutionStep result;
+		SolutionStep baseResult = base.step(context);
+		if (baseResult.itDepends()) {
+			result = baseResult;
+		}
+		else {
+			Expression value = baseResult.getValue();
+			Expression functionResult = function.apply(value);
+			result = new Solution(functionResult);
+		}
+		return result;
 	}
 }

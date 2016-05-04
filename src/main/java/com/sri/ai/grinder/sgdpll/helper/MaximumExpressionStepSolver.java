@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 
@@ -51,14 +51,10 @@ import com.sri.ai.grinder.sgdpll.theory.base.AbstractExpressionsSequenceStepSolv
  * A context-dependent problem step solver deciding which in a set of expressions is the maximum one
  * given an order.
  * <p>
- * Unlike many step solvers finding Expression-typed solutions, this one
- * is not an extension of {@link ContextDependentExpressionProblemStepSolver}
- * because it extends {@link AbstractExpressionsSequenceStepSolver},
- * which does not necessarily have Expression-typed solutions.
- * This has the disadvantage of requiring the use of
- * generic {@link ContextDependentProblemStepSolver#SolutionStep},
- * instead of its more common specialization
- * {@link ContextDependentExpressionProblemStepSolver#SolutionStep}.
+ * Note that it would be intuitive to have this class implement {@link ContextDependentExpressionProblemStepSolver},
+ * but this class delegates to its super class, whose {@link #step(Context)} method returns a {@link ContextDependentProblemStepSolver#SolutionStep<Expression>},
+ * and we do not want to have to construct a new {@link ContextDependentExpressionProblemStepSolver#SolutionStep}
+ * object every time just to conform to the interface.
  *
  * @author braz
  *

@@ -76,6 +76,10 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
+import com.sri.ai.grinder.sgdpll.helper.MaximumExpressionStepSolver;
+import com.sri.ai.grinder.sgdpll.helper.SelectExpressionsSatisfyingComparisonStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.ConstantStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.LiteralStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.DistinctExpressionsStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
@@ -113,13 +117,13 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 	
 	
 
-	private MaximumExpressionStepSolver initialMaximumStrictLowerBoundStepSolver;
+	private ContextDependentProblemStepSolver<Expression> initialMaximumStrictLowerBoundStepSolver;
 
-	private MaximumExpressionStepSolver initialMinimumNonStrictUpperBoundStepSolver;
+	private ContextDependentProblemStepSolver<Expression> initialMinimumNonStrictUpperBoundStepSolver;
 
-	private SelectExpressionsSatisfyingComparisonStepSolver initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
+	private ContextDependentProblemStepSolver<List<Expression>> initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 
-	private SelectExpressionsSatisfyingComparisonStepSolver initialDisequalsWithinBoundsStepSolver;
+	private ContextDependentProblemStepSolver<List<Expression>> initialDisequalsWithinBoundsStepSolver;
 
 	private ContextDependentProblemStepSolver<Boolean> initialLowerBoundIsLessThanUpperBoundStepSolver;
 
@@ -408,7 +412,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 			solutionExpression = new RangeAndExceptionsSet.Singleton(value);
 		}
 		else {
-			MaximumExpressionStepSolver maximumStrictLowerBoundStepSolver;
+			ContextDependentProblemStepSolver<Expression> maximumStrictLowerBoundStepSolver;
 			if (initialMaximumStrictLowerBoundStepSolver == null) {
 				maximumStrictLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -423,16 +427,16 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(context);
 			if (maximumStrictLowerBoundStep.itDepends()) {
 				ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
-				ifTrue.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
+				ifTrue.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
 				ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
-				ifFalse.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsFalse();
+				ifFalse.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsFalse();
 				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getLiteral(), maximumStrictLowerBoundStep.getContextSplitting(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression greatestStrictLowerBound = maximumStrictLowerBoundStep.getValue();
-			successor.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStepSolver;
+			successor.initialMaximumStrictLowerBoundStepSolver = new ConstantExpressionStepSolver(greatestStrictLowerBound);
 			
-			MaximumExpressionStepSolver minimumNonStrictUpperBoundStepSolver;
+			ContextDependentProblemStepSolver<Expression> minimumNonStrictUpperBoundStepSolver;
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -454,7 +458,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 				return result;
 			}
 			Expression leastNonStrictUpperBound = minimumNonStrictUpperBoundStep.getValue();
-			successor.initialMinimumNonStrictUpperBoundStepSolver = minimumNonStrictUpperBoundStepSolver;
+			successor.initialMinimumNonStrictUpperBoundStepSolver = new ConstantExpressionStepSolver(leastNonStrictUpperBound);
 			
 			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
 				solutionExpression = new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(MINUS_INFINITY, INFINITY);
@@ -481,9 +485,9 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 					return new Solution(EMPTY);
 				}
 				// else, bounds difference is positive and we can move on
-				successor.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStepSolver;
+				successor.initialLowerBoundIsLessThanUpperBoundStepSolver = new ConstantStepSolver<Boolean>(true);
 				
-				SelectExpressionsSatisfyingComparisonStepSolver disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
+				ContextDependentProblemStepSolver<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 				if (initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver == null) {
 					disequalsGreaterThanGreatestStrictLowerBoundStepSolver
 					= new SelectExpressionsSatisfyingComparisonStepSolver(getDisequals(), GREATER_THAN, greatestStrictLowerBound);
@@ -502,9 +506,9 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 					return result;
 				}
 				List<Expression> disequalsGreaterThanGreatestStrictLowerBound = step.getValue();
-				successor.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
+				successor.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = new ConstantStepSolver<List<Expression>>(disequalsGreaterThanGreatestStrictLowerBound);
 
-				SelectExpressionsSatisfyingComparisonStepSolver disequalsWithinBoundsStepSolver;
+				ContextDependentProblemStepSolver<List<Expression>> disequalsWithinBoundsStepSolver;
 				if (initialDisequalsWithinBoundsStepSolver == null) {
 					disequalsWithinBoundsStepSolver
 					= new SelectExpressionsSatisfyingComparisonStepSolver(
@@ -525,7 +529,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 					return result;
 				}
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
-				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
+				successor.initialDisequalsWithinBoundsStepSolver = new ConstantStepSolver<List<Expression>>(disequalsWithinBounds);
 
 				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
 
@@ -552,6 +556,9 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 						return result;
 					}
 					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+					// we don't use a ConstantStepSolver here because we need to keep initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
+					// type to be NumberOfDistinctExpressionsIsLessThanStepSolver
+					// due to the fact that we invoke its method getDistinctExpressionsStepSolver() right below.
 					
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
 					distinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getDistinctExpressionsStepSolver();

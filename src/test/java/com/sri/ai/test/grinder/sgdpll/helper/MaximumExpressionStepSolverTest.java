@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.test.grinder.sgdpll.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
@@ -58,8 +58,8 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.sgdpll.helper.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.MaximumExpressionStepSolver;
 
 @Beta
 public class MaximumExpressionStepSolverTest {

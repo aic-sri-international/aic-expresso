@@ -69,7 +69,6 @@ import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
-import com.sri.ai.grinder.sgdpll.theory.helper.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
 
 /**

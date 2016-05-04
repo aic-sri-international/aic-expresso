@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.test.grinder.sgdpll.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
@@ -55,9 +55,9 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.sgdpll.helper.SelectExpressionsSatisfyingComparisonStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.ExpressionWrapperStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SelectExpressionsSatisfyingComparisonStepSolver;
 
 @Beta
 public class SelectExpressionsSatisfyingComparisonStepSolverTest {
