@@ -66,6 +66,11 @@ import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
+import com.sri.ai.util.console.gui.GUIConsoleIterator;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 /**
  * Provides a shell for use of {@link SymbolicCommonInterpreter}.
@@ -104,7 +109,7 @@ public class SymbolicShell {
 		context = context.registerIndicesAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
 		
-		ConsoleIterator consoleIterator = new DefaultConsoleIterator();
+		ConsoleIterator consoleIterator = getConsole(args);
 		
 		help(consoleIterator);
 		
@@ -130,7 +135,7 @@ public class SymbolicShell {
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
 			evaluate(consoleIterator, evaluator, example, context);
-			consoleIterator.getOutputWriter().println("\n\n\n\n\n");
+			consoleIterator.getOutputWriter().println("\n");
 		}
 
 		while (consoleIterator.hasNext()) {
@@ -211,6 +216,26 @@ public class SymbolicShell {
 			message = e.getMessage();
 		}
 		return message;
+	}
+	
+	private static ConsoleIterator getConsole(String[] args) {
+		ConsoleIterator result = null;
+		
+		OptionParser parser = new OptionParser();
+		
+		OptionSpec<String> consoleType = parser.accepts("console", "Console type <gui or default>").withRequiredArg().ofType(String.class);
+		OptionSet options = parser.parse(args);
+		if (options.has(consoleType)) {
+			if ("gui".equalsIgnoreCase(options.valueOf(consoleType))) {
+				result = new GUIConsoleIterator();
+			}
+		}
+		
+		if (result == null) {
+			result = new DefaultConsoleIterator();
+		}
+		
+		return result;
 	}
 
 	/**
