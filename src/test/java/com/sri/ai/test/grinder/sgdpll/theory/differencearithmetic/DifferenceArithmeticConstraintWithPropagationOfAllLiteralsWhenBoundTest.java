@@ -35,15 +35,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.inequality;
+package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
 
 import com.google.common.annotations.Beta;
 
 @Beta
-public class DifferenceArithmeticConstraintWithoutPropagationOfAllLiteralsWhenBoundTest extends AbstractDifferenceArithmeticConstraintTest {
+public class DifferenceArithmeticConstraintWithPropagationOfAllLiteralsWhenBoundTest extends AbstractDifferenceArithmeticConstraintTest {
 
 	@Override
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return false;
+		return true;
 	}
 }

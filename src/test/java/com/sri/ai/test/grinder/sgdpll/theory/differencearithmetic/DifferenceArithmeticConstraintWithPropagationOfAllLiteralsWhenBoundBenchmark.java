@@ -35,56 +35,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.inequality;
+package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
 
 import com.google.common.annotations.Beta;
 
 @Beta
-public class DifferenceArithmeticConstraintWithoutPropagationOfAllLiteralsWhenBoundBenchmark extends AbstractDifferenceArithmeticConstraintBenchmark {
+public class DifferenceArithmeticConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark extends AbstractDifferenceArithmeticConstraintBenchmark {
 
 	@Override
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return false;
+		return true;
 	}
 
 	// on December 31, 2015:
 	// testMaxForSingleVariableConstraints: too long to wait
-	// testMultiVariableConstraints: 2.048 s
+	// testMultiVariableConstraints: 2.024 s
 	// testSumForSingleVariableConstraints: too long to wait
-	// testCompleteMultiVariableConstraints: 11.7 s
-	// testSingleVariableConstraints: 0.454 s
-	// testModelCountingForSingleVariableConstraints: 10.899 s
-
+	// testCompleteMultiVariableConstraints: 12.038 s
+	// testSingleVariableConstraints: 0.542 s
+	// testModelCountingForSingleVariableConstraints: 10.255 s
+	
 	// on January 5, 2016:
-	// testMaxForSingleVariableConstraints: 19.337 s
-	// testMultiVariableConstraints: 2.485 s
-	// testSumForSingleVariableConstraints: 15.192 s
-	// testCompleteMultiVariableConstraints: 1.4 s
-	// testSingleVariableConstraints: 0.8 s
-	// testModelCountingForSingleVariableConstraints: 0.864 s
+	// testMaxForSingleVariableConstraints: 16.2 s
+	// testMultiVariableConstraints: 2.419 s
+	// testSumForSingleVariableConstraints: 10.926 s
+	// testCompleteMultiVariableConstraints: 1.198 s
+	// testSingleVariableConstraints: 0.948 s
+	// testModelCountingForSingleVariableConstraints: 0.888 s
 	// as we can see, about 10 times improvement for model counting after better splitting order and state preservation
-
+	
 	// on January 11, 2016: (after realizing it was running on a random seed, and fixing it to seed 0):
-	// testMaxForSingleVariableConstraints: 20.352 s
-	// testMultiVariableConstraints: 1.337 s
-	// testSumForSingleVariableConstraints: 15.452 s
-	// testCompleteMultiVariableConstraints: 0.571 s
-	// testSingleVariableConstraints: 0.386 s
-	// testModelCountingForSingleVariableConstraints: 0.386 s
+	// testMaxForSingleVariableConstraints: 14.765 s
+	// testMultiVariableConstraints: 1.089 s
+	// testSumForSingleVariableConstraints: 10.099 s
+	// testCompleteMultiVariableConstraints: 0.446 s
+	// testSingleVariableConstraints: 0.302 s
+	// testModelCountingForSingleVariableConstraints: 0.302 s
 	
 	// on January 14, 2016: (after introducing context-specific evaluator step solver):
-	// testMaxForSingleVariableConstraints: 3.558 s
-	// testMultiVariableConstraints: 1.023 s
-	// testSumForSingleVariableConstraints: 2.074 s
-	// testCompleteMultiVariableConstraints: 0.852 s
-	// testSingleVariableConstraints: 0.615 s
-	// testModelCountingForSingleVariableConstraints: 0.802 s
-
-	// on January 20, 2016: (after changing track on unique disequals to be direct, times went up, then down again after realizing now all inner sub-solvers were being re-used):
-	// testMaxForSingleVariableConstraints: 3.705 s
-	// testMultiVariableConstraints: 1.311 s
-	// testSumForSingleVariableConstraints: 2.344 s
-	// testCompleteMultiVariableConstraints: 0.952 s
-	// testSingleVariableConstraints: 0.615 s
-	// testModelCountingForSingleVariableConstraints: 0.942 s
+	// testMaxForSingleVariableConstraints: 3.393 s
+	// testMultiVariableConstraints: 1.659 s
+	// testSumForSingleVariableConstraints: 1.929 s
+	// testCompleteMultiVariableConstraints: 0.861 s
+	// testSingleVariableConstraints: 0.733 s
+	// testModelCountingForSingleVariableConstraints: 0.991 s
+	
+	// on January 20, 2016: (after realizing now all inner sub-solvers were being re-used):
+	// testMaxForSingleVariableConstraints: 3.290 s
+	// testMultiVariableConstraints: 1.659 s
+	// testSumForSingleVariableConstraints: 1.856 s
+	// testCompleteMultiVariableConstraints: 0.861 s
+	// testSingleVariableConstraints: 0.733 s
+	// testModelCountingForSingleVariableConstraints: 0.991 s
 }

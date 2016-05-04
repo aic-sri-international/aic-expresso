@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.inequality;
+package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;

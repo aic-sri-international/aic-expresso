@@ -1,4 +1,4 @@
-package com.sri.ai.test.grinder.sgdpll.theory.inequality;
+package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
 
 import java.util.Random;
 
