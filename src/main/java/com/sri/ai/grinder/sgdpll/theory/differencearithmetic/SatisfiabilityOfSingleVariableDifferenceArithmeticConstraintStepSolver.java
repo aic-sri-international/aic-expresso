@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.inequality;
+package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
- * A {@link AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableInequalityConstraint}.
+ * A {@link AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableDifferenceArithmeticConstraint}.
  * <p>
  * The solution is guaranteed to be either a boolean constant or a difference arithmetic expression with 0 on the right-hand side.
  * 
@@ -60,21 +60,21 @@ import com.sri.ai.grinder.sgdpll.core.solver.AbstractBooleanProblemWithPropagate
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Constraint constraint;
 	private ContextDependentExpressionProblemStepSolver modelCounting;
 	
-	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver(SingleVariableInequalityConstraint constraint) {
+	public SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver(SingleVariableDifferenceArithmeticConstraint constraint) {
 		this.constraint = constraint;
-		this.modelCounting = new ModelCountingOfSingleVariableInequalityConstraintStepSolver(constraint);
+		this.modelCounting = new ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver(constraint);
 	}
 
 	@Override
-	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver clone() {
-		SatisfiabilityOfSingleVariableInequalityConstraintStepSolver result = null;
+	public SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver clone() {
+		SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver result = null;
 		try {
-			result = (SatisfiabilityOfSingleVariableInequalityConstraintStepSolver) super.clone();
+			result = (SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -89,9 +89,9 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 		}
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers must be satisfiability step solvers.
-			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifTrue = clone();
+			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue = clone();
 			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenLiteralIsTrue();
-			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = clone();
 			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenLiteralIsFalse();
 			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getContextSplitting(), ifTrue, ifFalse);
 		}

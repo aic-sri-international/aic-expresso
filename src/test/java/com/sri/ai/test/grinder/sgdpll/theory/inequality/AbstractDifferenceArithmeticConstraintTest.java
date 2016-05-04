@@ -8,12 +8,12 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
 
-public abstract class AbstractInequalityConstraintTest extends AbstractConstraintTheoryIncludingEqualityTest {
+public abstract class AbstractDifferenceArithmeticConstraintTest extends AbstractConstraintTheoryIncludingEqualityTest {
 
-	public AbstractInequalityConstraintTest() {
+	public AbstractDifferenceArithmeticConstraintTest() {
 		super();
 	}
 
@@ -22,7 +22,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Override
 	protected ConstraintTheory makeConstraintTheory() {
-		return new InequalityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
+		return new DifferenceArithmeticConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
 	@Override

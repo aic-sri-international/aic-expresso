@@ -56,15 +56,15 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.ExpressionWrapperStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.SelectExpressionsSatisfyingComparisonStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SelectExpressionsSatisfyingComparisonStepSolver;
 
 @Beta
 public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 
 	@Test
 	public void test() {
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 
 		List<String> expressionStrings;

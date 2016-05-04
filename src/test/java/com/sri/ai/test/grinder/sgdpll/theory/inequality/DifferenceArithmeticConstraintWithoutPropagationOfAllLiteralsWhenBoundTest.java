@@ -35,37 +35,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.inequality;
-
-import static com.sri.ai.expresso.helper.Expressions.apply;
-
-import java.util.List;
+package com.sri.ai.test.grinder.sgdpll.theory.inequality;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.theory.base.SelectionStepSolver;
 
-/**
- * A context-dependent problem step solver deciding which in a set of expressions that satisfy
- * a comparison according to a given functor and bound.
- *
- * @author braz
- *
- */
 @Beta
-public class SelectExpressionsSatisfyingComparisonStepSolver extends SelectionStepSolver {
+public class DifferenceArithmeticConstraintWithoutPropagationOfAllLiteralsWhenBoundTest extends AbstractDifferenceArithmeticConstraintTest {
 
-	private String functor;
-	private Expression bound;
-	
-	public SelectExpressionsSatisfyingComparisonStepSolver(List<Expression> expressions, String functor, Expression bound) {
-		super(expressions);
-		this.functor = functor;
-		this.bound = bound;
-	}
-	
 	@Override
-	protected Expression makeLiteralBasedOn(Expression currentExpression) {
-		return apply(functor, currentExpression, bound);
+	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
+		return false;
 	}
 }

@@ -50,6 +50,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
@@ -61,16 +65,12 @@ import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
 
 /**
  * Provides a shell for use of {@link SymbolicCommonInterpreter}.
@@ -87,7 +87,7 @@ public class SymbolicShell {
 
 		CompoundConstraintTheory constraintTheory = new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, false),
+				new DifferenceArithmeticConstraintTheory(false, false),
 				new PropositionalConstraintTheory());
 		Simplifier evaluator = makeEvaluator(constraintTheory);
 		

@@ -58,12 +58,12 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.theory.inequality.RangeAndExceptionsSet;
-import com.sri.ai.grinder.sgdpll.theory.inequality.SingleVariableInequalityConstraint;
-import com.sri.ai.grinder.sgdpll.theory.inequality.ValuesOfSingleVariableInequalityConstraintStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.RangeAndExceptionsSet;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 
 /**
- * A step solver for a summation with an integer index constrained by inequalities,
+ * A step solver for a summation with an integer index constrained by difference arithmetic literals,
  * over a polynomial on integers.
  * It works by evaluating the body until there are no literals on it,
  * computing the index satisfying values for the index,
@@ -73,26 +73,26 @@ import com.sri.ai.grinder.sgdpll.theory.inequality.ValuesOfSingleVariableInequal
  *
  */
 @Beta
-public class SummationOnIntegerInequalityAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
+public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	private ValuesOfSingleVariableInequalityConstraintStepSolver valuesOfSingleVariableInequalityConstraintStepSolver;
+	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
-	public SummationOnIntegerInequalityAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
+	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
 		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
-		valuesOfSingleVariableInequalityConstraintStepSolver =
-				new ValuesOfSingleVariableInequalityConstraintStepSolver(
-						(SingleVariableInequalityConstraint) indexConstraint);
+		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
+				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(
+						(SingleVariableDifferenceArithmeticConstraint) indexConstraint);
 	}
 
 	@Override
-	public SummationOnIntegerInequalityAndPolynomialStepSolver clone() {
-		return (SummationOnIntegerInequalityAndPolynomialStepSolver) super.clone();
+	public SummationOnDifferenceArithmeticAndPolynomialStepSolver clone() {
+		return (SummationOnDifferenceArithmeticAndPolynomialStepSolver) super.clone();
 	}
 	
 	@Override
 	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		AbstractQuantifierEliminationStepSolver result = 
-				new SummationOnIntegerInequalityAndPolynomialStepSolver(
+				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
 						newIndexConstraint, body, simplifier);
 		return result;
 	}
@@ -104,18 +104,18 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolver extends Abstrac
 			Context context) {
 
 		SolutionStep step = 
-				valuesOfSingleVariableInequalityConstraintStepSolver.step(context);
+				valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;
 		}
 		if (step.itDepends()) {
-			SummationOnIntegerInequalityAndPolynomialStepSolver ifTrue = clone();
-			ifTrue.valuesOfSingleVariableInequalityConstraintStepSolver =
-					(ValuesOfSingleVariableInequalityConstraintStepSolver)
+			SummationOnDifferenceArithmeticAndPolynomialStepSolver ifTrue = clone();
+			ifTrue.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
+					(ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsTrue();
-			SummationOnIntegerInequalityAndPolynomialStepSolver ifFalse = clone();
-			ifFalse.valuesOfSingleVariableInequalityConstraintStepSolver =
-					(ValuesOfSingleVariableInequalityConstraintStepSolver)
+			SummationOnDifferenceArithmeticAndPolynomialStepSolver ifFalse = clone();
+			ifFalse.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
+					(ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsFalse();
 			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 		}

@@ -50,7 +50,7 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
@@ -112,7 +112,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	
 	public static void main(String[] args) {
 		Random random = new Random();
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		for (int numberOfVariables = 3; numberOfVariables != 5; numberOfVariables++) {
 			Map<String, Type> variableNamesAndTypes = map();
 			Type integerInterval = new IntegerInterval(0, 100);

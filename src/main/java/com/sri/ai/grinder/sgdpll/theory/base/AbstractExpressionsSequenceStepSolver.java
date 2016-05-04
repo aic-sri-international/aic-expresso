@@ -35,15 +35,64 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.inequality;
+package com.sri.ai.grinder.sgdpll.theory.base;
+
+import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 
+/**
+ * An extension of {@link AbstractLinearStepSolver}
+ * that obtains the literals to be tested from a given list of expressions.
+ * <p>
+ * More specifically, it implements {@link #makeLiteral()} to pick the next expression
+ * <code>e</code> from a given list of expressions,
+ * and invokes a new method {@link #makeLiteralBasedOn(Expression)}
+ * on <code>e</code> to obtain the next literal to be tested.
+ * <p>
+ * Like other extensions of {@link AbstractLinearStepSolver},
+ * implementations of this class must still define
+ * {@link #makeSubStepSolverWhenLiteralIsTrue()},
+ * {@link #makeSubStepSolverWhenLiteralIsFalse()}, and
+ * {@link #makeSolutionWhenAllElementsHaveBeenChecked()}.
+ *
+ * @author braz
+ *
+ */
 @Beta
-public class InequalityConstraintWithoutPropagationOfAllLiteralsWhenBoundTest extends AbstractInequalityConstraintTest {
+public abstract class AbstractExpressionsSequenceStepSolver<T> extends AbstractLinearStepSolver<T> {
 
+	private List<Expression> expressions;
+
+	/**
+	 * Makes the decision literal based on a given expression.
+	 * @param expression
+	 * @return
+	 */
+	protected abstract Expression makeLiteralBasedOn(Expression expression);
+	
+	public AbstractExpressionsSequenceStepSolver(List<Expression> expressions) {
+		this(expressions, 0);
+	}
+
+	protected AbstractExpressionsSequenceStepSolver(List<Expression> expressions, int current) {
+		super(expressions.size(), current);
+		this.expressions = expressions;
+	}
+
+	public List<Expression> getExpressions() {
+		return expressions;
+	}
+	
 	@Override
-	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return false;
+	protected Expression makeLiteral() {
+		Expression result = makeLiteralBasedOn(getCurrentExpression());
+		return result;
+	}
+
+	protected Expression getCurrentExpression() {
+		Expression result = expressions.get(getCurrent());
+		return result;
 	}
 }

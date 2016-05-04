@@ -35,53 +35,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.inequality;
+package com.sri.ai.grinder.sgdpll.theory.base;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractLinearStepSolver;
+import com.sri.ai.util.collect.ImmutableStackedLinkedList;
 
 /**
- * A context-dependent problem step solver making decisions based on a sequence of expressions.
+ * A context-dependent problem step solver taking a list of expressions <code>e1,...,e_n</code>
+ * and computing the sub-list <code>e_{j_1},...,e_{j_m}</code>
+ * such that all <code>e_i</code> is in the sub-list if and only if
+ * the result of invoking {@link #makeLiteralBasedOn(Expression)} on <code>e_i</code> is true in the context.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractExpressionsSequenceStepSolver<T> extends AbstractLinearStepSolver<T> {
+public abstract class AbstractSelectionStepSolver extends AbstractExpressionsSequenceStepSolver<List<Expression>> {
 
-	private List<Expression> expressions;
+	private List<Expression> selection;
 
 	/**
-	 * Makes the decision literal based on the {@link #currentExpression()}.
-	 * @param currentExpression
-	 * @return
+	 * Makes step solver
+	 * @param expressions the expressions being examined
 	 */
-	protected abstract Expression makeLiteralBasedOn(Expression currentExpression);
-	
-	public AbstractExpressionsSequenceStepSolver(List<Expression> expressions) {
-		this(expressions, 0);
+	public AbstractSelectionStepSolver(List<Expression> expressions) {
+		this(expressions, 0, new LinkedList<Expression>());
 	}
 
-	protected AbstractExpressionsSequenceStepSolver(List<Expression> expressions, int current) {
-		super(expressions.size(), current);
-		this.expressions = expressions;
-	}
-
-	public List<Expression> getExpressions() {
-		return expressions;
+	/**
+	 * Makes step solver
+	 * @param expressions the expressions being examined
+	 * @param current the index of the current expression
+	 * @param selection the expressions that have already been selected
+	 */
+	private AbstractSelectionStepSolver(List<Expression> expressions, int current, List<Expression> selection) {
+		super(expressions, current);
+		this.selection = selection;
 	}
 	
 	@Override
-	protected Expression makeLiteral() {
-		Expression result = makeLiteralBasedOn(getCurrentExpression());
+	protected AbstractSelectionStepSolver makeSubStepSolverWhenLiteralIsTrue() {
+		AbstractSelectionStepSolver result = (AbstractSelectionStepSolver) clone();
+		result.current = getCurrent() + 1;
+		result.selection = new ImmutableStackedLinkedList<Expression>(getCurrentExpression(), selection);
 		return result;
 	}
 
-	protected Expression getCurrentExpression() {
-		Expression result = expressions.get(getCurrent());
+	@Override
+	protected AbstractSelectionStepSolver makeSubStepSolverWhenLiteralIsFalse() {
+		AbstractSelectionStepSolver result = (AbstractSelectionStepSolver) clone();
+		result.current = getCurrent() + 1;
+		// selection remains the same
+		return result;
+	}
+
+	@Override
+	protected SolutionStep<List<Expression>> makeSolutionWhenAllElementsHaveBeenChecked() {
+		Solution<List<Expression>> result = new Solution<List<Expression>>(selection);
 		return result;
 	}
 }

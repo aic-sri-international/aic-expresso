@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.inequality;
+package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 
@@ -45,6 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.AbstractExpressionsSequenceStepSolver;
 
 /**
  * A context-dependent problem step solver deciding which in a set of expressions is the maximum one

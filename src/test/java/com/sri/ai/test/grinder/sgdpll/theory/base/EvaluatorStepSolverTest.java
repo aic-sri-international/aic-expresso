@@ -54,8 +54,8 @@ import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSo
 import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
 
 @Beta
@@ -66,7 +66,7 @@ public class EvaluatorStepSolverTest {
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, true),
+				new DifferenceArithmeticConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
 
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
@@ -124,7 +124,7 @@ public class EvaluatorStepSolverTest {
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, true),
+				new DifferenceArithmeticConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
 
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
@@ -187,7 +187,7 @@ public class EvaluatorStepSolverTest {
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, true),
+				new DifferenceArithmeticConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
 	
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
@@ -229,7 +229,7 @@ public class EvaluatorStepSolverTest {
 		ConstraintTheory constraintTheory
 		= new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, true),
+				new DifferenceArithmeticConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
 	
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());

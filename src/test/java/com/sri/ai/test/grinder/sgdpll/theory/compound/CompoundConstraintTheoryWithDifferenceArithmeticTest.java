@@ -67,25 +67,25 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryTest;
 
 /**
- * Test of compound theory of equalities, inequalities and propositional theories.
+ * Test of compound theory of equalities, difference arithmetic and propositional theories.
  * Still quite slow (as of January 2016), hence the small number of test problems.
  * @author braz
  *
  */
 @Beta
-public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstraintTheoryTest {
+public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends AbstractConstraintTheoryTest {
 
 	@Override
 	protected CompoundConstraintTheory makeConstraintTheory() {
 		CompoundConstraintTheory compoundConstraintTheory = new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, true),
+				new DifferenceArithmeticConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
 		
 		// using different testing variables and types to test distribution of testing information
@@ -124,7 +124,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 		
 		ConstraintTheory compound = new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
-				new InequalityConstraintTheory(false, true),
+				new DifferenceArithmeticConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");

@@ -52,17 +52,17 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.solver.SummationOnIntegerInequalityAndPolynomialStepSolver;
+import com.sri.ai.grinder.sgdpll.core.solver.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.SingleVariableInequalityConstraint;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 
 @Beta
 public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void simpleBodyTest() {
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -100,7 +100,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyTest() {
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -138,7 +138,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -176,7 +176,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -203,13 +203,13 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Context context) {
 		ConstraintTheory constraintTheory = context.getConstraintTheory();
 		Constraint constraint
-		= new SingleVariableInequalityConstraint(
+		= new SingleVariableDifferenceArithmeticConstraint(
 				variable, true, constraintTheory);
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
-				new SummationOnIntegerInequalityAndPolynomialStepSolver(
-						(SingleVariableInequalityConstraint) constraint,
+				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
+						(SingleVariableDifferenceArithmeticConstraint) constraint,
 						body, new SymbolicCommonInterpreter(constraintTheory));
 		
 		Expression actual = stepSolver.solve(context);

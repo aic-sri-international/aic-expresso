@@ -65,7 +65,7 @@ import com.sri.ai.util.base.Pair;
  * To maximize the detection of inconsistency,
  * extensions can restrict the stored atoms to be applications of
  * just a subset of the possible <i>normal functors</code>.
- * For example, an inequalities theory may choose to represent all normalized atoms
+ * For example, a difference arithmetic theory may choose to represent all normalized atoms
  * as applications of <code>=</code>, <code><</code>, and <code><=</code>,
  * converting atoms of <code>!=</code>, <code>></code>, and <code>>=</code>
  * as negations of normalized atoms.

@@ -35,66 +35,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.base;
+package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 
-import java.util.LinkedList;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.theory.inequality.AbstractExpressionsSequenceStepSolver;
-import com.sri.ai.util.collect.ImmutableStackedLinkedList;
+import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.AbstractExpressionsSequenceStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.AbstractSelectionStepSolver;
 
 /**
- * A context-dependent problem step solver deciding which in a set of expressions
- * satisfy a literal specified by {@link #makeLiteral()}.
+ * A context-dependent problem step solver deciding which in a set of expressions that satisfy
+ * a comparison according to a given functor and bound.
+ * <p>
+ * Unlike many step solvers finding Expression-typed solutions, this one
+ * is not an extension of {@link ContextDependentExpressionProblemStepSolver}
+ * because it extends {@link AbstractExpressionsSequenceStepSolver},
+ * which does not necessarily have Expression-typed solutions.
+ * This has the disadvantage of requiring the use of
+ * generic {@link ContextDependentProblemStepSolver#SolutionStep},
+ * instead of its more common specialization
+ * {@link ContextDependentExpressionProblemStepSolver#SolutionStep}.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class SelectionStepSolver extends AbstractExpressionsSequenceStepSolver<List<Expression>> {
+public class SelectExpressionsSatisfyingComparisonStepSolver extends AbstractSelectionStepSolver {
 
-	private List<Expression> selection;
-
-	/**
-	 * Makes step solver
-	 * @param expressions the expressions being examined
-	 */
-	public SelectionStepSolver(List<Expression> expressions) {
-		this(expressions, 0, new LinkedList<Expression>());
-	}
-
-	/**
-	 * Makes step solver
-	 * @param expressions the expressions being examined
-	 * @param current the index of the current expression
-	 * @param selection the expressions that have already been selected
-	 */
-	private SelectionStepSolver(List<Expression> expressions, int current, List<Expression> selection) {
-		super(expressions, current);
-		this.selection = selection;
+	private String functor;
+	private Expression bound;
+	
+	public SelectExpressionsSatisfyingComparisonStepSolver(List<Expression> expressions, String functor, Expression bound) {
+		super(expressions);
+		this.functor = functor;
+		this.bound = bound;
 	}
 	
 	@Override
-	protected SelectionStepSolver makeSubStepSolverWhenLiteralIsTrue() {
-		SelectionStepSolver result = (SelectionStepSolver) clone();
-		result.current = getCurrent() + 1;
-		result.selection = new ImmutableStackedLinkedList<Expression>(getCurrentExpression(), selection);
-		return result;
-	}
-
-	@Override
-	protected SelectionStepSolver makeSubStepSolverWhenLiteralIsFalse() {
-		SelectionStepSolver result = (SelectionStepSolver) clone();
-		result.current = getCurrent() + 1;
-		// selection remains the same
-		return result;
-	}
-
-	@Override
-	protected SolutionStep<List<Expression>> makeSolutionWhenAllElementsHaveBeenChecked() {
-		Solution<List<Expression>> result = new Solution<List<Expression>>(selection);
-		return result;
+	protected Expression makeLiteralBasedOn(Expression currentExpression) {
+		return apply(functor, currentExpression, bound);
 	}
 }

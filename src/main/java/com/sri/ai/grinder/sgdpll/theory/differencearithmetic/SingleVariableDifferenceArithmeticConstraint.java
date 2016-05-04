@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.inequality;
+package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
@@ -73,13 +73,13 @@ import com.sri.ai.grinder.sgdpll.theory.helper.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
 
 /**
- * An inequalities on integers constraint solver.
+ * A difference arithmetic constraint solver.
  *
  * @author braz
  *
  */
 @Beta
-public class SingleVariableInequalityConstraint extends AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality {
+public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality {
 
 	// these two methods are kept first in the class because they heavily depend
 	// on which super class we are using, so it is good to keep them near the class declaration
@@ -96,7 +96,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 	
 	private static boolean propagateAllLiteralsWhenVariableIsBound() {
-		boolean result = SingleVariableInequalityConstraint.class
+		boolean result = SingleVariableDifferenceArithmeticConstraint.class
 		.getGenericSuperclass()
 		.equals(AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality.class);
 		return result;
@@ -116,7 +116,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 			GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO
 			);
 
-	public SingleVariableInequalityConstraint(
+	public SingleVariableDifferenceArithmeticConstraint(
 			Expression variable,
 			boolean propagateAllLiteralsWhenVariableIsBound,
 			ConstraintTheory constraintTheory) {
@@ -124,7 +124,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	private SingleVariableInequalityConstraint(
+	private SingleVariableDifferenceArithmeticConstraint(
 			Expression variable,
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
@@ -135,19 +135,19 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	public SingleVariableInequalityConstraint(SingleVariableInequalityConstraint other) {
+	public SingleVariableDifferenceArithmeticConstraint(SingleVariableDifferenceArithmeticConstraint other) {
 		super(other);
 	}
 
 	@Override
-	protected SingleVariableInequalityConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
-		SingleVariableInequalityConstraint result = new SingleVariableInequalityConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
+	protected SingleVariableDifferenceArithmeticConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
+		SingleVariableDifferenceArithmeticConstraint result = new SingleVariableDifferenceArithmeticConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
 		return result;
 	}
 
 	@Override
-	public SingleVariableInequalityConstraint clone() {
-		SingleVariableInequalityConstraint result = new SingleVariableInequalityConstraint(this);
+	public SingleVariableDifferenceArithmeticConstraint clone() {
+		SingleVariableDifferenceArithmeticConstraint result = new SingleVariableDifferenceArithmeticConstraint(this);
 		return result;
 	}
 
@@ -158,7 +158,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	
 	@Override
 	protected String getNegationFunctor(String functor) {
-		String result = InequalityConstraintTheory.negationFunctor.get(functor);
+		String result = DifferenceArithmeticConstraintTheory.negationFunctor.get(functor);
 		return result;
 	}
 	

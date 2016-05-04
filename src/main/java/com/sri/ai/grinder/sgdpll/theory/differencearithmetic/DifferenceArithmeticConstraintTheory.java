@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.inequality;
+package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -77,7 +77,7 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
-import com.sri.ai.grinder.sgdpll.core.solver.SummationOnIntegerInequalityAndPolynomialStepSolver;
+import com.sri.ai.grinder.sgdpll.core.solver.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
@@ -90,10 +90,10 @@ import com.sri.ai.util.Util;
 
 
 /** 
- * A {@link ConstraintTheory} for integer inequality literals.
+ * A {@link ConstraintTheory} for difference arithmetic literals.
  */
 @Beta
-public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
+public class DifferenceArithmeticConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
 
 	static final Map<String, String> negationFunctor =
 	Util.map(
@@ -109,7 +109,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 //	 * 	 * Creates an inequality theory for integers that does <i>not</i> assume equality literals are literal of this theory
 //	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
 //	 */
-//	public InequalityConstraintTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
+//	public DifferenceArithmeticConstraintTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
 //		this(false, propagateAllLiteralsWhenVariableIsBound);
 //	}
 	
@@ -122,7 +122,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 */
-	public InequalityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public DifferenceArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
@@ -186,29 +186,29 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
-		return new SingleVariableInequalityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
+		return new SingleVariableDifferenceArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return false; // SingleVariableInequalityConstraint is not complete
+		return false; // SingleVariableDifferenceArithmeticConstraint is not complete
 	}
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new SatisfiabilityOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+		return new SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
 	}
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+		return new ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
 	}
 
 	@Override
 	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
 		ContextDependentExpressionProblemStepSolver result;
 		if (group instanceof SymbolicPlusGroup || group instanceof SumProduct) {
-			result = new SummationOnIntegerInequalityAndPolynomialStepSolver(constraint, currentBody, simplifier);
+			result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody, simplifier);
 		}
 		else {
 			result = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver

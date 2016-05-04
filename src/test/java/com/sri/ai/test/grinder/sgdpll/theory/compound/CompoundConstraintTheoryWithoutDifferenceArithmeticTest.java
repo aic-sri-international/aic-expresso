@@ -70,7 +70,7 @@ import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintThe
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryTest;
 
 @Beta
-public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractConstraintTheoryTest {
+public class CompoundConstraintTheoryWithoutDifferenceArithmeticTest extends AbstractConstraintTheoryTest {
 
 	@Override
 	protected CompoundConstraintTheory makeConstraintTheory() {

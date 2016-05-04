@@ -48,16 +48,16 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.inequality.InequalityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.inequality.SingleVariableInequalityConstraint;
-import com.sri.ai.grinder.sgdpll.theory.inequality.ValuesOfSingleVariableInequalityConstraintStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 
 @Beta
-public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
+public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest {
 
 	@Test
 	public void test() {
-		ConstraintTheory constraintTheory = new InequalityConstraintTheory(true, true);
+		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -92,12 +92,12 @@ public class ValuesOfSingleVariableInequalityConstraintStepSolverTest {
 
 	private void runTest(Expression variable, String constraintString, Expression expected, Context context) {
 		Constraint constraint
-		= new SingleVariableInequalityConstraint(
+		= new SingleVariableDifferenceArithmeticConstraint(
 				variable, true, context.getConstraintTheory());
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
-				new ValuesOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
 		
 		Expression actual = stepSolver.solve(context);
 

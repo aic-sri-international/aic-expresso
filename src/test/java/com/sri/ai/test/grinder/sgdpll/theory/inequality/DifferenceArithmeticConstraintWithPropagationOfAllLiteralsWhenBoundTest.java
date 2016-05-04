@@ -40,7 +40,7 @@ package com.sri.ai.test.grinder.sgdpll.theory.inequality;
 import com.google.common.annotations.Beta;
 
 @Beta
-public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundTest extends AbstractInequalityConstraintTest {
+public class DifferenceArithmeticConstraintWithPropagationOfAllLiteralsWhenBoundTest extends AbstractDifferenceArithmeticConstraintTest {
 
 	@Override
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
