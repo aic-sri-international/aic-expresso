@@ -157,7 +157,7 @@ public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingle
 	
 	@Override
 	protected String getNegationFunctor(String functor) {
-		String result = DifferenceArithmeticConstraintTheory.negationFunctor.get(functor);
+		String result = DifferenceArithmeticConstraintTheory.getNegationFunctor(functor);
 		return result;
 	}
 	

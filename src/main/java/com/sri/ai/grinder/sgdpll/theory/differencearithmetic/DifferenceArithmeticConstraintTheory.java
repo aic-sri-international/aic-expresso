@@ -40,23 +40,14 @@ package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
-import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
 import static com.sri.ai.util.Util.pickUniformly;
+import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
@@ -67,10 +58,6 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -82,9 +69,8 @@ import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
 import com.sri.ai.util.Util;
 
 
@@ -92,28 +78,10 @@ import com.sri.ai.util.Util;
  * A {@link ConstraintTheory} for difference arithmetic literals.
  */
 @Beta
-public class DifferenceArithmeticConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
+public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstraintTheory {
 
-	static final Map<String, String> negationFunctor =
-	Util.map(
-			EQUALITY,                 DISEQUALITY,
-			DISEQUALITY,              EQUALITY,
-			LESS_THAN,                GREATER_THAN_OR_EQUAL_TO,
-			LESS_THAN_OR_EQUAL_TO,    GREATER_THAN,
-			GREATER_THAN,             LESS_THAN_OR_EQUAL_TO,
-			GREATER_THAN_OR_EQUAL_TO, LESS_THAN
-			);
-
-//	/**
-//	 * 	 * Creates an inequality theory for integers that does <i>not</i> assume equality literals are literal of this theory
-//	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
-//	 */
-//	public DifferenceArithmeticConstraintTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
-//		this(false, propagateAllLiteralsWhenVariableIsBound);
-//	}
-	
 	/**
-	 * Creates an inequality theory for integers.
+	 * Creates an difference arithmetic theory for integers.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
 	 * equalities is being used.
@@ -122,64 +90,20 @@ public class DifferenceArithmeticConstraintTheory extends AbstractConstraintTheo
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 */
 	public DifferenceArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
-		super(
-				negationFunctor.keySet(),
-				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
-						// it is important to include difference arithmetic simplifiers here because they ensure literals that contain a variable that cancels out (such as X - X > Y) are simplified (here, to 0 > Y) and as a consequence not passed to the single-variable constraint for that variable (here, X), because it is actually *not* a constraint on X
-						makeFunctionApplicationSimplifiersForDifferenceArithmetic(),
-						map(), // no additional syntactic form simplifiers
-
-						// basic simplification of involved interpreted functions in this theory:
-						new EqualitySimplifier(),
-						new InequalitySimplifier(),
-						new BooleanSimplifier(),
-						new NumericSimplifier()
-						),
-						propagateAllLiteralsWhenVariableIsBound);
-
+		super(assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, propagateAllLiteralsWhenVariableIsBound);
+	}
+	
+	@Override
+	protected void initializeTestingInformation() {
 		String typeName = "0..4";
 		IntegerInterval type = new IntegerInterval(typeName);
 		setVariableNamesAndTypesForTesting(map("I", type, "J", type, "K", type));
 	}
-	
-	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmetic() {
-		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
-		Map<String, Simplifier> functionApplicationSimplifiers =
-				map(
-						EQUALITY,                 differenceArithmeticSimplifier,
-						DISEQUALITY,              differenceArithmeticSimplifier,
-						LESS_THAN,                differenceArithmeticSimplifier,
-						LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
-						GREATER_THAN,             differenceArithmeticSimplifier,
-						GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
-						);
 
-		// Note that this may lead equalities and disequalities *not* on integers to be passed to this simplifier, but it does not make changes to those and may actually even non-integer terms out.
-		
-		return functionApplicationSimplifiers;
-	}
-	
 	@Override
 	protected boolean isValidArgument(Expression expression, Type type) {
 		Expression parsedType = Expressions.parse(type.toString());
 		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor(INTEGER_INTERVAL) && parsedType.numberOfArguments() == 2);
-		return result;
-	}
-
-	@Override
-	protected Expression getNonTrivialAtomNegation(Expression atom) {
-		String functorString = atom.getFunctor().toString();
-		String negatedFunctor = negationFunctor.get(functorString);
-		Expression result = apply(negatedFunctor, atom.get(0), atom.get(1));
-		return result;
-	}
-
-	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
-		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
-				|| expression.equals(PLUS) || expression.equals(MINUS)
-				|| expression.hasFunctor(PLUS) || expression.hasFunctor(MINUS); 
 		return result;
 	}
 
@@ -204,7 +128,7 @@ public class DifferenceArithmeticConstraintTheory extends AbstractConstraintTheo
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
 		ContextDependentExpressionProblemStepSolver result;
 		if (group instanceof SymbolicPlusGroup || group instanceof SumProduct) {
 			result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody, simplifier);
