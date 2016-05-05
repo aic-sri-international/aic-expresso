@@ -77,6 +77,8 @@ import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 import com.sri.ai.grinder.sgdpll.helper.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll.helper.SelectExpressionsSatisfyingComparisonStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver;
+import com.sri.ai.grinder.sgdpll.theory.base.ConstantStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.LiteralStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.DistinctExpressionsStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
@@ -99,9 +101,9 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
 @Beta
 public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver extends AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
-	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-	// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-	// instead and make the changes there.
+	// NOTE: this class is essentially a copy of ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
+	// with short-circuiting optimization.
+	// They should be kept in tune to each other.
 	
 	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(FunctorConstants.GREATER_THAN);
 
@@ -121,13 +123,13 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 	
 	
 
-	private MaximumExpressionStepSolver initialMaximumStrictLowerBoundStepSolver;
+	private ContextDependentProblemStepSolver<Expression> initialMaximumStrictLowerBoundStepSolver;
 
-	private MaximumExpressionStepSolver initialMinimumNonStrictUpperBoundStepSolver;
+	private ContextDependentProblemStepSolver<Expression> initialMinimumNonStrictUpperBoundStepSolver;
 
-	private SelectExpressionsSatisfyingComparisonStepSolver initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
+	private ContextDependentProblemStepSolver<List<Expression>> initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 
-	private SelectExpressionsSatisfyingComparisonStepSolver initialDisequalsWithinBoundsStepSolver;
+	private ContextDependentProblemStepSolver<List<Expression>> initialDisequalsWithinBoundsStepSolver;
 
 	private ContextDependentProblemStepSolver<Boolean> initialLowerBoundIsLessThanUpperBoundStepSolver;
 
@@ -159,10 +161,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		return true;
 	}
 
-	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-	// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-	// instead and make the changes there.
-	
 	@Override
 	protected Iterable<Expression> getPropagatedLiterals(Context context) {
 		
@@ -240,10 +238,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		return result;
 	}
 
-	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-	// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-	// instead and make the changes there.
-	
 	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(Context context) {
 		if (strictLowerBoundsIncludingImplicitOnes == null) {
 			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint = (SingleVariableDifferenceArithmeticConstraint) constraint;
@@ -326,10 +320,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		return equals;
 	}
 
-	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-	// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-	// instead and make the changes there.
-	
 	private ArrayList<Expression> getNonEqualityComparisons(Context context) {
 		if (nonEqualityComparisons == null) {
 			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint = (SingleVariableDifferenceArithmeticConstraint) constraint;
@@ -408,10 +398,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		return list();
 	}
 	
-	// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-	// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-	// instead and make the changes there.
-	
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
@@ -431,7 +417,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 			solutionExpression = ONE;
 		}
 		else {
-			MaximumExpressionStepSolver maximumStrictLowerBoundStepSolver;
+			ContextDependentProblemStepSolver<Expression> maximumStrictLowerBoundStepSolver;
 			if (initialMaximumStrictLowerBoundStepSolver == null) {
 				maximumStrictLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -453,9 +439,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 				return result;
 			}
 			Expression greatestStrictLowerBound = maximumStrictLowerBoundStep.getValue();
-			successor.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStepSolver;
+			successor.initialMaximumStrictLowerBoundStepSolver = new ConstantExpressionStepSolver(greatestStrictLowerBound);
 			
-			MaximumExpressionStepSolver minimumNonStrictUpperBoundStepSolver;
+			ContextDependentProblemStepSolver<Expression> minimumNonStrictUpperBoundStepSolver;
 			if (initialMinimumNonStrictUpperBoundStepSolver == null) {
 				minimumNonStrictUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -477,11 +463,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 				return result;
 			}
 			Expression leastNonStrictUpperBound = minimumNonStrictUpperBoundStep.getValue();
-			successor.initialMinimumNonStrictUpperBoundStepSolver = minimumNonStrictUpperBoundStepSolver;
-			
-			// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-			// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-			// instead and make the changes there.
+			successor.initialMinimumNonStrictUpperBoundStepSolver = new ConstantExpressionStepSolver(leastNonStrictUpperBound);
 			
 			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
 				solutionExpression = INFINITY;
@@ -508,9 +490,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					return new Solution(ZERO);
 				}
 				// else, bounds difference is positive and we can move on
-				successor.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStepSolver;
+				successor.initialLowerBoundIsLessThanUpperBoundStepSolver = new ConstantStepSolver<Boolean>(true);
 				
-				SelectExpressionsSatisfyingComparisonStepSolver disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
+				ContextDependentProblemStepSolver<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
 				if (initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver == null) {
 					disequalsGreaterThanGreatestStrictLowerBoundStepSolver
 					= new SelectExpressionsSatisfyingComparisonStepSolver(getDisequals(), GREATER_THAN, greatestStrictLowerBound);
@@ -529,9 +511,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					return result;
 				}
 				List<Expression> disequalsGreaterThanGreatestStrictLowerBound = step.getValue();
-				successor.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = disequalsGreaterThanGreatestStrictLowerBoundStepSolver;
+				successor.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = new ConstantStepSolver<List<Expression>>(disequalsGreaterThanGreatestStrictLowerBound);
 
-				SelectExpressionsSatisfyingComparisonStepSolver disequalsWithinBoundsStepSolver;
+				ContextDependentProblemStepSolver<List<Expression>> disequalsWithinBoundsStepSolver;
 				if (initialDisequalsWithinBoundsStepSolver == null) {
 					disequalsWithinBoundsStepSolver
 					= new SelectExpressionsSatisfyingComparisonStepSolver(
@@ -552,7 +534,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					return result;
 				}
 				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
-				successor.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStepSolver;
+				successor.initialDisequalsWithinBoundsStepSolver = new ConstantStepSolver<List<Expression>>(disequalsWithinBounds);
 
 				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
 
@@ -593,10 +575,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					}
 				}
 
-				// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-				// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-				// instead and make the changes there.
-				
 				if (weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds) {
 					solutionExpression = ZERO; // there are no available values left
 				}
@@ -620,10 +598,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 			}
 		}
 
-		// NEXT TIME YOU NEED CHANGES TO THIS CLASS
-		// MAKE IT USE ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver
-		// instead and make the changes there.
-		
 		return new Solution(solutionExpression);
 	}
 
