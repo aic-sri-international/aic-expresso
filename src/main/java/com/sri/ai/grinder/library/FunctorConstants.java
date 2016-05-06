@@ -121,4 +121,9 @@ public class FunctorConstants {
 	public static final String CARTESIAN_PRODUCT = "x";
 	public static final String FUNCTION_TYPE = "->";
 	public static final String INTEGER_INTERVAL = "'..'";
+
+	public static final String REAL_INTERVAL_OPEN_OPEN     = "] . ; . [";
+	public static final String REAL_INTERVAL_OPEN_CLOSED   = "] . ; . ]";
+	public static final String REAL_INTERVAL_CLOSED_OPEN   = "[ . ; . [";
+	public static final String REAL_INTERVAL_CLOSED_CLOSED = "[ . ; . ]";
 }
