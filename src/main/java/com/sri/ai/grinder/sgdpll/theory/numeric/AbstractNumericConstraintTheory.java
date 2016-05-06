@@ -46,7 +46,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
-import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
@@ -58,7 +57,7 @@ import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
@@ -72,28 +71,27 @@ import com.sri.ai.util.Util;
 public abstract class AbstractNumericConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
 
 	/**
-	 * Creates an difference arithmetic theory for integers.
+	 * Creates a numeric constraint theory.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
 	 * equalities is being used.
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
+	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
+	 * @param extraSimplifier an extra {@link MapBasedSimplifier} containing extra elementary simplifiers besides the basic numeric ones.
 	 */
-	public AbstractNumericConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public AbstractNumericConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound, MapBasedSimplifier extraSimplifier) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
-						// it is important to include difference arithmetic simplifiers here because they ensure literals that contain a variable that cancels out (such as X - X > Y) are simplified (here, to 0 > Y) and as a consequence not passed to the single-variable constraint for that variable (here, X), because it is actually *not* a constraint on X
-						makeFunctionApplicationSimplifiersForNumericConstraintTheory(),
-						map(), // no additional syntactic form simplifiers
-
 						// basic simplification of involved interpreted functions in this theory:
 						new EqualitySimplifier(),
 						new InequalitySimplifier(),
 						new BooleanSimplifier(),
-						new NumericSimplifier()
+						new NumericSimplifier(),
+						extraSimplifier
 						),
 						propagateAllLiteralsWhenVariableIsBound);
 
@@ -116,19 +114,11 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 		return negationFunctor.get(functor);
 	}
 
-	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForNumericConstraintTheory() {
-		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
-		Map<String, Simplifier> functionApplicationSimplifiers =
-				map(
-						EQUALITY,                 differenceArithmeticSimplifier,
-						DISEQUALITY,              differenceArithmeticSimplifier,
-						LESS_THAN,                differenceArithmeticSimplifier,
-						LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
-						GREATER_THAN,             differenceArithmeticSimplifier,
-						GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
-						);
-
-		return functionApplicationSimplifiers;
+	/**
+	 * @return
+	 */
+	public static DifferenceArithmeticSimplifier getLiteralSimplifier() {
+		return new DifferenceArithmeticSimplifier();
 	}
 	
 	@Override

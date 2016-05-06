@@ -40,7 +40,13 @@ package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.pickUniformly;
@@ -48,6 +54,7 @@ import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
@@ -69,6 +76,7 @@ import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
 import com.sri.ai.util.Util;
@@ -88,11 +96,34 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
+	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 */
 	public DifferenceArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
-		super(assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, propagateAllLiteralsWhenVariableIsBound);
+		super(
+				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
+				propagateAllLiteralsWhenVariableIsBound, 
+				new DefaultMapBasedTopSimplifier(
+						makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory(), 
+						map()));
+		// It's important to include the different arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
+		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
+	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory() {
+		Simplifier differenceArithmeticSimplifier = getLiteralSimplifier();
+		Map<String, Simplifier> functionApplicationSimplifiers =
+				map(
+						EQUALITY,                 differenceArithmeticSimplifier,
+						DISEQUALITY,              differenceArithmeticSimplifier,
+						LESS_THAN,                differenceArithmeticSimplifier,
+						LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
+						GREATER_THAN,             differenceArithmeticSimplifier,
+						GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
+						);
+
+		return functionApplicationSimplifiers;
+	}
+
 	@Override
 	protected void initializeTestingInformation() {
 		String typeName = "0..4";
