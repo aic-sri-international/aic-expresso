@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -60,21 +60,21 @@ import com.sri.ai.grinder.sgdpll.core.solver.AbstractBooleanProblemWithPropagate
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Constraint constraint;
 	private ContextDependentExpressionProblemStepSolver modelCounting;
 	
-	public SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver(SingleVariableDifferenceArithmeticConstraint constraint) {
+	public SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
 		this.constraint = constraint;
-		this.modelCounting = new ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver(constraint);
+		this.modelCounting = new ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver(constraint);
 	}
 
 	@Override
-	public SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver clone() {
-		SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver result = null;
+	public SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
+		SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver result = null;
 		try {
-			result = (SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver) super.clone();
+			result = (SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -89,9 +89,9 @@ public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSol
 		}
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers must be satisfiability step solvers.
-			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue = clone();
+			SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue = clone();
 			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenLiteralIsTrue();
-			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = clone();
+			SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = clone();
 			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenLiteralIsFalse();
 			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getContextSplitting(), ifTrue, ifFalse);
 		}

@@ -35,24 +35,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
+import static com.sri.ai.grinder.helper.GrinderUtil.REAL_TYPE;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.pickUniformly;
-import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
@@ -61,12 +55,11 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.type.IntegerExpressoType;
-import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
@@ -78,17 +71,16 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
-import com.sri.ai.util.Util;
 
 
 /** 
- * A {@link ConstraintTheory} for difference arithmetic literals.
+ * A {@link ConstraintTheory} for linear real arithmetic literals.
  */
 @Beta
-public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstraintTheory {
+public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstraintTheory {
 
 	/**
-	 * Creates an difference arithmetic theory for integers.
+	 * Creates an linear real arithmetic theory for integers.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
 	 * equalities is being used.
@@ -97,27 +89,27 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 */
-	public DifferenceArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public LinearRealArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
 				propagateAllLiteralsWhenVariableIsBound, 
 				new DefaultMapBasedTopSimplifier(
-						makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory(), 
+						makeFunctionApplicationSimplifiersForLinearRealArithmeticConstraintTheory(), 
 						map()));
-		// It's important to include the different arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
+		// It's important to include the different arithmetic simplifier to avoid leaving linear real arithmetic literals that could be picked up as splitters,
 		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
-	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory() {
-		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
+	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForLinearRealArithmeticConstraintTheory() {
+		Simplifier linearRealArithmeticSimplifier = new LinearRealSimplifier();
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
-						EQUALITY,                 differenceArithmeticSimplifier,
-						DISEQUALITY,              differenceArithmeticSimplifier,
-						LESS_THAN,                differenceArithmeticSimplifier,
-						LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
-						GREATER_THAN,             differenceArithmeticSimplifier,
-						GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
+						EQUALITY,                 linearRealArithmeticSimplifier,
+						DISEQUALITY,              linearRealArithmeticSimplifier,
+						LESS_THAN,                linearRealArithmeticSimplifier,
+						LESS_THAN_OR_EQUAL_TO,    linearRealArithmeticSimplifier,
+						GREATER_THAN,             linearRealArithmeticSimplifier,
+						GREATER_THAN_OR_EQUAL_TO, linearRealArithmeticSimplifier
 						);
 
 		return functionApplicationSimplifiers;
@@ -125,21 +117,39 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 
 	@Override
 	protected void initializeTestingInformation() {
-		String typeName = "0..4";
-		IntegerInterval type = new IntegerInterval(typeName);
-		setVariableNamesAndTypesForTesting(map("I", type, "J", type, "K", type));
+		String typeName = "[0;4]";
+		RealInterval type = new RealInterval(typeName);
+		setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type));
 	}
 
 	@Override
 	protected boolean isValidArgument(Expression expression, Type type) {
 		Expression parsedType = Expressions.parse(type.toString());
-		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor(INTEGER_INTERVAL) && parsedType.numberOfArguments() == 2);
+		boolean result = 
+				parsedType.equals("Real") 
+				|| 
+				(isRealInterval(parsedType) && parsedType.numberOfArguments() == 2);
 		return result;
+	}
+
+	/**
+	 * @param parsedType
+	 * @return
+	 */
+	public boolean isRealInterval(Expression parsedType) {
+		return 
+				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_OPEN)
+				||
+				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED)
+				||
+				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN)
+				||
+				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED);
 	}
 
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
-		return new SingleVariableDifferenceArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
+		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
 	}
 
 	@Override
@@ -149,19 +159,19 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
+		return new SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
 	}
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
+		return new ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
 	}
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
 		ContextDependentExpressionProblemStepSolver result;
 		if (group instanceof SymbolicPlusGroup || group instanceof SumProduct) {
-			result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody, simplifier);
+			result = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(constraint, currentBody, simplifier);
 		}
 		else {
 			result = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
@@ -176,60 +186,21 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
 		
-		int maxNumberOfOtherVariablesInAtom = Math.min(getVariableNamesForTesting().size(), 2);
-		int numberOfOtherVariablesInAtom = random.nextInt(maxNumberOfOtherVariablesInAtom); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
-		ArrayList<String> otherVariablesForAtom = pickUpToKElementsWithoutReplacement(new ArrayList<>(getVariableNamesForTesting()), numberOfOtherVariablesInAtom, o -> !o.equals(variable), random);
-		// Note that otherVariablesForAtom contains only one or zero elements
+		return null;
 		
-		Type type = getVariableNamesAndTypesForTesting().get(variable);
-		ArrayList<Expression> constants = new ArrayList<Expression>();
-		int numberOfConstants = random.nextInt(3);
-		for (int i = 0; i != numberOfConstants; i++) {
-			Expression sampledConstant = type.sampleUniquelyNamedConstant(random);
-			Expression constant;
-			if (random.nextBoolean()) {
-				constant = sampledConstant;
-			}
-			else {
-				constant = makeSymbol(-sampledConstant.intValue());
-			}
-			constants.add(constant);
-		}
-
-		ArrayList<Expression> leftHandSideArguments = new ArrayList<Expression>();
-		leftHandSideArguments.add(makeSymbol(variable));
-		Util.mapIntoList(otherVariablesForAtom, s -> UnaryMinus.make(makeSymbol(s)), leftHandSideArguments); // needs to be difference, so it's added as negative
-		leftHandSideArguments.addAll(constants);
-
-		int numberOfOtherVariablesToBeCanceled = random.nextInt(otherVariablesForAtom.size() + 1);
-		ArrayList<String> otherVariablesToBeCanceled = Util.pickKElementsWithoutReplacement(otherVariablesForAtom, numberOfOtherVariablesToBeCanceled, random);
-		Util.mapIntoList(otherVariablesToBeCanceled, v -> makeSymbol(v), leftHandSideArguments); // note that this term is positive, so it will cancel the previously negative term with the same "other variable"
-		// it may seem odd to generate an "other variable" and add another term that will cancel it later. However, this is useful for making sure canceling works properly.
-		
-		Expression leftHandSide = Plus.make(leftHandSideArguments);
-		String functor = pickUniformly(theoryFunctors, random);
-		Expression unsimplifiedResult = apply(functor, leftHandSide, 0);
-		
-		Expression result = simplify(unsimplifiedResult, context);
-		//System.out.println("Random literal: " + result);	
-		// Note that simplify will eliminate negated variables;
-		// however, we leave their generation and then elimination here as a sanity check,
-		// as well as a useful feature for the day when we get assurance that literals will be simplified down the line,
-		// allowing us to eliminate them here. TODO
-		
-		return result;
+		// TODO: write this method
 	}
 	
 	/**
 	 * This is overridden to
-	 * add an instance of {@link IntegerExpressoType} to testing types as well.
+	 * add an instance of {@link RealExpressoType} to testing types as well.
 	 * This is needed because arithmetic expressions such as J + 5 are determined to be of
-	 * type name "Integer" by {@link GrinderUtil#getType(Expression expression, Context context)},
+	 * type name "Real" by {@link GrinderUtil#getType(Expression expression, Context context)},
 	 * so a type with this name is needed by the default implementation of {@link #isNonTrivialAtom(Expression, Context)}
 	 * if the flag for analyzing the types of arguments to equalities is true.
 	 */
 	@Override
 	public Collection<Type> getNativeTypes() {
-		return list(INTEGER_TYPE);
+		return list(REAL_TYPE);
 	}
 }

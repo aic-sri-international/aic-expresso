@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.theory.numeric;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
@@ -61,7 +61,6 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
-import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
 import com.sri.ai.util.Util;
 
 /**
@@ -71,7 +70,7 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public abstract class SingleVariableNumericConstraint extends AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality {
+public abstract class AbstractSingleVariableNumericConstraint extends AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality {
 
 	private static final long serialVersionUID = 1L;
 
@@ -87,7 +86,7 @@ public abstract class SingleVariableNumericConstraint extends AbstractSingleVari
 			GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO
 			);
 
-	public SingleVariableNumericConstraint(
+	public AbstractSingleVariableNumericConstraint(
 			Expression variable,
 			boolean propagateAllLiteralsWhenVariableIsBound,
 			ConstraintTheory constraintTheory) {
@@ -95,7 +94,7 @@ public abstract class SingleVariableNumericConstraint extends AbstractSingleVari
 		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	protected SingleVariableNumericConstraint(
+	protected AbstractSingleVariableNumericConstraint(
 			Expression variable,
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
@@ -106,7 +105,7 @@ public abstract class SingleVariableNumericConstraint extends AbstractSingleVari
 		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	public SingleVariableNumericConstraint(SingleVariableNumericConstraint other) {
+	public AbstractSingleVariableNumericConstraint(AbstractSingleVariableNumericConstraint other) {
 		super(other);
 	}
 

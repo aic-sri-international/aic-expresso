@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.core.solver;
+package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
@@ -56,15 +56,13 @@ import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.RangeAndExceptionsSet;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 
 /**
- * A step solver for a summation with an integer index constrained by difference arithmetic literals,
- * over a polynomial on integers.
+ * A step solver for a summation with an real index constrained by linear real arithmetic literals,
+ * over a polynomial.
  * It works by evaluating the body until there are no literals on it,
  * computing the index satisfying values for the index,
  * and using {@link PolynomialSummation}.
@@ -73,26 +71,26 @@ import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.ValuesOfSingleVaria
  *
  */
 @Beta
-public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
+public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
+	private ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
-	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
+	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
 		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
 		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
-				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(
-						(SingleVariableDifferenceArithmeticConstraint) indexConstraint);
+				new ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver(
+						(SingleVariableLinearRealArithmeticConstraint) indexConstraint);
 	}
 
 	@Override
-	public SummationOnDifferenceArithmeticAndPolynomialStepSolver clone() {
-		return (SummationOnDifferenceArithmeticAndPolynomialStepSolver) super.clone();
+	public SummationOnLinearRealArithmeticAndPolynomialStepSolver clone() {
+		return (SummationOnLinearRealArithmeticAndPolynomialStepSolver) super.clone();
 	}
 	
 	@Override
 	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		AbstractQuantifierEliminationStepSolver result = 
-				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
+				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
 						newIndexConstraint, body, simplifier);
 		return result;
 	}
@@ -109,13 +107,13 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 			return null;
 		}
 		if (step.itDepends()) {
-			SummationOnDifferenceArithmeticAndPolynomialStepSolver ifTrue = clone();
+			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifTrue = clone();
 			ifTrue.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
-					(ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver)
+					(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsTrue();
-			SummationOnDifferenceArithmeticAndPolynomialStepSolver ifFalse = clone();
+			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifFalse = clone();
 			ifFalse.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
-					(ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver)
+					(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsFalse();
 			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 		}

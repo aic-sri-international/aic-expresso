@@ -35,13 +35,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -50,8 +49,10 @@ import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.sgdpll.theory.differencearithmetic.RangeAndExceptionsSet.EMPTY;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.arrayListFrom;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
@@ -74,7 +75,7 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.solver.AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpll.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.helper.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll.helper.SelectExpressionsSatisfyingComparisonStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver;
@@ -90,21 +91,14 @@ import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A {@link AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableLinearRealArithmeticConstraint}.
- * <p>
- * The solution is guaranteed to be either a numerical constant, or
- * a conditional of the form {@code if <satisfiability condition> then <model count> else 0}.
- * 
+ * A step solver computing the possible values of the variable of
+ * a single-variable linear arithmetic constraint.
  * @author braz
  *
  */
 @Beta
-public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver extends AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public class ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
 
-	// NOTE: this class is essentially a copy of ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver
-	// with short-circuiting optimization.
-	// They should be kept in tune to each other.
-	
 	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(FunctorConstants.GREATER_THAN);
 
 	private static final Symbol LESS_THAN_SYMBOL = makeSymbol(LESS_THAN);
@@ -139,7 +133,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 	
 	
 
-	public ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver(SingleVariableDifferenceArithmeticConstraint constraint) {
+	public ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
 		super(constraint);
 	}
 	
@@ -147,13 +141,13 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 	 * @return
 	 */
 	@Override
-	public ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver clone() {
-		return (ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver) super.clone();
+	public ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
+		return (ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
 	}
 
 	@Override
-	public SingleVariableDifferenceArithmeticConstraint getConstraint() {
-		return (SingleVariableDifferenceArithmeticConstraint) super.getConstraint();
+	public SingleVariableLinearRealArithmeticConstraint getConstraint() {
+		return (SingleVariableLinearRealArithmeticConstraint) super.getConstraint();
 	}
 	
 	@Override
@@ -240,7 +234,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(Context context) {
 		if (strictLowerBoundsIncludingImplicitOnes == null) {
-			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint = (SingleVariableDifferenceArithmeticConstraint) constraint;
+			SingleVariableLinearRealArithmeticConstraint differenceArithmeticConstraint = (SingleVariableLinearRealArithmeticConstraint) constraint;
 			
 			FunctionIterator<Expression, Expression> strictLowerBoundsFromPositiveNormalizedAtomsIterator
 			= functionIterator(
@@ -272,7 +266,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	private ArrayList<Expression> getNonStrictUpperBoundsIncludingImplicitOnes(Context context) {
 		if (nonStrictUpperBoundsIncludingImplicitOnes == null) {
-			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint = (SingleVariableDifferenceArithmeticConstraint) constraint;
+			SingleVariableLinearRealArithmeticConstraint differenceArithmeticConstraint = (SingleVariableLinearRealArithmeticConstraint) constraint;
 			
 			FunctionIterator<Expression, Expression> nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator
 			= functionIterator(
@@ -304,8 +298,8 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	private ArrayList<Expression> getEquals() {
 		if (equals == null) {
-			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint
-			= (SingleVariableDifferenceArithmeticConstraint) constraint;
+			SingleVariableLinearRealArithmeticConstraint differenceArithmeticConstraint
+			= (SingleVariableLinearRealArithmeticConstraint) constraint;
 			
 			Iterator<Expression> equalsIterator =
 					functionIterator(
@@ -322,7 +316,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	private ArrayList<Expression> getNonEqualityComparisons(Context context) {
 		if (nonEqualityComparisons == null) {
-			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint = (SingleVariableDifferenceArithmeticConstraint) constraint;
+			SingleVariableLinearRealArithmeticConstraint differenceArithmeticConstraint = (SingleVariableLinearRealArithmeticConstraint) constraint;
 
 			Iterator<Expression> fromPositiveNormalizedAtoms =
 					predicateIterator(
@@ -357,7 +351,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	private ArrayList<Expression> getDisequals() {
 		if (disequals == null) {
-			SingleVariableDifferenceArithmeticConstraint differenceArithmeticConstraint = (SingleVariableDifferenceArithmeticConstraint) constraint;
+			SingleVariableLinearRealArithmeticConstraint differenceArithmeticConstraint = (SingleVariableLinearRealArithmeticConstraint) constraint;
 			Iterator<Expression> disequalsIterator =
 					functionIterator(
 							predicateIterator(
@@ -411,10 +405,11 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		// successor keeps track of updates to non-splitting inner step solvers so far.
 		// When a splitting inner step solver is found, it is used as a basis
 		// for the sub-step solvers.
-		ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver successor = clone();
+		ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver successor = clone();
 
 		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound() && ! getEquals().isEmpty()) {
-			solutionExpression = ONE;
+			Expression value = getFirst(getEquals());
+			solutionExpression = new RangeAndExceptionsSet.Singleton(value);
 		}
 		else {
 			ContextDependentProblemStepSolver<Expression> maximumStrictLowerBoundStepSolver;
@@ -431,10 +426,10 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 			}
 			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(context);
 			if (maximumStrictLowerBoundStep.itDepends()) {
-				ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
-				ifTrue.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
-				ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
-				ifFalse.initialMaximumStrictLowerBoundStepSolver = (MaximumExpressionStepSolver) maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsFalse();
+				ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+				ifTrue.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
+				ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+				ifFalse.initialMaximumStrictLowerBoundStepSolver = maximumStrictLowerBoundStep.getStepSolverForWhenLiteralIsFalse();
 				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getLiteral(), maximumStrictLowerBoundStep.getContextSplitting(), ifTrue, ifFalse);
 				return result;
 			}
@@ -455,9 +450,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 			}
 			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(context);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
-				ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+				ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 				ifTrue.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
-				ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+				ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 				ifFalse.initialMinimumNonStrictUpperBoundStepSolver = (MaximumExpressionStepSolver) minimumNonStrictUpperBoundStep.getStepSolverForWhenLiteralIsFalse();
 				ItDependsOn result = new ItDependsOn(minimumNonStrictUpperBoundStep.getLiteral(), minimumNonStrictUpperBoundStep.getContextSplitting(), ifTrue, ifFalse);
 				return result;
@@ -466,7 +461,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 			successor.initialMinimumNonStrictUpperBoundStepSolver = new ConstantExpressionStepSolver(leastNonStrictUpperBound);
 			
 			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
-				solutionExpression = INFINITY;
+				solutionExpression = new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(MINUS_INFINITY, INFINITY);
 			}
 			else {
 				ContextDependentProblemStepSolver<Boolean> lowerBoundIsLessThanUpperBoundStepSolver;
@@ -479,15 +474,15 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 				}
 				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = lowerBoundIsLessThanUpperBoundStepSolver.step(context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
-					ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+					ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
-					ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+					ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 					ifFalse.initialLowerBoundIsLessThanUpperBoundStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsFalse();
 					ItDependsOn result = new ItDependsOn(lowerBoundIsLessThanUpperBoundStep.getLiteral(), lowerBoundIsLessThanUpperBoundStep.getContextSplitting(), ifTrue, ifFalse);
 					return result;
 				}
 				if ( ! lowerBoundIsLessThanUpperBoundStep.getValue()) {
-					return new Solution(ZERO);
+					return new Solution(EMPTY);
 				}
 				// else, bounds difference is positive and we can move on
 				successor.initialLowerBoundIsLessThanUpperBoundStepSolver = new ConstantStepSolver<Boolean>(true);
@@ -503,9 +498,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step
 				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(context);
 				if (step.itDepends()) {
-					ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+					ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsTrue();
-					ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+					ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 					ifFalse.initialDisequalsGreaterThanGreatestStrictLowerBoundStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step.getStepSolverForWhenLiteralIsFalse();
 					ItDependsOn result = new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 					return result;
@@ -526,9 +521,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step2
 				= disequalsWithinBoundsStepSolver.step(context);
 				if (step2.itDepends()) {
-					ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+					ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 					ifTrue.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsTrue();
-					ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+					ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 					ifFalse.initialDisequalsWithinBoundsStepSolver = (SelectExpressionsSatisfyingComparisonStepSolver) step2.getStepSolverForWhenLiteralIsFalse();
 					ItDependsOn result = new ItDependsOn(step2.getLiteral(), step2.getContextSplitting(), ifTrue, ifFalse);
 					return result;
@@ -553,14 +548,17 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
-						ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+						ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 						ifTrue.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = (NumberOfDistinctExpressionsIsLessThanStepSolver) numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getStepSolverForWhenLiteralIsTrue();
-						ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+						ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 						ifFalse.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = (NumberOfDistinctExpressionsIsLessThanStepSolver) numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getStepSolverForWhenLiteralIsFalse();
 						ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getLiteral(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getContextSplitting(), ifTrue, ifFalse);
 						return result;
 					}
 					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+					// we don't use a ConstantStepSolver here because we need to keep initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
+					// type to be NumberOfDistinctExpressionsIsLessThanStepSolver
+					// due to the fact that we invoke its method getDistinctExpressionsStepSolver() right below.
 					
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
 					distinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getDistinctExpressionsStepSolver();
@@ -576,24 +574,28 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 				}
 
 				if (weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds) {
-					solutionExpression = ZERO; // there are no available values left
+					solutionExpression = RangeAndExceptionsSet.EMPTY; // there are no available values left
 				}
 				else if ( ! getEquals().isEmpty()) { // if bound to a value
-					solutionExpression = ONE;
+					solutionExpression = new RangeAndExceptionsSet.Singleton(getFirst(getEquals()));
 				}
 				else {
 					SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(context);
 					if (distinctDisequalsStep.itDepends()) {
-						ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
+						ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
 						ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();
-						ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
+						ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = makeBasisForSubStepSolver(successor);
 						ifFalse.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsFalse();
 						ItDependsOn result = new ItDependsOn(distinctDisequalsStep.getLiteral(), distinctDisequalsStep.getContextSplitting(), ifTrue, ifFalse);
 						return result;
 					}
-					Expression numberOfDistinctDisequals = makeSymbol(distinctDisequalsStep.getValue().numberOfArguments());
-					ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, numberOfDistinctDisequals);
-					solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, context);
+					Expression distinctDisequals = distinctDisequalsStep.getValue();
+					solutionExpression = 
+							new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(
+									greatestStrictLowerBound,
+									leastNonStrictUpperBound,
+									distinctDisequals.getArguments()
+									);
 				}
 			}
 		}
@@ -601,7 +603,12 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		return new Solution(solutionExpression);
 	}
 
-	private ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver makeBasisForSubStepSolver(ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver successor) {
+	@Override
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
+		return RangeAndExceptionsSet.EMPTY;
+	}
+
+	private ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver makeBasisForSubStepSolver(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver successor) {
 		return successor.clone();
 	}
 

@@ -35,25 +35,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
- * A simplifier that rewrites numerical comparisons in difference arithmetic
- * to equivalent ones in which terms are cancelled out and numerical expressions are summed together.
+ * A collection of methods for manipulating linear real arithmetic literals.
  *
  * @author braz
  *
  */
 @Beta
-public class DifferenceArithmeticSimplifier implements Simplifier {
+public class LinearRealArithmeticUtil {
 
-	@Override
-	public Expression apply(Expression expression, Context context) {
-		return DifferenceArithmeticUtil.simplify(expression);
+	/**
+	 * Simplify a linear real arithmetic literal.
+	 * @param expression
+	 * @return
+	 */
+	public static Expression simplify(Expression expression) {
+		// TODO: write this method
+		return null;
+	}
+
+	/**
+	 * Returns an expression equivalent to linear arithmetic expression <code>numericalComparison</code> in which terms are cancelled out,
+	 * numerical constants are summed together, and the given variable occurs alone in one of the sides.
+	 * @param variable
+	 * @param numericalComparison
+	 * @return
+	 * @throws Error
+	 */
+	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
+		// TODO: write this method
+		return null;
 	}
 }

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.apply;
@@ -59,17 +59,17 @@ import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractSingleVariableNumericConstraint;
 
 /**
- * A difference arithmetic single-variable constraint solver.
+ * A linear real arithmetic single-variable constraint solver.
  *
  * @author braz
  *
  */
 @Beta
-public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingleVariableNumericConstraint {
+public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingleVariableNumericConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
-	public SingleVariableDifferenceArithmeticConstraint(
+	public SingleVariableLinearRealArithmeticConstraint(
 			Expression variable,
 			boolean propagateAllLiteralsWhenVariableIsBound,
 			ConstraintTheory constraintTheory) {
@@ -77,7 +77,7 @@ public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingle
 		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	private SingleVariableDifferenceArithmeticConstraint(
+	private SingleVariableLinearRealArithmeticConstraint(
 			Expression variable,
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
@@ -88,26 +88,26 @@ public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingle
 		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
-	public SingleVariableDifferenceArithmeticConstraint(SingleVariableDifferenceArithmeticConstraint other) {
+	public SingleVariableLinearRealArithmeticConstraint(SingleVariableLinearRealArithmeticConstraint other) {
 		super(other);
 	}
 
 	@Override
-	public SingleVariableDifferenceArithmeticConstraint clone() {
-		SingleVariableDifferenceArithmeticConstraint result = new SingleVariableDifferenceArithmeticConstraint(this);
+	public SingleVariableLinearRealArithmeticConstraint clone() {
+		SingleVariableLinearRealArithmeticConstraint result = new SingleVariableLinearRealArithmeticConstraint(this);
 		return result;
 	}
 
 	@Override
-	protected SingleVariableDifferenceArithmeticConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
+	protected SingleVariableLinearRealArithmeticConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
 		// no special bookkeeping to be retained in simplifications, so we just make a new constraint.
-		SingleVariableDifferenceArithmeticConstraint result = new SingleVariableDifferenceArithmeticConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
+		SingleVariableLinearRealArithmeticConstraint result = new SingleVariableLinearRealArithmeticConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
 		return result;
 	}
 
 	@Override
 	protected Expression isolateVariable(Expression atom, Context context) {
-		Expression result = DifferenceArithmeticUtil.isolateVariable(getVariable(), atom);
+		Expression result = LinearRealArithmeticUtil.isolateVariable(getVariable(), atom);
 		return result;
 	}
 
@@ -126,6 +126,9 @@ public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingle
 	 * Returns iterator ranging over implicit normalized atoms representing variable bounds.
 	 */
 	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context context) {
+		
+		// TODO: revise this method for linear real arithmetic
+		
 		if (cachedImplicitNegativeNormalizedAtoms == null) {
 			IntegerInterval interval = getType(context);
 			Expression nonStrictLowerBound = interval.getNonStrictLowerBound();

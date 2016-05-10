@@ -87,6 +87,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.Disequality;
@@ -580,6 +581,7 @@ public class GrinderUtil {
 
 	public static final Categorical BOOLEAN_TYPE = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
 	public static final IntegerExpressoType INTEGER_TYPE = new IntegerExpressoType();
+	public static final RealExpressoType REAL_TYPE = new RealExpressoType();
 	
 	/**
 	 * A method mapping type expressions to their intrinsic {@link Type} objects,

@@ -52,10 +52,10 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.solver.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 
 @Beta
 public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
