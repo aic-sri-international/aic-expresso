@@ -61,7 +61,6 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
 
 /** 
@@ -91,9 +90,8 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 						new InequalitySimplifier(),
 						new BooleanSimplifier(),
 						new NumericSimplifier(),
-						extraSimplifier
-						),
-						propagateAllLiteralsWhenVariableIsBound);
+						extraSimplifier),
+				propagateAllLiteralsWhenVariableIsBound);
 
 		initializeTestingInformation();
 	}
@@ -114,13 +112,6 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 		return negationFunctor.get(functor);
 	}
 
-	/**
-	 * @return
-	 */
-	public static DifferenceArithmeticSimplifier getLiteralSimplifier() {
-		return new DifferenceArithmeticSimplifier();
-	}
-	
 	@Override
 	protected Expression getNonTrivialAtomNegation(Expression atom) {
 		String functorString = atom.getFunctor().toString();

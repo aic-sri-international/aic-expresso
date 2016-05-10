@@ -109,7 +109,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 * The number of disequalities from uniquely named constants;
 	 * this field is only accurate if {@link #conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance()}
 	 * returns true.
-	 * This is because this field is maintained by {@link #destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean, Expression, Context)},
+	 * This is because this field is maintained by {@link #destructiveUpdateOrNullAfterConjoiningNewNormalizedAtom(boolean, Expression, Context)},
 	 * which is invoked only in that case.
 	 */
 	private int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
@@ -150,7 +150,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context) {
+	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterConjoiningNewNormalizedAtom(boolean sign, Expression atom, Context context) {
 		SingleVariableEqualityConstraint result = this;
 		if (!sign && context.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable++;

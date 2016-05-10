@@ -123,7 +123,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	/**
 	 * Creates a simplification of this constraint out of the
 	 * given normalized atoms and external literals.
-	 * The result is only correctly used in contexts in which the original
+	 * The result is only allowed to be used in contexts in which the original
 	 * constraint holds.
 	 * That is to say, implementations are allowed to rely
 	 * on this fact to keep whatever internal bookkeeping they may
@@ -255,7 +255,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	 * @param context 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context);
+	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterConjoiningNewNormalizedAtom(boolean sign, Expression atom, Context context);
 
 	
 	
@@ -290,7 +290,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 				if (conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() && result != this && result != null) {
 					// the condition above guarantees that result is not null and that the "new atom" is indeed new;
 					// if the instance is a new one (not 'this'), then the atom is not redundant.
-					result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, context);
+					result = result.destructiveUpdateOrNullAfterConjoiningNewNormalizedAtom(sign, normalizedAtom, context);
 				}
 			}
 		}

@@ -82,6 +82,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 
 	@Override
 	protected SingleVariablePropositionalConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
+		// no special bookkeeping to be retained in simplifications, so we just make a new constraint.
 		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getConstraintTheory());
 		return result;
 	}
@@ -93,7 +94,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, Context context) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterConjoiningNewNormalizedAtom(boolean sign, Expression atom, Context context) {
 		return this;
 	}
 

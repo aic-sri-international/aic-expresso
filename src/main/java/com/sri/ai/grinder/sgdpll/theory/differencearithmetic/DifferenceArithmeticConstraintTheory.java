@@ -110,7 +110,7 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	}
 	
 	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory() {
-		Simplifier differenceArithmeticSimplifier = getLiteralSimplifier();
+		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
 						EQUALITY,                 differenceArithmeticSimplifier,
