@@ -127,7 +127,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 
 	private ContextDependentProblemStepSolver<Boolean> initialLowerBoundIsLessThanUpperBoundStepSolver;
 
-	private NumberOfDistinctExpressionsIsLessThanStepSolver initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+	private ContextDependentProblemStepSolver<Expression> initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 
 	private DistinctExpressionsStepSolver initialDistinctDisequalsStepSolver;
 	
@@ -533,11 +533,16 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 
 				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
 
+				// the goal of the upcoming 'if' is to define the values for these two next declared variables:
+				
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
+				// if true, number of distinct disequals exceeds number of values within bounds;
+				// if false, that may be true or false, we don't know.
+				
 				DistinctExpressionsStepSolver distinctExpressionsStepSolver;
 				
 				if (isNumber(boundsDifference)) {
-					NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+					ContextDependentProblemStepSolver<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					if (initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver == null) {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
 						= new NumberOfDistinctExpressionsIsLessThanStepSolver(boundsDifference.intValue(), disequalsWithinBounds);
@@ -545,7 +550,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 					else {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					}
-					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
+					ContextDependentProblemStepSolver.SolutionStep<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 						ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
@@ -555,13 +560,20 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 						ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getLiteral(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getContextSplitting(), ifTrue, ifFalse);
 						return result;
 					}
-					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
-					// we don't use a ConstantStepSolver here because we need to keep initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
-					// type to be NumberOfDistinctExpressionsIsLessThanStepSolver
-					// due to the fact that we invoke its method getDistinctExpressionsStepSolver() right below.
-					
-					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
-					distinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getDistinctExpressionsStepSolver();
+					Expression numberOfDistinctDisequalsIsLessThanBoundsDifference = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue();
+					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = new ConstantExpressionStepSolver(numberOfDistinctDisequalsIsLessThanBoundsDifference);
+
+					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifference.equals(FALSE);
+		
+					if (initialDistinctDisequalsStepSolver == null) {
+						// if initialDistinctDisequalsStepSolver has not been set yet, it is because the predecessor of this step solver did not get to the point of using distinctExpressionsStepSolver; this means numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver is not a ConstantExpressionStepSolver (if it were, then the predecessor would have proceeded to use distinctExpressionsStepSolver), so it must be a NumberOfDistinctExpressionsIsLessThanStepSolver.
+						distinctExpressionsStepSolver = 
+								((NumberOfDistinctExpressionsIsLessThanStepSolver)
+								numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver).getDistinctExpressionsStepSolver();
+					}
+					else {
+						distinctExpressionsStepSolver = initialDistinctDisequalsStepSolver;
+					}
 				}
 				else {
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = false;
