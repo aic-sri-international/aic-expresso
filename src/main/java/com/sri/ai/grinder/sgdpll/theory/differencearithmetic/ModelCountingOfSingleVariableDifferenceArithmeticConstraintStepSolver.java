@@ -105,7 +105,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 	// with short-circuiting optimization.
 	// They should be kept in tune to each other.
 	
-	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(FunctorConstants.GREATER_THAN);
+	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(GREATER_THAN);
 
 	private static final Symbol LESS_THAN_SYMBOL = makeSymbol(LESS_THAN);
 
@@ -133,7 +133,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	private ContextDependentProblemStepSolver<Boolean> initialLowerBoundIsLessThanUpperBoundStepSolver;
 
-	private NumberOfDistinctExpressionsIsLessThanStepSolver initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+	private ContextDependentProblemStepSolver<Expression> initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 
 	private DistinctExpressionsStepSolver initialDistinctDisequalsStepSolver;
 	
@@ -143,9 +143,6 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		super(constraint);
 	}
 	
-	/**
-	 * @return
-	 */
 	@Override
 	public ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver clone() {
 		return (ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver) super.clone();
@@ -311,7 +308,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					functionIterator(
 							predicateIterator(
 									differenceArithmeticConstraint.getPositiveNormalizedAtoms(),
-									e -> e.hasFunctor(FunctorConstants.EQUALITY)
+									e -> e.hasFunctor(EQUALITY)
 									), 
 									e -> e.get(1));
 			
@@ -538,11 +535,16 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), context);
 
+				// the goal of the upcoming 'if' is to define the values for these two next declared variables:
+				
 				boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
+				// if true, number of distinct disequals exceeds number of values within bounds;
+				// if false, that may be true or false, we don't know.
+				
 				DistinctExpressionsStepSolver distinctExpressionsStepSolver;
 				
 				if (isNumber(boundsDifference)) {
-					NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+					ContextDependentProblemStepSolver<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					if (initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver == null) {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
 						= new NumberOfDistinctExpressionsIsLessThanStepSolver(boundsDifference.intValue(), disequalsWithinBounds);
@@ -550,7 +552,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 					else {
 						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 					}
-					SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
+					ContextDependentProblemStepSolver.SolutionStep<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
 
 					if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 						ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue  = makeBasisForSubStepSolver(successor);
@@ -560,10 +562,20 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 						ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getLiteral(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getContextSplitting(), ifTrue, ifFalse);
 						return result;
 					}
-					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
-					
-					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
-					distinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getDistinctExpressionsStepSolver();
+					Expression numberOfDistinctDisequalsIsLessThanBoundsDifference = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue();
+					successor.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = new ConstantExpressionStepSolver(numberOfDistinctDisequalsIsLessThanBoundsDifference);
+
+					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifference.equals(FALSE);
+		
+					if (initialDistinctDisequalsStepSolver == null) {
+						// if initialDistinctDisequalsStepSolver has not been set yet, it is because the predecessor of this step solver did not get to the point of using distinctExpressionsStepSolver; this means numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver is not a ConstantExpressionStepSolver (if it were, then the predecessor would have proceeded to use distinctExpressionsStepSolver), so it must be a NumberOfDistinctExpressionsIsLessThanStepSolver.
+						distinctExpressionsStepSolver = 
+								((NumberOfDistinctExpressionsIsLessThanStepSolver)
+								numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver).getDistinctExpressionsStepSolver();
+					}
+					else {
+						distinctExpressionsStepSolver = initialDistinctDisequalsStepSolver;
+					}
 				}
 				else {
 					weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = false;

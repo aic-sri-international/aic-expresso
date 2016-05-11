@@ -50,7 +50,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
  *
  */
 @Beta
-public class LinearRealSimplifier implements Simplifier {
+public class LinearRealArithmeticSimplifier implements Simplifier {
 
 	@Override
 	public Expression apply(Expression expression, Context context) {

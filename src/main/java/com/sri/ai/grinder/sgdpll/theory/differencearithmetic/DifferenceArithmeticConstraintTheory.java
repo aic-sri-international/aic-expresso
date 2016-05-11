@@ -92,6 +92,9 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
 	 * equalities is being used.
+	 * <p>
+	 * Testing information is initialized to variables <code>I</code>, <code>J</code>, <code>K</code> in <code>0..4</code>.
+     *
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).

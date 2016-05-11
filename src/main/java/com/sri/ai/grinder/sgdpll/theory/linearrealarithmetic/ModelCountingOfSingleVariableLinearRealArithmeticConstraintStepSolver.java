@@ -105,7 +105,7 @@ public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolv
 	// with short-circuiting optimization.
 	// They should be kept in tune to each other.
 	
-	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(FunctorConstants.GREATER_THAN);
+	private static final Symbol GREATER_THAN_SYMBOL = makeSymbol(GREATER_THAN);
 
 	private static final Symbol LESS_THAN_SYMBOL = makeSymbol(LESS_THAN);
 
