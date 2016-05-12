@@ -74,7 +74,7 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.solver.AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpll.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.helper.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll.helper.SelectExpressionsSatisfyingComparisonStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver;
@@ -90,7 +90,7 @@ import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A {@link AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableLinearRealArithmeticConstraint}.
+ * A {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver} for a {@link SingleVariableLinearRealArithmeticConstraint}.
  * <p>
  * The solution is guaranteed to be either a numerical constant, or
  * a conditional of the form {@code if <satisfiability condition> then <model count> else 0}.
@@ -99,7 +99,7 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
  *
  */
 @Beta
-public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
 
 	// NOTE: this class is essentially a copy of ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver
 	// with short-circuiting optimization.
@@ -635,5 +635,10 @@ public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolv
 		Expression unsimplifiedAtom = apply(comparison, arguments);
 		Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, context);
 		return result;
+	}
+	
+	@Override
+	protected Expression getSolutionExpressionGivenContradiction() {
+		return ZERO;
 	}
 }

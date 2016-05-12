@@ -62,7 +62,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * <p>
  * Propagated literals are literals required to be true
  * (if they are not, the solution step returns is provided by the abstract method
- * {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied()}).
+ * {@link #getSolutionExpressionGivenContradiction()}).
  * In fact, this class allows a generalization of propagated literals in the form of a propagated CNF.
  * <p>
  * Extensions defined which are the propagated literals and propagated CNF
@@ -187,7 +187,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 
 	/**
 	 * Makes a CNF that, if not satisfied, means the solution
-	 * is {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied()}.
+	 * is {@link #getSolutionExpressionGivenContradiction()}.
 	 * If it is satisfied,
 	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context)}.
 	 * <p>
@@ -222,14 +222,14 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * The solution to be provided if any of the propagated literals is not satisfied by the context.
 	 * @return The solution to be provided if any of the propagated literals is not satisfied by the context.
 	 */
-	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
+	protected abstract Expression getSolutionExpressionGivenContradiction();
 
 	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context);
 
 	@Override
 	public SolutionStep step(Context context) {
 		if (getConstraint().isContradiction()) {
-			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
+			return new Solution(getSolutionExpressionGivenContradiction());
 		}
 		
 		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), context);
@@ -242,7 +242,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 			result = propagatedCNFIsSatisfiedStep;
 		}
 		else if (propagatedCNFIsSatisfiedStep.getValue().equals(FALSE)) {
-			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
+			result = new Solution(getSolutionExpressionGivenContradiction());
 		}
 		else if (propagatedCNFIsSatisfiedStep.getValue().equals(TRUE)) {
 			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(context);

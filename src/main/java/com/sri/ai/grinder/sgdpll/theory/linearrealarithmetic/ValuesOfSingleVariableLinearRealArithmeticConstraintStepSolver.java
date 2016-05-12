@@ -604,7 +604,7 @@ public class ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver exte
 	}
 
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
+	protected Expression getSolutionExpressionGivenContradiction() {
 		return RangeAndExceptionsSet.EMPTY;
 	}
 

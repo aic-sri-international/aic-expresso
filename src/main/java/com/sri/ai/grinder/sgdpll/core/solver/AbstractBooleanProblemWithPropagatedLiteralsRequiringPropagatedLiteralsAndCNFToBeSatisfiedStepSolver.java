@@ -68,7 +68,7 @@ public abstract class AbstractBooleanProblemWithPropagatedLiteralsRequiringPropa
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
+	protected Expression getSolutionExpressionGivenContradiction() {
 		return FALSE;
 	}
 }

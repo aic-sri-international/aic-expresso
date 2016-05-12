@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 /**
  * An abstract step solver for model counting step solvers.
  * <p>
- * It extends {@link AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver}
+ * It extends {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}
  * and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
  * step solver, which is obtained through the constraint theory's
  * {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)}.
@@ -72,14 +72,14 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
  *
  */
 @Beta
-public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver extends AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
 
 	public AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver(Constraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
+	protected Expression getSolutionExpressionGivenContradiction() {
 		return ZERO;
 	}
 
