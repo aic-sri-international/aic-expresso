@@ -59,7 +59,7 @@ import com.sri.ai.util.math.Rational;
  * monomials are like terms to each other wrt <em>F</em>, and monomials are in
  * order according to "comes before" wrt <em>F</em>.
  * 
- * Note that the variables can any tuple of given expression, and not just symbols.
+ * Note that the variables can be any tuple of given expressions, and not just symbols.
  * This allows polynomials defined on more complex, unknown, terms.
  * For example, we may not know what a set <em>D</em> is, but need to
  * represent a polynomial on its cardinality: <em>2*|D|^2 + |D|</em>.
@@ -188,8 +188,8 @@ public interface Polynomial extends Expression {
 	 * @return the degree of the polynomial.
 	 */
 	default int degree() {
-		// Default implementation makse assumption that the polynomial
-		// is represented in canonical form with terms with the highests
+		// Default implementation makes assumption that the polynomial
+		// is represented in canonical form with terms with the highest
 		// degree listed first.
 		int result = getOrderedSummands().get(0).degree();
 		return result;
