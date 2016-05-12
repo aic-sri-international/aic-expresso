@@ -53,6 +53,7 @@ import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultMonomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.math.Rational;
 
 
 /**
@@ -133,7 +134,7 @@ public class IsolateUtil {
 		Polynomial alpha = DefaultPolynomial.make(Plus.make(alphaTerms), rightDissimilarPolynomial.getVariables());
 					
 		Expression left, rightDissimilar;
-		if (isolated == null || alpha.equals(Expressions.ZERO)) {
+		if (alpha.equals(Expressions.ZERO)) {
 			left            = alpha;
 			rightDissimilar = rightDissimilarPolynomial;
 		}
@@ -147,8 +148,27 @@ public class IsolateUtil {
 				rightDissimilar = Division.simplify(Division.make(rightDissimilarPolynomial, alpha));
 			}
 		}
-// TODO - determine if the operator needs to be flipped
-		Expression result =  Expressions.apply(operator, left, rightDissimilar);
+		// Determine if the operator needs to be flipped
+		Expression isolatedOperator      = operator;
+		Rational alphaCoefficientProduct = Rational.ONE;
+		for (Monomial alphaTerm : alpha.getOrderedSummands()) {
+			alphaCoefficientProduct = alphaCoefficientProduct.multiply(alphaTerm.getNumericConstantFactor());
+		}
+		if (alphaCoefficientProduct.isNegative()) {
+			if (operator.equals(FunctorConstants.LESS_THAN)) {
+				isolatedOperator = Expressions.makeSymbol(FunctorConstants.GREATER_THAN);
+			}
+			else if (operator.equals(FunctorConstants.LESS_THAN_OR_EQUAL_TO)) {
+				isolatedOperator = Expressions.makeSymbol(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
+			}
+			else if (operator.equals(FunctorConstants.GREATER_THAN)) {
+				isolatedOperator = Expressions.makeSymbol(FunctorConstants.LESS_THAN);
+			}
+			else if (operator.equals(FunctorConstants.GREATER_THAN_OR_EQUAL_TO)) {
+				isolatedOperator = Expressions.makeSymbol(FunctorConstants.LESS_THAN_OR_EQUAL_TO);
+			}
+		}
+		Expression result =  Expressions.apply(isolatedOperator, left, rightDissimilar);
 		
 		return result;
 	}
