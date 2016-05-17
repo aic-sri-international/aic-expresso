@@ -114,6 +114,35 @@ public class IsolateUtilTest {
 				IsolateUtil.isolate(Expressions.parse("b*x < 3*b"), Expressions.parse("x")));
 	}
 	
+	@Test
+	public void testOnlineExamples() {
+		// http://www.mathsisfun.com/algebra/inequality-solving.html (A Bigger Example)
+		Assert.assertEquals(
+				Expressions.parse("x < -7"), 
+				IsolateUtil.isolate(Expressions.parse("(x-3)/2 < -5"), Expressions.parse("x")));
+		
+		// http://www.mathplanet.com/education/pre-algebra/more-about-equation-and-inequalities/fundamentals-in-solving-equations-in-one-or-more-steps
+		Assert.assertEquals(
+				Expressions.parse("x = 2"), 
+				IsolateUtil.isolate(Expressions.parse("5*x + 14 + 2*x + 2 = 30"), Expressions.parse("x")));		
+	
+		Assert.assertEquals(
+				Expressions.parse("x = 4"), 
+				IsolateUtil.isolate(Expressions.parse("4*x + 3 = 2*x + 11"), Expressions.parse("x")));	
+	
+		// http://www.onlinemathlearning.com/isolate-the-variable.html
+		Assert.assertEquals(
+				Expressions.parse("x = -7"), 
+				IsolateUtil.isolate(Expressions.parse("5*x + 8 = 3*x - 6"), Expressions.parse("x")));
+
+	
+		// http://www.wolframalpha.com/widgets/view.jsp?id=4acbedbe977480d19b7b682d4878cae2
+		Assert.assertEquals(
+				Expressions.parse("if -1 * pi * r ^ 2 != 0 then h = (-1 * V) / (-1 * pi * r ^ 2) else 0 = -1 * V"), 
+				IsolateUtil.isolate(Expressions.parse("V = pi*r^2*h"), Expressions.parse("h")));		
+	}
+	
+	
 	@Test(expected = IllegalArgumentException.class)
 	public void testIllegalIsolatedVariableArgument1() {
 		IsolateUtil.isolate(Expressions.parse("x^2 = 4"), Expressions.parse("x"));

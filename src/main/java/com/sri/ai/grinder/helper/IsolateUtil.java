@@ -58,7 +58,7 @@ import com.sri.ai.util.math.Rational;
 
 
 /**
- * Utility methods for isolating a generalized variable.
+ * Utility methods for isolating a generalized linear variable.
  * 
  * A basic procedure to isolate a variable. 
  * 
@@ -67,26 +67,26 @@ import com.sri.ai.util.math.Rational;
  * 
  * t1 + ... + t_m op1 r_1 + ... + r_n
  * 
- * and given a "generalized variable" V, derive a new *equivalent* application:
+ * and given a `linear generalized variable` V, derive a new <emph>equivalent</emph> application:
  * 
  * V op2 Term/Alpha
  * 
  * Where V does not appear on Term and Alpha, which must be normalized polynomials. 
  * Alpha may be 0 if V does not appear originally or disappears. V may disappear 
- * from the expression. For example, x = x becomes 0 = 0, also known as "true". 
+ * from the expression, for example, x = x becomes 0 = 0, also known as `true`. 
  * This still fits `Alpha*V op2 Term`, with Alpha being 0, but now `Alpha` cannot 
- * move to the right-hand side as a denominator. In these cases, we must simply return 
+ * move to the right-hand side as a denominator. In these cases, we simply return 
  * `0 op2 Term`. 
  * 
- * op2 is the same as op1, if op1 is `=` or `!=`, otherwise it can be a `flipped` 
- * op1 if you multiply or divide the inequality by a negative (or swap the left and right
- * hand sides).
+ * op2 is the same as op1, if op1 is an equality (i.e. `=` or `!=`), otherwise it can be 
+ * a `flipped` op1 if you multiply or divide the inequality by a negative 
+ * (or swap the left and right hand sides).
  *
  * In the cases where it cannot be determined if `Alpha` is 0 or not, for example:
  * 
  * y * x = 10 
  * 
- * the resulting expression needs to test for `Alpha` being 0, with respect to the 
+ * the resulting expression needs to test for `Alpha` being 0. With respect to the 
  * previous example we would get:
  * 
  * if y != 0 then x = 10/y else 0 = 10
@@ -95,8 +95,8 @@ import com.sri.ai.util.math.Rational;
  * 
  * if Alpha != 0 then V = Term/Alpha else 0 = Term
  * 
- * Similarly if the sign of `Alpha` cannot be determined and `op1` is an inequality (i.e. < <= >= >)
- * then the general result will be of the form:
+ * Similarly, if the sign of `Alpha` cannot be determined and `op1` is an inequality 
+ * (i.e. `<`, `<=`, `>=`, or `>`) then the general result will be of the form:
  * 
  * if Alpha != 0 
  * then 
@@ -113,7 +113,7 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class IsolateUtil {	
-	public static Expression isolate(Expression inequality, Expression variableToIsolate) {
+	public static Expression isolate(Expression inequality, Expression linearVariableToIsolate) {
 		if (inequality.getFunctor() == null || inequality.numberOfArguments() != 2) {
 			throw new IllegalArgumentException("Not an inequality: "+inequality);
 		}
@@ -122,27 +122,27 @@ public class IsolateUtil {
 		Expression operator        = inequality.getFunctor();
 		Expression rightExpression = inequality.get(1);
 		
-		Expression result = isolate(leftExpression, operator, rightExpression, variableToIsolate);
+		Expression result = isolate(leftExpression, operator, rightExpression, linearVariableToIsolate);
 		
 		return result;
 	}
 	
-	public static Expression isolate(Expression leftExpression, Expression operator, Expression rightExpression, Expression variableToIsolate) {
+	public static Expression isolate(Expression leftExpression, Expression operator, Expression rightExpression, Expression linearVariableToIsolate) {
 		Polynomial leftPolynomial  = DefaultPolynomial.make(leftExpression);
 		Polynomial rightPolynomial = DefaultPolynomial.make(rightExpression);
 		
-		Expression result = isolate(leftPolynomial, operator, rightPolynomial, variableToIsolate);
+		Expression result = isolate(leftPolynomial, operator, rightPolynomial, linearVariableToIsolate);
 		
 		return result;
 	}
 
-	public static Expression isolate(Polynomial leftPolynomial, Expression operator, Polynomial rightPolynomial, Expression variableToIsolate) {		
+	public static Expression isolate(Polynomial leftPolynomial, Expression operator, Polynomial rightPolynomial, Expression linearVariableToIsolate) {		
 		assertSupportedOperator(operator);
 		
-		Pair<List<Monomial>, List<Monomial>> splitIntoSimilarAndDissimilarTerms = splitIntoSimilarAndDissimilarTerms(leftPolynomial, variableToIsolate);
+		Pair<List<Monomial>, List<Monomial>> splitIntoSimilarAndDissimilarTerms = splitIntoSimilarAndDissimilarTerms(leftPolynomial, linearVariableToIsolate);
 		List<Monomial> leftSimilarTerms     = splitIntoSimilarAndDissimilarTerms.first;
 		List<Monomial> leftDissimilarTerms  = splitIntoSimilarAndDissimilarTerms.second;  
-		splitIntoSimilarAndDissimilarTerms  = splitIntoSimilarAndDissimilarTerms(rightPolynomial, variableToIsolate);
+		splitIntoSimilarAndDissimilarTerms  = splitIntoSimilarAndDissimilarTerms(rightPolynomial, linearVariableToIsolate);
 		List<Monomial> rightSimilarTerms    = splitIntoSimilarAndDissimilarTerms.first;
 		List<Monomial> rightDissimilarTerms = splitIntoSimilarAndDissimilarTerms.second;
 		
@@ -159,6 +159,8 @@ public class IsolateUtil {
 		}
 		
 		Polynomial leftSimilarPolynomial = DefaultPolynomial.make(Plus.make(new ArrayList<>(leftSimilarTerms)));
+		Polynomial rightDissimilarPolynomial = DefaultPolynomial.make(Plus.make(new ArrayList<Expression>(rightDissimilarTerms)));
+
 		Monomial isolated = null;		
 		// Compute Alpha
 		List<Expression> alphaTerms = new ArrayList<>();
@@ -166,7 +168,7 @@ public class IsolateUtil {
 			List<Expression> dissimilarFactors = new ArrayList<>();
 			dissimilarFactors.add(Expressions.makeSymbol(similarTerm.getNumericConstantFactor()));
 			for (Expression factor : similarTerm.getOrderedNonNumericFactors()) {
-				if (factor.equals(variableToIsolate)) {
+				if (factor.equals(linearVariableToIsolate)) {
 					if (isolated == null) {
 						isolated = DefaultMonomial.make(Exponentiation.make(factor, Expressions.makeSymbol(similarTerm.getPowerOfFactor(factor))));
 					}
@@ -180,38 +182,37 @@ public class IsolateUtil {
 			}
 			alphaTerms.add(DefaultMonomial.make(Times.make(dissimilarFactors)));
 		}
-		Polynomial rightDissimilarPolynomial = DefaultPolynomial.make(Plus.make(new ArrayList<Expression>(rightDissimilarTerms)));
 		Polynomial alpha = DefaultPolynomial.make(Plus.make(alphaTerms), rightDissimilarPolynomial.getVariables());
 					
-		Expression left, rightDissimilar;
+		Expression rightDissimilarTerm;
 		if (alpha.equals(Expressions.ZERO)) {
-			left            = alpha;
-			rightDissimilar = rightDissimilarPolynomial;
+			isolated            = DefaultMonomial.ZERO;
+			rightDissimilarTerm = rightDissimilarPolynomial;
 		}
 		else {
-			left            = isolated;	
 			Pair<Polynomial, Polynomial> quotientAndRemainder = rightDissimilarPolynomial.divide(alpha);
 			if (quotientAndRemainder.second.equals(Expressions.ZERO)) {
-				rightDissimilar = quotientAndRemainder.first;
+				rightDissimilarTerm = quotientAndRemainder.first;
 			}
 			else {
-				rightDissimilar = Division.simplify(Division.make(rightDissimilarPolynomial, alpha));
+				rightDissimilarTerm = Division.simplify(Division.make(rightDissimilarPolynomial, alpha));
 			}
 		}
 		
 		Expression result;
+		// If alpha is numeric we can divide (or know it was 0 - handled accordingly already).
 		if (Expressions.isNumber(alpha)) {
-			result =  Expressions.apply(flipIfRequired(operator, alpha), left, rightDissimilar);
+			result =  Expressions.apply(flipIfRequired(operator, alpha), isolated, rightDissimilarTerm);
 		}
 		else {
 			Expression thenBranch;
 			if (isEquality(operator)) {
-				thenBranch = Expressions.apply(operator, left, rightDissimilar);
+				thenBranch = Expressions.apply(operator, isolated, rightDissimilarTerm);
 			}
 			else {
 				thenBranch = IfThenElse.make(Expressions.apply(FunctorConstants.GREATER_THAN, alpha, Expressions.ZERO), 
-								Expressions.apply(operator, left, rightDissimilar), 
-								Expressions.apply(flipInequalityOperator(operator), left, rightDissimilar));
+								Expressions.apply(operator, isolated, rightDissimilarTerm), 
+								Expressions.apply(flipInequalityOperator(operator), isolated, rightDissimilarTerm));
 			}
 			result = IfThenElse.make(Expressions.apply(FunctorConstants.DISEQUALITY, alpha, Expressions.ZERO), 
 					thenBranch, 
