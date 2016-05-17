@@ -44,6 +44,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Plus;
@@ -59,7 +60,54 @@ import com.sri.ai.util.math.Rational;
 /**
  * Utility methods for isolating a generalized variable.
  * 
- * // TODO - full class comment based on Rodrigo's notes. 
+ * A basic procedure to isolate a variable. 
+ * 
+ * <pre>
+ * Formally, given the application of a relational operator op1 (=, !=, <, >, <=, >=)
+ * 
+ * t1 + ... + t_m op1 r_1 + ... + r_n
+ * 
+ * and given a "generalized variable" V, derive a new *equivalent* application:
+ * 
+ * V op2 Term/Alpha
+ * 
+ * Where V does not appear on Term and Alpha, which must be normalized polynomials. 
+ * Alpha may be 0 if V does not appear originally or disappears. V may disappear 
+ * from the expression. For example, x = x becomes 0 = 0, also known as "true". 
+ * This still fits `Alpha*V op2 Term`, with Alpha being 0, but now `Alpha` cannot 
+ * move to the right-hand side as a denominator. In these cases, we must simply return 
+ * `0 op2 Term`. 
+ * 
+ * op2 is the same as op1, if op1 is `=` or `!=`, otherwise it can be a `flipped` 
+ * op1 if you multiply or divide the inequality by a negative (or swap the left and right
+ * hand sides).
+ *
+ * In the cases where it cannot be determined if `Alpha` is 0 or not, for example:
+ * 
+ * y * x = 10 
+ * 
+ * the resulting expression needs to test for `Alpha` being 0, with respect to the 
+ * previous example we would get:
+ * 
+ * if y != 0 then x = 10/y else 0 = 10
+ * 
+ * or more generally:
+ * 
+ * if Alpha != 0 then V = Term/Alpha else 0 = Term
+ * 
+ * Similarly if the sign of `Alpha` cannot be determined and `op1` is an inequality (i.e. < <= >= >)
+ * then the general result will be of the form:
+ * 
+ * if Alpha != 0 
+ * then 
+ *     if Alpha > 0
+ *         V op1 Term/Alpha
+ *     else
+ *         V <op1 flipped> Term/Alpha 
+ * else 
+ *     0 op1 Term
+ * 
+ * </pre>
  * 
  * @author oreilly
  */
@@ -122,7 +170,9 @@ public class IsolateUtil {
 					if (isolated == null) {
 						isolated = DefaultMonomial.make(Exponentiation.make(factor, Expressions.makeSymbol(similarTerm.getPowerOfFactor(factor))));
 					}
-// TODO - ensure powers are the same across terms, if not implies > 1 solution and we can't isolate.					
+					if (!Rational.ONE.equals(similarTerm.getPowerOfFactor(factor))) {
+						throw new IllegalArgumentException("Only linear (i.e. x^1) can be isolated by this API but found : "+factor);
+					}
 				}
 				else {
 					dissimilarFactors.add(Exponentiation.make(factor, Expressions.makeSymbol(similarTerm.getPowerOfFactor(factor))));
@@ -139,7 +189,7 @@ public class IsolateUtil {
 			rightDissimilar = rightDissimilarPolynomial;
 		}
 		else {
-			left            = isolated;			
+			left            = isolated;	
 			Pair<Polynomial, Polynomial> quotientAndRemainder = rightDissimilarPolynomial.divide(alpha);
 			if (quotientAndRemainder.second.equals(Expressions.ZERO)) {
 				rightDissimilar = quotientAndRemainder.first;
@@ -148,27 +198,25 @@ public class IsolateUtil {
 				rightDissimilar = Division.simplify(Division.make(rightDissimilarPolynomial, alpha));
 			}
 		}
-		// Determine if the operator needs to be flipped
-		Expression isolatedOperator      = operator;
-		Rational alphaCoefficientProduct = Rational.ONE;
-		for (Monomial alphaTerm : alpha.getOrderedSummands()) {
-			alphaCoefficientProduct = alphaCoefficientProduct.multiply(alphaTerm.getNumericConstantFactor());
+		
+		Expression result;
+		if (Expressions.isNumber(alpha)) {
+			result =  Expressions.apply(flipIfRequired(operator, alpha), left, rightDissimilar);
 		}
-		if (alphaCoefficientProduct.isNegative()) {
-			if (operator.equals(FunctorConstants.LESS_THAN)) {
-				isolatedOperator = Expressions.makeSymbol(FunctorConstants.GREATER_THAN);
+		else {
+			Expression thenBranch;
+			if (isEquality(operator)) {
+				thenBranch = Expressions.apply(operator, left, rightDissimilar);
 			}
-			else if (operator.equals(FunctorConstants.LESS_THAN_OR_EQUAL_TO)) {
-				isolatedOperator = Expressions.makeSymbol(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
+			else {
+				thenBranch = IfThenElse.make(Expressions.apply(FunctorConstants.GREATER_THAN, alpha, Expressions.ZERO), 
+								Expressions.apply(operator, left, rightDissimilar), 
+								Expressions.apply(flipInequalityOperator(operator), left, rightDissimilar));
 			}
-			else if (operator.equals(FunctorConstants.GREATER_THAN)) {
-				isolatedOperator = Expressions.makeSymbol(FunctorConstants.LESS_THAN);
-			}
-			else if (operator.equals(FunctorConstants.GREATER_THAN_OR_EQUAL_TO)) {
-				isolatedOperator = Expressions.makeSymbol(FunctorConstants.LESS_THAN_OR_EQUAL_TO);
-			}
+			result = IfThenElse.make(Expressions.apply(FunctorConstants.DISEQUALITY, alpha, Expressions.ZERO), 
+					thenBranch, 
+					Expressions.apply(FunctorConstants.EQUALITY, Expressions.ZERO, rightDissimilarPolynomial));
 		}
-		Expression result =  Expressions.apply(isolatedOperator, left, rightDissimilar);
 		
 		return result;
 	}
@@ -198,5 +246,47 @@ public class IsolateUtil {
 			  operator.equals(FunctorConstants.GREATER_THAN_OR_EQUAL_TO) )) {
 			throw new IllegalArgumentException("Operator "+operator+" is not supported");
 		}
+	}
+	
+	public static Expression flipIfRequired(Expression operator, Polynomial alpha) {
+		// Determine if the operator needs to be flipped
+		Expression result = operator;
+		if (!isEquality(operator)) {
+			Rational alphaCoefficientProduct = Rational.ONE;
+			for (Monomial alphaTerm : alpha.getOrderedSummands()) {
+				alphaCoefficientProduct = alphaCoefficientProduct.multiply(alphaTerm.getNumericConstantFactor());
+			}
+			if (alphaCoefficientProduct.isNegative()) {
+				result = flipInequalityOperator(operator);
+			}				
+		}
+		return result;
+	}
+	
+	public static boolean isEquality(Expression operator) {
+		boolean result = operator.equals(FunctorConstants.EQUALITY) || operator.equals(FunctorConstants.DISEQUALITY);
+		return result;
+	}
+	
+	public static Expression flipInequalityOperator(Expression operator) {
+		Expression result;
+		
+		if (operator.equals(FunctorConstants.LESS_THAN)) {
+			result = Expressions.makeSymbol(FunctorConstants.GREATER_THAN);
+		}
+		else if (operator.equals(FunctorConstants.LESS_THAN_OR_EQUAL_TO)) {
+			result = Expressions.makeSymbol(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
+		}
+		else if (operator.equals(FunctorConstants.GREATER_THAN)) {
+			result = Expressions.makeSymbol(FunctorConstants.LESS_THAN);
+		}
+		else if (operator.equals(FunctorConstants.GREATER_THAN_OR_EQUAL_TO)) {
+			result = Expressions.makeSymbol(FunctorConstants.LESS_THAN_OR_EQUAL_TO);
+		}
+		else {
+			throw new IllegalArgumentException("operator "+operator+" is not an inequality");
+		}
+
+		return result;
 	}
 }
