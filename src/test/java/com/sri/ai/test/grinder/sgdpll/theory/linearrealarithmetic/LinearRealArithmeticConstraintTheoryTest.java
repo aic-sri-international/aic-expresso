@@ -40,6 +40,7 @@ package com.sri.ai.test.grinder.sgdpll.theory.linearrealarithmetic;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -55,6 +56,7 @@ import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeti
 @Beta
 public class LinearRealArithmeticConstraintTheoryTest {
 
+	@Ignore
 	@Test
 	public void test() {
 		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
