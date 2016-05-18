@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
     codbase="http://aic-sri-international.github.io/aic-expresso/"
-    href="symbolic_shell_webstart.jnlp">
+    href="http://aic-sri-international.github.io/aic-expresso/symbolic_shell_webstart.jnlp">
     <information>
         <title>Symbolic Shell</title>
         <vendor>AIC SRI International</vendor>
