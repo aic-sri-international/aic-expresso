@@ -213,7 +213,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.sri.ai.grinder.demo.RewriteSystemDemoApp</mainClass>
+							<mainClass>com.sri.ai.grinder.sgdpll.application.SymbolicShell</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
