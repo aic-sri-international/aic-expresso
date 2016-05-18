@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
+    codbase="http://aic-sri-international.github.io/aic-expresso/"
     href="symbolic_shell_webstart.jnlp">
     <information>
         <title>Symbolic Shell</title>
         <vendor>AIC SRI International</vendor>
         <homepage href="http://aic-sri-international.github.io/aic-expresso/"/> 
-        <icon href="./symbolic-shell.png"/>
-        <icon kind="splash" href="./symbolic-shell.png"/>
+        <icon href="symbolic-shell.png"/>
+        <icon kind="splash" href="symbolic-shell.png"/>
         <offline-allowed/>
     </information>
     <resources>
         <!-- Application Resources -->
         <j2se version="1.8.0_41+" href="http://java.sun.com/products/autodl/j2se"/>
-        <jar href="./aic-expresso-demo-app.jar" main="true" />
+        <jar href="aic-expresso-demo-app.jar" main="true" />
     </resources>
     <security>
         <all-permissions/>
