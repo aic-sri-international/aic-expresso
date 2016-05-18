@@ -9,7 +9,7 @@
     <resources>
         <!-- Application Resources -->
         <j2se version="1.8.0_41+" href="http://java.sun.com/products/autodl/j2se"/>
-        <jar href="aic-expresso-demo-app.jar" main="true" />
+        <jar href="http://aic-sri-international.github.io/aic-expresso/aic-expresso-demo-app.jar" main="true" />
     </resources>
     <security>
         <all-permissions/>
