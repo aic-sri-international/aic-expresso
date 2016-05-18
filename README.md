@@ -11,6 +11,7 @@ capabilities in the following areas:
 
 ### Getting Started
 * [User Guide](https://github.com/aic-sri-international/aic-expresso/wiki/Introduction)
+* [Demo](http://aic-sri-international.github.io/aic-expresso/)
 * Latest Maven Information (for integration as a third party library)
       
       ```
