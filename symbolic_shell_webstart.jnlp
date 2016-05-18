@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+"
+    href="symbolic_shell_webstart.jnlp">
+    <information>
+        <title>Symbolic Shell</title>
+        <vendor>AIC SRI International</vendor>
+        <offline-allowed/>
+    </information>
+    <resources>
+        <!-- Application Resources -->
+        <j2se version="1.8.0_41+" href="http://java.sun.com/products/autodl/j2se"/>
+        <jar href="aic-expresso-demo-app.jar" main="true" />
+    </resources>
+    <security>
+        <all-permissions/>
+    </security>
+    <application-desc
+         name="Symbolc Shell"
+         main-class=
+           "com.sri.ai.grinder.sgdpll.application.SymbolicShell">
+           <argument>-console</argument>
+           <argument>gui</argument>
+     </application-desc>
+     <update check="background"/>
+</jnlp>
