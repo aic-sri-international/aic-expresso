@@ -131,6 +131,10 @@ public class SymbolicShell {
 				, "sum({{ (on I in 1..100)  (I - J)^2 }})"
 				, "sum({{ (on I in 1..100)  if I != K then (I - J)^2 else 0 }})"
 				
+				, "sum({{ (on I in 1..100)  I | I >= 3 and I < 21 }})"
+				, "sum({{ (on I in 1..100)  I | I > J and I < 5 and I < 500 }})"
+				, "sum({{ (on I in 1..100)  (I - J)^2 | I < 50 }})"
+				
 				);
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
@@ -269,19 +273,20 @@ public class SymbolicShell {
 				"- there exists X in <Type> : <Formula>",
 				"",
 				"- aggregates over intensionally-defined multi-sets:",
-				"-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})",
-				"- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})",
-				"-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> | <Condition> }})",
+				"- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> | <Condition> }})",
+				"-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> | <Condition> }})",
 				"- the 'on' clause indicates the set indices; all other variables are free variables",
 				"  and the result may depend on them",
 				"",
 				"- cardinality over intensionally-defined multi-sets:",
 				"-      | ({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }}) |",
 				"",
-				"Global inference only works on equality and propositions",
-				"This means the system knows P and (P => Q) implies Q,",
-				"and that X != Y and Y = Z implies X != Z,",
-				"but does not know that X < Y and Y < Z implies X < Z.",
+				"Inference only works on equality, propositions and difference arithmetic on integers.",
+				"This means that equalities (=), disequalities (!=) and inequalities (<, >, <=, >=) over integers",
+				"can involve at most two variables, they must not be multiplied by anything and have opposite signs when moved to the same side of operator.",
+				"For example, \"I - J > 2\", \"-I = -J\", and \"I > 3\" are all difference arithmetic literals,",
+				"but \"2*I = J\", \"I + J < 3\", or \"I -J + K = 0\" are not.",
 				"",
 				"'show' shows declared variables and their types",
 				"'debug' toggles debugging information",
