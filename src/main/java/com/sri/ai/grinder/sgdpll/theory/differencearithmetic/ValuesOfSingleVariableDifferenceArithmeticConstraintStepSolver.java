@@ -90,14 +90,13 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 	}
 
 	@Override
-	public Expression getSolutionExpressionGivenBoundsAndDistinctDisequals(Expression greatestStrictLowerBound, Expression leastNonStrictUpperBound, Expression boundsDifference, SolutionStep distinctDisequalsStep, Context context) {
+	public Expression getSolutionExpressionGivenBoundsAndDistinctDisequals(Expression greatestStrictLowerBound, Expression leastNonStrictUpperBound, Expression boundsDifference, Expression distinctDisequalsSet, Context context) {
 		Expression solutionExpression;
-		Expression distinctDisequals = distinctDisequalsStep.getValue();
 		solutionExpression = 
 				new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(
 						greatestStrictLowerBound,
 						leastNonStrictUpperBound,
-						distinctDisequals.getArguments()
+						distinctDisequalsSet.getArguments()
 						);
 		return solutionExpression;
 	}

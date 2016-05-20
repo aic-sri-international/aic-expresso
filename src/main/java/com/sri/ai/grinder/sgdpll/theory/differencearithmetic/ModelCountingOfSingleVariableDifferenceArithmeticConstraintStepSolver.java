@@ -98,9 +98,14 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 	}
 	
 	@Override
-	public Expression getSolutionExpressionGivenBoundsAndDistinctDisequals(Expression greatestStrictLowerBound, Expression leastNonStrictUpperBound, Expression boundsDifference, SolutionStep distinctDisequalsStep, Context context) {
+	public Expression getSolutionExpressionGivenBoundsAndDistinctDisequals(Expression greatestStrictLowerBound, Expression leastNonStrictUpperBound, Expression boundsDifference, Expression distinctDisequalsSet, Context context) {
+		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
+		// that one of the non-strict upper bounds U is less than all the others, and that
+		// all disequals are in ]L, U], and are disequal from each other.
+		// Therefore, the constraint is satisfiable if and only if U - L > D
+		// where D is the number of disequals.
 		Expression solutionExpression;
-		Expression numberOfDistinctDisequals = makeSymbol(distinctDisequalsStep.getValue().numberOfArguments());
+		Expression numberOfDistinctDisequals = makeSymbol(distinctDisequalsSet.numberOfArguments());
 		ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, numberOfDistinctDisequals);
 		solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, context);
 		return solutionExpression;
