@@ -44,7 +44,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.util.Util.list;
@@ -60,7 +59,6 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
@@ -79,7 +77,6 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
 import com.sri.ai.util.Util;
-
 
 /** 
  * A {@link ConstraintTheory} for difference arithmetic literals.
@@ -105,13 +102,13 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
 				propagateAllLiteralsWhenVariableIsBound, 
 				new DefaultMapBasedTopSimplifier(
-						makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory(), 
+						makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier(), 
 						map()));
 		// It's important to include the different arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
 		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
-	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmeticConstraintTheory() {
+	private static Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier() {
 		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
@@ -135,8 +132,7 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 
 	@Override
 	protected boolean isValidArgument(Expression expression, Type type) {
-		Expression parsedType = Expressions.parse(type.toString());
-		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor(INTEGER_INTERVAL) && parsedType.numberOfArguments() == 2);
+		boolean result = type instanceof IntegerExpressoType || type instanceof IntegerInterval;
 		return result;
 	}
 

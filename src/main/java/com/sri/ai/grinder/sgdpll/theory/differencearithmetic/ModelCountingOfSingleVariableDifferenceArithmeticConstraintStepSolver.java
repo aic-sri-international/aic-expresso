@@ -104,10 +104,9 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 		// all disequals are in ]L, U], and are disequal from each other.
 		// Therefore, the constraint is satisfiable if and only if U - L > D
 		// where D is the number of disequals.
-		Expression solutionExpression;
 		Expression numberOfDistinctDisequals = makeSymbol(distinctDisequalsSet.numberOfArguments());
 		ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, numberOfDistinctDisequals);
-		solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, context);
+		Expression solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, context);
 		return solutionExpression;
 	}
 }

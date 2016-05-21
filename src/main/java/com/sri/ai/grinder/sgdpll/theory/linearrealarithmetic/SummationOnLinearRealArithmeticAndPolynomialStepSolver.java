@@ -38,23 +38,20 @@
 package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.polynomial.api.Polynomial.makeRandomPolynomial;
-import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.set.Sets;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
@@ -73,11 +70,11 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	private ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
+	private ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
 	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
 		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
-		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
+		valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 				new ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) indexConstraint);
 	}
@@ -102,22 +99,22 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Context context) {
 
 		SolutionStep step = 
-				valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver.step(context);
+				valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;
 		}
 		if (step.itDepends()) {
 			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifTrue = clone();
-			ifTrue.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
+			ifTrue.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 					(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsTrue();
 			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifFalse = clone();
-			ifFalse.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
+			ifFalse.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 					(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsFalse();
 			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 		}
-		RangeAndExceptionsSet values = (RangeAndExceptionsSet) step.getValue();
+		Expression values = step.getValue();
 		
 		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, context);
 		return new Solution(result);
@@ -126,67 +123,21 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	private Expression computeSummationGivenValues(
 			Expression variable,
 			Expression literalFreeBody,
-			RangeAndExceptionsSet values,
+			Expression values,
 			Context context) {
 		
 		Expression result;
-		if (values.equals(RangeAndExceptionsSet.EMPTY)) {
+		if (values.equals(Sets.EMPTY_SET)) {
 			result = ZERO;
 		}
 		else {
-			ConstraintTheory constraintTheory = context.getConstraintTheory();
-			if (values instanceof RangeAndExceptionsSet.Singleton) {
-				Expression value = ((RangeAndExceptionsSet.Singleton)values).getSingleValue();
-				Expression valueAtPoint = 
-						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, context));
-				result = valueAtPoint;
-			}
-			else {
-				Expression interval;
-				List<Expression> disequals;
-				if (values.hasFunctor(MINUS)) {
-					interval = values.get(0);
-					disequals = values.get(1).getArguments();
-				}
-				else {
-					interval = values;
-					disequals = list();
-				}
-				Expression strictLowerBound = interval.get(0);
-				Expression nonStrictUpperBound = interval.get(1);
-				Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
-				Expression intervalSummation =
-						PolynomialSummation.sum(
-								variable,
-								strictLowerBound,
-								nonStrictUpperBound,
-								bodyPolynomial);
-				
-				ArrayList<Expression> argumentsForSubtraction =
-						new ArrayList<>(1 + disequals.size());
-				argumentsForSubtraction.add(intervalSummation);
-				for (Expression disequal : disequals) {
-					Expression valueAtDisequal =
-							getValueAtGivenPoint(
-									literalFreeBody,
-									variable,
-									disequal,
-									constraintTheory,
-									context);
-					argumentsForSubtraction.add(apply(MINUS, valueAtDisequal));
-				}
-				Expression intervalSummationMinusValuesAtDisequals =
-						apply(PLUS, argumentsForSubtraction);
-				result = DefaultPolynomial.make(constraintTheory.simplify(intervalSummationMinusValuesAtDisequals, context));
-			}
+			IntensionalSet interval = (IntensionalSet) values;
+			Expression lowerBound = interval.getCondition().get(0).get(0);
+			Expression upperBound = interval.getCondition().get(1).get(1);
+			Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
+			result = Tuple.make(lowerBound, upperBound, bodyPolynomial); // TODO: replace by definite integral
 		}
 		return result;
-	}
-
-	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, ConstraintTheory constraintTheory, Context context) {
-		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, context);
-		Expression valueAtPoint = constraintTheory.simplify(newBody, context);
-		return valueAtPoint;
 	}
 
 	@Override

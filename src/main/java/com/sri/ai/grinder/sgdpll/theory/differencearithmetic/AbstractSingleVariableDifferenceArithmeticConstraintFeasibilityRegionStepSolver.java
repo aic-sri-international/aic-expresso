@@ -68,8 +68,8 @@ import com.sri.ai.util.base.Pair;
 
 /**
  * A {@link AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver}
- * for a {@link SingleVariableDifferenceArithmeticConstraint}.
- * In particular, its abstract method
+ * for a {@link SingleVariableLinearRealArithmeticConstraint}.
+ * In particular, its implementation of method
  * {@link #getSolutionStepAfterBoundsAreCheckedForFeasibility(
  * Expression maximumLowerBound, 
  * Expression minimumUpperBound, 
@@ -273,13 +273,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		return new Solution(solutionExpression);
 	}
 	
-	/**
-	 * Must provide a literal deciding whether the given bounds (and associated strictness) admit any values for the variable.
-	 * @param lowerBound
-	 * @param upperBound
-	 * @param context
-	 * @return
-	 */
+	@Override
 	protected Expression makeLiteralCheckingWhetherThereAreAnyValuesWithinBounds(Expression lowerBound, Expression upperBound, Context context) {
 		Expression result = applyAndSimplify(LESS_THAN, arrayList(lowerBound, upperBound), context);
 		// relies on lower bounds being strict, and upper bounds being non-strict

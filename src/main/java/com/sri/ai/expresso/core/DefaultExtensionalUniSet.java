@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.Util.arrayList;
+
 import java.util.ArrayList;
 
 import com.google.common.annotations.Beta;
@@ -56,6 +58,10 @@ public class DefaultExtensionalUniSet extends AbstractExtensionalSet {
 
 	public DefaultExtensionalUniSet(ArrayList<Expression> elementsDefinitions) {
 		super(elementsDefinitions);
+	}
+
+	public DefaultExtensionalUniSet(Expression singleElement) {
+		super(arrayList(singleElement));
 	}
 
 	@Override

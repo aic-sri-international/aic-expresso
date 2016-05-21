@@ -65,7 +65,7 @@ public class Sum extends AbstractGroupProblemTypeWithFunctionApplicationExpressi
 	 * Creates a sum problem type based on a given group.
 	 * This is useful for extensions that need to be based on an instance of some extension of
 	 * {@link AssociativeCommutativeGroup} such as {@link AssociativeCommutativeSemiRing}.
-	 * This is something need for problem types passed to {@link AbstractSemiRingProblemType}.
+	 * This is something needed for problem types passed to {@link AbstractSemiRingProblemType}.
 	 */
 	protected Sum(AssociativeCommutativeGroup group) {
 		super(group);

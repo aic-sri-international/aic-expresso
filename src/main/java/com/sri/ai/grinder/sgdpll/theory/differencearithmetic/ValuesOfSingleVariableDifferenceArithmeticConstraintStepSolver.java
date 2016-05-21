@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpll.theory.differencearithmetic;
 
-import static com.sri.ai.expresso.helper.Expressions.INFINITY;
-import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.util.Util.getFirst;
 
 import com.google.common.annotations.Beta;
@@ -64,23 +62,18 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver exte
 	}
 
 	@Override
-	public SingleVariableDifferenceArithmeticConstraint getConstraint() {
-		return (SingleVariableDifferenceArithmeticConstraint) super.getConstraint();
-	}
-	
-	@Override
 	public boolean unboundedVariableProducesShortCircuitSolution() {
 		return false;
 	}
 
 	@Override
-	protected Expression getSolutionExpressionGivenContradiction() {
-		return RangeAndExceptionsSet.EMPTY;
+	public Expression getSolutionExpressionForUnboundedVariables() {
+		return null; // not used because just knowing that the variable is unbounded is not enought to determine solution
 	}
 
 	@Override
-	public Expression getSolutionExpressionForUnboundedVariables() {
-		return new RangeAndExceptionsSet.DefaultRangeAndExceptionsSet(MINUS_INFINITY, INFINITY);
+	protected Expression getSolutionExpressionGivenContradiction() {
+		return RangeAndExceptionsSet.EMPTY;
 	}
 
 	@Override

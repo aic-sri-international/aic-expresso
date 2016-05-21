@@ -37,8 +37,18 @@
  */
 package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.grinder.helper.IsolateUtil;
 
 /**
  * A collection of methods for manipulating linear real arithmetic literals.
@@ -49,14 +59,25 @@ import com.sri.ai.expresso.api.Expression;
 @Beta
 public class LinearRealArithmeticUtil {
 
+	private static final Symbol X = makeSymbol("x");
+	private static final Expression ZERO_DISTINCT_FROM_ZERO = apply(DISEQUALITY, ZERO, ZERO);
+
 	/**
 	 * Simplify a linear real arithmetic literal.
 	 * @param expression
 	 * @return
 	 */
 	public static Expression simplify(Expression expression) {
-		// TODO: write this method
-		return null;
+		// we isolate variable x in the expression, even if there is no variable x in it.
+		// If it does not exist, then we will get the equivalent "if 0 != 0 then <irrelevant> else 0 <operator> <polynomial without x>"
+		Expression result = isolateVariable(X, expression);
+		
+		// not strictly required because caller is the one who knows about context and simplification, 
+		// but why return an ugly thing if we can avoid it?
+		if (isIfThenElse(result) && condition(result).equals(ZERO_DISTINCT_FROM_ZERO)) {
+			result = elseBranch(result);
+		}
+		return result;
 	}
 
 	/**
@@ -68,7 +89,6 @@ public class LinearRealArithmeticUtil {
 	 * @throws Error
 	 */
 	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
-		// TODO: write this method
-		return null;
+		return IsolateUtil.isolate(numericalComparison, variable);
 	}
 }

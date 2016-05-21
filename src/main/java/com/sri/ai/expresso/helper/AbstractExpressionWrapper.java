@@ -50,9 +50,31 @@ import com.sri.ai.util.math.Rational;
 
 /**
  * A implementation of {@link Expression} that redirects methods to an inner {@link Expression}.
- * This is useful when implementing extending an interface of {@link Expression}
- * that applies to all implementations of {@link Expression},
- * without having to extend each of those implementations.
+ * <p>
+ * To see why this is useful, consider the following:
+ * <ul>
+ * <li> {@link Expression} is an interface with many methods with relatively high complexity,
+ * so creating an implementation from scratch is labor-intensive;
+ * 
+ * <li> Therefore, most implementations of {@link Expression} extend
+ * an existing (possible abstract) implementation.
+ * Currently, most implementations are extensions of {@link AbstractExpression};
+ * 
+ * <li> When creating a new implementation of {@link Expression}
+ * that may have varying syntactic forms, such as a boolean formula
+ * which can be either a function application of a boolean conjunctive,
+ * or a boolean constant, it is not possible to extend {@link DefaultFunctionApplication}
+ * or {@link DefaultSymbol}, because they are restricted to a single syntactic type;
+ * 
+ * <li> Extending directly from {@link AbstractExpression} would require the
+ * re-implementation and functionality of duplication of those syntactic types,
+ * which would be highly undesirable;
+ * 
+ * <li> The best solution is therefore to have the class extend {@link AbstractExpressionWrapper}
+ * and have its method {@link #getInnerExpression()} provide an
+ * instance of an already existing implementation of {@link Expression} of the appropriate type.
+ * </ul>
+ * 
  * <p>
  * While {@link Expression} is an immutable type, extensions of this class are allowed to be
  * mutable, as long as they are no longer changed after having being used as an {@link Expression}

@@ -139,9 +139,12 @@ public class IsolateUtil {
 	public static Expression isolate(Polynomial leftPolynomial, Expression operator, Polynomial rightPolynomial, Expression linearVariableToIsolate) {		
 		assertSupportedOperator(operator);
 		
-		Pair<List<Monomial>, List<Monomial>> splitIntoSimilarAndDissimilarTerms = splitIntoSimilarAndDissimilarTerms(leftPolynomial, linearVariableToIsolate);
+		Pair<List<Monomial>, List<Monomial>> splitIntoSimilarAndDissimilarTerms;
+		
+		splitIntoSimilarAndDissimilarTerms  = splitIntoSimilarAndDissimilarTerms(leftPolynomial, linearVariableToIsolate);
 		List<Monomial> leftSimilarTerms     = splitIntoSimilarAndDissimilarTerms.first;
-		List<Monomial> leftDissimilarTerms  = splitIntoSimilarAndDissimilarTerms.second;  
+		List<Monomial> leftDissimilarTerms  = splitIntoSimilarAndDissimilarTerms.second;
+		
 		splitIntoSimilarAndDissimilarTerms  = splitIntoSimilarAndDissimilarTerms(rightPolynomial, linearVariableToIsolate);
 		List<Monomial> rightSimilarTerms    = splitIntoSimilarAndDissimilarTerms.first;
 		List<Monomial> rightDissimilarTerms = splitIntoSimilarAndDissimilarTerms.second;
@@ -222,6 +225,13 @@ public class IsolateUtil {
 		return result;
 	}
 	
+	/**
+	 * Separates the monomials of a given polynomial into those containing a given generalized variable (similar terms),
+	 * and those not containing the given generalized variable (dissimilar terms).
+	 * @param polynomial
+	 * @param generalizedVariable
+	 * @return
+	 */
 	public static Pair<List<Monomial>, List<Monomial>> splitIntoSimilarAndDissimilarTerms(Polynomial polynomial, Expression generalizedVariable) {
 		Pair<List<Monomial>, List<Monomial>> result = new Pair<>(new ArrayList<>(), new ArrayList<>());
 		

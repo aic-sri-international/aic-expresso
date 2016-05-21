@@ -40,7 +40,9 @@ package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
 
@@ -51,8 +53,9 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -107,7 +110,7 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 
 	@Override
 	protected Expression isolateVariable(Expression atom, Context context) {
-		Expression result = LinearRealArithmeticUtil.isolateVariable(getVariable(), atom);
+		Expression result = LinearRealArithmeticUtil.isolateVariable(atom, getVariable());
 		return result;
 	}
 
@@ -130,37 +133,43 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 		// TODO: revise this method for linear real arithmetic
 		
 		if (cachedImplicitNegativeNormalizedAtoms == null) {
-			IntegerInterval interval = getType(context);
-			Expression nonStrictLowerBound = interval.getNonStrictLowerBound();
-			Expression nonStrictUpperBound = interval.getNonStrictUpperBound();
+			RealInterval interval = getType(context);
+			
+			Expression lowerBound = interval.getLowerBound();
+			String lowerBoundOperator = interval.lowerBoundIsOpen()? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
+
+			Expression upperBound = interval.getUpperBound();
+			String upperBoundOperator = interval.upperBoundIsOpen()? GREATER_THAN : GREATER_THAN_OR_EQUAL_TO;
+
 			cachedImplicitNegativeNormalizedAtoms = list();
-			if (!nonStrictLowerBound.equals("unknown") && !nonStrictLowerBound.equals(UnaryMinus.make(INFINITY))) {
-				cachedImplicitNegativeNormalizedAtoms.add(apply(LESS_THAN, getVariable(), nonStrictLowerBound));
+			if (!lowerBound.equals("unknown") && !lowerBound.equals(UnaryMinus.make(INFINITY))) {
+				cachedImplicitNegativeNormalizedAtoms.add(apply(lowerBoundOperator, getVariable(), lowerBound));
 				// this is the negation of variable >= nonStrictLowerBound. We need to use a negative normalized atom because applications of >= are not considered normalized atoms
 			}
-			if (!nonStrictUpperBound.equals("unknown") && !nonStrictUpperBound.equals(INFINITY)) {
-				cachedImplicitNegativeNormalizedAtoms.add(apply(GREATER_THAN, getVariable(), nonStrictUpperBound));
+			if (!upperBound.equals("unknown") && !upperBound.equals(INFINITY)) {
+				cachedImplicitNegativeNormalizedAtoms.add(apply(upperBoundOperator, getVariable(), upperBound));
 				// this is the negation of variable <= nonStrictUpperBound. We need to use a negative normalized atom because applications of <= are not considered normalized atoms
 			}
 		}
 		return cachedImplicitNegativeNormalizedAtoms.iterator();
 	}
 
-	private IntegerInterval cachedType;
+	private RealInterval cachedType;
 	
 	/**
 	 * Returns the {@link IntegerInterval} type of the constraint's variable.
 	 * @param context
 	 * @return
 	 */
-	public IntegerInterval getType(Context context) {
+	public RealInterval getType(Context context) {
 		if (cachedType == null) {
 			Type type = context.getType(getVariableTypeExpression(context));
-			if (type instanceof IntegerExpressoType) {
-				cachedType = new IntegerInterval("-infinity..infinity");
+			if (type instanceof RealExpressoType) {
+				cachedType = new RealInterval("]-infinity;infinity[");
+				// represents Real as real interval for uniformity
 			}
 			else {
-				cachedType = (IntegerInterval) type;
+				cachedType = (RealInterval) type;
 			}
 		}
 		return cachedType ;

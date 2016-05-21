@@ -77,7 +77,6 @@ import com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.ConstantStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.base.LiteralStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.PairOf;
@@ -273,7 +272,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 
 	public 
 	AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver(
-			SingleVariableDifferenceArithmeticConstraint constraint) {
+			AbstractSingleVariableNumericConstraint constraint) {
 		
 		super(constraint);
 	}
@@ -284,8 +283,8 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	}
 
 	@Override
-	public SingleVariableDifferenceArithmeticConstraint getConstraint() {
-		return (SingleVariableDifferenceArithmeticConstraint) super.getConstraint();
+	public AbstractSingleVariableNumericConstraint getConstraint() {
+		return (AbstractSingleVariableNumericConstraint) super.getConstraint();
 	}
 	
 	@Override

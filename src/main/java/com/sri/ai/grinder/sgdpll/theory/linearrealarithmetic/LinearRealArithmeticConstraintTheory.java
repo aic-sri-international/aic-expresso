@@ -54,12 +54,10 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
@@ -71,7 +69,6 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
-
 
 /** 
  * A {@link ConstraintTheory} for linear real arithmetic literals.
@@ -97,13 +94,13 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
 				propagateAllLiteralsWhenVariableIsBound, 
 				new DefaultMapBasedTopSimplifier(
-						makeFunctionApplicationSimplifiersForLinearRealArithmeticConstraintTheory(), 
+						makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier(), 
 						map()));
-		// It's important to include the different arithmetic simplifier to avoid leaving linear real arithmetic literals that could be picked up as splitters,
+		// It's important to include the linear real arithmetic simplifier to avoid leaving linear real arithmetic literals that could be picked up as splitters,
 		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
-	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForLinearRealArithmeticConstraintTheory() {
+	private static Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier() {
 		Simplifier linearRealArithmeticSimplifier = new LinearRealArithmeticSimplifier();
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
@@ -127,27 +124,8 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 
 	@Override
 	protected boolean isValidArgument(Expression expression, Type type) {
-		Expression parsedType = Expressions.parse(type.toString());
-		boolean result = 
-				parsedType.equals("Real") 
-				|| 
-				(isRealInterval(parsedType) && parsedType.numberOfArguments() == 2);
+		boolean result = type instanceof RealExpressoType || type instanceof RealInterval;
 		return result;
-	}
-
-	/**
-	 * @param parsedType
-	 * @return
-	 */
-	public boolean isRealInterval(Expression parsedType) {
-		return 
-				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_OPEN)
-				||
-				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED)
-				||
-				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN)
-				||
-				parsedType.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED);
 	}
 
 	@Override
