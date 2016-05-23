@@ -255,6 +255,12 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
+	@Override
+	public Expression visitRealInterval(AntlrGrinderParser.RealIntervalContext ctx) {
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.leftBracket.getText()+" . ; . "+ctx.rightBracket.getText(), visit(ctx.lower), visit(ctx.upper));
+		return result;
+	}
+	
 	// set intersection, e.g.: {a, b, c} intersection {b}
 	// leftop=expr INTERSECTION rightop=expr #intersection
 	@Override

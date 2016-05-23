@@ -1534,6 +1534,46 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				"1",
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10")));
 	}
+	
+	@Test
+	public void testRealInterval () {
+		String string;
+		string = "[1;10]";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED, "1", "10"));
+		
+		string = "[1.1;10.1]";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED, "1.1", "10.1"));
+		
+		string = "[a;b]";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED, "a", "b"));
+		
+		string = "[1;10[";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN, "1", "10"));
+		
+		string = "[1.1;10.1[";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN, "1.1", "10.1"));
+		
+		string = "[a;b[";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN, "a", "b"));
+		
+		string = "]1;10]";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED, "1", "10"));
+		
+		string = "]1.1;10.1]";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED, "1.1", "10.1"));
+		
+		string = "]a;b]";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED, "a", "b"));
+		
+		string = "]1;10[";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_OPEN_OPEN, "1", "10"));
+		
+		string = "]1.1;10.1[";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_OPEN_OPEN, "1.1", "10.1"));
+		
+		string = "]a;b[";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.REAL_INTERVAL_OPEN_OPEN, "a", "b"));
+	}
 
 	@Test
 	public void testMinus () {

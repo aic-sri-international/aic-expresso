@@ -104,6 +104,7 @@ public class AntlrGrinderTerminalSymbols {
 		terminalSymbols.add("{{");
 		terminalSymbols.add("}}");
 		// Misc
+		terminalSymbols.add(";");
 		terminalSymbols.add(":");
 		terminalSymbols.add("|");
 		terminalSymbols.add(",");

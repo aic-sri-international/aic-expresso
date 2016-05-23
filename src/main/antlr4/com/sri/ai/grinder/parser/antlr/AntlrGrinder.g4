@@ -35,6 +35,8 @@ expr :
      | leftop=expr op=('*' | '/' | '..') rightop=expr #multiplicationOrDivisionOrIntegerInterval
        // addition or subtraction, e.g.: 1-2+3 -> (1-2)+3
      | leftop=expr op=('+' | '-') rightop=expr #additionOrSubtraction
+       // real interval
+     | leftBracket=('[' | ']') lower=expr SEMICOLON upper=expr rightBracket=(']' | '[') #realInterval
        // set intersection, e.g.: {a, b, c} intersection {b}
      | leftop=expr INTERSECTION rightop=expr #intersection
        // set union, {a, b, c} union {b, d}
@@ -90,10 +92,6 @@ expr :
         | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison, Note: We intentionally exclude '<' and '>' as these can affect parsing of an expression symbol
         | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc
         | RATIONAL | SYMBOLIC_NAME) #symbol
-     ;
-     
-cartesian_product_expr :
-     
      ;
 
 /*
@@ -164,6 +162,7 @@ CLOSE_CURLY             : '}' ;
 OPEN_DOUBLE_CURLY       : '{{' ;
 CLOSE_DOUBLE_CURLY      : '}}' ;
 // Misc
+SEMICOLON               : ';' ;
 COLON                   : ':' ;
 VERT_BAR                : '|' ;
 COMMA                   : ',' ;
