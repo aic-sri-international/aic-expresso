@@ -188,6 +188,44 @@ public class PolynomialIntegrationTest {
 		Assert.assertEquals(
 				makePolynomial("a*(c^3/3) + a*(c^2/2) + a*c + 5*c + -1*a*(b^3/3) + -1*a*(b^2/2) + -1*a*b + -5*b"), 
 				PolynomialIntegration.definiteIntegral(makePolynomial("a*x^2 + a*x + a + 5"), Expressions.parse("x"),  Expressions.parse("b"), Expressions.parse("c")));		
+		
+		Assert.assertEquals(
+				makePolynomial("((c^4/4)*y^2 + 2*(c^3/3) + y^2*c + (c^2/2) + y*c + 10*c) - ((b^4/4)*y^2 + 2*(b^3/3) + y^2*b + (b^2/2) + y*b + 10*b)", "tuple(x, y, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("x^3*y^2 + 2*x^2 + y^2 + x + y + 10", "tuple(x, y)"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));
+
+		Assert.assertEquals(
+				makePolynomial("(2*(c^3/3)*y + 3*(c^2/2)*y^2 + 4*(c^3/3) + 21*(c^2/2)*y + 15*y^2*c + 12*(c^2/2) + 28*y*c + 5*c) - (2*(b^3/3)*y + 3*(b^2/2)*y^2 + 4*(b^3/3) + 21*(b^2/2)*y + 15*y^2*b + 12*(b^2/2) + 28*y*b + 5*b)", "tuple(x, y, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("2*x^2*y + 3*x*y^2 + 4*x^2 + 21*x*y + 15*y^2 + 12*x + 28*y + 5", "tuple(x, y)"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));
+	}
+	
+	@Test
+	public void testDefiniteIntegralsOfGeneralFactorsInPolynomials() {
+		Assert.assertEquals(
+				makePolynomial("a*c - a*b", "tuple(x, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("a", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+
+		Assert.assertEquals(
+				makePolynomial("sin(a)*c - sin(a)*b", "tuple(x, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("sin(a)", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+
+		Assert.assertEquals(
+				makePolynomial("sin(x)*c - sin(x)*b", "tuple(x, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("sin(x)", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+
+		Assert.assertEquals(
+				makePolynomial("sin(x)*c^2/2 - sin(x)*b^2/2", "tuple(sin(x), x, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("sin(x)*x", "tuple(sin(x))"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+		
+		// NOTE: as you are integrating in terms of x even though
+		// x is not marked as a variable in the original polynomial
+		// it will be marked as a variable in the resulting polynomial
+		Assert.assertEquals(
+				makePolynomial("c^2/2 - b^2/2", "tuple(x, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("x", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+
+		Assert.assertEquals(
+				makePolynomial("(3*y^4)*(c^3/3) - (3*y^4)*(b^3/3)", "tuple(x, b, c)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("3*x^2*y^4", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));
 	}
 	
 	@Test
@@ -198,6 +236,21 @@ public class PolynomialIntegrationTest {
 		Assert.assertEquals(
 				makePolynomial("c*x^-1 + -1*b*x^-1", "tuple(b, c, x, x^-1)"), 
 				PolynomialIntegration.definiteIntegral(makePolynomial("x^-1"), Expressions.parse("x"),  Expressions.parse("b"),  Expressions.parse("c")));
+	}
+	
+	@Test
+	public void testDefiniteIntegralUsingNumericLimits() {
+		Assert.assertEquals(
+				makePolynomial("11^2/2 - 7^2/2 ", "tuple(x)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("x"), Expressions.parse("x"),  Expressions.parse("7"),  Expressions.parse("11")));
+	
+		Assert.assertEquals(
+				makePolynomial("a*(11^3/3) + a*(11^2/2) + a*11 + 5*11 + -1*a*(7^3/3) + -1*a*(7^2/2) + -1*a*7 + -5*7"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("a*x^2 + a*x + a + 5"), Expressions.parse("x"),  Expressions.parse("7"), Expressions.parse("11")));		
+	
+		Assert.assertEquals(
+				makePolynomial("((11^4/4)*y^2 + 2*(11^3/3) + y^2*11 + (11^2/2) + y*11 + 10*11) - ((7^4/4)*y^2 + 2*(7^3/3) + y^2*7 + (7^2/2) + y*7 + 10*7)", "tuple(x, y)"), 
+				PolynomialIntegration.definiteIntegral(makePolynomial("x^3*y^2 + 2*x^2 + y^2 + x + y + 10", "tuple(x, y)"), Expressions.parse("x"), Expressions.parse("7"), Expressions.parse("11")));
 	}
 	
 	private static Polynomial makePolynomial(String polynomial) {
