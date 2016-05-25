@@ -42,8 +42,16 @@ public class PolynomialIntegration {
 	 *        the variable integration is with respect to.
 	 * @return the indefinite integral of the given polynomial.
 	 */
-	public static Polynomial indefiniteIntegral(Polynomial polynomial, Expression variable) {		
-		// First get the integrals of its terms
+	public static Polynomial indefiniteIntegral(Polynomial polynomial, Expression variable) {				
+		List<Expression> variables = new ArrayList<>(polynomial.getVariables());
+		if (!variables.contains(variable)) {
+			variables.add(variable);
+			// Ensure the variable we are integrating with respect to is 
+			// recognized by the polynomial as being one (this is implied).
+			polynomial = DefaultPolynomial.make(polynomial, variables);
+		}		
+		
+		// Get the integrals of its terms
 		List<Expression> integralsOfTerms = new ArrayList<>();
 		for (Monomial term : polynomial.getOrderedSummands()) {
 			// indefinite integral of the term is:
@@ -73,10 +81,6 @@ public class PolynomialIntegration {
 		}
 		
 		// The integral of any polynomial is the sum of the integrals of its terms.
-		List<Expression> variables = new ArrayList<>(polynomial.getVariables());
-		if (!variables.contains(variable)) {
-			variables.add(variable);
-		}
 		Polynomial result = DefaultPolynomial.make(Plus.make(integralsOfTerms), variables);
 				
 		return result;
@@ -108,8 +112,7 @@ public class PolynomialIntegration {
 		}
 		if (!Expressions.isNumber(end)) {
 			variableSet.add(end);
-		}
-		
+		}		
 		List<Expression> variables = new ArrayList<>(variableSet);
 		
 		Polynomial minuendPolynomial    = replaceFactor(q, variable, end, variables);
