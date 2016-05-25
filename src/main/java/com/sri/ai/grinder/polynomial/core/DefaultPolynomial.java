@@ -93,9 +93,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	private static final ExpressionComparator _factorComparator = new ExpressionComparator();
 	//
 	private List<Expression>              variables          = null;
-	private MonomialComparator            monomialComparator        = null;
-	private List<Monomial>                orderedSummands           = null;
-	private Map<List<Rational>, Monomial> signatureTermMap          = null;
+	private MonomialComparator            monomialComparator = null;
+	private List<Monomial>                orderedSummands    = null;
+	private Map<List<Rational>, Monomial> signatureTermMap   = null;
 
 	public static Polynomial make(Expression expression) {
 		List<Expression> generalizedVariables = extractGeneralizedVariables(expression);

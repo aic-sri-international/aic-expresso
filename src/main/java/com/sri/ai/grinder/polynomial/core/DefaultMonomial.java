@@ -84,11 +84,11 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
 	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
 	//
-	private int                       degree                           = 0;
-	private Expression                numericConstantFactorExpression  = null; 
-	private List<Expression>          orderedNonNumericFactors = null; // these include the exponents
-	private List<Rational>            orderedNonNumericFactorPowers  = null;
-	private Map<Expression, Rational> factorToPower                    = new LinkedHashMap<>();
+	private int                       degree                          = 0;
+	private Expression                numericConstantFactorExpression = null; 
+	private List<Expression>          orderedNonNumericFactors        = null; // these include the exponents
+	private List<Rational>            orderedNonNumericFactorPowers   = null;
+	private Map<Expression, Rational> factorToPower                   = new LinkedHashMap<>();
 	
 	public static Monomial make(Expression expression) {
 		Monomial result = make(Times.getMultiplicands(expression));
