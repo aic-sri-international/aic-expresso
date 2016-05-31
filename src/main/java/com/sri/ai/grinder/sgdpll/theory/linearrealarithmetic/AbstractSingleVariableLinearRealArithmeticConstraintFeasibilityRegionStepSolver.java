@@ -87,7 +87,7 @@ public abstract class AbstractSingleVariableLinearRealArithmeticConstraintFeasib
 	protected Expression makeLiteralCheckingWhetherThereAreAnyValuesWithinBounds(Expression lowerBound, Expression upperBound, Context context) {
 		Expression result;
 		boolean lowerBoundIsStrict = getMapFromLowerBoundsToStrictness(context).get(lowerBound);
-		boolean upperBoundIsStrict = getMapFromLowerBoundsToStrictness(context).get(upperBound);
+		boolean upperBoundIsStrict = getMapFromUpperBoundsToStrictness(context).get(upperBound);
 		String operator;
 		if (lowerBoundIsStrict || upperBoundIsStrict) {
 			operator = LESS_THAN;

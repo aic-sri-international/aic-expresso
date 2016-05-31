@@ -152,7 +152,8 @@ public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingle
 	 */
 	public IntegerInterval getType(Context context) {
 		if (cachedType == null) {
-			Type type = context.getType(getVariableTypeExpression(context));
+			Expression variableTypeExpression = getVariableTypeExpression(context);
+			Type type = context.getType(variableTypeExpression);
 			if (type instanceof IntegerExpressoType) {
 				cachedType = new IntegerInterval("-infinity..infinity");
 				// represents Integer as integer interval for uniformity

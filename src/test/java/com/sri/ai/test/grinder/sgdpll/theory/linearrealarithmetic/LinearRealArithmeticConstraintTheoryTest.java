@@ -40,7 +40,6 @@ package com.sri.ai.test.grinder.sgdpll.theory.linearrealarithmetic;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -49,16 +48,15 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
+import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 
 @Beta
 public class LinearRealArithmeticConstraintTheoryTest {
 
-	@Ignore
 	@Test
-	public void test() {
+	public void testSatisfyingValues() {
 		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
 		Context context = constraintTheory.makeContextWithTestingInformation();
 
@@ -66,46 +64,176 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		String constraintString;
 		Expression expected;
 		
-		variable = parse("I");
+		variable = parse("X");
 		constraintString = "true";
-		expected = parse("aboveAndUpTo(-1, 4)");
-		runTest(variable, constraintString, expected, context);
+		expected = parse("[0;4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
 		
-		variable = parse("I");
-		constraintString = "false";
+		variable = parse("X");
+		constraintString = "X < 3";
+		expected = parse("[0;3[");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X > 3 and X <= 3";
 		expected = parse("{}");
-		runTest(variable, constraintString, expected, context);
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
 		
-		variable = parse("I");
-		constraintString = "I < 3 and J > I";
-		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2)");
-		runTest(variable, constraintString, expected, context);
+		variable = parse("X");
+		constraintString = "X > 3.1 and X <= 3.4";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
 		
-		variable = parse("I");
-		constraintString = "I < 3 and J > I and I != 2";
-		expected = parse("if 3 > J then if 0 < J then aboveAndUpTo(-1, J - 1) else {} else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, context);
+		variable = parse("X");
+		constraintString = "X > 3.1 and X <= 3.4 and X != 3.2";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
 		
-		variable = parse("I");
-		constraintString = "I < 3 and J > I and I != 2 and I != K";
-		expected = parse("if 3 > J then if 0 < J then if K + 1 <= J then aboveAndUpTo(-1, J - 1) - { K } else aboveAndUpTo(-1, J - 1) else {} else if K <= 2 then if 2 = K then aboveAndUpTo(-1, 2) - { K } else aboveAndUpTo(-1, 2) - { 2, K } else aboveAndUpTo(-1, 2) - { 2 }");
-		runTest(variable, constraintString, expected, context);
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 3.2";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 3.2 and X = 3.2";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 3.2";
+		expected = parse("{ 3.2 }");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7 and X = 7";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 7";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7 and X = 8";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7 and X = 7 and X = 8";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 7 and X = 8";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+
+	
+	
+		variable = parse("X");
+		constraintString = "X < Y";
+		expected = parse("[0;Y["); // initial 'expected' was "if Y <= 4 then [0;Y[ else [0;4]" but Y's type is also [0;4] so condition is always true -- see next test for a situation in which condition is not always the same
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		// keep these tests together
+		variable = parse("X");
+		constraintString = "X < Y + 1";
+		expected = parse("if Y > 3 then [0;4] else [0 ; Y + 1["); // see previous test for situation in which condition is always true
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X > 3 and X <= 3";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X > 3.1 and X <= 3.4";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X > 3.1 and X <= 3.4 and X != 3.2";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 3.2";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 3.2 and X = 3.2";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 3.2";
+		expected = parse("{ 3.2 }");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 3.6";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7";
+		expected = parse("]3.1; 3.4]");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7 and X = 7";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 7";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7 and X = 8";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X != 7 and X = 7 and X = 8";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > 3.1 and X = 7 and X = 8";
+		expected = parse("{}");
+		runSatisfyingValuesTest(variable, constraintString, expected, context);
 	}
 
-	private void runTest(Expression variable, String constraintString, Expression expected, Context context) {
+	private void runSatisfyingValuesTest(Expression variable, String constraintString, Expression expected, Context context) {
+		System.out.println("Solving for " + variable + " in " + constraintString);
+
 		Constraint constraint
-		= new SingleVariableDifferenceArithmeticConstraint(
+		= new SingleVariableLinearRealArithmeticConstraint(
 				variable, true, context.getConstraintTheory());
+
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
-				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
+				new MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
 		
 		Expression actual = stepSolver.solve(context);
 
 		System.out.println(
 				"Variable " + variable + "\nhas possible values:\n" + actual
 				+ "\nsatisfying constraint:\n" + constraintString + "\n");
+
 		assertEquals(expected, actual);
 	}
 }

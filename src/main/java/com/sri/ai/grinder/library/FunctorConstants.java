@@ -122,6 +122,11 @@ public class FunctorConstants {
 	public static final String FUNCTION_TYPE = "->";
 	public static final String INTEGER_INTERVAL = "'..'";
 
+//	public static final String REAL_INTERVAL_OPEN_OPEN     = "realintervalopenopen";
+//	public static final String REAL_INTERVAL_OPEN_CLOSED   = "realintervalopenclosed";
+//	public static final String REAL_INTERVAL_CLOSED_OPEN   = "realintervalclosedopen";
+//	public static final String REAL_INTERVAL_CLOSED_CLOSED = "realintervalclosedclosed";
+
 	public static final String REAL_INTERVAL_OPEN_OPEN     = "] . ; . [";
 	public static final String REAL_INTERVAL_OPEN_CLOSED   = "] . ; . ]";
 	public static final String REAL_INTERVAL_CLOSED_OPEN   = "[ . ; . [";

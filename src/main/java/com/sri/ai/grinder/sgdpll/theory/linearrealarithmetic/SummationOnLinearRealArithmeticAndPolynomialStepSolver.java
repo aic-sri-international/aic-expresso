@@ -70,12 +70,12 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	private ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
+	private MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
 	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
 		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
 		valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
-				new ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver(
+				new MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) indexConstraint);
 	}
 
@@ -106,11 +106,11 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 		if (step.itDepends()) {
 			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifTrue = clone();
 			ifTrue.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
-					(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver)
+					(MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsTrue();
 			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifFalse = clone();
 			ifFalse.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
-					(ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver)
+					(MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenLiteralIsFalse();
 			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 		}

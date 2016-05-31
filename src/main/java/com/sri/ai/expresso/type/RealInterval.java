@@ -273,6 +273,18 @@ public class RealInterval implements Type {
 					"; " + 
 					upperBound + 
 					(upperBoundIsOpen? "[" : "]");
+//			if (lowerBoundIsOpen && upperBoundIsOpen) {
+//				cachedString = FunctorConstants.REAL_INTERVAL_OPEN_OPEN + "(" + lowerBound + ", " + upperBound + ")";
+//			}
+//			else if (lowerBoundIsOpen && !upperBoundIsOpen) {
+//				cachedString = FunctorConstants.REAL_INTERVAL_OPEN_CLOSED + "(" + lowerBound + ", " + upperBound + ")";
+//			}
+//			else if (!lowerBoundIsOpen && upperBoundIsOpen) {
+//				cachedString = FunctorConstants.REAL_INTERVAL_CLOSED_OPEN + "(" + lowerBound + ", " + upperBound + ")";
+//			}
+//			else if (!lowerBoundIsOpen && !upperBoundIsOpen) {
+//				cachedString = FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED + "(" + lowerBound + ", " + upperBound + ")";
+//			}
 		}
 		return cachedString;
 	}

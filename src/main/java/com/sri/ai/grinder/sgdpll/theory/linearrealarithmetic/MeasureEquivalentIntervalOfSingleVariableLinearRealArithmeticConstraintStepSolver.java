@@ -38,61 +38,76 @@
 package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.IN;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.set.Sets.EMPTY_SET;
 import static com.sri.ai.util.Util.getFirst;
-import static com.sri.ai.util.Util.list;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
-import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver;
 
 /**
- * A step solver computing the possible values of the variable of
- * a single-variable linear arithmetic constraint.
+ * A step solver computing an interval of values for the variable of
+ * a single-variable linear arithmetic constraint
+ * that has the same measure as its set of solutions,
+ * which is an interval minus the distinct disequals (which have measure zero).
+ * <p>
+ * In other words, given the set of solutions <code>[a;b] \ {d_1,...,d_n}</code>,
+ * this step solver returns <code>[a;b]</code> (and analogously for open bounds),
+ * which has the same measure.
  * @author braz
  *
  */
 @Beta
-public class ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver {
+public class MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver {
 
-	public ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
+	public MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
-	public ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
-		return (ValuesOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
+	public MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
+		return (MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
 	}
 
 	@Override
 	protected SolutionStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
-		Expression variable = getConstraint().getVariable();
-		Expression indexExpression = apply(IN, variable, makeSymbol("Real"));
-
+//		Expression variable = getConstraint().getVariable();
+//		Expression indexExpression = apply(IN, variable, makeSymbol("Real"));
+//
 		boolean lowerBoundIsStrict = getMapFromLowerBoundsToStrictness(context).get(lowerBound);
-		String lowerBoundOperator = lowerBoundIsStrict? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
+//		String lowerBoundOperator = lowerBoundIsStrict? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
+//		
+		boolean upperBoundIsStrict = getMapFromUpperBoundsToStrictness(context).get(upperBound);
+//		String upperBoundOperator = upperBoundIsStrict? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
 		
-		boolean upperBoundIsStrict = getMapFromLowerBoundsToStrictness(context).get(upperBound);
-		String upperBoundOperator = upperBoundIsStrict? GREATER_THAN : GREATER_THAN_OR_EQUAL_TO;
+//		Expression lowerBoundCondition = apply(lowerBoundOperator, lowerBound, variable);
+//		Expression upperBoundCondition = apply(upperBoundOperator, variable, upperBound);
+//		
+//		Expression condition = And.make(lowerBoundCondition, upperBoundCondition);
+//		
+//		Expression result = new DefaultIntensionalUniSet(list(indexExpression), variable, condition);
+//		
+//		return new Solution(result);
+//
+		Expression solutionExpression;
 		
-		Expression lowerBoundCondition = apply(lowerBoundOperator, lowerBound, variable);
-		Expression upperBoundCondition = apply(upperBoundOperator, variable, upperBound);
+		if (lowerBoundIsStrict && upperBoundIsStrict) {
+			solutionExpression = apply(FunctorConstants.REAL_INTERVAL_OPEN_OPEN, lowerBound, upperBound);
+		}
+		else if (!lowerBoundIsStrict && upperBoundIsStrict) {
+			solutionExpression = apply(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN, lowerBound, upperBound);
+		}
+		else if (lowerBoundIsStrict && !upperBoundIsStrict) {
+			solutionExpression = apply(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED, lowerBound, upperBound);
+		}
+		else {
+			solutionExpression = apply(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED, lowerBound, upperBound);
+		}
 		
-		Expression condition = And.make(lowerBoundCondition, upperBoundCondition);
-		
-		Expression result = new DefaultIntensionalUniSet(list(indexExpression), variable, condition);
-		
-		return new Solution(result);
+		return new Solution(solutionExpression);
 	}
 
 	@Override

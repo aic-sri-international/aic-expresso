@@ -230,6 +230,18 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		else if (hasFunctor(FunctorConstants.CARDINALITY) && numberOfArguments() == 1) {
 			result = "| " + get(0) + " |";
 		}
+		else if (hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED) && numberOfArguments() == 2) {
+			result = "[" + get(0) + ";" + get(1) + "]";
+		}
+		else if (hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED) && numberOfArguments() == 2) {
+			result = "]" + get(0) + ";" + get(1) + "]";
+		}
+		else if (hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN) && numberOfArguments() == 2) {
+			result = "[" + get(0) + ";" + get(1) + "[";
+		}
+		else if (hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_OPEN) && numberOfArguments() == 2) {
+			result = "]" + get(0) + ";" + get(1) + "[";
+		}
 		else {
 			int precedence = getPrecedence(this);
 			if (hasFunctor(FunctorConstants.MINUS) && numberOfArguments() == 1) {

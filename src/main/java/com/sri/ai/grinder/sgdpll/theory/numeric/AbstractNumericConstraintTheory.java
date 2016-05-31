@@ -121,6 +121,9 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 	}
 
 	@Override
+	/**
+	 * Extends super implementation by considering + and - applications as interpreted in this theory.
+	 */
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
 		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
 				|| expression.equals(PLUS) || expression.equals(MINUS)

@@ -40,10 +40,7 @@ package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
@@ -110,44 +107,52 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 
 	@Override
 	protected Expression isolateVariable(Expression atom, Context context) {
-		Expression result = LinearRealArithmeticUtil.isolateVariable(atom, getVariable());
+		Expression result = LinearRealArithmeticUtil.isolateVariable(getVariable(), atom);
 		return result;
 	}
 
+	List<Expression> cachedImplicitPositiveNormalizedAtoms;
 	@Override
 	/**
-	 * Returns empty-range iterator; only implicit literals in these theories
-	 * are from bounds, but those result in <i>negative</i> normalized implicit atoms, not positive.
+	 * Returns iterator ranging over implicit positive normalized atoms representing variable bounds.
 	 */
 	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(Context context) {
-		return iterator();
+		if (cachedImplicitPositiveNormalizedAtoms == null) {
+			RealInterval interval = getType(context);
+			
+			Expression lowerBound = interval.getLowerBound();
+			cachedImplicitPositiveNormalizedAtoms = list();
+			if (interval.lowerBoundIsOpen() && !lowerBound.equals("unknown") && !lowerBound.equals(UnaryMinus.make(INFINITY))) {
+				cachedImplicitPositiveNormalizedAtoms.add(apply(GREATER_THAN, getVariable(), lowerBound));
+			}
+
+			Expression upperBound = interval.getUpperBound();
+			if (interval.upperBoundIsOpen() && !upperBound.equals("unknown") && !upperBound.equals(INFINITY)) {
+				cachedImplicitPositiveNormalizedAtoms.add(apply(LESS_THAN, getVariable(), upperBound));
+			}
+		}
+		return cachedImplicitPositiveNormalizedAtoms.iterator();
 	}
 
 	List<Expression> cachedImplicitNegativeNormalizedAtoms;
 	@Override
 	/**
-	 * Returns iterator ranging over implicit normalized atoms representing variable bounds.
+	 * Returns iterator ranging over implicit negative normalized atoms representing variable bounds.
 	 */
 	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(Context context) {
-		
-		// TODO: revise this method for linear real arithmetic
-		
 		if (cachedImplicitNegativeNormalizedAtoms == null) {
 			RealInterval interval = getType(context);
 			
 			Expression lowerBound = interval.getLowerBound();
-			String lowerBoundOperator = interval.lowerBoundIsOpen()? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
-
-			Expression upperBound = interval.getUpperBound();
-			String upperBoundOperator = interval.upperBoundIsOpen()? GREATER_THAN : GREATER_THAN_OR_EQUAL_TO;
-
 			cachedImplicitNegativeNormalizedAtoms = list();
-			if (!lowerBound.equals("unknown") && !lowerBound.equals(UnaryMinus.make(INFINITY))) {
-				cachedImplicitNegativeNormalizedAtoms.add(apply(lowerBoundOperator, getVariable(), lowerBound));
+			if (!interval.lowerBoundIsOpen() && !lowerBound.equals("unknown") && !lowerBound.equals(UnaryMinus.make(INFINITY))) {
+				cachedImplicitNegativeNormalizedAtoms.add(apply(LESS_THAN, getVariable(), lowerBound));
 				// this is the negation of variable >= nonStrictLowerBound. We need to use a negative normalized atom because applications of >= are not considered normalized atoms
 			}
-			if (!upperBound.equals("unknown") && !upperBound.equals(INFINITY)) {
-				cachedImplicitNegativeNormalizedAtoms.add(apply(upperBoundOperator, getVariable(), upperBound));
+
+			Expression upperBound = interval.getUpperBound();
+			if (!interval.upperBoundIsOpen() && !upperBound.equals("unknown") && !upperBound.equals(INFINITY)) {
+				cachedImplicitNegativeNormalizedAtoms.add(apply(GREATER_THAN, getVariable(), upperBound));
 				// this is the negation of variable <= nonStrictUpperBound. We need to use a negative normalized atom because applications of <= are not considered normalized atoms
 			}
 		}
@@ -163,7 +168,8 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 	 */
 	public RealInterval getType(Context context) {
 		if (cachedType == null) {
-			Type type = context.getType(getVariableTypeExpression(context));
+			Expression variableTypeExpression = getVariableTypeExpression(context);
+			Type type = context.getType(variableTypeExpression);
 			if (type instanceof RealExpressoType) {
 				cachedType = new RealInterval("]-infinity;infinity[");
 				// represents Real as real interval for uniformity

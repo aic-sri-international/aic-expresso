@@ -44,6 +44,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
@@ -184,5 +185,16 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 	@Override
 	public Collection<Type> getNativeTypes() {
 		return list(REAL_TYPE);
+	}
+
+	@Override
+	/**
+	 * Extends super implementation by considering * applications as interpreted in this theory.
+	 */
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
+		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
+				|| expression.equals(TIMES)
+				|| expression.hasFunctor(TIMES); 
+		return result;
 	}
 }

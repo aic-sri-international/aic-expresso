@@ -242,7 +242,9 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public TypeContext add(Type type) {
 		TypeContext result = clone();
-		LinkedHashMap<Expression, Type> additionalTypeMap = map(parse(type.getName()), type);
+		String name = type.getName();
+		Expression typeExpression = parse(name);
+		LinkedHashMap<Expression, Type> additionalTypeMap = map(typeExpression, type);
 		result.fromTypeExpressionToType = new StackedHashMap<>(additionalTypeMap, fromTypeExpressionToType);
 		return result;
 	}

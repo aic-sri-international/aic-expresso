@@ -56,7 +56,7 @@ public class RealExpressoType implements Type {
 
 	@Override
 	public String getName() {
-		return getName();
+		return "Real";
 	}
 
 	/**

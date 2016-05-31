@@ -388,6 +388,9 @@ public class GrinderUtil {
 			else if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, context), "Real"))) {
 				result = makeSymbol("Real");
 			}
+			else if (Util.thereExists(expression.getArguments(), e -> isRealInterval(getType(e, context)))) {
+				result = makeSymbol("Real");
+			}
 			else {
 				result = makeSymbol("Integer");
 			}
@@ -465,6 +468,17 @@ public class GrinderUtil {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
 		}
 		return result;
+	}
+
+	/**
+	 * @param e
+	 * @return
+	 */
+	private static boolean isRealInterval(Expression e) {
+		return e.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED)
+		|| e.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED)
+		|| e.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN)
+		|| e.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_OPEN);
 	}
 
 	/**

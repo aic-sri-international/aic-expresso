@@ -44,10 +44,14 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
+import static com.sri.ai.util.Util.getFirst;
+
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.IsolateUtil;
 
 /**
@@ -70,13 +74,60 @@ public class LinearRealArithmeticUtil {
 	public static Expression simplify(Expression expression) {
 		// we isolate variable x in the expression, even if there is no variable x in it.
 		// If it does not exist, then we will get the equivalent "if 0 != 0 then <irrelevant> else 0 <operator> <polynomial without x>"
-		Expression result = isolateVariable(X, expression);
+		return simplify(expression, X);
+	}
+
+	/** 
+	 * Used to obtain variables in an expression according to the linear real arithmetic.
+	 * TODO: this is not ideal because we may be simplifying in the context of a different instance
+	 * of linear real arithmetic constraint theory.
+	 * It would be better to use the one running the show.
+	 * However, this is not easy because this method is used inside that constraint theory's
+	 * simplifiers, which must be provided to the super construction,
+	 * because the constraint theory instance is available, that is, it must be done statically.
+	 * It seems the best solution is to create a method allowing the simplifier to be set after
+	 * the super construction.
+	 */
+	private static LinearRealArithmeticConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(false, false);
+
+	/**
+	 * Simplify a linear real arithmetic literal using {@link #simplify(Expression, Symbol)}
+	 * with respect to the first variable found in the expression 
+	 * (variable is determined in accordance to {@link LinearRealArithmeticConstraintTheory#isVariable(Expression, Context)}.
+	 * @param expression
+	 * @param context
+	 * @return
+	 */
+	public static Expression simplify(Expression expression, Context context) {
+		Collection<Expression> variables = constraintTheory.getVariablesIn(expression, context);
+		Expression variable = variables.isEmpty()?
+				X // no variables, so isolate with respect to X; other simplifiers will them process the constants
+				: getFirst(variables);
+		Expression result = simplify(expression, variable);
+		return result;
+	}
+
+	/**
+	 * Simplify a literal with respect to a variable by isolating it.
+	 * If the variable is not present, all terms are move to the right-hand side.
+	 * @param expression
+	 * @param variable
+	 * @return
+	 * @throws Error
+	 */
+	public static Expression simplify(Expression expression, Expression variable) throws Error {
+		Expression result = isolateVariable(variable, expression);
 		
 		// not strictly required because caller is the one who knows about context and simplification, 
 		// but why return an ugly thing if we can avoid it?
 		if (isIfThenElse(result) && condition(result).equals(ZERO_DISTINCT_FROM_ZERO)) {
 			result = elseBranch(result);
 		}
+		
+		if (result != expression && result.equals(expression)) { // comply to requirement that if there are no changes, then instance is the same
+			result = expression;
+		}
+		
 		return result;
 	}
 
