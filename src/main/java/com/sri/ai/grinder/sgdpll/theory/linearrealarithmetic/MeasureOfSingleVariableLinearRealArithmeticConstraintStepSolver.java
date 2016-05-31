@@ -38,8 +38,9 @@
 package com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
-import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.util.Util.arrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -48,24 +49,24 @@ import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractSingleVariableNumericCon
 
 /**
  * A {@link AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver}
- * computing the number of values for variable satisfying the constraints.
+ * computing the measure of the set of values for variable satisfying the constraints.
  * <p>
  * The solution is guaranteed to be either a numerical constant, or
- * a conditional of the form {@code if <satisfiability condition> then <model count> else 0}.
+ * a conditional of the form {@code if <satisfiability condition> then <measure> else 0}.
  * 
  * @author braz
  *
  */
 @Beta
-public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver {
+public class MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver {
 
-	public ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
+	public MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
-	public ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
-		return (ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
+	public MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
+		return (MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
 	}
 
 	@Override
@@ -75,7 +76,8 @@ public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolv
 
 	@Override
 	protected SolutionStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
-		return new Solution(INFINITY);
+		Expression boundsDifference = applyAndSimplify(MINUS, arrayList(upperBound, lowerBound), context);
+		return new Solution(boundsDifference);
 	}
 
 	@Override
@@ -90,6 +92,6 @@ public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolv
 
 	@Override
 	public Expression getSolutionExpressionForBoundVariable() {
-		return ONE;
+		return ZERO; // because this is actually an integral, binding the variable renders the integral equal to zero
 	}
 }
