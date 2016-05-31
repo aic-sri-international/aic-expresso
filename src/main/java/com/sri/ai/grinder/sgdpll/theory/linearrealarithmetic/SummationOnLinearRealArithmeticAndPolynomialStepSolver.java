@@ -45,12 +45,11 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.set.Sets;
-import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
+import com.sri.ai.grinder.polynomial.core.PolynomialIntegration;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver;
@@ -131,11 +130,10 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			result = ZERO;
 		}
 		else {
-			IntensionalSet interval = (IntensionalSet) values;
-			Expression lowerBound = interval.getCondition().get(0).get(0);
-			Expression upperBound = interval.getCondition().get(1).get(1);
+			Expression lowerBound = values.get(0);
+			Expression upperBound = values.get(1);
 			Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
-			result = Tuple.make(lowerBound, upperBound, bodyPolynomial); // TODO: replace by definite integral
+			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, variable, lowerBound, upperBound);
 		}
 		return result;
 	}

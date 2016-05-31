@@ -49,11 +49,14 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
+import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.SummationOnLinearRealArithmeticAndPolynomialStepSolver;
+import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 public class LinearRealArithmeticConstraintTheoryTest {
@@ -216,6 +219,12 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		variable = parse("X");
 		constraintString = "X <= 3.4 and X > 3.1 and X = 7 and X = 8";
 		expected = parse("{}");
+		runMeasureEquivalentIntervalTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > Z and X >= Y";
+		expected = parse("if Z < Y then if Y <= 3.4 then [Y;3.4] else {} else if Z < 3.4 then ]Z;3.4] else {}");
 		runMeasureEquivalentIntervalTest(variable, constraintString, expected, context);
 	}
 
@@ -432,6 +441,12 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		constraintString = "X <= 3.4 and X > 3.1 and X = 7 and X = 8";
 		expected = parse("false");
 		runSatisfiabilityTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > Z and X >= Y";
+		expected = parse("if Z < Y then Y <= 3.4 else Z < 3.4");
+		runSatisfiabilityTest(variable, constraintString, expected, context);
 	}
 
 	private void runSatisfiabilityTest(Expression variable, String constraintString, Expression expected, Context context) {
@@ -647,6 +662,12 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		constraintString = "X <= 3.4 and X > 3.1 and X = 7 and X = 8";
 		expected = parse("0");
 		runMeasureTest(variable, constraintString, expected, context);
+
+		
+		variable = parse("X");
+		constraintString = "X <= 3.4 and X > Z and X >= Y";
+		expected = parse("if Z < Y then if Y <= 3.4 then 3.4 - Y else 0 else if Z < 3.4 then 3.4 - Z else 0");
+		runMeasureTest(variable, constraintString, expected, context);
 	}
 
 	private void runMeasureTest(Expression variable, String constraintString, Expression expected, Context context) {
@@ -658,6 +679,100 @@ public class LinearRealArithmeticConstraintTheoryTest {
 				c -> new MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) c),
 				context);
+	}
+
+	@Test
+	public void testSummation() {
+		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
+		Context context = constraintTheory.makeContextWithTestingInformation();
+		Simplifier simplifier = (e,c) -> constraintTheory.simplify(e, c);
+		
+		Expression variable;
+		String constraintString;
+		String bodyString;
+		Expression expected;
+		
+		variable = parse("X");
+		constraintString = "true";
+		bodyString = "1";
+		expected = parse("4");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+		
+		variable = parse("X");
+		constraintString = "X < 3 and X != 2";
+		bodyString = "1";
+		expected = parse("3");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+		
+		variable = parse("X");
+		constraintString = "X < Y and X != 2";
+		bodyString = "1";
+		expected = parse("if Y > 0 then Y else 0");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+		
+		variable = parse("X");
+		constraintString = "X < 3 and X != 2";
+		bodyString = "Y";
+		expected = parse("3*Y");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+		
+		variable = parse("X");
+		constraintString = "X < 3 and X != 2";
+		bodyString = "X";
+		expected = parse("4.5");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+		
+		variable = parse("X");
+		constraintString = "X < 3 and X != 2 and X = 2";
+		bodyString = "Y";
+		expected = parse("0");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+
+		variable = parse("X");
+		constraintString = "X < Y and X != 2";
+		bodyString = "X";
+		expected = parse("if Y > 0 then 0.5*Y^2 else 0");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+
+		variable = parse("X");
+		constraintString = "X < Y and X != 2";
+		bodyString = "Y";
+		expected = parse("if Y > 0 then Y^2 else 0");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+
+		variable = parse("X");
+		constraintString = "X < Y and X != 2";
+		bodyString = "X + Y";
+		expected = parse("if Y > 0 then 1.5*Y^2 else 0");
+		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+
+//		variable = parse("X");
+//		constraintString = "X < Y and X != 2";
+//		bodyString = "X^2 + Y";
+//		expected = parse("if Y > 0 then 0.333333333*Y^3 + Y^2 else 0");
+//		runSummationTest(variable, constraintString, bodyString, expected, simplifier, context);
+}
+
+	private void runSummationTest(Expression variable, String constraintString, String bodyString, Expression expected, Simplifier simplifier, Context context) {
+		runQuantifierTest(
+				variable, 
+				constraintString, 
+				bodyString,
+				expected, 
+				"summation for " + bodyString, 
+				(Constraint c, Expression b) -> 
+				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
+						(SingleVariableLinearRealArithmeticConstraint) c, b, simplifier),
+				context);
+	}
+
+	private void runQuantifierTest(Expression variable, String constraintString, String bodyString, Expression expected, String computedFunction, BinaryFunction<Constraint, Expression, ContextDependentExpressionProblemStepSolver> stepSolverMaker, Context context) {
+		Expression body = parse(bodyString);
+		
+		Function<Constraint, ContextDependentExpressionProblemStepSolver> stepSolverMakerFromConstraint =
+				c -> stepSolverMaker.apply(c, body);
+	
+		runTest(variable, constraintString, expected, computedFunction, stepSolverMakerFromConstraint, context);
 	}
 
 	/**
