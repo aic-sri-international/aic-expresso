@@ -86,12 +86,6 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression simplify(Expression expression, Context context) {
-		Expression result = simplifier.apply(expression, context);
-		return result;
-	}
-
-	@Override
 	public boolean isNonTrivialAtom(Expression expression, Context context) {
 		Object syntacticFormType = expression.getSyntacticFormType();
 		boolean result = 

@@ -93,7 +93,10 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 	public LinearRealArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
-				propagateAllLiteralsWhenVariableIsBound, 
+				propagateAllLiteralsWhenVariableIsBound,
+				new DefaultMapBasedTopSimplifier(map(), map()));
+		
+		setExtraSimplifier(
 				new DefaultMapBasedTopSimplifier(
 						makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier(), 
 						map()));
@@ -101,8 +104,8 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
-	private static Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier() {
-		Simplifier linearRealArithmeticSimplifier = new LinearRealArithmeticSimplifier();
+	private Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier() {
+		Simplifier linearRealArithmeticSimplifier = new LinearRealArithmeticSimplifier(this);
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
 						EQUALITY,                 linearRealArithmeticSimplifier,

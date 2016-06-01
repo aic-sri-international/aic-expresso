@@ -68,7 +68,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimplifier {
 	
 	/**
-	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers,
+	 * Creates a simplifier from the function and syntactic form simplifiers of given simplifiers,
 	 * with the additional ones overriding the ones in the {@link MapBasedSimplifier}s.
 	 * @param additionalFunctionApplicationSimplifiers
 	 * @param additionalSyntacticFormTypeSimplifiers

@@ -63,6 +63,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
@@ -231,10 +232,15 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	default boolean isVariable(Expression expression, Context context) {
+		Expression typeExpression;
+		Type type;
 		boolean result =
 				!context.isUniquelyNamedConstant(expression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
+				&& (typeExpression = GrinderUtil.getType(expression, context)) != null
+				&& (type = context.getType(typeExpression)) != null
+				&& isSuitableFor(expression, type)
 				&& !thereExists(context.getTypes(), t -> t.contains(expression));
 		return result;
 	}

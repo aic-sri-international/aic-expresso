@@ -424,6 +424,18 @@ public class Expressions {
 	}
 	
 	/**
+	 * Given a string,
+	 * returns a string with a minimum 0 or more prime ("'") characters appended to it
+	 * to make it unique, according to a given predicate indicating uniqueness.
+	 */
+	public static String primedUntilUnique(String symbol, Predicate<String> isUnique) {
+		while (! isUnique.apply(symbol)) {
+			symbol = symbol + "'";
+		}
+		return symbol;
+	}
+	
+	/**
 	 * Given a symbol assumed to be an identifier,
 	 * returns a symbol with a minimum 0 or more instances of a given prefix 
 	 * to make it unique, according to a given predicate indicating uniqueness.

@@ -46,6 +46,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
@@ -58,6 +59,7 @@ import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
@@ -84,16 +86,25 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				new DefaultMapBasedTopSimplifier(map(), map()),
+				propagateAllLiteralsWhenVariableIsBound);
+		initializeTestingInformation();
+		setExtraSimplifier(extraSimplifier);
+	}
+
+	/**
+	 * Sets the extra simplifier (besides the mandatory ones).
+	 * @param extraSimplifier
+	 */
+	protected void setExtraSimplifier(MapBasedSimplifier extraSimplifier) {
+		setSimplifierFromElementarySimplifiersIn(
 				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
 						// basic simplification of involved interpreted functions in this theory:
 						new EqualitySimplifier(),
 						new InequalitySimplifier(),
 						new BooleanSimplifier(),
 						new NumericSimplifier(),
-						extraSimplifier),
-				propagateAllLiteralsWhenVariableIsBound);
-
-		initializeTestingInformation();
+						extraSimplifier));
 	}
 	
 	abstract protected void initializeTestingInformation();

@@ -78,14 +78,24 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	 * with domain size 5 and known constants <code>a, b, c, d</code>,
 	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
-	 * @param simplifier
+	 * @param simplifier a source of elementary simplifiers for this theory
 	 */
 	public AbstractConstraintTheory(MapBasedSimplifier simplifier) {
 		super();
-		this.simplifier = simplifier;
-		this.topSimplifier = new SeriallyMergedMapBasedTopSimplifier(simplifier);
 		Categorical someType = getDefaultTestingType();
 		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
+		setSimplifierFromElementarySimplifiersIn(simplifier);
+	}
+
+	/**
+	 * Sets the theory's simplifier based on elementary simplifiers
+	 * present in given {@link MapBasedSimplifier}.
+	 * @param simplifier
+	 */
+	protected void setSimplifierFromElementarySimplifiersIn(MapBasedSimplifier simplifier) {
+		this.simplifier = simplifier;
+//		this.cachedTotalSimplifier = new RecursiveExhaustiveMapBasedSimplifier(topSimplifier);
+		this.topSimplifier = new SeriallyMergedMapBasedTopSimplifier(simplifier);
 	}
 
 	private static Categorical someType;
@@ -106,6 +116,12 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	private Collection<Type>  cachedTypesForTesting;
 	private ArrayList<String> cachedVariableNamesForTesting;
 	
+	@Override
+	public Expression simplify(Expression expression, Context context) {
+		Expression result = simplifier.apply(expression, context);
+		return result;
+	}
+
 	@Override
 	public Collection<Type> getNativeTypes() {
 		return list();

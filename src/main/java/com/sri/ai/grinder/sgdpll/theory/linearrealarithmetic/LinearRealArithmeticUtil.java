@@ -77,33 +77,26 @@ public class LinearRealArithmeticUtil {
 		return simplify(expression, X);
 	}
 
-	/** 
-	 * Used to obtain variables in an expression according to the linear real arithmetic.
-	 * TODO: this is not ideal because we may be simplifying in the context of a different instance
-	 * of linear real arithmetic constraint theory.
-	 * It would be better to use the one running the show.
-	 * However, this is not easy because this method is used inside that constraint theory's
-	 * simplifiers, which must be provided to the super construction,
-	 * because the constraint theory instance is available, that is, it must be done statically.
-	 * It seems the best solution is to create a method allowing the simplifier to be set after
-	 * the super construction.
-	 */
-	private static LinearRealArithmeticConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(false, false);
-
 	/**
 	 * Simplify a linear real arithmetic literal using {@link #simplify(Expression, Symbol)}
 	 * with respect to the first variable found in the expression 
-	 * (variable is determined in accordance to {@link LinearRealArithmeticConstraintTheory#isVariable(Expression, Context)}.
+	 * (variable is determined in accordance to {@link LinearRealArithmeticConstraintTheory#isVariable(Expression, Context)};
+	 * the same expression is returned if there are no liner real arithmetic variable.
 	 * @param expression
+	 * @param constraintTheory
 	 * @param context
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, Context context) {
+	public static Expression simplify(Expression expression, LinearRealArithmeticConstraintTheory constraintTheory, Context context) {
+		Expression result;
 		Collection<Expression> variables = constraintTheory.getVariablesIn(expression, context);
-		Expression variable = variables.isEmpty()?
-				X // no variables, so isolate with respect to X; other simplifiers will them process the constants
-				: getFirst(variables);
-		Expression result = simplify(expression, variable);
+		if (variables.isEmpty()) { // no linear real arithmetic variable, so it is not a linear real arithmetic literal
+			result = expression;
+		}
+		else {
+			Expression variable = getFirst(variables);
+			result = simplify(expression, variable);
+		}
 		return result;
 	}
 

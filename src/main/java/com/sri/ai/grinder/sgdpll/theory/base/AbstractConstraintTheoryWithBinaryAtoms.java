@@ -81,12 +81,6 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 		return result;
 	}
 
-	@Override
-	public Expression simplify(Expression expression, Context context) {
-		Expression result = simplifier.apply(expression, context);
-		return result;
-	}
-
 	/**
 	 * Implements decision about whether theory is suitable for a variable by checking if it is
 	 * a valid argument for a functor in the theory using {@link #isValidArgument(Expression, Type)}. 

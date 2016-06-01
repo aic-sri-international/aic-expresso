@@ -45,11 +45,15 @@ import static com.sri.ai.grinder.library.FunctorConstants.EQUIVALENCE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
@@ -193,6 +197,9 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		Expression expected;
 
 		ConstraintTheory constraintTheory = makeConstraintTheory();
+		Map<String, Type> variableNamesAndTypes = new HashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		variableNamesAndTypes.put("W", variableNamesAndTypes.get("X"));
+		constraintTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
 		
 		if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
 			conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
@@ -206,14 +213,14 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 		ConstraintTheory constraintTheory2 = makeConstraintTheory();
 		Categorical type = new Categorical("Type", 1, arrayList(parse("a")));
-		constraintTheory2.setVariableNamesAndTypesForTesting(map("X", type, "Y", type));
+		constraintTheory2.setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type, "W", type));
 		conjunction = "X != Y";
 		expected = null;
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory2);
 
 		ConstraintTheory constraintTheory3 = makeConstraintTheory();
 		type = new Categorical("Type", 2, arrayList(parse("a"), parse("b")));
-		constraintTheory3.setVariableNamesAndTypesForTesting(map("X", type, "Y", type));
+		constraintTheory3.setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type, "W", type));
 		conjunction = "X != Y and X != a";
 		expected = parse("Y != b and X != a and X != Y");
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory3);
@@ -221,7 +228,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		conjunction = "X != a and X != b and X != c and X != sometype5 and X != Y";
 		expected = parse("Y != d and X != a and X != b and X != c and X != sometype5 and X != Y and X != Y");
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
-		
+
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);

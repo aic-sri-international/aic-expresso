@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll.theory.compound;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.expresso.helper.Expressions.primedUntilUnique;
 import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
@@ -95,11 +96,11 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 				String variableName = variableNameAndTypeName.getKey();
 				Type type = variableNameAndTypeName.getValue();
 				if (variableNamesAndTypesForTesting.containsKey(variableName)) {
-					throw new Error("Variable " + variableName + " is a testing variable for " + constraintTheory.getClass() + " added to a compound constraint theory, but had already been registered by a previous sub-constraint theory.");
+					variableName = primedUntilUnique(
+							variableName, 
+							s -> variableNamesAndTypesForTesting.containsKey(s.toString()));
 				}
-				else {
-					variableNamesAndTypesForTesting.put(variableName, type);
-				}
+				variableNamesAndTypesForTesting.put(variableName, type);
 			}
 		}
 		setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
@@ -240,12 +241,6 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
 		ConstraintTheory constraintTheory = getConstraintTheory(parse(variable), context);
 		Expression result = constraintTheory.makeRandomAtomOn(variable, random, context);
-		return result;
-	}
-
-	@Override
-	public Expression simplify(Expression expression, Context context) {
-		Expression result = simplifier.apply(expression, context);
 		return result;
 	}
 

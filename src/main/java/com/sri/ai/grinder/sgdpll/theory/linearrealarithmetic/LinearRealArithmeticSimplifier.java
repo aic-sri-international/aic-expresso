@@ -45,6 +45,8 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 /**
  * A simplifier that rewrites numerical comparisons in linear real arithmetic
  * to equivalent ones in which terms are cancelled out and numerical expressions are summed together.
+ * It requires the specific theory to be provided in order to know
+ * what expressions are variables and literals in simplified expressions.
  *
  * @author braz
  *
@@ -52,9 +54,16 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class LinearRealArithmeticSimplifier implements Simplifier {
 
+	private LinearRealArithmeticConstraintTheory constraintTheory;
+	
+	public LinearRealArithmeticSimplifier(LinearRealArithmeticConstraintTheory constraintTheory) {
+		super();
+		this.constraintTheory = constraintTheory;
+	}
+
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		Expression result = LinearRealArithmeticUtil.simplify(expression, context);
+		Expression result = LinearRealArithmeticUtil.simplify(expression, constraintTheory, context);
 		return result;
 	}
 }
