@@ -53,6 +53,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.collect.NestedIterator;
@@ -91,9 +92,14 @@ public class DifferenceArithmeticUtil {
 	/**
 	 * Simplify a difference arithmetic literal.
 	 * @param expression
+	 * @param constraintTheory TODO
+	 * @param context TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression expression) {
+	public static Expression simplify(Expression expression, DifferenceArithmeticConstraintTheory constraintTheory, Context context) {
+		if (! constraintTheory.isLiteral(expression, context)) {
+			return expression;
+		}
 		DAParts parts = makeDifferenceArithmeticTriple(expression);
 		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
 		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives

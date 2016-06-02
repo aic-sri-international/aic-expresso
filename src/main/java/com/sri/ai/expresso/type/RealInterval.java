@@ -86,6 +86,11 @@ public class RealInterval implements Type {
 	
 	public RealInterval(String name) {
 		Expression nameParse = parse(name);
+		
+		if (nameParse == null) {
+			throw new Error("Trying to build real interval from string '" + name + "' which does not parse as a real interval description (format is '[a;b]'");
+		}
+		
 		if (nameParse.equals("Real")) {
 			lowerBound = UnaryMinus.make(INFINITY);
 			upperBound = INFINITY;

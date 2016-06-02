@@ -240,14 +240,6 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			Collection<Expression> variablesInLiteral = getConstraintTheory().getVariablesIn(literal, context);
 			if (variablesInLiteral.isEmpty()) {
 				Expression literalSimplifiedToConstant = getConstraintTheory().simplify(literal, context);
-				System.out.println("Going to conjoin: ");
-				System.out.println(this);
-				System.out.println("with");
-				System.out.println(literalSimplifiedToConstant);
-				System.out.println("under context:");
-				System.out.println(context);
-				System.out.println("with symbol types:");
-				System.out.println(context.getSymbolsAndTypes());	
 				result = conjoinWithLiteral(literalSimplifiedToConstant, context);
 			}
 			else if (head != null) {

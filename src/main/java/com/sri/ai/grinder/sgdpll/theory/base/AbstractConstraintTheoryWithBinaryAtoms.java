@@ -60,9 +60,10 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * for deciding whether this theory is suitable for a variable (which is passed as the argument here).
 	 * @param expression
 	 * @param type TODO
+	 * @param context TODO
 	 * @return
 	 */
-	protected abstract boolean isValidArgument(Expression expression, Type type);
+	protected abstract boolean isValidArgument(Expression expression, Type type, Context context);
 
 	/**
 	 * Must take a non-trivial atom in the theory and return its negation.
@@ -81,16 +82,6 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 		return result;
 	}
 
-	/**
-	 * Implements decision about whether theory is suitable for a variable by checking if it is
-	 * a valid argument for a functor in the theory using {@link #isValidArgument(Expression, Type)}. 
-	 */
-	@Override
-	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = isValidArgument(variable, type);
-		return result;
-	}
-
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
 		boolean result = isApplicationOfTheoryFunctor(expression) || theoryFunctors.contains(expression.toString()); 
@@ -101,7 +92,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * Implements decision of whether an expression is a non-trivial atom by checking
 	 * if it is a function application of one of the theory functors and,
 	 * if {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true,
-	 * whether its arguments are valid according to {@link #isValidArgument(Expression, Type)}.
+	 * whether its arguments are valid according to {@link #isValidArgument(Expression, Type, Context)}.
 	 */
 	@Override
 	public boolean isNonTrivialAtom(Expression expression, Context context) {
@@ -121,7 +112,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 								Expression typeExpression = GrinderUtil.getType(e, context);
 								String typeName = typeExpression.toString();
 								Type eType = context.getType(typeName);
-								return isValidArgument(e, eType);
+								return isValidArgument(e, eType, context);
 							});
 		}
 		

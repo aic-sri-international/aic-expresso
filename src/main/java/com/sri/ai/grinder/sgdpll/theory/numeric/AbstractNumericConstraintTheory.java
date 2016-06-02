@@ -86,8 +86,8 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new DefaultMapBasedTopSimplifier(map(), map()),
-				propagateAllLiteralsWhenVariableIsBound);
+				propagateAllLiteralsWhenVariableIsBound,
+				new DefaultMapBasedTopSimplifier(map(), map()));
 		initializeTestingInformation();
 		setExtraSimplifier(extraSimplifier);
 	}

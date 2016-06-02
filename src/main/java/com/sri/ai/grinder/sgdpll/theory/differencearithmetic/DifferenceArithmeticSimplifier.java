@@ -52,8 +52,14 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class DifferenceArithmeticSimplifier implements Simplifier {
 
+	DifferenceArithmeticConstraintTheory constraintTheory;
+	
+	public DifferenceArithmeticSimplifier(DifferenceArithmeticConstraintTheory constraintTheory) {
+		this.constraintTheory = constraintTheory;
+	}
+	
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		return DifferenceArithmeticUtil.simplify(expression);
+		return DifferenceArithmeticUtil.simplify(expression, constraintTheory, context);
 	}
 }

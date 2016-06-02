@@ -58,6 +58,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
@@ -67,6 +68,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
@@ -88,6 +90,7 @@ public class SymbolicShell {
 		CompoundConstraintTheory constraintTheory = new CompoundConstraintTheory(
 				new EqualityConstraintTheory(false, true),
 				new DifferenceArithmeticConstraintTheory(false, false),
+				new LinearRealArithmeticConstraintTheory(false, false),
 				new PropositionalConstraintTheory());
 		Simplifier evaluator = makeEvaluator(constraintTheory);
 		
@@ -95,35 +98,40 @@ public class SymbolicShell {
 		context = context.add(BOOLEAN_TYPE);
 		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		context = context.add(new IntegerInterval("Integer"));
+		context = context.add(new RealInterval("Real"));
 		
 		context = context.registerIndicesAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
 
-		context = context.registerIndicesAndTypes(map(makeSymbol("X"), makeSymbol("People")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("Y"), makeSymbol("People")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("Z"), makeSymbol("People")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("C"), makeSymbol("People")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("D"), makeSymbol("People")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("E"), makeSymbol("People")));
 
 		context = context.registerIndicesAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
 		context = context.registerIndicesAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
+
+		context = context.registerIndicesAndTypes(map(makeSymbol("X"), makeSymbol("Real")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("Y"), makeSymbol("Real")));
+		context = context.registerIndicesAndTypes(map(makeSymbol("Z"), makeSymbol("Real")));
 		
 		ConsoleIterator consoleIterator = getConsole(args);
 		
 		help(consoleIterator);
 		
 		Collection<String> examples = list(
-				"sum({{ (on X in People)  3 }})",
-				"sum({{ (on X in People)  3 |  X != Y }})",
-				"product({{ (on X in People)  3 |  X != Y }})",
-				"| {{ (on X in People)  3 |  X != Y }} |",
-				"max({{ (on X in People)  3 |  X != Y }})",
-				"sum({{ (on X in People, Y in People)  3 |  X != Y }})",
-				"sum({{ (on X in People)  3 |  X != Y and X != ann }})",
-				"sum({{ (on X in People, P in Boolean)  3 |  X != ann }})",
-				"sum({{ (on X in People, P in Boolean)  3 |  X != ann and not P }})",
-				"sum({{ (on X in People, Y in People)  if X = ann and Y != bob then 2 else 0  |  for all Z in People : Z = ann => X = Z }})"
+				"sum({{ (on C in People)  3 }})",
+				"sum({{ (on C in People)  3 |  C != D }})",
+				"product({{ (on C in People)  3 |  C != D }})",
+				"| {{ (on C in People)  3 |  C != D }} |",
+				"max({{ (on C in People)  3 |  C != D }})",
+				"sum({{ (on C in People, D in People)  3 |  C != D }})",
+				"sum({{ (on C in People)  3 |  C != D and C != ann }})",
+				"sum({{ (on C in People, P in Boolean)  3 |  C != ann }})",
+				"sum({{ (on C in People, P in Boolean)  3 |  C != ann and not P }})",
+				"sum({{ (on C in People, D in People)  if C = ann and D != bob then 2 else 0  |  for all E in People : E = ann => C = E }})"
 				
 				, "sum({{ (on I in 1..100)  I }})"
 				, "sum({{ (on I in 1..100)  I | I != 3 and I != 5 and I != 500 }})"
@@ -135,6 +143,18 @@ public class SymbolicShell {
 				, "sum({{ (on I in 1..100)  I | I > J and I < 5 and I < 500 }})"
 				, "sum({{ (on I in 1..100)  (I - J)^2 | I < 50 }})"
 				
+				, "sum({{ (on X in [0;100])  1 }})"
+				, "sum({{ (on X in [0;100[)  1 }})"
+				, "sum({{ (on X in ]0;100])  1 }})"
+				, "sum({{ (on X in [0;100])  Y }})"
+				, "sum({{ (on X in [0;100])  X }})"
+				, "sum({{ (on X in [0;100])  X^2 }})"
+				, "sum({{ (on X in [0;100])  X + Y }})"
+				, "sum({{ (on X in [0;100])  1 | Y < X and X < Z}})"
+				, "sum({{ (on X in Real)  1 | 0 <= X and X <= 100 and Y < X and X < Z}})"
+				, "for all X in Real : X > 0 or X <= 0"
+				, "for all X in ]0;10] : X > 0"
+				, "for all X in [0;10] : X > 0"
 				);
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
@@ -255,9 +275,11 @@ public class SymbolicShell {
 				"- 'Boolean' with constants 'true' and 'false',",
 				"                 pre-defined variables P, Q, R, S",
 				"- 'Integer' with pre-defined variables I, J, K",
-				"- Integer intevals can be used in summations: sum({{(on I in 1..10) I}});",
+				"- 'Real' with pre-defined variables X, Y, Z",
+				"- Integer intervals can be used in summations: sum({{(on I in 1..10) I}});",
+				"- Real intervals can be used in integrals: sum({{(on X in [0;100]) X}});",
 				"- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran',",
-				"                                       pre-defined variables X, Y, Z",
+				"                                       pre-defined variables C, D, E",
 				"",
 				"Capitalized symbols (other than types) are considered variables",
 				"",
@@ -269,18 +291,18 @@ public class SymbolicShell {
 				"- numeric operators: +, -, *, /, ^, <, >, <=, >=",
 				"",
 				"- universal and existential quantification:",
-				"- for all X in <Type> : <Formula>",
-				"- there exists X in <Type> : <Formula>",
+				"- for all C in <Type> : <Formula>",
+				"- there exists C in <Type> : <Formula>",
 				"",
 				"- aggregates over intensionally-defined multi-sets:",
-				"-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> | <Condition> }})",
-				"- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> | <Condition> }})",
-				"-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> | <Condition> }})",
+				"-     sum({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> | <Condition> }})",
+				"- product({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> | <Condition> }})",
+				"-     max({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> | <Condition> }})",
 				"- the 'on' clause indicates the set indices; all other variables are free variables",
 				"  and the result may depend on them",
 				"",
 				"- cardinality over intensionally-defined multi-sets:",
-				"-      | ({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }}) |",
+				"-      | ({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> : <Condition> }}) |",
 				"",
 				"Inference only works on equality, propositions and difference arithmetic on integers.",
 				"This means that equalities (=), disequalities (!=) and inequalities (<, >, <=, >=) over integers",

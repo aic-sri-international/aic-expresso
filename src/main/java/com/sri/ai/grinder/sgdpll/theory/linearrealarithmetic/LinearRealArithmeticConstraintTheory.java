@@ -55,6 +55,8 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.type.IntegerExpressoType;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
@@ -127,8 +129,22 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 	}
 
 	@Override
-	protected boolean isValidArgument(Expression expression, Type type) {
-		boolean result = type instanceof RealExpressoType || type instanceof RealInterval;
+	public boolean isSuitableFor(Expression variable, Type type) {
+		boolean result = 
+				type instanceof RealExpressoType || 
+				type instanceof RealInterval;
+		return result;
+	}
+
+	@Override
+	protected boolean isValidArgument(Expression expression, Type type, Context context) {
+		boolean result = 
+				type instanceof RealExpressoType || 
+				type instanceof RealInterval ||
+				((type instanceof IntegerExpressoType || type instanceof IntegerInterval)
+						&&
+						getVariablesIn(expression, context).isEmpty()
+						);
 		return result;
 	}
 

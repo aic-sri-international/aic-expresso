@@ -300,8 +300,17 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	
 	@Override
 	public String toString() {
-		// We don't need to re-compute as are immutable
-		return getInnerExpression().toString();
+		return toString(0);
+//		// We don't need to re-compute as are immutable
+//		return getInnerExpression().toString();
+	}
+	
+	private String toString(int depth) {
+		Expression innerExpression = getInnerExpression();
+		if (innerExpression instanceof DefaultMonomial) {
+			return ((DefaultMonomial)innerExpression).toString(depth + 1);
+		}
+		return innerExpression.toString();
 	}
 	// END-Expression
 	//

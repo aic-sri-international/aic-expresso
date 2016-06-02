@@ -163,6 +163,10 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		String typeName = GrinderUtil.getType(variable, context).toString();
 		Type type = context.getType(typeName);
 		
+		if (type == null) {
+			throw new Error("Cannot decide which theory to use for variable " + variable + " because it does not have a registered type.");
+		}
+		
 		ConstraintTheory result =
 				getFirstSatisfyingPredicateOrNull(
 						getSubConstraintTheories(),

@@ -60,12 +60,22 @@ public class Exhaustive implements Simplifier {
 
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		Expression previous;
-		do {
-			previous = expression;
-			expression = base.apply(expression, context);
-		} while (expression != previous);
-		
-		return expression;
+		// Recursive version for debugging purposes -- keeps record of transformations on stack.
+		Expression next = base.apply(expression, context);
+		if (next == expression) {
+			return expression;
+		}
+		else {
+			Expression result = apply(next, context);
+			return result;
+		}
+//		Expression current = expression;
+//		Expression previous;
+//		do {
+//			previous = current;
+//			current = base.apply(current, context);
+//		} while (current != previous);
+//		
+//		return current;
 	}
 }

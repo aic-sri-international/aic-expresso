@@ -99,8 +99,10 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	 */
 	public DifferenceArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
-				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
-				propagateAllLiteralsWhenVariableIsBound, 
+				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				propagateAllLiteralsWhenVariableIsBound,
+				new DefaultMapBasedTopSimplifier(map(), map()));
+		setExtraSimplifier(
 				new DefaultMapBasedTopSimplifier(
 						makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier(), 
 						map()));
@@ -108,8 +110,8 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
-	private static Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier() {
-		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier();
+	private Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier() {
+		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier(this);
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
 						EQUALITY,                 differenceArithmeticSimplifier,
@@ -131,7 +133,13 @@ public class DifferenceArithmeticConstraintTheory extends AbstractNumericConstra
 	}
 
 	@Override
-	protected boolean isValidArgument(Expression expression, Type type) {
+	public boolean isSuitableFor(Expression variable, Type type) {
+		boolean result = type instanceof IntegerExpressoType || type instanceof IntegerInterval;
+		return result;
+	}
+
+	@Override
+	protected boolean isValidArgument(Expression expression, Type type, Context context) {
 		boolean result = type instanceof IntegerExpressoType || type instanceof IntegerInterval;
 		return result;
 	}

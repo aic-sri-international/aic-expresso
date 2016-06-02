@@ -63,6 +63,7 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.mapIntoList;
 import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.Disequality;
@@ -332,6 +334,14 @@ public class GrinderUtil {
 		else if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
 			result = makeSymbol("Boolean");
 		}
+		else if (
+				expression.equals(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED) ||
+				expression.equals(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN) ||
+				expression.equals(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED) ||
+				expression.equals(FunctorConstants.REAL_INTERVAL_OPEN_OPEN)
+				) {
+			result = Expressions.apply("->", Tuple.make("Number", "Number"), "Set");
+		}
 		else if (IfThenElse.isIfThenElse(expression)) {
 			Expression thenType = getType(IfThenElse.thenBranch(expression), context);
 			Expression elseType = getType(IfThenElse.elseBranch(expression), context);
@@ -395,6 +405,14 @@ public class GrinderUtil {
 				result = makeSymbol("Integer");
 			}
 		}
+		else if (
+				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED) ||
+				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED) ||
+				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN) ||
+				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_OPEN)
+				) {
+			result = makeSymbol("Set");
+		}
 		else if (isComparisonFunctionApplication(expression)) {
 				result = makeSymbol("Boolean");
 		}
@@ -443,7 +461,10 @@ public class GrinderUtil {
 			if (functionType == null) {
 				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to context.");
 			}
-			Util.myAssert(() -> functionType.hasFunctor("->"), () -> "Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type be an expression with functor '->', but has type instead equal to " + functionType);
+			
+			if (!functionType.hasFunctor("->")) {
+				throw new Error("Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type (that is, have functor '->'), but has type instead equal to " + functionType);
+			}
 			
 			List<Expression> argumentsTypesList;
 			Expression coDomain;
@@ -457,7 +478,10 @@ public class GrinderUtil {
 				argumentsTypesList = multipleArguments? argumentsType.getArguments() : list(argumentsType);
 				coDomain = functionType.get(1);
 			}
-			Util.myAssert(() -> Util.mapIntoList(expression.getArguments(), new GetType(context)).equals(argumentsTypesList), () -> "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(context)));
+
+			if (!mapIntoList(expression.getArguments(), new GetType(context)).equals(argumentsTypesList)) {
+				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(context)));
+			}
 
 			result = coDomain;
 		}
@@ -618,8 +642,21 @@ public class GrinderUtil {
 		else if (typeExpression.equals("Integer")) {
 			type = INTEGER_TYPE;
 		}
+		else if (typeExpression.equals("Real")) {
+			type = REAL_TYPE;
+		}
 		else if (typeExpression.hasFunctor(INTEGER_INTERVAL) && typeExpression.numberOfArguments() == 2) {
 			type = new IntegerInterval(typeExpression.get(0), typeExpression.get(1));
+		}
+		else if (
+				(
+						typeExpression.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED) ||
+						typeExpression.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED) ||
+						typeExpression.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN) ||
+						typeExpression.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_OPEN)
+				)
+				&& typeExpression.numberOfArguments() == 2) {
+			type = new RealInterval(typeExpression.toString());
 		}
 		else {
 			type = null;

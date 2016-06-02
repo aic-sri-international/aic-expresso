@@ -59,8 +59,8 @@ abstract public class AbstractConstraintTheoryWithBinaryAtomsIncludingEquality e
 	public AbstractConstraintTheoryWithBinaryAtomsIncludingEquality(
 			Collection<String> theoryFunctors,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			MapBasedSimplifier simplifier,
-			boolean propagateAllLiteralsWhenVariableIsBound) {
+			boolean propagateAllLiteralsWhenVariableIsBound,
+			MapBasedSimplifier simplifier) {
 
 		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, simplifier);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;

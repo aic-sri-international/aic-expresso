@@ -88,11 +88,17 @@ public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinary
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()), propagateAllLiteralsWhenVariableIsBound);
+				propagateAllLiteralsWhenVariableIsBound, new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
 	}
 	
 	@Override
-	protected boolean isValidArgument(Expression expression, Type type) {
+	public boolean isSuitableFor(Expression variable, Type type) {
+		boolean result = isNonBooleanCategoricalType(type);
+		return result;
+	}
+
+	@Override
+	protected boolean isValidArgument(Expression expression, Type type, Context context) {
 		boolean result = isNonBooleanCategoricalType(type);
 		return result;
 	}
