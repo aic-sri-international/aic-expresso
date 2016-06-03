@@ -126,7 +126,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Context context) {
 		
 		Expression result;
-		if (values.equals(Sets.EMPTY_SET)) {
+		if (values.equals(Sets.EMPTY_SET) || Sets.isExtensionalSet(values)) {
 			result = ZERO;
 		}
 		else {
