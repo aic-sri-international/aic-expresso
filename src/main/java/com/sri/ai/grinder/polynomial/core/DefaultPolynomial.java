@@ -380,7 +380,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		}
 		else if (divisor.isNumericConstant()) {
 			// In this case do not need to worry about remainders as can always
-			// dividie using a numeric constant divisor.
+			// divide using a numeric constant divisor.
 			Monomial       monomialDivisor = divisor.asMonomial();
 			List<Monomial> quotients       = new ArrayList<>();				
 			for (Monomial term : getOrderedSummands()) {
