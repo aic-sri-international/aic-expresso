@@ -91,6 +91,11 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		runMeasureEquivalentIntervalTest(variable, constraintString, expected, context);
 		
 		variable = parse("X");
+		constraintString = "X > 3 and X < 4";
+		expected = parse("]3; 4[");
+		runMeasureEquivalentIntervalTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
 		constraintString = "X > 3.1 and X <= 3.4 and X != 3.2";
 		expected = parse("]3.1; 3.4]");
 		runMeasureEquivalentIntervalTest(variable, constraintString, expected, context);
@@ -265,6 +270,11 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		
 		variable = parse("X");
 		constraintString = "X > 3.1 and X <= 3.4";
+		expected = parse("true");
+		runSatisfiabilityTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X > 3 and X < 4";
 		expected = parse("true");
 		runSatisfiabilityTest(variable, constraintString, expected, context);
 		
@@ -487,6 +497,11 @@ public class LinearRealArithmeticConstraintTheoryTest {
 		variable = parse("X");
 		constraintString = "X > 3.1 and X <= 3.4";
 		expected = parse("0.3");
+		runMeasureTest(variable, constraintString, expected, context);
+		
+		variable = parse("X");
+		constraintString = "X > 3 and X < 4";
+		expected = parse("1");
 		runMeasureTest(variable, constraintString, expected, context);
 		
 		variable = parse("X");

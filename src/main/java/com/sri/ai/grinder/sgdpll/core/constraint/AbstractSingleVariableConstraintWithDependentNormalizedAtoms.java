@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpll.core.constraint;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.removeFromArrayListNonDestructively;
 import static com.sri.ai.util.Util.thereExists;
@@ -223,23 +222,13 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 */
 	private boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, Context context) {
 		Expression sign1Atom1ImpliesSign2Atom2 = getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(sign1, atom1, sign2, atom2, context);
-		boolean result;
-		if (sign1Atom1ImpliesSign2Atom2.equals(TRUE)) {
-			result = true;
-		}
-		if (sign1Atom1ImpliesSign2Atom2.equals(FALSE)) {
-			result = false;
-		}
-		else {
-			Expression simplifiedImplies = getConstraintTheory().simplify(sign1Atom1ImpliesSign2Atom2, context);
-			result = simplifiedImplies.equals(TRUE);
-		}
+		boolean result = sign1Atom1ImpliesSign2Atom2.equals(TRUE);
 		return result;
 		
 	}
 
 	/**
-	 * Must return a literal, in which the constraint variable does not occur,
+	 * Must return a simplified literal, in which the constraint variable does not occur,
 	 * equivalent to whether sign1 atom1 implies sign2 atom2,
 	 * according to the constraint's theory.
 	 * This method provides the basis for simplifications in the constraint as well as

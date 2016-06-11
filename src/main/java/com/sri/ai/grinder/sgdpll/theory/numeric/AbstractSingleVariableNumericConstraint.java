@@ -155,6 +155,12 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 		return result;
 	}
 
+	/**
+	 * Indicates whether variable is integer-typed (as opposed to real-typed).
+	 * @return
+	 */
+	abstract public boolean variableIsIntegerTyped();
+	
 	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Context context) throws Error {
 
 		Expression result;
@@ -173,7 +179,7 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			// not (X < b), iff not (a < b)
 			// not (X > b), iff not (a > b)
 			// That is, X = a implies sign2 (X op b) iff sign2 (a op b)
-			Expression atom = apply(atom2.getFunctor(), a, b);
+			Expression atom = applyAndSimplify(atom2.getFunctor(), a, b, context);
 			result = sign2? atom : Not.make(atom);
 			break;
 			
@@ -184,10 +190,10 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			// X > b, iff false (never implies a >)
 			// not (X = b), iff b >= a
 			// not (X < b), that is, X >= b, iff false (never implies >=)
-			// not (X > b), that is, X <= b, iff b >= a - 1
+			// not (X > b), that is, X <= b, iff b >= a - [type is integers? 1 : 0]
 			if (sign2) {
 				if (atom2.hasFunctor(LESS_THAN)) {
-					result = apply(LESS_THAN, a, b);
+					result = applyAndSimplify(LESS_THAN, a, b, context);
 				}
 				else {
 					result = FALSE;
@@ -196,13 +202,14 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			else {
 				switch (atom2.getFunctor().toString()) {
 				case EQUALITY:
-					result = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
+					result = applyAndSimplify(GREATER_THAN_OR_EQUAL_TO, b, a, context);
 					break;
 				case LESS_THAN:
 					result = FALSE;
 					break;
 				case GREATER_THAN:
-					result = apply(GREATER_THAN_OR_EQUAL_TO, b, apply(MINUS, a, ONE));
+					Expression aMinusWhetherVariableIsInteger = variableIsIntegerTyped()? apply(MINUS, a, ONE) : a;
+					result = applyAndSimplify(GREATER_THAN_OR_EQUAL_TO, b, aMinusWhetherVariableIsInteger, context);
 					break;
 				default:
 					throw notNormalized(atom2);
@@ -215,7 +222,7 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			// Mirror image of LESS_THAN:
 			if (sign2) {
 				if (atom2.hasFunctor(GREATER_THAN)) {
-					result = apply(GREATER_THAN, a, b);
+					result = applyAndSimplify(GREATER_THAN, a, b, context);
 				}
 				else {
 					result = FALSE;
@@ -224,13 +231,14 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			else {
 				switch (atom2.getFunctor().toString()) {
 				case EQUALITY:
-					result = apply(LESS_THAN_OR_EQUAL_TO, b, a);
+					result = applyAndSimplify(LESS_THAN_OR_EQUAL_TO, b, a, context);
 					break;
 				case GREATER_THAN:
 					result = FALSE;
 					break;
 				case LESS_THAN:
-					result = apply(LESS_THAN_OR_EQUAL_TO, b, apply(PLUS, a, ONE));
+					Expression aPlusWhetherVariableIsIntegerTyped = variableIsIntegerTyped()? apply(PLUS, a, ONE) : a;
+					result = applyAndSimplify(LESS_THAN_OR_EQUAL_TO, b, aPlusWhetherVariableIsIntegerTyped, context);
 					break;
 				default:
 					throw notNormalized(atom2);
@@ -243,6 +251,20 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			throw notNormalized(atom1);
 		}
 
+		return result;
+	}
+
+	/**
+	 * @param functor
+	 * @param first
+	 * @param second
+	 * @param context
+	 * @return
+	 */
+	private Expression applyAndSimplify(Object functor, Expression first, Expression second, Context context) {
+		Expression result;
+		result = apply(functor, first, second);
+		result = getConstraintTheory().simplify(result, context);
 		return result;
 	}
 
@@ -263,8 +285,8 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			// not (X = b), iff a = b
 			// not (X < b), iff false (does not imply)
 			// not (X > b), iff false (does not imply)
-			// That is, X != a implies (X = b) iff a = b
-			Expression aEqualsB = apply(atom1.getFunctor(), a, b);
+			// That is, X != a implies not (X = b) iff a = b
+			Expression aEqualsB = applyAndSimplify(atom1.getFunctor(), a, b, context);
 			result = !sign2 && atom2.hasFunctor(EQUALITY)? aEqualsB : FALSE;
 			break;
 			
@@ -278,7 +300,7 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			// not (X > b), that is, X <= b, iff false
 			if (sign2) {
 				if (atom2.hasFunctor(GREATER_THAN)) {
-					result = apply(LESS_THAN, b, a);
+					result = applyAndSimplify(LESS_THAN, b, a, context);
 				}
 				else {
 					result = FALSE;
@@ -287,10 +309,10 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			else {
 				switch (atom2.getFunctor().toString()) {
 				case EQUALITY:
-					result = apply(LESS_THAN, b, a);
+					result = applyAndSimplify(LESS_THAN, b, a, context);
 					break;
 				case LESS_THAN:
-					result = apply(LESS_THAN_OR_EQUAL_TO, b, a);
+					result = applyAndSimplify(LESS_THAN_OR_EQUAL_TO, b, a, context);
 					break;
 				case GREATER_THAN:
 					result = FALSE;
@@ -306,7 +328,7 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			// Mirror image of LESS_THAN:
 			if (sign2) {
 				if (atom2.hasFunctor(LESS_THAN)) {
-					result = apply(GREATER_THAN, b, a);
+					result = applyAndSimplify(GREATER_THAN, b, a, context);
 				}
 				else {
 					result = FALSE;
@@ -315,10 +337,10 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			else {
 				switch (atom2.getFunctor().toString()) {
 				case EQUALITY:
-					result = apply(GREATER_THAN, b, a);
+					result = applyAndSimplify(GREATER_THAN, b, a, context);
 					break;
 				case GREATER_THAN:
-					result = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
+					result = applyAndSimplify(GREATER_THAN_OR_EQUAL_TO, b, a, context);
 					break;
 				case LESS_THAN:
 					result = FALSE;

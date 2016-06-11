@@ -5,6 +5,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.pickUniformly;
 
@@ -110,6 +111,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 					forAll(expression.getArguments(),
 							e -> {
 								Expression typeExpression = GrinderUtil.getType(e, context);
+								check(() -> typeExpression != null, () -> e + " has undefined type");
 								String typeName = typeExpression.toString();
 								Type eType = context.getType(typeName);
 								return isValidArgument(e, eType, context);

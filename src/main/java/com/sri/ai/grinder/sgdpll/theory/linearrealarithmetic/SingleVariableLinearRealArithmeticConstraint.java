@@ -180,4 +180,15 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 		}
 		return cachedType ;
 	}
+
+	@Override
+	public Expression binding(Expression variable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean variableIsIntegerTyped() {
+		return false;
+	}
 }
