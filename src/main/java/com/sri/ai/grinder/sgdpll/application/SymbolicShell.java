@@ -63,7 +63,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
-import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
@@ -75,7 +74,7 @@ import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
 
 /**
- * Provides a shell for use of {@link SymbolicCommonInterpreter}.
+ * Provides a shell for use of {@link EvaluatorStepSolver}.
  * 
  * @author braz
  *
