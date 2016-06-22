@@ -9,15 +9,18 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.util.math.Rational;
 
 public class DefaultSymbolTest {
 	int oldPrecision;
+	boolean oldDisplayExact;
 	int oldScientificGreater;
 	int oldScientificAfter;
 
 	@Before
 	public void setUp() {
 		oldPrecision         = SyntaxTrees.setNumericDisplayPrecision(2);
+		oldDisplayExact      = SyntaxTrees.setDisplayNumericsExactly(false);
 		oldScientificGreater = SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(6);
 		oldScientificAfter   = SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(4); 
 	}
@@ -25,8 +28,19 @@ public class DefaultSymbolTest {
 	@After
 	public void tearDown() {
 		SyntaxTrees.setNumericDisplayPrecision(oldPrecision);
+		SyntaxTrees.setDisplayNumericsExactly(oldDisplayExact);
 		SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(oldScientificGreater);
 		SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(oldScientificAfter);
+	}
+	
+	@Test
+	public void testDisplayExact() {
+		// NOTE: the tearDown method will set us back to the correct default.
+		SyntaxTrees.setDisplayNumericsExactly(true);
+		
+		Assert.assertEquals("1/3", Expressions.makeSymbol(new Rational(1, 3)).toString());
+		Assert.assertEquals("1/7", Expressions.makeSymbol(new Rational(1, 7)).toString());
+		Assert.assertEquals("7076430434013521/18014398509481984", Expressions.makeSymbol(0.3928208).toString());
 	}
 	
 	@Test

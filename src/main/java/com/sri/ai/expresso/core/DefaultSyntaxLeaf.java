@@ -184,6 +184,22 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	}
 	
 	/**
+	 * Set whether numerics should be displayed exactly or not.
+	 * 
+	 * @param displayExactly
+	 *        whether to display numerics exactly or not.
+	 *        
+	 * @return the old display exactly setting;
+	 */
+	public static boolean setDisplayNumericsExactly(boolean displayNumericsExactly) {
+		boolean oldDisplayNumericsExactly = _displayNumericsExactly;
+		
+		_displayNumericsExactly = displayNumericsExactly;
+		
+		return oldDisplayNumericsExactly;
+	}
+	
+	/**
 	 * Set the number of integer places a number is to have before it is
 	 * displayed in scientific notation.
 	 * 
@@ -447,21 +463,33 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 				Rational absValue       = rLabel.abs();
 				Rational integerPart    = absValue.round(Rational.ROUND_FLOOR);
 				
-				// We don't want to loose any precision in the integer part.
-				String formattedIntegerPart = integerPart.toString();
-				int displayNumericPrecision = Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
+				// NOTE: if we are to display numerics exactly we will want to format the abs result 
+				// twice. The second one with a display precision 1 >, so if its final length
+				// is longer we know we are loosing precision (without having to do complex math).
+				String[] formattedAbsResult   = new String[_displayNumericsExactly ? 2 : 1];
+				int[] displayNumericPrecision = new int[formattedAbsResult.length];
+				for (int i = 0; i < formattedAbsResult.length; i++) {
+					// We don't want to loose any precision in the integer part.
+					String formattedIntegerPart = integerPart.toString();
+					displayNumericPrecision[i] = i +  Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
 				
-				String formattedAbsResult = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision));
+					formattedAbsResult[i] = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision[i]));
+				}
 				
-				// Once we have precision taken care of, now determine if we should instead
-				// output the result in scientific notation.
-				int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult);
-				if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||
-					integerAndFractionalPartSizes[1] > _displayScientificAfterNDecimalPlaces     ) {
-					result = rLabel.toStringExponent(displayNumericPrecision);
+				if (_displayNumericsExactly && formattedAbsResult[1].length() > formattedAbsResult[0].length()) {
+					result = rLabel.toString(); // This will output it as an exact ratio
 				}
 				else {
-					result = (rLabel.isNegative() ? "-" : "") + formattedAbsResult;
+					// Once we have precision taken care of, now determine if we should instead
+					// output the result in scientific notation.
+					int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult[0]);
+					if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||
+						integerAndFractionalPartSizes[1] > _displayScientificAfterNDecimalPlaces     ) {
+						result = rLabel.toStringExponent(displayNumericPrecision[0]);
+					}
+					else {
+						result = (rLabel.isNegative() ? "-" : "") + formattedAbsResult[0];
+					}
 				}
 			}
 		}
@@ -554,9 +582,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 	
-	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	private static int     _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	private static boolean _displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
+	private static int     _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	private static int     _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {

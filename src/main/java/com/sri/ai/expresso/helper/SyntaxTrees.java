@@ -154,11 +154,8 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = DefaultSyntaxLeaf._displayScientificGreaterNIntegerPlaces;
-		
-		DefaultSyntaxLeaf._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
-				
-		return oldValue;
+		int result = DefaultSyntaxLeaf.setDisplayScientificGreaterNIntegerPlaces(numIntegerPlaces);
+		return result;
 	}
 
 	/**
@@ -169,11 +166,8 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = DefaultSyntaxLeaf._displayScientificAfterNDecimalPlaces;
-		
-		DefaultSyntaxLeaf._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
-				
-		return oldValue;
+		int result = DefaultSyntaxLeaf.setDisplayScientificAfterNDecimalPlaces(numDecimalPlaces);				
+		return result;
 	}
 
 	/**
@@ -185,16 +179,21 @@ public class SyntaxTrees {
 	 * @return the old numeric display precision;
 	 */
 	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = DefaultSyntaxLeaf._displayNumericPrecision;
-		
-		DefaultSyntaxLeaf._displayNumericPrecision = precision;
-		
-		return oldPrecision;
+		int result = DefaultSyntaxLeaf.setNumericDisplayPrecision(precision);
+		return result;
 	}
 	
-
-	public static int setNumericDisplayPrecision(Integer value) {
-		return SyntaxTrees.setNumericDisplayPrecision(value.intValue());
+	/**
+	 * Set whether numerics should be displayed exactly or not.
+	 * 
+	 * @param displayExactly
+	 *        whether to display numerics exactly or not.
+	 *        
+	 * @return the old display exactly setting;
+	 */
+	public static boolean setDisplayNumericsExactly(boolean displayNumericsExactly) {				
+		boolean result = DefaultSyntaxLeaf.setDisplayNumericsExactly(displayNumericsExactly);
+		return result;
 	}
 
 	/**

@@ -52,6 +52,9 @@ public class ExpressoConfiguration extends Configuration {
 	public static final String  KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS                     = "expresso.display.numeric.precision.for.symbols";
 	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS           = new Integer(9);
 	//
+	public static final String  KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS                      = "expresso.display.numerics.exactly.for.symbols";
+	public static final boolean DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS            = true;
+	//
 	public static final String  KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES               = "expresso.display.scientific.greater.n.integer.places";
 	public static final Integer DEFAULT_VALUE_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES     = new Integer(40);
 	//
@@ -74,6 +77,12 @@ public class ExpressoConfiguration extends Configuration {
 	public static int getDisplayNumericPrecisionForSymbols() {
 		int result = getInt(KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS);
 	
+		return result;
+	}
+	
+	public static boolean isDisplayNumericsExactlyForSymbols() {
+		boolean result = getBoolean(KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS);
+		
 		return result;
 	}
 	
