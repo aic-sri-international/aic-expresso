@@ -1,17 +1,8 @@
 # AIC-Expresso [![Build Status](https://travis-ci.org/aic-sri-international/aic-expresso.svg?branch=master)](https://travis-ci.org/aic-sri-international/aic-expresso)
 SRI International's AIC Symbolic Manipulation and Evaluation Library (for Java 1.8+)
-### Overview
-A general purpose symbolic manipulation and evaluation library, developed at 
-[SRI International's Artificial Intelligence Center](http://www.ai.sri.com/), which provides 
-capabilities in the following areas:
-
-* Representation of Expressions and Syntax Trees.
-* Parsing human readable strings into Expressions and back again.
-* A general purpose [Rewriting System](http://en.wikipedia.org/wiki/Rewriting) for Expressions (including arithmetic, set, logic, and model counting support).
 
 ### Getting Started
-* [User Guide](https://github.com/aic-sri-international/aic-expresso/wiki/Introduction)
-* [Demo](http://aic-sri-international.github.io/aic-expresso/)
+* [Overview and Demo](http://aic-sri-international.github.io/aic-expresso/)
 * Latest Maven Information (for integration as a third party library)
       
       ```
