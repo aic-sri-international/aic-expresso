@@ -38,10 +38,9 @@
 package com.sri.ai.grinder.sgdpll.simplifier.core;
 
 import static com.sri.ai.util.Util.list;
+import static java.util.Arrays.asList;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -61,7 +60,7 @@ import com.sri.ai.util.collect.NestedIterator;
 public class Merge  {
 
 	/**
-	 * Iterates over function application simplifiers, <b>going over the {@link MapBasedSimplifier}s first</b>
+	 * Iterates over maps of function application simplifiers, <b>going over the vararg list of {@link MapBasedSimplifier}s first</b>
 	 * to create an effect of overriding.
 	 * @param functionApplicationSimplifiers
 	 * @param simplifiers
@@ -69,12 +68,12 @@ public class Merge  {
 	 */
 	public static
 	Iterator<Map<String, Simplifier>>
-	functionApplicationSimplifiersIterator(Map<String, Simplifier> functionApplicationSimplifiers, MapBasedSimplifier... simplifiers) {
-		return new NestedIterator<>(functionApplicationSimplifiersIterator(simplifiers), list(functionApplicationSimplifiers));
+	mapsOfFunctionApplicationSimplifiersIterator(Map<String, Simplifier> functionApplicationSimplifiers, MapBasedSimplifier... simplifiers) {
+		return new NestedIterator<>(mapsOfFunctionApplicationSimplifiersIterator(simplifiers), list(functionApplicationSimplifiers));
 	}
 
 	/**
-	 * Iterates over syntactic form type simplifiers, <b>going over the {@link MapBasedSimplifier}s first</b>
+	 * Iterates over syntactic form type simplifiers, <b>going over the vararg list of {@link MapBasedSimplifier}s first</b>
 	 * to create an effect of overriding.
 	 * @param syntacticFormTypeSimplifiers
 	 * @param simplifiers
@@ -82,36 +81,32 @@ public class Merge  {
 	 */
 	public static
 	Iterator<Map<String, Simplifier>>
-	syntacticFormTypeSimplifiersIterator(Map<String, Simplifier> syntacticFormTypeSimplifiers, MapBasedSimplifier... simplifiers) {
-		return new NestedIterator<>(syntacticFormTypeSimplifiersIterator(simplifiers), list(syntacticFormTypeSimplifiers));
+	mapsOfSyntacticFormTypeSimplifiersIterator(Map<String, Simplifier> syntacticFormTypeSimplifiers, MapBasedSimplifier... simplifiers) {
+		return new NestedIterator<>(mapsOfSyntacticFormTypeSimplifiersIterator(simplifiers), list(syntacticFormTypeSimplifiers));
 	}
 
 	public static
 	Iterator<Map<String, Simplifier>>
-	functionApplicationSimplifiersIterator(MapBasedSimplifier... simplifiers) {
-		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToFunctionApplicationSimplifiers());
+	mapsOfFunctionApplicationSimplifiersIterator(MapBasedSimplifier... simplifiers) {
+		return FunctionIterator.make(asList(simplifiers), fromSimplifierToMapOfFunctionApplicationSimplifiers());
 	}
 
 	public static
 	Iterator<Map<String, Simplifier>>
-	syntacticFormTypeSimplifiersIterator(MapBasedSimplifier... simplifiers) {
-		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToSyntacticFormTypeSimplifiers());
+	mapsOfSyntacticFormTypeSimplifiersIterator(MapBasedSimplifier... simplifiers) {
+		return FunctionIterator.make(asList(simplifiers), fromSimplifierToMapOfSyntacticFormTypeSimplifiers());
 	}
 
 	public static
 	Function<MapBasedSimplifier, Map<String, Simplifier>>
-	fromSimplifierToFunctionApplicationSimplifiers() {
+	fromSimplifierToMapOfFunctionApplicationSimplifiers() {
 		return s -> s.getFunctionApplicationSimplifiers();
 	}
 
 	private static
 	Function<MapBasedSimplifier, Map<String, Simplifier>>
-	fromSimplifierToSyntacticFormTypeSimplifiers() {
+	fromSimplifierToMapOfSyntacticFormTypeSimplifiers() {
 		return s -> s.getSyntacticFormTypeSimplifiers();
-	}
-
-	private static List<MapBasedSimplifier> simplifiersList(MapBasedSimplifier... simplifiers) {
-		return Arrays.asList(simplifiers);
 	}
 	
 }

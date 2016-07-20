@@ -1,6 +1,8 @@
-package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
+package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic.benchmark;
 
 import java.util.Random;
+
+import com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic.AbstractDifferenceArithmeticConstraintTest;
 
 /**
  * Modifies {@link AbstractDifferenceArithmeticConstraintTest} to work as a benchmark,

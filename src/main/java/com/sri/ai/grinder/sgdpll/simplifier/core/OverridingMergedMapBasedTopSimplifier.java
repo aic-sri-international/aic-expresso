@@ -67,8 +67,8 @@ public class OverridingMergedMapBasedTopSimplifier extends DefaultMapBasedTopSim
 	 */
 	public OverridingMergedMapBasedTopSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
-				union ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
-				union ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
+				union ( Merge.mapsOfFunctionApplicationSimplifiersIterator(simplifiers) ),
+				union ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(simplifiers) ));
 				
 	}
 
@@ -85,8 +85,8 @@ public class OverridingMergedMapBasedTopSimplifier extends DefaultMapBasedTopSim
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
 		super(
-				union ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
-				union ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
+				union ( Merge.mapsOfFunctionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+				union ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
 				
 	}
 }

@@ -37,11 +37,14 @@
  */
 package com.sri.ai.grinder.sgdpll.simplifier.core;
 
+import static com.sri.ai.util.Util.addToCollectionValuePossiblyCreatingIt;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -69,21 +72,18 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 	
 	/**
 	 * Creates a simplifier from the function and syntactic form simplifiers of given simplifiers,
-	 * with the additional ones overriding the ones in the {@link MapBasedSimplifier}s.
-	 * @param additionalFunctionApplicationSimplifiers
-	 * @param additionalSyntacticFormTypeSimplifiers
+	 * with the later ones getting serially merged to the earlier ones.
 	 * @param simplifiers
 	 */
 	public SeriallyMergedMapBasedTopSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
-				merge ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
-				merge ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
+				merge ( Merge.mapsOfFunctionApplicationSimplifiersIterator(simplifiers) ),
+				merge ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(simplifiers) ));
 	}
 
 	/**
 	 * Adds function and syntactic form simplifiers to those of given simplifiers,
-	 * with the additional ones overriding the ones in the {@link MapBasedSimplifier}s.
-	 * to create an effect of overriding.
+	 * with the additional ones getting serially merged with the ones in the {@link MapBasedSimplifier}s.
 	 * @param additionalFunctionApplicationSimplifiers
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
@@ -93,30 +93,60 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
 		super(
-				merge ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
-				merge ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
+				merge ( Merge.mapsOfFunctionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+				merge ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
 	}
 	
 	private static Map<String, Simplifier> merge(Iterator<Map<String, Simplifier>> simplifiersIterator) {
+		/** The consolidated map, mapping each key (functor string or syntactic form name) to the simplifier resulting from merging all simplifiers mapped to the same key. */
 		LinkedHashMap<String, Simplifier> result = map();
+		
+		/** Record of all simplifiers merged so far for each key, to avoid duplication. */
+		LinkedHashMap<String, Collection<Simplifier>> simplifiersAlreadyPresentForGivenKey = map();
+
+		// OPTIMIZATION: in principle, we could extend the Simplifier interface with a 'merge' method,
+		// and each merged simplifier would already know of its internal simplifiers and check for redundancies itself.
+		// This would more efficient because we would not have to iterate over all basic simplifiers every time,
+		// but only over the top-level ones (the merged ones).
+		// However, this would complicate the interface, so I am not sure it is worth it,
+		// especially considering that simplifiers are typically merged before all the heavy processing starts, and typically only once.
+		
 		for (Map<String, Simplifier> simplifiersMap : in(simplifiersIterator)) {
 			for (Map.Entry<String, Simplifier> entry : simplifiersMap.entrySet()) {
 				String key = entry.getKey();
 				Simplifier moreRecentSimplifier = entry.getValue();
-				Simplifier previousSimplifier = result.get(key);
 				
-				Simplifier finalSimplifier;
-				if (previousSimplifier != null) {
-					finalSimplifier = serialize(moreRecentSimplifier, previousSimplifier);
+				if (simplifierNotYetMergedForThisKey(key, moreRecentSimplifier, simplifiersAlreadyPresentForGivenKey)) {
+
+					Simplifier previousSimplifier = result.get(key);
+
+					Simplifier finalSimplifier;
+					if (previousSimplifier != null) {
+						finalSimplifier = serialize(moreRecentSimplifier, previousSimplifier);
+					}
+					else {
+						finalSimplifier = moreRecentSimplifier;
+					}
+
+					registerSimplifierAsAlreadyMergedForThisKey(key, moreRecentSimplifier, simplifiersAlreadyPresentForGivenKey);
+
+					result.put(key, finalSimplifier);
 				}
-				else {
-					finalSimplifier = moreRecentSimplifier;
-				}
-				
-				result.put(key, finalSimplifier);
 			}
 		}
 		return result;
+	}
+
+	private static boolean simplifierNotYetMergedForThisKey(String key, Simplifier simplifier, LinkedHashMap<String, Collection<Simplifier>> simplifiersAlreadyPresentForGivenKey) {
+		boolean result = 
+				! simplifiersAlreadyPresentForGivenKey.containsKey(key)
+				|| 
+				! simplifiersAlreadyPresentForGivenKey.get(key).contains(simplifier);
+		return result;
+	}
+
+	private static void registerSimplifierAsAlreadyMergedForThisKey(String key, Simplifier simplifier, LinkedHashMap<String, Collection<Simplifier>> simplifiersAlreadyPresentForGivenKey) {
+		addToCollectionValuePossiblyCreatingIt(simplifiersAlreadyPresentForGivenKey, key, simplifier, LinkedHashSet.class);
 	}
 
 	private static Simplifier serialize(Simplifier moreRecentSimplifier, Simplifier previousSimplifier) {

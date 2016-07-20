@@ -1,6 +1,8 @@
-package com.sri.ai.test.grinder.sgdpll.theory.equality;
+package com.sri.ai.test.grinder.sgdpll.theory.equality.benchmark;
 
 import java.util.Random;
+
+import com.sri.ai.test.grinder.sgdpll.theory.equality.AbstractEqualityConstraintTest;
 
 /**
  * Modifies {@link AbstractEqualityConstraintTest} to work as a benchmark,

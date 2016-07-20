@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll.theory.equality;
+package com.sri.ai.test.grinder.sgdpll.theory.equality.benchmark;
 
 import com.google.common.annotations.Beta;
 
