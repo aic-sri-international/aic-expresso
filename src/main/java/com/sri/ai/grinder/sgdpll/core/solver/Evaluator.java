@@ -35,48 +35,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.interpreter;
+package com.sri.ai.grinder.sgdpll.core.solver;
 
-import static com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
+import static com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver.solve;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
- * An extension of {@link SymbolicCommonInterpreter} whose results
- * are decision trees on its literals.
- *
+ * A {@link Simplifier} based on {@link EvaluatorStepSolver}.
+ * 
  * @author braz
  *
  */
 @Beta
-public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCommonInterpreter {
+public class Evaluator implements Simplifier {
 
-	/**
-	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory.
-	 * @param constraintTheory
-	 */
-	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory) {
-		super(constraintTheory);
+	private ConstraintTheory constraintTheory;
+	
+	public Evaluator(ConstraintTheory constraintTheory) {
+		this.constraintTheory = constraintTheory;
 	}
-
-	/**
-	 * We override this interpreter to go the extra mile and condition on literals in the
-	 * result of super's interpretation, since we expect a symbolic interpreter
-	 * to condition on the literals in order to make the expression succinct.
-	 */
-	@Override public Expression apply(Expression expression, Context context) {
-		Expression interpretationResult = super.apply(expression, context);
-		Context trueConstraint = new CompleteMultiVariableContext(getConstraintTheory(), context);
-		SymbolicCommonInterpreter simplifier =
-				new SymbolicCommonInterpreter(getConstraintTheory());
-		ContextDependentExpressionProblemStepSolver evaluator
-		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
-		Expression result = evaluator.solve(trueConstraint);
+	
+	@Override
+	public Expression apply(Expression expression, Context context) {
+		// create an EvaluatorStepSolver on expression and constraint theory, and solve it.
+		Expression result = 
+				solve(
+						new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()), 
+						context);
 		return result;
 	}
 }

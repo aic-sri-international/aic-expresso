@@ -40,7 +40,6 @@ package com.sri.ai.grinder.sgdpll.application;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
-import static com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver.solve;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -61,7 +60,7 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
@@ -91,7 +90,7 @@ public class SymbolicShell {
 				new DifferenceArithmeticConstraintTheory(false, false),
 				new LinearRealArithmeticConstraintTheory(false, false),
 				new PropositionalConstraintTheory());
-		Simplifier evaluator = makeEvaluator(constraintTheory);
+		Simplifier evaluator = new Evaluator(constraintTheory);
 		
 		Context context = new TypeContext(constraintTheory);
 		context = context.add(BOOLEAN_TYPE);
@@ -183,15 +182,6 @@ public class SymbolicShell {
 		}
 		
 		consoleIterator.getOutputWriter().println("\nGood bye.");	
-	}
-
-	/**
-	 * Makes a {@link Simplifier} based on a {@link EvaluatorStepSolver} for a given constraint theory.
-	 * @param constraintTheory
-	 * @return
-	 */
-	public static Simplifier makeEvaluator(ConstraintTheory constraintTheory) {
-		return (e, c) -> solve(new EvaluatorStepSolver(e, constraintTheory.getTopSimplifier()), c);
 	}
 
 	/**

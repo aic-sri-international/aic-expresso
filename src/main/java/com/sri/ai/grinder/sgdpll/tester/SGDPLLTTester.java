@@ -596,7 +596,7 @@ public class SGDPLLTTester {
 		String problemDescription = problem.toString();
 		output(problemDescription);
 		
-		SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = 
+		Simplifier symbolicInterpreter =
 				new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory);
 		
 		long start = System.currentTimeMillis();
