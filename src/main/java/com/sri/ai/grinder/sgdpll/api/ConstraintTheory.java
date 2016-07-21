@@ -84,7 +84,18 @@ import com.sri.ai.util.collect.PredicateIterator;
  *
  */
 @Beta
-public interface ConstraintTheory extends Theory {
+public interface ConstraintTheory {
+
+	/**
+	 * A method simplifying an expression according to this theory.
+	 * It must at a minimum replace expressions
+	 * by their values, if their values are defined by some of their arguments
+	 * (such as <code>X + 0</code> being equal to <code>X</code>.
+	 * @param expression
+	 * @param context
+	 * @return
+	 */
+	Expression simplify(Expression expression, Context context);
 
 	/**
 	 * Returns a simplifier performing the same simplification as {@link #simplify(Expression, Context)},
