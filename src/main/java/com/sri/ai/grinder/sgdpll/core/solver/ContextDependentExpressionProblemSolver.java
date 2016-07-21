@@ -46,7 +46,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstraint;
 
@@ -104,9 +104,9 @@ public class ContextDependentExpressionProblemSolver {
 	
 	public static void main(String[] args) {
 		
-		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
+		EqualityTheory theory = new EqualityTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
+		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, theory);
 		constraint = constraint.conjoin(parse("X = Y"), context);
 		constraint = constraint.conjoin(parse("X = Z"), context);
 		constraint = constraint.conjoin(parse("X != W"), context);

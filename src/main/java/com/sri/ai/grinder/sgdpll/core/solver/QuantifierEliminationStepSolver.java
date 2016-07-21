@@ -4,7 +4,7 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
@@ -24,10 +24,10 @@ public interface QuantifierEliminationStepSolver extends ContextDependentExpress
 	SingleVariableConstraint getIndexConstraint();
 	
 	/**
-	 * Convenience method for <code>getIndexConstraint().getConstraintTheory()</code>.
+	 * Convenience method for <code>getIndexConstraint().getTheory()</code>.
 	 * @return
 	 */
-	ConstraintTheory getConstraintTheory();
+	Theory getTheory();
 	
 	Expression getIndex();
 	

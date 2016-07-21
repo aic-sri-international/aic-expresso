@@ -57,24 +57,24 @@ import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
 import com.sri.ai.util.Util;
 
 /** 
- * A {@link ConstraintTheory} for numeric literals using equalities and inequalities.
+ * A {@link Theory} for numeric literals using equalities and inequalities.
  */
 @Beta
-public abstract class AbstractNumericConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
+public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality {
 
 	/**
 	 * Creates a numeric constraint theory.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
-	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
+	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
@@ -82,7 +82,7 @@ public abstract class AbstractNumericConstraintTheory extends AbstractConstraint
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 * @param extraSimplifier an extra {@link MapBasedSimplifier} containing extra elementary simplifiers besides the basic numeric ones.
 	 */
-	public AbstractNumericConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound, MapBasedSimplifier extraSimplifier) {
+	public AbstractNumericTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound, MapBasedSimplifier extraSimplifier) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,

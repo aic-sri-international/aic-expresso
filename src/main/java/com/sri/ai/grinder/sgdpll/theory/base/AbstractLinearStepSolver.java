@@ -118,7 +118,7 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 		SolutionStep<T> result;
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = context.getConstraintTheory().simplify(unsimplifiedLiteral, context);
+			Expression literal = context.getTheory().simplify(unsimplifiedLiteral, context);
 			ContextSplitting split = new ContextSplitting(literal, context);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:

@@ -45,7 +45,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.core.AbstractSGVETQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
@@ -58,31 +58,31 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
  */
 public class SGVET extends AbstractSGVETQuantifierEliminator {
 
-	private ConstraintTheory constraintTheory;
+	private Theory theory;
 	
-	public SGVET(TopSimplifier topSimplifier, SemiRingProblemType problemType, ConstraintTheory constraintTheory) {
+	public SGVET(TopSimplifier topSimplifier, SemiRingProblemType problemType, Theory theory) {
 		super(new SGDPLLT(topSimplifier, problemType), problemType);
-		this.constraintTheory = constraintTheory;
+		this.theory = theory;
 	}
 
 	@Override
 	public boolean isVariable(Expression expression, Context context) {
-		return constraintTheory.isVariable(expression, context);
+		return theory.isVariable(expression, context);
 	}
 
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
+	public Theory getTheory() {
+		return theory;
 	}
 	
 	@Override
 	public Context makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
 		
 		Context result = GrinderUtil.makeContext(
 						mapFromSymbolNameToTypeName,
 						mapFromCategoricalTypeNameToSizeString, additionalTypes,
-						isUniquelyNamedConstantPredicate, constraintTheory);
+						isUniquelyNamedConstantPredicate, theory);
 		return result;
 	}
 }

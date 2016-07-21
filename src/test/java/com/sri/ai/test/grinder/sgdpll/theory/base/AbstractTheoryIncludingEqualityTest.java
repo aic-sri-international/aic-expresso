@@ -35,39 +35,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.theory.base;
-
-import java.util.Collection;
+package com.sri.ai.test.grinder.sgdpll.theory.base;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 
-
-/** 
- * A {@link ConstraintTheory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
- * 
- * @author braz
- */
 @Beta
-abstract public class AbstractConstraintTheoryWithBinaryAtomsIncludingEquality extends AbstractConstraintTheoryWithBinaryAtoms {
+public abstract class AbstractTheoryIncludingEqualityTest extends AbstractTheoryTest {
 
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractConstraintTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			MapBasedSimplifier simplifier) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, simplifier);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
-	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
-	}
+	abstract protected boolean getPropagateAllLiteralsWhenVariableIsBound();
 	
 }

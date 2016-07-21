@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 
@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
  * It extends {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}
  * and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
  * step solver, which is obtained through the constraint theory's
- * {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)}.
+ * {@link Theory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)}.
  * However, it is important that the satisfiability step solver provided by the constraint theory
  * be an instance of {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver},
  * because {@link #getPropagatedCNF(Context)} is delegated to the satisfiability step solver's
@@ -99,9 +99,9 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	 */
 	@Override
 	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context context) {
-		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
+		Theory theory = getConstraint().getTheory();
 		ContextDependentExpressionProblemStepSolver satisfiability =
-				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), context);
+				theory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), context);
 		AbstractContextDependentProblemWithPropagatedLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {
 			satisfiabilityWithPropagatedLiterals =
@@ -110,7 +110,7 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 			throw new Error(this.getClass() + 
 					" can only be used with theories providing satisfiability context-dependent step solvers"
 					+ " that are extensions of " + AbstractContextDependentProblemWithPropagatedLiteralsStepSolver.class
-					+ ", but theory " + constraintTheory.getClass() + " provided instead an instance of"
+					+ ", but theory " + theory.getClass() + " provided instead an instance of"
 					+ satisfiability.getClass());
 		}
 		return satisfiabilityWithPropagatedLiterals.getPropagatedCNF(context);

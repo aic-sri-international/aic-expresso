@@ -50,7 +50,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -77,8 +77,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	private ArrayList<Expression> negativeNormalizedAtoms;
 	private List<Expression> externalLiterals; // literals not on variable
 	
-	public AbstractSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory) {
-		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
+	public AbstractSingleVariableConstraint(Expression variable, Theory theory) {
+		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), theory);
 	}
 	
 	public AbstractSingleVariableConstraint(
@@ -86,8 +86,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
-			ConstraintTheory constraintTheory) {
-		super(constraintTheory);
+			Theory theory) {
+		super(theory);
 		this.variable = variable;
 		this.positiveNormalizedAtoms = positiveNormalizedAtoms;
 		this.negativeNormalizedAtoms = negativeNormalizedAtoms;
@@ -109,7 +109,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	 * @param other
 	 */
 	protected AbstractSingleVariableConstraint (AbstractSingleVariableConstraint other) {
-		super(other.getConstraintTheory());
+		super(other.getTheory());
 		this.variable = other.variable;
 		this.positiveNormalizedAtoms = other.positiveNormalizedAtoms;
 		this.negativeNormalizedAtoms = other.negativeNormalizedAtoms;

@@ -50,10 +50,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 
@@ -62,8 +62,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void simpleBodyTest() {
-		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new DifferenceArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -100,8 +100,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyTest() {
-		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new DifferenceArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;
@@ -138,8 +138,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
-		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new DifferenceArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;
@@ -176,8 +176,8 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
-		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new DifferenceArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;
@@ -201,16 +201,16 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	}
 
 	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Context context) {
-		ConstraintTheory constraintTheory = context.getConstraintTheory();
+		Theory theory = context.getTheory();
 		Constraint constraint
 		= new SingleVariableDifferenceArithmeticConstraint(
-				variable, true, constraintTheory);
+				variable, true, theory);
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
 						(SingleVariableDifferenceArithmeticConstraint) constraint,
-						body, new SymbolicCommonInterpreter(constraintTheory));
+						body, new SymbolicCommonInterpreter(theory));
 		
 		Expression actual = stepSolver.solve(context);
 
@@ -240,6 +240,6 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 	 * @return
 	 */
 	private Expression simplify(Expression expression, Context context) {
-		return context.getConstraintTheory().simplify(expression, context);
+		return context.getTheory().simplify(expression, context);
 	}
 }

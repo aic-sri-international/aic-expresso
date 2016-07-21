@@ -200,7 +200,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 		if (hasPair()) {
 
 			Expression unsimplifiedLiteral = makeLiteral();
-			Expression literal = context.getConstraintTheory().simplify(unsimplifiedLiteral, context);
+			Expression literal = context.getTheory().simplify(unsimplifiedLiteral, context);
 
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy

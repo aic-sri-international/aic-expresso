@@ -347,7 +347,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 										Expression nonEqualityComparison = equalAndNonEqualityComparison.get(1);
 										Expression termBeingCompared = nonEqualityComparison.get(1);
 										Expression unsimplifiedAtom = apply(nonEqualityComparison.getFunctor(), equal, termBeingCompared);
-										Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, context);
+										Expression result = constraint.getTheory().simplify(unsimplifiedAtom, context);
 										// System.out.println("Unsimplified comparison of equal and term in non-equality comparison: " + unsimplifiedAtom);	
 										// System.out.println("Non-equality comparison was: " + nonEqualityComparison);	
 										// System.out.println("constraint is: " + constraint);	
@@ -518,7 +518,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			Iterator<Expression> fromNegativeNormalizedAtoms =
 					functionIterator(
 							abstractSingleVariableConstraint.getNegativeNormalizedAtoms(), // negative normalized atom is never an equality
-							e -> abstractSingleVariableConstraint.getConstraintTheory().getLiteralNegation(e, context)
+							e -> abstractSingleVariableConstraint.getTheory().getLiteralNegation(e, context)
 							);
 
 			Pair<Expression, Boolean> typeLowerBoundAndStrictness = getTypeLowerBoundAndStrictness(context);
@@ -753,7 +753,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 
 	protected Expression applyAndSimplify(String comparison, ArrayList<Expression> arguments, Context context) {
 		Expression unsimplifiedAtom = apply(comparison, arguments);
-		Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, context);
+		Expression result = constraint.getTheory().simplify(unsimplifiedAtom, context);
 		return result;
 	}
 }

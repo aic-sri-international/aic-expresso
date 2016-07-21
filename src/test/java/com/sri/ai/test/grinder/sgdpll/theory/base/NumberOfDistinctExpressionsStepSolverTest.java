@@ -52,7 +52,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.NumberOfDistinctExpressionsStepSolver;
 
 public class NumberOfDistinctExpressionsStepSolverTest  {
@@ -60,8 +60,8 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 	@Test
 	public void test() {
 		
-		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		EqualityTheory theory = new EqualityTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 		
 		String contextString = "X != Y and X != a and X != b and Y != b";
 		List<String> elementsStrings = list("X", "Y", "a", "b", "c");

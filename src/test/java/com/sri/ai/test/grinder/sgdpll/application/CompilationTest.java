@@ -11,10 +11,10 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalTheory;
 import com.sri.ai.util.Util;
 
 public class CompilationTest {
@@ -24,10 +24,10 @@ public class CompilationTest {
 		
 		Expression input; 
 		Expression expected;
-		ConstraintTheory constraintTheory = 
-				new CompoundConstraintTheory(
-						new EqualityConstraintTheory(true, true),
-						new PropositionalConstraintTheory());
+		Theory theory = 
+				new CompoundTheory(
+						new EqualityTheory(true, true),
+						new PropositionalTheory());
 		Map<String, String> mapFromCategoricalTypeNameToSizeString;
 		Map<String, String> mapFromVariableNameToTypeName;
 		Map<String, String> mapFromUniquelyNamedConstantToTypeName;
@@ -37,7 +37,7 @@ public class CompilationTest {
 		mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "2");
 		mapFromVariableNameToTypeName = Util.map("X", "Everything");
 		mapFromUniquelyNamedConstantToTypeName = Util.map("a", "Everything", "b", "Everything");
-		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 		
 
 		input = Expressions.parse(""
@@ -52,7 +52,7 @@ public class CompilationTest {
 				Util.map("X", "Everything", "Y", "Everything");
 		mapFromUniquelyNamedConstantToTypeName = 
 				Util.map("a", "Everything", "b", "Everything");
-		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 		
 
 		input = Expressions.parse(""
@@ -89,7 +89,7 @@ public class CompilationTest {
 				Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
 		mapFromUniquelyNamedConstantToTypeName = 
 				Util.map("a", "Everything", "b", "Everything", "c", "Everything");
-		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 		
 		// Same thing, but with non-capitalized variables that should still be recognized as variables
 		input = Expressions.parse(""
@@ -126,7 +126,7 @@ public class CompilationTest {
 				Util.map("x", "Everything", "y", "Everything", "z", "Everything");
 		mapFromUniquelyNamedConstantToTypeName = 
 				Util.map("a", "Everything", "b", "Everything", "c", "Everything");
-		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 
 		input = Expressions.parse(""
 						+ "if not g0 and (g1 = consg1_0)\r\n" + 
@@ -151,18 +151,18 @@ public class CompilationTest {
 				Util.map("g0", "Boolean", "g1", "G1Type");
 		mapFromUniquelyNamedConstantToTypeName = 
 				Util.map("consg1_0", "G1Type", "consg1_1", "G1Type", "consg1_2", "G1Type", "consg1_3", "G1Type");
-		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 
 		input = Expressions.parse("if not g0 then 1 else 1"); 
 		expected = parse("1");
 		mapFromCategoricalTypeNameToSizeString   = Util.map("G1Type", "4", "Boolean", "2");
 		mapFromVariableNameToTypeName = Util.map("g0", "Boolean", "g1", "G1Type");
 		mapFromUniquelyNamedConstantToTypeName = Util.map();
-		runTest(input, expected, constraintTheory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+		runTest(input, expected, theory, mapFromCategoricalTypeNameToSizeString, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 	}
 
-	private void runTest(Expression input, Expression expected, ConstraintTheory constraintTheory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName) {
-		Expression actual = compile(input, constraintTheory, mapFromCategoricalTypeNameToSizeString, list(), mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
+	private void runTest(Expression input, Expression expected, Theory theory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName) {
+		Expression actual = compile(input, theory, mapFromCategoricalTypeNameToSizeString, list(), mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName);
 		assertEquals(expected, actual);
 	}
 }

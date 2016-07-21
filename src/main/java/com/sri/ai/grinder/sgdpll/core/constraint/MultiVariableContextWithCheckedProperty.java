@@ -53,7 +53,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.util.base.BinaryFunction;
@@ -93,14 +93,14 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 * Creates a new {@link Context} from a {@link SingleVariableConstraint} and a {@link Context},
 	 * by either returning a contradiction if either is contradictory,
 	 * or a new {@link MultiVariableContextWithCheckedProperty} otherwise.
-	 * @param constraintTheory
+	 * @param theory
 	 * @param head
 	 * @param tail
 	 * @param context
 	 * @return
 	 */
 	public static Context makeAndCheck(
-			ConstraintTheory constraintTheory,
+			Theory theory,
 			SingleVariableConstraint head,
 			Context tail,
 			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
@@ -114,7 +114,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			MultiVariableContextWithCheckedProperty 
 			uncheckedMultiVariableConstraintWithCheckedProperty = 
 			new MultiVariableContextWithCheckedProperty(
-					tail.getConstraintTheory(), 
+					tail.getTheory(), 
 					head, 
 					tail, 
 					contextDependentProblemStepSolverMaker);
@@ -127,12 +127,12 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	public MultiVariableContextWithCheckedProperty(
-			ConstraintTheory constraintTheory, 
+			Theory theory, 
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
 			Context context) {
 		
 		this(
-				constraintTheory, 
+				theory, 
 				null, // no head at first
 				context, // initial tail is the context 
 				contextDependentProblemMaker);
@@ -148,11 +148,11 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 * @param tail
 	 */
 	private MultiVariableContextWithCheckedProperty(
-			ConstraintTheory constraintTheory,
+			Theory theory,
 			SingleVariableConstraint head,
 			Context tail,
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
-		super(constraintTheory);
+		super(theory);
 		this.tail = tail;
 		this.head = head;
 		this.checked = false;
@@ -193,7 +193,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			if ( ! variableAlreadyConstrainedInThis) {
 				// if the variable is new to this constraint, we can simply tack on its constraint on it. 
 				Context newContext = makeAndCheck(
-						getConstraintTheory(), 
+						getTheory(), 
 						formulaAsSingleVariableConstraint, 
 						this, 
 						contextDependentProblemStepSolverMaker,
@@ -237,9 +237,9 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = makeContradiction();
 		}
 		else {
-			Collection<Expression> variablesInLiteral = getConstraintTheory().getVariablesIn(literal, context);
+			Collection<Expression> variablesInLiteral = getTheory().getVariablesIn(literal, context);
 			if (variablesInLiteral.isEmpty()) {
-				Expression literalSimplifiedToConstant = getConstraintTheory().simplify(literal, context);
+				Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
 				result = conjoinWithLiteral(literalSimplifiedToConstant, context);
 			}
 			else if (head != null) {
@@ -272,7 +272,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 				else {
 					result = 
 							makeAndCheck(
-									getConstraintTheory(), 
+									getTheory(), 
 									newHead, 
 									newTail, 
 									contextDependentProblemStepSolverMaker,
@@ -281,11 +281,11 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			}
 			else {
 				Expression firstVariable = getFirstOrNull(variablesInLiteral);
-				SingleVariableConstraint newSingleVariableConstraint = getConstraintTheory().makeSingleVariableConstraint(firstVariable, getConstraintTheory(), context);
+				SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, getTheory(), context);
 				newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
 				result = 
 						makeAndCheck(
-								getConstraintTheory(), 
+								getTheory(), 
 								newSingleVariableConstraint, 
 								this, 
 								contextDependentProblemStepSolverMaker,

@@ -44,17 +44,17 @@ public interface OldStyleQuantifierEliminator {
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param additionalTypes
 	 * @param isUniquelyNamedConstantPredicate
-	 * @param constraintTheory TODO
+	 * @param theory TODO
 	 * @return
 	 */
 	Context makeProcess(
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory);
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory);
 	
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
-	 * @param constraintTheory TODO
+	 * @param theory TODO
 	 */
 	default Expression solve(
 			Expression expression, 
@@ -63,12 +63,12 @@ public interface OldStyleQuantifierEliminator {
 			Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, 
 			Predicate<Expression> isUniquelyNamedConstantPredicate, 
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
 		Context context =
 				makeProcess(
 						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
-						additionalTypes, isUniquelyNamedConstantPredicate, constraintTheory);
+						additionalTypes, isUniquelyNamedConstantPredicate, theory);
 		
 		Expression result = solve(expression, indices, context);
 		return result;

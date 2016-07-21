@@ -68,7 +68,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
@@ -307,7 +307,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			result = equivalent.step(context);
 		}
 		else {
-			ConstraintTheory constraintTheory = context.getConstraintTheory();
+			Theory theory = context.getTheory();
 		
 			Expression functionOnSingleIndexSets = expandApplicationOfAssociativeCommutativeFunction(functionOnSet);
 		
@@ -317,12 +317,12 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression index = IndexExpressions.getIndex(indexExpression);
 			context = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, context);
 		
-			SingleVariableConstraint indexConstraint = constraintTheory.makeSingleVariableConstraint(index, constraintTheory, context);
+			SingleVariableConstraint indexConstraint = theory.makeSingleVariableConstraint(index, theory, context);
 			Expression body = IfThenElse.make(firstSet.getCondition(), firstSet.getHead(), group.additiveIdentityElement());
 			// TODO: once we can conjoin arbitrary conditions to a constraint, we want to make the body simply the set's head, and conjoin the set's condition to the single-variable constraint. This will leverage conditions already represented as constraints.
 		
 			ContextDependentExpressionProblemStepSolver quantifierEliminationStepSolver = 
-					constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
+					theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
 							group, indexConstraint, body, exhaustiveTopSimplifier, context);
 		
 			result = quantifierEliminationStepSolver.step(context);

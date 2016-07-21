@@ -5,11 +5,11 @@ import static java.lang.Math.round;
 
 import java.util.Random;
 
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 
-public abstract class AbstractConstraintTheoryTest {
+public abstract class AbstractTheoryTest {
 
-	public AbstractConstraintTheoryTest() {
+	public AbstractTheoryTest() {
 		super();
 	}
 
@@ -25,7 +25,7 @@ public abstract class AbstractConstraintTheoryTest {
 	 * Provides a way to regulate which constraint theory to use.
 	 * @return
 	 */
-	abstract protected ConstraintTheory makeConstraintTheory();
+	abstract protected Theory makeTheory();
 
 	/**
 	 * Indicates whether correctness should be checked against brute-force methods when possible.

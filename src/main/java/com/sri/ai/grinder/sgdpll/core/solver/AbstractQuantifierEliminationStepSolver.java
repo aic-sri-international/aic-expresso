@@ -48,7 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
@@ -160,12 +160,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 	
 	/**
-	 * Convenience method for <code>indexConstraint.getConstraintTheory()</code>.
+	 * Convenience method for <code>indexConstraint.getTheory()</code>.
 	 * @return
 	 */
 	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return indexConstraint.getConstraintTheory();
+	public Theory getTheory() {
+		return indexConstraint.getTheory();
 	}
 	
 	@Override
@@ -173,10 +173,10 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return indexConstraint.getVariable();
 	}
 	
-	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(ConstraintTheory constraintTheory) {
+	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
-			= new EvaluatorStepSolver(body, constraintTheory.getTopSimplifier());
+			= new EvaluatorStepSolver(body, theory.getTopSimplifier());
 		}
 		return initialBodyEvaluationStepSolver;
 	}
@@ -207,7 +207,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
 		}
 		else {
-			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getConstraintTheory());
+			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
 			SolutionStep bodyStep = bodyStepSolver.step(contextForBody); 
 
 			if (bodyStep.itDepends()) {

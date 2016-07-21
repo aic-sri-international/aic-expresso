@@ -11,7 +11,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 
@@ -30,17 +30,17 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	
 	private Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint;
 	
-	public DefaultMultiVariableConstraint(ConstraintTheory constraintTheory) {
-		this(constraintTheory, Util.map());
+	public DefaultMultiVariableConstraint(Theory theory) {
+		this(theory, Util.map());
 	}
 	
-	private DefaultMultiVariableConstraint(ConstraintTheory constraintTheory, Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint) {
-		super(constraintTheory);
+	private DefaultMultiVariableConstraint(Theory theory, Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint) {
+		super(theory);
 		this.fromVariableToItsConstraint = fromVariableToItsConstraint;
 	}
 	
 	private DefaultMultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint) {
-		return new DefaultMultiVariableConstraint(getConstraintTheory(), newFromVariableToItsConstraint);
+		return new DefaultMultiVariableConstraint(getTheory(), newFromVariableToItsConstraint);
 	}
 	
 	@Override
@@ -50,7 +50,7 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 		Expression variable = getSomeVariableFor(literal, context);
 		if (variable == null) {
 			// the literal has no variables.
-			Expression literalEvaluation = getConstraintTheory().simplify(literal, context);
+			Expression literalEvaluation = getTheory().simplify(literal, context);
 			if (literalEvaluation.equals(TRUE)) {
 				result = this;
 			}
@@ -86,7 +86,7 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	}
 	
 	private Expression getSomeVariableFor(Expression literal, Context context) {
-		Expression result = min(getConstraintTheory().getVariablesIn(literal, context), (e1, e2) -> e1.compareTo(e2));
+		Expression result = min(getTheory().getVariablesIn(literal, context), (e1, e2) -> e1.compareTo(e2));
 		return result;
 	}
 
@@ -97,7 +97,7 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint implement
 	protected SingleVariableConstraint getConstraintFor(Expression variable, Context context) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = getConstraintTheory().makeSingleVariableConstraint(variable, getConstraintTheory(), context);
+			result = getTheory().makeSingleVariableConstraint(variable, getTheory(), context);
 		}
 		return result;
 	}

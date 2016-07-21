@@ -49,42 +49,42 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
 
 
 /** 
- * A {@link ConstraintTheory} for equality literals.
+ * A {@link Theory} for equality literals.
  */
 @Beta
-public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
+public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality {
 
 //	/**
 //	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
 //	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
 //	 */
-//	public EqualityConstraintTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
+//	public EqualityTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
 //		this(false, propagateAllLiteralsWhenVariableIsBound);
 //	}
 	
 	/**
 	 * Creates an equality theory.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
-	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
+	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound TODO
 	 */
-	public EqualityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public EqualityTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
@@ -124,8 +124,8 @@ public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinary
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
-		return new SingleVariableEqualityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
+		return new SingleVariableEqualityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), theory);
 	}
 
 	@Override

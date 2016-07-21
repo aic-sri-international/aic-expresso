@@ -63,11 +63,11 @@ import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalTheory;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
@@ -85,14 +85,14 @@ public class SymbolicShell {
 	
 	public static void main(String[] args) {
 
-		CompoundConstraintTheory constraintTheory = new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, false),
-				new LinearRealArithmeticConstraintTheory(false, false),
-				new PropositionalConstraintTheory());
-		Simplifier evaluator = new Evaluator(constraintTheory);
+		CompoundTheory theory = new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, false),
+				new LinearRealArithmeticTheory(false, false),
+				new PropositionalTheory());
+		Simplifier evaluator = new Evaluator(theory);
 		
-		Context context = new TypeContext(constraintTheory);
+		Context context = new TypeContext(theory);
 		context = context.add(BOOLEAN_TYPE);
 		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		context = context.add(new IntegerInterval("Integer"));

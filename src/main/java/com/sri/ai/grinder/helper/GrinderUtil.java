@@ -102,7 +102,7 @@ import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.number.LessThan;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -156,8 +156,8 @@ public class GrinderUtil {
 		return new ExtensionalIndexExpressionsSet(indexExpressions);
 	}
 
-	public static Context makeContext(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
-		Context result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TypeContext(constraintTheory));			
+	public static Context makeContext(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
+		Context result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TypeContext(theory));			
 		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}

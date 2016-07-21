@@ -12,7 +12,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 
 /**
- * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
+ * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint theory) and
  * model counting.
  * 
  * @author braz
@@ -37,7 +37,7 @@ public interface Constraint extends Expression {
 	 * 
 	 * @return the application's constraint theory.
 	 */
-	ConstraintTheory getConstraintTheory();
+	Theory getTheory();
 	
 	/**
 	 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
@@ -59,7 +59,7 @@ public interface Constraint extends Expression {
 	 * @return
 	 */
 	default boolean implies(Expression literal, Context context) {
-		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal, context);
+		Expression literalNegation = getTheory().getLiteralNegation(literal, context);
 		boolean result = contradictoryWith(literalNegation, context);
 		return result;
 	}
@@ -137,7 +137,7 @@ public interface Constraint extends Expression {
 		boolean result =
 				formula == null
 				|| formula instanceof Constraint
-				|| getConstraintTheory().isConjunctiveClause(formula, context);
+				|| getTheory().isConjunctiveClause(formula, context);
 		return result;
 	}
 
@@ -232,11 +232,11 @@ public interface Constraint extends Expression {
 //						eliminatedIndices,
 //						condition,
 //						body,
-//						getConstraintTheory().makeSingleVariableConstraint(null),
+//						getTheory().makeSingleVariableConstraint(null),
 //						context);
 //		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
 //		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);
-//		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);
+//		Constraint result = ExpressionConstraint.wrap(getTheory(), remainingSupportedIndices, resultExpression);
 //		return result;
 //	}
 }

@@ -57,20 +57,20 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll.core.constraint.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpll.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
-import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryTest;
+import com.sri.ai.grinder.sgdpll.theory.base.AbstractTheoryWithBinaryAtoms;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalTheory;
+import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractTheoryTest;
 
 /**
  * Test of compound theory of equalities, difference arithmetic and propositional theories.
@@ -79,14 +79,14 @@ import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryTest;
  *
  */
 @Beta
-public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends AbstractConstraintTheoryTest {
+public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTest {
 
 	@Override
-	protected CompoundConstraintTheory makeConstraintTheory() {
-		CompoundConstraintTheory compoundConstraintTheory = new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, true),
-				new PropositionalConstraintTheory());
+	protected CompoundTheory makeTheory() {
+		CompoundTheory compoundTheory = new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, true),
+				new PropositionalTheory());
 		
 		// using different testing variables and types to test distribution of testing information
 		// to sub constraint theories.
@@ -105,9 +105,9 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 						"U", oneTwoThree
 						);
 		
-		compoundConstraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		compoundTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		return compoundConstraintTheory;
+		return compoundTheory;
 	}
 	
 	/**
@@ -122,10 +122,10 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 	@Test
 	public void basicTests() {
 		
-		ConstraintTheory compound = new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, true),
-				new PropositionalConstraintTheory());
+		Theory compound = new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, true),
+				new PropositionalTheory());
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
@@ -148,7 +148,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 		SGDPLLTTester.testSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -159,7 +159,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 		SGDPLLTTester.testMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				1 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -170,7 +170,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				20 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -181,7 +181,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				200 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -193,7 +193,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeConstraintTheory(),
+				makeTheory(),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -206,7 +206,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
-				makeConstraintTheory(),
+				makeTheory(),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -224,7 +224,7 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 
 		String conjunction;
 		Expression expected;
-		Categorical someType = AbstractConstraintTheory.getDefaultTestingType();
+		Categorical someType = AbstractTheory.getDefaultTestingType();
 
 		Map<String, Type> variableNamesAndTypesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
 				map("X", someType, "Y", someType, "Z", someType, "W", someType);
@@ -248,11 +248,11 @@ public class CompoundConstraintTheoryWithDifferenceArithmeticTest extends Abstra
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
-		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, true);
+		AbstractTheoryWithBinaryAtoms equalityTheory = new EqualityTheory(true, true);
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(constraintTheory, context);
+		Theory theory = new CompoundTheory(equalityTheory, new PropositionalTheory());
+		Context context = theory.makeContextWithTestingInformation();
+		Constraint constraint = new CompleteMultiVariableContext(theory, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 		}

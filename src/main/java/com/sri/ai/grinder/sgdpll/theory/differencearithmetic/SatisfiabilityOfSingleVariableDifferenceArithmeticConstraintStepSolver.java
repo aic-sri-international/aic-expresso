@@ -100,7 +100,7 @@ public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSol
 		
 		Expression satisfiable;
 		satisfiable = apply(GREATER_THAN, modelCountingStep.getValue(), ZERO);
-		Expression simplifiedSatisfiable = constraint.getConstraintTheory().simplify(satisfiable, context);
+		Expression simplifiedSatisfiable = constraint.getTheory().simplify(satisfiable, context);
 
 		// result = new Solution(simplifiedSatisfiable); // used to be like this; not good, for if simplifiedSatisfiable is inconsistent with context, it is not equal to 'false', becoming incomplete even if the context is complete.
 

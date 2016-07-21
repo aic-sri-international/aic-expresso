@@ -47,7 +47,7 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraintWithIndependentNormalizedAtoms;
 import com.sri.ai.util.base.Pair;
@@ -62,8 +62,8 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 
 	private static final long serialVersionUID = 1L;
 
-	public SingleVariablePropositionalConstraint(Expression variable, ConstraintTheory constraintTheory) {
-		super(variable, constraintTheory);
+	public SingleVariablePropositionalConstraint(Expression variable, Theory theory) {
+		super(variable, theory);
 	}
 
 	public SingleVariablePropositionalConstraint(
@@ -71,9 +71,9 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, theory);
 	}
 
 	public SingleVariablePropositionalConstraint(SingleVariablePropositionalConstraint other) {
@@ -83,7 +83,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	@Override
 	protected SingleVariablePropositionalConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
 		// no special bookkeeping to be retained in simplifications, so we just make a new constraint.
-		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getConstraintTheory());
+		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getTheory());
 		return result;
 	}
 

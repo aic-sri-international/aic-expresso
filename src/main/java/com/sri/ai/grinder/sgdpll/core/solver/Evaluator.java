@@ -42,7 +42,7 @@ import static com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionPr
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
@@ -54,10 +54,10 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class Evaluator implements Simplifier {
 
-	private ConstraintTheory constraintTheory;
+	private Theory theory;
 	
-	public Evaluator(ConstraintTheory constraintTheory) {
-		this.constraintTheory = constraintTheory;
+	public Evaluator(Theory theory) {
+		this.theory = theory;
 	}
 	
 	@Override
@@ -65,7 +65,7 @@ public class Evaluator implements Simplifier {
 		// create an EvaluatorStepSolver on expression and constraint theory, and solve it.
 		Expression result = 
 				solve(
-						new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier()), 
+						new EvaluatorStepSolver(expression, theory.getTopSimplifier()), 
 						context);
 		return result;
 	}

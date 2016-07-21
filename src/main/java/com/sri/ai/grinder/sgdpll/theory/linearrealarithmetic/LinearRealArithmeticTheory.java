@@ -61,7 +61,7 @@ import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
@@ -70,19 +70,19 @@ import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericTheory;
 
 /** 
- * A {@link ConstraintTheory} for linear real arithmetic literals.
+ * A {@link Theory} for linear real arithmetic literals.
  */
 @Beta
-public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstraintTheory {
+public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 
 	/**
 	 * Creates an linear real arithmetic theory.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
-	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
+	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.
 	 * <p>
 	 * Testing information is initialized to variables <code>X</code>, <code>Y</code>, <code>Z</code> in interval <code>[0;4]</code>.
@@ -92,7 +92,7 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 */
-	public LinearRealArithmeticConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public LinearRealArithmeticTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
 				propagateAllLiteralsWhenVariableIsBound,
@@ -149,8 +149,8 @@ public class LinearRealArithmeticConstraintTheory extends AbstractNumericConstra
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
-		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
+		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), theory);
 	}
 
 	@Override

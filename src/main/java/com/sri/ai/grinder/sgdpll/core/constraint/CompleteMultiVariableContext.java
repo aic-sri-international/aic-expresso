@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpll.core.constraint;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 
 /**
  * A multi-variable context that detects unsatisfiability
@@ -53,7 +53,7 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 
 	private static final long serialVersionUID = 1L;
 
-	public CompleteMultiVariableContext(ConstraintTheory constraintTheory, Context context) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), context);
+	public CompleteMultiVariableContext(Theory theory, Context context) {
+		super(theory, (c, p) -> theory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), context);
 	}
 }

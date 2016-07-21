@@ -164,12 +164,12 @@ public interface Context extends Constraint, Cloneable {
 	Context makeContradiction();
 	
 	/**
-	 * Convenience for <code>this.getConstraintTheory().isLiteral(expression, this)</code>.
+	 * Convenience for <code>this.getTheory().isLiteral(expression, this)</code>.
 	 * @param expression
 	 * @return
 	 */
 	default boolean isLiteral(Expression expression) {
-		boolean result = getConstraintTheory().isLiteral(expression, this);
+		boolean result = getTheory().isLiteral(expression, this);
 		return result;
 	}
 }

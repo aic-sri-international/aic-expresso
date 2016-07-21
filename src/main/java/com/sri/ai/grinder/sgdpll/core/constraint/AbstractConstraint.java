@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 
 /**
  * An abstract {@link Constraint} implementing constraint theory, contradiction and cloning mechanisms. 
@@ -56,16 +56,16 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 
 	private static final long serialVersionUID = 1L;
 	
-	private ConstraintTheory constraintTheory;
+	private Theory theory;
 	protected boolean isContradiction = false;
 	
-	public AbstractConstraint(ConstraintTheory constraintTheory) {
-		this.constraintTheory = constraintTheory;
+	public AbstractConstraint(Theory theory) {
+		this.theory = theory;
 	}
 	
 	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
+	public Theory getTheory() {
+		return theory;
 	}
 
 	@Override

@@ -58,7 +58,7 @@ import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.util.collect.StackedHashMap;
 
@@ -77,7 +77,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	
 	private static final long serialVersionUID = 1L;
 
-	private ConstraintTheory constraintTheory;
+	private Theory theory;
 
 	private Map<Expression, Expression>  symbolsAndTypes;
 	private Map<Expression, Type> fromTypeExpressionToType;
@@ -97,29 +97,29 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 
-	public TypeContext(ConstraintTheory constraintTheory) {
+	public TypeContext(Theory theory) {
 		this(
-				constraintTheory,
+				theory,
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), // symbolsAndTypes
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
-	public TypeContext(ConstraintTheory constraintTheory, Map<Object, Object> globalObjects) {
+	public TypeContext(Theory theory, Map<Object, Object> globalObjects) {
 		this(
-				constraintTheory,
+				theory,
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
 
 	public TypeContext(
-			ConstraintTheory constraintTheory,
+			Theory theory,
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 
-		this.constraintTheory = constraintTheory;
+		this.theory = theory;
 		
 		this.symbolsAndTypes = symbolsAndTypes;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
@@ -321,25 +321,25 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public ConstraintTheory getConstraintTheory() {
+	public Theory getTheory() {
 		myAssert( 
-				() -> constraintTheory != null, 
+				() -> theory != null, 
 				() -> "Trying to obtain a constraint theory from a " + TypeContext.class + " instance without one.");
-		return constraintTheory;
+		return theory;
 	}
 
-	private CompleteMultiVariableContext makeTrueConstraint(ConstraintTheory constraintTheory) {
-		CompleteMultiVariableContext result = new CompleteMultiVariableContext(constraintTheory, this);
+	private CompleteMultiVariableContext makeTrueConstraint(Theory theory) {
+		CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
 		return result;
 	}
 	
-	private ConstraintTheory constraintTheoryToUse(Expression conjoinant) {
-		ConstraintTheory result;
-		if (constraintTheory != null) {
-			result = constraintTheory;
+	private Theory theoryToUse(Expression conjoinant) {
+		Theory result;
+		if (theory != null) {
+			result = theory;
 		}
 		else if (conjoinant instanceof Constraint) {
-			result = ((Constraint) conjoinant).getConstraintTheory();
+			result = ((Constraint) conjoinant).getTheory();
 		}
 		else {
 			throw new Error("Conjoining with default context but there is no constraint theory available");
@@ -350,7 +350,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context conjoin(Expression formula, Context context) {
 		Context result = 
-				makeTrueConstraint(constraintTheoryToUse(formula))
+				makeTrueConstraint(theoryToUse(formula))
 				.conjoin(formula, context);
 		return result;
 	}
@@ -358,7 +358,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
 		Context result = 
-				makeTrueConstraint(constraintTheoryToUse(conjunctiveClause))
+				makeTrueConstraint(theoryToUse(conjunctiveClause))
 				.conjoinWithConjunctiveClause(conjunctiveClause, context);
 		return result;
 	}
@@ -366,7 +366,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
 		Context result = 
-				makeTrueConstraint(constraintTheoryToUse(literal))
+				makeTrueConstraint(theoryToUse(literal))
 				.conjoinWithLiteral(literal, context);
 		return result;
 	}
@@ -383,10 +383,10 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 
 	@Override
 	public Context makeContradiction() {
-		if (constraintTheory == null) {
+		if (theory == null) {
 			throw new Error("Should not be making a contradiction out of a TypeContext without a constraint");
 		}
-		Context result = makeTrueConstraint(constraintTheory).makeContradiction();
+		Context result = makeTrueConstraint(theory).makeContradiction();
 		return result;
 	}
 

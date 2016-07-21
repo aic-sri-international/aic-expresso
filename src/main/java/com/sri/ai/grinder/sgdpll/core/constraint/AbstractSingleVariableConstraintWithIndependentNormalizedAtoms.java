@@ -43,7 +43,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.util.Util;
 
 /**
@@ -60,8 +60,8 @@ public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedA
 
 	private static final long serialVersionUID = 1L;
 	
-	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(Expression variable, ConstraintTheory constraintTheory) {
-		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
+	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(Expression variable, Theory theory) {
+		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), theory);
 	}
 	
 	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(
@@ -69,9 +69,9 @@ public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedA
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, theory);
 	}
 
 	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms (AbstractSingleVariableConstraintWithIndependentNormalizedAtoms other) {

@@ -45,15 +45,15 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
-import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryTest;
+import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalTheory;
+import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractTheoryTest;
 
 @Beta
-public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
+public class PropositionalConstraintTest extends AbstractTheoryTest {
 
 	@Override
-	public PropositionalConstraintTheory makeConstraintTheory() {
-		return new PropositionalConstraintTheory();
+	public PropositionalTheory makeTheory() {
+		return new PropositionalTheory();
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 		SGDPLLTTester.testSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(30) /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
 				2 /* number of literals per test */,
 				true /* output count */);
@@ -72,7 +72,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 		SGDPLLTTester.testMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests - many more possibilities when we have multiple variables */,
 				10 /* number of literals per test */,
 				true /* output count */);
@@ -83,7 +83,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -95,7 +95,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
@@ -108,7 +108,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
@@ -120,7 +120,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -133,7 +133,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
@@ -147,7 +147,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Max(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */

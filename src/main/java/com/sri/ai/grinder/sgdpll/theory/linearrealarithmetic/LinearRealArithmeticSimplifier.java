@@ -54,16 +54,16 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class LinearRealArithmeticSimplifier implements Simplifier {
 
-	private LinearRealArithmeticConstraintTheory constraintTheory;
+	private LinearRealArithmeticTheory theory;
 	
-	public LinearRealArithmeticSimplifier(LinearRealArithmeticConstraintTheory constraintTheory) {
+	public LinearRealArithmeticSimplifier(LinearRealArithmeticTheory theory) {
 		super();
-		this.constraintTheory = constraintTheory;
+		this.theory = theory;
 	}
 
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		Expression result = LinearRealArithmeticUtil.simplify(expression, constraintTheory, context);
+		Expression result = LinearRealArithmeticUtil.simplify(expression, theory, context);
 		return result;
 	}
 }

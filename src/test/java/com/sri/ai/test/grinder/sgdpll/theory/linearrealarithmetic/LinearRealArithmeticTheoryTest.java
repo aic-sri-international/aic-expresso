@@ -47,10 +47,10 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver;
@@ -59,12 +59,12 @@ import com.sri.ai.grinder.sgdpll.theory.linearrealarithmetic.SummationOnLinearRe
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
-public class LinearRealArithmeticConstraintTheoryTest {
+public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testMeasureEquivalentInterval() {
-		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new LinearRealArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -246,8 +246,8 @@ public class LinearRealArithmeticConstraintTheoryTest {
 
 	@Test
 	public void testSatisfiability() {
-		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new LinearRealArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -472,8 +472,8 @@ public class LinearRealArithmeticConstraintTheoryTest {
 
 	@Test
 	public void testMeasure() {
-		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new LinearRealArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;
@@ -698,9 +698,9 @@ public class LinearRealArithmeticConstraintTheoryTest {
 
 	@Test
 	public void testSummation() {
-		ConstraintTheory constraintTheory = new LinearRealArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		Simplifier simplifier = (e,c) -> constraintTheory.simplify(e, c);
+		Theory theory = new LinearRealArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
+		Simplifier simplifier = (e,c) -> theory.simplify(e, c);
 		
 		Expression variable;
 		String constraintString;
@@ -803,7 +803,7 @@ public class LinearRealArithmeticConstraintTheoryTest {
 	
 		Constraint constraint
 		= new SingleVariableLinearRealArithmeticConstraint(
-				variable, true, context.getConstraintTheory());
+				variable, true, context.getTheory());
 	
 		constraint = constraint.conjoin(parse(constraintString), context);
 	

@@ -53,19 +53,19 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll.core.constraint.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpll.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 @Beta
 /** 
- * A {@link ConstraintTheory} for propositional logic.
+ * A {@link Theory} for propositional logic.
  */
-public class PropositionalConstraintTheory extends AbstractConstraintTheory {
+public class PropositionalTheory extends AbstractTheory {
 
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
@@ -80,7 +80,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	 * testing symbols <code>P, Q, R</code> of type <code>Boolean</code>,
 	 * and main testing variable as <code>P</code>.
 	 */
-	public PropositionalConstraintTheory() {
+	public PropositionalTheory() {
 		super(new BooleanSimplifier());
 		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
 	}
@@ -96,8 +96,8 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
-		return new SingleVariablePropositionalConstraint(variable, constraintTheory);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
+		return new SingleVariablePropositionalConstraint(variable, theory);
 	}
 
 	@Override

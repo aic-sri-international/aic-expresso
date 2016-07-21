@@ -51,7 +51,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
 
 /**
@@ -80,8 +80,8 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 
 	private boolean propagateAllLiteralsWhenVariableIsBound;
 	
-	public AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, ConstraintTheory constraintTheory) {
-		super(variable, constraintTheory);
+	public AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, Theory theory) {
+		super(variable, theory);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
 		
 	}
@@ -92,9 +92,9 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
 			boolean propagateAllLiteralsWhenVariableIsBound,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, theory);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
 	}
 
@@ -137,14 +137,14 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 			result = conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(sign, normalizedAtom, context);
 //			System.out.println("Propagated:");	
 //			System.out.println("Original: " + this);	
-//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, context)));	
+//			System.out.println("Incoming: " + (sign? normalizedAtom : getTheory().getLiteralNegation(normalizedAtom, context)));	
 //			System.out.println("After   : " + result);	
 		}
 		else if (sign && normalizedAtom.hasFunctor(EQUALITY)) {
 			result = conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(sign, normalizedAtom, context);
 //			System.out.println("Propagated:");	
 //			System.out.println("Original: " + this);	
-//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, context)));	
+//			System.out.println("Incoming: " + (sign? normalizedAtom : getTheory().getLiteralNegation(normalizedAtom, context)));	
 //			System.out.println("After   : " + result);	
 		}
 		else {
@@ -246,7 +246,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 	private Expression rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(boolean sign, Expression normalizedAtom, Expression valueVariableIsBoundTo, Context context) {
 		Expression normalizedAtomInTermsOfValueVariableIsBoundTo = apply(normalizedAtom.getFunctor(), valueVariableIsBoundTo, normalizedAtom.get(1));
 		Expression literal = sign? normalizedAtomInTermsOfValueVariableIsBoundTo : not(normalizedAtomInTermsOfValueVariableIsBoundTo);
-		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, context);
+		Expression simplifiedLiteral = getTheory().simplify(literal, context);
 		return simplifiedLiteral;
 	}
 

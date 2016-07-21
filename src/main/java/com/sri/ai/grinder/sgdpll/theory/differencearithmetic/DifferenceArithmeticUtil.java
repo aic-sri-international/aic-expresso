@@ -92,12 +92,12 @@ public class DifferenceArithmeticUtil {
 	/**
 	 * Simplify a difference arithmetic literal.
 	 * @param expression
-	 * @param constraintTheory TODO
+	 * @param theory TODO
 	 * @param context TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, DifferenceArithmeticConstraintTheory constraintTheory, Context context) {
-		if (! constraintTheory.isLiteral(expression, context)) {
+	public static Expression simplify(Expression expression, DifferenceArithmeticTheory theory, Context context) {
+		if (! theory.isLiteral(expression, context)) {
 			return expression;
 		}
 		DAParts parts = makeDifferenceArithmeticTriple(expression);

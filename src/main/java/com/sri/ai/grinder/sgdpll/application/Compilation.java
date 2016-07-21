@@ -48,7 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
@@ -71,7 +71,7 @@ public class Compilation {
 	 * @param solverListener if not null, invoked on solver used for compilation, before and after compilation starts; returned solver on 'before' invocation is used (it may be the same one used as argument, of course).
 	 * @return
 	 */
-	public static Expression compile(Expression inputExpression, ConstraintTheory constraintTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<OldStyleQuantifierEliminator, OldStyleQuantifierEliminator> solverListener) {
+	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<OldStyleQuantifierEliminator, OldStyleQuantifierEliminator> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
@@ -89,7 +89,7 @@ public class Compilation {
 		
 		// Solve the problem.
 		List<Expression> indices = Util.list(); // no indices; we want to keep all variables
-		Expression result = solver.solve(inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate, constraintTheory);	
+		Expression result = solver.solve(inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate, theory);	
 		
 		if (solverListener != null) {
 			solverListener.apply(null);
@@ -97,7 +97,7 @@ public class Compilation {
 		return result;
 	}
 
-	public static Expression compile(Expression inputExpression, ConstraintTheory constraintTheory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName) {
-		return compile(inputExpression, constraintTheory, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, null);
+	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName) {
+		return compile(inputExpression, theory, mapFromVariableNameToTypeName, mapFromUniquelyNamedConstantToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, null);
 	}
 }

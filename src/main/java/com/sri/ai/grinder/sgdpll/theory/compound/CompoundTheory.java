@@ -63,10 +63,10 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll.core.constraint.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -74,14 +74,14 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.RecursiveExhaustiveSeriallyMerg
 import com.sri.ai.util.Util;
 
 /** 
- * A {@link ConstraintTheory} formed by the union of other constraint theories.
+ * A {@link Theory} formed by the union of other constraint theories.
  */
 @Beta
-public class CompoundConstraintTheory extends AbstractConstraintTheory {
+public class CompoundTheory extends AbstractTheory {
 
-	private List<ConstraintTheory> subConstraintTheories;
+	private List<Theory> subConstraintTheories;
 	
-	public CompoundConstraintTheory(ConstraintTheory... subConstraintTheoriesArray) {
+	public CompoundTheory(Theory... subConstraintTheoriesArray) {
 		super(makeSimplifier(list(subConstraintTheoriesArray)));
 		this.subConstraintTheories = list(subConstraintTheoriesArray);
 		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-constraint theory but got none.");
@@ -90,8 +90,8 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
 	private void aggregateTestingInformation() throws Error {
 		Map<String, Type> variableNamesAndTypesForTesting = new LinkedHashMap<>();
-		for (ConstraintTheory constraintTheory : getSubConstraintTheories()) {
-			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = constraintTheory.getVariableNamesAndTypesForTesting().entrySet();
+		for (Theory theory : getSubConstraintTheories()) {
+			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = theory.getVariableNamesAndTypesForTesting().entrySet();
 			for (Map.Entry<String, Type> variableNameAndTypeName : variableNamesAndTypeNameEntries) {
 				String variableName = variableNameAndTypeName.getKey();
 				Type type = variableNameAndTypeName.getValue();
@@ -113,27 +113,27 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
 		
-		Map<ConstraintTheory, Map<String, Type>> mapForSubConstraintTheory = map();
+		Map<Theory, Map<String, Type>> mapForSubTheory = map();
 		
 		if (getSubConstraintTheories() != null) { // during construction, these may not be available yet.
-			for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
-				mapForSubConstraintTheory.put(subConstraintTheory, map());
+			for (Theory subTheory : getSubConstraintTheories()) {
+				mapForSubTheory.put(subTheory, map());
 			}
 	
 			for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
 				String variableName = variableNameAndType.getKey();
 				Expression variable = Expressions.parse(variableName);
 				Type type = variableNameAndType.getValue();
-				for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
-					if (subConstraintTheory.isSuitableFor(variable, type)) {
-						mapForSubConstraintTheory.get(subConstraintTheory).put(variableName, type);
+				for (Theory subTheory : getSubConstraintTheories()) {
+					if (subTheory.isSuitableFor(variable, type)) {
+						mapForSubTheory.get(subTheory).put(variableName, type);
 					}
 				}
 			}
 	
-			for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
-				Map<String, Type> forThisSubTheory = mapForSubConstraintTheory.get(subConstraintTheory);
-				subConstraintTheory.setVariableNamesAndTypesForTesting(forThisSubTheory);
+			for (Theory subTheory : getSubConstraintTheories()) {
+				Map<String, Type> forThisSubTheory = mapForSubTheory.get(subTheory);
+				subTheory.setVariableNamesAndTypesForTesting(forThisSubTheory);
 			}
 		}
 	
@@ -143,8 +143,8 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public Collection<Type> getNativeTypes() {
 		Collection<Type> result = new LinkedHashSet<Type>();
-		for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
-			result.addAll(subConstraintTheory.getNativeTypes());
+		for (Theory subTheory : getSubConstraintTheories()) {
+			result.addAll(subTheory.getNativeTypes());
 		}
 		return result;
 	}
@@ -155,11 +155,11 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		return result;
 	}
 	
-	public Collection<ConstraintTheory> getSubConstraintTheories() {
+	public Collection<Theory> getSubConstraintTheories() {
 		return subConstraintTheories;
 	}
 
-	private ConstraintTheory getConstraintTheory(Expression variable, Context context) {
+	private Theory getTheory(Expression variable, Context context) {
 		String typeName = GrinderUtil.getType(variable, context).toString();
 		Type type = context.getType(typeName);
 		
@@ -167,7 +167,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 			throw new Error("Cannot decide which theory to use for variable " + variable + " because it does not have a registered type.");
 		}
 		
-		ConstraintTheory result =
+		Theory result =
 				getFirstSatisfyingPredicateOrNull(
 						getSubConstraintTheories(),
 						t -> t.isSuitableFor(variable, type));
@@ -184,9 +184,9 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context) {
-		ConstraintTheory constraintTheoryForVariable = getConstraintTheory(variable, context);
-		SingleVariableConstraint result = constraintTheoryForVariable.makeSingleVariableConstraint(variable, constraintTheory, context);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
+		Theory theoryForVariable = getTheory(variable, context);
+		SingleVariableConstraint result = theoryForVariable.makeSingleVariableConstraint(variable, theory, context);
 		return result;
 	}
 
@@ -197,7 +197,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 			boolean trueForAllTheories =
 					forAll(
 							getSubConstraintTheories(),
-							ConstraintTheory::singleVariableConstraintIsCompleteWithRespectToItsVariable);
+							Theory::singleVariableConstraintIsCompleteWithRespectToItsVariable);
 			cachedSingleVariableConstraintIsCompleteWithRespectToItsVariable = trueForAllTheories ? 1 : 0;
 		}
 		return cachedSingleVariableConstraintIsCompleteWithRespectToItsVariable == 1;
@@ -214,41 +214,41 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), context);
-		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+		Theory theory = getTheory(constraint.getVariable(), context);
+		ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), context);
-		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
+		Theory theory = getTheory(constraint.getVariable(), context);
+		ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
 	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
-		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), context);
-		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, simplifier, context);
+		Theory theory = getTheory(constraint.getVariable(), context);
+		ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, simplifier, context);
 		return result;
 	}
 
 	@Override
 	public Expression getLiteralNegation(Expression literal, Context context) {
-		ConstraintTheory constraintTheory =
+		Theory theory =
 				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, context));
-		Expression result = constraintTheory.getLiteralNegation(literal, context);
+		Expression result = theory.getLiteralNegation(literal, context);
 		return result;
 	}
 
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
-		ConstraintTheory constraintTheory = getConstraintTheory(parse(variable), context);
-		Expression result = constraintTheory.makeRandomAtomOn(variable, random, context);
+		Theory theory = getTheory(parse(variable), context);
+		Expression result = theory.makeRandomAtomOn(variable, random, context);
 		return result;
 	}
 
-	private static MapBasedSimplifier makeSimplifier(Collection<ConstraintTheory> subConstraintTheories) {
+	private static MapBasedSimplifier makeSimplifier(Collection<Theory> subConstraintTheories) {
 		
 		MapBasedSimplifier[] subSimplifiers
 		= mapIntoArray(MapBasedSimplifier.class, subConstraintTheories, t -> t.getTopSimplifier());

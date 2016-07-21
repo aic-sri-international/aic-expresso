@@ -54,7 +54,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
@@ -88,12 +88,12 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	}
 
 	@Override
-	public Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, ConstraintTheory constraintTheory) {
+	public Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
 		return GrinderUtil.makeContext(
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
 				additionalTypes,
-				isUniquelyNamedConstantPredicate, constraintTheory) ;
+				isUniquelyNamedConstantPredicate, theory) ;
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 		
 		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
-		ConstraintTheory constraintTheory = context.getConstraintTheory();
+		Theory theory = context.getTheory();
 		
 		Expression currentBody = quantifierFreeBody;
 		
@@ -141,7 +141,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			// This would also re-use body if it happens to be a constraint.
 			Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
 					SGDPLLT.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
-							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, constraintTheory, context);
+							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, theory, context);
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
@@ -155,9 +155,9 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 				SingleVariableConstraint constraintForThisIndex =
 						i == numberOfIndices - 1?
 								lastIndexConstraint
-								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, context);
+								: theory.makeSingleVariableConstraint(index, theory, context);
 				currentBody =
-						constraintTheory
+						theory
 						.getSingleVariableConstraintQuantifierEliminatorStepSolver(
 								group, constraintForThisIndex, currentBody, simplifier, context)
 						.solve(context);
@@ -196,7 +196,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
-			ConstraintTheory constraintTheory,
+			Theory theory,
 			Context context) {
 		
 		Expression body;
@@ -204,13 +204,13 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 		Expression lastIndex = getIndex(getLast(indexExpressions.getList()));
 		try {
 			body = quantifierFreeBody;
-			lastIndexConstraint = SingleVariableConstraint.make(constraintTheory, lastIndex, quantifierFreeIndicesCondition, context);
+			lastIndexConstraint = SingleVariableConstraint.make(theory, lastIndex, quantifierFreeIndicesCondition, context);
 			return Pair.make(body, lastIndexConstraint);
 		} catch (Error e) { /* proceed to default case below */ }
 		
 		// did not work out because condition is not SingleVariableConstraint on last index
 		body = IfThenElse.make(quantifierFreeIndicesCondition, quantifierFreeBody, group.additiveIdentityElement());
-		lastIndexConstraint = constraintTheory.makeSingleVariableConstraint(lastIndex, constraintTheory, context);
+		lastIndexConstraint = theory.makeSingleVariableConstraint(lastIndex, theory, context);
 		Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint = Pair.make(body, lastIndexConstraint);
 		
 		return bodyAndLastIndexConstraint;

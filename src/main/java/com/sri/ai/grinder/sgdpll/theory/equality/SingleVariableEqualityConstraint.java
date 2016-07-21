@@ -56,7 +56,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
 import com.sri.ai.util.Util;
 
@@ -114,8 +114,8 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 */
 	private int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 
-	public SingleVariableEqualityConstraint(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, ConstraintTheory constraintTheory) {
-		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+	public SingleVariableEqualityConstraint(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, Theory theory) {
+		super(variable, propagateAllLiteralsWhenVariableIsBound, theory);
 		this.numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable = 0;
 	}
 
@@ -126,9 +126,9 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 			List<Expression> externalLiterals,
 			int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable,
 			boolean propagateAllLiteralsWhenVariableIsBound,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, theory);
 		this.numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable = numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 	}
 
@@ -139,7 +139,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 
 	@Override
 	protected SingleVariableEqualityConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
-		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
+		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable, getPropagateAllLiteralsWhenVariableIsBound(), getTheory());
 		return result;
 	}
 

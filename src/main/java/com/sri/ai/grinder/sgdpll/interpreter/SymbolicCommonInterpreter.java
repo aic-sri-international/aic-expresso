@@ -45,7 +45,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
@@ -64,16 +64,16 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimpli
 @Beta
 public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 
-	private ConstraintTheory constraintTheory;
+	private Theory theory;
 	
 	/**
 	 * Constructs {@link SymbolicCommonInterpreter} with a constraint theory and
 	 * <i>not</i> simplifying literals according to context.
-	 * @param constraintTheory
+	 * @param theory
 	 */
-	public SymbolicCommonInterpreter(ConstraintTheory constraintTheory) {
+	public SymbolicCommonInterpreter(Theory theory) {
 		super();
-		this.constraintTheory = constraintTheory;
+		this.theory = theory;
 	}
 
 	@Override
@@ -81,12 +81,12 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 		SeriallyMergedMapBasedTopSimplifier result = 
 				new SeriallyMergedMapBasedTopSimplifier(
 						new CommonSimplifier(), 
-						constraintTheory.getTopSimplifier());
+						theory.getTopSimplifier());
 		return result;
 	}
 
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
+	public Theory getTheory() {
+		return theory;
 	}
 	
 	@Override

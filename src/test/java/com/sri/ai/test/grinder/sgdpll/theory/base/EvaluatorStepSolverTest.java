@@ -49,35 +49,35 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpll.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
-import com.sri.ai.grinder.sgdpll.theory.compound.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalTheory;
 
 @Beta
 public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfFunctionApplications() {
-		ConstraintTheory constraintTheory
-		= new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, true),
-				new PropositionalConstraintTheory());
+		Theory theory
+		= new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, true),
+				new PropositionalTheory());
 
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+		Context context = theory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theory.getTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -121,21 +121,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfGroupOperationsOnSets() {
-		ConstraintTheory constraintTheory
-		= new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, true),
-				new PropositionalConstraintTheory());
+		Theory theory
+		= new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, true),
+				new PropositionalTheory());
 
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+		Context context = theory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theory.getTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -184,21 +184,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfCardinalityExpressions() {
-		ConstraintTheory constraintTheory
-		= new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, true),
-				new PropositionalConstraintTheory());
+		Theory theory
+		= new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, true),
+				new PropositionalTheory());
 	
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+		Context context = theory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theory.getTopSimplifier();
 	
 		String expressionString;
 		Expression expected;
@@ -226,21 +226,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfQuantifiedExpressions() {
-		ConstraintTheory constraintTheory
-		= new CompoundConstraintTheory(
-				new EqualityConstraintTheory(false, true),
-				new DifferenceArithmeticConstraintTheory(false, true),
-				new PropositionalConstraintTheory());
+		Theory theory
+		= new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, true),
+				new PropositionalTheory());
 	
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(constraintTheory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = constraintTheory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = constraintTheory.getTopSimplifier();
+		Context context = theory.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theory.getTopSimplifier();
 	
 		String expressionString;
 		Expression expected;

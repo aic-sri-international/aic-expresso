@@ -57,7 +57,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -65,9 +65,9 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimpli
 
 @Beta
 /** 
- * Basic implementation of some methods of {@link ConstraintTheory}.
+ * Basic implementation of some methods of {@link Theory}.
  */
-abstract public class AbstractConstraintTheory implements ConstraintTheory {
+abstract public class AbstractTheory implements Theory {
 
 	protected Simplifier simplifier;
 	protected MapBasedTopSimplifier topSimplifier;
@@ -80,7 +80,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
 	 * @param simplifier a source of elementary simplifiers for this theory
 	 */
-	public AbstractConstraintTheory(MapBasedSimplifier simplifier) {
+	public AbstractTheory(MapBasedSimplifier simplifier) {
 		super();
 		Categorical someType = getDefaultTestingType();
 		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));

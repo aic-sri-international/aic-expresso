@@ -54,7 +54,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
@@ -134,11 +134,11 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 			result = ZERO;
 		}
 		else {
-			ConstraintTheory constraintTheory = context.getConstraintTheory();
+			Theory theory = context.getTheory();
 			if (values instanceof RangeAndExceptionsSet.Singleton) {
 				Expression value = ((RangeAndExceptionsSet.Singleton)values).getSingleValue();
 				Expression valueAtPoint = 
-						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, constraintTheory, context));
+						DefaultPolynomial.make(getValueAtGivenPoint(literalFreeBody, variable, value, theory, context));
 				result = valueAtPoint;
 			}
 			else {
@@ -171,28 +171,28 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 									literalFreeBody,
 									variable,
 									disequal,
-									constraintTheory,
+									theory,
 									context);
 					argumentsForSubtraction.add(apply(MINUS, valueAtDisequal));
 				}
 				Expression intervalSummationMinusValuesAtDisequals =
 						apply(PLUS, argumentsForSubtraction);
-				result = DefaultPolynomial.make(constraintTheory.simplify(intervalSummationMinusValuesAtDisequals, context));
+				result = DefaultPolynomial.make(theory.simplify(intervalSummationMinusValuesAtDisequals, context));
 			}
 		}
 		return result;
 	}
 
-	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, ConstraintTheory constraintTheory, Context context) {
+	private Expression getValueAtGivenPoint(Expression literalFreeBody, Expression variable, Expression value, Theory theory, Context context) {
 		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, context);
-		Expression valueAtPoint = constraintTheory.simplify(newBody, context);
+		Expression valueAtPoint = theory.simplify(newBody, context);
 		return valueAtPoint;
 	}
 
 	@Override
 	public Expression makeRandomUnconditionalBody(Random random) {
 		// unconditional body class is polynomials
-		ArrayList<Expression> freeVariables = getConstraintTheory().getVariablesForTesting();
+		ArrayList<Expression> freeVariables = getTheory().getVariablesForTesting();
 		int degree = random.nextInt(3);
 		int maximumNumberOfFreeVariablesInEach = 2;
 		int maximumConstant = 10;

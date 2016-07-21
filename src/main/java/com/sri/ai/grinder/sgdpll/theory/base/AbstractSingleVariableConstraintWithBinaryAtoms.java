@@ -53,7 +53,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
 import com.sri.ai.util.base.Pair;
 
@@ -124,8 +124,8 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 */
 	abstract protected Expression isolateVariable(Expression atom, Context context);
 
-	public AbstractSingleVariableConstraintWithBinaryAtoms(Expression variable, ConstraintTheory constraintTheory) {
-		super(variable, constraintTheory);
+	public AbstractSingleVariableConstraintWithBinaryAtoms(Expression variable, Theory theory) {
+		super(variable, theory);
 	}
 
 	public AbstractSingleVariableConstraintWithBinaryAtoms(
@@ -133,9 +133,9 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 			ArrayList<Expression> positiveNormalizedAtoms,
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, theory);
 	}
 
 	public AbstractSingleVariableConstraintWithBinaryAtoms(AbstractSingleVariableConstraintWithBinaryAtoms other) {

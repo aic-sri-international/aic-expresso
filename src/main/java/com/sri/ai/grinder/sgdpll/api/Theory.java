@@ -84,7 +84,7 @@ import com.sri.ai.util.collect.PredicateIterator;
  *
  */
 @Beta
-public interface ConstraintTheory {
+public interface Theory {
 
 	/**
 	 * A method simplifying an expression according to this theory.
@@ -158,7 +158,7 @@ public interface ConstraintTheory {
 	 * @param context
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, Context context);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory constraintTheory, Context context);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -205,7 +205,7 @@ public interface ConstraintTheory {
 	/**
 	 * Returns the negation of a literal.
 	 * While one could simply add or remove a <code>not</code> in the original literal,
-	 * this methods provides a way of generating theory-specific representations at the generic level of the {@link ConstraintTheory} interface.
+	 * this methods provides a way of generating theory-specific representations at the generic level of the {@link Theory} interface.
 	 * For example, for equality
 	 * we may prefer the negation of <code>X = a</code> to be represented as <code>X != a</code> instead of <code> not X = a</code>.
 	 * @param literal the literal

@@ -4,7 +4,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 
 /**
  * An {@link Constraint} based on a given expression.
@@ -22,15 +22,15 @@ public class ExpressionConstraint extends AbstractConstraint {
 
 	private Expression expression;
 	
-	public ExpressionConstraint(Expression expression, ConstraintTheory constraintTheory) {
-		super(constraintTheory);
+	public ExpressionConstraint(Expression expression, Theory theory) {
+		super(theory);
 		this.expression = expression;
 	}
 	
 	@Override
 	public Constraint conjoinWithLiteral(Expression literal, Context context) {
 		Expression conjunction = And.make(expression, literal);
-		ExpressionConstraint result = new ExpressionConstraint(conjunction, getConstraintTheory());
+		ExpressionConstraint result = new ExpressionConstraint(conjunction, getTheory());
 		return result;
 	}
 

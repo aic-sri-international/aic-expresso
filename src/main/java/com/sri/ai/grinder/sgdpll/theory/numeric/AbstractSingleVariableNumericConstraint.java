@@ -58,7 +58,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
 import com.sri.ai.util.Util;
@@ -89,9 +89,9 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 	public AbstractSingleVariableNumericConstraint(
 			Expression variable,
 			boolean propagateAllLiteralsWhenVariableIsBound,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		super(variable, propagateAllLiteralsWhenVariableIsBound, theory);
 	}
 
 	protected AbstractSingleVariableNumericConstraint(
@@ -100,9 +100,9 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
 			boolean propagateAllLiteralsWhenVariableIsBound,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, theory);
 	}
 
 	public AbstractSingleVariableNumericConstraint(AbstractSingleVariableNumericConstraint other) {
@@ -116,7 +116,7 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 	
 	@Override
 	protected String getNegationFunctor(String functor) {
-		String result = AbstractNumericConstraintTheory.getNegationFunctor(functor);
+		String result = AbstractNumericTheory.getNegationFunctor(functor);
 		return result;
 	}
 	
@@ -264,7 +264,7 @@ public abstract class AbstractSingleVariableNumericConstraint extends AbstractSi
 	private Expression applyAndSimplify(Object functor, Expression first, Expression second, Context context) {
 		Expression result;
 		result = apply(functor, first, second);
-		result = getConstraintTheory().simplify(result, context);
+		result = getTheory().simplify(result, context);
 		return result;
 	}
 

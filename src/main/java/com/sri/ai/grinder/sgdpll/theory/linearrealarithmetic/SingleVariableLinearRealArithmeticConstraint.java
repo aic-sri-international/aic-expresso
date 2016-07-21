@@ -55,7 +55,7 @@ import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.UnaryMinus;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractSingleVariableNumericConstraint;
 
 /**
@@ -72,9 +72,9 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 	public SingleVariableLinearRealArithmeticConstraint(
 			Expression variable,
 			boolean propagateAllLiteralsWhenVariableIsBound,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		super(variable, propagateAllLiteralsWhenVariableIsBound, theory);
 	}
 
 	private SingleVariableLinearRealArithmeticConstraint(
@@ -83,9 +83,9 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 			ArrayList<Expression> negativeNormalizedAtoms,
 			List<Expression> externalLiterals,
 			boolean propagateAllLiteralsWhenVariableIsBound,
-			ConstraintTheory constraintTheory) {
+			Theory theory) {
 		
-		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, theory);
 	}
 
 	public SingleVariableLinearRealArithmeticConstraint(SingleVariableLinearRealArithmeticConstraint other) {
@@ -101,7 +101,7 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 	@Override
 	protected SingleVariableLinearRealArithmeticConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
 		// no special bookkeeping to be retained in simplifications, so we just make a new constraint.
-		SingleVariableLinearRealArithmeticConstraint result = new SingleVariableLinearRealArithmeticConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
+		SingleVariableLinearRealArithmeticConstraint result = new SingleVariableLinearRealArithmeticConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getTheory());
 		return result;
 	}
 

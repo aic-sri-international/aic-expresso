@@ -46,9 +46,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 
@@ -57,8 +57,8 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest 
 
 	@Test
 	public void test() {
-		ConstraintTheory constraintTheory = new DifferenceArithmeticConstraintTheory(true, true);
-		Context context = constraintTheory.makeContextWithTestingInformation();
+		Theory theory = new DifferenceArithmeticTheory(true, true);
+		Context context = theory.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -93,7 +93,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest 
 	private void runTest(Expression variable, String constraintString, Expression expected, Context context) {
 		Constraint constraint
 		= new SingleVariableDifferenceArithmeticConstraint(
-				variable, true, context.getConstraintTheory());
+				variable, true, context.getTheory());
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
 		ContextDependentExpressionProblemStepSolver stepSolver =

@@ -97,7 +97,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 * @return
 	 */
 	public static SingleVariableConstraint make(
-			ConstraintTheory constraintTheory,
+			Theory theory,
 			Expression variable,
 			Expression formula,
 			Context context) {
@@ -106,14 +106,14 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulasAsConstraint = (SingleVariableConstraint) formula;
 			if (formulasAsConstraint.getVariable().equals(variable) &&
-					formulasAsConstraint.getConstraintTheory().equals(constraintTheory)) {
+					formulasAsConstraint.getTheory().equals(theory)) {
 				result = formulasAsConstraint;
 			}
 		}
 		
 		// if formula is not appropriate constraint, create a new one and conjoin with formula
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, context).conjoin(formula, context);
+			result = theory.makeSingleVariableConstraint(variable, theory, context).conjoin(formula, context);
 		}
 		
 		return result;
@@ -130,7 +130,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 * @return
 	 */
 	default Expression satisfiability(Context context) {
-		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
+		ContextDependentExpressionProblemStepSolver satisfiabilityStepSolver = getTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
 		Expression satisfiability = satisfiabilityStepSolver.solve(context);
 		return satisfiability;
 	}
@@ -142,7 +142,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 */
 	default Expression modelCount(Context context) {
 		ContextDependentExpressionProblemStepSolver modelCountingStepSolver = 
-				getConstraintTheory()
+				getTheory()
 				.getSingleVariableConstraintModelCountingStepSolver(this, context);
 		Expression modelCount = modelCountingStepSolver.solve(context);
 		return modelCount;

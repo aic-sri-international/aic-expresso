@@ -80,16 +80,16 @@ public class LinearRealArithmeticUtil {
 	/**
 	 * Simplify a linear real arithmetic literal using {@link #simplify(Expression, Symbol)}
 	 * with respect to the first variable found in the expression 
-	 * (variable is determined in accordance to {@link LinearRealArithmeticConstraintTheory#isVariable(Expression, Context)};
+	 * (variable is determined in accordance to {@link LinearRealArithmeticTheory#isVariable(Expression, Context)};
 	 * the same expression is returned if there are no liner real arithmetic variable.
 	 * @param expression
-	 * @param constraintTheory
+	 * @param theory
 	 * @param context
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, LinearRealArithmeticConstraintTheory constraintTheory, Context context) {
+	public static Expression simplify(Expression expression, LinearRealArithmeticTheory theory, Context context) {
 		Expression result;
-		Collection<Expression> variables = constraintTheory.getVariablesIn(expression, context);
+		Collection<Expression> variables = theory.getVariablesIn(expression, context);
 		if (variables.isEmpty()) { // no linear real arithmetic variable, so it is not a linear real arithmetic literal
 			result = expression;
 		}

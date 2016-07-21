@@ -4,14 +4,14 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticConstraintTheory;
-import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
+import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractTheoryIncludingEqualityTest;
 
-public abstract class AbstractDifferenceArithmeticConstraintTest extends AbstractConstraintTheoryIncludingEqualityTest {
+public abstract class AbstractDifferenceArithmeticConstraintTest extends AbstractTheoryIncludingEqualityTest {
 
 	public AbstractDifferenceArithmeticConstraintTest() {
 		super();
@@ -21,8 +21,8 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	protected abstract boolean getPropagateAllLiteralsWhenVariableIsBound();
 
 	@Override
-	protected ConstraintTheory makeConstraintTheory() {
-		return new DifferenceArithmeticConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
+	protected Theory makeTheory() {
+		return new DifferenceArithmeticTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 		SGDPLLTTester.testSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(500) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -57,7 +57,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 		SGDPLLTTester.testMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(500) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -68,7 +68,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -82,7 +82,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -94,7 +94,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				getBodyDepth(), /* body depth */
@@ -107,7 +107,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Max(),
-	            makeConstraintTheory(),
+	            makeTheory(),
 	            scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				getBodyDepth(), /* body depth */
@@ -121,7 +121,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 				getNumberOfIndices(),
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeConstraintTheory(),
+				makeTheory(),
 				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				getBodyDepth(), /* body depth */
@@ -135,7 +135,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 				getNumberOfIndices(),
 				getTestAgainstBruteForce(),
 				new Max(),
-	            makeConstraintTheory(),
+	            makeTheory(),
 	            scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				getBodyDepth(), /* body depth */

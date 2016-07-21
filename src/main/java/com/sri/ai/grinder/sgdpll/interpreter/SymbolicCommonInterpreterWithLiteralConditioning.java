@@ -42,7 +42,7 @@ import static com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminatio
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 
@@ -58,10 +58,10 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 
 	/**
 	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory.
-	 * @param constraintTheory
+	 * @param theory
 	 */
-	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory) {
-		super(constraintTheory);
+	public SymbolicCommonInterpreterWithLiteralConditioning(Theory theory) {
+		super(theory);
 	}
 
 	/**
@@ -71,9 +71,9 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	 */
 	@Override public Expression apply(Expression expression, Context context) {
 		Expression interpretationResult = super.apply(expression, context);
-		Context trueConstraint = new CompleteMultiVariableContext(getConstraintTheory(), context);
+		Context trueConstraint = new CompleteMultiVariableContext(getTheory(), context);
 		SymbolicCommonInterpreter simplifier =
-				new SymbolicCommonInterpreter(getConstraintTheory());
+				new SymbolicCommonInterpreter(getTheory());
 		ContextDependentExpressionProblemStepSolver evaluator
 		= makeEvaluator(interpretationResult, simplifier.getTopSimplifier());
 		Expression result = evaluator.solve(trueConstraint);

@@ -18,11 +18,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.core.constraint.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.util.collect.PredicateIterator;
 
-public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractConstraintTheory {
+public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 
 	/**
 	 * Indicates whether the theory can safely assume that all applications of its theory functors are atoms in it,
@@ -44,7 +44,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * @param simplifier
 	 */
-	public AbstractConstraintTheoryWithBinaryAtoms(
+	public AbstractTheoryWithBinaryAtoms(
 			Collection<String> theoryFunctors,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 			MapBasedSimplifier simplifier) {
