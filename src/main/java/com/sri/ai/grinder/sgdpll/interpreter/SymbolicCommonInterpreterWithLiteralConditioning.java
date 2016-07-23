@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCommonInterpreter {
 
 	/**
-	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory.
+	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a theory.
 	 * @param theory
 	 */
 	public SymbolicCommonInterpreterWithLiteralConditioning(Theory theory) {

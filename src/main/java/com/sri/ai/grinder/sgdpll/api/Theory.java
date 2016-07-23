@@ -72,11 +72,11 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
- * An interface for constraint theories to be plugged into quantifier problems.
+ * An interface for theories to be plugged into quantifier problems.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
  * A splitter is a literal on which DPLL splits the possible interpretations of an expression.
- * The constraintTheoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
+ * The theoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.
  * 
@@ -86,6 +86,41 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 public interface Theory {
 
+	// TODO
+	// In the future, we may want to give more structure to this interface,
+	// making the constraint theory and the language theory (the interpretations
+	// of functions in the body of expressions) more separately defined
+	// so that the same constraint theory can be re-used in multiple combinations
+	// with language theories.
+	// 
+	// At this point, this is not the case because the top simplifiers provided
+	// by a theory have to be the combination of all the simplifiers for all the functions
+	// in both the constraint theory and the language theory.
+	// So there is no way to easily separate the constraint and language theories.
+	// 
+	// In the future, we may have constraint and language theories defined separately,
+	// each with their own set of simplifiers, and implementations of Theory
+	// will take them and combine the simplifiers automatically.
+	// BTW, this will also require a restructuring of map-based simplifiers
+	// so that multiple occurrences of simplifiers will be detected and dealt with.
+	//
+	// What I have in mind for this future structure is the following:
+    //
+	// A language theory T_L is a set of simplifiers for its functions
+	// 
+	// A quantifier eliminator is a tuple (G, T_C, T_L)
+	// for a group G
+	// a constraint theory T_C
+	// and a language theory T_L
+    //
+	// A theory is a pair (T_C, f_Q)
+	// - a constraint theory
+	// - a function from groups to quantifier eliminators
+	//
+	// So, as you see, a constraint theory will typically be combined with
+	// multiple quantifier eliminators and language theories, one for each
+	// operation/group/quantifier.
+	
 	/**
 	 * A method simplifying an expression according to this theory.
 	 * It must at a minimum replace expressions
@@ -152,13 +187,13 @@ public interface Theory {
 	}
 	
 	/**
-	 * Make a new single-variable constraint for this constraint theory.
+	 * Make a new single-variable constraint for this theory.
 	 * @param variable 
-	 * @param constraintTheory the constraint theory of the application (not necessarily <code>this</code> because <code>this</code> may be a sub-constraint theory in a compound one
+	 * @param theory the theory of the application (not necessarily <code>this</code> because <code>this</code> may be a sub-theory in a compound one
 	 * @param context
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory constraintTheory, Context context);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -278,7 +313,7 @@ public interface Theory {
 	}
 
 	/**
-	 * Returns a set of types appropriate for testing this constraint theory;
+	 * Returns a set of types appropriate for testing this theory;
 	 * note that this set may include types not related to any of the testing variables. 
 	 */
 	Collection<Type> getTypesForTesting();
@@ -292,11 +327,11 @@ public interface Theory {
 	Collection<Type> getNativeTypes();
 	
 	
-	//	/** Samples a uniquely named constant of given appropriate for testing this constraint theory. */
+	//	/** Samples a uniquely named constant of given appropriate for testing this theory. */
 //	Expression sampleUniquelyNamedConstantsForTesting(Type type);
 //	
 //	/**
-//	 * Sets an iterable of uniquely named constants for given type appropriate for testing this constraint theory.
+//	 * Sets an iterable of uniquely named constants for given type appropriate for testing this theory.
 //	 * Note that all types must have testing uniquely named constants associated with them.
 //	 * If you want a type to simply use {@link Type#sampleConstant(Random)},
 //	 * use methods {@link #setUseTypeUniquelyNamedConstantSampling(Type, boolean)}
@@ -344,7 +379,7 @@ public interface Theory {
 	}
 	
 	/**
-	 * Returns a random atom in this constraint theory on a given variable.
+	 * Returns a random atom in this theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
 	 * @param random a random generator
 	 * @param context a context

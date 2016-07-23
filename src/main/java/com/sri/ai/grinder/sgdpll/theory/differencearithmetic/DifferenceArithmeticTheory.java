@@ -63,23 +63,29 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.BindingTopSimplifier;
+import com.sri.ai.grinder.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
-import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericTheory;
 import com.sri.ai.util.Util;
 
 /** 
- * A {@link Theory} for difference arithmetic literals.
+ * A {@link Theory} for difference arithmetic literals, with quantifier elimination over polynomials.
  */
 @Beta
 public class DifferenceArithmeticTheory extends AbstractNumericTheory {
@@ -101,13 +107,25 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				new DefaultMapBasedTopSimplifier(map(), map()));
+				new SeriallyMergedMapBasedTopSimplifier(
+						new BindingTopSimplifier(),
+						new BooleanSimplifier(),
+						new NumericSimplifier(),
+						new EqualitySimplifier(),
+						new InequalitySimplifier()));
+		// Numeric simplifiers are included to take care of polynomials
+		// in the body expression (conditional polynomials) of summations.
+		// In the future, we want these simplifiers to be automatically extracted
+		// from the quantifier eliminators, which are the objects that know
+		// which languages they deal with.
+		
 		setExtraSimplifier(
 				new DefaultMapBasedTopSimplifier(
 						makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier(), 
 						map()));
-		// It's important to include the different arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
-		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
+		// It's important to include the difference arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
+		// but actually contain variables that cancel out (for example, X - X = 0),
+		// with the result of the literal becoming a boolean constant unfit to be splitter.
 	}
 	
 	private Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier() {

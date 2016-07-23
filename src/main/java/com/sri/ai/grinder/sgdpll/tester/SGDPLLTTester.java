@@ -71,6 +71,7 @@ import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpll.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -113,7 +114,7 @@ public class SGDPLLTTester {
 	}
 
 	/**
-	 * Given a constraint theory and a number <code>n</code> of single-variable constraint tests,
+	 * Given a theory and a number <code>n</code> of single-variable constraint tests,
 	 * generates <code>n</code> formulas in the theory
 	 * and see if those detected as unsatisfiable by the corresponding solver
 	 * are indeed unsatisfiable (checked by brute force).
@@ -143,7 +144,7 @@ public class SGDPLLTTester {
 	}
 
 	/**
-	 * Given a constraint theory and a number <code>n</code> of multi-variable constraint tests,
+	 * Given a theory and a number <code>n</code> of multi-variable constraint tests,
 	 * generates <code>n</code> formulas in the theory
 	 * and see if those detected as unsatisfiable by the corresponding solver
 	 * are indeed unsatisfiable (checked by brute force).
@@ -169,7 +170,7 @@ public class SGDPLLTTester {
 	}
 
 	/**
-	 * Given a constraint theory and a number <code>n</code> of multi-variable constraint tests,
+	 * Given a theory and a number <code>n</code> of multi-variable constraint tests,
 	 * generates <code>n</code> formulas in the theory
 	 * and see if those detected as unsatisfiable by the corresponding solver
 	 * are indeed unsatisfiable (checked by brute force).
@@ -350,7 +351,7 @@ public class SGDPLLTTester {
 
 	/**
 	 * Determines whether a formula is satisfiable by adding existential quantifiers for each of its variables
-	 * (according to the constraint theory provided) and evaluating it.
+	 * (according to the theory provided) and evaluating it.
 	 * @param formula
 	 * @param theory
 	 * @param context
@@ -370,7 +371,7 @@ public class SGDPLLTTester {
 	}
 
 	/**
-	 * Given a constraint theory and a number <code>n</code> of single-variable constraint tests,
+	 * Given a theory and a number <code>n</code> of single-variable constraint tests,
 	 * generates <code>n</code> formulas in the theory
 	 * and see if the model counting solver works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
@@ -464,7 +465,7 @@ public class SGDPLLTTester {
 	}
 
 	/**
-	 * Given a list of problem types, a constraint theory and a number <code>n</code> of single-variable constraint tests,
+	 * Given a list of problem types, a theory and a number <code>n</code> of single-variable constraint tests,
 	 * generates <code>n</code> problems with given body depth (number of levels of if then else expressions)
 	 * and checks if {@link SymbolicCommonInterpreterWithLiteralConditioning} works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
@@ -507,7 +508,7 @@ public class SGDPLLTTester {
 	}
 
 	/**
-	 * Given a list of problem types, a constraint theory and a number <code>n</code> of tests,
+	 * Given a list of problem types, a theory and a number <code>n</code> of tests,
 	 * generates <code>n</code> problems with given number of indices and body depth (number of levels of if then else expressions)
 	 * and checks if {@link SymbolicCommonInterpreterWithLiteralConditioning} works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
@@ -597,7 +598,7 @@ public class SGDPLLTTester {
 		output(problemDescription);
 		
 		Simplifier symbolicInterpreter =
-				new SymbolicCommonInterpreterWithLiteralConditioning(theory);
+				new Evaluator(theory);
 		
 		long start = System.currentTimeMillis();
 		Expression symbolicSolution = symbolicInterpreter.apply(problem, context);

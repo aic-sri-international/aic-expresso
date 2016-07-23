@@ -54,9 +54,9 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
  * <p>
  * It extends {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}
  * and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
- * step solver, which is obtained through the constraint theory's
+ * step solver, which is obtained through the theory's
  * {@link Theory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)}.
- * However, it is important that the satisfiability step solver provided by the constraint theory
+ * However, it is important that the satisfiability step solver provided by the theory
  * be an instance of {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver},
  * because {@link #getPropagatedCNF(Context)} is delegated to the satisfiability step solver's
  * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver#getPropagatedCNF(Context)}

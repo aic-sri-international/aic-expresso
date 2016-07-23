@@ -324,7 +324,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	public Theory getTheory() {
 		myAssert( 
 				() -> theory != null, 
-				() -> "Trying to obtain a constraint theory from a " + TypeContext.class + " instance without one.");
+				() -> "Trying to obtain a theory from a " + TypeContext.class + " instance without one.");
 		return theory;
 	}
 
@@ -342,7 +342,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 			result = ((Constraint) conjoinant).getTheory();
 		}
 		else {
-			throw new Error("Conjoining with default context but there is no constraint theory available");
+			throw new Error("Conjoining with default context but there is no theory available");
 		}
 		return result;
 	}

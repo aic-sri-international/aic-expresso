@@ -72,7 +72,7 @@ import com.sri.ai.util.Util;
 public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality {
 
 	/**
-	 * Creates a numeric constraint theory.
+	 * Creates a numeric theory.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.

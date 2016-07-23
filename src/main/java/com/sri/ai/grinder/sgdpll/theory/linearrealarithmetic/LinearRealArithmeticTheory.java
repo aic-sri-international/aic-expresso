@@ -61,6 +61,11 @@ import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.BindingTopSimplifier;
+import com.sri.ai.grinder.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
@@ -70,6 +75,7 @@ import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpll.theory.numeric.AbstractNumericTheory;
 
@@ -96,7 +102,12 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
 				propagateAllLiteralsWhenVariableIsBound,
-				new DefaultMapBasedTopSimplifier(map(), map()));
+				new SeriallyMergedMapBasedTopSimplifier(
+						new BindingTopSimplifier(),
+						new BooleanSimplifier(),
+						new NumericSimplifier(),
+						new EqualitySimplifier(),
+						new InequalitySimplifier()));
 		
 		setExtraSimplifier(
 				new DefaultMapBasedTopSimplifier(

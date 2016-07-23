@@ -218,9 +218,9 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 		// This test is to make sure that some more tricky cases are indeed tested,
 		// even though hopefully the large amount of generated random problems include them.
 		
-		// These are copied from the equality constraint theory test,
+		// These are copied from the equality theory test,
 		// so it is really just to check whether things hold up
-		// if equality constraint theory is embedded in a compound constraint theory.
+		// if equality theory is embedded in a compound theory.
 
 		String conjunction;
 		Expression expected;

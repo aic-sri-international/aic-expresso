@@ -197,7 +197,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		
 		if (indexConstraint.isContradiction()) {
 			return new Solution(group.additiveIdentityElement());
-		}
+		} 		// TODO: the above is probably not needed any longer; try removing it when convenient
 		
 		SolutionStep result;
 
@@ -209,7 +209,16 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		else {
 			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
 			SolutionStep bodyStep = bodyStepSolver.step(contextForBody); 
-
+			
+			// At this point, bodyStep may be a non-conditional solution step
+			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
+			// If one of these literals is the quantifier index, we *must* detect it.
+			// Therefore, we run EvaluatorStepSolver on it to make sure to detect literals before going on.
+			if ( ! bodyStep.itDepends()) {
+				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue(), context.getTheory().getTopSimplifier());
+				bodyStep = evaluatorStepSolver.step(context);
+			}
+			
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
 				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {

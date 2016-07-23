@@ -84,7 +84,7 @@ public class CompoundTheory extends AbstractTheory {
 	public CompoundTheory(Theory... subConstraintTheoriesArray) {
 		super(makeSimplifier(list(subConstraintTheoriesArray)));
 		this.subConstraintTheories = list(subConstraintTheoriesArray);
-		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-constraint theory but got none.");
+		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-theory but got none.");
 		aggregateTestingInformation();
 	}
 
@@ -172,7 +172,7 @@ public class CompoundTheory extends AbstractTheory {
 						getSubConstraintTheories(),
 						t -> t.isSuitableFor(variable, type));
 
-		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, context));
+		check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, context));
 		
 		return result;
 	}
@@ -262,6 +262,6 @@ public class CompoundTheory extends AbstractTheory {
 
 	@Override
 	public String toString() {
-		return "Compound constraint theory (" + join(getSubConstraintTheories()) + ")";
+		return "Compound theory (" + join(getSubConstraintTheories()) + ")";
 	}
 }

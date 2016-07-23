@@ -22,7 +22,7 @@ public abstract class AbstractTheoryTest {
 	}
 
 	/**
-	 * Provides a way to regulate which constraint theory to use.
+	 * Provides a way to regulate which theory to use.
 	 * @return
 	 */
 	abstract protected Theory makeTheory();

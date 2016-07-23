@@ -46,7 +46,7 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 
 /**
- * An abstract {@link Constraint} implementing constraint theory, contradiction and cloning mechanisms. 
+ * An abstract {@link Constraint} implementing theory, contradiction and cloning mechanisms. 
  * 
  * @author braz
  *

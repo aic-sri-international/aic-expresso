@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpll.core.solver;
 
-import static com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver.solve;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
@@ -62,11 +60,9 @@ public class Evaluator implements Simplifier {
 	
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		// create an EvaluatorStepSolver on expression and constraint theory, and solve it.
+		// create an EvaluatorStepSolver on expression and theory, and solve it.
 		Expression result = 
-				solve(
-						new EvaluatorStepSolver(expression, theory.getTopSimplifier()), 
-						context);
+				new EvaluatorStepSolver(expression, theory.getTopSimplifier()).solve(context); 
 		return result;
 	}
 }

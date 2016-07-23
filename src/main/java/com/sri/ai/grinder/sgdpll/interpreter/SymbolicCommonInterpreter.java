@@ -54,7 +54,7 @@ import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimpli
  * An extension of {@link AbstractCommonInterpreter}
  * re-using {@link CommonSimplifier}
  * (provided by {@link #makeAnotherMapBasedSimplifier()},
- * a constraint theory's top simplifiers,
+ * a theory's top simplifiers,
  * and augmented with symbolic solvers for
  * summations, and universal and existentially quantified formulas.
  *
@@ -67,7 +67,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	private Theory theory;
 	
 	/**
-	 * Constructs {@link SymbolicCommonInterpreter} with a constraint theory and
+	 * Constructs {@link SymbolicCommonInterpreter} with a theory and
 	 * <i>not</i> simplifying literals according to context.
 	 * @param theory
 	 */

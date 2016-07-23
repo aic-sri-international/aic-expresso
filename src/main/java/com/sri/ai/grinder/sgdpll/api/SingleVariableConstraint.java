@@ -88,7 +88,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	SingleVariableConstraint makeSimplificationWithoutExternalLiterals();
 	
 	/**
-	 * Returns a {@link SingleVariableConstraint} on a given variable, according to a given constraint theory,
+	 * Returns a {@link SingleVariableConstraint} on a given variable, according to a given theory,
 	 * equivalent to given formula (or null if formula is inconsistent)
 	 * -- the formula object itself is returned if it happens to be a
 	 * {@link SingleVariableConstraint} on same variable and theory.

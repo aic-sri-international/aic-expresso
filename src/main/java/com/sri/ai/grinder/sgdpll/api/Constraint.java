@@ -12,7 +12,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 
 /**
- * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint theory) and
+ * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in theory) and
  * model counting.
  * 
  * @author braz
@@ -21,21 +21,21 @@ import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 public interface Constraint extends Expression {
 
 	/**
-	 * Returns the general constraint theory used in the application.
+	 * Returns the general theory used in the application.
 	 * 
 	 * TODO
 	 * This method should probably be eliminated.
 	 * It used to be "the constraint's theory", but that meaning got blurred when compound constraint theories got introduced,
-	 * because then the application constraint theory could be a compound theory, whereas a single-variable constraint
+	 * because then the application theory could be a compound theory, whereas a single-variable constraint
 	 * could be specific to just one of the sub-constraint theories.
-	 * This caused problems because throughout the code we rely on this method to obtain the application's constraint theory;
-	 * when dealing with a single-variable constraint, this would instead give us its specific sub-constraint theory.
-	 * We changed it by making the method hold the general application constraint theory even for single-variable constraints.
+	 * This caused problems because throughout the code we rely on this method to obtain the application's theory;
+	 * when dealing with a single-variable constraint, this would instead give us its specific sub-theory.
+	 * We changed it by making the method hold the general application theory even for single-variable constraints.
 	 * This solved the problem but rendered the method misleading, since it does not represent a property of the constraint itself.
-	 * It is now just a convenience method that spares us the trouble of passing the constraint theory everywhere
+	 * It is now just a convenience method that spares us the trouble of passing the theory everywhere
 	 * but, like stated above, at the cost of being misleading.
 	 * 
-	 * @return the application's constraint theory.
+	 * @return the application's theory.
 	 */
 	Theory getTheory();
 	
@@ -186,7 +186,7 @@ public interface Constraint extends Expression {
 	/**
 	 * Make contradictory version of this constraint;
 	 * this means the contradiction is of the same "type" as this contradiction
-	 * (for example, same constraint theory, among other details),
+	 * (for example, same theory, among other details),
 	 * but is a contradiction.
 	 * @return
 	 */
