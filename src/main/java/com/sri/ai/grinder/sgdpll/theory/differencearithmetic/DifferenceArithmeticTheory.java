@@ -70,6 +70,7 @@ import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.library.set.CardinalitySimplifier;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
@@ -112,7 +113,9 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 						new BooleanSimplifier(),
 						new NumericSimplifier(),
 						new EqualitySimplifier(),
-						new InequalitySimplifier()));
+						new InequalitySimplifier(),
+						new CardinalitySimplifier()
+						));
 		// Numeric simplifiers are included to take care of polynomials
 		// in the body expression (conditional polynomials) of summations.
 		// In the future, we want these simplifiers to be automatically extracted

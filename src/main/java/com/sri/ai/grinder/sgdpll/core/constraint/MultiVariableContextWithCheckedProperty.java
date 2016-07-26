@@ -240,6 +240,9 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			Collection<Expression> variablesInLiteral = getTheory().getVariablesIn(literal, context);
 			if (variablesInLiteral.isEmpty()) {
 				Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
+				if (literalSimplifiedToConstant == literal) {
+					throw new Error("Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context.");
+				}
 				result = conjoinWithLiteral(literalSimplifiedToConstant, context);
 			}
 			else if (head != null) {

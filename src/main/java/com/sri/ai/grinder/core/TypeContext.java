@@ -128,6 +128,22 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 		//
 		this.fromTypeExpressionToType = map();
 	}
+	
+	/**
+	 * Creates a {@link TypeContext} containing the basic information
+	 * from another context.
+	 * The basic information are the theory, symbols and types, is unique constant predicate,
+	 * and global objects.
+	 * Uses {@link #TypeContext(Theory, Map, Predicate, Map)}.
+	 * @param another
+	 */
+	public TypeContext(Context another) {
+		this(
+				another.getTheory(), 
+				another.getSymbolsAndTypes(), 
+				another.getIsUniquelyNamedConstantPredicate(), 
+				another.getGlobalObjects());
+	}
 
 	// END-Constructors
 	//

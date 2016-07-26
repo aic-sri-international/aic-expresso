@@ -66,6 +66,7 @@ import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
+import com.sri.ai.grinder.library.set.CardinalitySimplifier;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
@@ -107,7 +108,9 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 						new BooleanSimplifier(),
 						new NumericSimplifier(),
 						new EqualitySimplifier(),
-						new InequalitySimplifier()));
+						new InequalitySimplifier(),
+						new CardinalitySimplifier()
+						));
 		
 		setExtraSimplifier(
 				new DefaultMapBasedTopSimplifier(

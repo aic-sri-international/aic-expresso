@@ -58,7 +58,8 @@ public class BindingTopSimplifier extends DefaultMapBasedTopSimplifier {
 				map(),
 				map("Symbol", (Simplifier) (e, c) -> {
 					Expression binding = c.binding(e);
-					return binding != null? binding : e;
+					Expression result = binding != null? binding : e;
+					return result;
 				})
 				);
 	}

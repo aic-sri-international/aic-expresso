@@ -67,6 +67,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
@@ -97,6 +98,31 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
 @Beta
 public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
 
+	/**
+	 * SUBTLETY NOTES:
+	 * 
+	 * A subtle bug that came up points to the need for care using the context in these step solvers.
+	 * 
+	 * A step solver is supposed to be reuseable for multiple contexts.
+	 * At the same time, it is very advantageous to cache intermediary information such as propagated CNF and lower and upper bounds,
+	 * which remain the same across multiple contexts and are expensive to compute.
+	 * 
+	 * Cached information, however, must be independent of the context; otherwise, its reuse under a different context will cause trouble.
+	 * This is a little tricky because sometimes we must simplify the cached expressions, and simplification usually depends on the context.
+	 * For example, if the index of a summation is I and the constraint is I = J and I < J + 1,
+	 * one of the propagated literals is J < J + 1, which can be simplified regardless of the context to true.
+	 * To uncover that, however, we must use simplification, which depends on the context.
+	 * In the above example, the result is always true regardless of the context, so simplifying it with the context does not cause any problems.
+	 * However, if the constraint were I = J and I < 4, then the propagated literal would be J < 4, which
+	 * *will* be simplified to different expressions depending on the context (if the context says that J = 0, for example, it will be true).
+	 * So we must simplify using the method applyAndSimplifyWithoutConsideringContextualConstraint, which simplifies according to variable types
+	 * and the operators in the current theory, but does not use the context constraint.
+	 * 
+	 * One might then be tempted to conclude that we should always simplify in this manner, but there is a last subtle point,
+	 * which is that step solvers are not supposed to return conditional steps that are implied to be true or false according to the context
+	 * under which the step is computed. Therefore, we must *at some point* use simplification that takes the contextual constraint into account.
+	 * The crucial point is that this should never be done to compute information that will be *cached* for use under multiple contexts.
+	 */
 
 	/**
 	 * Given the maximum lower bound and minimum upper bound for the constraint's variable,
@@ -329,7 +355,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 		
 		// if X = Y and X op Z, then Y op Z, for op any atom functor other than equality (which is already covered above).
 		// TODO: the single-variable constraint should be changed so that when X = Y all other constraints are placed on Y
-		// instead and put on external literals
+		// instead and put on external literals. TODO: this is done, remove previous TODO when convenient (debugging right now, don't want to change line positions)
 
 		Iterator<Expression> propagatedComparisons;
 		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
@@ -346,8 +372,11 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 										Expression equal = equalAndNonEqualityComparison.get(0);
 										Expression nonEqualityComparison = equalAndNonEqualityComparison.get(1);
 										Expression termBeingCompared = nonEqualityComparison.get(1);
-										Expression unsimplifiedAtom = apply(nonEqualityComparison.getFunctor(), equal, termBeingCompared);
-										Expression result = constraint.getTheory().simplify(unsimplifiedAtom, context);
+										Expression result = 
+												applyAndSimplifyWithoutConsideringContextualConstraint(
+														nonEqualityComparison.getFunctor().toString(), 
+														arrayList(equal, termBeingCompared), 
+														context);
 										// System.out.println("Unsimplified comparison of equal and term in non-equality comparison: " + unsimplifiedAtom);	
 										// System.out.println("Non-equality comparison was: " + nonEqualityComparison);	
 										// System.out.println("constraint is: " + constraint);	
@@ -754,6 +783,25 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	protected Expression applyAndSimplify(String comparison, ArrayList<Expression> arguments, Context context) {
 		Expression unsimplifiedAtom = apply(comparison, arguments);
 		Expression result = constraint.getTheory().simplify(unsimplifiedAtom, context);
+		return result;
+	}
+
+	/**
+	 * A method for simplifying an expression according to the context's theory, types and global objects,
+	 * but <i>without</i> considering the contextual constraint,
+	 * for the purpose of computing information about the step solver that is constant across contexts
+	 * (that share the same basic information).
+	 * Note that the context is still an argument, for the sake of providing the basic information,
+	 * but the contextual constraint is ignored.
+	 * @param comparison
+	 * @param arguments
+	 * @param context
+	 * @return
+	 */
+	protected Expression applyAndSimplifyWithoutConsideringContextualConstraint(String comparison, ArrayList<Expression> arguments, Context context) {
+		Expression unsimplifiedAtom = apply(comparison, arguments);
+		TypeContext typeContext = new TypeContext(context);
+		Expression result = constraint.getTheory().simplify(unsimplifiedAtom, typeContext);
 		return result;
 	}
 }

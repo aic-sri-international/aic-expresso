@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
-import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
+import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -102,11 +102,11 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
 		
-		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compoundTheory);
+		Simplifier interpreter = new Evaluator(compoundTheory);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		Expression result = interpreter.apply(input, context);
-		Expression expectedProduct = parse("if P then if not Q then if Y != a then if Y != b then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
+		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);
 	}
 	

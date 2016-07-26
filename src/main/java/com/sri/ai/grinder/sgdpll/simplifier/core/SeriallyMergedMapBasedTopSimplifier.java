@@ -49,8 +49,10 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.util.Util;
 
 /**
  * A {@link MapBasedSimplifier} receiving elementary simplifiers on their own or from other {@link MapBasedSimplifier}s,
@@ -77,8 +79,8 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 	 */
 	public SeriallyMergedMapBasedTopSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
-				merge ( Merge.mapsOfFunctionApplicationSimplifiersIterator(simplifiers) ),
-				merge ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(simplifiers) ));
+				mergeWithMoreTransparencyDuringDebugging ( Merge.mapsOfFunctionApplicationSimplifiersIterator(simplifiers) ),
+				mergeWithMoreTransparencyDuringDebugging ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(simplifiers) ));
 	}
 
 	/**
@@ -95,6 +97,9 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 		super(
 				merge ( Merge.mapsOfFunctionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
 				merge ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
+//		super(
+//				mergeWithMoreTransparencyDuringDebugging ( Merge.mapsOfFunctionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+//				mergeWithMoreTransparencyDuringDebugging ( Merge.mapsOfSyntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
 	}
 	
 	private static Map<String, Simplifier> merge(Iterator<Map<String, Simplifier>> simplifiersIterator) {
@@ -157,5 +162,71 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 			}
 			return result;
 		};
+	}
+	
+	private static Map<String, Simplifier> mergeWithMoreTransparencyDuringDebugging(Iterator<Map<String, Simplifier>> simplifiersIterator) {
+		Map<String, Collection<Simplifier>> union = map();
+		for (Map<String, Simplifier> mapOfSimplifiers : in (simplifiersIterator)) {
+			for (Map.Entry<String, Simplifier> entry : mapOfSimplifiers.entrySet()) {
+				String key = entry.getKey();
+				Simplifier simplifier = entry.getValue();
+				Util.addToCollectionValuePossiblyCreatingIt(union, key, simplifier, LinkedHashSet.class);
+			}
+		}
+		
+		Map<String, Simplifier> result = map();
+		for (Map.Entry<String, Collection<Simplifier>> entry : union.entrySet()) {
+			String key = entry.getKey();
+			Collection<Simplifier> simplifiers = entry.getValue();
+			if (simplifiers.size() == 1) {
+				result.put(key, Util.getFirst(simplifiers));
+			}
+			else {
+				SerialSimplifier serial = new SerialSimplifier();
+				for (Simplifier simplifier : simplifiers) {
+					serial.merge(simplifier);
+				}
+				result.put(key, serial);
+			}
+		}
+		return result;
+	}
+
+	private static class SerialSimplifier implements Simplifier {
+
+		private LinkedHashSet<Simplifier> subSimplifiers;
+		
+		public SerialSimplifier() {
+			this.subSimplifiers = new LinkedHashSet<Simplifier>();
+		}
+		
+		@Override
+		public Expression apply(Expression expression, Context context) {
+			Expression current = expression;
+			for (Simplifier subSimplifier : subSimplifiers) {
+				Expression previous = current;
+				current = subSimplifier.apply(current, context);
+				if (current != previous) {
+					break;
+				}
+			}
+			return current;
+		}
+		
+		public void merge(Simplifier additional) {
+			if (additional instanceof SerialSimplifier) {
+				SerialSimplifier additionalSerialSimplifier = (SerialSimplifier) additional;
+				for (Simplifier additionalSubSimplifier : additionalSerialSimplifier.subSimplifiers) {
+					merge(additionalSubSimplifier);
+				}
+			}
+			else {
+				subSimplifiers.add(additional);
+			}
+		}
+		
+		public String toString() {
+			return "Serial merge of " + subSimplifiers;
+		}
 	}
 }

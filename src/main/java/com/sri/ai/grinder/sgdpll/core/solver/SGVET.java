@@ -45,11 +45,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.AbstractSGVETQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
-import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * 
@@ -60,8 +59,8 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 
 	private Theory theory;
 	
-	public SGVET(TopSimplifier topSimplifier, SemiRingProblemType problemType, Theory theory) {
-		super(new SGDPLLT(topSimplifier, problemType), problemType);
+	public SGVET(SemiRingProblemType problemType, Theory theory) {
+		super(new SGDPLLT(theory.getTopSimplifier(), problemType), problemType);
 		this.theory = theory;
 	}
 

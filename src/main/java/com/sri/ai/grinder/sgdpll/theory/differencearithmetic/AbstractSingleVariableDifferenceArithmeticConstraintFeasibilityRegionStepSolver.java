@@ -275,7 +275,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 	
 	@Override
 	protected Expression makeLiteralCheckingWhetherThereAreAnyValuesWithinBounds(Expression lowerBound, Expression upperBound, Context context) {
-		Expression result = applyAndSimplify(LESS_THAN, arrayList(lowerBound, upperBound), context);
+		Expression result = applyAndSimplifyWithoutConsideringContextualConstraint(LESS_THAN, arrayList(lowerBound, upperBound), context);
 		// relies on lower bounds being strict, and upper bounds being non-strict
 		return result;
 	}
@@ -284,7 +284,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 	protected Pair<Expression, Boolean> processExplicitLowerBoundAndStrictnessPair(Expression lowerBound, boolean strictness, Context context) {
 		Pair<Expression, Boolean> result;
 		if (!strictness) {
-			result = pair(applyAndSimplify(MINUS, arrayList(lowerBound, ONE), context), true /* now it is strict */);
+			result = pair(applyAndSimplifyWithoutConsideringContextualConstraint(MINUS, arrayList(lowerBound, ONE), context), true /* now it is strict */);
 		}
 		else {
 			result = pair(lowerBound, strictness);
@@ -296,7 +296,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 	protected Pair<Expression, Boolean> processExplicitUpperBoundAndStrictnessPair(Expression upperBound, boolean strictness, Context context) {
 		Pair<Expression, Boolean> result;
 		if (strictness) {
-			result = pair(applyAndSimplify(MINUS, arrayList(upperBound, ONE), context), false /* now it is non-strict */);
+			result = pair(applyAndSimplifyWithoutConsideringContextualConstraint(MINUS, arrayList(upperBound, ONE), context), false /* now it is non-strict */);
 		}
 		else {
 			result = pair(upperBound, strictness);

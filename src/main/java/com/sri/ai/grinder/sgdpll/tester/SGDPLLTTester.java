@@ -66,14 +66,13 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpll.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.base.NullaryFunction;
 
@@ -467,7 +466,7 @@ public class SGDPLLTTester {
 	/**
 	 * Given a list of problem types, a theory and a number <code>n</code> of single-variable constraint tests,
 	 * generates <code>n</code> problems with given body depth (number of levels of if then else expressions)
-	 * and checks if {@link SymbolicCommonInterpreterWithLiteralConditioning} works (checked by brute force).
+	 * and checks if symbolic evaluation works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
 	 * @param problemTypes
@@ -510,7 +509,7 @@ public class SGDPLLTTester {
 	/**
 	 * Given a list of problem types, a theory and a number <code>n</code> of tests,
 	 * generates <code>n</code> problems with given number of indices and body depth (number of levels of if then else expressions)
-	 * and checks if {@link SymbolicCommonInterpreterWithLiteralConditioning} works (checked by brute force).
+	 * and checks if symbolic evaluation works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
 	 * @param numberOfIndices
@@ -546,6 +545,10 @@ public class SGDPLLTTester {
 			Theory theory,
 			Collection<Expression> literals,
 			int bodyDepth, Context context) {
+		
+		if (numberOfIndices > theory.getVariablesForTesting().size()) {
+			throw new Error("Test specifies " + numberOfIndices + " indices, but there are only " + theory.getVariablesForTesting().size() + " available for testing in the theory: " + theory.getVariablesForTesting());
+		}
 		
 		Collection<Expression> indices = 
 				pickKElementsWithoutReplacement(
@@ -599,7 +602,7 @@ public class SGDPLLTTester {
 		
 		Simplifier symbolicInterpreter =
 				new Evaluator(theory);
-		
+				
 		long start = System.currentTimeMillis();
 		Expression symbolicSolution = symbolicInterpreter.apply(problem, context);
 		long time = System.currentTimeMillis() - start;

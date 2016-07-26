@@ -38,12 +38,14 @@
 package com.sri.ai.test.grinder.sgdpll.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
@@ -58,6 +60,12 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest 
 	@Test
 	public void test() {
 		Theory theory = new DifferenceArithmeticTheory(true, true);
+		theory.setVariableNamesAndTypesForTesting(
+				map(
+						"I", new IntegerInterval(0,4),
+						"J", new IntegerInterval(0,4),
+						"K", new IntegerInterval(0,4)
+						));
 		Context context = theory.makeContextWithTestingInformation();
 
 		Expression variable;

@@ -60,9 +60,10 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
-import com.sri.ai.grinder.sgdpll.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.grinder.sgdpll.problemtype.Sum;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstraint;
@@ -254,7 +255,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 			throw new AssertionError("Expected <" + expected + "> but was null");
 		}
 		else if (expected != null && !constraint.isContradiction() && !expected.equals(constraint)) {
-			SymbolicCommonInterpreter interpreter = new SymbolicCommonInterpreter(theory);
+			Simplifier interpreter = new Evaluator(theory);
 			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
 			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);
 			Expression equivalent = interpreter.apply(universallyQuantified, context);
