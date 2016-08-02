@@ -117,7 +117,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	 * @param context
 	 * @return
 	 */
-	public static Expression solve(
+	private static Expression solve(
 			AssociativeCommutativeGroup group,
 			TopSimplifier topSimplifier,
 			ExtensionalIndexExpressionsSet indexExpressions,

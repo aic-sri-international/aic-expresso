@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpll.core.solver;
 
-import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.myAssert;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -46,9 +46,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.sgdpll.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpll.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
-import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstraint;
 
 /**
  * Solves a {@link ContextDependentExpressionProblemStepSolver} by successively conditioning the context on provided splitters.
@@ -59,63 +56,25 @@ import com.sri.ai.grinder.sgdpll.theory.equality.SingleVariableEqualityConstrain
 @Beta
 public class ContextDependentExpressionProblemSolver {
 	/**
-	 * Returns the solution for a problem using a step solver, or null if the context is found to be inconsistent.
+	 * Returns the solution for a problem using a step solver.
 	 * @param stepSolver
 	 * @param context
 	 * @return
 	 */
 	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+		Expression result;
 		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(context);
-		if (step == null) {
-			// context is found to be inconsistent
-			return null;
-		}
-		else if (step.itDepends()) {
+		if (step.itDepends()) {
 			Expression splitter = step.getLiteral();
 			ContextSplitting split = (ContextSplitting) step.getContextSplitting();
-			switch (split.getResult()) {
-			case CONSTRAINT_IS_CONTRADICTORY:
-				return null;
-			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral());
-				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation());
-				if (subSolution1 == null || subSolution2 == null) {
-					return null;
-				}
-				else {
-					return IfThenElse.make(splitter, subSolution1, subSolution2, true);
-				}
-			// there is no reason for step solvers to return 'itDepends' steps when the literal is true (or false),
-			// because in that case they can always simply add the literal (or its negation) to the context
-			// and take another step. However, we include these possibilities here for safety.
-			// TODO: At some point it may make sense to simply remove these as valid possibilities.	
-			case LITERAL_IS_TRUE: 
-				return solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral());
-			case LITERAL_IS_FALSE:
-				return solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation());
-			default:
-				throw new Error("Undefined " + ContextSplitting.class + " result value: " + split.getResult());
-			}
+			myAssert(() -> split.isUndefined(), () -> "Undefined " + ContextSplitting.class + " result value: " + split.getResult());
+			Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral());
+			Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation());
+			result = IfThenElse.make(splitter, subSolution1, subSolution2, true);
 		}
 		else {
-			return step.getValue();
+			result = step.getValue();
 		}
-	}
-	
-	public static void main(String[] args) {
-		
-		EqualityTheory theory = new EqualityTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
-		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, theory);
-		constraint = constraint.conjoin(parse("X = Y"), context);
-		constraint = constraint.conjoin(parse("X = Z"), context);
-		constraint = constraint.conjoin(parse("X != W"), context);
-		constraint = constraint.conjoin(parse("X != U"), context);
-		
-		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
-
-		Expression result = solve(problem, context);
-		
-		System.out.println("result: " + result);	
+		return result;
 	}
 }

@@ -90,6 +90,14 @@ public class ConstraintSplitting {
 		return result;
 	}
 	
+	/**
+	 * Equivalent to <code>return getResult().equals(LITERAL_IS_UNDEFINED);</code>.
+	 * @return
+	 */
+	public boolean isUndefined() {
+		return getResult().equals(LITERAL_IS_UNDEFINED);
+	}
+	
 	/** The original constraint being split. */
 	public Constraint getConstraint() {
 		return constraint;
