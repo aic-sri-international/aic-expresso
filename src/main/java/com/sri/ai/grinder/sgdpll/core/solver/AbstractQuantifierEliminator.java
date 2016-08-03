@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.core;
+package com.sri.ai.grinder.sgdpll.core.solver;
 
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 

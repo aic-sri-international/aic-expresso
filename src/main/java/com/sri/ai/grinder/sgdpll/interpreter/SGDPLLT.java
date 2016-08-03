@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
-import com.sri.ai.grinder.sgdpll.core.AbstractQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.Pair;
