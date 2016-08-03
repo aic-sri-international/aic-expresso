@@ -37,10 +37,10 @@
  */
 package com.sri.ai.grinder.sgdpll.core;
 
-import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 
 /**
- * A {@link OldStyleQuantifierEliminator} implementing interruption and debugging mechanisms.
+ * A {@link QuantifierEliminator} implementing interruption and debugging mechanisms.
  * <p>
  * Extensions to this class must routinely invoke {@link #checkInterrupted()}
  * during its operation so as to allow interruption ordered by client code.
@@ -48,7 +48,7 @@ import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
  * @author braz
  *
  */
-public abstract class AbstractOldStyleQuantifierEliminator implements OldStyleQuantifierEliminator {
+public abstract class AbstractQuantifierEliminator implements QuantifierEliminator {
 
 	private boolean interrupted = false;
 	private boolean debug = false;

@@ -50,7 +50,7 @@ import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
-import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.util.Util;
@@ -71,11 +71,11 @@ public class Compilation {
 	 * @param solverListener if not null, invoked on solver used for compilation, before and after compilation starts; returned solver on 'before' invocation is used (it may be the same one used as argument, of course).
 	 * @return
 	 */
-	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<OldStyleQuantifierEliminator, OldStyleQuantifierEliminator> solverListener) {
+	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminator, QuantifierEliminator> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		OldStyleQuantifierEliminator solver = new SGDPLLT(new CommonSimplifier().getTopSimplifier(), problemType);
+		QuantifierEliminator solver = new SGDPLLT(new CommonSimplifier().getTopSimplifier(), problemType);
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}

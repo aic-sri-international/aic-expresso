@@ -41,15 +41,17 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.api.Theory;
-import com.sri.ai.grinder.sgdpll.core.AbstractSGVETQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.core.AbstractSGVET;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 
 /**
+ * A {@link AbstractSGVET} for a given theory,
+ * and using {@link SGDPLLT} as the eliminator for single quantifiers.
  * 
  * @author braz
  *
  */
-public class SGVET extends AbstractSGVETQuantifierEliminator {
+public class SGVET extends AbstractSGVET {
 
 	private Theory theory;
 	

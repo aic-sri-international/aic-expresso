@@ -66,13 +66,13 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.util.base.PairOf;
 
 /**
- * A Variable Elimination algorithm generalized in the same manner
+ * A {@link QuantifierEliminator} generalizing the Variable Elimination algorithm in the same manner
  * {@link SGDPLLT} is generalized from DPLL,
  * that is, it can produce symbolic answers and it does not need
  * to only solve problems with the operations from its classic version
@@ -97,12 +97,12 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public abstract class AbstractSGVETQuantifierEliminator extends AbstractOldStyleQuantifierEliminator {
+public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 
-	protected OldStyleQuantifierEliminator subSolver;
+	protected QuantifierEliminator subSolver;
 	protected SemiRingProblemType problemType;
 	
-	public AbstractSGVETQuantifierEliminator(OldStyleQuantifierEliminator subSolver, SemiRingProblemType problemType) {
+	public AbstractSGVET(QuantifierEliminator subSolver, SemiRingProblemType problemType) {
 		this.subSolver = subSolver;
 		this.problemType = problemType;
 	}

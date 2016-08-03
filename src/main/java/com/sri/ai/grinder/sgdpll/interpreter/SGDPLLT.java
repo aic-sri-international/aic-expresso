@@ -52,22 +52,22 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
-import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
-import com.sri.ai.grinder.sgdpll.core.AbstractOldStyleQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.core.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.Pair;
 
 /**
- * A {@link OldStyleQuantifierEliminator} implementing the SGDPLL(T) algorithm.
+ * A {@link QuantifierEliminator} implementing the SGDPLL(T) algorithm.
  *
  * @author braz
  *
  */
 @Beta
-public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
+public class SGDPLLT extends AbstractQuantifierEliminator {
 
 	private TopSimplifier topSimplifier;
 	private GroupProblemType problemType;

@@ -15,7 +15,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
  * @author braz
  *
  */
-public interface OldStyleQuantifierEliminator {
+public interface QuantifierEliminator {
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
