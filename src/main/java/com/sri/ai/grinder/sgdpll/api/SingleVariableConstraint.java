@@ -48,7 +48,7 @@ import com.sri.ai.grinder.api.Context;
  * @author braz
  *
  */
-public interface SingleVariableConstraint extends Expression, Constraint {
+public interface SingleVariableConstraint extends Constraint {
 
 	/**
 	 * @return the variable term constrained by this constraint.

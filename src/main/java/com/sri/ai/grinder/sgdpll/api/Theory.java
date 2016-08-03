@@ -65,6 +65,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FormulaUtil;
+import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
@@ -194,6 +195,14 @@ public interface Theory {
 	 * @return
 	 */
 	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context);
+	
+	/**
+	 * Returns a new true (empty conjunction) constraint for this theory.
+	 * @return
+	 */
+	default Constraint makeTrueConstraint() {
+		return new DefaultMultiVariableConstraint(this);
+	}
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).

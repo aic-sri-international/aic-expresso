@@ -43,28 +43,21 @@ import static com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminatio
 import static com.sri.ai.util.Util.getLast;
 
 import java.util.Collection;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.OldStyleQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.AbstractOldStyleQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.core.Recursive;
-import com.sri.ai.grinder.sgdpll.simplifier.core.TopExhaustive;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -77,31 +70,18 @@ import com.sri.ai.util.base.Pair;
 public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 
 	private TopSimplifier topSimplifier;
-	private Simplifier simplifier;
 	private GroupProblemType problemType;
 	
 	public SGDPLLT(TopSimplifier topSimplifier, GroupProblemType problemType) {
 		super();
 		this.topSimplifier = topSimplifier;
-		this.simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		this.problemType = problemType;
-	}
-
-	@Override
-	public Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
-		return GrinderUtil.makeContext(
-				mapFromSymbolNameToTypeName,
-				mapFromCategoricalTypeNameToSizeString,
-				additionalTypes,
-				isUniquelyNamedConstantPredicate, theory) ;
 	}
 
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
-		Expression quantifierFreeConstraint = simplifier.apply(constraint, context);
-		Expression quantifierFreeBody = simplifier.apply(body, context);
-		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, context);
+		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, constraint, body, context);
 		return result;
 	}
 
@@ -111,8 +91,8 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 	 * quantifier-free body for each assignment to a set of indices satisfying a given condition,
 	 * under a given context. 
 	 * @param group
-	 * @param indexExpressions
 	 * @param indicesCondition
+	 * @param body
 	 * @param body
 	 * @param context
 	 * @return
@@ -121,15 +101,13 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			AssociativeCommutativeGroup group,
 			TopSimplifier topSimplifier,
 			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression quantifierFreeIndicesCondition,
-			Expression quantifierFreeBody,
+			Expression indicesCondition,
+			Expression body,
 			Context context) {
-		
-		Simplifier simplifier = new Recursive(new TopExhaustive(topSimplifier));
 		
 		Theory theory = context.getTheory();
 		
-		Expression currentBody = quantifierFreeBody;
+		Expression currentBody = body;
 		
 		int numberOfIndices = indexExpressions.getList().size();
 		
@@ -141,7 +119,7 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 			// This would also re-use body if it happens to be a constraint.
 			Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
 					SGDPLLT.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
-							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, theory, context);
+							group, indexExpressions, indicesCondition, body, theory, context);
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
@@ -159,12 +137,12 @@ public class SGDPLLT extends AbstractOldStyleQuantifierEliminator {
 				currentBody =
 						theory
 						.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-								group, constraintForThisIndex, currentBody, simplifier, context)
+								group, constraintForThisIndex, currentBody, topSimplifier, context)
 						.solve(context);
 			}
 		}
 		else {
-			currentBody = IfThenElse.make(quantifierFreeIndicesCondition, currentBody, group.additiveIdentityElement());
+			currentBody = IfThenElse.make(indicesCondition, currentBody, group.additiveIdentityElement());
 		}
 		
 		// Normalize final result.

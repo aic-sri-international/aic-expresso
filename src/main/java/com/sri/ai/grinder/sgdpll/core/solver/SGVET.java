@@ -37,14 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll.core.solver;
 
-import java.util.Collection;
-import java.util.Map;
-
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.AbstractSGVETQuantifierEliminator;
@@ -71,17 +65,5 @@ public class SGVET extends AbstractSGVETQuantifierEliminator {
 
 	public Theory getTheory() {
 		return theory;
-	}
-	
-	@Override
-	public Context makeProcess(
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
-		
-		Context result = GrinderUtil.makeContext(
-						mapFromSymbolNameToTypeName,
-						mapFromCategoricalTypeNameToSizeString, additionalTypes,
-						isUniquelyNamedConstantPredicate, theory);
-		return result;
 	}
 }

@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.helper.GrinderUtil;
 
 /**
  * Interface to classes able to eliminate quantification (for a fixed group) over given indices, constraint and body.
@@ -23,10 +24,11 @@ public interface OldStyleQuantifierEliminator {
 	
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
-	 * assuming a true context.
+	 * assuming a true constraint.
 	 */
 	default Expression solve(Expression input, Collection<Expression> indices, Context context) {
-		Expression result = solve(indices, context, input, context);
+		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
+		Expression result = solve(indices, trueConstraint, input, context);
 		return result;
 	}
 
@@ -39,22 +41,8 @@ public interface OldStyleQuantifierEliminator {
 	// Convenience:
 	
 	/**
-	 * Makes an appropriate context with the given data for SGDPLL2, which does not require a context.
-	 * @param mapFromSymbolNameToTypeName
-	 * @param mapFromCategoricalTypeNameToSizeString
-	 * @param additionalTypes
-	 * @param isUniquelyNamedConstantPredicate
-	 * @param theory TODO
-	 * @return
-	 */
-	Context makeProcess(
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
-			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory);
-	
-	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
-	 * @param theory TODO
 	 */
 	default Expression solve(
 			Expression expression, 
@@ -66,11 +54,23 @@ public interface OldStyleQuantifierEliminator {
 			Theory theory) {
 		
 		Context context =
-				makeProcess(
-						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
-						additionalTypes, isUniquelyNamedConstantPredicate, theory);
+				GrinderUtil.makeContext(
+				mapFromSymbolNameToTypeName,
+				mapFromCategoricalTypeNameToSizeString,
+				additionalTypes,
+				isUniquelyNamedConstantPredicate,
+				theory);
 		
 		Expression result = solve(expression, indices, context);
 		return result;
+	}
+
+	default Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
+		return GrinderUtil.makeContext(
+				mapFromSymbolNameToTypeName,
+				mapFromCategoricalTypeNameToSizeString,
+				additionalTypes,
+				isUniquelyNamedConstantPredicate, 
+				theory) ;
 	}
 }
