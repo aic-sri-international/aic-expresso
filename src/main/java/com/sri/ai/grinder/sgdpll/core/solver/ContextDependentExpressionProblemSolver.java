@@ -55,13 +55,24 @@ import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
  */
 @Beta
 public class ContextDependentExpressionProblemSolver {
+
+	private boolean interrupted = false;
+	
+	public void interrupt() {
+		interrupted = true;
+	}
+	
 	/**
 	 * Returns the solution for a problem using a step solver.
 	 * @param stepSolver
 	 * @param context
 	 * @return
 	 */
-	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+	public Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+		if (interrupted) {
+			throw new Error("Solver interrupted.");
+		}
+		
 		Expression result;
 		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(context);
 		if (step.itDepends()) {
@@ -75,6 +86,12 @@ public class ContextDependentExpressionProblemSolver {
 		else {
 			result = step.getValue();
 		}
+		return result;
+	}
+	
+	public static Expression staticSolve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+		ContextDependentExpressionProblemSolver solver = new ContextDependentExpressionProblemSolver();
+		Expression result = solver.solve(stepSolver, context);
 		return result;
 	}
 }

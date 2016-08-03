@@ -140,7 +140,7 @@ public class MaximumExpressionStepSolverTest {
 						orderMinimum,
 						orderMaximum);
 
-		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, context);
+		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
 		System.out.println("Maximum of " + expressions + " for order " + order + ": " + solution);
 		assertEquals(expected, solution);
 	}

@@ -61,13 +61,13 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 
 	/**
 	 * Convenience method invoking
-	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Context)}
+	 * {@link ContextDependentExpressionProblemSolver#staticSolve(ContextDependentExpressionProblemStepSolver, Context)}
 	 * on this step solver.
 	 * @param context
 	 * @return
 	 */
 	default Expression solve(Context context) {
-		Expression result = ContextDependentExpressionProblemSolver.solve(this, context);
+		Expression result = ContextDependentExpressionProblemSolver.staticSolve(this, context);
 		return result;
 	}
 

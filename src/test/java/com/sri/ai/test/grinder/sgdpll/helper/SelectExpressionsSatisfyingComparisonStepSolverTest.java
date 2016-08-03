@@ -112,7 +112,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 		ExpressionWrapperStepSolver<List<Expression>> wrapInList
 		= new ExpressionWrapperStepSolver<>(stepSolver, selection -> apply("list", selection));
 
-		Expression solution = ContextDependentExpressionProblemSolver.solve(wrapInList, context);
+		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(wrapInList, context);
 		System.out.println("Elements in " + expressions + " which are less than " + bound + ": " + solution);
 		assertEquals(expected, solution);
 	}
