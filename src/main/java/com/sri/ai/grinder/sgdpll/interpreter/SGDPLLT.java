@@ -72,7 +72,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	private TopSimplifier topSimplifier;
 	private GroupProblemType problemType;
 	
-	public SGDPLLT(TopSimplifier topSimplifier, GroupProblemType problemType) {
+	public SGDPLLT(GroupProblemType problemType, TopSimplifier topSimplifier) {
 		super();
 		this.topSimplifier = topSimplifier;
 		this.problemType = problemType;

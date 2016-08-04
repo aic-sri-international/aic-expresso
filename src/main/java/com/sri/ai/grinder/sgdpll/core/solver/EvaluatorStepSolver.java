@@ -47,12 +47,12 @@ import static com.sri.ai.grinder.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.library.FunctorConstants.OR;
 import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.library.set.Sets.expandApplicationOfAssociativeCommutativeFunction;
 import static com.sri.ai.grinder.library.set.Sets.isIntensionalMultiSet;
 import static com.sri.ai.grinder.sgdpll.theory.base.ExpressionConditionedOnLiteralSolutionStep.stepDependingOnLiteral;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.collect.StackedHashMap.stackedHashMap;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -68,15 +68,16 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll.group.BooleansWithConjunctionGroup;
-import com.sri.ai.grinder.sgdpll.group.BooleansWithDisjunctionGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicMaxGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicTimesGroup;
+import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
+import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
+import com.sri.ai.grinder.sgdpll.problemtype.Max;
+import com.sri.ai.grinder.sgdpll.problemtype.Product;
+import com.sri.ai.grinder.sgdpll.problemtype.Satisfiability;
+import com.sri.ai.grinder.sgdpll.problemtype.Sum;
+import com.sri.ai.grinder.sgdpll.problemtype.Validity;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.Recursive;
@@ -144,6 +145,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	private int subExpressionIndex;
 	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
 	private TopSimplifier exhaustiveTopSimplifier;
+	private TopSimplifier topSimplifier;
 	private Simplifier totalSimplifier;
 	
 	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier) {
@@ -152,6 +154,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		this.subExpressionIndex = 0;
 		this.evaluators = map();
 		this.alreadyExhaustivelyTopSimplified = false;
+		this.topSimplifier = topSimplifier;
 		this.exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
 		this.totalSimplifier = new Recursive(this.exhaustiveTopSimplifier);
 	}
@@ -197,14 +200,14 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
 		}
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
-			AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
+			GroupProblemType group = fromFunctorToGroup.get(expression.getFunctor());
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			Expression functionOnSet = expression;
 			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, intensionalSet, context);
 		}
 		else if (expression.hasFunctor(FunctorConstants.CARDINALITY) && isIntensionalMultiSet(expression.get(0)) ) {
 			// | {{ (on I) Head | Condition }} | ---> sum ( {{ (on I) 1 | Condition }} )
-			AssociativeCommutativeGroup group = new SymbolicPlusGroup();
+			GroupProblemType group = new Sum();
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
 			Expression functionOnSet = apply(SUM, intensionalSet);
@@ -212,7 +215,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (expression.getSyntacticFormType().equals("For all")) {
 			// for all I : Body ---> and ( {{ (on I) Body }} )
-			AssociativeCommutativeGroup group = new BooleansWithConjunctionGroup();
+			GroupProblemType group = new Validity();
 			UniversallyQuantifiedFormula forAll = (UniversallyQuantifiedFormula) expression;
 			IndexExpressionsSet indexExpressions = forAll.getIndexExpressions();
 			Expression body = forAll.getBody();
@@ -222,7 +225,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (expression.getSyntacticFormType().equals("There exists")) {
 			// there exists I : Body ---> or ( {{ (on I) Body }} )
-			AssociativeCommutativeGroup group = new BooleansWithDisjunctionGroup();
+			GroupProblemType group = new Satisfiability();
 			ExistentiallyQuantifiedFormula thereExists = (ExistentiallyQuantifiedFormula) expression;
 			IndexExpressionsSet indexExpressions = thereExists.getIndexExpressions();
 			Expression body = thereExists.getBody();
@@ -294,7 +297,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	 * @param context
 	 * @return
 	 */
-	public SolutionStep evaluateGroupOperationOnIntensionalMultiSet(Expression functionOnSet, AssociativeCommutativeGroup group, IntensionalSet intensionalSet, Context context) {
+	public SolutionStep evaluateGroupOperationOnIntensionalMultiSet(Expression functionOnSet, GroupProblemType group, IntensionalSet intensionalSet, Context context) {
 		SolutionStep result;
 		ExtensionalIndexExpressionsSet indexExpressionsOfOriginalSet = 
 				(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
@@ -302,30 +305,22 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			// group operation on intensional set without indices is equivalent to if Condition then Head else Identity
 			Expression equivalentExpression = 
 					IfThenElse.make(intensionalSet.getCondition(), intensionalSet.getHead(), group.additiveIdentityElement());
-			ContextDependentExpressionProblemStepSolver equivalent = 
-					new EvaluatorStepSolver(equivalentExpression, exhaustiveTopSimplifier);
+			ContextDependentExpressionProblemStepSolver equivalent = new EvaluatorStepSolver(equivalentExpression, topSimplifier);
 			result = equivalent.step(context);
 		}
 		else {
 			Theory theory = context.getTheory();
-		
-			Expression functionOnSingleIndexSets = expandApplicationOfAssociativeCommutativeFunction(functionOnSet);
-		
-			IntensionalSet firstSet = (IntensionalSet) functionOnSingleIndexSets.get(0);
-			ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) firstSet.getIndexExpressions();
-			Expression indexExpression = indexExpressions.getList().get(0);
-			Expression index = IndexExpressions.getIndex(indexExpression);
+			IntensionalSet set = (IntensionalSet) functionOnSet.get(0);
+			ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) set.getIndexExpressions();
+			List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 			context = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, context);
-		
-			SingleVariableConstraint indexConstraint = theory.makeSingleVariableConstraint(index, theory, context);
-			Expression body = IfThenElse.make(firstSet.getCondition(), firstSet.getHead(), group.additiveIdentityElement());
+			Constraint indexConstraint = theory.makeTrueConstraint();
+			Expression body = IfThenElse.make(set.getCondition(), set.getHead(), group.additiveIdentityElement());
 			// TODO: once we can conjoin arbitrary conditions to a constraint, we want to make the body simply the set's head, and conjoin the set's condition to the single-variable constraint. This will leverage conditions already represented as constraints.
-		
-			ContextDependentExpressionProblemStepSolver quantifierEliminationStepSolver = 
-					theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-							group, indexConstraint, body, exhaustiveTopSimplifier, context);
-		
-			result = quantifierEliminationStepSolver.step(context);
+			SGDPLLT sgdpllt = new SGDPLLT(group, topSimplifier);
+			Expression quantifierFreeExpression = sgdpllt.solve(indices, indexConstraint, body, context);
+			result = new Solution(quantifierFreeExpression);
+			// TODO: eventually we will probably have a SGDPLLT *step* solver that may return "it depends" solution steps.
 		}
 		return result;
 	}
@@ -349,10 +344,10 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		return "Evaluate " + expression + " from " + subExpressionIndex + "-th sub-expression on";
 	}
 	
-	private static Map<Expression, AssociativeCommutativeGroup> fromFunctorToGroup
+	private static Map<Expression, GroupProblemType> fromFunctorToGroup
 	= map(
-			makeSymbol(SUM), new SymbolicPlusGroup(),
-			makeSymbol(MAX), new SymbolicMaxGroup(),
-			makeSymbol(PRODUCT), new SymbolicTimesGroup()
+			makeSymbol(SUM), new Sum(),
+			makeSymbol(MAX), new Max(),
+			makeSymbol(PRODUCT), new Product()
 			);
 }

@@ -35,36 +35,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.core.solver;
+package com.sri.ai.grinder.sgdpll.problemtype;
+
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+
+import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.sgdpll.api.Theory;
-import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeSemiRing;
+import com.sri.ai.grinder.sgdpll.group.SymbolicTimesGroup;
 
 /**
- * A {@link AbstractSGVET} for a given theory,
- * and using {@link SGDPLLT} as the eliminator for single quantifiers.
+ * The product problem type.
  * 
  * @author braz
  *
  */
-public class SGVET extends AbstractSGVET {
+public class Product extends AbstractGroupProblemTypeWithFunctionApplicationExpression {
 
-	private Theory theory;
+	/**
+	 * Creates a product problem type based on a {@link SymbolicTimesGroup} group.
+	 */
+	public Product() {
+		super(new SymbolicTimesGroup());
+	}
 	
-	public SGVET(SemiRingProblemType problemType, Theory theory) {
-		super(new SGDPLLT(problemType, theory.getTopSimplifier()), problemType);
-		this.theory = theory;
+	/**
+	 * Creates a product problem type based on a given group.
+	 * This is useful for extensions that need to be based on an instance of some extension of
+	 * {@link AssociativeCommutativeGroup} such as {@link AssociativeCommutativeSemiRing}.
+	 * This is something needed for problem types passed to {@link AbstractSemiRingProblemType}.
+	 */
+	protected Product(AssociativeCommutativeGroup group) {
+		super(group);
+	}
+	
+	@Override
+	public String getFunctorString() {
+		return FunctorConstants.PRODUCT;
 	}
 
 	@Override
-	public boolean isVariable(Expression expression, Context context) {
-		return theory.isVariable(expression, context);
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextInt(10));
+		return result;
 	}
-
-	public Theory getTheory() {
-		return theory;
+	
+	@Override
+	public String toString() {
+		return "Product";
 	}
 }
