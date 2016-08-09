@@ -44,14 +44,11 @@ import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpll.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
- * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
- * The problem may either have the same solution for all free variable assignments under the context, or not.
- * Method {@link #step(Context)} returns a {@link SolutionStep},
- * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
- * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
- * that, if used to split the context
- * (by conjoining the context with the literal and with its negation, successively),
- * will help disambiguate the problem.
+ * A {@link ContextDependentProblemStepSolver} specialized for problems with {@link Expression}-typed solutions.
+ * <p>
+ * Ideally, a {@link Solution} object returned by such a step solver should not contain literals
+ * (if it does, then it depends on that literals and therefore that literals should have been returned in a {@link ItDependsOn} solution step.
+ * However, this is not currently enforced (TODO: it may be in the future).
  * 
  * @author braz
  *

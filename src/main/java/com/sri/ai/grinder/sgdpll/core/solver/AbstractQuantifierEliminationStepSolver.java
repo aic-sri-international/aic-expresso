@@ -93,6 +93,10 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
  * {@link EvaluatorStepSolver} supports only expressions that are composed of
  * function applications or symbols only,
  * so this extension inherits this restriction if that is still in place.
+ * <p>
+ * Ideally, step solvers should only return literal-free solutions, but
+ * this abstract implementation currently may do that.
+ * This may (or perhaps should) be changed in the future.
  * 
  * @author braz
  *
