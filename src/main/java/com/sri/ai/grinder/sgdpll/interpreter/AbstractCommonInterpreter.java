@@ -55,11 +55,11 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll.group.BooleansWithConjunctionGroup;
-import com.sri.ai.grinder.sgdpll.group.BooleansWithDisjunctionGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicMaxGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicTimesGroup;
+import com.sri.ai.grinder.sgdpll.group.Conjunction;
+import com.sri.ai.grinder.sgdpll.group.Disjunction;
+import com.sri.ai.grinder.sgdpll.group.Max;
+import com.sri.ai.grinder.sgdpll.group.Sum;
+import com.sri.ai.grinder.sgdpll.group.Product;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
@@ -98,9 +98,9 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				SUM,         simplifierFor(new SymbolicPlusGroup()),
-				PRODUCT,     simplifierFor(new SymbolicTimesGroup()),
-				MAX,         simplifierFor(new SymbolicMaxGroup()),
+				SUM,         simplifierFor(new Sum()),
+				PRODUCT,     simplifierFor(new Product()),
+				MAX,         simplifierFor(new Max()),
 				CARDINALITY, simplifierCardinality()
 				);
 	}
@@ -108,8 +108,8 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 	@Override
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
-				"There exists", simplifierForQuantificationOn(new BooleansWithDisjunctionGroup()),
-				"For all",      simplifierForQuantificationOn(new BooleansWithConjunctionGroup())
+				"There exists", simplifierForQuantificationOn(new Disjunction()),
+				"For all",      simplifierForQuantificationOn(new Conjunction())
 				);
 	}
 
@@ -132,7 +132,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 				Expression simplifiedSetCondition = apply(set.getCondition(), p);
 				result =
 						evaluateAggregateOperation(
-								new SymbolicPlusGroup(),
+								new Sum(),
 								indexExpressions,
 								simplifiedSetCondition,
 								ONE,

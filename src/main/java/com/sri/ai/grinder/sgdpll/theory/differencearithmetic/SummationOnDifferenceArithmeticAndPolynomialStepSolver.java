@@ -57,7 +57,7 @@ import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
+import com.sri.ai.grinder.sgdpll.group.Sum;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
@@ -76,7 +76,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
 	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
-		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
+		super(new Sum(), simplifier, indexConstraint, body);
 		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
 				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(
 						(SingleVariableDifferenceArithmeticConstraint) indexConstraint);

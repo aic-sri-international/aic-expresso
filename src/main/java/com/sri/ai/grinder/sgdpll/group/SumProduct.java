@@ -35,36 +35,79 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.problemtype;
+package com.sri.ai.grinder.sgdpll.group;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.list;
 
-import java.util.Random;
+import java.util.List;
 
+import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
-import com.sri.ai.grinder.sgdpll.group.BooleansWithDisjunctionGroup;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 
 /**
- * Declares the problem type of determining whether a formula has a model.
+ * Object representing a group on symbolic numbers with addition.
  * 
  * @author braz
  *
  */
-public class Satisfiability extends AbstractGroupProblemTypeWithQuantifiedFormula {
-	public Satisfiability() {
-		super(new BooleansWithDisjunctionGroup());
+@Beta
+public class SumProduct extends Sum implements AssociativeCommutativeSemiRing, SemiRingProblemType {
+
+	@Override
+	public String multiplicativeFunctor() {
+		return TIMES;
 	}
 
 	@Override
-	public Expression makeQuantifiedExpression(Expression indexExpression, Expression body) {
-		DefaultExistentiallyQuantifiedFormula result = new DefaultExistentiallyQuantifiedFormula(indexExpression, body);
+	public Expression multiplicativeIdentityElement() {
+		return ZERO;
+	}
+
+	@Override
+	public Expression multiplicativeAbsorbingElement() {
+		return ONE;
+	}
+
+	@Override
+	public List<Expression> getFactors(Expression expression) {
+		List<Expression> result;
+		if (expression.hasFunctor(multiplicativeFunctor())) {
+			result = expression.getArguments();
+		}
+		else {
+			result = list(expression);
+		}
+		return result;
+	}
+
+	static final private Times timesSimplifier = new Times();
+
+	@Override
+	public Expression multiply(Expression multiplication, Context context) {
+		Expression result = timesSimplifier.apply(multiplication, context);
 		return result;
 	}
 
 	@Override
-	public Expression makeRandomConstant(Random random) {
-		Expression result = makeSymbol(random.nextBoolean());
+	public Expression getNthRoot(int n, Expression expression) {
+		Expression result;
+		if (expression.equals(ONE)) {
+			result = ONE;
+		}
+		else {
+			result = null;
+		}
 		return result;
+	}
+
+	@Override
+	public Expression multiplyNTimes(Expression value, Expression n, Context context) {
+		throw new Error("Exponentiation not yet implemented.");
 	}
 }

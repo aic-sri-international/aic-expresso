@@ -35,30 +35,91 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.problemtype;
+package com.sri.ai.grinder.sgdpll.group;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUAL;
+
+import java.util.Random;
+
+import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.util.base.Pair;
 
 /**
- * An abstract extension of {@link AbstractGroupProblemType}
- * for problems represented by quantified formulas.
+ * Object representing a group on booleans and conjunction.
  * 
  * @author braz
  *
  */
-abstract public class AbstractGroupProblemTypeWithQuantifiedFormula extends AbstractGroupProblemType {
+@Beta
+public class Conjunction implements AssociativeCommutativeGroup, GroupProblemType {
 	
-	public AbstractGroupProblemTypeWithQuantifiedFormula(AssociativeCommutativeGroup group) {
-		super(group);
+	@Override
+	public Expression additiveIdentityElement() {
+		return TRUE;
+	}
+
+	@Override
+	public boolean isAdditiveAbsorbingElement(Expression value) {
+		boolean result = value.equals(Expressions.FALSE);
+		return result;
+	}
+
+	@Override
+	public Expression add(Expression value1, Expression value2, Context context) {
+		return And.make(value1, value2);
+	}
+
+	@Override
+	public Expression addNTimes(Expression value, Expression n, Context context) {
+		Expression result;
+		if (value.equals(TRUE) || n.equals(ZERO)) {
+			result = TRUE;
+		}
+		else if (n.getValue() instanceof Number) { // we already know value is not true and n is greater than zero from the previous condition having failed
+			result = FALSE;
+		}
+		// n is a symbolic value, so now it all depends on its being greater than zero
+		else if (IfThenElse.isIfThenElse(n)) {
+			Expression condition  = IfThenElse.condition(n);
+			Expression thenBranch = IfThenElse.thenBranch(n);
+			Expression elseBranch = IfThenElse.elseBranch(n);
+			Expression newThenBranch = addNTimes(value, thenBranch, context);
+			Expression newElseBranch = addNTimes(value, elseBranch, context);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
+		}
+		else {
+			// it will only be true if n is zero
+			result = apply(EQUAL, n, Expressions.ZERO);
+		}
+		return result;
+	}
+
+	@Override
+	public boolean isIdempotent() {
+		return true;
 	}
 	
+	@Override
+	public Expression makeRandomConstant(Random random) {
+		Expression result = makeSymbol(random.nextBoolean());
+		return result;
+	}
+
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(
 			Expression expression, Context context) {
@@ -73,9 +134,7 @@ abstract public class AbstractGroupProblemTypeWithQuantifiedFormula extends Abst
 	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
 		Expression indexExpression = IndexExpressions.makeIndexExpression(index, indexType);
 		Expression bodyEncodingConstraint = IfThenElse.make(constraint, body, additiveIdentityElement());
-		Expression result = makeQuantifiedExpression(indexExpression, bodyEncodingConstraint);
+		Expression result = new DefaultUniversallyQuantifiedFormula(indexExpression, bodyEncodingConstraint);
 		return result;
 	}
-
-	abstract public Expression makeQuantifiedExpression(Expression indexExpression, Expression bodyEncodingConstraint);
 }

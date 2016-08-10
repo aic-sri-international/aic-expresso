@@ -37,42 +37,45 @@
  */
 package com.sri.ai.grinder.sgdpll.group;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.list;
 
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.library.number.Exponentiation;
-import com.sri.ai.grinder.library.number.NumericSimplifier;
+import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
+import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
+import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.math.Rational;
 
 /**
- * Object representing a group on symbolic numbers with multiplication.
+ * Object representing a group on symbolic numbers with addition.
  * 
  * @author braz
  *
  */
 @Beta
-public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
-	
-	// TODO: abstract re-used code between this class and SymbolicPlusGroup
-	// TODO: re-use from information from associate commutative rewriters, like identity and absorbing values.
+public class Sum extends AbstractNumericGroup implements GroupProblemType {
 	
 	@Override
 	public Expression additiveIdentityElement() {
-		return ONE;
+		return ZERO;
 	}
 
 	@Override
 	public boolean isAdditiveAbsorbingElement(Expression value) {
-		boolean result = value.equals(ZERO);
+		boolean result = value.equals(INFINITY);
 		return result;
 	}
 
@@ -80,28 +83,39 @@ public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
 	public Expression add(Expression value1, Expression value2, Context context) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
-			result = Expressions.makeSymbol(value1.rationalValue().multiply(value2.rationalValue()));
+			result = Expressions.makeSymbol(value1.rationalValue().add(value2.rationalValue()));
 		}
 		else {
-			Expression multiplication = Times.make(arrayList(value1, value2));
-			result = numericSimplifier.apply(multiplication, context);
+			Expression sum = Plus.make(arrayList(value1, value2));
+			result = DefaultPolynomial.make(sum);
 		}
 		return result;
 	}
 
-	private static Simplifier numericSimplifier = new NumericSimplifier();
-	
 	@Override
 	protected Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
 		Expression result;
-		if (valueToBeAdded.equals(ONE)) { // optimization
-			result = ONE;
-		}
-		else if (valueToBeAdded.equals(ZERO) && ! n.equals(ZERO)) { // optimization
+		if (valueToBeAdded.equals(ZERO)) { // optimization
 			result = ZERO;
 		}
+		else if (valueToBeAdded.equals(ONE)) { // optimization
+			result = n;
+		}
+		else if (n.equals(ONE)) { // optimization
+			result = valueToBeAdded;
+		}
+		else if (n.equals(INFINITY) || valueToBeAdded.equals(INFINITY)) {
+			result = INFINITY;
+		}
 		else {
-			result = Exponentiation.make(valueToBeAdded, n);
+			Rational valueToBeAddedRationalValue = valueToBeAdded.rationalValue();
+			Rational nRationalValue = n.rationalValue();
+			if (valueToBeAddedRationalValue != null && nRationalValue != null) {
+				result = Expressions.makeSymbol(valueToBeAddedRationalValue.multiply(nRationalValue));
+			}
+			else {
+				result = Times.make(list(valueToBeAdded, n));
+			}
 		}
 		return result;
 	}
@@ -115,5 +129,27 @@ public class SymbolicTimesGroup extends AbstractSymbolicNumbersGroup {
 	public Expression makeRandomConstant(Random random) {
 		Expression result = makeSymbol(random.nextInt(10));
 		return result;
+	}
+
+	@Override
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
+		return 
+				FunctionApplicationProblemsUtil
+				.staticGetExpressionAndIndexExpressionsFromProblemExpression(
+						expression, 
+						SUM, 
+						additiveIdentityElement());
+	}
+
+	@Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		return 
+				FunctionApplicationProblemsUtil
+				.staticMakeProblemExpression(
+						SUM, 
+						index, 
+						indexType, 
+						constraint, 
+						body);
 	}
 }

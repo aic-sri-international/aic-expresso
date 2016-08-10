@@ -72,12 +72,12 @@ import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.group.Conjunction;
+import com.sri.ai.grinder.sgdpll.group.Disjunction;
+import com.sri.ai.grinder.sgdpll.group.Max;
+import com.sri.ai.grinder.sgdpll.group.Product;
+import com.sri.ai.grinder.sgdpll.group.Sum;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
-import com.sri.ai.grinder.sgdpll.problemtype.Max;
-import com.sri.ai.grinder.sgdpll.problemtype.Product;
-import com.sri.ai.grinder.sgdpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.sgdpll.problemtype.Sum;
-import com.sri.ai.grinder.sgdpll.problemtype.Validity;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.Recursive;
@@ -215,7 +215,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (expression.getSyntacticFormType().equals("For all")) {
 			// for all I : Body ---> and ( {{ (on I) Body }} )
-			GroupProblemType group = new Validity();
+			GroupProblemType group = new Conjunction();
 			UniversallyQuantifiedFormula forAll = (UniversallyQuantifiedFormula) expression;
 			IndexExpressionsSet indexExpressions = forAll.getIndexExpressions();
 			Expression body = forAll.getBody();
@@ -225,7 +225,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (expression.getSyntacticFormType().equals("There exists")) {
 			// there exists I : Body ---> or ( {{ (on I) Body }} )
-			GroupProblemType group = new Satisfiability();
+			GroupProblemType group = new Disjunction();
 			ExistentiallyQuantifiedFormula thereExists = (ExistentiallyQuantifiedFormula) expression;
 			IndexExpressionsSet indexExpressions = thereExists.getIndexExpressions();
 			Expression body = thereExists.getBody();

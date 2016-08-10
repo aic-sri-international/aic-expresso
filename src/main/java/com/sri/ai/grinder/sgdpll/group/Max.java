@@ -40,14 +40,17 @@ package com.sri.ai.grinder.sgdpll.group;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.MAX;
 
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -57,7 +60,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class SymbolicMaxGroup extends AbstractSymbolicNumbersGroup {
+public class Max extends AbstractNumericGroup implements GroupProblemType {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -93,7 +96,7 @@ public class SymbolicMaxGroup extends AbstractSymbolicNumbersGroup {
 			result = value1;
 		}
 		else {
-			result = Expressions.apply(FunctorConstants.MAX, value1, value2);
+			result = Expressions.apply(MAX, value1, value2);
 		}
 		return result;
 	}
@@ -112,5 +115,27 @@ public class SymbolicMaxGroup extends AbstractSymbolicNumbersGroup {
 	public Expression makeRandomConstant(Random random) {
 		Expression result = makeSymbol(random.nextInt(10));
 		return result;
+	}
+
+	@Override
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
+		return 
+				FunctionApplicationProblemsUtil
+				.staticGetExpressionAndIndexExpressionsFromProblemExpression(
+						expression, 
+						MAX, 
+						additiveIdentityElement());
+	}
+
+	@Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		return 
+				FunctionApplicationProblemsUtil
+				.staticMakeProblemExpression(
+						MAX, 
+						index, 
+						indexType, 
+						constraint, 
+						body);
 	}
 }

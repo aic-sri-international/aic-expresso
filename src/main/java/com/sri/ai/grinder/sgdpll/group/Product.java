@@ -37,80 +37,109 @@
  */
 package com.sri.ai.grinder.sgdpll.group;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUAL;
+import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.util.Util.arrayList;
 
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.number.Exponentiation;
+import com.sri.ai.grinder.library.number.NumericSimplifier;
+import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
+import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
+import com.sri.ai.util.base.Pair;
 
 /**
- * Object representing a group on booleans and conjunction.
+ * Object representing a group on symbolic numbers with multiplication.
  * 
  * @author braz
  *
  */
 @Beta
-public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup {
+public class Product extends AbstractNumericGroup implements GroupProblemType {
+	
+	// TODO: abstract re-used code between this class and Sum
+	// TODO: re-use from information from associate commutative rewriters, like identity and absorbing values.
 	
 	@Override
 	public Expression additiveIdentityElement() {
-		return TRUE;
+		return ONE;
 	}
 
 	@Override
 	public boolean isAdditiveAbsorbingElement(Expression value) {
-		boolean result = value.equals(Expressions.FALSE);
+		boolean result = value.equals(ZERO);
 		return result;
 	}
 
 	@Override
 	public Expression add(Expression value1, Expression value2, Context context) {
-		return And.make(value1, value2);
-	}
-
-	@Override
-	public Expression addNTimes(Expression value, Expression n, Context context) {
 		Expression result;
-		if (value.equals(TRUE) || n.equals(ZERO)) {
-			result = TRUE;
-		}
-		else if (n.getValue() instanceof Number) { // we already know value is not true and n is greater than zero from the previous condition having failed
-			result = FALSE;
-		}
-		// n is a symbolic value, so now it all depends on its being greater than zero
-		else if (IfThenElse.isIfThenElse(n)) {
-			Expression condition  = IfThenElse.condition(n);
-			Expression thenBranch = IfThenElse.thenBranch(n);
-			Expression elseBranch = IfThenElse.elseBranch(n);
-			Expression newThenBranch = addNTimes(value, thenBranch, context);
-			Expression newElseBranch = addNTimes(value, elseBranch, context);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
+		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
+			result = Expressions.makeSymbol(value1.rationalValue().multiply(value2.rationalValue()));
 		}
 		else {
-			// it will only be true if n is zero
-			result = apply(EQUAL, n, Expressions.ZERO);
+			Expression multiplication = Times.make(arrayList(value1, value2));
+			result = numericSimplifier.apply(multiplication, context);
+		}
+		return result;
+	}
+
+	private static Simplifier numericSimplifier = new NumericSimplifier();
+	
+	@Override
+	protected Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
+		Expression result;
+		if (valueToBeAdded.equals(ONE)) { // optimization
+			result = ONE;
+		}
+		else if (valueToBeAdded.equals(ZERO) && ! n.equals(ZERO)) { // optimization
+			result = ZERO;
+		}
+		else {
+			result = Exponentiation.make(valueToBeAdded, n);
 		}
 		return result;
 	}
 
 	@Override
 	public boolean isIdempotent() {
-		return true;
+		return false;
 	}
-	
+
 	@Override
 	public Expression makeRandomConstant(Random random) {
-		Expression result = makeSymbol(random.nextBoolean());
+		Expression result = makeSymbol(random.nextInt(10));
 		return result;
+	}
+
+	@Override
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
+		return 
+				FunctionApplicationProblemsUtil
+				.staticGetExpressionAndIndexExpressionsFromProblemExpression(
+						expression, 
+						PRODUCT, 
+						additiveIdentityElement());
+	}
+
+	@Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		return 
+				FunctionApplicationProblemsUtil
+				.staticMakeProblemExpression(
+						PRODUCT, 
+						index, 
+						indexType, 
+						constraint, 
+						body);
 	}
 }

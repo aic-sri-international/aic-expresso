@@ -48,11 +48,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.group.Max;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
-import com.sri.ai.grinder.sgdpll.problemtype.Max;
 import com.sri.ai.util.Util;
 
 /**

@@ -5,8 +5,8 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.sri.ai.grinder.sgdpll.api.Theory;
-import com.sri.ai.grinder.sgdpll.problemtype.Max;
-import com.sri.ai.grinder.sgdpll.problemtype.Sum;
+import com.sri.ai.grinder.sgdpll.group.Max;
+import com.sri.ai.grinder.sgdpll.group.Sum;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractTheoryIncludingEqualityTest;

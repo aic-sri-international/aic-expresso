@@ -13,9 +13,9 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
  * @author braz
  *
  */
-public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommutativeGroup {
+public abstract class AbstractNumericGroup implements AssociativeCommutativeGroup {
 
-	public AbstractSymbolicNumbersGroup() {
+	public AbstractNumericGroup() {
 		super();
 	}
 

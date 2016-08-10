@@ -76,9 +76,7 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
-import com.sri.ai.grinder.sgdpll.problemtype.Sum;
-import com.sri.ai.grinder.sgdpll.problemtype.SumProduct;
+import com.sri.ai.grinder.sgdpll.group.Sum;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
@@ -189,7 +187,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	@Override
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context) {
 		ContextDependentExpressionProblemStepSolver result;
-		if (group instanceof SymbolicPlusGroup || group instanceof Sum || group instanceof SumProduct) {
+		if (group instanceof Sum) {
 			result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody, simplifier);
 		}
 		else {

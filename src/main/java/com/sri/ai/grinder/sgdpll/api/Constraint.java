@@ -228,7 +228,7 @@ public interface Constraint extends Expression {
 //	default Constraint project(Collection<Expression> eliminatedIndices, Context context) {
 //		Expression resultExpression =
 //				SymbolicSolver.solve(
-//						new BooleansWithConjunctionGroup(),
+//						new Conjunction(),
 //						eliminatedIndices,
 //						condition,
 //						body,

@@ -42,8 +42,8 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpll.problemtype.Max;
-import com.sri.ai.grinder.sgdpll.problemtype.Sum;
+import com.sri.ai.grinder.sgdpll.group.Max;
+import com.sri.ai.grinder.sgdpll.group.Sum;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpll.theory.propositional.PropositionalTheory;
 import com.sri.ai.test.grinder.sgdpll.theory.base.AbstractTheoryTest;

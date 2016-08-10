@@ -38,10 +38,7 @@
 package com.sri.ai.grinder.sgdpll.api;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.util.base.Pair;
 
 /**
  * A group problem type is a group that knows how to convert quantifier-elimination type problems involving its
@@ -55,25 +52,5 @@ import com.sri.ai.util.base.Pair;
  */
 public interface GroupProblemType extends AssociativeCommutativeGroup {
 
-	/**
-	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
-	 * and indices for DPLL to solve.
-	 * The index types are assumed to be stored in the context.
-	 * @param expression
-	 * @param context
-	 * @return
-	 */
-	Pair<Expression, IndexExpressionsSet>
-	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context);
-
-	/**
-	 * Generates an expression representing of problem of this type, given its components. 
-	 * @param index
-	 * @param constraint
-	 * @param body
-	 * @param context
-	 * @return
-	 */
-	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);
 
 }

@@ -53,7 +53,7 @@ import com.sri.ai.grinder.polynomial.core.PolynomialIntegration;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpll.group.SymbolicPlusGroup;
+import com.sri.ai.grinder.sgdpll.group.Sum;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 
 /**
@@ -72,7 +72,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	private MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
 	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
-		super(new SymbolicPlusGroup(), simplifier, indexConstraint, body);
+		super(new Sum(), simplifier, indexConstraint, body);
 		valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 				new MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) indexConstraint);

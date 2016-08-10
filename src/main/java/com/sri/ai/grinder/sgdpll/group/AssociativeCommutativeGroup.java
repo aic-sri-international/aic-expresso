@@ -41,7 +41,9 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.util.base.Pair;
 
 /**
  * Object representing an associative commutative group.
@@ -83,4 +85,25 @@ public interface AssociativeCommutativeGroup {
 	 * @return
 	 */
 	Expression makeRandomConstant(Random random);
+
+	/**
+	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
+	 * and indices for DPLL to solve.
+	 * The index types are assumed to be stored in the context.
+	 * @param expression
+	 * @param context
+	 * @return
+	 */
+	Pair<Expression, IndexExpressionsSet>
+	getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context);
+
+	/**
+	 * Generates an expression representing of problem of this type, given its components. 
+	 * @param index
+	 * @param constraint
+	 * @param body
+	 * @param context
+	 * @return
+	 */
+	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);
 }

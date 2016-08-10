@@ -48,10 +48,16 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
+import com.sri.ai.util.base.Pair;
 
 /**
  * Object representing a group on booleans and disjunction.
@@ -60,7 +66,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
  *
  */
 @Beta
-public class BooleansWithDisjunctionGroup implements AssociativeCommutativeGroup {
+public class Disjunction implements AssociativeCommutativeGroup, GroupProblemType {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -110,6 +116,24 @@ public class BooleansWithDisjunctionGroup implements AssociativeCommutativeGroup
 	@Override
 	public Expression makeRandomConstant(Random random) {
 		Expression result = makeSymbol(random.nextBoolean());
+		return result;
+	}
+
+	@Override
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(
+			Expression expression, Context context) {
+		
+		QuantifiedExpressionWithABody quantifiedFormula = (QuantifiedExpressionWithABody) expression;
+		Pair<Expression, IndexExpressionsSet> formulaAndIndices = 
+				Pair.make(quantifiedFormula.getBody(), quantifiedFormula.getIndexExpressions());
+		return formulaAndIndices;
+	}
+	
+	@Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		Expression indexExpression = IndexExpressions.makeIndexExpression(index, indexType);
+		Expression bodyEncodingConstraint = IfThenElse.make(constraint, body, additiveIdentityElement());
+		Expression result = new DefaultExistentiallyQuantifiedFormula(indexExpression, bodyEncodingConstraint);
 		return result;
 	}
 }

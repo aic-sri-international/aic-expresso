@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll.problemtype;
+package com.sri.ai.grinder.sgdpll.group;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpression;
@@ -45,45 +45,48 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 
 /**
- * An abstract implementation of {@link AbstractGroupProblemType}
+ * A utility class
  * for problem types based on function applications of an operator on an intensional set,
  * such as <code>sum({{ (on X in Numbers, Y in Numbers) 3*X | Y != 2}})<code>.
- * It requires extensions to define its functor's string.
  * 
  * @author braz
  *
  */
-abstract public class AbstractGroupProblemTypeWithFunctionApplicationExpression extends AbstractGroupProblemType {
+public class FunctionApplicationProblemsUtil {
 	
-	abstract public String getFunctorString();
-	
-	public AbstractGroupProblemTypeWithFunctionApplicationExpression(AssociativeCommutativeGroup group) {
-		super(group);
-	}
-
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
-		Util.myAssert(() -> expression.hasFunctor(getFunctorString()), () -> "Expression expected to be application of " + getFunctorString() + " but is " + expression);
+	/**
+	 * @param expression
+	 * @param functorString
+	 * @param additiveIdentityElement
+	 * @return
+	 */
+	static public Pair<Expression, IndexExpressionsSet> staticGetExpressionAndIndexExpressionsFromProblemExpression(Expression expression, String functorString, Expression additiveIdentityElement) {
+		Util.myAssert(() -> expression.hasFunctor(functorString), () -> "Expression expected to be application of " + functorString + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Expression body = IfThenElse.make(set.getCondition(), set.getHead(), additiveIdentityElement());
+		Expression body = IfThenElse.make(set.getCondition(), set.getHead(), additiveIdentityElement);
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(body, set.getIndexExpressions());
 		return result;
 	}
 
-	@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+	/**
+	 * @param functorString
+	 * @param index
+	 * @param indexType
+	 * @param constraint
+	 * @param body
+	 * @return
+	 */
+	static public Expression staticMakeProblemExpression(String functorString, Expression index, Expression indexType, Expression constraint, Expression body) {
 		Expression indexExpression = makeIndexExpression(index, indexType);
 		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression); 
 		DefaultIntensionalMultiSet set = new DefaultIntensionalMultiSet(indexExpressionsSet, body, constraint);
-		Expression problem = apply(getFunctorString(), set);
+		Expression problem = apply(functorString, set);
 		return problem;
 	}
 }
