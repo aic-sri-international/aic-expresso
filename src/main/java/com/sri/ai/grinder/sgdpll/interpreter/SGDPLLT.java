@@ -51,11 +51,11 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.Pair;
@@ -70,18 +70,18 @@ import com.sri.ai.util.base.Pair;
 public class SGDPLLT extends AbstractQuantifierEliminator {
 
 	private TopSimplifier topSimplifier;
-	private GroupProblemType problemType;
+	private AssociativeCommutativeGroup group;
 	
-	public SGDPLLT(GroupProblemType problemType, TopSimplifier topSimplifier) {
+	public SGDPLLT(AssociativeCommutativeGroup group, TopSimplifier topSimplifier) {
 		super();
 		this.topSimplifier = topSimplifier;
-		this.problemType = problemType;
+		this.group = group;
 	}
 
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
-		Expression result = solve(problemType, topSimplifier, indexExpressionsSet, constraint, body, context);
+		Expression result = solve(group, topSimplifier, indexExpressionsSet, constraint, body, context);
 		return result;
 	}
 

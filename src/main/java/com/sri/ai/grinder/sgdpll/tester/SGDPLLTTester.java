@@ -66,12 +66,12 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.core.solver.Evaluator;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.base.NullaryFunction;
@@ -479,22 +479,22 @@ public class SGDPLLTTester {
 	public static void testGroupProblemSolvingForSingleVariableConstraints(
 			Random random,
 			boolean testAgainstBruteForce,
-			GroupProblemType problemType,
+			AssociativeCommutativeGroup group,
 			Theory theory,
 			long numberOfTests,
 			int maxNumberOfLiterals,
 			int bodyDepth,
 			boolean outputCount) {
 		
-		String problemName = "quantification of " + problemType.getClass().getSimpleName() + " with single index";
-		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForSingleVariableConstraint(r, c, problemType, tB, cT, ls, bodyDepth, p);
-		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, problemType, theory, numberOfTests, maxNumberOfLiterals, outputCount);
+		String problemName = "quantification of " + group.getClass().getSimpleName() + " with single index";
+		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForSingleVariableConstraint(r, c, group, tB, cT, ls, bodyDepth, p);
+		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, group, theory, numberOfTests, maxNumberOfLiterals, outputCount);
 	}
 
 	private static void runGroupProblemSolvingTestForSingleVariableConstraint(
 			Random random,
 			Constraint constraint,
-			GroupProblemType problemType,
+			AssociativeCommutativeGroup group,
 			boolean testAgainstBruteForce,
 			Theory theory,
 			Collection<Expression> literals,
@@ -503,7 +503,7 @@ public class SGDPLLTTester {
 		
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Expression index = singleVariableConstraint.getVariable();
-		runGroupProblemSolvingTest(random, list(index), constraint, problemType, testAgainstBruteForce, theory, bodyDepth, context);
+		runGroupProblemSolvingTest(random, list(index), constraint, group, testAgainstBruteForce, theory, bodyDepth, context);
 	}
 
 	/**
@@ -513,7 +513,7 @@ public class SGDPLLTTester {
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
 	 * @param numberOfIndices
-	 * @param problemTypes
+	 * @param group
 	 * @param theory
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
@@ -524,23 +524,23 @@ public class SGDPLLTTester {
 			Random random,
 			int numberOfIndices,
 			boolean testAgainstBruteForce,
-			GroupProblemType problemType,
+			AssociativeCommutativeGroup group,
 			Theory theory,
 			long numberOfTests,
 			int maxNumberOfLiterals,
 			int bodyDepth,
 			boolean outputCount) {
 		
-		String problemName = "quantification of " + problemType.getClass().getSimpleName() + " with " + numberOfIndices + " indices";
-		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndices(r, numberOfIndices, c, problemType, tB, cT, ls, bodyDepth, p);
-		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, problemType, theory, numberOfTests, maxNumberOfLiterals, outputCount);
+		String problemName = "quantification of " + group.getClass().getSimpleName() + " with " + numberOfIndices + " indices";
+		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndices(r, numberOfIndices, c, group, tB, cT, ls, bodyDepth, p);
+		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, group, theory, numberOfTests, maxNumberOfLiterals, outputCount);
 	}
 
 	private static void runGroupProblemSolvingTestForMultipleIndices(
 			Random random,
 			int numberOfIndices,
 			Constraint constraint,
-			GroupProblemType problemType,
+			AssociativeCommutativeGroup group,
 			boolean testAgainstBruteForce,
 			Theory theory,
 			Collection<Expression> literals,
@@ -555,10 +555,10 @@ public class SGDPLLTTester {
 						theory.getVariablesForTesting(),
 						numberOfIndices,
 						random);
-		runGroupProblemSolvingTest(random, indices, constraint, problemType, testAgainstBruteForce, theory, bodyDepth, context);
+		runGroupProblemSolvingTest(random, indices, constraint, group, testAgainstBruteForce, theory, bodyDepth, context);
 	}
 
-	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, GroupProblemType problemType, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
+	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
 		Context context = theory.makeContextWithTestingInformation();
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> theory.makeSingleVariableConstraint(makeSymbol(theory.pickTestingVariableAtRandom(random)), theory, context);
@@ -568,10 +568,10 @@ public class SGDPLLTTester {
 		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
-	private static void runGroupProblemSolvingTest(Random random, Collection<Expression> indices, Constraint constraint, GroupProblemType problemType, boolean testAgainstBruteForce, Theory theory, int bodyDepth, Context context) throws Error {
+	private static void runGroupProblemSolvingTest(Random random, Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, Theory theory, int bodyDepth, Context context) throws Error {
 		
-		Expression body = makeBody(random, problemType, theory, bodyDepth, context);
-		Expression problem = makeProblem(indices, constraint, body, problemType, context);
+		Expression body = makeBody(random, group, theory, bodyDepth, context);
+		Expression problem = makeProblem(indices, constraint, body, group, context);
 		
 		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, theory, context);
 	}
@@ -633,20 +633,20 @@ public class SGDPLLTTester {
 		}
 	}
 
-	private static Expression makeProblem(Collection<Expression> indices, Constraint constraint, Expression body, GroupProblemType problemType, Context context) {
+	private static Expression makeProblem(Collection<Expression> indices, Constraint constraint, Expression body, AssociativeCommutativeGroup group, Context context) {
 		Expression problem = body;
 		boolean firstIndex = true;
 		for (Expression index : indices) {
 			Expression indexType = GrinderUtil.getType(index, context);
 			Expression constraintOnThisIndex = firstIndex? constraint : TRUE;
-			problem = problemType.makeProblemExpression(index, indexType, constraintOnThisIndex, problem);
+			problem = group.makeProblemExpression(index, indexType, constraintOnThisIndex, problem);
 			firstIndex = false;
 		}
 		return problem;
 	}
 
-	private static Expression makeBody(Random random, GroupProblemType problemType, Theory theory, int bodyDepth, Context context) {
-		NullaryFunction<Expression> leafGenerator = () -> problemType.makeRandomConstant(random);
+	private static Expression makeBody(Random random, AssociativeCommutativeGroup group, Theory theory, int bodyDepth, Context context) {
+		NullaryFunction<Expression> leafGenerator = () -> group.makeRandomConstant(random);
 		Expression body = new RandomConditionalExpressionGenerator(random, theory, bodyDepth, leafGenerator, context).apply();
 		return body;
 	}

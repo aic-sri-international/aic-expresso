@@ -39,8 +39,8 @@ package com.sri.ai.grinder.sgdpll.core.solver;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeSemiRing;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 
 /**
@@ -54,8 +54,8 @@ public class SGVET extends AbstractSGVET {
 
 	private Theory theory;
 	
-	public SGVET(SemiRingProblemType problemType, Theory theory) {
-		super(new SGDPLLT(problemType, theory.getTopSimplifier()), problemType);
+	public SGVET(AssociativeCommutativeSemiRing semiRing, Theory theory) {
+		super(new SGDPLLT(semiRing, theory.getTopSimplifier()), semiRing);
 		this.theory = theory;
 	}
 

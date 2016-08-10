@@ -48,9 +48,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.Max;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.util.Util;
@@ -72,10 +72,10 @@ public class Compilation {
 	 * @return
 	 */
 	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminator, QuantifierEliminator> solverListener) {
-		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
+		AssociativeCommutativeGroup group = new Max(); // the group actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		QuantifierEliminator solver = new SGDPLLT(problemType, new CommonSimplifier().getTopSimplifier());
+		QuantifierEliminator solver = new SGDPLLT(group, new CommonSimplifier().getTopSimplifier());
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}

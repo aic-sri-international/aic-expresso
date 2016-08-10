@@ -55,7 +55,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -66,7 +65,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class Sum extends AbstractNumericGroup implements GroupProblemType {
+public class Sum extends AbstractNumericGroup implements AssociativeCommutativeGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {

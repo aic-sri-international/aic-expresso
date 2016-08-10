@@ -53,7 +53,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.base.Pair;
 
@@ -64,7 +63,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class Product extends AbstractNumericGroup implements GroupProblemType {
+public class Product extends AbstractNumericGroup implements AssociativeCommutativeGroup {
 	
 	// TODO: abstract re-used code between this class and Sum
 	// TODO: re-use from information from associate commutative rewriters, like identity and absorbing values.

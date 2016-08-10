@@ -70,10 +70,10 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.group.Conjunction;
 import com.sri.ai.grinder.sgdpll.group.Disjunction;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.Max;
 import com.sri.ai.grinder.sgdpll.group.Product;
 import com.sri.ai.grinder.sgdpll.group.Sum;
@@ -200,14 +200,14 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
 		}
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
-			GroupProblemType group = fromFunctorToGroup.get(expression.getFunctor());
+			AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			Expression functionOnSet = expression;
 			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, intensionalSet, context);
 		}
 		else if (expression.hasFunctor(FunctorConstants.CARDINALITY) && isIntensionalMultiSet(expression.get(0)) ) {
 			// | {{ (on I) Head | Condition }} | ---> sum ( {{ (on I) 1 | Condition }} )
-			GroupProblemType group = new Sum();
+			AssociativeCommutativeGroup group = new Sum();
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
 			Expression functionOnSet = apply(SUM, intensionalSet);
@@ -215,7 +215,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (expression.getSyntacticFormType().equals("For all")) {
 			// for all I : Body ---> and ( {{ (on I) Body }} )
-			GroupProblemType group = new Conjunction();
+			AssociativeCommutativeGroup group = new Conjunction();
 			UniversallyQuantifiedFormula forAll = (UniversallyQuantifiedFormula) expression;
 			IndexExpressionsSet indexExpressions = forAll.getIndexExpressions();
 			Expression body = forAll.getBody();
@@ -225,7 +225,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (expression.getSyntacticFormType().equals("There exists")) {
 			// there exists I : Body ---> or ( {{ (on I) Body }} )
-			GroupProblemType group = new Disjunction();
+			AssociativeCommutativeGroup group = new Disjunction();
 			ExistentiallyQuantifiedFormula thereExists = (ExistentiallyQuantifiedFormula) expression;
 			IndexExpressionsSet indexExpressions = thereExists.getIndexExpressions();
 			Expression body = thereExists.getBody();
@@ -297,7 +297,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	 * @param context
 	 * @return
 	 */
-	public SolutionStep evaluateGroupOperationOnIntensionalMultiSet(Expression functionOnSet, GroupProblemType group, IntensionalSet intensionalSet, Context context) {
+	public SolutionStep evaluateGroupOperationOnIntensionalMultiSet(Expression functionOnSet, AssociativeCommutativeGroup group, IntensionalSet intensionalSet, Context context) {
 		SolutionStep result;
 		ExtensionalIndexExpressionsSet indexExpressionsOfOriginalSet = 
 				(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
@@ -344,7 +344,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		return "Evaluate " + expression + " from " + subExpressionIndex + "-th sub-expression on";
 	}
 	
-	private static Map<Expression, GroupProblemType> fromFunctorToGroup
+	private static Map<Expression, AssociativeCommutativeGroup> fromFunctorToGroup
 	= map(
 			makeSymbol(SUM), new Sum(),
 			makeSymbol(MAX), new Max(),

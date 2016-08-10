@@ -67,7 +67,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
-import com.sri.ai.grinder.sgdpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeSemiRing;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.util.base.PairOf;
 
@@ -100,17 +100,17 @@ import com.sri.ai.util.base.PairOf;
 public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 
 	protected QuantifierEliminator subSolver;
-	protected SemiRingProblemType problemType;
+	protected AssociativeCommutativeSemiRing semiRing;
 	
-	public AbstractSGVET(QuantifierEliminator subSolver, SemiRingProblemType problemType) {
+	public AbstractSGVET(QuantifierEliminator subSolver, AssociativeCommutativeSemiRing semiRing) {
 		this.subSolver = subSolver;
-		this.problemType = problemType;
+		this.semiRing = semiRing;
 	}
 
 	public abstract boolean isVariable(Expression subExpression, Context context);
 
-	public SemiRingProblemType getProblemType() {
-		return problemType;
+	public AssociativeCommutativeSemiRing getProblemType() {
+		return semiRing;
 	}
 	
 	@Override

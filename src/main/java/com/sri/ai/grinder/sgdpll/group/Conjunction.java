@@ -56,7 +56,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.api.GroupProblemType;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -66,7 +65,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class Conjunction implements AssociativeCommutativeGroup, GroupProblemType {
+public class Conjunction implements AssociativeCommutativeGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
