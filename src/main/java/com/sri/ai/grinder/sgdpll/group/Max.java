@@ -46,10 +46,8 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -59,7 +57,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class Max extends AbstractNumericGroup implements AssociativeCommutativeGroup {
+public class Max extends AbstractFunctionBasedGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -95,7 +93,7 @@ public class Max extends AbstractNumericGroup implements AssociativeCommutativeG
 			result = value1;
 		}
 		else {
-			result = Expressions.apply(MAX, value1, value2);
+			result = Expressions.apply(getFunctionString(), value1, value2);
 		}
 		return result;
 	}
@@ -117,24 +115,7 @@ public class Max extends AbstractNumericGroup implements AssociativeCommutativeG
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
-		return 
-				FunctionApplicationProblemsUtil
-				.staticGetExpressionAndIndexExpressionsFromProblemExpression(
-						expression, 
-						MAX, 
-						additiveIdentityElement());
-	}
-
-	@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
-		return 
-				FunctionApplicationProblemsUtil
-				.staticMakeProblemExpression(
-						MAX, 
-						index, 
-						indexType, 
-						constraint, 
-						body);
+	public String getFunctionString() {
+		return MAX;
 	}
 }

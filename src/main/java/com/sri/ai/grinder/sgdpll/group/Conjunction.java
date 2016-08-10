@@ -48,15 +48,11 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.util.base.Pair;
 
 /**
  * Object representing a group on booleans and conjunction.
@@ -65,7 +61,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class Conjunction implements AssociativeCommutativeGroup {
+public class Conjunction extends AbstractQuantifierBasedGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -120,20 +116,7 @@ public class Conjunction implements AssociativeCommutativeGroup {
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(
-			Expression expression, Context context) {
-		
-		QuantifiedExpressionWithABody quantifiedFormula = (QuantifiedExpressionWithABody) expression;
-		Pair<Expression, IndexExpressionsSet> formulaAndIndices = 
-				Pair.make(quantifiedFormula.getBody(), quantifiedFormula.getIndexExpressions());
-		return formulaAndIndices;
-	}
-	
-	@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
-		Expression indexExpression = IndexExpressions.makeIndexExpression(index, indexType);
-		Expression bodyEncodingConstraint = IfThenElse.make(constraint, body, additiveIdentityElement());
-		Expression result = new DefaultUniversallyQuantifiedFormula(indexExpression, bodyEncodingConstraint);
-		return result;
+	public DefaultUniversallyQuantifiedFormula makeQuantifiedExpression(Expression indexExpression, Expression body) {
+		return new DefaultUniversallyQuantifiedFormula(indexExpression, body);
 	}
 }

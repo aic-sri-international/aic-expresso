@@ -49,13 +49,11 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -65,7 +63,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class Sum extends AbstractNumericGroup implements AssociativeCommutativeGroup {
+public class Sum extends AbstractFunctionBasedGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -131,24 +129,7 @@ public class Sum extends AbstractNumericGroup implements AssociativeCommutativeG
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
-		return 
-				FunctionApplicationProblemsUtil
-				.staticGetExpressionAndIndexExpressionsFromProblemExpression(
-						expression, 
-						SUM, 
-						additiveIdentityElement());
-	}
-
-	@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
-		return 
-				FunctionApplicationProblemsUtil
-				.staticMakeProblemExpression(
-						SUM, 
-						index, 
-						indexType, 
-						constraint, 
-						body);
+	public String getFunctionString() {
+		return SUM;
 	}
 }

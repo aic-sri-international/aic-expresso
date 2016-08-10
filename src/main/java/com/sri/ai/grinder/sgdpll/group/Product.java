@@ -47,14 +47,12 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.util.base.Pair;
 
 /**
  * Object representing a group on symbolic numbers with multiplication.
@@ -63,7 +61,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class Product extends AbstractNumericGroup implements AssociativeCommutativeGroup {
+public class Product extends AbstractFunctionBasedGroup {
 	
 	// TODO: abstract re-used code between this class and Sum
 	// TODO: re-use from information from associate commutative rewriters, like identity and absorbing values.
@@ -121,24 +119,7 @@ public class Product extends AbstractNumericGroup implements AssociativeCommutat
 	}
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
-		return 
-				FunctionApplicationProblemsUtil
-				.staticGetExpressionAndIndexExpressionsFromProblemExpression(
-						expression, 
-						PRODUCT, 
-						additiveIdentityElement());
-	}
-
-	@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
-		return 
-				FunctionApplicationProblemsUtil
-				.staticMakeProblemExpression(
-						PRODUCT, 
-						index, 
-						indexType, 
-						constraint, 
-						body);
+	public String getFunctionString() {
+		return PRODUCT;
 	}
 }
