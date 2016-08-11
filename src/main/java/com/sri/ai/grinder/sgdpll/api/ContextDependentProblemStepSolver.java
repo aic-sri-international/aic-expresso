@@ -51,6 +51,17 @@ import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
  * that, if used to split the context
  * (by conjoining the context with the literal and with its negation, successively),
  * will help disambiguate the problem.
+ *
+ * It is important to realize that a step solver has a <i>fixed</i> problem
+ * and returns step solutions to this problem,
+ * but it can be better seen as a function on <i>contexts</i>.
+ * This is not very intuitive because solvers typically receive a problem
+ * as input, but here the input is the context.
+ * 
+ * The same instance of step solver must be usable under multiple contexts,
+ * returning step solutions for the same, fixed problem, for each of these contexts.
+ * It is therefore important that, if an instance caches any intermediary
+ * internal representation, that this is context-independent.
  * 
  * @author braz
  *
