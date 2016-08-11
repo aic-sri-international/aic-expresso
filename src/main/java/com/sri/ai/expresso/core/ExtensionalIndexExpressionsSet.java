@@ -67,7 +67,7 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	
 	public ExtensionalIndexExpressionsSet(List<Expression> indexExpressions) {
 		super();
-		list = new ArrayList<Expression>(indexExpressions);
+		list = Collections.unmodifiableList(new ArrayList<Expression>(indexExpressions));
 	}
 	
 	public ExtensionalIndexExpressionsSet(Expression... indexExpressions) {
@@ -75,7 +75,7 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	}
 	
 	public List<Expression> getList() {
-		return Collections.unmodifiableList(list);
+		return list;
 	}
 
 	@Override
