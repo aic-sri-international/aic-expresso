@@ -1,13 +1,18 @@
 package com.sri.ai.grinder.sgdpll.api;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.util.base.Pair;
 
 /**
  * Interface to classes able to eliminate quantification (for a fixed group) over given indices, constraint and body.
@@ -17,6 +22,8 @@ import com.sri.ai.grinder.helper.GrinderUtil;
  */
 public interface QuantifierEliminator {
 
+	public AssociativeCommutativeGroup getGroup();
+	
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
@@ -26,10 +33,31 @@ public interface QuantifierEliminator {
 	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
 	 * assuming a true constraint.
 	 */
-	default Expression solve(Expression input, Collection<Expression> indices, Context context) {
+	default Expression solve(Collection<Expression> indices, Expression body, Context context) {
 		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
-		Expression result = solve(indices, trueConstraint, input, context);
+		Expression result = solve(indices, trueConstraint, body, context);
 		return result;
+	}
+
+	/**
+	 * Solves a problem encoded in an expression according to
+	 * the way this quantifier eliminator's group encodes it.
+	 * @param problem
+	 * @param context
+	 * @return
+	 */
+	default Expression solve(Expression problem, Context context) {
+		Pair<Expression, IndexExpressionsSet> bodyAndIndexExpressionSet
+		= getGroup().getExpressionAndIndexExpressionsFromProblemExpression(problem, context);
+
+		Expression body = bodyAndIndexExpressionSet.first;
+		IndexExpressionsSet indexExpressions = bodyAndIndexExpressionSet.second;
+
+		context = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, context);
+
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
+		Expression quantifierFreeExpression = solve(indices, body, context);
+		return quantifierFreeExpression;
 	}
 
 	void interrupt();
@@ -41,7 +69,7 @@ public interface QuantifierEliminator {
 	// Convenience:
 	
 	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, Context)} that takes care of constructing the Context
+	 * Convenience substitute for {@link #solve(Collection, Expression, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
 	 */
 	default Expression solve(
@@ -61,7 +89,7 @@ public interface QuantifierEliminator {
 				isUniquelyNamedConstantPredicate,
 				theory);
 		
-		Expression result = solve(expression, indices, context);
+		Expression result = solve(indices, expression, context);
 		return result;
 	}
 

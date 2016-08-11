@@ -56,7 +56,6 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.Pair;
 
@@ -78,6 +77,10 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		this.group = group;
 	}
 
+	public AssociativeCommutativeGroup getGroup() {
+		return group;
+	}
+	
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);

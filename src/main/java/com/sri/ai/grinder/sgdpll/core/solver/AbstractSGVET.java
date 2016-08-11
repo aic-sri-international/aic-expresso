@@ -50,6 +50,7 @@ import static com.sri.ai.util.Util.collectToLists;
 import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection;
 import static com.sri.ai.util.Util.removeNonDestructively;
 
@@ -67,6 +68,7 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeSemiRing;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.util.base.PairOf;
@@ -103,14 +105,19 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 	protected AssociativeCommutativeSemiRing semiRing;
 	
 	public AbstractSGVET(QuantifierEliminator subSolver, AssociativeCommutativeSemiRing semiRing) {
+		myAssert(() -> subSolver.getGroup() instanceof AssociativeCommutativeSemiRing, () -> "AbstractSGVET must receive group that is actually a semiring, but got " + subSolver.getGroup() + " instead");
 		this.subSolver = subSolver;
 		this.semiRing = semiRing;
 	}
 
 	public abstract boolean isVariable(Expression subExpression, Context context);
 
+	public AssociativeCommutativeGroup getGroup() {
+		return subSolver.getGroup();
+	}
+	
 	public AssociativeCommutativeSemiRing getProblemType() {
-		return semiRing;
+		return (AssociativeCommutativeSemiRing) getGroup();
 	}
 	
 	@Override
@@ -164,7 +171,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 			// In the future it should also re-use the representation.
 			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
 			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
-			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, context);
+			Expression indexSubProblemSolution = subSolver.solve(partition.index, indexSubProblemExpressionWithConstraint, context);
 
 			if (basicOutput) {
 				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	

@@ -42,9 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
-import static com.sri.ai.grinder.library.FunctorConstants.OR;
 import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.set.Sets.isIntensionalMultiSet;
@@ -52,28 +50,17 @@ import static com.sri.ai.grinder.sgdpll.theory.base.ExpressionConditionedOnLiter
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.collect.StackedHashMap.stackedHashMap;
 
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
-import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll.api.Theory;
+import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.Conjunction;
 import com.sri.ai.grinder.sgdpll.group.Disjunction;
-import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.Max;
 import com.sri.ai.grinder.sgdpll.group.Product;
 import com.sri.ai.grinder.sgdpll.group.Sum;
@@ -199,39 +186,32 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression completelySimplifiedLiteral = totalSimplifier.apply(exhaustivelyTopSimplifiedExpression, context);
 			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
 		}
+		// TODO: the next few cases always produce Solution steps, never a ItDependsOn solution step.
+		// We should eventually use quantifier eliminator step solvers that may return ItDependsOn solution steps
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
 			AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
-			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
-			Expression functionOnSet = expression;
-			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, intensionalSet, context);
+			SGDPLLT sgdpllt = new SGDPLLT(group, topSimplifier);
+			Expression quantifierFreeExpression = sgdpllt.solve(expression, context);
+			result = new Solution(quantifierFreeExpression);
 		}
 		else if (expression.hasFunctor(FunctorConstants.CARDINALITY) && isIntensionalMultiSet(expression.get(0)) ) {
 			// | {{ (on I) Head | Condition }} | ---> sum ( {{ (on I) 1 | Condition }} )
-			AssociativeCommutativeGroup group = new Sum();
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
 			Expression functionOnSet = apply(SUM, intensionalSet);
-			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, intensionalSet, context);
+			SGDPLLT sgdpllt = new SGDPLLT(new Sum(), topSimplifier);
+			Expression quantifierFreeExpression = sgdpllt.solve(functionOnSet, context);
+			result = new Solution(quantifierFreeExpression);
 		}
 		else if (expression.getSyntacticFormType().equals("For all")) {
-			// for all I : Body ---> and ( {{ (on I) Body }} )
-			AssociativeCommutativeGroup group = new Conjunction();
-			UniversallyQuantifiedFormula forAll = (UniversallyQuantifiedFormula) expression;
-			IndexExpressionsSet indexExpressions = forAll.getIndexExpressions();
-			Expression body = forAll.getBody();
-			IntensionalSet set = new DefaultIntensionalMultiSet(indexExpressions, body, TRUE);
-			Expression functionOnSet = apply(AND, set);
-			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, set, context);
+			SGDPLLT sgdpllt = new SGDPLLT(new Conjunction(), topSimplifier);
+			Expression resultExpression = sgdpllt.solve(expression, context);
+			result = new Solution(resultExpression);
 		}
 		else if (expression.getSyntacticFormType().equals("There exists")) {
-			// there exists I : Body ---> or ( {{ (on I) Body }} )
-			AssociativeCommutativeGroup group = new Disjunction();
-			ExistentiallyQuantifiedFormula thereExists = (ExistentiallyQuantifiedFormula) expression;
-			IndexExpressionsSet indexExpressions = thereExists.getIndexExpressions();
-			Expression body = thereExists.getBody();
-			IntensionalSet set = new DefaultIntensionalMultiSet(indexExpressions, body, TRUE);
-			Expression functionOnSet = apply(OR, set);
-			result = evaluateGroupOperationOnIntensionalMultiSet(functionOnSet, group, set, context);
+			SGDPLLT sgdpllt = new SGDPLLT(new Disjunction(), topSimplifier);
+			Expression resultExpression = sgdpllt.solve(expression, context);
+			result = new Solution(resultExpression);
 		}
 		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
@@ -287,41 +267,6 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			result = new Solution(exhaustivelyTopSimplifiedExpression);
 		}
 		
-		return result;
-	}
-
-	/**
-	 * @param functionOnSet
-	 * @param group
-	 * @param intensionalSet
-	 * @param context
-	 * @return
-	 */
-	public SolutionStep evaluateGroupOperationOnIntensionalMultiSet(Expression functionOnSet, AssociativeCommutativeGroup group, IntensionalSet intensionalSet, Context context) {
-		SolutionStep result;
-		ExtensionalIndexExpressionsSet indexExpressionsOfOriginalSet = 
-				(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
-		if (indexExpressionsOfOriginalSet.getList().size() == 0) {
-			// group operation on intensional set without indices is equivalent to if Condition then Head else Identity
-			Expression equivalentExpression = 
-					IfThenElse.make(intensionalSet.getCondition(), intensionalSet.getHead(), group.additiveIdentityElement());
-			ContextDependentExpressionProblemStepSolver equivalent = new EvaluatorStepSolver(equivalentExpression, topSimplifier);
-			result = equivalent.step(context);
-		}
-		else {
-			Theory theory = context.getTheory();
-			IntensionalSet set = (IntensionalSet) functionOnSet.get(0);
-			ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) set.getIndexExpressions();
-			List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-			context = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, context);
-			Constraint indexConstraint = theory.makeTrueConstraint();
-			Expression body = IfThenElse.make(set.getCondition(), set.getHead(), group.additiveIdentityElement());
-			// TODO: once we can conjoin arbitrary conditions to a constraint, we want to make the body simply the set's head, and conjoin the set's condition to the single-variable constraint. This will leverage conditions already represented as constraints.
-			SGDPLLT sgdpllt = new SGDPLLT(group, topSimplifier);
-			Expression quantifierFreeExpression = sgdpllt.solve(indices, indexConstraint, body, context);
-			result = new Solution(quantifierFreeExpression);
-			// TODO: eventually we will probably have a SGDPLLT *step* solver that may return "it depends" solution steps.
-		}
 		return result;
 	}
 
