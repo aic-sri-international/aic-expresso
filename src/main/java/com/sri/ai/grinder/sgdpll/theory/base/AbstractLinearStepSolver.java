@@ -99,10 +99,12 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 		this.current = next;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public AbstractLinearStepSolver clone() {
+	public AbstractLinearStepSolver<T> clone() {
 		try {
-			return (AbstractLinearStepSolver) super.clone();
+			AbstractLinearStepSolver<T> clone = (AbstractLinearStepSolver<T>) super.clone();
+			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new Error(e);
 		}

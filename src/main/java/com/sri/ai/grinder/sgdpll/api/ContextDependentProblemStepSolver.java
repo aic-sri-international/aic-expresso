@@ -108,7 +108,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * 
 	 * @return a clone of this step solver.
 	 */
-	ContextDependentProblemStepSolver clone();
+	ContextDependentProblemStepSolver<T> clone();
 	
 	/**
 	 * A solution step of a {@link ContextDependentProblemStepSolver}.
