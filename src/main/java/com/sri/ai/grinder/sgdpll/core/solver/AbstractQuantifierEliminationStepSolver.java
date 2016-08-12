@@ -218,6 +218,23 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
 			// If one of these literals is the quantifier index, we *must* detect it.
 			// Therefore, we run EvaluatorStepSolver on it to make sure to detect literals before going on.
+			//
+			// One may ask: if the body is solved using an EvaluatorStepSolver,
+			// why is it that running *another* EvaluatorStepSolver on its result will
+			// now guarantee that literals are detected?
+			// Why do we get the guarantee only when running it a second time?
+			// The answer lies in the fact that EvaluatorStepSolver returns solutions with literals
+			// because *this* class (which EvaluatorStepSolver uses to eliminate quantifiers)
+			// does so. Once all quantifiers are eliminated,
+			// EvaluatorStepSolver does no longer return such solutions.
+			// The solution to this whole situation is to change *this* class
+			// so it does not return solutions with literals any longer.
+			// This happens in quantifier splits, when the two sub-solutions
+			// are computed with an exhaustive solve,
+			// which may return solutions with literals
+			// (it is only the step solvers that we want to prevent from doing this,
+			// not exhaustive solving).
+			// Check (**) in this file to see where this happens
 			if ( ! bodyStep.itDepends()) {
 				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue(), context.getTheory().getTopSimplifier());
 				bodyStep = evaluatorStepSolver.step(context);
@@ -283,6 +300,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			solutionValue = null;
 			break;
 		case LITERAL_IS_UNDEFINED:
+			// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
+			// This is where this step solver may return a Solution with literals in it:
+			// solveSubProblem uses an exhaustive solve.
 			Expression subSolution1 = solveSubProblem(true,  bodyStep, indexConstraintAndLiteral, context);
 			Expression subSolution2 = solveSubProblem(false, bodyStep, indexConstraintAndLiteralNegation, context);
 			solutionValue = combine(subSolution1, subSolution2, context);
@@ -320,6 +340,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				? bodyStep.getContextSplitting().getConstraintAndLiteral() 
 				: bodyStep.getContextSplitting().getConstraintAndLiteralNegation();
 		Expression result = subProblem.solve(context);
+		// (**) IF DELETING THIS, DELETE ALL OTHER OCCURRENCES IN THIS FILE
+		// The above code line is the exhaustive solve mentioned in other occurrences of (**)
 		return result;
 	}
 

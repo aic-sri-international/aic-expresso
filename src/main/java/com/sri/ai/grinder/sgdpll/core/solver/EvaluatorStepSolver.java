@@ -58,12 +58,14 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.group.Conjunction;
 import com.sri.ai.grinder.sgdpll.group.Disjunction;
 import com.sri.ai.grinder.sgdpll.group.Max;
 import com.sri.ai.grinder.sgdpll.group.Product;
 import com.sri.ai.grinder.sgdpll.group.Sum;
+import com.sri.ai.grinder.sgdpll.group.SumProduct;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
@@ -189,9 +191,15 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		// TODO: the next few cases always produce Solution steps, never a ItDependsOn solution step.
 		// We should eventually use quantifier eliminator step solvers that may return ItDependsOn solution steps
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
-			AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
-			SGDPLLT sgdpllt = new SGDPLLT(group, topSimplifier);
-			Expression quantifierFreeExpression = sgdpllt.solve(expression, context);
+			QuantifierEliminator quantifierEliminator;
+			if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
+				quantifierEliminator = new SGVET(new SumProduct(), context.getTheory());
+			}
+			else {
+				AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
+				quantifierEliminator = new SGDPLLT(group, topSimplifier);
+			}
+			Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
 			result = new Solution(quantifierFreeExpression);
 		}
 		else if (expression.hasFunctor(FunctorConstants.CARDINALITY) && isIntensionalMultiSet(expression.get(0)) ) {
@@ -199,17 +207,17 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
 			Expression functionOnSet = apply(SUM, intensionalSet);
-			SGDPLLT sgdpllt = new SGDPLLT(new Sum(), topSimplifier);
-			Expression quantifierFreeExpression = sgdpllt.solve(functionOnSet, context);
+			QuantifierEliminator sgvet = new SGVET(new SumProduct(), context.getTheory());
+			Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
 			result = new Solution(quantifierFreeExpression);
 		}
 		else if (expression.getSyntacticFormType().equals("For all")) {
-			SGDPLLT sgdpllt = new SGDPLLT(new Conjunction(), topSimplifier);
+			QuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction(), topSimplifier);
 			Expression resultExpression = sgdpllt.solve(expression, context);
 			result = new Solution(resultExpression);
 		}
 		else if (expression.getSyntacticFormType().equals("There exists")) {
-			SGDPLLT sgdpllt = new SGDPLLT(new Disjunction(), topSimplifier);
+			QuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction(), topSimplifier);
 			Expression resultExpression = sgdpllt.solve(expression, context);
 			result = new Solution(resultExpression);
 		}

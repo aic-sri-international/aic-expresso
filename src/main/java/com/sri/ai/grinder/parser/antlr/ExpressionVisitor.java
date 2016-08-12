@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.parser.antlr;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
 import java.util.ArrayList;
@@ -237,7 +239,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitMultiplicationOrDivisionOrIntegerInterval(AntlrGrinderParser.MultiplicationOrDivisionOrIntegerIntervalContext ctx) {
 		Expression result;	
 		if (ctx.op.getText().equals("..")) {			
-			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, visit(ctx.leftop), visit(ctx.rightop)); 
+			result = apply(INTEGER_INTERVAL, visit(ctx.leftop), visit(ctx.rightop));
+			// result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, visit(ctx.leftop), visit(ctx.rightop));
+			// using the above line places extra quotes around '..', not sure why.
 		}
 		else {			
 			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));

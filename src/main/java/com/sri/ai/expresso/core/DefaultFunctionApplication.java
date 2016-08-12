@@ -218,7 +218,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			"+", "-", "*", "/", "^",
 			"and", "or", "<=>", "=>",
 			"=", "!=", ">", "<", "<=", ">=",
-			"union", "intersection", "in", "\\", INTEGER_INTERVAL, "'\\'..\\''"
+			"union", "intersection", "in", "\\", INTEGER_INTERVAL
 			);
 	
 	@Override

@@ -544,7 +544,8 @@ public class SGDPLLTTester {
 			boolean testAgainstBruteForce,
 			Theory theory,
 			Collection<Expression> literals,
-			int bodyDepth, Context context) {
+			int bodyDepth, 
+			Context context) {
 		
 		if (numberOfIndices > theory.getVariablesForTesting().size()) {
 			throw new Error("Test specifies " + numberOfIndices + " indices, but there are only " + theory.getVariablesForTesting().size() + " available for testing in the theory: " + theory.getVariablesForTesting());

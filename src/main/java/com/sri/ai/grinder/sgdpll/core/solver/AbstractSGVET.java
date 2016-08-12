@@ -102,12 +102,10 @@ import com.sri.ai.util.base.PairOf;
 public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 
 	protected QuantifierEliminator subSolver;
-	protected AssociativeCommutativeSemiRing semiRing;
 	
 	public AbstractSGVET(QuantifierEliminator subSolver, AssociativeCommutativeSemiRing semiRing) {
 		myAssert(() -> subSolver.getGroup() instanceof AssociativeCommutativeSemiRing, () -> "AbstractSGVET must receive group that is actually a semiring, but got " + subSolver.getGroup() + " instead");
 		this.subSolver = subSolver;
-		this.semiRing = semiRing;
 	}
 
 	public abstract boolean isVariable(Expression subExpression, Context context);
@@ -116,7 +114,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 		return subSolver.getGroup();
 	}
 	
-	public AssociativeCommutativeSemiRing getProblemType() {
+	public AssociativeCommutativeSemiRing getSemiRing() {
 		return (AssociativeCommutativeSemiRing) getGroup();
 	}
 	
@@ -170,7 +168,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 			// BTW, the call to "project" below will also re-context the constraint for the same reason: re-indexing.
 			// In the future it should also re-use the representation.
 			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
-			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
+			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getSemiRing().multiplicativeAbsorbingElement());
 			Expression indexSubProblemSolution = subSolver.solve(partition.index, indexSubProblemExpressionWithConstraint, context);
 
 			if (basicOutput) {
@@ -181,7 +179,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, context);
 			Constraint constraintOnRemainingIndices = context; // the constraint is already represented in indexSubProblemSolution
 			result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, context);
-			result = getProblemType().multiply(result, context);
+			result = getSemiRing().multiply(result, context);
 		}
 
 		return result;
@@ -213,7 +211,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 			result = null;
 		}
 		else {
-			List<Expression> factors = getProblemType().getFactors(expression);
+			List<Expression> factors = getSemiRing().getFactors(expression);
 			List<Partition> allPartitions = mapIntoList(indices, makePartition(indices, factors));
 			result = argmin(allPartitions, width(context)); // min-fill heuristics
 			if (result.isTrivial()) {
@@ -260,7 +258,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 	}
 
 	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, Context context) {
-		List<Expression> factors = getProblemType().getFactors(expression);
+		List<Expression> factors = getSemiRing().getFactors(expression);
 		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(factors);
 		Expression result;
 		if (factorsAfterFactoringConditionals == factors) {
@@ -306,7 +304,7 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 	}
 
 	public Expression multiplicativeAbsorbingElement() {
-		return getProblemType().multiplicativeAbsorbingElement();
+		return getSemiRing().multiplicativeAbsorbingElement();
 	}
 
 	public int numberOfConjuncts(Expression expression) {
@@ -314,12 +312,12 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 	}
 
 	private Expression getNthRoot(int n, Expression expression) {
-		return getProblemType().getNthRoot(n, expression);
+		return getSemiRing().getNthRoot(n, expression);
 	}
 
 	private Expression product(Collection<Expression> factors, Context context) {
-		Expression multiplication = apply(getProblemType().multiplicativeFunctor(), factors);
-		Expression result = getProblemType().multiply(multiplication, context);
+		Expression multiplication = apply(getSemiRing().multiplicativeFunctor(), factors);
+		Expression result = getSemiRing().multiply(multiplication, context);
 		return result;
 	}
 	

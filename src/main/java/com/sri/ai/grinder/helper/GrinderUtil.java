@@ -406,6 +406,7 @@ public class GrinderUtil {
 			}
 		}
 		else if (
+				expression.hasFunctor(FunctorConstants.INTEGER_INTERVAL) ||
 				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED) ||
 				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED) ||
 				expression.hasFunctor(FunctorConstants.REAL_INTERVAL_CLOSED_OPEN) ||
