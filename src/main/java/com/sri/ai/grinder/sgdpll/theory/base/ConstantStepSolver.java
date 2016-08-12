@@ -61,7 +61,7 @@ public class ConstantStepSolver<T> implements ContextDependentProblemStepSolver<
 	}
 	
 	@Override
-	public ConstantStepSolver clone() {
+	public ConstantStepSolver<T> clone() {
 		return this; // this this is immutable, it is ok to re-use it as its own clone
 	}
 

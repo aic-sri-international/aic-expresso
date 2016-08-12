@@ -181,7 +181,6 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return pairsOfEqualsToVariableIterator;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(Context context) {
 		if ( ! variableIsBoundToUniquelyNamedConstant(context)) {
@@ -199,7 +198,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 				Expression typeExpression = GrinderUtil.getType(getConstraint().getVariable(), context);
 				Type type = context.getType(typeExpression);
 				ArrayList<Expression> remainingUniquelyNamedConstants =
-						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! uniquelyNamedConstantDisequals.contains(c)));
+						arrayListFrom(new PredicateIterator<>(type.iterator(), c -> ! uniquelyNamedConstantDisequals.contains(c)));
 	
 				CartesianProductIterator<ArrayList<Expression>> subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator
 				= new CartesianProductIterator<ArrayList<Expression>>(
