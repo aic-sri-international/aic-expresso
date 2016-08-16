@@ -55,7 +55,6 @@ import com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 
 /**
  * An abstract implementation for step solvers for quantified expressions
@@ -180,7 +179,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
-			= new EvaluatorStepSolver(body, theory.getTopSimplifier());
+			= new EvaluatorStepSolver(body);
 		}
 		return initialBodyEvaluationStepSolver;
 	}
@@ -236,7 +235,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// not exhaustive solving).
 			// Check (**) in this file to see where this happens
 			if ( ! bodyStep.itDepends()) {
-				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue(), context.getTheory().getTopSimplifier());
+				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue());
 				bodyStep = evaluatorStepSolver.step(context);
 			}
 			
@@ -400,9 +399,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 * @param simplifier
 	 * @return
 	 */
-	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression, TopSimplifier topSimplifier) {
+	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression) {
 		ContextDependentExpressionProblemStepSolver evaluator;
-		evaluator = new EvaluatorStepSolver(expression, topSimplifier);
+		evaluator = new EvaluatorStepSolver(expression);
 		return evaluator;
 	}
 }

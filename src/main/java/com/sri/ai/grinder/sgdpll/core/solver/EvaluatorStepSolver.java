@@ -133,19 +133,13 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	private boolean alreadyExhaustivelyTopSimplified;
 	private int subExpressionIndex;
 	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
-	private TopSimplifier exhaustiveTopSimplifier;
-	private TopSimplifier topSimplifier;
-	private Simplifier totalSimplifier;
 	
-	public EvaluatorStepSolver(Expression expression, TopSimplifier topSimplifier) {
+	public EvaluatorStepSolver(Expression expression) {
 		super();
 		this.expression = expression;
 		this.subExpressionIndex = 0;
 		this.evaluators = map();
 		this.alreadyExhaustivelyTopSimplified = false;
-		this.topSimplifier = topSimplifier;
-		this.exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
-		this.totalSimplifier = new Recursive(this.exhaustiveTopSimplifier);
 	}
 	
 	@Override
@@ -175,6 +169,10 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	public SolutionStep step(Context context) {
 		SolutionStep result;
 		
+		TopSimplifier topSimplifier = context.getTheory().getTopSimplifier();
+		TopSimplifier exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
+		Simplifier totalSimplifier = new Recursive(exhaustiveTopSimplifier);
+
 		Expression exhaustivelyTopSimplifiedExpression;
 		if (alreadyExhaustivelyTopSimplified) {
 			exhaustivelyTopSimplifiedExpression = expression;
@@ -193,11 +191,11 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
 			QuantifierEliminator quantifierEliminator;
 			if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
-				quantifierEliminator = new SGVET(new SumProduct(), context.getTheory());
+				quantifierEliminator = new SGVET(new SumProduct());
 			}
 			else {
 				AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
-				quantifierEliminator = new SGDPLLT(group, topSimplifier);
+				quantifierEliminator = new SGDPLLT(group);
 			}
 			Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
 			result = new Solution(quantifierFreeExpression);
@@ -207,17 +205,17 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
 			Expression functionOnSet = apply(SUM, intensionalSet);
-			QuantifierEliminator sgvet = new SGVET(new SumProduct(), context.getTheory());
+			QuantifierEliminator sgvet = new SGVET(new SumProduct());
 			Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
 			result = new Solution(quantifierFreeExpression);
 		}
 		else if (expression.getSyntacticFormType().equals("For all")) {
-			QuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction(), topSimplifier);
+			QuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction());
 			Expression resultExpression = sgdpllt.solve(expression, context);
 			result = new Solution(resultExpression);
 		}
 		else if (expression.getSyntacticFormType().equals("There exists")) {
-			QuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction(), topSimplifier);
+			QuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction());
 			Expression resultExpression = sgdpllt.solve(expression, context);
 			result = new Solution(resultExpression);
 		}

@@ -37,34 +37,18 @@
  */
 package com.sri.ai.grinder.sgdpll.core.solver;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeSemiRing;
 import com.sri.ai.grinder.sgdpll.interpreter.SGDPLLT;
 
 /**
- * A {@link AbstractSGVET} for a given theory,
- * and using {@link SGDPLLT} as the eliminator for single quantifiers.
+ * A {@link AbstractSGVET} using {@link SGDPLLT} as the eliminator for single quantifiers.
  * 
  * @author braz
  *
  */
 public class SGVET extends AbstractSGVET {
 
-	private Theory theory;
-	
-	public SGVET(AssociativeCommutativeSemiRing semiRing, Theory theory) {
-		super(new SGDPLLT(semiRing, theory.getTopSimplifier()), semiRing);
-		this.theory = theory;
-	}
-
-	@Override
-	public boolean isVariable(Expression expression, Context context) {
-		return theory.isVariable(expression, context);
-	}
-
-	public Theory getTheory() {
-		return theory;
+	public SGVET(AssociativeCommutativeSemiRing semiRing) {
+		super(new SGDPLLT(semiRing), semiRing);
 	}
 }

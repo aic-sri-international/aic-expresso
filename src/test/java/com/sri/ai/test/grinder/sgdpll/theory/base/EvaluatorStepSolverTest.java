@@ -273,7 +273,7 @@ public class EvaluatorStepSolverTest {
 
 	private void runTest(String expressionString, Expression expected, TopSimplifier topSimplifier, Context context) {
 		Expression expression = parse(expressionString);
-		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression, topSimplifier);
+		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression);
 		System.out.println("Evaluating " + expression);
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
 		System.out.println(expression + " -----> " + solution + "\n");

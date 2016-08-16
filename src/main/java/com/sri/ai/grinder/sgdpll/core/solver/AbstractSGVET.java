@@ -99,7 +99,7 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
+public class AbstractSGVET extends AbstractQuantifierEliminator {
 
 	protected QuantifierEliminator subSolver;
 	
@@ -108,7 +108,9 @@ public abstract class AbstractSGVET extends AbstractQuantifierEliminator {
 		this.subSolver = subSolver;
 	}
 
-	public abstract boolean isVariable(Expression subExpression, Context context);
+	public boolean isVariable(Expression expression, Context context) {
+		return context.getTheory().isVariable(expression, context);
+	}
 
 	public AssociativeCommutativeGroup getGroup() {
 		return subSolver.getGroup();

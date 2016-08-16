@@ -56,7 +56,6 @@ import com.sri.ai.grinder.sgdpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.core.solver.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll.simplifier.api.TopSimplifier;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -68,12 +67,10 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class SGDPLLT extends AbstractQuantifierEliminator {
 
-	private TopSimplifier topSimplifier;
 	private AssociativeCommutativeGroup group;
 	
-	public SGDPLLT(AssociativeCommutativeGroup group, TopSimplifier topSimplifier) {
+	public SGDPLLT(AssociativeCommutativeGroup group) {
 		super();
-		this.topSimplifier = topSimplifier;
 		this.group = group;
 	}
 
@@ -84,7 +81,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
-		Expression result = solve(group, topSimplifier, indexExpressionsSet, constraint, body, context);
+		Expression result = solve(group, indexExpressionsSet, constraint, body, context);
 		return result;
 	}
 
@@ -102,7 +99,6 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	 */
 	private static Expression solve(
 			AssociativeCommutativeGroup group,
-			TopSimplifier topSimplifier,
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesCondition,
 			Expression body,
@@ -140,7 +136,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 				currentBody =
 						theory
 						.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-								group, constraintForThisIndex, currentBody, topSimplifier, context)
+								group, constraintForThisIndex, currentBody, context)
 						.solve(context);
 			}
 		}
@@ -149,8 +145,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		}
 		
 		// Normalize final result.
-		ContextDependentExpressionProblemStepSolver evaluator
-		= makeEvaluator(currentBody, topSimplifier);
+		ContextDependentExpressionProblemStepSolver evaluator = makeEvaluator(currentBody);
 		currentBody = evaluator.solve(context);
 		
 		return currentBody;

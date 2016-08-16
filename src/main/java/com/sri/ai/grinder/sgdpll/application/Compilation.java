@@ -47,7 +47,6 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
-import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpll.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpll.api.Theory;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
@@ -75,7 +74,7 @@ public class Compilation {
 		AssociativeCommutativeGroup group = new Max(); // the group actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		QuantifierEliminator solver = new SGDPLLT(group, new CommonSimplifier().getTopSimplifier());
+		QuantifierEliminator solver = new SGDPLLT(group);
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}

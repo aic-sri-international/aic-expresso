@@ -52,11 +52,9 @@ import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 @Beta
 public class Evaluator implements Simplifier {
 
-	private Theory theory;
 	private ContextDependentExpressionProblemSolver solver;
 	
 	public Evaluator(Theory theory) {
-		this.theory = theory;
 		this.solver = new ContextDependentExpressionProblemSolver();
 	}
 
@@ -66,8 +64,8 @@ public class Evaluator implements Simplifier {
 	
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		// create an EvaluatorStepSolver on expression and theory, and solve it.
-		EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(expression, theory.getTopSimplifier());
+		// create an EvaluatorStepSolver on expression, and solve it.
+		EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(expression);
 		Expression result = solver.solve(evaluatorStepSolver, context);
 		return result;
 	}

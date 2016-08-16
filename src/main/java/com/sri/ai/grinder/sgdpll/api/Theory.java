@@ -68,7 +68,6 @@ import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpll.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll.simplifier.api.MapBasedTopSimplifier;
-import com.sri.ai.grinder.sgdpll.simplifier.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -240,11 +239,10 @@ public interface Theory {
 	 * @param group
 	 * @param constraint
 	 * @param currentBody
-	 * @param simplifier
 	 * @param context
 	 * @return
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Simplifier simplifier, Context context);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
 
 	/**
 	 * Returns the negation of a literal.
