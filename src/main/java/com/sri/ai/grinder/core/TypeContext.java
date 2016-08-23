@@ -198,7 +198,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public Set<Expression> getRegisteredSymbols() {
+	public Set<Expression> getSymbols() {
 		return symbolsAndTypes.keySet();
 	}
 

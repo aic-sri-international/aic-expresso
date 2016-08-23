@@ -92,13 +92,4 @@ public interface QuantifierEliminator {
 		Expression result = solve(indices, expression, context);
 		return result;
 	}
-
-	default Context makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
-		return GrinderUtil.makeContext(
-				mapFromSymbolNameToTypeName,
-				mapFromCategoricalTypeNameToSizeString,
-				additionalTypes,
-				isUniquelyNamedConstantPredicate, 
-				theory) ;
-	}
 }

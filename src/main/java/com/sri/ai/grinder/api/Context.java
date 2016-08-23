@@ -82,9 +82,9 @@ public interface Context extends Constraint, Cloneable {
 	boolean isVariable(Expression expression);
 
 	/**
-	 * @return the set of registered symbols.
+	 * @return the set of known symbols.
 	 */
-	Set<Expression> getRegisteredSymbols();
+	Set<Expression> getSymbols();
 	
 	/**
 	 * @return the types of all registered symbols.

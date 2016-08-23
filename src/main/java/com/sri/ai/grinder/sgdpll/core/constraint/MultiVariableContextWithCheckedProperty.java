@@ -383,8 +383,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public Set<Expression> getRegisteredSymbols() {
-		return tail.getRegisteredSymbols();
+	public Set<Expression> getSymbols() {
+		return tail.getSymbols();
 	}
 
 	@Override

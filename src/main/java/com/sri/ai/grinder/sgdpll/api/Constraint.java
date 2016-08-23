@@ -12,8 +12,11 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 
 /**
- * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in theory) and
- * model counting.
+ * An {@link Expression} with efficient internal representation
+ * for satisfiability.
+ * 
+ * As of August 2016, only implementations are conjunctive clauses,
+ * but eventually it should be expanded to arbitrary formulas.
  * 
  * @author braz
  *
@@ -51,32 +54,6 @@ public interface Constraint extends Expression {
 	 */
 	Constraint conjoinWithLiteral(Expression literal, Context context);
 	
-	/**
-	 * Tests whether a literal is contradictory with this constraint
-	 * by checking whether conjoining it with the literal's negation produces a contradiction.
-	 * @param literal
-	 * @param context
-	 * @return
-	 */
-	default boolean implies(Expression literal, Context context) {
-		Expression literalNegation = getTheory().getLiteralNegation(literal, context);
-		boolean result = contradictoryWith(literalNegation, context);
-		return result;
-	}
-
-	/**
-	 * Tests whether a formula is contradictory with this constraint
-	 * by checking whether conjoining them produces a contradiction.
-	 * @param formula
-	 * @param context
-	 * @return
-	 */
-	default boolean contradictoryWith(Expression formula, Context context) {
-		Constraint conjunction = conjoin(formula, context);
-		boolean result = conjunction == null;
-		return result;
-	}
-
 	/**
 	 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
 	 * a given formula, or null if they are contradictory.
