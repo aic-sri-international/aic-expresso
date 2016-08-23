@@ -42,7 +42,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.base.Pair;
 
 /**

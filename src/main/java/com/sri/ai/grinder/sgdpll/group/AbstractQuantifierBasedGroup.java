@@ -3,9 +3,9 @@ package com.sri.ai.grinder.sgdpll.group;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.base.Pair;
 
 /**

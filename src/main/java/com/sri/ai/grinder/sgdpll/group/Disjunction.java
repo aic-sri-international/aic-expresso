@@ -50,9 +50,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * Object representing a group on booleans and disjunction.

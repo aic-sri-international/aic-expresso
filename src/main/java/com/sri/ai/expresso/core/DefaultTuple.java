@@ -51,9 +51,9 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
 
 /**

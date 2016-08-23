@@ -40,7 +40,6 @@ package com.sri.ai.grinder.sgdpll.api;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
 
 /**
  * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.

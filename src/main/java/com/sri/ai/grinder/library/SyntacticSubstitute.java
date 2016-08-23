@@ -49,8 +49,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.PruningPredicate;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 

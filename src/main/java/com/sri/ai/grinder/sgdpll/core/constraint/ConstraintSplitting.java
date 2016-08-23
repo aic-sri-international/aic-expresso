@@ -7,8 +7,8 @@ import static com.sri.ai.grinder.sgdpll.core.constraint.ConstraintSplitting.Resu
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.Constraint;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * A helper class containing information regarding the splitting a constraint by a literal in the most efficient way possible,

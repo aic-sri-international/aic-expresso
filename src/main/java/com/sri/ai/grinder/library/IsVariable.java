@@ -40,7 +40,7 @@ package com.sri.ai.grinder.library;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * A {@link Predicate} that determines if a given Expression represents a Variable.

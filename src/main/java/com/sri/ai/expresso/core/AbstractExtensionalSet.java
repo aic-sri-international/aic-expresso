@@ -11,8 +11,8 @@ import com.sri.ai.expresso.api.ExtensionalSetInterface;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
 
 public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpression implements ExtensionalSetInterface {

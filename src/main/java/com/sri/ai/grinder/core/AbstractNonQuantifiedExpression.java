@@ -42,7 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * A basic, default implementation of some of the {@link Expression} methods.

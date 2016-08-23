@@ -41,10 +41,10 @@ import static com.sri.ai.grinder.sgdpll.theory.base.ConstantExpressionStepSolver
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.ItDependsOn;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.Solution;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.grinder.sgdpll.api.ContextDependentProblemStepSolver;
 
 /**

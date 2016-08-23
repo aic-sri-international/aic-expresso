@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * A default implementation of a {@link IntensionalSet}.

@@ -35,115 +35,49 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.api;
+package com.sri.ai.grinder.sgdpll.api;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.sgdpll.api.Constraint;
+import com.sri.ai.grinder.api.GlobalRegistry;
 
 /**
- * A Context object gathers all information that needs to be kept and
- * manipulated during a concerted application of symbolic processing.
- * It keeps several pieces of data, such as a collection of "global" objects
- * (really, rewriting context-specific objects), types, level of recursion,
- * whether an expression is a uniquely named constant, etc.
- * It also keeps a context on some of the free variables,
- * meaning that any returned result needs to be true
- * only under it.
+ * A Context combines a {@link GlobalRegistry} and a {@link Constraint}
+ * in order to provide a context for SGDPLL(T)-related methods.
  * 
  * @author braz
  */
 @Beta
-public interface Context extends Constraint, Cloneable {
+public interface Context extends GlobalRegistry, Constraint, Cloneable {
 
+	@Override
 	Context clone();
 	
-	/**
-	 * Returns the predicate indicating uniquely named constants.
-	 */
-	Predicate<Expression> getIsUniquelyNamedConstantPredicate();
-	
-	/**
-	 * Return a clone of this context with the given predicate indicating uniquely named constants.
-	 * @return
-	 */
+	@Override
 	Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
-	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
-	boolean isUniquelyNamedConstant(Expression expression);
-
-	/** Indicates whether a given expression is not a uniquely named constant. */
-	boolean isVariable(Expression expression);
-
-	/**
-	 * @return the set of known symbols.
-	 */
-	Set<Expression> getSymbols();
-	
-	/**
-	 * @return the types of all registered symbols.
-	 */
-	Map<Expression, Expression> getSymbolsAndTypes();
-	
-	/**
-	 * @return the type of a registered symbol.
-	 */
-	Expression getTypeOfRegisteredSymbol(Expression symbol);
-	
-	/**
-	 * Create a new sub-context and registers the symbols
-	 * in the indices-and-types map (an index can be a symbol or a function application).
-	 */
+	@Override
 	Context registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
 
-	/**
-	 * Creates a new context identical to a given one but for additional global objects.
-	 * @param objects
-	 * @return
-	 */
+	@Override
 	Context putAllGlobalObjects(Map<Object, Object> objects);
 	
-	/**
-	 * Gets map of global objects.
-	 */
-	Map<Object, Object> getGlobalObjects();
-	
-	/**
-	 * Returns a cloned context with a value in a map of global objects under key.
-	 */
+	@Override
 	Context putGlobalObject(Object key, Object value);
 	
-	/**
-	 * Indicates whether map of global objects contains key.
-	 */
-	boolean containsGlobalObjectKey(Object key);
-	
-	/**
-	 * Gets a value from a map of global objects under key.
-	 */
-	Object getGlobalObject(Object key);
-	
+	@Override
 	Context add(Type type);
 
+	@Override
 	default Context addAll(Collection<Type> types) {
-		Context result = this;
-		for (Type type : types) {
-			result = result.add(type);
-		}
-		return result;
+		return (Context) GlobalRegistry.super.addAll(types);
 	}
 	
-	Type getType(String typeStringRepresentation);
-	
-	Type getType(Expression typeExpression);
-	
-	Collection<Type> getTypes();
 	
 	// Constraint method (specializing return value to Context):
 	

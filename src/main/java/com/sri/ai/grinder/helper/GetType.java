@@ -2,7 +2,7 @@ package com.sri.ai.grinder.helper;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * A {@link Function<Expression, Expression>} version of looking up an expression's type given a context.

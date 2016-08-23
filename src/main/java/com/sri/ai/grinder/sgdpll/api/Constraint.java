@@ -8,7 +8,6 @@ import static com.sri.ai.util.Util.myAssert;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.sgdpll.tester.SGDPLLTTester;
 
 /**

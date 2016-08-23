@@ -3,8 +3,8 @@ package com.sri.ai.grinder.sgdpll.group;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpll.api.Context;
 
 /**
  * An abstract implementation of groups on numbers, capable of processing symbolic numeric expressions,

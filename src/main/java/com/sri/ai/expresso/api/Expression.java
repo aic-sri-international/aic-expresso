@@ -43,10 +43,10 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.core.PruningPredicateMaker;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.math.Rational;
 

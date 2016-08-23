@@ -46,8 +46,8 @@ import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.math.Rational;
 
 /**
