@@ -38,7 +38,7 @@
 package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpll.api.Context;
+import com.sri.ai.grinder.api.GlobalRegistry;
 
 /**
  * Represents an immutable set of index expressions of an intensional set.
@@ -79,5 +79,5 @@ public interface IndexExpressionsSet {
 	 * @param newSymbol
 	 * @return
 	 */
-	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Context context);
+	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context);
 }

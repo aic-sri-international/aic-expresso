@@ -43,10 +43,10 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.core.PruningPredicateMaker;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
-import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.math.Rational;
 
@@ -71,27 +71,27 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * Returns scoped expressions (that is, indices and quantified variables) introduced by this expression
 	 * according to given context.
 	 */
-	List<Expression> getScopedExpressions(Context context);
+	List<Expression> getScopedExpressions(GlobalRegistry context);
 	
-	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, Context context);
-	Expression replaceAllOccurrences(Expression replaced, Expression replacement, Context context);
-	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, Context context);
-	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, Context context);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, Context context);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, Context context);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, Context context);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, Context context);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, Context context);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, Context context);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceAllOccurrences(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, Context> listener, Context context);
-	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, Context> listener, Context context);
+	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, GlobalRegistry context);
+	Expression replaceAllOccurrences(Expression replaced, Expression replacement, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, GlobalRegistry context);
+	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, GlobalRegistry context);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, GlobalRegistry context);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, GlobalRegistry context);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndSyntacticContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndSyntacticContextPrunePredicate, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceAllOccurrences(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
+	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, GlobalRegistry> listener, GlobalRegistry context);
 	
 	/**
 	 * Returns the result of replacing one or all sub-expressions of this expression
@@ -145,8 +145,8 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 			           boolean onlyTheFirstOne,
 			           boolean ignoreTopExpression,
 			           boolean replaceOnChildrenBeforeTopExpression,
-			           TernaryProcedure<Expression, Expression, Context> listener,
-			           Context context);
+			           TernaryProcedure<Expression, Expression, GlobalRegistry> listener,
+			           GlobalRegistry context);
 
 	/**
 	 * Indicates what syntactic form the expression is.
@@ -169,7 +169,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * @param context
 	 * @return the result of renaming <code>symbol</code> as <code>newSymbol</code> everywhere in <code>expression</code>.
 	 */
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context);
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context);
 	
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 	// The following methods are only valid for function applications.

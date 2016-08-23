@@ -46,8 +46,8 @@ import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.AbstractExpression;
-import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -107,7 +107,7 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 
 	@Override
-	public List<Expression> getScopedExpressions(Context context) {
+	public List<Expression> getScopedExpressions(GlobalRegistry context) {
 		return getInnerExpression().getScopedExpressions(context);
 	}
 
@@ -122,7 +122,7 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
 		return getInnerExpression().replaceSymbol(symbol, newSymbol, context);
 	}
 

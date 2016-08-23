@@ -78,6 +78,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -89,7 +90,6 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
-import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;
@@ -452,7 +452,7 @@ public class Expressions {
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
 	 * to make it unique in a given expression.
 	 */
-	public static Expression primedUntilUnique(Expression symbol, Expression expression, Context context) {
+	public static Expression primedUntilUnique(Expression symbol, Expression expression, GlobalRegistry context) {
 		LinkedHashSet<Expression> variables = Expressions.getVariableReferences(expression, context.getIsUniquelyNamedConstantPredicate());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
 		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
@@ -474,7 +474,7 @@ public class Expressions {
 	 *         expression.
 	 */
 	public static Expression makeUniqueVariable(
-			String variableName, Expression expression, Context context) {
+			String variableName, Expression expression, GlobalRegistry context) {
 		// Variables have a leading captial
 		if (variableName.length() > 0) {
 			String leadingChar = variableName.substring(0, 1);
@@ -661,7 +661,7 @@ public class Expressions {
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
 	 */
-	public static Expression roundToAGivenPrecision(Expression expression, final int precision, Context context) {
+	public static Expression roundToAGivenPrecision(Expression expression, final int precision, GlobalRegistry context) {
 		Function<Expression, Expression> rounder = new Function<Expression, Expression>() {
 			
 			@Override
@@ -776,12 +776,12 @@ public class Expressions {
 	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
 	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, Context context) {
+	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, GlobalRegistry context) {
 		return getVariableReferences(expression, context.getIsUniquelyNamedConstantPredicate());
 	}
 
 	/** Returns the set of free variables in an expression, according to a given context. */
-	public static Set<Expression> freeVariables(Expression expression, Context context) {
+	public static Set<Expression> freeVariables(Expression expression, GlobalRegistry context) {
 		Set<Expression> freeVariables       = new LinkedHashSet<Expression>(); 
 		Set<Expression> quantifiedVariables = new LinkedHashSet<Expression>();
 		
@@ -791,7 +791,7 @@ public class Expressions {
 	}
 
 	/** Returns the set of free symbols in an expression, according to a given context. */
-	public static Set<Expression> freeSymbols(Expression expression, Context context) {
+	public static Set<Expression> freeSymbols(Expression expression, GlobalRegistry context) {
 		Set<Expression> freeSymbols = new LinkedHashSet<Expression>(); 
 		Stack<Expression> quantifiedSymbols = new Stack<Expression>();
 		
@@ -803,7 +803,7 @@ public class Expressions {
 	//
 	// PRIVATE METHODS
 	//
-	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, Context context) {
+	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, GlobalRegistry context) {
 		// Note: this used to be duplicating Expression.replace a bit, although in a lighter-weight, more efficient manner.
 		// However, since the changes that include a check against unregistered variables during contextual expansion
 		// (that is, constraints expanding the contextual expansion cannot contains variables that are not already in the contextual symbols),
@@ -849,7 +849,7 @@ public class Expressions {
 		return;
 	}
 
-	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Stack<Expression> quantifiedSymbols, Context context) {
+	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Stack<Expression> quantifiedSymbols, GlobalRegistry context) {
 		
 		if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (!quantifiedSymbols.contains(expression)) {
@@ -876,7 +876,7 @@ public class Expressions {
 		return;
 	}
 
-	public static Map<Expression, Expression> freeSymbolsAndTypes(Expression expression, Context context) {
+	public static Map<Expression, Expression> freeSymbolsAndTypes(Expression expression, GlobalRegistry context) {
 		Set<Expression> freeSymbols = freeSymbols(expression, context);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeSymbol : freeSymbols) {
@@ -885,7 +885,7 @@ public class Expressions {
 		return result;
 	}
 
-	public static Map<Expression, Expression> freeVariablesAndTypes(Expression expression, Context context) {
+	public static Map<Expression, Expression> freeVariablesAndTypes(Expression expression, GlobalRegistry context) {
 		Set<Expression> freeVariables = freeVariables(expression, context);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeVariable : freeVariables) {
@@ -911,7 +911,7 @@ public class Expressions {
 	/**
 	 * Determine if all expressions given occur as free variables in another given expression.
 	 */
-	public static boolean expressionsDoNotOccurInAnotherExpressionAsFreeVariables(List<Expression> expressions, Expression anotherExpression, Context context) {
+	public static boolean expressionsDoNotOccurInAnotherExpressionAsFreeVariables(List<Expression> expressions, Expression anotherExpression, GlobalRegistry context) {
 		boolean result = true;
 		
 		Set<Expression> freeVariables = freeVariables(anotherExpression, context);
@@ -938,7 +938,7 @@ public class Expressions {
 	//
 	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {
 		@Override
-		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, Context o2) {
+		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, GlobalRegistry o2) {
 			return true;
 		}
 	};

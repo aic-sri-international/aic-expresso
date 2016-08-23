@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.sgdpll.api.Context;
+import com.sri.ai.grinder.api.GlobalRegistry;
 
 /**
  * A default implementation of a {@link IntensionalSet}.
@@ -105,7 +105,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
 		IntensionalSet result = this;
 		
 		IndexExpressionsSet newIndexExpressions = getIndexExpressions().replaceSymbol(symbol, newSymbol, context);

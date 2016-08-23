@@ -16,6 +16,7 @@ import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
@@ -280,7 +281,7 @@ public class IndexExpressions {
 		return indexExpression;
 	}
 
-	public static Expression renameSymbol(Expression indexExpression, Expression symbol, Expression newSymbol, Context context) {
+	public static Expression renameSymbol(Expression indexExpression, Expression symbol, Expression newSymbol, GlobalRegistry context) {
 		Expression result;
 		Expression index = getIndex(indexExpression);
 		if (indexExpression.hasFunctor(FunctorConstants.IN)) {

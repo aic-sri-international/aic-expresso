@@ -51,8 +51,8 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
@@ -94,7 +94,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
 		Expression result = this;
 		if (this.equals(symbol)) {
 			result = newSymbol;

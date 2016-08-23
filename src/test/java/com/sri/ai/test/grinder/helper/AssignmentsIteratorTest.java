@@ -49,9 +49,9 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.core.TypeContext;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpll.api.Context;
+import com.sri.ai.grinder.sgdpll.core.TypeContext;
 
 
 public class AssignmentsIteratorTest  {

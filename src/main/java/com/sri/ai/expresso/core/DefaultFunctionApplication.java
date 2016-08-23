@@ -57,10 +57,10 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
 
 /**
@@ -174,7 +174,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Context context) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
 		Expression result = replaceAllOccurrences(symbol, newSymbol, context);
 		return result;

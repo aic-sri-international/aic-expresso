@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.sgdpll.api.Context;
 import com.sri.ai.util.Util;
@@ -117,7 +118,7 @@ public class SyntacticSubstitute {
 	private static class SubstitutePruningPredicate implements PruningPredicate {
 		List<Expression> allSymbolsInReplacedAndReplacement;
 		
-		public SubstitutePruningPredicate(Expression replaced, Expression replacement, Context context) {
+		public SubstitutePruningPredicate(Expression replaced, Expression replacement, GlobalRegistry context) {
 			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, context);
 			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, context);
 			this.allSymbolsInReplacedAndReplacement =
@@ -126,7 +127,7 @@ public class SyntacticSubstitute {
 							freeSymbolsInReplaced);
 		}
 		@Override
-		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, Context context) {
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, GlobalRegistry context) {
 			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(context), new GetFunctorOrSymbol());
 			boolean result = Util.intersect(allSymbolsInReplacedAndReplacement, locallyScopedSymbols);
 			return result;

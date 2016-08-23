@@ -40,9 +40,9 @@ package com.sri.ai.grinder.core;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll.api.Context;
+import com.sri.ai.grinder.api.GlobalRegistry;
 
 @Beta
 public interface PruningPredicate {
-	public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, Context context);
+	public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, GlobalRegistry context);
 }
