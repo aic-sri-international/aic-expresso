@@ -54,7 +54,7 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TypeContext;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
@@ -96,7 +96,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
-		Context context = compoundTheory.extendWithTestingInformation(new TypeContext(compoundTheory));
+		Context context = compoundTheory.extendWithTestingInformation(new TrueContext(compoundTheory));
 		Constraint constraint = new CompleteMultiVariableContext(compoundTheory, context);
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");

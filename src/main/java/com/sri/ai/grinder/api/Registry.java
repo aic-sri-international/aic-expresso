@@ -85,6 +85,11 @@ public interface Registry extends Cloneable {
 	Map<Expression, Expression> getSymbolsAndTypes();
 	
 	/**
+	 * @return sets the map from symbols to types
+	 */
+	Registry setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes);
+	
+	/**
 	 * @return the type of a registered symbol.
 	 */
 	Expression getTypeOfRegisteredSymbol(Expression symbol);

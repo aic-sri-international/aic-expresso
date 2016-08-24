@@ -37,12 +37,10 @@
  */
 package com.sri.ai.grinder.sgdpllt.core;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -54,18 +52,15 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.library.IsVariable;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An implementation of {@link Context} that contains type and symbol
- * information but no constraint (that is, it stands for the expression {@link TRUE}.
+ * A default implementation of {@link Registry}.
  * <p>
  * By default, the
  * predicate indicating variables uses {@link PrologVariableConvention}.
@@ -74,12 +69,8 @@ import com.sri.ai.util.collect.StackedHashMap;
  * @author oreilly
  */
 @Beta
-public class TypeContext extends AbstractExpressionWrapper implements Context {
+public class DefaultRegistry implements Registry {
 	
-	private static final long serialVersionUID = 1L;
-
-	private Theory theory;
-
 	private Map<Expression, Expression>  symbolsAndTypes;
 	private Map<Expression, Type> fromTypeExpressionToType;
 
@@ -90,38 +81,25 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	//
 	// START - Constructors
 
-	public TypeContext() {
+	public DefaultRegistry() {
 		this(
-				null,
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), // symbolsAndTypes
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 
-	public TypeContext(Theory theory) {
+	public DefaultRegistry(Map<Object, Object> globalObjects) {
 		this(
-				theory,
-				new LinkedHashMap<Expression, Expression>(),
-				new PrologConstantPredicate(), // symbolsAndTypes
-				new LinkedHashMap<Object, Object>()); // globalObjects
-	}
-	
-	public TypeContext(Theory theory, Map<Object, Object> globalObjects) {
-		this(
-				theory,
 				new LinkedHashMap<Expression, Expression>(),
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
 
-	public TypeContext(
-			Theory theory,
+	public DefaultRegistry(
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 
-		this.theory = theory;
-		
 		this.symbolsAndTypes = symbolsAndTypes;
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 		//
@@ -131,16 +109,15 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 	
 	/**
-	 * Creates a {@link TypeContext} containing the basic information
+	 * Creates a {@link DefaultRegistry} containing the basic information
 	 * from another context.
 	 * The basic information are the theory, symbols and types, is unique constant predicate,
 	 * and global objects.
-	 * Uses {@link #TypeContext(Theory, Map, Predicate, Map)}.
+	 * Uses {@link #TrueContext(Theory, Map, Predicate, Map)}.
 	 * @param another
 	 */
-	public TypeContext(Context another) {
+	public DefaultRegistry(Context another) {
 		this(
-				another.getTheory(), 
 				another.getSymbolsAndTypes(), 
 				another.getIsUniquelyNamedConstantPredicate(), 
 				another.getGlobalObjects());
@@ -163,10 +140,10 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	//
 	
 	@Override
-	public TypeContext clone() {
-		TypeContext result = null;
+	public DefaultRegistry clone() {
+		DefaultRegistry result = null;
 		try {
-			result = (TypeContext) super.clone();
+			result = (DefaultRegistry) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -192,8 +169,8 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TypeContext setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		TypeContext result = clone();
+	public DefaultRegistry setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		DefaultRegistry result = clone();
 		result.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 		return result;
 	}
@@ -209,6 +186,13 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
+	public Registry setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
+		DefaultRegistry result = clone();
+		result.symbolsAndTypes = newSymbolsAndTypes;
+		return result;
+	}
+
+	@Override
 	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
 		return symbolsAndTypes.get(symbol);
 	}
@@ -219,14 +203,14 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TypeContext putAllGlobalObjects(Map<Object, Object> objects) {
-		TypeContext result = clone();
+	public DefaultRegistry putAllGlobalObjects(Map<Object, Object> objects) {
+		DefaultRegistry result = clone();
 		result.globalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
 		return result;
 	}
 
 	@Override
-	public TypeContext putGlobalObject(Object key, Object value) {
+	public DefaultRegistry putGlobalObject(Object key, Object value) {
 		return putAllGlobalObjects(map(key, value));
 	}
 
@@ -257,8 +241,8 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TypeContext add(Type type) {
-		TypeContext result = clone();
+	public DefaultRegistry add(Type type) {
+		DefaultRegistry result = clone();
 		String name = type.getName();
 		Expression typeExpression = parse(name);
 		LinkedHashMap<Expression, Type> additionalTypeMap = map(typeExpression, type);
@@ -288,7 +272,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TypeContext registerIndicesAndTypes(
+	public DefaultRegistry registerIndicesAndTypes(
 			Map<Expression, Expression> expressionsAndTypes) {
 		if (expressionsAndTypes.isEmpty()) { // nothing to do
 			return this;
@@ -297,7 +281,7 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 		Map<Expression, Expression> newSymbolsAndTypes = 
 				createNewSymbolsAndTypes(expressionsAndTypes);
 		
-		TypeContext result = clone();
+		DefaultRegistry result = clone();
 		result.symbolsAndTypes = newSymbolsAndTypes;
 		
 		return result;
@@ -335,80 +319,5 @@ public class TypeContext extends AbstractExpressionWrapper implements Context {
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public Theory getTheory() {
-		myAssert( 
-				() -> theory != null, 
-				() -> "Trying to obtain a theory from a " + TypeContext.class + " instance without one.");
-		return theory;
-	}
-
-	private CompleteMultiVariableContext makeTrueConstraint(Theory theory) {
-		CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
-		return result;
-	}
-	
-	private Theory theoryToUse(Expression conjoinant) {
-		Theory result;
-		if (theory != null) {
-			result = theory;
-		}
-		else if (conjoinant instanceof Constraint) {
-			result = ((Constraint) conjoinant).getTheory();
-		}
-		else {
-			throw new Error("Conjoining with default context but there is no theory available");
-		}
-		return result;
-	}
-	
-	@Override
-	public Context conjoin(Expression formula, Context context) {
-		Context result = 
-				makeTrueConstraint(theoryToUse(formula))
-				.conjoin(formula, context);
-		return result;
-	}
-
-	@Override
-	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
-		Context result = 
-				makeTrueConstraint(theoryToUse(conjunctiveClause))
-				.conjoinWithConjunctiveClause(conjunctiveClause, context);
-		return result;
-	}
-
-	@Override
-	public Context conjoinWithLiteral(Expression literal, Context context) {
-		Context result = 
-				makeTrueConstraint(theoryToUse(literal))
-				.conjoinWithLiteral(literal, context);
-		return result;
-	}
-
-	@Override
-	public Expression binding(Expression variable) {
-		return null;
-	}
-
-	@Override
-	public boolean isContradiction() {
-		return false;
-	}
-
-	@Override
-	public Context makeContradiction() {
-		if (theory == null) {
-			throw new Error("Should not be making a contradiction out of a TypeContext without a constraint");
-		}
-		Context result = makeTrueConstraint(theory).makeContradiction();
-		return result;
-	}
-
-	@Override
-	protected Expression computeInnerExpression() {
-		return TRUE;
 	}
 }

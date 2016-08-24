@@ -51,14 +51,14 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
-import com.sri.ai.grinder.sgdpllt.core.TypeContext;
+import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 
 
 public class AssignmentsIteratorTest  {
 	
 	@Test
 	public void test1() {
-		Registry registry = new TypeContext();
+		Registry registry = new DefaultRegistry();
 		Type myType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -94,7 +94,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test2() {
-		Registry registry = new TypeContext();
+		Registry registry = new DefaultRegistry();
 		Type myType = new Categorical("People", 2, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -118,7 +118,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test3() {
-		Registry registry = new TypeContext();
+		Registry registry = new DefaultRegistry();
 		Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Type petsType = new Categorical("Pets", 3, arrayList(makeSymbol("fido"), makeSymbol("purrs")));
 		Symbol x = makeSymbol("X");

@@ -68,7 +68,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.TypeContext;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.helper.MaximumExpressionStepSolver;
@@ -800,7 +800,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 */
 	protected Expression applyAndSimplifyWithoutConsideringContextualConstraint(String comparison, ArrayList<Expression> arguments, Context context) {
 		Expression unsimplifiedAtom = apply(comparison, arguments);
-		TypeContext typeContext = new TypeContext(context);
+		TrueContext typeContext = new TrueContext(context);
 		Expression result = constraint.getTheory().simplify(unsimplifiedAtom, typeContext);
 		return result;
 	}

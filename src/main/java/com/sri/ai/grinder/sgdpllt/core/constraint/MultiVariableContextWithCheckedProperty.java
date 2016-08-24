@@ -393,6 +393,13 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
+	public MultiVariableContextWithCheckedProperty setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
+		MultiVariableContextWithCheckedProperty result = clone();
+		result.tail = (Context) tail.setSymbolsAndTypes(newSymbolsAndTypes);
+		return result;
+	}
+
+	@Override
 	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
 		return tail.getTypeOfRegisteredSymbol(symbol);
 	}
