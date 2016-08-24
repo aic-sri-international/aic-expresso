@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext;
+import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry;
 import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
 import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.getIndex;
 import static com.sri.ai.util.Util.getLast;
@@ -80,7 +80,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
-		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, context);
+		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInRegistry(indices, context);
 		Expression result = solve(group, indexExpressionsSet, constraint, body, context);
 		return result;
 	}

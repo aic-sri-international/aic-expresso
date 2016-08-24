@@ -110,11 +110,11 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	 */
 	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, Registry registry) throws Error {
 		if (typeExpression == null) {
-			throw new Error("Variable " + variable + " is not registered in context (has no type).");
+			throw new Error("Variable " + variable + " is not registered in registry (has no type).");
 		}
 		Type type = registry.getType(typeExpression);
 		if (type == null) {
-			throw new Error("Variable " + variable + " has type " + typeExpression + " but context contains no type with this name.");
+			throw new Error("Variable " + variable + " has type " + typeExpression + " but registry contains no type with this name.");
 		}
 		fromVariableToIteratorMaker.put(variable, () -> type.iterator());
 	}

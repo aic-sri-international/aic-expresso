@@ -63,7 +63,7 @@ public interface Registry extends Cloneable {
 	Predicate<Expression> getIsUniquelyNamedConstantPredicate();
 	
 	/**
-	 * Return a clone of this context with the given predicate indicating uniquely named constants.
+	 * Return a clone of this registry with the given predicate indicating uniquely named constants.
 	 * @return
 	 */
 	Registry setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
@@ -95,13 +95,13 @@ public interface Registry extends Cloneable {
 	Expression getTypeOfRegisteredSymbol(Expression symbol);
 	
 	/**
-	 * Create a new sub-context and registers the symbols
+	 * Create a new sub-registry and registers the symbols
 	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
 	Registry registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
-	 * Creates a new context identical to a given one but for additional global objects.
+	 * Creates a new registry identical to a given one but for additional global objects.
 	 * @param objects
 	 * @return
 	 */
@@ -113,7 +113,7 @@ public interface Registry extends Cloneable {
 	Map<Object, Object> getGlobalObjects();
 	
 	/**
-	 * Returns a cloned context with a value in a map of global objects under key.
+	 * Returns a cloned registry with a value in a map of global objects under key.
 	 */
 	Registry putGlobalObject(Object key, Object value);
 	
@@ -142,7 +142,4 @@ public interface Registry extends Cloneable {
 	Type getType(Expression typeExpression);
 	
 	Collection<Type> getTypes();
-	
-	// Constraint method (specializing return value to Context):
-
 }

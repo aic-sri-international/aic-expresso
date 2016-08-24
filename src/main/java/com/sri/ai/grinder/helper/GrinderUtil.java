@@ -113,7 +113,7 @@ import com.sri.ai.util.math.Rational;
 public class GrinderUtil {
 
 	/**
-	 * Returns a registry with contextual symbols extended by a list of index expressions.
+	 * Returns a registry with symbols extended by a list of index expressions.
 	 */
 	public static Registry extendRegistryWithIndexExpressions(IndexExpressionsSet indexExpressions, Registry registry) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
@@ -122,9 +122,9 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Returns a registry with contextual symbols extended by a list of index expressions.
+	 * Returns a registry with symbols extended by a list of index expressions.
 	 */
-	public static Registry extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, Registry registry) {
+	public static Registry extendSymbolsWithIndexExpressions(List<Expression> indexExpressions, Registry registry) {
 		Registry result = 
 				extendRegistryWithIndexExpressions(
 						new ExtensionalIndexExpressionsSet(indexExpressions),
@@ -137,14 +137,14 @@ public class GrinderUtil {
 	 */
 	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, Registry registry) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, registry);
-		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, registry);
+		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInRegistry(freeVariables, registry);
 		return result;
 	}
 
 	/**
 	 * Returns a list of index expressions corresponding to the given indices and their types per the registry, if any.
 	 */
-	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, Registry registry) {
+	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInRegistry(Collection<Expression> indices, Registry registry) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
 			Expression type = registry.getTypeOfRegisteredSymbol(index);
@@ -187,7 +187,7 @@ public class GrinderUtil {
 			
 			symbolDeclarations.add(parse(symbolName + " in " + typeName));
 		}
-		registry = extendContextualSymbolsWithIndexExpressions(symbolDeclarations, registry);
+		registry = extendSymbolsWithIndexExpressions(symbolDeclarations, registry);
 					
 		for (Type type : types) {
 			registry = registry.add(type);
