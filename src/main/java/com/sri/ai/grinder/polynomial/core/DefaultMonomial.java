@@ -38,8 +38,8 @@
 package com.sri.ai.grinder.polynomial.core;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.library.number.Exponentiation.EXPONENTIATION_FUNCTOR;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.sgdpllt.library.number.Exponentiation.EXPONENTIATION_FUNCTOR;
 import static com.sri.ai.util.Util.zipWith;
 
 import java.util.ArrayList;
@@ -57,10 +57,10 @@ import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.number.Exponentiation;
-import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.number.Exponentiation;
+import com.sri.ai.grinder.sgdpllt.library.number.Times;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 

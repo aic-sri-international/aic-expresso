@@ -48,30 +48,30 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.api.Context;
+import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductInMapIterator;
 
 /**
  * An iterator over assignments to expressions according to their {@link Type} as defined
- * in a {@link Context}.
+ * in a {@link GlobalRegistry}.
  * 
  * @author braz
  */
 @Beta
 public class AssignmentsIterator extends CartesianProductInMapIterator<Expression, Expression> {
 
-	public AssignmentsIterator(Collection<Expression> variables, Context context) {
+	public AssignmentsIterator(Collection<Expression> variables, GlobalRegistry context) {
 		super(makeMapFromVariablesToIteratorMakers(variables, context));
 	}
 
-	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Context context) {
+	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, GlobalRegistry context) {
 		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, context));
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Context context) {
+	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, GlobalRegistry context) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
 			Expression typeDescription = GrinderUtil.getType(variable, context);
@@ -81,7 +81,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, Context context) {
+	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, GlobalRegistry context) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		ExtensionalIndexExpressionsSet extensionalIndexExpressionsSet;
 		try {
@@ -108,7 +108,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	 * @param context
 	 * @throws Error
 	 */
-	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, Context context) throws Error {
+	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, GlobalRegistry context) throws Error {
 		if (typeExpression == null) {
 			throw new Error("Variable " + variable + " is not registered in context (has no type).");
 		}

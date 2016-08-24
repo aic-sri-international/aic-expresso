@@ -45,12 +45,12 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUAL;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED;
-import static com.sri.ai.grinder.library.FunctorConstants.REAL_INTERVAL_CLOSED_OPEN;
-import static com.sri.ai.grinder.library.FunctorConstants.REAL_INTERVAL_OPEN_CLOSED;
-import static com.sri.ai.grinder.library.FunctorConstants.REAL_INTERVAL_OPEN_OPEN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_CLOSED_OPEN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_OPEN_CLOSED;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_OPEN_OPEN;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Iterator;
@@ -60,8 +60,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
 import com.sri.ai.util.math.Rational;
 
 /**

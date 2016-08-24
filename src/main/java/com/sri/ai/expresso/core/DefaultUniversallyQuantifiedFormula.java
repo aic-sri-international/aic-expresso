@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
-import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 
 /**
  * A default implementation of a {@link UniversallyQuantifiedFormula}.

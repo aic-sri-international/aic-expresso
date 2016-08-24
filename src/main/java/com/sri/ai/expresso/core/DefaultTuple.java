@@ -53,7 +53,7 @@ import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 
 /**

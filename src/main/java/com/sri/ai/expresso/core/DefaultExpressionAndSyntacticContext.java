@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
 /**

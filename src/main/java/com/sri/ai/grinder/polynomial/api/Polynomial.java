@@ -47,9 +47,9 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.number.Exponentiation;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.sgdpllt.library.number.Exponentiation;
+import com.sri.ai.grinder.sgdpllt.library.number.Plus;
+import com.sri.ai.grinder.sgdpllt.library.number.Times;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 

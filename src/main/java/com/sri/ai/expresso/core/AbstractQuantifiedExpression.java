@@ -37,8 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceArgument;
-import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceOrAddType;
+import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.replaceArgument;
+import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.replaceOrAddType;
 import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.replaceElementNonDestructively;
 
@@ -55,9 +55,9 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.core.AbstractExpression;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpll.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
 /**

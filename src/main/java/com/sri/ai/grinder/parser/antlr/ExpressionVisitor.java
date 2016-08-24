@@ -38,8 +38,8 @@
 package com.sri.ai.grinder.parser.antlr;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
-import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.INTEGER_INTERVAL;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,13 +57,13 @@ import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.FunctionSignature;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
-import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.boole.And;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
+import com.sri.ai.grinder.sgdpllt.library.boole.Or;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 
 @Beta

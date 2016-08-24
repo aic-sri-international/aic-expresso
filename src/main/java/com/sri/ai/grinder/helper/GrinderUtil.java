@@ -44,21 +44,21 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
-import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
-import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
-import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.MAX;
-import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
-import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
-import static com.sri.ai.grinder.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARDINALITY;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DIVISION;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EXPONENTIATION;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.INTEGER_INTERVAL;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
@@ -90,19 +90,17 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
-import com.sri.ai.grinder.library.Disequality;
-import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FormulaUtil;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.library.number.GreaterThan;
-import com.sri.ai.grinder.library.number.LessThan;
-import com.sri.ai.grinder.library.set.Sets;
-import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.sgdpll.api.Context;
-import com.sri.ai.grinder.sgdpll.api.Theory;
-import com.sri.ai.grinder.sgdpll.core.TypeContext;
+import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.sgdpllt.library.Disequality;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
+import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
+import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -117,18 +115,18 @@ public class GrinderUtil {
 	/**
 	 * Returns a context with contextual symbols extended by a list of index expressions.
 	 */
-	public static Context extendContextualSymbolsWithIndexExpressions(IndexExpressionsSet indexExpressions, Context context) {
+	public static GlobalRegistry extendRegistryWithIndexExpressions(IndexExpressionsSet indexExpressions, GlobalRegistry context) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		Context result = context.registerIndicesAndTypes(indexToTypeMap);
+		GlobalRegistry result = context.registerIndicesAndTypes(indexToTypeMap);
 		return result;
 	}
 
 	/**
 	 * Returns a context with contextual symbols extended by a list of index expressions.
 	 */
-	public static Context extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, Context context) {
-		Context result = 
-				extendContextualSymbolsWithIndexExpressions(
+	public static GlobalRegistry extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, GlobalRegistry context) {
+		GlobalRegistry result = 
+				extendRegistryWithIndexExpressions(
 						new ExtensionalIndexExpressionsSet(indexExpressions),
 						context);
 		return result;
@@ -137,7 +135,7 @@ public class GrinderUtil {
 	/**
 	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the context, if any.
 	 */
-	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, Context context) {
+	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, GlobalRegistry context) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, context);
 		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, context);
 		return result;
@@ -146,7 +144,7 @@ public class GrinderUtil {
 	/**
 	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
 	 */
-	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, Context context) {
+	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, GlobalRegistry context) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
 			Expression type = context.getTypeOfRegisteredSymbol(index);
@@ -156,12 +154,6 @@ public class GrinderUtil {
 		return new ExtensionalIndexExpressionsSet(indexExpressions);
 	}
 
-	public static Context makeContext(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
-		Context result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TypeContext(theory));			
-		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-		return result;
-	}
-
 	/**
 	 * @param mapFromSymbolNameToTypeName
 	 * @param additionalTypes
@@ -169,7 +161,7 @@ public class GrinderUtil {
 	 * @param context
 	 * @return
 	 */
-	public static Context extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<Type> additionalTypes, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, Context context) {
+	public static GlobalRegistry extendRegistryWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<Type> additionalTypes, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, GlobalRegistry context) {
 		Collection<Type> allTypes =
 				getCategoricalTypes(
 						mapFromSymbolNameToTypeName,
@@ -178,7 +170,7 @@ public class GrinderUtil {
 						context);
 		allTypes.addAll(additionalTypes);
 		
-		return extendProcessWith(mapFromSymbolNameToTypeName, allTypes, context);
+		return extendRegistryWith(mapFromSymbolNameToTypeName, allTypes, context);
 	}
 
 	/**
@@ -187,7 +179,7 @@ public class GrinderUtil {
 	 * @param context
 	 * @return
 	 */
-	public static Context extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<? extends Type> types, Context context) {
+	public static GlobalRegistry extendRegistryWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<? extends Type> types, GlobalRegistry context) {
 		List<Expression> symbolDeclarations = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			String symbolName = variableNameAndTypeName.getKey();
@@ -212,7 +204,7 @@ public class GrinderUtil {
 	 * @param context
 	 * @return
 	 */
-	public static Expression universallyQuantifyFreeVariables(Expression expression, Context context) {
+	public static Expression universallyQuantifyFreeVariables(Expression expression, GlobalRegistry context) {
 		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, context);
 		Expression universallyQuantified = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
 		return universallyQuantified;
@@ -229,7 +221,7 @@ public class GrinderUtil {
 			Map<String, String> mapFromSymbolNameToTypeName,
 			Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Context context) {
+			GlobalRegistry context) {
 		
 		Collection<Type> categoricalTypes = new LinkedList<Type>();
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromCategoricalTypeNameToSizeString.entrySet()) {
@@ -267,7 +259,7 @@ public class GrinderUtil {
 	 * @param context
 	 * @return
 	 */
-	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, Context context) {
+	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, GlobalRegistry context) {
 		ArrayList<Expression> knownConstants = new ArrayList<Expression>();
 		for (Map.Entry<String, String> symbolNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			if (symbolNameAndTypeName.getValue().equals(typeName)) {
@@ -284,7 +276,7 @@ public class GrinderUtil {
 	 * Gets a function application and its type <code>T</code>, and returns the inferred type of its functor,
 	 * which is <code>'->'('x'(T1, ..., Tn), T)</code>, where <code>T1,...,Tn</code> are the types.
 	 */
-	public static Expression getTypeOfFunctor(Expression functionApplication, Expression functionApplicationType, Context context) {
+	public static Expression getTypeOfFunctor(Expression functionApplication, Expression functionApplicationType, GlobalRegistry context) {
 		Expression result;
 		if (functionApplication.getSyntacticFormType().equals("Function application")) {
 			List<Expression> argumentTypes = Util.mapIntoArrayList(functionApplication.getArguments(), new GetType(context));
@@ -305,7 +297,7 @@ public class GrinderUtil {
 	/**
 	 * Returns the type of given expression according to context.
 	 */
-	public static Expression getType(Expression expression, Context context) {
+	public static Expression getType(Expression expression, GlobalRegistry context) {
 		Expression result;
 		
 		// TODO: this method is horribly hard-coded to a specific language; need to clean this up
@@ -519,7 +511,7 @@ public class GrinderUtil {
 	 * @param context
 	 * @return
 	 */
-	private static Expression getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(List<Expression> arguments, Context context) {
+	private static Expression getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(List<Expression> arguments, GlobalRegistry context) {
 		Expression result;
 		Expression first = getFirstOrNull(arguments);
 		if (first == null) {
@@ -559,7 +551,7 @@ public class GrinderUtil {
 	 * @param context the context
 	 * @return the cardinality of the type of the variable according to the context or -1 if it cannot be determined.
 	 */
-	public static long getTypeCardinality(Expression symbol, Context context) {
+	public static long getTypeCardinality(Expression symbol, GlobalRegistry context) {
 		long result = -1;
 	
 		Expression variableType = context.getTypeOfRegisteredSymbol(symbol);
@@ -606,7 +598,7 @@ public class GrinderUtil {
 	 * @param context
 	 * @return
 	 */
-	public static boolean isBooleanTyped(Expression expression, Context context) {
+	public static boolean isBooleanTyped(Expression expression, GlobalRegistry context) {
 		Expression type = getType(expression, context);
 		boolean result =
 				type != null &&

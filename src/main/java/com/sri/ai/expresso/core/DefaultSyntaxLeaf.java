@@ -63,7 +63,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;

@@ -49,16 +49,16 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.grinder.api.GlobalRegistry;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
-import com.sri.ai.grinder.sgdpll.api.Context;
-import com.sri.ai.grinder.sgdpll.core.TypeContext;
+import com.sri.ai.grinder.sgdpllt.core.TypeContext;
 
 
 public class AssignmentsIteratorTest  {
 	
 	@Test
 	public void test1() {
-		Context context = new TypeContext();
+		GlobalRegistry context = new TypeContext();
 		Type myType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -94,7 +94,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test2() {
-		Context context = new TypeContext();
+		GlobalRegistry context = new TypeContext();
 		Type myType = new Categorical("People", 2, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Symbol x = makeSymbol("X");
 		Symbol y = makeSymbol("Y");
@@ -118,7 +118,7 @@ public class AssignmentsIteratorTest  {
 
 	@Test
 	public void test3() {
-		Context context = new TypeContext();
+		GlobalRegistry context = new TypeContext();
 		Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
 		Type petsType = new Categorical("Pets", 3, arrayList(makeSymbol("fido"), makeSymbol("purrs")));
 		Symbol x = makeSymbol("X");
