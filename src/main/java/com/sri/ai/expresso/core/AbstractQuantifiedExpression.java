@@ -53,7 +53,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
@@ -90,7 +90,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	}
 
 	@Override
-	public List<Expression> getScopedExpressions(GlobalRegistry context) {
+	public List<Expression> getScopedExpressions(Registry registry) {
 		return cachedScopedExpressions;
 	}
 

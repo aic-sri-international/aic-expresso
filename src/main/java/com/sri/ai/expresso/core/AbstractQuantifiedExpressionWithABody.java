@@ -58,7 +58,7 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 
 /**
@@ -161,14 +161,14 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Registry registry) {
 		AbstractQuantifiedExpression result = this;
 		
-		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, context);
+		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, registry);
 		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) getIndexExpressions()).getList();
 		IndexExpressionsSet newIndexExpressions = new ExtensionalIndexExpressionsSet(replaceElementsNonDestructively(indexExpressionsList, renameSymbol));
 		
-		Expression newBody = getBody().replaceSymbol(symbol, newSymbol, context);
+		Expression newBody = getBody().replaceSymbol(symbol, newSymbol, registry);
 		
 		result = replaceIfNeeded(newIndexExpressions, newBody);
 

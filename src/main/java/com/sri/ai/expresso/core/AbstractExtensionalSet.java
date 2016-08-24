@@ -11,7 +11,7 @@ import com.sri.ai.expresso.api.ExtensionalSetInterface;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.util.Util;
 
@@ -109,9 +109,9 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	}
 
 	@Override
-	public Expression replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, Registry registry) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
-		Expression result = replaceAllOccurrences(symbol, newSymbol, context);
+		Expression result = replaceAllOccurrences(symbol, newSymbol, registry);
 		return result;
 	}
 

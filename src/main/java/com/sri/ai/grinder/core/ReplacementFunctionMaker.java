@@ -41,13 +41,13 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 
 @Beta
 public interface ReplacementFunctionMaker {
 
 	public Function<Expression, Expression>
 	apply(
-			Expression expression, Function<Expression, Expression> replacementFunction, ExpressionAndSyntacticContext subExpressionAndSyntacticContext, GlobalRegistry context);
+			Expression expression, Function<Expression, Expression> replacementFunction, ExpressionAndSyntacticContext subExpressionAndSyntacticContext, Registry registry);
 
 }

@@ -53,9 +53,9 @@ import com.sri.ai.expresso.api.Type;
  * @author braz
  */
 @Beta
-public interface GlobalRegistry extends Cloneable {
+public interface Registry extends Cloneable {
 
-	GlobalRegistry clone();
+	Registry clone();
 	
 	/**
 	 * Returns the predicate indicating uniquely named constants.
@@ -66,7 +66,7 @@ public interface GlobalRegistry extends Cloneable {
 	 * Return a clone of this context with the given predicate indicating uniquely named constants.
 	 * @return
 	 */
-	GlobalRegistry setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
+	Registry setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
 	boolean isUniquelyNamedConstant(Expression expression);
@@ -93,14 +93,14 @@ public interface GlobalRegistry extends Cloneable {
 	 * Create a new sub-context and registers the symbols
 	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
-	GlobalRegistry registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
+	Registry registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
 	 * Creates a new context identical to a given one but for additional global objects.
 	 * @param objects
 	 * @return
 	 */
-	GlobalRegistry putAllGlobalObjects(Map<Object, Object> objects);
+	Registry putAllGlobalObjects(Map<Object, Object> objects);
 	
 	/**
 	 * Gets map of global objects.
@@ -110,7 +110,7 @@ public interface GlobalRegistry extends Cloneable {
 	/**
 	 * Returns a cloned context with a value in a map of global objects under key.
 	 */
-	GlobalRegistry putGlobalObject(Object key, Object value);
+	Registry putGlobalObject(Object key, Object value);
 	
 	/**
 	 * Indicates whether map of global objects contains key.
@@ -122,10 +122,10 @@ public interface GlobalRegistry extends Cloneable {
 	 */
 	Object getGlobalObject(Object key);
 	
-	GlobalRegistry add(Type type);
+	Registry add(Type type);
 
-	default GlobalRegistry addAll(Collection<Type> types) {
-		GlobalRegistry result = this;
+	default Registry addAll(Collection<Type> types) {
+		Registry result = this;
 		for (Type type : types) {
 			result = result.add(type);
 		}

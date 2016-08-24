@@ -90,7 +90,7 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.library.Disequality;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
@@ -113,41 +113,41 @@ import com.sri.ai.util.math.Rational;
 public class GrinderUtil {
 
 	/**
-	 * Returns a context with contextual symbols extended by a list of index expressions.
+	 * Returns a registry with contextual symbols extended by a list of index expressions.
 	 */
-	public static GlobalRegistry extendRegistryWithIndexExpressions(IndexExpressionsSet indexExpressions, GlobalRegistry context) {
+	public static Registry extendRegistryWithIndexExpressions(IndexExpressionsSet indexExpressions, Registry registry) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		GlobalRegistry result = context.registerIndicesAndTypes(indexToTypeMap);
+		Registry result = registry.registerIndicesAndTypes(indexToTypeMap);
 		return result;
 	}
 
 	/**
-	 * Returns a context with contextual symbols extended by a list of index expressions.
+	 * Returns a registry with contextual symbols extended by a list of index expressions.
 	 */
-	public static GlobalRegistry extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, GlobalRegistry context) {
-		GlobalRegistry result = 
+	public static Registry extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, Registry registry) {
+		Registry result = 
 				extendRegistryWithIndexExpressions(
 						new ExtensionalIndexExpressionsSet(indexExpressions),
-						context);
+						registry);
 		return result;
 	}
 
 	/**
-	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the context, if any.
+	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the registry, if any.
 	 */
-	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, GlobalRegistry context) {
-		Set<Expression> freeVariables = Expressions.freeVariables(expression, context);
-		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, context);
+	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, Registry registry) {
+		Set<Expression> freeVariables = Expressions.freeVariables(expression, registry);
+		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, registry);
 		return result;
 	}
 
 	/**
-	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
+	 * Returns a list of index expressions corresponding to the given indices and their types per the registry, if any.
 	 */
-	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, GlobalRegistry context) {
+	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, Registry registry) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
-			Expression type = context.getTypeOfRegisteredSymbol(index);
+			Expression type = registry.getTypeOfRegisteredSymbol(index);
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
 			indexExpressions.add(indexExpression);
 		}
@@ -158,28 +158,28 @@ public class GrinderUtil {
 	 * @param mapFromSymbolNameToTypeName
 	 * @param additionalTypes
 	 * @param mapFromCategoricalTypeNameToSizeString
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
-	public static GlobalRegistry extendRegistryWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<Type> additionalTypes, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, GlobalRegistry context) {
+	public static Registry extendRegistryWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<Type> additionalTypes, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, Registry registry) {
 		Collection<Type> allTypes =
 				getCategoricalTypes(
 						mapFromSymbolNameToTypeName,
 						mapFromCategoricalTypeNameToSizeString,
 						isUniquelyNamedConstantPredicate,
-						context);
+						registry);
 		allTypes.addAll(additionalTypes);
 		
-		return extendRegistryWith(mapFromSymbolNameToTypeName, allTypes, context);
+		return extendRegistryWith(mapFromSymbolNameToTypeName, allTypes, registry);
 	}
 
 	/**
 	 * @param mapFromSymbolNameToTypeName
 	 * @param types
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
-	public static GlobalRegistry extendRegistryWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<? extends Type> types, GlobalRegistry context) {
+	public static Registry extendRegistryWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<? extends Type> types, Registry registry) {
 		List<Expression> symbolDeclarations = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			String symbolName = variableNameAndTypeName.getKey();
@@ -187,25 +187,25 @@ public class GrinderUtil {
 			
 			symbolDeclarations.add(parse(symbolName + " in " + typeName));
 		}
-		context = extendContextualSymbolsWithIndexExpressions(symbolDeclarations, context);
+		registry = extendContextualSymbolsWithIndexExpressions(symbolDeclarations, registry);
 					
 		for (Type type : types) {
-			context = context.add(type);
-			context = context.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
+			registry = registry.add(type);
+			registry = registry.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
 		}
 		
-		return context;
+		return registry;
 	}
 
 	/**
 	 * Returns a universal quantification of given expression over its free variables,
-	 * with types as registered in context.
+	 * with types as registered in registry.
 	 * @param expression
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
-	public static Expression universallyQuantifyFreeVariables(Expression expression, GlobalRegistry context) {
-		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, context);
+	public static Expression universallyQuantifyFreeVariables(Expression expression, Registry registry) {
+		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, registry);
 		Expression universallyQuantified = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
 		return universallyQuantified;
 	}
@@ -214,14 +214,14 @@ public class GrinderUtil {
 	 * @param mapFromSymbolNameToTypeName
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param isUniquelyNamedConstantPredicate
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
 	public static Collection<Type> getCategoricalTypes(
 			Map<String, String> mapFromSymbolNameToTypeName,
 			Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			GlobalRegistry context) {
+			Registry registry) {
 		
 		Collection<Type> categoricalTypes = new LinkedList<Type>();
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromCategoricalTypeNameToSizeString.entrySet()) {
@@ -229,7 +229,7 @@ public class GrinderUtil {
 			String sizeString = typeNameAndSizeString.getValue();
 			
 			// check if already present and, if not, make it
-			Categorical type = (Categorical) context.getType(typeExpressionString);
+			Categorical type = (Categorical) registry.getType(typeExpressionString);
 			if (type == null) {
 				if (typeExpressionString.equals("Boolean")) {
 					type = BOOLEAN_TYPE;
@@ -240,7 +240,7 @@ public class GrinderUtil {
 									typeExpressionString,
 									mapFromSymbolNameToTypeName,
 									isUniquelyNamedConstantPredicate,
-									context);
+									registry);
 					type = 
 							new Categorical(
 									typeExpressionString,
@@ -256,10 +256,10 @@ public class GrinderUtil {
 	/**
 	 * @param typeName
 	 * @param mapFromSymbolNameToTypeName
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
-	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, GlobalRegistry context) {
+	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, Registry registry) {
 		ArrayList<Expression> knownConstants = new ArrayList<Expression>();
 		for (Map.Entry<String, String> symbolNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			if (symbolNameAndTypeName.getValue().equals(typeName)) {
@@ -276,10 +276,10 @@ public class GrinderUtil {
 	 * Gets a function application and its type <code>T</code>, and returns the inferred type of its functor,
 	 * which is <code>'->'('x'(T1, ..., Tn), T)</code>, where <code>T1,...,Tn</code> are the types.
 	 */
-	public static Expression getTypeOfFunctor(Expression functionApplication, Expression functionApplicationType, GlobalRegistry context) {
+	public static Expression getTypeOfFunctor(Expression functionApplication, Expression functionApplicationType, Registry registry) {
 		Expression result;
 		if (functionApplication.getSyntacticFormType().equals("Function application")) {
-			List<Expression> argumentTypes = Util.mapIntoArrayList(functionApplication.getArguments(), new GetType(context));
+			List<Expression> argumentTypes = Util.mapIntoArrayList(functionApplication.getArguments(), new GetType(registry));
 			if (argumentTypes.contains(null)) {
 				result = null; // unknown type
 			}
@@ -295,9 +295,9 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Returns the type of given expression according to context.
+	 * Returns the type of given expression according to registry.
 	 */
-	public static Expression getType(Expression expression, GlobalRegistry context) {
+	public static Expression getType(Expression expression, Registry registry) {
 		Expression result;
 		
 		// TODO: this method is horribly hard-coded to a specific language; need to clean this up
@@ -310,14 +310,14 @@ public class GrinderUtil {
 			Expression argument = expression.get(0);
 			if (argument.getSyntacticFormType().equals("Intensional set")) {
 				Expression head = ((IntensionalSet)argument).getHead();
-				result = getType(head, context);
+				result = getType(head, registry);
 			}
 			else if (argument.getSyntacticFormType().equals("Extensional set")) {
 				List<Expression> arguments = ((AbstractExtensionalSet)argument).getElementsDefinitions();
-				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(arguments, context);
+				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(arguments, registry);
 			}
 			else if (expression.hasFunctor(MAX)) { // MAX can also be applied to a bunch of numbers
-				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(expression.getArguments(), context);
+				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(expression.getArguments(), registry);
 			}
 			else {
 				throw new Error(expression.getFunctor() + " defined for sets only but got " + expression.get(0));
@@ -335,8 +335,8 @@ public class GrinderUtil {
 			result = Expressions.apply("->", Tuple.make("Number", "Number"), "Set");
 		}
 		else if (IfThenElse.isIfThenElse(expression)) {
-			Expression thenType = getType(IfThenElse.thenBranch(expression), context);
-			Expression elseType = getType(IfThenElse.elseBranch(expression), context);
+			Expression thenType = getType(IfThenElse.thenBranch(expression), registry);
+			Expression elseType = getType(IfThenElse.elseBranch(expression), registry);
 			if (thenType != null && elseType != null && (thenType.equals("Number") && isIntegerOrReal(elseType) || isIntegerOrReal(thenType) && elseType.equals("Number"))) {
 				result = makeSymbol("Number");
 			}
@@ -362,11 +362,11 @@ public class GrinderUtil {
 				IntegerInterval thenInterval = (IntegerInterval) thenType;
 				IntegerInterval elseInterval = (IntegerInterval) elseType;
 				Expression minimumLowerBound = 
-						LessThan.simplify(apply(LESS_THAN, thenInterval.getNonStrictLowerBound(), elseInterval.getNonStrictLowerBound()), context).booleanValue()
+						LessThan.simplify(apply(LESS_THAN, thenInterval.getNonStrictLowerBound(), elseInterval.getNonStrictLowerBound()), registry).booleanValue()
 						? thenInterval.getNonStrictLowerBound()
 								: elseInterval.getNonStrictLowerBound();
 				Expression maximumUpperBound =
-						GreaterThan.simplify(apply(GREATER_THAN, thenInterval.getNonStrictUpperBound(), elseInterval.getNonStrictUpperBound()), context).booleanValue()
+						GreaterThan.simplify(apply(GREATER_THAN, thenInterval.getNonStrictUpperBound(), elseInterval.getNonStrictUpperBound()), registry).booleanValue()
 						? thenInterval.getNonStrictUpperBound()
 								: elseInterval.getNonStrictUpperBound();
 				if (minimumLowerBound.equals(MINUS_INFINITY) && maximumUpperBound.equals(INFINITY)) {
@@ -384,13 +384,13 @@ public class GrinderUtil {
 			result = makeSymbol("Integer");
 		}
 		else if (isNumericFunctionApplication(expression)) {
-			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, context), "Number"))) {
+			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, registry), "Number"))) {
 				result = makeSymbol("Number");
 			}
-			else if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, context), "Real"))) {
+			else if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, registry), "Real"))) {
 				result = makeSymbol("Real");
 			}
-			else if (Util.thereExists(expression.getArguments(), e -> isRealInterval(getType(e, context)))) {
+			else if (Util.thereExists(expression.getArguments(), e -> isRealInterval(getType(e, registry)))) {
 				result = makeSymbol("Real");
 			}
 			else {
@@ -411,7 +411,7 @@ public class GrinderUtil {
 		}
 		else if (Sets.isIntensionalMultiSet(expression)) {
 			IntensionalSet set = (IntensionalSet) expression;
-			Expression headType = getType(set.getHead(), context);
+			Expression headType = getType(set.getHead(), registry);
 			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
 		else if (expression.getSyntacticFormType().equals("Symbol")) {
@@ -439,10 +439,10 @@ public class GrinderUtil {
 				result = makeSymbol("Number");
 			}
 			else {
-				result = context.getTypeOfRegisteredSymbol(expression);
+				result = registry.getTypeOfRegisteredSymbol(expression);
 
 				if (result == null) {
-					Type type = getFirstSatisfyingPredicateOrNull(context.getTypes(), t -> t.contains(expression));
+					Type type = getFirstSatisfyingPredicateOrNull(registry.getTypes(), t -> t.contains(expression));
 					if (type != null) {
 						result = parse(type.getName());
 					}
@@ -450,9 +450,9 @@ public class GrinderUtil {
 			}
 		}
 		else if (expression.getSyntacticFormType().equals("Function application")) {
-			Expression functionType = getType(expression.getFunctor(), context);
+			Expression functionType = getType(expression.getFunctor(), registry);
 			if (functionType == null) {
-				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to context.");
+				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to registry.");
 			}
 			
 			if (!functionType.hasFunctor("->")) {
@@ -472,14 +472,14 @@ public class GrinderUtil {
 				coDomain = functionType.get(1);
 			}
 
-			if (!mapIntoList(expression.getArguments(), new GetType(context)).equals(argumentsTypesList)) {
-				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(context)));
+			if (!mapIntoList(expression.getArguments(), new GetType(registry)).equals(argumentsTypesList)) {
+				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(registry)));
 			}
 
 			result = coDomain;
 		}
 		else if (expression instanceof QuantifiedExpressionWithABody){
-			return getType(((QuantifiedExpressionWithABody) expression).getBody(), context);
+			return getType(((QuantifiedExpressionWithABody) expression).getBody(), registry);
 		}
 		else {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
@@ -508,17 +508,17 @@ public class GrinderUtil {
 
 	/**
 	 * @param arguments
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
-	private static Expression getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(List<Expression> arguments, GlobalRegistry context) {
+	private static Expression getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(List<Expression> arguments, Registry registry) {
 		Expression result;
 		Expression first = getFirstOrNull(arguments);
 		if (first == null) {
 			result = makeSymbol("Integer");
 		}
 		else {
-			result = getType(first, context);
+			result = getType(first, registry);
 		}
 		return result;
 	}
@@ -542,22 +542,22 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Returns the cardinality of the type of a given variable in the given context,
+	 * Returns the cardinality of the type of a given variable in the given registry,
 	 * looking for <code>| Type |</code>, for <code>Type</code> the type of the variable,
-	 * in the context global objects.
+	 * in the registry global objects.
 	 * If the size cannot be determined, returns -1.
 	 * If the size is infinite, returns -2.
 	 * @param symbol a variable
-	 * @param context the context
-	 * @return the cardinality of the type of the variable according to the context or -1 if it cannot be determined.
+	 * @param registry the registry
+	 * @return the cardinality of the type of the variable according to the registry or -1 if it cannot be determined.
 	 */
-	public static long getTypeCardinality(Expression symbol, GlobalRegistry context) {
+	public static long getTypeCardinality(Expression symbol, Registry registry) {
 		long result = -1;
 	
-		Expression variableType = context.getTypeOfRegisteredSymbol(symbol);
+		Expression variableType = registry.getTypeOfRegisteredSymbol(symbol);
 		if (variableType != null) {
 			Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
-			Expression typeCardinalityValue = (Expression) context.getGlobalObject(typeCardinality);
+			Expression typeCardinalityValue = (Expression) registry.getGlobalObject(typeCardinality);
 			if (typeCardinalityValue != null) {
 				result = typeCardinalityValue.intValueExact();
 			}
@@ -565,9 +565,9 @@ public class GrinderUtil {
 		
 		// If that didn't work, we try find the Type object:
 		if (result == -1) {
-			variableType = context.getTypeOfRegisteredSymbol(symbol);
+			variableType = registry.getTypeOfRegisteredSymbol(symbol);
 			if (variableType != null) {
-				Type type = context.getType(variableType);
+				Type type = registry.getType(variableType);
 				if (type != null) {
 					Expression sizeExpression = type.cardinality();
 					if (sizeExpression.equals(apply(CARDINALITY, type.getName()))) {
@@ -595,11 +595,11 @@ public class GrinderUtil {
 	 * Indicates whether an expression is boolean-typed by having its {@link getType}
 	 * type be "Boolean", "'->'(Boolean)", or "bool", or "boolean".
 	 * @param expression
-	 * @param context
+	 * @param registry
 	 * @return
 	 */
-	public static boolean isBooleanTyped(Expression expression, GlobalRegistry context) {
-		Expression type = getType(expression, context);
+	public static boolean isBooleanTyped(Expression expression, Registry registry) {
+		Expression type = getType(expression, registry);
 		boolean result =
 				type != null &&
 				(
@@ -617,9 +617,9 @@ public class GrinderUtil {
 	/**
 	 * A method mapping type expressions to their intrinsic {@link Type} objects,
 	 * where "intrinsic" means there is only one possible {@link Type} object
-	 * for them in the context of grinder
+	 * for them in the registry of grinder
 	 * (therefore, it cannot be used for, say, categorical types defined
-	 * by the user and registered in the context by name only).
+	 * by the user and registered in the registry by name only).
 	 * Current recognized type expressions are
 	 * <code>Boolean</code>, <code>Integer</code>, and function applications
 	 * of the type <code>m..n</code>.

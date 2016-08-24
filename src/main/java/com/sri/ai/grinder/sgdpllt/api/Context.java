@@ -44,16 +44,16 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 
 /**
- * A Context combines a {@link GlobalRegistry} and a {@link Constraint}
+ * A Context combines a {@link Registry} and a {@link Constraint}
  * in order to provide a context for SGDPLL(T)-related methods.
  * 
  * @author braz
  */
 @Beta
-public interface Context extends GlobalRegistry, Constraint {
+public interface Context extends Registry, Constraint {
 
 	@Override
 	Context clone();
@@ -75,7 +75,7 @@ public interface Context extends GlobalRegistry, Constraint {
 
 	@Override
 	default Context addAll(Collection<Type> types) {
-		return (Context) GlobalRegistry.super.addAll(types);
+		return (Context) Registry.super.addAll(types);
 	}
 	
 	

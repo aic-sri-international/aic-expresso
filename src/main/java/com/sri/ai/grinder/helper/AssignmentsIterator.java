@@ -48,40 +48,40 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductInMapIterator;
 
 /**
  * An iterator over assignments to expressions according to their {@link Type} as defined
- * in a {@link GlobalRegistry}.
+ * in a {@link Registry}.
  * 
  * @author braz
  */
 @Beta
 public class AssignmentsIterator extends CartesianProductInMapIterator<Expression, Expression> {
 
-	public AssignmentsIterator(Collection<Expression> variables, GlobalRegistry context) {
-		super(makeMapFromVariablesToIteratorMakers(variables, context));
+	public AssignmentsIterator(Collection<Expression> variables, Registry registry) {
+		super(makeMapFromVariablesToIteratorMakers(variables, registry));
 	}
 
-	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, GlobalRegistry context) {
-		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, context));
+	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Registry registry) {
+		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, registry));
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, GlobalRegistry context) {
+	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Registry registry) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
-			Expression typeDescription = GrinderUtil.getType(variable, context);
-			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, context);
+			Expression typeDescription = GrinderUtil.getType(variable, registry);
+			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, registry);
 		}
 		return fromVariableToIteratorMaker;
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, GlobalRegistry context) {
+	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, Registry registry) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		ExtensionalIndexExpressionsSet extensionalIndexExpressionsSet;
 		try {
@@ -94,9 +94,9 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 			Expression variable = IndexExpressions.getIndex(indexExpression);
 			Expression typeDescription = IndexExpressions.getType(indexExpression);
 			if (typeDescription == null) {
-				typeDescription = GrinderUtil.getType(variable, context);
+				typeDescription = GrinderUtil.getType(variable, registry);
 			}
-			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, context);
+			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, registry);
 		}
 		return fromVariableToIteratorMaker;
 	}
@@ -105,14 +105,14 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	 * @param fromVariableToIteratorMaker
 	 * @param variable
 	 * @param typeExpression
-	 * @param context
+	 * @param registry
 	 * @throws Error
 	 */
-	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, GlobalRegistry context) throws Error {
+	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, Registry registry) throws Error {
 		if (typeExpression == null) {
 			throw new Error("Variable " + variable + " is not registered in context (has no type).");
 		}
-		Type type = context.getType(typeExpression);
+		Type type = registry.getType(typeExpression);
 		if (type == null) {
 			throw new Error("Variable " + variable + " has type " + typeExpression + " but context contains no type with this name.");
 		}

@@ -59,7 +59,7 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
@@ -211,7 +211,7 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	 * This is overridden to
 	 * add an instance of {@link RealExpressoType} to testing types as well.
 	 * This is needed because arithmetic expressions such as J + 5 are determined to be of
-	 * type name "Real" by {@link GrinderUtil#getType(Expression expression, GlobalRegistry context)},
+	 * type name "Real" by {@link GrinderUtil#getType(Expression expression, Registry registry)},
 	 * so a type with this name is needed by the default implementation of {@link #isNonTrivialAtom(Expression, Context)}
 	 * if the flag for analyzing the types of arguments to equalities is true.
 	 */

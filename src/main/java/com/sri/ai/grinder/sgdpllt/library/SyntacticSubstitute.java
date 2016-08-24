@@ -49,7 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.util.Util;
@@ -118,17 +118,17 @@ public class SyntacticSubstitute {
 	private static class SubstitutePruningPredicate implements PruningPredicate {
 		List<Expression> allSymbolsInReplacedAndReplacement;
 		
-		public SubstitutePruningPredicate(Expression replaced, Expression replacement, GlobalRegistry context) {
-			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, context);
-			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, context);
+		public SubstitutePruningPredicate(Expression replaced, Expression replacement, Registry registry) {
+			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, registry);
+			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, registry);
 			this.allSymbolsInReplacedAndReplacement =
 					Util.union(
 							freeSymbolsInReplacement,
 							freeSymbolsInReplaced);
 		}
 		@Override
-		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, GlobalRegistry context) {
-			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(context), new GetFunctorOrSymbol());
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, Registry registry) {
+			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(registry), new GetFunctorOrSymbol());
 			boolean result = Util.intersect(allSymbolsInReplacedAndReplacement, locallyScopedSymbols);
 			return result;
 		}

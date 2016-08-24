@@ -47,7 +47,7 @@ import static com.sri.ai.util.Util.lessThan;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
@@ -66,10 +66,10 @@ public class LessThan implements TopSimplifier {
 	/**
 	 * Receives an application of {@link FunctorConstants.LESS_THAN} and evaluates it if possible.
 	 * @param lessThanApplication
-	 * @param context TODO
+	 * @param registry TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression lessThanApplication, GlobalRegistry context) {
+	public static Expression simplify(Expression lessThanApplication, Registry registry) {
 		Expression result;
 		if (lessThanApplication.get(0).equals(lessThanApplication.get(1))) {
 			result = FALSE; // not less than itself

@@ -51,7 +51,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
@@ -92,8 +92,8 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	}
 
 	@Override
-	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, GlobalRegistry context) {
-		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, context);
+	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, Registry registry) {
+		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, registry);
 		List<Expression> newList = replaceElementsNonDestructively(getList(), renameSymbol);
 		IndexExpressionsSet newIndexExpressions;
 		if (newList != getList()) {

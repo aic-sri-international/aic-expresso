@@ -2,23 +2,23 @@ package com.sri.ai.grinder.helper;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.GlobalRegistry;
+import com.sri.ai.grinder.api.Registry;
 
 /**
- * A {@link Function<Expression, Expression>} version of looking up an expression's type given a context.
+ * A {@link Function<Expression, Expression>} version of looking up an expression's type given a registry.
  */
 public class GetType implements Function<Expression, Expression> {
 
-	private GlobalRegistry context;
+	private Registry registry;
 
-	public GetType(GlobalRegistry context) {
+	public GetType(Registry registry) {
 		super();
-		this.context = context;
+		this.registry = registry;
 	}
 
 	@Override
 	public Expression apply(Expression input) {
-		Expression result = GrinderUtil.getType(input, context);
+		Expression result = GrinderUtil.getType(input, registry);
 		return result;
 	}
 }
