@@ -57,6 +57,9 @@ public interface SingleVariableConstraint extends Constraint {
 	/**
 	 * A single-variable constraint has the ability to temporarily hold literals not on its variable.
 	 * This returns such literals.
+	 * This works as a buffer for literals propagated (deduced) at the point in which the constraint
+	 * is formed (by conjunction with another), so that they don't need to be deduced every time
+	 * we need to check if there are literals to be propagated.
 	 * @return
 	 */
 	List<Expression> getExternalLiterals();
