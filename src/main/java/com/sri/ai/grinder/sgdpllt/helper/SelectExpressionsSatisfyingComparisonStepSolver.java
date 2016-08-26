@@ -56,9 +56,9 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractSelectionStepSolver;
  * because it extends {@link AbstractExpressionsSequenceStepSolver},
  * which does not necessarily have Expression-typed solutions.
  * This has the disadvantage of requiring the use of
- * generic {@link ContextDependentProblemStepSolver#SolutionStep},
+ * generic {@link ContextDependentProblemStepSolver#SolverStep},
  * instead of its more common specialization
- * {@link ContextDependentExpressionProblemStepSolver#SolutionStep}.
+ * {@link ContextDependentExpressionProblemStepSolver#SolverStep}.
  *
  * @author braz
  *

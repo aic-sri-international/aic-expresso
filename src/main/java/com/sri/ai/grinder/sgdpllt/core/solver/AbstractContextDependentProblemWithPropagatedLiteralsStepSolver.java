@@ -61,7 +61,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * An abstract implementation for step solvers for problems based on a propagated literals, and a propagated CNF.
  * <p>
  * Propagated literals are literals required to be true
- * (if they are not, the solution step returns is provided by the abstract method
+ * (if they are not, the solver step returns is provided by the abstract method
  * {@link #getSolutionExpressionGivenContradiction()}).
  * In fact, this class allows a generalization of propagated literals in the form of a propagated CNF.
  * <p>
@@ -224,17 +224,17 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 */
 	protected abstract Expression getSolutionExpressionGivenContradiction();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context);
+	protected abstract SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context);
 
 	@Override
-	public SolutionStep step(Context context) {
+	public SolverStep step(Context context) {
 		if (getConstraint().isContradiction()) {
 			return new Solution(getSolutionExpressionGivenContradiction());
 		}
 		
-		SolutionStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), context);
+		SolverStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), context);
 		
-		SolutionStep result;
+		SolverStep result;
 		if (propagatedCNFIsSatisfiedStep == null) {
 			result = null;
 		}
@@ -264,7 +264,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context context) {
+	protected SolverStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context context) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -324,7 +324,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context context) {
+	protected SolverStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context context) {
 		for (Expression literal : conjunctiveClause) {
 			ContextSplitting split = new ContextSplitting(literal, context);
 

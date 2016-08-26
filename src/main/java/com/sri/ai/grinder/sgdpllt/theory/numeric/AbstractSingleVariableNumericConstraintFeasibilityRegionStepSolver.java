@@ -126,7 +126,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 
 	/**
 	 * Given the maximum lower bound and minimum upper bound for the constraint's variable,
-	 * this method must provide s {@link SolutionStep} towards determining the final solution
+	 * this method must provide s {@link SolverStep} towards determining the final solution
 	 * of whatever problem the extension is trying to solve.
 	 * <p>
 	 * Bounds may be strict (<code><, ></code>) or non-strict (<code><=, >=</code>).
@@ -156,7 +156,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 * @param context
 	 * @return
 	 */
-	abstract protected SolutionStep getSolutionStepAfterBoundsAreCheckedForFeasibility(
+	abstract protected SolverStep getSolutionStepAfterBoundsAreCheckedForFeasibility(
 			Expression maximumLowerBound,
 			Expression minimumUpperBound,
 			AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase,
@@ -675,7 +675,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
+	protected SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
 
 		Expression solutionExpression;
 		
@@ -707,7 +707,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				maximumLowerBoundStepSolver = initialMaximumLowerBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
+			ContextDependentProblemStepSolver.SolverStep<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
 			if (maximumLowerBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -732,7 +732,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				minimumUpperBoundStepSolver = initialMinimumUpperBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
+			ContextDependentProblemStepSolver.SolverStep<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
 			if (minimumUpperBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -757,7 +757,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				else {
 					boundedSpaceIsNotEmptyStepSolver = initialBoundedSpaceIsNotEmptyStepSolver;
 				}
-				ContextDependentProblemStepSolver.SolutionStep<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
+				ContextDependentProblemStepSolver.SolverStep<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 					ifTrue.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -772,7 +772,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				// else, bounds difference is positive and we can move on
 				sequelBase.initialBoundedSpaceIsNotEmptyStepSolver = new ConstantStepSolver<Boolean>(true);
 
-				SolutionStep result = getSolutionStepAfterBoundsAreCheckedForFeasibility(maximumLowerBound, minimumUpperBound, sequelBase, context);
+				SolverStep result = getSolutionStepAfterBoundsAreCheckedForFeasibility(maximumLowerBound, minimumUpperBound, sequelBase, context);
 				return result;
 			}
 		}

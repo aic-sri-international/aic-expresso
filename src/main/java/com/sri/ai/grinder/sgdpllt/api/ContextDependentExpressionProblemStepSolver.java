@@ -46,7 +46,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemS
  * A {@link ContextDependentProblemStepSolver} specialized for problems with {@link Expression}-typed solutions.
  * <p>
  * Ideally, a {@link Solution} object returned by such a step solver should not contain literals
- * (if it does, then it depends on that literals and therefore that literals should have been returned in a {@link ItDependsOn} solution step.
+ * (if it does, then it depends on that literals and therefore that literals should have been returned in a {@link ItDependsOn} solver step.
  * However, this is not currently enforced (TODO: it may be in the future).
  * 
  * @author braz
@@ -71,11 +71,11 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	ContextDependentExpressionProblemStepSolver clone();
 	
 	/**
-	 * A specialization of {@link ContextDependentProblemStepSolver#SolutionStep} for Expressions.
+	 * A specialization of {@link ContextDependentProblemStepSolver#SolverStep} for Expressions.
 	 * @author braz
 	 *
 	 */
-	public static interface SolutionStep extends ContextDependentProblemStepSolver.SolutionStep<Expression> {
+	public static interface SolverStep extends ContextDependentProblemStepSolver.SolverStep<Expression> {
 		/**
 		 * Returns a {@link ContextDependentExpressionProblemStepSolver} to be used for finding the final solution
 		 * in case the literal is defined as true by the context.
@@ -99,7 +99,7 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * @author braz
 	 *
 	 */
-	public static class ItDependsOn extends ContextDependentProblemStepSolver.ItDependsOn<Expression> implements SolutionStep {
+	public static class ItDependsOn extends ContextDependentProblemStepSolver.ItDependsOn<Expression> implements SolverStep {
 
 		public ItDependsOn(
 				Expression literal,
@@ -125,7 +125,7 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * @author braz
 	 *
 	 */
-	public static class Solution extends ContextDependentProblemStepSolver.Solution<Expression> implements SolutionStep {
+	public static class Solution extends ContextDependentProblemStepSolver.Solution<Expression> implements SolverStep {
 
 		public Solution(Expression value) {
 			super(value);
@@ -143,12 +143,12 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	}
 
 	/**
-	 * Returns a solution step for the problem: either the solution itself, if independent
+	 * Returns a solver step for the problem: either the solution itself, if independent
 	 * on the values for free variables, or a literal that, if used to split the context,
 	 * will bring the problem closer to a solution.
 	 * @param context
 	 * @return
 	 */
 	@Override
-	SolutionStep step(Context context);
+	SolverStep step(Context context);
 }

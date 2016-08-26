@@ -166,8 +166,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	}
 
 	@Override
-	public SolutionStep step(Context context) {
-		SolutionStep result;
+	public SolverStep step(Context context) {
+		SolverStep result;
 		
 		TopSimplifier topSimplifier = context.getTheory().getMapBasedTopSimplifier();
 		TopSimplifier exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
@@ -186,8 +186,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression completelySimplifiedLiteral = totalSimplifier.apply(exhaustivelyTopSimplifiedExpression, context);
 			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
 		}
-		// TODO: the next few cases always produce Solution steps, never a ItDependsOn solution step.
-		// We should eventually use quantifier eliminator step solvers that may return ItDependsOn solution steps
+		// TODO: the next few cases always produce solver steps, never a ItDependsOn solver step.
+		// We should eventually use quantifier eliminator step solvers that may return ItDependsOn solver steps
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
 			QuantifierEliminator quantifierEliminator;
 			if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
@@ -223,7 +223,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
 			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
 					getEvaluatorFor(subExpression, false /* not known to be exhaustively top-simplified already */);
-			SolutionStep subExpressionStep = subExpressionEvaluator.step(context);
+			SolverStep subExpressionStep = subExpressionEvaluator.step(context);
 
 			if (subExpressionStep == null) {
 				return null;

@@ -74,7 +74,7 @@ public class ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolv
 	}
 
 	@Override
-	protected SolutionStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
+	protected SolverStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
 		return new Solution(INFINITY);
 	}
 

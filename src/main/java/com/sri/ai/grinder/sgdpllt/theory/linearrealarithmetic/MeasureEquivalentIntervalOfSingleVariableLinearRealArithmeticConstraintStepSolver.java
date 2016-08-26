@@ -73,7 +73,7 @@ public class MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstr
 	}
 
 	@Override
-	protected SolutionStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
+	protected SolverStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
 //		Expression variable = getConstraint().getVariable();
 //		Expression indexExpression = apply(IN, variable, makeSymbol("Real"));
 //

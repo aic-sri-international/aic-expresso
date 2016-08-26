@@ -89,7 +89,7 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 	}
 
 	@Override
-	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+	protected SolverStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
 		Expression result;
 		if (getGroup().isIdempotent()) {

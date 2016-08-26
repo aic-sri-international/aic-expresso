@@ -44,7 +44,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
- * Method {@link #step(Context)} returns a {@link SolutionStep},
+ * Method {@link #step(Context)} returns a {@link SolverStep},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
  * that, if used to split the context
@@ -70,7 +70,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 
 	/**
 	 * Cloning is important for this interface, because when a problem depends on an expression to be solved
-	 * the {@link ItDependsOn} solution step will carry within it two sub-step solvers
+	 * the {@link ItDependsOn} solver step will carry within it two sub-step solvers
 	 * to be used on the two branches of the search (one for when the expression is enforced to be true,
 	 * and another for false).
 	 * <p>
@@ -110,14 +110,14 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	ContextDependentProblemStepSolver<T> clone();
 	
 	/**
-	 * A solution step of a {@link ContextDependentProblemStepSolver}.
+	 * A solver step of a {@link ContextDependentProblemStepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
 	 * unless the context be restricted according to the literal returned by {@link #getLiteral()}.
 	 * Otherwise, the expression returned by {@link #getValue()} is the solution.
 	 * @author braz
 	 *
 	 */
-	public static interface SolutionStep<T> {
+	public static interface SolverStep<T> {
 		boolean itDepends();
 		
 		/**
@@ -156,7 +156,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		ContextSplitting getContextSplitting();
 	}
 	
-	public static class ItDependsOn<T> implements SolutionStep<T> {
+	public static class ItDependsOn<T> implements SolverStep<T> {
 
 		private Expression literal;
 		private ContextSplitting constraintSplitting;
@@ -164,7 +164,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		private ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsFalse;
 		
 		/**
-		 * Represents a solution step in which the final solution depends on the definition of a given expression
+		 * Represents a solver step in which the final solution depends on the definition of a given expression
 		 * by the context.
 		 * Step solvers specialized for whether expression is true or false can be provided
 		 * that already know about the definition of expression either way, for efficiency;
@@ -223,7 +223,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	}
 	
 	
-	public static class Solution<T> implements SolutionStep<T> {
+	public static class Solution<T> implements SolverStep<T> {
 
 		private T value;
 		
@@ -268,11 +268,11 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	}
 
 	/**
-	 * Returns a solution step for the problem: either the solution itself, if independent
+	 * Returns a solver step for the problem: either the solution itself, if independent
 	 * on the values for free variables, or a literal that, if used to split the context,
 	 * will bring the problem closer to a solution.
 	 * @param context
 	 * @return
 	 */
-	SolutionStep<T> step(Context context);
+	SolverStep<T> step(Context context);
 }

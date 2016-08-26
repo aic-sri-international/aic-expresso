@@ -86,7 +86,7 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	}
 
 	/**
-	 * Provides solution step after going over all ordered pairs.
+	 * Provides solver step after going over all ordered pairs.
 	 * @return
 	 */
 	@Override

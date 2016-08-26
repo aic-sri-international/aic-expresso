@@ -45,10 +45,10 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver.ItDependsOn;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver.Solution;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
+import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver.SolverStep;
 
 /**
- * Provides a static method for generating {@link Expression}-valued solution steps based on a literal.
+ * Provides a static method for generating {@link Expression}-valued solver steps based on a literal.
  *
  * @author braz
  *
@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolve
 public class ExpressionConditionedOnLiteralSolutionStep {
 
 	/**
-	 * Produces a solution step based on value of literal, with corresponding given solutions
+	 * Produces a solver step based on value of literal, with corresponding given solutions
 	 * (if literal is not defined by context, a {@link ItDependsOn} step is returned).
 	 * @param literal
 	 * @param solutionIfTrue
@@ -65,16 +65,16 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 	 * @param context
 	 * @return
 	 */
-	public static SolutionStep
+	public static SolverStep
 	stepDependingOnLiteral(
 			Expression literal, 
 			Expression solutionIfTrue, 
 			Expression solutionIfFalse, 
 			Context context) {
 		
-		SolutionStep result;
+		SolverStep result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
-		ContextDependentProblemStepSolver.SolutionStep<Boolean> step =
+		ContextDependentProblemStepSolver.SolverStep<Boolean> step =
 				literalStepSolver.step(context);
 		if (step.itDepends()) {
 			result =

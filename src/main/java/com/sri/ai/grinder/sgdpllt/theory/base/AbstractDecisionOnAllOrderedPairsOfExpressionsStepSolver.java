@@ -91,13 +91,13 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	protected Expression jThExpression;
 
 	/**
-	 * Provides solution step for cases in which there are no, or only one, expressions.
+	 * Provides solver step for cases in which there are no, or only one, expressions.
 	 * @return
 	 */
 	abstract public Solution makeSolutionStepWhenThereAreNoPairs();
 
 	/**
-	 * Provides solution step after going over all ordered pairs;
+	 * Provides solver step after going over all ordered pairs;
 	 * note that fields {@link #i}, {@link #j},
 	 * {@link #iThExpression}, {@link #jThExpression} and {@link #nextIndices}
 	 * are <i>not</i> set at this point, when we ran out of pairs,
@@ -191,7 +191,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public SolutionStep step(Context context) {
+	public SolverStep step(Context context) {
 		
 		if (expressions.size() < 2) {
 			return makeSolutionStepWhenThereAreNoPairs();

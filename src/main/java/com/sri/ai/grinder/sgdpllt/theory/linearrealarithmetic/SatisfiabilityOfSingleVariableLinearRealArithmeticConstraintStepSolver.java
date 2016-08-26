@@ -82,8 +82,8 @@ public class SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSol
 	}
 	
 	@Override
-	public SolutionStep step(Context context) {
-		SolutionStep modelCountingStep = modelCounting.step(context);
+	public SolverStep step(Context context) {
+		SolverStep modelCountingStep = modelCounting.step(context);
 		if (modelCountingStep == null) {
 			return null;
 		}
@@ -96,7 +96,7 @@ public class SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSol
 			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getContextSplitting(), ifTrue, ifFalse);
 		}
 
-		SolutionStep result;
+		SolverStep result;
 		
 		Expression satisfiable;
 		satisfiable = apply(GREATER_THAN, modelCountingStep.getValue(), ZERO);

@@ -134,7 +134,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 	private DistinctExpressionsStepSolver initialDistinctDisequalsStepSolver;
 	
 	@Override
-	protected SolutionStep getSolutionStepAfterBoundsAreCheckedForFeasibility(
+	protected SolverStep getSolutionStepAfterBoundsAreCheckedForFeasibility(
 			Expression maximumLowerBound,
 			Expression minimumUpperBound,
 			AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBaseAsNumericStepSolver,
@@ -153,7 +153,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		else {
 			disequalsGreaterThanMaximumLowerBoundStepSolver = initialDisequalsGreaterThanMaximumLowerBoundStepSolver;
 		}
-		ContextDependentProblemStepSolver.SolutionStep<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStep
+		ContextDependentProblemStepSolver.SolverStep<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStep
 		= disequalsGreaterThanMaximumLowerBoundStepSolver.step(context);
 		if (disequalsGreaterThanGreatestStrictLowerBoundStep.itDepends()) {
 			AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
@@ -176,7 +176,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		else {
 			disequalsWithinBoundsStepSolver = initialDisequalsWithinBoundsStepSolver;
 		}
-		ContextDependentProblemStepSolver.SolutionStep<List<Expression>> disequalsWithinBoundsStep = disequalsWithinBoundsStepSolver.step(context);
+		ContextDependentProblemStepSolver.SolverStep<List<Expression>> disequalsWithinBoundsStep = disequalsWithinBoundsStepSolver.step(context);
 		if (disequalsWithinBoundsStep.itDepends()) {
 			AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 			ifTrue.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStep.getStepSolverForWhenLiteralIsTrue();
@@ -207,7 +207,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 			else {
 				numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolutionStep<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
+			ContextDependentProblemStepSolver.SolverStep<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
 
 			if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 				AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
@@ -251,7 +251,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 			solutionExpression = getSolutionExpressionForBoundVariable();
 		}
 		else {
-			SolutionStep distinctDisequalsStep = distinctExpressionsStepSolver.step(context);
+			SolverStep distinctDisequalsStep = distinctExpressionsStepSolver.step(context);
 			if (distinctDisequalsStep.itDepends()) {
 				AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue = makeSequelStepSolver(sequelBase);
 				ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenLiteralIsTrue();

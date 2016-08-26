@@ -77,9 +77,9 @@ public class FunctionBasedContextDependentProblemStepSolver implements ContextDe
 	}
 
 	@Override
-	public SolutionStep step(Context context) {
-		SolutionStep result;
-		SolutionStep baseResult = base.step(context);
+	public SolverStep step(Context context) {
+		SolverStep result;
+		SolverStep baseResult = base.step(context);
 		if (baseResult.itDepends()) {
 			result = baseResult;
 		}

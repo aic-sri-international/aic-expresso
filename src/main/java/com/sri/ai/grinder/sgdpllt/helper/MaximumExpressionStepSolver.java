@@ -52,8 +52,8 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSol
  * given an order.
  * <p>
  * Note that it would be intuitive to have this class implement {@link ContextDependentExpressionProblemStepSolver},
- * but this class delegates to its super class, whose {@link #step(Context)} method returns a {@link ContextDependentProblemStepSolver#SolutionStep<Expression>},
- * and we do not want to have to construct a new {@link ContextDependentExpressionProblemStepSolver#SolutionStep}
+ * but this class delegates to its super class, whose {@link #step(Context)} method returns a {@link ContextDependentProblemStepSolver#SolverStep<Expression>},
+ * and we do not want to have to construct a new {@link ContextDependentExpressionProblemStepSolver#SolverStep}
  * object every time just to conform to the interface.
  *
  * @author braz
@@ -93,8 +93,8 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 	
 	@Override
-	public SolutionStep<Expression> step(Context context) {
-		SolutionStep<Expression> result;
+	public SolverStep<Expression> step(Context context) {
+		SolverStep<Expression> result;
 		if (maximumSoFar.equals(orderMaximum)) { // short-circuiting if maximum already found
 			result = new Solution<Expression>(orderMaximum);
 		}
@@ -121,7 +121,7 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 
 	@Override
-	protected SolutionStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
+	protected SolverStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
 		Solution<Expression> result = new ContextDependentProblemStepSolver.Solution<Expression>(maximumSoFar);
 		return result;
 	}

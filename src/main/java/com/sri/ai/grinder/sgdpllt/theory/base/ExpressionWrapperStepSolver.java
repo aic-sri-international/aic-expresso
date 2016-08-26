@@ -78,12 +78,12 @@ public class ExpressionWrapperStepSolver<T> implements ContextDependentExpressio
 	}
 
 	@Override
-	public SolutionStep step(Context context) {
+	public SolverStep step(Context context) {
 		
-		ContextDependentProblemStepSolver.SolutionStep<T> step =
+		ContextDependentProblemStepSolver.SolverStep<T> step =
 				base.step(context);
 
-		SolutionStep result;
+		SolverStep result;
 		
 		if (step.itDepends()) {
 			ExpressionWrapperStepSolver<T> subIfTrue = clone();

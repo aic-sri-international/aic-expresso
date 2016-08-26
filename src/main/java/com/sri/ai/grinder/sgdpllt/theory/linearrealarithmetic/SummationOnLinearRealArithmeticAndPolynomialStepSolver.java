@@ -92,12 +92,12 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	}
 
 	@Override
-	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+	protected SolverStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
 			Context context) {
 
-		SolutionStep step = 
+		SolverStep step = 
 				valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;

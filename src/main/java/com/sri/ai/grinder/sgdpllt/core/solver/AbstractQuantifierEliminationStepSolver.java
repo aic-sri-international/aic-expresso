@@ -69,11 +69,11 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
  * under context <code>Z = alice</code>,
  * {@link EvaluatorStepSolver#step(Context)} is
  * invoked with context <code>Z = alice and X != john</code>.
- * The solution step will depend on literal <code>Y != bob</code>.
+ * The solver step will depend on literal <code>Y != bob</code>.
  * <p>
  * If however the quantified expression is
  * <code>sum({{ (on X in SomeType) if X != bob then 2 else 3 | X != john }})</code>,
- * the solution step will not be one depending on a literal, but a definite solution equivalent to
+ * the solver step will not be one depending on a literal, but a definite solution equivalent to
  * <code>sum({{ (on X in SomeType) 2 | X != john and X != bob}}) +
  *       sum({{ (on X in SomeType) 3 | X != john and X = bob}})</code>.
  * <p>
@@ -129,7 +129,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 * @param indexConstraint the index constraint
 	 * @param literalFreeBody literal-free body
 	 */
-	protected abstract SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+	protected abstract SolverStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
 			Context context);
@@ -196,13 +196,13 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	@Override
-	public SolutionStep step(Context context) {
+	public SolverStep step(Context context) {
 		
 		if (indexConstraint.isContradiction()) {
 			return new Solution(group.additiveIdentityElement());
 		} 		// TODO: the above is probably not needed any longer; try removing it when convenient
 		
-		SolutionStep result;
+		SolverStep result;
 
 		Context contextForBody = getContextForBody(context);
 		
@@ -211,9 +211,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		}
 		else {
 			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
-			SolutionStep bodyStep = bodyStepSolver.step(contextForBody); 
+			SolverStep bodyStep = bodyStepSolver.step(contextForBody); 
 			
-			// At this point, bodyStep may be a non-conditional solution step
+			// At this point, bodyStep may be a non-conditional solver step
 			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
 			// If one of these literals is the quantifier index, we *must* detect it.
 			// Therefore, we run EvaluatorStepSolver on it to make sure to detect literals before going on.
@@ -276,11 +276,11 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private SolutionStep resultIfLiteralContainsIndex(Expression literal, SolutionStep bodyStep, Context contextForBody, Context context) {
+	private SolverStep resultIfLiteralContainsIndex(Expression literal, SolverStep bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
-		SolutionStep result;
+		SolverStep result;
 		Expression solutionValue;
 
 		// Here, we need to obtain the new index constraints, for the case in which the splitter literal is true and false,
@@ -325,7 +325,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private Expression solveSubProblem(boolean valueForLiteral, SolutionStep bodyStep, Constraint newIndexConstraint, Context context) {
+	private Expression solveSubProblem(boolean valueForLiteral, SolverStep bodyStep, Constraint newIndexConstraint, Context context) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
 				(SingleVariableConstraint) newIndexConstraint;
 		AbstractQuantifierEliminationStepSolver subProblem = 

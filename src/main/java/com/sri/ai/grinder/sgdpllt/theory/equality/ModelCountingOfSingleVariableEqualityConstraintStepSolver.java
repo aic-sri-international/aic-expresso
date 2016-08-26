@@ -79,20 +79,20 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	}
 	
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
+	protected SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
 			Context context) {
 		Expression solutionExpression;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value
 			solutionExpression = ONE;
 		}
 		else {
-			SolutionStep step = numberOfDistinctExpressionsStepSolver.step(context);
+			SolverStep step = numberOfDistinctExpressionsStepSolver.step(context);
 			if (step.itDepends()) {
 				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifTrue = clone();
 				ifTrue.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();
 				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifFalse = clone();
 				ifFalse.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse();
-				SolutionStep result = new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
+				SolverStep result = new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
 				return result;
 			}
 			long numberOfNonAvailableValues = step.getValue().longValue();
