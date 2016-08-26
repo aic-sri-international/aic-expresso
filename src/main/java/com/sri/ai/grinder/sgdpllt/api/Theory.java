@@ -136,7 +136,7 @@ public interface Theory {
 	 * but only on the top expression (that is, without recursing to sub-expressions).
 	 * @return
 	 */
-	MapBasedTopSimplifier getTopSimplifier();
+	MapBasedTopSimplifier getMapBasedTopSimplifier();
 	
 	boolean isSuitableFor(Expression variable, Type type);
 	

@@ -250,7 +250,7 @@ public class CompoundTheory extends AbstractTheory {
 	private static MapBasedSimplifier makeSimplifier(Collection<Theory> subConstraintTheories) {
 		
 		MapBasedSimplifier[] subSimplifiers
-		= mapIntoArray(MapBasedSimplifier.class, subConstraintTheories, t -> t.getTopSimplifier());
+		= mapIntoArray(MapBasedSimplifier.class, subConstraintTheories, t -> t.getMapBasedTopSimplifier());
 		
 		
 		MapBasedSimplifier simplifier

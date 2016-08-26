@@ -77,7 +77,7 @@ public class EvaluatorStepSolverTest {
 		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getTopSimplifier();
+		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -135,7 +135,7 @@ public class EvaluatorStepSolverTest {
 		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getTopSimplifier();
+		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -198,7 +198,7 @@ public class EvaluatorStepSolverTest {
 		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getTopSimplifier();
+		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;
@@ -240,7 +240,7 @@ public class EvaluatorStepSolverTest {
 		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getTopSimplifier();
+		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;

@@ -169,7 +169,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 	public SolutionStep step(Context context) {
 		SolutionStep result;
 		
-		TopSimplifier topSimplifier = context.getTheory().getTopSimplifier();
+		TopSimplifier topSimplifier = context.getTheory().getMapBasedTopSimplifier();
 		TopSimplifier exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
 		Simplifier totalSimplifier = new Recursive(exhaustiveTopSimplifier);
 

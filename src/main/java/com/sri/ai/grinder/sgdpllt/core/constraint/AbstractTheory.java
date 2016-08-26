@@ -128,7 +128,7 @@ abstract public class AbstractTheory implements Theory {
 	}
 	
 	@Override
-	public MapBasedTopSimplifier getTopSimplifier() {
+	public MapBasedTopSimplifier getMapBasedTopSimplifier() {
 		return topSimplifier;
 	}
 	
