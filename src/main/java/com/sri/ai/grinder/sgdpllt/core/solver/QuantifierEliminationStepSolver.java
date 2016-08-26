@@ -31,6 +31,8 @@ public interface QuantifierEliminationStepSolver extends ContextDependentExpress
 	
 	Expression getIndex();
 	
+	Expression getBody();
+	
 	/**
 	 * Generates a random expression from the class of expressions that can be present in the body of the
 	 * quantification once literals have been conditioned away.

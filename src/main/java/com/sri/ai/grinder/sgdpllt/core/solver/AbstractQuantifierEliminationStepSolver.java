@@ -176,6 +176,11 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return indexConstraint.getVariable();
 	}
 	
+	@Override
+	public Expression getBody() {
+		return body;
+	}
+	
 	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
