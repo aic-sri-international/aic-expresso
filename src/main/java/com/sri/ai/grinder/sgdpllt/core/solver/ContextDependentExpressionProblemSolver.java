@@ -50,6 +50,14 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 /**
  * Solves a {@link ContextDependentExpressionProblemStepSolver} by successively conditioning the context on provided splitters.
  * 
+ * For those familiar with the "Probabilistic Inference Modulo Theories" paper on IJCAI-16,
+ * this corresponds to repeatedly applying if-splitting to a problem
+ * until it is solved.
+ * Note that quantifier-splitting only happens for quantifier elimination,
+ * and at the level of {@link ContextDependentExpressionProblemStepSolver}
+ * there is not necessarily a quantifier involved.
+ * This is currently done at the level of {@link QuantifierEliminationStepSolver}.
+ * 
  * @author braz
  *
  */
