@@ -54,7 +54,6 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * An abstract implementation for step solvers for quantified expressions
@@ -114,14 +113,11 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
 	
 	private Context initialContextForBody;
-	
-	protected Simplifier simplifier;
 
-	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, Simplifier simplifier, SingleVariableConstraint indexConstraint, Expression body) {
+	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
 		this.group = group;
 		this.indexConstraint = indexConstraint;
 		this.body = body;
-		this.simplifier = simplifier;
 	}
 
 	/**

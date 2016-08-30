@@ -54,7 +54,6 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A step solver for a summation with an real index constrained by linear real arithmetic literals,
@@ -71,8 +70,8 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 
 	private MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
-	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
-		super(new Sum(), simplifier, indexConstraint, body);
+	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
+		super(new Sum(), indexConstraint, body);
 		valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 				new MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) indexConstraint);
@@ -87,7 +86,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		AbstractQuantifierEliminationStepSolver result = 
 				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						newIndexConstraint, body, simplifier);
+						newIndexConstraint, body);
 		return result;
 	}
 

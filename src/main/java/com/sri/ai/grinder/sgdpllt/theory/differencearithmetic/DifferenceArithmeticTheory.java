@@ -189,11 +189,11 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
 		ContextDependentExpressionProblemStepSolver result;
 		if (group instanceof Sum) {
-			result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody, simplifier);
+			result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody);
 		}
 		else {
 			result = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
-					(group, simplifier, constraint, currentBody);
+					(group, constraint, currentBody);
 		}
 		return result;
 	}

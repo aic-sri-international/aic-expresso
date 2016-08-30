@@ -117,7 +117,7 @@ public class PropositionalTheory extends AbstractTheory {
 	@Override
 	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context) {
 		return new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
-		(group, simplifier, constraintForThisIndex, currentBody);
+		(group, constraintForThisIndex, currentBody);
 	}
 
 	@Override

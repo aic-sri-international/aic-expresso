@@ -52,7 +52,6 @@ import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
@@ -210,7 +209,7 @@ public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
 		ContextDependentExpressionProblemStepSolver stepSolver =
 				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
 						(SingleVariableDifferenceArithmeticConstraint) constraint,
-						body, new Evaluator(theory));
+						body);
 		
 		Expression actual = stepSolver.solve(context);
 

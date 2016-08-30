@@ -47,7 +47,6 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A {@link AbstractQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
@@ -72,8 +71,8 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 @Beta
 public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(AssociativeCommutativeGroup group, Simplifier simplifier, SingleVariableConstraint indexConstraint, Expression body) {
-		super(group, simplifier, indexConstraint, body);
+	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
+		super(group, indexConstraint, body);
 	}
 
 	@Override

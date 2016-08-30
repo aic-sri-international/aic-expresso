@@ -777,7 +777,7 @@ public class LinearRealArithmeticTheoryTest {
 				"summation for " + bodyString, 
 				(Constraint c, Expression b) -> 
 				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						(SingleVariableLinearRealArithmeticConstraint) c, b, simplifier),
+						(SingleVariableLinearRealArithmeticConstraint) c, b),
 				context);
 	}
 

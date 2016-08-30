@@ -58,7 +58,6 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A step solver for a summation with an integer index constrained by difference arithmetic literals,
@@ -75,8 +74,8 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 
 	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
-	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body, Simplifier simplifier) {
-		super(new Sum(), simplifier, indexConstraint, body);
+	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
+		super(new Sum(), indexConstraint, body);
 		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
 				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(
 						(SingleVariableDifferenceArithmeticConstraint) indexConstraint);
@@ -91,7 +90,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		AbstractQuantifierEliminationStepSolver result = 
 				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
-						newIndexConstraint, body, simplifier);
+						newIndexConstraint, body);
 		return result;
 	}
 

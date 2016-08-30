@@ -145,6 +145,6 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	@Override
 	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
 		return new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
-		(group, simplifier, constraint, currentBody);
+		(group, constraint, currentBody);
 	}
 }
