@@ -42,6 +42,7 @@ import static com.sri.ai.util.Util.arrayListFrom;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -61,7 +62,8 @@ import com.sri.ai.util.collect.NestedIterator;
  * @author braz
  */
 @Beta
-public class Categorical implements Type {
+public class Categorical implements Type, Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	private String name;
 	private String lowerCaseName;

@@ -40,6 +40,7 @@ package com.sri.ai.expresso.type;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -57,7 +58,8 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class IntegerExpressoType implements Type {
+public class IntegerExpressoType implements Type, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public String getName() {

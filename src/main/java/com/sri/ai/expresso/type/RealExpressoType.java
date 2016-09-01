@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.type;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -52,7 +53,8 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class RealExpressoType implements Type {
+public class RealExpressoType implements Type, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public String getName() {

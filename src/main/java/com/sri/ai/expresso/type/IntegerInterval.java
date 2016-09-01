@@ -48,6 +48,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -66,7 +67,8 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class IntegerInterval implements Type {
+public class IntegerInterval implements Type, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private String cachedString;
 

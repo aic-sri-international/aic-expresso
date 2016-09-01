@@ -53,6 +53,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_OPEN_OPEN;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -70,7 +71,8 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class RealInterval implements Type {
+public class RealInterval implements Type, Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private String cachedString;
 
