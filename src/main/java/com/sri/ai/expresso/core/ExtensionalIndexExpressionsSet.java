@@ -40,6 +40,7 @@ package com.sri.ai.expresso.core;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,8 +62,9 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
-
+public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet, Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private List<Expression> list;
 	
 	public ExtensionalIndexExpressionsSet(List<Expression> indexExpressions) {

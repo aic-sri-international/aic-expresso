@@ -37,8 +37,12 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.constraint;
 
+import java.io.Serializable;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 /**
@@ -54,6 +58,20 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 	private static final long serialVersionUID = 1L;
 
 	public CompleteMultiVariableContext(Theory theory, Context context) {
-		super(theory, (c, p) -> theory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p), context);
+		super(theory, new CompleteMultiVariableContextDependentProblemStepSolverMaker(theory), context);
+	}
+	
+	public static final class CompleteMultiVariableContextDependentProblemStepSolverMaker implements ContextDependentProblemStepSolverMaker, Serializable {
+		private static final long serialVersionUID = 1L;
+		
+		private Theory theory;
+		public CompleteMultiVariableContextDependentProblemStepSolverMaker(Theory theory) {
+			this.theory = theory;
+		}
+		@Override
+		public ContextDependentExpressionProblemStepSolver apply(SingleVariableConstraint constraint, Context context) {
+			ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+			return result;
+		}
 	}
 }

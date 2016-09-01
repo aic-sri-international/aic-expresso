@@ -42,6 +42,7 @@ import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntri
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
 import static com.sri.ai.util.Util.map;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -69,7 +70,8 @@ import com.sri.ai.util.collect.StackedHashMap;
  * @author oreilly
  */
 @Beta
-public class DefaultRegistry implements Registry {
+public class DefaultRegistry implements Registry, Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	private Map<Expression, Expression>  symbolsAndTypes;
 	private Map<Expression, Type> fromTypeExpressionToType;

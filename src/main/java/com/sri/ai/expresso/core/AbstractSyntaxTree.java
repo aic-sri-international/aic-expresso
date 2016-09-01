@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -58,8 +59,9 @@ import com.sri.ai.util.base.ReplaceByIfEqualTo;
  * @author braz
  */
 @Beta
-public abstract class AbstractSyntaxTree implements SyntaxTree {
-	
+public abstract class AbstractSyntaxTree implements SyntaxTree, Serializable {
+	private static final long serialVersionUID = 1L;
+
 	public static final Function<Object, SyntaxTree> wrapper = new Function<Object, SyntaxTree>() {
 		@Override
 		public SyntaxTree apply(Object object) {

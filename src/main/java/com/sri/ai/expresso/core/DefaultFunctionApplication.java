@@ -42,6 +42,7 @@ import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoObjectArray;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -190,8 +191,9 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		return new DefaultFunctionApplication(getFunctor(), getArguments());
 	}
 	
-	private static class IndexAddress implements SubExpressionAddress {
-
+	private static class IndexAddress implements SubExpressionAddress, Serializable {
+		private static final long serialVersionUID = 1L;
+		
 		private int index;
 		
 		public IndexAddress(int index) {
