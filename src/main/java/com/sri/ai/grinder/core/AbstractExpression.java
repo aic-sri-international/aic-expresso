@@ -39,16 +39,9 @@ package com.sri.ai.grinder.core;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableList;
-import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
@@ -71,18 +64,9 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public abstract class AbstractExpression implements Expression {
 	//
-	protected static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
+	protected static final long serialVersionUID = 4L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
 	
-	protected static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
-	protected String                             cachedToString                      = null;
-	protected volatile Object                    cachedSyntacticFormType             = null;
-	protected Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
-	protected volatile ImmutableList<Expression> cachedArguments                     = null;
-	protected Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
-	protected Expression                         cachedFunctor                       = null;
-	
-	protected volatile transient ImmutableList<ExpressionAndSyntacticContext> cachedImmediateSubExpressionsAndContexts;
-	protected Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
+	protected String  cachedToString = null;
 	
 	@Override
 	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, Registry registry) {
@@ -307,17 +291,6 @@ public abstract class AbstractExpression implements Expression {
 		new FunctionIterator<ExpressionAndSyntacticContext, Expression>(
 				getImmediateSubExpressionsAndContextsIterator(),
 				ExpressionAndSyntacticContext.GET_EXPRESSION);
-	}
-
-
-	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
-		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
-				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
-				// Don't hold onto old threads unnecessarily
-				.weakKeys()
-				.build();
-		
-		return result;
 	}
 
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
