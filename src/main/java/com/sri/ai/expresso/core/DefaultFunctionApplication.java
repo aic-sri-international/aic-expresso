@@ -214,7 +214,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		}
 	}
 
-	Set<String> infixFunctionsStrings = Util.set(
+	private static final Set<String> _infixFunctionsStrings = Util.set(
 			"+", "-", "*", "/", "^",
 			"and", "or", "<=>", "=>",
 			"=", "!=", ">", "<", "<=", ">=",
@@ -252,7 +252,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			}
 			else {
 				String functorString = getFunctor().toString();
-				if (infixFunctionsStrings.contains(functorString)) {
+				if (_infixFunctionsStrings.contains(functorString)) {
 					List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
 					if (hasFunctor(INTEGER_INTERVAL) && numberOfArguments() == 2) {
 						// no spaces between functor and arguments
