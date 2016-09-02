@@ -46,7 +46,6 @@ import static com.sri.ai.grinder.sgdpllt.theory.base.ExpressionConditionedOnLite
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
@@ -62,12 +61,16 @@ import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanProblemWithPropagat
 @Beta
 public class SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
 
-	private Constraint constraint;
+	private SingleVariableLinearRealArithmeticConstraint constraint;
 	private ContextDependentExpressionProblemStepSolver modelCounting;
 	
 	public SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
 		this.constraint = constraint;
 		this.modelCounting = new ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver(constraint);
+	}
+	
+	public SingleVariableLinearRealArithmeticConstraint getConstraint() {
+		return constraint;
 	}
 
 	@Override
