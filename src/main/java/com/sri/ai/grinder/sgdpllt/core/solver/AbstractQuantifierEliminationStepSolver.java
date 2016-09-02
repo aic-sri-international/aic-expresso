@@ -277,7 +277,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	private SolverStep resultIfLiteralContainsIndex(Expression literal, SolverStep bodyStep, Context contextForBody, Context context) {
+	protected SolverStep resultIfLiteralContainsIndex(Expression literal, SolverStep bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
@@ -303,9 +303,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
 			// This is where this step solver may return a Solution with literals in it:
 			// solveSubProblem uses an exhaustive solve.
-			Expression subSolution1 = solveSubProblem(true,  bodyStep, indexConstraintAndLiteral, context);
-			Expression subSolution2 = solveSubProblem(false, bodyStep, indexConstraintAndLiteralNegation, context);
-			solutionValue = combine(subSolution1, subSolution2, context);
+			solutionValue = solveSubProblems(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
 			break;
 		case LITERAL_IS_TRUE:
 			solutionValue = solveSubProblem(true, bodyStep, indexConstraintAndLiteral, context);
@@ -325,8 +323,18 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		
 		return result;
 	}
+	
+	protected Expression solveSubProblems(SolverStep bodyStep, Constraint newIndexConstraint, Constraint newIndexConstraintNegation, Context context) {
+		// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
+		// This is where this step solver may return a Solution with literals in it:
+		// solveSubProblem uses an exhaustive solve.
+		Expression subSolution1 = solveSubProblem(true,  bodyStep, newIndexConstraint, context);
+		Expression subSolution2 = solveSubProblem(false, bodyStep, newIndexConstraintNegation, context);
+		Expression result = combine(subSolution1, subSolution2, context);
+		return result;
+	}
 
-	private Expression solveSubProblem(boolean valueForLiteral, SolverStep bodyStep, Constraint newIndexConstraint, Context context) {
+	protected Expression solveSubProblem(boolean valueForLiteral, SolverStep bodyStep, Constraint newIndexConstraint, Context context) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
 				(SingleVariableConstraint) newIndexConstraint;
 		AbstractQuantifierEliminationStepSolver subProblem = 
