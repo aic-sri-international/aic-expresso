@@ -303,13 +303,13 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
 			// This is where this step solver may return a Solution with literals in it:
 			// solveSubProblem uses an exhaustive solve.
-			solutionValue = solveSubProblems(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
+			solutionValue = solveSubProblems(makeSubProblem(true, bodyStep, indexConstraintAndLiteral), makeSubProblem(false, bodyStep, indexConstraintAndLiteralNegation), context);
 			break;
 		case LITERAL_IS_TRUE:
-			solutionValue = solveSubProblem(true, bodyStep, indexConstraintAndLiteral, context);
+			solutionValue = solveSubProblem(makeSubProblem(true, bodyStep, indexConstraintAndLiteral), context);
 			break;
 		case LITERAL_IS_FALSE:
-			solutionValue = solveSubProblem(false, bodyStep, indexConstraintAndLiteralNegation, context);
+			solutionValue = solveSubProblem(makeSubProblem(false, bodyStep, indexConstraintAndLiteralNegation), context);
 			break;
 		default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
 		}
@@ -324,32 +324,36 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 	
-	protected Expression solveSubProblems(SolverStep bodyStep, Constraint newIndexConstraint, Constraint newIndexConstraintNegation, Context context) {
+	protected Expression solveSubProblems(AbstractQuantifierEliminationStepSolver subProblem1, AbstractQuantifierEliminationStepSolver subProblem2, Context context) {
 		// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
 		// This is where this step solver may return a Solution with literals in it:
 		// solveSubProblem uses an exhaustive solve.
-		Expression subSolution1 = solveSubProblem(true,  bodyStep, newIndexConstraint, context);
-		Expression subSolution2 = solveSubProblem(false, bodyStep, newIndexConstraintNegation, context);
+		Expression subSolution1 = solveSubProblem(subProblem1, context);
+		Expression subSolution2 = solveSubProblem(subProblem2, context);
 		Expression result = combine(subSolution1, subSolution2, context);
 		return result;
 	}
 
-	protected Expression solveSubProblem(boolean valueForLiteral, SolverStep bodyStep, Constraint newIndexConstraint, Context context) {
-		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
-				(SingleVariableConstraint) newIndexConstraint;
-		AbstractQuantifierEliminationStepSolver subProblem = 
-				makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
-		subProblem.initialBodyEvaluationStepSolver =
-				valueForLiteral
-				? bodyStep.getStepSolverForWhenLiteralIsTrue() 
-				: bodyStep.getStepSolverForWhenLiteralIsFalse();
-		subProblem.initialContextForBody = 
-				valueForLiteral
-				? bodyStep.getContextSplitting().getConstraintAndLiteral() 
-				: bodyStep.getContextSplitting().getConstraintAndLiteralNegation();
+	protected Expression solveSubProblem(AbstractQuantifierEliminationStepSolver subProblem, Context context) {	
 		Expression result = subProblem.solve(context);
 		// (**) IF DELETING THIS, DELETE ALL OTHER OCCURRENCES IN THIS FILE
 		// The above code line is the exhaustive solve mentioned in other occurrences of (**)
+		return result;
+	}
+	
+	protected AbstractQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, SolverStep bodyStep, Constraint newIndexConstraint) {
+		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
+				(SingleVariableConstraint) newIndexConstraint;
+		AbstractQuantifierEliminationStepSolver result = 
+				makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
+		result.initialBodyEvaluationStepSolver =
+				valueForLiteral
+				? bodyStep.getStepSolverForWhenLiteralIsTrue() 
+				: bodyStep.getStepSolverForWhenLiteralIsFalse();
+		result.initialContextForBody = 
+				valueForLiteral
+				? bodyStep.getContextSplitting().getConstraintAndLiteral() 
+				: bodyStep.getContextSplitting().getConstraintAndLiteralNegation();
 		return result;
 	}
 
