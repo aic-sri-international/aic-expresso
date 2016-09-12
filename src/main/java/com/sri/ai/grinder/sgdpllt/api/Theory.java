@@ -83,7 +83,7 @@ import com.sri.ai.util.collect.PredicateIterator;
  *
  */
 @Beta
-public interface Theory {
+public interface Theory extends Cloneable {
 
 	// TODO
 	// In the future, we may want to give more structure to this interface,
@@ -438,4 +438,6 @@ public interface Theory {
 	default Context makeContextWithTestingInformation() {
 		return extendWithTestingInformation(new TrueContext(this));
 	}
+	
+	Theory clone();
 }

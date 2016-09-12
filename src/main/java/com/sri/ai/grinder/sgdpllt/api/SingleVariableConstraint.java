@@ -168,4 +168,6 @@ public interface SingleVariableConstraint extends Constraint {
 		}
 		return result;
 	}
+	
+	SingleVariableConstraint clone();
 }

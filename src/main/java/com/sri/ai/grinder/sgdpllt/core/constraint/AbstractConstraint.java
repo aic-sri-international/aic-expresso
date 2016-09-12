@@ -73,6 +73,8 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 		AbstractConstraint result = null;
 		try {
 			result = (AbstractConstraint) super.clone();
+			// TODO - remove need to deep copy theory, currently done to support distributed computation prototype.
+			result.theory = result.theory.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}

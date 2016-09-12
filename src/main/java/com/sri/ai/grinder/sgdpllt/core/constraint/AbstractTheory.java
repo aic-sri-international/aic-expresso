@@ -183,4 +183,16 @@ abstract public class AbstractTheory implements Theory {
 	String toString() {
 		return camelCaseToSpacedString(getClass().getSimpleName());
 	}
+	
+	@Override
+	public Theory clone() {
+		Theory result;
+		try {
+			result = (Theory) super.clone();
+		}
+		catch (CloneNotSupportedException cnse) {
+			throw new RuntimeException(cnse);
+		}
+		return result;
+	}
 }
