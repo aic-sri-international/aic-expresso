@@ -89,4 +89,10 @@ public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpre
 	protected String getHeadString() {
 		return "for all";
 	}
+	
+	
+	@Override
+	protected String getTailString() {
+		return "";
+	}
 }

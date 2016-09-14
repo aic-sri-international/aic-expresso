@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2016, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -35,56 +35,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.core;
-
-import java.util.List;
+package com.sri.ai.grinder.sgdpllt.library.set;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.LambdaExpression;
 
 /**
- * A default implementation of a {@link LambdaExpression}.
+ * A collection of utility routines around cardinality expressions.
  * 
- * @author braz
+ * 
+ * @author oreilly
  */
 @Beta
-public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABody implements LambdaExpression {
+public class CardinalityExpressions {
 
-	private static final long serialVersionUID = 1L;
-	
-	public DefaultLambdaExpression(IndexExpressionsSet indexExpressions, Expression body) {
-		super(indexExpressions, body);
-	}
-
-	public DefaultLambdaExpression(List<Expression> arrayList, Expression body) {
-		this(new ExtensionalIndexExpressionsSet(arrayList), body);
-	}
-
-	@Override
-	public Object getSyntacticFormType() {
-		return "Lambda expression";
-	}
-
-	@Override
-	public String getSyntaxTreeLabel() {
-		return LambdaExpression.ROOT;
-	}
-
-	@Override
-	public DefaultLambdaExpression make(IndexExpressionsSet indexExpressions, Expression body) {
-		DefaultLambdaExpression result = new DefaultLambdaExpression(indexExpressions, body);
-		return result;
-	}
-
-	@Override
-	protected String getHeadString() {
-		return "lambda";
-	}
-	
-	@Override
-	protected String getTailString() {
-		return "";
-	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2016, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -40,51 +40,51 @@ package com.sri.ai.expresso.core;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.LambdaExpression;
 
 /**
- * A default implementation of a {@link LambdaExpression}.
+ * A default implementation of a {@link CountingFormula}.
  * 
- * @author braz
+ * @author oreilly
+ *
  */
 @Beta
-public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABody implements LambdaExpression {
-
+public class DefaultCountingFormula extends AbstractQuantifiedExpressionWithABody implements CountingFormula {
 	private static final long serialVersionUID = 1L;
 	
-	public DefaultLambdaExpression(IndexExpressionsSet indexExpressions, Expression body) {
+	public DefaultCountingFormula(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions, body);
 	}
-
-	public DefaultLambdaExpression(List<Expression> arrayList, Expression body) {
+	
+	public DefaultCountingFormula(List<Expression> arrayList, Expression body) {
 		this(new ExtensionalIndexExpressionsSet(arrayList), body);
 	}
-
+	
 	@Override
 	public Object getSyntacticFormType() {
-		return "Lambda expression";
+		return CountingFormula.SYNTACTIC_FORM_TYPE;
 	}
-
+	
 	@Override
 	public String getSyntaxTreeLabel() {
-		return LambdaExpression.ROOT;
+		return CountingFormula.ROOT;
 	}
-
+	
 	@Override
-	public DefaultLambdaExpression make(IndexExpressionsSet indexExpressions, Expression body) {
-		DefaultLambdaExpression result = new DefaultLambdaExpression(indexExpressions, body);
+	public DefaultCountingFormula make(IndexExpressionsSet indexExpressions, Expression body) {
+		DefaultCountingFormula result = new DefaultCountingFormula(indexExpressions, body);
 		return result;
 	}
-
+	
 	@Override
 	protected String getHeadString() {
-		return "lambda";
+		return "|";
 	}
 	
 	@Override
 	protected String getTailString() {
-		return "";
+		return "|";
 	}
 }

@@ -199,6 +199,9 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 			parametersRepresentation = " " + parametersRepresentation;
 		}
 		String result = getHeadString() + parametersRepresentation + " : " + getBody();
+		if (!getTailString().isEmpty()) {
+			result = result + " " + getTailString();
+		}
 		return result;
 	}
 
@@ -209,4 +212,12 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	 * @return the head string
 	 */
 	protected abstract String getHeadString();
+	
+	/**
+	 * Provides the <i>tail string</i>, which
+	 * is used in the string representation of this type of expression:<br>
+	 * <code>[head string] [index expressions separated by comma] : [body] [tail string]</code>.
+	 * @return the head string
+	 */
+	protected abstract String getTailString();
 }

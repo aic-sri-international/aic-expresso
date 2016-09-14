@@ -83,4 +83,9 @@ public class DefaultExistentiallyQuantifiedFormula extends AbstractQuantifiedExp
 	protected String getHeadString() {
 		return "there exists";
 	}
+	
+	@Override
+	protected String getTailString() {
+		return "";
+	}
 }
