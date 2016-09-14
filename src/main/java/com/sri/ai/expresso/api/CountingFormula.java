@@ -54,5 +54,5 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface CountingFormula extends QuantifiedExpressionWithABody  {
 	String SYNTACTIC_FORM_TYPE = "Counting formula";
-	String ROOT = "[ # ]";
+	String LABEL = "| # |";
 }

@@ -42,11 +42,13 @@ import static com.sri.ai.util.Util.list;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
@@ -862,6 +864,36 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 	}
+	
+	@Test
+	public void testCountingFormula() {
+		String string;
+		
+		string = "| : X < 5 |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+		
+		string = "| X in 1..10 : X < 5 |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+		
+		string = "| X in 1..10, Y in 1..10 : X < 5 and Y < X |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST,
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10")),
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"), 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "Y", "X"))));
+	}	
 
 	@Test
 	public void testCardinality () {

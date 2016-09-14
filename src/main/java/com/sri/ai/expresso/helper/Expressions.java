@@ -58,6 +58,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -67,6 +68,7 @@ import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultCountingFormula;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
@@ -176,6 +178,9 @@ public class Expressions {
 		else if (label.equals(ThereExists.LABEL)) {
 			result = makeDefaultExistentiallyQuantifiedFormulaFromLabelAndSubTrees(label, subTreeObjects);
 		}
+		else if (label.equals(CountingFormula.LABEL)) {
+			result = makeDefaultCountingFormulaExpressionFromLabelAndSubTrees(label, subTreeObjects);
+		}
 		else if (label.equals(LambdaExpression.ROOT)) {
 			result = makeDefaultLambdaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -197,6 +202,15 @@ public class Expressions {
 		else {
 			result = makeDefaultFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
+		return result;
+	}
+	
+	private static Expression makeDefaultCountingFormulaExpressionFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
+		Expression body = subTreeExpressions.get(1);
+		Expression result = new DefaultCountingFormula(indexExpressions, body);
 		return result;
 	}
 	

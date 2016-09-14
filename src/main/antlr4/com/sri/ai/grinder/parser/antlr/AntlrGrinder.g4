@@ -11,6 +11,8 @@ expr :
      | functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
        // tuple, e.g.: (A, B, C)
      | '(' expr ',' expr (',' expr)* ')' #tuple
+       // counting formula, e.g.: | X in 1..10 : X < 5 |
+     | '|' ( indexes+=expr (',' indexes+=expr)* )? ':' body=expr '|' #countingFormula
        // cardinality, e.g.: | X |
      | '|' expr '|' #cardinality
        // intensional uniset, e.g.: { (on X) f(X) | X != a }

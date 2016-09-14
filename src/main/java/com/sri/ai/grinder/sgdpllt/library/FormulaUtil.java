@@ -148,31 +148,6 @@ public class FormulaUtil {
 	}
 	
 	/**
-	 * Determine if an expression is a quantifier free formula.
-	 * 
-	 * @param expression
-	 *            the expression to be tested if it is a quantifier free formula.
-	 * @param context
-	 *            the context in which the expression is being used.
-	 * @return true if the expression passed in is a quantifier free formula, false otherwise.
-	 */
-	public static boolean isQuantifierFreeFormula(Expression expression, Context context) {
-		boolean result = false;
-
-		if (isFormula(expression, context)) {
-			result = !Util.thereExists(new SubExpressionsDepthFirstIterator(expression), new Predicate<Expression>() {
-				@Override
-				public boolean apply(Expression expression) {
-					boolean result = ForAll.isForAll(expression) || ThereExists.isThereExists(expression);
-					return result;
-				}
-			});
-		}
-		
-		return result;
-	}
-	
-	/**
 	 * Determine if an expression is a legal formula constant.
 	 * 
 	 * @param expression

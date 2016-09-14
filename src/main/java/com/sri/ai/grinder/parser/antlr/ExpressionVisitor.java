@@ -53,6 +53,7 @@ import org.antlr.v4.runtime.Token;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultCountingFormula;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
@@ -148,6 +149,14 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override 
 	public Expression visitTuple(AntlrGrinderParser.TupleContext ctx) {	
 		Expression result = Tuple.make(expressions(ctx.expr()));
+		return result;
+	}
+
+	// counting formula, e.g.: | X in 1..10 : X < 5 |
+	//  '|' ( indexes+=expr (',' indexes+=expr)* )? ':' body=expr '|' #countingFormula
+	@Override 
+	public Expression visitCountingFormula(AntlrGrinderParser.CountingFormulaContext ctx) { 
+		Expression result = new DefaultCountingFormula(expressionsList(ctx.indexes), visit(ctx.body));
 		return result;
 	}
 	

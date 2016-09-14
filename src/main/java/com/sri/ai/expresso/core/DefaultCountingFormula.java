@@ -69,7 +69,7 @@ public class DefaultCountingFormula extends AbstractQuantifiedExpressionWithABod
 	
 	@Override
 	public String getSyntaxTreeLabel() {
-		return CountingFormula.ROOT;
+		return CountingFormula.LABEL;
 	}
 	
 	@Override
