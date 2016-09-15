@@ -40,7 +40,8 @@ package com.sri.ai.expresso.api;
 import com.google.common.annotations.Beta;
 
 /**
- * An {@link Expression} that represents a counting expression, for example:<br>
+ * An {@link Expression} that represents a counting formula, for example:<br>
+ * 
  * <pre>
  * | X in 1..10 : X < 5 |
  * 
@@ -49,10 +50,12 @@ import com.google.common.annotations.Beta;
  * | {{ (on X in 1..10) X | X < 5 }} |
  * </pre>
  * 
+ * which have the express goal of representing a number of satisfying solutions.
+ * 
  * @author braz
  */
 @Beta
-public interface CountingFormula extends QuantifiedExpressionWithABody  {
+public interface CountingFormula extends QuantifiedExpressionWithABody {
 	String SYNTACTIC_FORM_TYPE = "Counting formula";
 	String LABEL = "| # |";
 }

@@ -75,6 +75,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
+import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
@@ -504,6 +505,18 @@ public class GrinderUtil {
 	 */
 	public static boolean isIntegerOrReal(Expression type) {
 		return type.equals("Integer") || type.equals("Real");
+	}
+	
+	/**
+	 * Test if a given expression is equivalent to a cardinality expression.
+	 * 
+	 * @param expression
+	 *            the expression to be tested.
+	 * @return true if the given expression is equivalent to a cardinality
+	 *         expression.
+	 */
+	public static boolean isCardinalityExpression(Expression expression) {
+		return (expression instanceof CountingFormula) || expression.hasFunctor(CARDINALITY);
 	}
 
 	/**
