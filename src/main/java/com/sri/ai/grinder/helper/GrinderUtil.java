@@ -381,7 +381,7 @@ public class GrinderUtil {
 				throw new Error("'" + expression + "' then and else branches have different types (" + thenType + " and " + elseType + " respectively).");
 			}
 		}
-		else if (expression.hasFunctor(CARDINALITY)) {
+		else if (isCardinalityExpression(expression)) {
 			result = makeSymbol("Integer");
 		}
 		else if (isNumericFunctionApplication(expression)) {

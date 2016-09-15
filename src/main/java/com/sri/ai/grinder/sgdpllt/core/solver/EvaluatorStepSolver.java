@@ -66,7 +66,7 @@ import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.group.SumProduct;
 import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.Recursive;
@@ -200,11 +200,13 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
 			result = new Solution(quantifierFreeExpression);
 		}
-		else if (expression.hasFunctor(FunctorConstants.CARDINALITY) && isIntensionalMultiSet(expression.get(0)) ) {
-			// | {{ (on I) Head | Condition }} | ---> sum ( {{ (on I) 1 | Condition }} )
+		else if (CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression(expression)) {
+			// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
+			// or:
+			// | I : Condition | --> sum({{ (on I) 1 : Condition }})
 			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
-			Expression functionOnSet = apply(SUM, intensionalSet);
+			Expression functionOnSet = apply(SUM, IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, CountingFormulaEquivalentExpressions.getIndexExpressions(expression), ONE, CountingFormulaEquivalentExpressions.getCondition(expression)));
 			QuantifierEliminator sgvet = new SGVET(new SumProduct());
 			Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
 			result = new Solution(quantifierFreeExpression);
