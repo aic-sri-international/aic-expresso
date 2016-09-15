@@ -16,9 +16,9 @@ expr :
        // cardinality, e.g.: | X |
      | '|' expr '|' #cardinality
        // intensional uniset, e.g.: { (on X) f(X) | X != a }
-     | '{' ('(' scope=ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
+     | '{' ('(' scope=ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr (':' condition=expr)? '}' #intensionalUniset
        // intensional multiset, e.g.: {{ (on X) f(X) | X != a }}
-     | '{{' ('(' scope=ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}}' #intensionalMultiset
+     | '{{' ('(' scope=ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr (':' condition=expr)? '}}' #intensionalMultiset
        // extensional uniset, e.g.: { A, B, C, C, D }
      | '{' ( expr (',' expr)* )? '}' #extensionalUniset
        // extensional multiset, e.g.: {{ A, B, C, C, D }}

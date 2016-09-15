@@ -57,7 +57,7 @@ public interface IntensionalSet extends QuantifiedExpression {
 	
 	public static final String UNI_SET_LABEL          = "{ . . . }";
 	public static final String MULTI_SET_LABEL        = "{{ . . . }}";
-	public static final String CONDITION_LABEL        = "|";
+	public static final String CONDITION_LABEL        = ":";
 	public static final String SCOPED_VARIABLES_LABEL = "( on . )";
 
 	/**

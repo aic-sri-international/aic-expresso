@@ -140,44 +140,44 @@ public class EvaluatorStepSolverTest {
 		String expressionString;
 		Expression expected;
 		
-		expressionString = "sum( {{ (on I in 1..10) 3 | I != 4 and P }} )";
+		expressionString = "sum( {{ (on I in 1..10) 3 : I != 4 and P }} )";
 		expected = parse("if P then 27 else 0");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "sum( {{ (on ) 3 | I != 4 and P }} )";
+		expressionString = "sum( {{ (on ) 3 : I != 4 and P }} )";
 		expected = parse("if I != 4 then if P then 3 else 0 else 0");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "sum( {{ (on ) 3 | P and not P }} )";
+		expressionString = "sum( {{ (on ) 3 : P and not P }} )";
 		expected = parse("0");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "sum( {{ (on I in 1..10, J in 1..2) 3 | I != 4 }} )";
+		expressionString = "sum( {{ (on I in 1..10, J in 1..2) 3 : I != 4 }} )";
 		expected = parse("54");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "sum( {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} )";
+		expressionString = "sum( {{ (on I in 1..10, P in Boolean) 3 : I != 4 }} )";
 		expected = parse("54");
 		runTest(expressionString, expected, topSimplifier, context);	
 
 		
-		expressionString = "max( {{ (on I in 1..10) 3 | I != 4 and P }} )";
+		expressionString = "max( {{ (on I in 1..10) 3 : I != 4 and P }} )";
 		expected = parse("if P then 3 else -infinity");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "max( {{ (on ) 3 | I != 4 and P }} )";
+		expressionString = "max( {{ (on ) 3 : I != 4 and P }} )";
 		expected = parse("if I != 4 then if P then 3 else -infinity else -infinity");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "max( {{ (on ) 3 | P and not P }} )";
+		expressionString = "max( {{ (on ) 3 : P and not P }} )";
 		expected = parse("-infinity");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "max( {{ (on I in 1..10, J in 1..2) 3 | I != 4 }} )";
+		expressionString = "max( {{ (on I in 1..10, J in 1..2) 3 : I != 4 }} )";
 		expected = parse("3");
 		runTest(expressionString, expected, topSimplifier, context);	
 
-		expressionString = "max( {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} )";
+		expressionString = "max( {{ (on I in 1..10, P in Boolean) 3 : I != 4 }} )";
 		expected = parse("3");
 		runTest(expressionString, expected, topSimplifier, context);	
 	}
@@ -203,23 +203,23 @@ public class EvaluatorStepSolverTest {
 		String expressionString;
 		Expression expected;
 		
-		expressionString = "| {{ (on I in 1..10) 3 | I != 4 and P }} |";
+		expressionString = "| {{ (on I in 1..10) 3 : I != 4 and P }} |";
 		expected = parse("if P then 9 else 0");
 		runTest(expressionString, expected, topSimplifier, context);	
 	
-		expressionString = "| {{ (on ) 3 | I != 4 and P }} |";
+		expressionString = "| {{ (on ) 3 : I != 4 and P }} |";
 		expected = parse("if I != 4 then if P then 1 else 0 else 0");
 		runTest(expressionString, expected, topSimplifier, context);	
 	
-		expressionString = "| {{ (on ) 3 | P and not P }} |";
+		expressionString = "| {{ (on ) 3 : P and not P }} |";
 		expected = parse("0");
 		runTest(expressionString, expected, topSimplifier, context);	
 	
-		expressionString = "| {{ (on I in 1..10, J in 1..2) 3 | I != 4 }} |";
+		expressionString = "| {{ (on I in 1..10, J in 1..2) 3 : I != 4 }} |";
 		expected = parse("18");
 		runTest(expressionString, expected, topSimplifier, context);	
 	
-		expressionString = "| {{ (on I in 1..10, P in Boolean) 3 | I != 4 }} |";
+		expressionString = "| {{ (on I in 1..10, P in Boolean) 3 : I != 4 }} |";
 		expected = parse("18");
 		runTest(expressionString, expected, topSimplifier, context);	
 	}
