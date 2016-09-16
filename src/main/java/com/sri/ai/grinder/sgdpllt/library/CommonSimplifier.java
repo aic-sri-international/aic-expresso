@@ -42,7 +42,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantsSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMer
  * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
  * <li> {@link BooleanSimplifier}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
  * <li> {@link NumericSimplifier}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link CardinalitySimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
+ * <li> {@link CardinalityOfSetConstantsSimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
  * </ul>
  * 
  * @author braz
@@ -69,6 +69,6 @@ public class CommonSimplifier extends RecursiveExhaustiveSeriallyMergedMapBasedS
 				new NumericSimplifier(),
 				new EqualitySimplifier(),
 				new InequalitySimplifier(),
-				new CardinalitySimplifier());
+				new CardinalityOfSetConstantsSimplifier());
 	}
 }

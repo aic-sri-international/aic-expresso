@@ -204,8 +204,6 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
 			// or:
 			// | I : Condition | --> sum({{ (on I) 1 : Condition }})
-			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
-			intensionalSet = (IntensionalSet) intensionalSet.setHead(ONE);
 			Expression functionOnSet = apply(SUM, IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, CountingFormulaEquivalentExpressions.getIndexExpressions(expression), ONE, CountingFormulaEquivalentExpressions.getCondition(expression)));
 			QuantifierEliminator sgvet = new SGVET(new SumProduct());
 			Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);

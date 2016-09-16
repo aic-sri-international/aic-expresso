@@ -77,7 +77,7 @@ import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.Plus;
 import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantsSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
@@ -114,7 +114,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 						new NumericSimplifier(),
 						new EqualitySimplifier(),
 						new InequalitySimplifier(),
-						new CardinalitySimplifier()
+						new CardinalityOfSetConstantsSimplifier()
 						));
 		// Numeric simplifiers are included to take care of polynomials
 		// in the body expression (conditional polynomials) of summations.

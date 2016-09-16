@@ -48,6 +48,7 @@ import static com.sri.ai.util.Util.map;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
@@ -60,6 +61,9 @@ import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
+import com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
@@ -101,15 +105,16 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 				SUM,         simplifierFor(new Sum()),
 				PRODUCT,     simplifierFor(new Product()),
 				MAX,         simplifierFor(new Max()),
-				CARDINALITY, simplifierCardinality()
+				CARDINALITY, simplifierCountingFormulaEquivalentExpression()
 				);
 	}
 
 	@Override
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
-				"There exists", simplifierForQuantificationOn(new Disjunction()),
-				"For all",      simplifierForQuantificationOn(new Conjunction())
+				ThereExists.SYNTACTIC_FORM_TYPE,      simplifierForQuantificationOn(new Disjunction()),
+				ForAll.SYNTACTIC_FORM_TYPE,           simplifierForQuantificationOn(new Conjunction()),
+				CountingFormula.SYNTACTIC_FORM_TYPE,  simplifierCountingFormulaEquivalentExpression()
 				);
 	}
 
@@ -122,19 +127,18 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 		return (e, p) -> evaluateAggregateOverIntensionalSet(group, e, p);
 	}
 	
-	private Simplifier simplifierCardinality() { // reminder: CommonInterpreter already has a cardinality simplifier but AbstractInterpreter serializes multiple simplifiers for the same function
+	private Simplifier simplifierCountingFormulaEquivalentExpression() { // reminder: CommonInterpreter already has a cardinality simplifier but AbstractInterpreter serializes multiple simplifiers for the same function
 		return (e, p) -> {
 			Expression result;
-			if (e.get(0).getSyntacticFormType().equals("Intensional set")) {
-				IntensionalSet set = (IntensionalSet) e.get(0);
+			if (CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression(e)) {
 				ExtensionalIndexExpressionsSet indexExpressions =
-						(ExtensionalIndexExpressionsSet) set.getIndexExpressions();
-				Expression simplifiedSetCondition = apply(set.getCondition(), p);
+						(ExtensionalIndexExpressionsSet) CountingFormulaEquivalentExpressions.getIndexExpressions(e);
+				Expression simplifiedCondition = apply(CountingFormulaEquivalentExpressions.getCondition(e), p);
 				result =
 						evaluateAggregateOperation(
 								new Sum(),
 								indexExpressions,
-								simplifiedSetCondition,
+								simplifiedCondition,
 								ONE,
 								p);
 			}

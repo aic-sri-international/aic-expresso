@@ -59,7 +59,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantsSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
@@ -107,7 +107,7 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 						new InequalitySimplifier(),
 						new BooleanSimplifier(),
 						new NumericSimplifier(),
-						new CardinalitySimplifier(),
+						new CardinalityOfSetConstantsSimplifier(),
 						extraSimplifier));
 	}
 	

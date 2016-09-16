@@ -48,16 +48,16 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
 
 /**
- * A {@link Simplifier} with a cardinality simplifier
+ * A {@link Simplifier} with a cardinality of set constants simplifier
  * (cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).))
  * 
  * @author braz
  *
  */
 @Beta
-public class CardinalitySimplifier extends DefaultMapBasedTopSimplifier {
+public class CardinalityOfSetConstantsSimplifier extends DefaultMapBasedTopSimplifier {
 	
-	public CardinalitySimplifier() {
+	public CardinalityOfSetConstantsSimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	
