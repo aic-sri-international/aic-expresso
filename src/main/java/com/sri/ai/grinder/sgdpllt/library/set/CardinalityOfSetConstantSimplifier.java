@@ -55,9 +55,9 @@ import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
  *
  */
 @Beta
-public class CardinalityOfSetConstantsSimplifier extends DefaultMapBasedTopSimplifier {
+public class CardinalityOfSetConstantSimplifier extends DefaultMapBasedTopSimplifier {
 	
-	public CardinalityOfSetConstantsSimplifier() {
+	public CardinalityOfSetConstantSimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	

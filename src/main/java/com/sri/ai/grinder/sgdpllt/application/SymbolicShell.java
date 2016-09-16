@@ -121,25 +121,26 @@ public class SymbolicShell {
 		
 		Collection<String> examples = list(
 				"sum({{ (on C in People)  3 }})",
-				"sum({{ (on C in People)  3 |  C != D }})",
-				"product({{ (on C in People)  3 |  C != D }})",
-				"| {{ (on C in People)  3 |  C != D }} |",
-				"max({{ (on C in People)  3 |  C != D }})",
-				"sum({{ (on C in People, D in People)  3 |  C != D }})",
-				"sum({{ (on C in People)  3 |  C != D and C != ann }})",
-				"sum({{ (on C in People, P in Boolean)  3 |  C != ann }})",
-				"sum({{ (on C in People, P in Boolean)  3 |  C != ann and not P }})",
-				"sum({{ (on C in People, D in People)  if C = ann and D != bob then 2 else 0  |  for all E in People : E = ann => C = E }})"
+				"sum({{ (on C in People)  3 :  C != D }})",
+				"product({{ (on C in People)  3 :  C != D }})",
+				"| {{ (on C in People)  3 :  C != D }} |",
+				"| { (on C in People)  tuple(C) :  C != D } |",
+				"max({{ (on C in People)  3 :  C != D }})",
+				"sum({{ (on C in People, D in People)  3 :  C != D }})",
+				"sum({{ (on C in People)  3 :  C != D and C != ann }})",
+				"sum({{ (on C in People, P in Boolean)  3 :  C != ann }})",
+				"sum({{ (on C in People, P in Boolean)  3 :  C != ann and not P }})",
+				"sum({{ (on C in People, D in People)  if C = ann and D != bob then 2 else 0  :  for all E in People : E = ann => C = E }})"
 				
 				, "sum({{ (on I in 1..100)  I }})"
-				, "sum({{ (on I in 1..100)  I | I != 3 and I != 5 and I != 500 }})"
-				, "sum({{ (on I in 1..100)  I | I != J and I != 5 and I != 500 }})"
+				, "sum({{ (on I in 1..100)  I : I != 3 and I != 5 and I != 500 }})"
+				, "sum({{ (on I in 1..100)  I : I != J and I != 5 and I != 500 }})"
 				, "sum({{ (on I in 1..100)  (I - J)^2 }})"
 				, "sum({{ (on I in 1..100)  if I != K then (I - J)^2 else 0 }})"
 				
-				, "sum({{ (on I in 1..100)  I | I >= 3 and I < 21 }})"
-				, "sum({{ (on I in 1..100)  I | I > J and I < 5 and I < 500 }})"
-				, "sum({{ (on I in 1..100)  (I - J)^2 | I < 50 }})"
+				, "sum({{ (on I in 1..100)  I : I >= 3 and I < 21 }})"
+				, "sum({{ (on I in 1..100)  I : I > J and I < 5 and I < 500 }})"
+				, "sum({{ (on I in 1..100)  (I - J)^2 : I < 50 }})"
 				
 				, "sum({{ (on X in [0;100])  1 }})"
 				, "sum({{ (on X in [0;100[)  1 }})"
@@ -148,11 +149,13 @@ public class SymbolicShell {
 				, "sum({{ (on X in [0;100])  X }})"
 				, "sum({{ (on X in [0;100])  X^2 }})"
 				, "sum({{ (on X in [0;100])  X + Y }})"
-				, "sum({{ (on X in [0;100])  1 | Y < X and X < Z}})"
-				, "sum({{ (on X in Real)  1 | 0 <= X and X <= 100 and Y < X and X < Z}})"
+				, "sum({{ (on X in [0;100])  1 : Y < X and X < Z}})"
+				, "sum({{ (on X in Real)  1 : 0 <= X and X <= 100 and Y < X and X < Z}})"
 				, "for all X in Real : X > 0 or X <= 0"
 				, "for all X in ]0;10] : X > 0"
 				, "for all X in [0;10] : X > 0"
+				, "| X in 1..10 : X < 4 or X > 8 |"
+				, "| X in 1..10, Y in 3..5 : (X < 4 or X > 8) and Y != 5 |"
 				);
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
@@ -280,18 +283,27 @@ public class SymbolicShell {
 				"- numeric operators: +, -, *, /, ^, <, >, <=, >=",
 				"",
 				"- universal and existential quantification:",
-				"- for all C in <Type> : <Formula>",
-				"- there exists C in <Type> : <Formula>",
+				"    for all <Variable> in <Type> : <Formula>",
+				"    there exists <Variable> in <Type> : <Formula>",
 				"",
 				"- aggregates over intensionally-defined multi-sets:",
-				"-     sum({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> | <Condition> }})",
-				"- product({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> | <Condition> }})",
-				"-     max({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> | <Condition> }})",
-				"- the 'on' clause indicates the set indices; all other variables are free variables",
+				"        sum({{ (on <Variable1> in <Type>, <Variable2> in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"    product({{ (on <Variable1> in <Type>, <Variable2> in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"        max({{ (on <Variable1> in <Type>, <Variable2> in <Type>, ...)  <Number-valued> : <Condition> }})",
+				"  the 'on' clause indicates the set indices; all other variables are free variables",
 				"  and the result may depend on them",
 				"",
 				"- cardinality over intensionally-defined multi-sets:",
-				"-      | ({{ (on C in <Type>, D in <Type>, ...)  <Number-valued> : <Condition> }}) |",
+				"       | {{ (on <Variable1> in <Type>, <Variable2> in <Type>, ...)  <Expression> : <Condition> }} |",
+				"       (note that the result independs of <Expression>)",
+				"",
+				"- counting formulas:",
+				"       | <Variable1> in <Type>, <Variable2> in <Type>, ... :  <Condition> |",
+				"  which are a short-hand for the above with any <Expression> (which is irrelevant anyway)",
+				"",
+				"- cardinality over intensionally-defined uni-sets with head equal to tuple of indices:",
+				"       | { (on <Variable1> in <Type>, <Variable2> in <Type>, ...)  (<Variable1>, <Variable2>, ...) : <Condition> } |",
+				"       (which is equivalent to the corresponding multi-set)",
 				"",
 				"Inference only works on equality, propositions and difference arithmetic on integers.",
 				"This means that equalities (=), disequalities (!=) and inequalities (<, >, <=, >=) over integers",
