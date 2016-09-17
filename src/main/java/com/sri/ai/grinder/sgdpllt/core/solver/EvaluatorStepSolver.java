@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
+import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -45,6 +46,9 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.getCondition;
+import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.getIndexExpressions;
+import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression;
 import static com.sri.ai.grinder.sgdpllt.library.set.Sets.isIntensionalMultiSet;
 import static com.sri.ai.grinder.sgdpllt.theory.base.ExpressionConditionedOnLiteralSolutionStep.stepDependingOnLiteral;
 import static com.sri.ai.util.Util.map;
@@ -54,7 +58,6 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
@@ -66,7 +69,6 @@ import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.group.SumProduct;
 import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
-import com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.Recursive;
@@ -200,11 +202,12 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
 			result = new Solution(quantifierFreeExpression);
 		}
-		else if (CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression(expression)) {
+		else if (isCountingFormulaEquivalentExpression(expression)) {
 			// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
 			// or:
 			// | I : Condition | --> sum({{ (on I) 1 : Condition }})
-			Expression functionOnSet = apply(SUM, IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, CountingFormulaEquivalentExpressions.getIndexExpressions(expression), ONE, CountingFormulaEquivalentExpressions.getCondition(expression)));
+			Expression set = intensionalMultiSet(getIndexExpressions(expression), ONE, getCondition(expression));
+			Expression functionOnSet = apply(SUM, set);
 			QuantifierEliminator sgvet = new SGVET(new SumProduct());
 			Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
 			result = new Solution(quantifierFreeExpression);

@@ -43,6 +43,9 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.getCondition;
+import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.getIndexExpressions;
+import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
@@ -63,7 +66,6 @@ import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
-import com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
@@ -105,7 +107,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 				SUM,         simplifierFor(new Sum()),
 				PRODUCT,     simplifierFor(new Product()),
 				MAX,         simplifierFor(new Max()),
-				CARDINALITY, simplifierCountingFormulaEquivalentExpression()
+				CARDINALITY, simplifierForCountingFormulaEquivalentExpression()
 				);
 	}
 
@@ -114,7 +116,7 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 		return map(
 				ThereExists.SYNTACTIC_FORM_TYPE,      simplifierForQuantificationOn(new Disjunction()),
 				ForAll.SYNTACTIC_FORM_TYPE,           simplifierForQuantificationOn(new Conjunction()),
-				CountingFormula.SYNTACTIC_FORM_TYPE,  simplifierCountingFormulaEquivalentExpression()
+				CountingFormula.SYNTACTIC_FORM_TYPE,  simplifierForCountingFormulaEquivalentExpression()
 				);
 	}
 
@@ -127,13 +129,13 @@ public abstract class AbstractCommonInterpreter extends AbstractRecursiveExhaust
 		return (e, p) -> evaluateAggregateOverIntensionalSet(group, e, p);
 	}
 	
-	private Simplifier simplifierCountingFormulaEquivalentExpression() { // reminder: CommonInterpreter already has a cardinality simplifier but AbstractInterpreter serializes multiple simplifiers for the same function
+	private Simplifier simplifierForCountingFormulaEquivalentExpression() { // reminder: CommonInterpreter already has a cardinality simplifier but AbstractInterpreter serializes multiple simplifiers for the same function
 		return (e, p) -> {
 			Expression result;
-			if (CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression(e)) {
+			if (isCountingFormulaEquivalentExpression(e)) {
 				ExtensionalIndexExpressionsSet indexExpressions =
-						(ExtensionalIndexExpressionsSet) CountingFormulaEquivalentExpressions.getIndexExpressions(e);
-				Expression simplifiedCondition = apply(CountingFormulaEquivalentExpressions.getCondition(e), p);
+						(ExtensionalIndexExpressionsSet) getIndexExpressions(e);
+				Expression simplifiedCondition = apply(getCondition(e), p);
 				result =
 						evaluateAggregateOperation(
 								new Sum(),
