@@ -24,7 +24,7 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public class DefaultMultiVariableConstraint extends AbstractConstraint implements Constraint {
+public class DefaultMultiVariableConstraint extends AbstractConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
