@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDiff
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 
 @Beta
-public class SummationOnIntegerInequalityAndPolynomialStepSolverTest {
+public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void simpleBodyTest() {

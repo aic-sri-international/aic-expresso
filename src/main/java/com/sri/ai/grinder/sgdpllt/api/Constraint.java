@@ -76,8 +76,7 @@ public interface Constraint extends Expression {
 		if (isContradiction(formula)) {
 			result = makeContradiction();
 		}
-//      Warning: tempting, but incorrect, because 'formula' may not be indexed on same variables as 'this'
-//      Also, testing equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
+//      Warning: tempting, but inefficient because equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
 //		else if (formula instanceof Constraint && this.equals(TRUE)) {
 //			result = (Constraint) formula;
 //		}
