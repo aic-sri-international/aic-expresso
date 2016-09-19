@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 
 /**
- * A specialization of {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}
+ * A specialization of {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver}
  * that returns solution <code>false</code> if propagated literals and propagated CNF are not satisfied
  * by the context.
  * This has been written with satisfiability in mind although it could apply to other problems.
@@ -61,7 +61,7 @@ import com.sri.ai.grinder.sgdpllt.api.Constraint;
  *
  */
 @Beta
-public abstract class AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
+public abstract class AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver extends AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver {
 
 	public AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver(Constraint constraint) {
 		super(constraint);

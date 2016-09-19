@@ -70,7 +70,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractSingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractContextDependentProblemWithPropagatedLiteralsStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.helper.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
@@ -87,7 +87,7 @@ import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}
+ * A {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver}
  * for a {@link AbstractSingleVariableNumericConstraint}
  * with basic methods for determining the feasibility region of the variable,
  * but leaving the determination of the final solution to {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context)}.
@@ -96,7 +96,7 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
  *
  */
 @Beta
-public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
+public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver extends AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver {
 
 	/**
 	 * SUBTLETY NOTES:
