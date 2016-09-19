@@ -68,6 +68,12 @@ import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 @Beta
 public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
 
+	// TODO: before making changes to this class,
+	// it would be better to abstract its common aspects (lots of them)
+	// with SummationOnDifferenceArithmeticAndPolynomialStepSolver
+	// (the changes will probably need to be reflected there as well,
+	// so it's better to unify first).
+	
 	private MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
 	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {

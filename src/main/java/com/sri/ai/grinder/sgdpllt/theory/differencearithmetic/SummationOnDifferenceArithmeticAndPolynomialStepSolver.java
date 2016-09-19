@@ -72,6 +72,12 @@ import com.sri.ai.grinder.sgdpllt.group.Sum;
 @Beta
 public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
 
+	// TODO: before making changes to this class,
+	// it would be better to abstract its common aspects (lots of them)
+	// with SummationOnLinearRealArithmeticAndPolynomialStepSolver
+	// (the changes will probably need to be reflected there as well,
+	// so it's better to unify first).
+	
 	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
 	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
