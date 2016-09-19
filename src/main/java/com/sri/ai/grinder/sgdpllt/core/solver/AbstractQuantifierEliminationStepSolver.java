@@ -204,7 +204,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		Context contextForBody = getContextForBody(context);
 		
 		if (contextForBody.isContradiction()) {
-			result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
+			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
 			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
@@ -296,7 +296,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			solutionValue = null;
 			break;
 		case LITERAL_IS_UNDEFINED:
-			// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
+			// (**) IF DELETING THIS MARKER, DELETE ALL THE REFERENCES TO IT IN THIS FILE
 			// This is where this step solver may return a Solution with literals in it:
 			// solveSubProblem uses an exhaustive solve.
 			solutionValue = solveSubProblems(makeSubProblem(true, bodyStep, indexConstraintAndLiteral), makeSubProblem(false, bodyStep, indexConstraintAndLiteralNegation), context);
