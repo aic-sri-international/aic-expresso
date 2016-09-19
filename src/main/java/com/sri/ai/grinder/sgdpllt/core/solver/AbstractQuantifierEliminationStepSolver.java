@@ -199,10 +199,6 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	@Override
 	public SolverStep step(Context context) {
 		
-		if (indexConstraint.isContradiction()) {
-			return new Solution(group.additiveIdentityElement());
-		} 		// TODO: the above is probably not needed any longer; try removing it when convenient
-		
 		SolverStep result;
 
 		Context contextForBody = getContextForBody(context);
