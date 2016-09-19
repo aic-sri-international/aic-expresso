@@ -148,7 +148,7 @@ public interface Constraint extends Expression {
 	 * Returns an expression to which the given variable is bound to
 	 * under this constraint, if there is such a value and it can be determined by the implementation.
 	 * @param variable
-	 * @return
+	 * @return an expression to which variable is bound, or null if there is no such value
 	 */
 	Expression binding(Expression variable);
 	
