@@ -87,13 +87,13 @@ public class ExpressionWrapperStepSolver<T> implements ExpressionStepSolver {
 		
 		if (step.itDepends()) {
 			ExpressionWrapperStepSolver<T> subIfTrue = clone();
-			subIfTrue.base = step.getStepSolverForWhenLiteralIsTrue();
+			subIfTrue.base = step.getStepSolverForWhenSplitterIsTrue();
 			
 			ExpressionWrapperStepSolver<T> subIfFalse = clone();
-			subIfFalse.base = step.getStepSolverForWhenLiteralIsFalse();
+			subIfFalse.base = step.getStepSolverForWhenSplitterIsFalse();
 
 			result = new ItDependsOn(
-					step.getLiteral(),
+					step.getSplitter(),
 					step.getContextSplitting(),
 					subIfTrue,
 					subIfFalse);

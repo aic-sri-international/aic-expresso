@@ -275,12 +275,12 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 			SolverStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(context).step(context);
 			if (numberStep.itDepends()) {
 				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsTrue = clone();
-				stepSolverIfExpressionIsTrue.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenLiteralIsTrue());
+				stepSolverIfExpressionIsTrue.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenSplitterIsTrue());
 				
 				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsFalse = clone();
-				stepSolverIfExpressionIsFalse.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenLiteralIsFalse());
+				stepSolverIfExpressionIsFalse.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenSplitterIsFalse());
 				
-				result = new ItDependsOn(numberStep.getLiteral(), numberStep.getContextSplitting(), stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+				result = new ItDependsOn(numberStep.getSplitter(), numberStep.getContextSplitting(), stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
 			}
 			else {
 				result = new Solution(numberStep.getValue());

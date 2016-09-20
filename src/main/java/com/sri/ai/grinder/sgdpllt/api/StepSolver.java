@@ -46,7 +46,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
  * The problem may either have the same solution for all free variable assignments under the context, or not.
  * Method {@link #step(Context)} returns a {@link SolverStep},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
- * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
+ * or a {@link ItDependsOn} with {@link ItDependsOn#getSplitter()} returning a literal
  * that, if used to split the context
  * (by conjoining the context with the literal and with its negation, successively),
  * will help disambiguate the problem.
@@ -112,7 +112,7 @@ public interface StepSolver<T> extends Cloneable {
 	/**
 	 * A solver step of a {@link StepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
-	 * unless the context be restricted according to the literal returned by {@link #getLiteral()}.
+	 * unless the context be restricted according to the splitter returned by {@link #getSplitter()}.
 	 * Otherwise, the expression returned by {@link #getValue()} is the solution.
 	 * @author braz
 	 *
@@ -121,10 +121,10 @@ public interface StepSolver<T> extends Cloneable {
 		boolean itDepends();
 		
 		/**
-		 * If {@link #itDepends()} is true, returns the literal the solution depends on.
+		 * If {@link #itDepends()} is true, returns the splitter (e.g. literal) the solution depends on.
 		 * @return
 		 */
-		Expression getLiteral();
+		Expression getSplitter();
 		
 		/**
 		 * If {@link #itDepends()} is false, returns the solution value.
@@ -134,22 +134,22 @@ public interface StepSolver<T> extends Cloneable {
 		
 		/**
 		 * Returns a {@link StepSolver} to be used for finding the final solution
-		 * in case the literal is defined as true by the context.
+		 * in case the splitter is defined as true by the context.
 		 * This is merely an optimization, and using the original step solver should still work,
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
 		 */
-		StepSolver<T> getStepSolverForWhenLiteralIsTrue();
+		StepSolver<T> getStepSolverForWhenSplitterIsTrue();
 		
 		/**
-		 * Same as {@link #getStepSolverForWhenLiteralIsTrue()} but for when literal is false.
+		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when splitter is false.
 		 * @return
 		 */
-		StepSolver<T> getStepSolverForWhenLiteralIsFalse();
+		StepSolver<T> getStepSolverForWhenSplitterIsFalse();
 		
 		/**
 		 * For solutions depending on a split, provides the constraint splitting
-		 * for the context and literal used, if available,
+		 * for the context and splitter used, if available,
 		 * or null otherwise.
 		 * @return
 		 */
@@ -158,10 +158,10 @@ public interface StepSolver<T> extends Cloneable {
 	
 	public static class ItDependsOn<T> implements SolverStep<T> {
 
-		private Expression literal;
+		private Expression splitter;
 		private ContextSplitting constraintSplitting;
-		private StepSolver<T> stepSolverIfExpressionIsTrue;
-		private StepSolver<T> stepSolverIfExpressionIsFalse;
+		private StepSolver<T> stepSolverIfSplitterIsTrue;
+		private StepSolver<T> stepSolverIfSplitterIsFalse;
 		
 		/**
 		 * Represents a solver step in which the final solution depends on the definition of a given expression
@@ -170,25 +170,25 @@ public interface StepSolver<T> extends Cloneable {
 		 * that already know about the definition of expression either way, for efficiency;
 		 * however, if this step solver is provided instead, things still work because 
 		 * the step solver will end up determining anyway that expression is now defined and move on.
-		 * @param literal
-		 * @param stepSolverIfExpressionIsTrue
-		 * @param stepSolverIfExpressionIsFalse
+		 * @param splitter
+		 * @param stepSolverIfSplitterIsTrue
+		 * @param stepSolverIfSplitterIsFalse
 		 */
 		public ItDependsOn(
-				Expression literal,
+				Expression splitter,
 				ContextSplitting contextSplitting,
-				StepSolver<T> stepSolverIfExpressionIsTrue,
-				StepSolver<T> stepSolverIfExpressionIsFalse) {
+				StepSolver<T> stepSolverIfSplitterIsTrue,
+				StepSolver<T> stepSolverIfSplitterIsFalse) {
 			super();
-			this.literal = literal;
+			this.splitter = splitter;
 			this.constraintSplitting = contextSplitting;
-			this.stepSolverIfExpressionIsTrue  = stepSolverIfExpressionIsTrue;
-			this.stepSolverIfExpressionIsFalse = stepSolverIfExpressionIsFalse;
+			this.stepSolverIfSplitterIsTrue  = stepSolverIfSplitterIsTrue;
+			this.stepSolverIfSplitterIsFalse = stepSolverIfSplitterIsFalse;
 		}
 		
 		@Override
-		public Expression getLiteral() {
-			return literal;
+		public Expression getSplitter() {
+			return splitter;
 		}
 		
 		@Override
@@ -207,18 +207,18 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public StepSolver<T> getStepSolverForWhenLiteralIsTrue() {
-			return stepSolverIfExpressionIsTrue;
+		public StepSolver<T> getStepSolverForWhenSplitterIsTrue() {
+			return stepSolverIfSplitterIsTrue;
 		}
 		
 		@Override
-		public StepSolver<T> getStepSolverForWhenLiteralIsFalse() {
-			return stepSolverIfExpressionIsFalse;
+		public StepSolver<T> getStepSolverForWhenSplitterIsFalse() {
+			return stepSolverIfSplitterIsFalse;
 		}
 		
 		@Override
 		public String toString() {
-			return "It depends on " + getLiteral();
+			return "It depends on " + getSplitter();
 		}
 	}
 	
@@ -237,8 +237,8 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public Expression getLiteral() {
-			throw new Error("Solution does not define getLiteral().");
+		public Expression getSplitter() {
+			throw new Error("Solution does not define getSplitter().");
 		}
 		
 		@Override
@@ -252,12 +252,12 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public StepSolver<T> getStepSolverForWhenLiteralIsTrue() {
+		public StepSolver<T> getStepSolverForWhenSplitterIsTrue() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 
 		@Override
-		public StepSolver<T> getStepSolverForWhenLiteralIsFalse() {
+		public StepSolver<T> getStepSolverForWhenSplitterIsFalse() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 

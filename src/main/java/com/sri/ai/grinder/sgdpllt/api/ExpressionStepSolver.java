@@ -84,14 +84,14 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 		 * @return
 		 */
 		@Override
-		ExpressionStepSolver getStepSolverForWhenLiteralIsTrue();
+		ExpressionStepSolver getStepSolverForWhenSplitterIsTrue();
 		
 		/**
-		 * Same as {@link #getStepSolverForWhenLiteralIsTrue()} but for when literal is false.
+		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when literal is false.
 		 * @return
 		 */
 		@Override
-		ExpressionStepSolver getStepSolverForWhenLiteralIsFalse();
+		ExpressionStepSolver getStepSolverForWhenSplitterIsFalse();
 	}
 	
 	/**
@@ -102,21 +102,21 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements SolverStep {
 
 		public ItDependsOn(
-				Expression literal,
+				Expression splitter,
 				ContextSplitting contextSplitting,
 				ExpressionStepSolver stepSolverIfExpressionIsTrue,
 				ExpressionStepSolver stepSolverIfExpressionIsFalse) {
-			super(literal, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+			super(splitter, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
 		}
 		
 		@Override
-		public ExpressionStepSolver getStepSolverForWhenLiteralIsTrue() {
-			return (ExpressionStepSolver) super.getStepSolverForWhenLiteralIsTrue();
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsTrue() {
+			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIsTrue();
 		}
 		
 		@Override
-		public ExpressionStepSolver getStepSolverForWhenLiteralIsFalse() {
-			return (ExpressionStepSolver) super.getStepSolverForWhenLiteralIsFalse();
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsFalse() {
+			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIsFalse();
 		}
 	}
 	
@@ -132,12 +132,12 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 		}
 		
 		@Override
-		public ExpressionStepSolver getStepSolverForWhenLiteralIsTrue() {
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsTrue() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 
 		@Override
-		public ExpressionStepSolver getStepSolverForWhenLiteralIsFalse() {
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsFalse() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}

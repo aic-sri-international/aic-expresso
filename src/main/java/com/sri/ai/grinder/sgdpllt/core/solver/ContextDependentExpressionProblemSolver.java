@@ -84,11 +84,11 @@ public class ContextDependentExpressionProblemSolver {
 		Expression result;
 		StepSolver.SolverStep<Expression> step = stepSolver.step(context);
 		if (step.itDepends()) {
-			Expression splitter = step.getLiteral();
+			Expression splitter = step.getSplitter();
 			ContextSplitting split = (ContextSplitting) step.getContextSplitting();
 			myAssert(() -> split.isUndefined(), () -> "Undefined " + ContextSplitting.class + " result value: " + split.getResult());
-			Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral());
-			Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation());
+			Expression subSolution1 = solve(step.getStepSolverForWhenSplitterIsTrue (), split.getConstraintAndLiteral());
+			Expression subSolution2 = solve(step.getStepSolverForWhenSplitterIsFalse(), split.getConstraintAndLiteralNegation());
 			result = IfThenElse.make(splitter, subSolution1, subSolution2, true);
 		}
 		else {

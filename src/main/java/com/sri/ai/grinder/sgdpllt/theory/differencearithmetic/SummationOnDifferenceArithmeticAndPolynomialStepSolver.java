@@ -115,12 +115,12 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 			SummationOnDifferenceArithmeticAndPolynomialStepSolver ifTrue = clone();
 			ifTrue.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
 					(ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver)
-					step.getStepSolverForWhenLiteralIsTrue();
+					step.getStepSolverForWhenSplitterIsTrue();
 			SummationOnDifferenceArithmeticAndPolynomialStepSolver ifFalse = clone();
 			ifFalse.valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
 					(ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver)
-					step.getStepSolverForWhenLiteralIsFalse();
-			return new ItDependsOn(step.getLiteral(), step.getContextSplitting(), ifTrue, ifFalse);
+					step.getStepSolverForWhenSplitterIsFalse();
+			return new ItDependsOn(step.getSplitter(), step.getContextSplitting(), ifTrue, ifFalse);
 		}
 		RangeAndExceptionsSet values = (RangeAndExceptionsSet) step.getValue();
 		

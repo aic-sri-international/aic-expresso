@@ -238,15 +238,15 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
-				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
-					Expression literalOnIndex = bodyStep.getLiteral();
+				if (isSubExpressionOf(getIndex(), bodyStep.getSplitter())) {
+					Expression literalOnIndex = bodyStep.getSplitter();
 					result = resultIfLiteralContainsIndex(literalOnIndex, bodyStep, contextForBody, context);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver ifTrue = clone();
 					AbstractQuantifierEliminationStepSolver ifFalse = clone();
-					ifTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsTrue();
-					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsFalse();
+					ifTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsTrue();
+					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
 					ifTrue.initialContextForBody  = bodyStep.getContextSplitting().getContextAndLiteral();
 					ifFalse.initialContextForBody = bodyStep.getContextSplitting().getContextAndLiteralNegation();
 					
@@ -258,9 +258,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 					// we calculate the splittings here.
 					// TODO: In the future, we expect it possible to efficiently extract the contextForBody component relative
 					// to the original context only, excluding the index.
-					ContextSplitting split = new ContextSplitting(bodyStep.getLiteral(), context);
+					ContextSplitting split = new ContextSplitting(bodyStep.getSplitter(), context);
 					
-					result = new ItDependsOn(bodyStep.getLiteral(), split, ifTrue, ifFalse);
+					result = new ItDependsOn(bodyStep.getSplitter(), split, ifTrue, ifFalse);
 				}
 			}
 			else { // body is already literal free
@@ -344,8 +344,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		result.initialBodyEvaluationStepSolver =
 				valueForLiteral
-				? bodyStep.getStepSolverForWhenLiteralIsTrue() 
-				: bodyStep.getStepSolverForWhenLiteralIsFalse();
+				? bodyStep.getStepSolverForWhenSplitterIsTrue() 
+				: bodyStep.getStepSolverForWhenSplitterIsFalse();
 		result.initialContextForBody = 
 				valueForLiteral
 				? bodyStep.getContextSplitting().getConstraintAndLiteral() 
