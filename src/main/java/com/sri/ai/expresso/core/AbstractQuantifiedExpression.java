@@ -55,13 +55,13 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractExpression;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
 /**
- * An abstract implementation of a {@link ContextDependentExpressionProblemStepSolver}.
+ * An abstract implementation of a {@link ExpressionStepSolver}.
  * 
  * @author braz
  */

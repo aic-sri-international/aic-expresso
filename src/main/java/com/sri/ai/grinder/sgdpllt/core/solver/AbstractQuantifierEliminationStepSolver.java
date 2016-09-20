@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
@@ -110,7 +110,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	protected Expression body;
 	
-	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
+	private ExpressionStepSolver initialBodyEvaluationStepSolver;
 	
 	private Context initialContextForBody;
 
@@ -177,7 +177,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return body;
 	}
 	
-	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(Theory theory) {
+	private ExpressionStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
 			= new EvaluatorStepSolver(body);
@@ -207,7 +207,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-			ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
+			ExpressionStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
 			SolverStep bodyStep = bodyStepSolver.step(contextForBody); 
 			
 			// At this point, bodyStep may be a non-conditional solver step
@@ -408,8 +408,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 * @param simplifier
 	 * @return
 	 */
-	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression) {
-		ContextDependentExpressionProblemStepSolver evaluator;
+	public static ExpressionStepSolver makeEvaluator(Expression expression) {
+		ExpressionStepSolver evaluator;
 		evaluator = new EvaluatorStepSolver(expression);
 		return evaluator;
 	}

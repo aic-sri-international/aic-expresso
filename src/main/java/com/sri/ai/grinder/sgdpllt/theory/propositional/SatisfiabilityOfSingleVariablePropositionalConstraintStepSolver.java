@@ -43,16 +43,16 @@ import static com.sri.ai.util.Util.list;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
- * A {@link AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariablePropositionalConstraint}.
+ * A {@link AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariablePropositionalConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
 	public SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
 		super(constraint);

@@ -43,7 +43,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractSelectionStepSolver;
 
@@ -52,13 +52,13 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractSelectionStepSolver;
  * a comparison according to a given functor and bound.
  * <p>
  * Unlike many step solvers finding Expression-typed solutions, this one
- * is not an extension of {@link ContextDependentExpressionProblemStepSolver}
+ * is not an extension of {@link ExpressionStepSolver}
  * because it extends {@link AbstractExpressionsSequenceStepSolver},
  * which does not necessarily have Expression-typed solutions.
  * This has the disadvantage of requiring the use of
- * generic {@link ContextDependentProblemStepSolver#SolverStep},
+ * generic {@link StepSolver#SolverStep},
  * instead of its more common specialization
- * {@link ContextDependentExpressionProblemStepSolver#SolverStep}.
+ * {@link ExpressionStepSolver#SolverStep}.
  *
  * @author braz
  *

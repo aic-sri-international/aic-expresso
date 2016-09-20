@@ -49,7 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -145,7 +145,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		}
 		
 		// Normalize final result.
-		ContextDependentExpressionProblemStepSolver evaluator = makeEvaluator(currentBody);
+		ExpressionStepSolver evaluator = makeEvaluator(currentBody);
 		currentBody = evaluator.solve(context);
 		
 		return currentBody;

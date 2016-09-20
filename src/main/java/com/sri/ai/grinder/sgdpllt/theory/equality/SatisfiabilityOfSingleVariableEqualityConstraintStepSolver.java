@@ -62,7 +62,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
@@ -75,7 +75,7 @@ import com.sri.ai.util.collect.PredicateIterator;
 import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
- * A {@link AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * A {@link AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableEqualityConstraint}.
  * <p>
  * This step solver works by providing propagated literals of the form <code>Y op Z</code>
  * for every pair of literals <code>X = Y</code> and <code>X op Z</code>,
@@ -105,7 +105,7 @@ import com.sri.ai.util.collect.SubsetsOfKIterator;
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
 	private boolean alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade = false;
 	private NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctExpressionsIsLessThanStepSolver;

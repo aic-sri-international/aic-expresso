@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.base;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 
 /**
  * A step solver always returning a constant solution regardless of the context.
@@ -48,7 +48,7 @@ import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
  *
  */
 @Beta
-public class ConstantStepSolver<T> implements ContextDependentProblemStepSolver<T> {
+public class ConstantStepSolver<T> implements StepSolver<T> {
 
 	private Solution<T> solution;
 
@@ -66,7 +66,7 @@ public class ConstantStepSolver<T> implements ContextDependentProblemStepSolver<
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolverStep<T> step(Context context) {
+	public StepSolver.SolverStep<T> step(Context context) {
 		return solution;
 	}	
 }

@@ -219,19 +219,19 @@ public interface Theory extends Cloneable {
 
 	/**
 	 * Given a single-variable constraint in this theory, returns
-	 * a {@link ContextDependentExpressionProblemStepSolver} deciding its satisfiability.
+	 * a {@link ExpressionStepSolver} deciding its satisfiability.
 	 * @param context TODO
-	 * @return a {@link ContextDependentExpressionProblemStepSolver} deciding a constraint's satisfiability.
+	 * @return a {@link ExpressionStepSolver} deciding a constraint's satisfiability.
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context);
+	ExpressionStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context);
 	
 	/**
 	 * Given a single-variable constraint in this theory, returns
-	 * a {@link ContextDependentExpressionProblemStepSolver} computing its model count.
+	 * a {@link ExpressionStepSolver} computing its model count.
 	 * @param context TODO
-	 * @return a {@link ContextDependentExpressionProblemStepSolver} computing a constraint's model count.
+	 * @return a {@link ExpressionStepSolver} computing a constraint's model count.
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
+	ExpressionStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
 
 	/**
 	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
@@ -241,7 +241,7 @@ public interface Theory extends Cloneable {
 	 * @param context
 	 * @return
 	 */
-	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
+	ExpressionStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
 
 	/**
 	 * Returns the negation of a literal.

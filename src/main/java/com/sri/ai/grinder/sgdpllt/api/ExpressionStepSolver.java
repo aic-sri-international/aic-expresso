@@ -43,7 +43,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
- * A {@link ContextDependentProblemStepSolver} specialized for problems with {@link Expression}-typed solutions.
+ * A {@link StepSolver} specialized for problems with {@link Expression}-typed solutions.
  * <p>
  * Ideally, a {@link Solution} object returned by such a step solver should not contain literals
  * (if it does, then it depends on that literals and therefore that literals should have been returned in a {@link ItDependsOn} solver step.
@@ -53,11 +53,11 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemS
  *
  */
 @Beta
-public interface ContextDependentExpressionProblemStepSolver extends ContextDependentProblemStepSolver<Expression>, Cloneable {
+public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable {
 
 	/**
 	 * Convenience method invoking
-	 * {@link ContextDependentExpressionProblemSolver#staticSolve(ContextDependentExpressionProblemStepSolver, Context)}
+	 * {@link ContextDependentExpressionProblemSolver#staticSolve(ExpressionStepSolver, Context)}
 	 * on this step solver.
 	 * @param context
 	 * @return
@@ -68,76 +68,76 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	}
 
 	@Override
-	ContextDependentExpressionProblemStepSolver clone();
+	ExpressionStepSolver clone();
 	
 	/**
-	 * A specialization of {@link ContextDependentProblemStepSolver#SolverStep} for Expressions.
+	 * A specialization of {@link StepSolver#SolverStep} for Expressions.
 	 * @author braz
 	 *
 	 */
-	public static interface SolverStep extends ContextDependentProblemStepSolver.SolverStep<Expression> {
+	public static interface SolverStep extends StepSolver.SolverStep<Expression> {
 		/**
-		 * Returns a {@link ContextDependentExpressionProblemStepSolver} to be used for finding the final solution
+		 * Returns a {@link ExpressionStepSolver} to be used for finding the final solution
 		 * in case the literal is defined as true by the context.
 		 * This is merely an optimization, and using the original step solver should still work,
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
 		 */
 		@Override
-		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue();
+		ExpressionStepSolver getStepSolverForWhenLiteralIsTrue();
 		
 		/**
 		 * Same as {@link #getStepSolverForWhenLiteralIsTrue()} but for when literal is false.
 		 * @return
 		 */
 		@Override
-		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse();
+		ExpressionStepSolver getStepSolverForWhenLiteralIsFalse();
 	}
 	
 	/**
-	 * A specialization of {@link ContextDependentProblemStepSolver#ItDependsOn} for Expressions.
+	 * A specialization of {@link StepSolver#ItDependsOn} for Expressions.
 	 * @author braz
 	 *
 	 */
-	public static class ItDependsOn extends ContextDependentProblemStepSolver.ItDependsOn<Expression> implements SolverStep {
+	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements SolverStep {
 
 		public ItDependsOn(
 				Expression literal,
 				ContextSplitting contextSplitting,
-				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue,
-				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse) {
+				ExpressionStepSolver stepSolverIfExpressionIsTrue,
+				ExpressionStepSolver stepSolverIfExpressionIsFalse) {
 			super(literal, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
 		}
 		
 		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
-			return (ContextDependentExpressionProblemStepSolver) super.getStepSolverForWhenLiteralIsTrue();
+		public ExpressionStepSolver getStepSolverForWhenLiteralIsTrue() {
+			return (ExpressionStepSolver) super.getStepSolverForWhenLiteralIsTrue();
 		}
 		
 		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
-			return (ContextDependentExpressionProblemStepSolver) super.getStepSolverForWhenLiteralIsFalse();
+		public ExpressionStepSolver getStepSolverForWhenLiteralIsFalse() {
+			return (ExpressionStepSolver) super.getStepSolverForWhenLiteralIsFalse();
 		}
 	}
 	
 	/**
-	 * A specialization of {@link ContextDependentProblemStepSolver#Solution} for Expressions.
+	 * A specialization of {@link StepSolver#Solution} for Expressions.
 	 * @author braz
 	 *
 	 */
-	public static class Solution extends ContextDependentProblemStepSolver.Solution<Expression> implements SolverStep {
+	public static class Solution extends StepSolver.Solution<Expression> implements SolverStep {
 
 		public Solution(Expression value) {
 			super(value);
 		}
 		
 		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
+		public ExpressionStepSolver getStepSolverForWhenLiteralIsTrue() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 
 		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
+		public ExpressionStepSolver getStepSolverForWhenLiteralIsFalse() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}

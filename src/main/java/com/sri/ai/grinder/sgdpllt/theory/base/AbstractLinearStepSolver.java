@@ -42,7 +42,7 @@ import static com.sri.ai.util.Util.myAssert;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 
 /**
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
  *
  */
 @Beta
-public abstract class AbstractLinearStepSolver<T> implements ContextDependentProblemStepSolver<T> {
+public abstract class AbstractLinearStepSolver<T> implements StepSolver<T> {
 
 	private int n;
 	protected int current;
@@ -73,13 +73,13 @@ public abstract class AbstractLinearStepSolver<T> implements ContextDependentPro
 	 * Provides sub-step solver to be used when literal is (or enforced to be) true.
 	 * @return
 	 */
-	abstract protected ContextDependentProblemStepSolver<T> makeSubStepSolverWhenLiteralIsTrue();
+	abstract protected StepSolver<T> makeSubStepSolverWhenLiteralIsTrue();
 	
 	/**
 	 * Provides sub-step solver to be used when literal is (or enforced to be) false.
 	 * @return
 	 */
-	abstract protected ContextDependentProblemStepSolver<T> makeSubStepSolverWhenLiteralIsFalse();
+	abstract protected StepSolver<T> makeSubStepSolverWhenLiteralIsFalse();
 
 	/**
 	 * Provides solution if all elements have already been checked.

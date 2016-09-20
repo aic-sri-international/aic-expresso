@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
@@ -77,7 +77,7 @@ import com.sri.ai.util.collect.NestedIterator;
  *
  */
 @Beta
-public abstract class AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver implements ContextDependentExpressionProblemStepSolver {
+public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver implements ExpressionStepSolver {
 
 	final static boolean MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF = false;
 	
@@ -87,7 +87,7 @@ public abstract class AbstractContextDependentExpressionProblemWithPropagatedLit
 	private int initialClauseToConsiderInPropagatedCNF = 0;
 	private int initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF = 0;
 
-	public AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver(Constraint constraint) {
+	public AbstractExpressionWithPropagatedLiteralsStepSolver(Constraint constraint) {
 		this.constraint = constraint;
 	}
 
@@ -98,8 +98,8 @@ public abstract class AbstractContextDependentExpressionProblemWithPropagatedLit
 	 * @param literalIndex TODO
 	 * @return
 	 */
-	private AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver makeCopyConsideringPropagatedCNFFromNowOn(int clauseIndex, int literalIndex) {
-		AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver result = clone();
+	private AbstractExpressionWithPropagatedLiteralsStepSolver makeCopyConsideringPropagatedCNFFromNowOn(int clauseIndex, int literalIndex) {
+		AbstractExpressionWithPropagatedLiteralsStepSolver result = clone();
 		result.initialClauseToConsiderInPropagatedCNF = clauseIndex;
 		result.initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF = literalIndex;
 		return result;
@@ -109,9 +109,9 @@ public abstract class AbstractContextDependentExpressionProblemWithPropagatedLit
 	 * A cloning method delegating to super.clone().
 	 */
 	@Override
-	public AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver clone() {
+	public AbstractExpressionWithPropagatedLiteralsStepSolver clone() {
 		try {
-			return (AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver) super.clone();
+			return (AbstractExpressionWithPropagatedLiteralsStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new Error("Trying to clone " + getClass() + " but cloning is not supported for this class.");
 		}
@@ -199,7 +199,7 @@ public abstract class AbstractContextDependentExpressionProblemWithPropagatedLit
 	 * which are typically a more convenient way for extensions to define this information.
 	 * However, it may be useful in some cases to directly override this method;
 	 * for example, if this information comes from another
-	 * {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver}'s own
+	 * {@link AbstractExpressionWithPropagatedLiteralsStepSolver}'s own
 	 * {@link #makePropagatedCNF(Context)}.
 	 * @param context
 	 * @return
@@ -283,7 +283,7 @@ public abstract class AbstractContextDependentExpressionProblemWithPropagatedLit
 				
 				switch (split.getResult()) {
 				case LITERAL_IS_UNDEFINED:
-					AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver subStepSolver
+					AbstractExpressionWithPropagatedLiteralsStepSolver subStepSolver
 					= MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF
 					? makeCopyConsideringPropagatedCNFFromNowOn(clauseIndex, literalIndex)
 							: this;

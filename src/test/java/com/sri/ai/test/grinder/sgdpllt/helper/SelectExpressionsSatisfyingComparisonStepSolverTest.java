@@ -52,7 +52,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.helper.SelectExpressionsSatisfyingComparisonStepSolver;
@@ -103,7 +103,7 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 	}
 
 	private void runTest(List<String> expressions, Expression bound, Expression expected, Context context) {
-		ContextDependentProblemStepSolver<List<Expression>> stepSolver =
+		StepSolver<List<Expression>> stepSolver =
 				new SelectExpressionsSatisfyingComparisonStepSolver(
 						mapIntoArrayList(expressions, Expressions::parse),
 						LESS_THAN,

@@ -44,7 +44,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 import com.sri.ai.util.base.PairOf;
@@ -73,7 +73,7 @@ import com.sri.ai.util.base.PairOf;
  *
  */
 @Beta
-public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver implements ContextDependentExpressionProblemStepSolver {
+public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver implements ExpressionStepSolver {
 
 	private List<Expression> expressions;
 	private OrderedPairsOfIntegersIterator initialIndices;
@@ -142,9 +142,9 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver clone() {
+	public ExpressionStepSolver clone() {
 		try {
-			return (ContextDependentExpressionProblemStepSolver) super.clone();
+			return (ExpressionStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new Error(e);
 		}

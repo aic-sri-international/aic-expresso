@@ -47,11 +47,11 @@ import static com.sri.ai.grinder.sgdpllt.theory.base.ExpressionConditionedOnLite
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
- * A {@link AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableLinearRealArithmeticConstraint}.
+ * A {@link AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableLinearRealArithmeticConstraint}.
  * <p>
  * The solution is guaranteed to be either a boolean constant or a difference arithmetic expression with 0 on the right-hand side.
  * 
@@ -59,10 +59,10 @@ import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanProblemWithPropagat
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver implements ExpressionStepSolver {
 
 	private SingleVariableDifferenceArithmeticConstraint constraint;
-	private ContextDependentExpressionProblemStepSolver modelCounting;
+	private ExpressionStepSolver modelCounting;
 	
 	public SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver(SingleVariableDifferenceArithmeticConstraint constraint) {
 		this.constraint = constraint;

@@ -47,7 +47,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
@@ -781,10 +781,10 @@ public class LinearRealArithmeticTheoryTest {
 				context);
 	}
 
-	private void runQuantifierTest(Expression variable, String constraintString, String bodyString, Expression expected, String computedFunction, BinaryFunction<Constraint, Expression, ContextDependentExpressionProblemStepSolver> stepSolverMaker, Context context) {
+	private void runQuantifierTest(Expression variable, String constraintString, String bodyString, Expression expected, String computedFunction, BinaryFunction<Constraint, Expression, ExpressionStepSolver> stepSolverMaker, Context context) {
 		Expression body = parse(bodyString);
 		
-		Function<Constraint, ContextDependentExpressionProblemStepSolver> stepSolverMakerFromConstraint =
+		Function<Constraint, ExpressionStepSolver> stepSolverMakerFromConstraint =
 				c -> stepSolverMaker.apply(c, body);
 	
 		runTest(variable, constraintString, expected, computedFunction, stepSolverMakerFromConstraint, context);
@@ -798,7 +798,7 @@ public class LinearRealArithmeticTheoryTest {
 	 * @param stepSolverMaker
 	 * @param context
 	 */
-	private void runTest(Expression variable, String constraintString, Expression expected, String computedFunction, Function<Constraint, ContextDependentExpressionProblemStepSolver> stepSolverMaker, Context context) {
+	private void runTest(Expression variable, String constraintString, Expression expected, String computedFunction, Function<Constraint, ExpressionStepSolver> stepSolverMaker, Context context) {
 		System.out.println("Solving " + computedFunction + " for " + variable + " in " + constraintString);
 	
 		Constraint constraint
@@ -807,7 +807,7 @@ public class LinearRealArithmeticTheoryTest {
 	
 		constraint = constraint.conjoin(parse(constraintString), context);
 	
-		ContextDependentExpressionProblemStepSolver stepSolver = stepSolverMaker.apply(constraint);
+		ExpressionStepSolver stepSolver = stepSolverMaker.apply(constraint);
 		
 		Expression actual = stepSolver.solve(context);
 	

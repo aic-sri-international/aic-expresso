@@ -42,7 +42,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -50,7 +50,7 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 /**
  * A {@link AbstractQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
- * This step solver first provides all the literals in the body as {@link ContextDependentExpressionProblemStepSolver#ItDepends} steps.
+ * This step solver first provides all the literals in the body as {@link ExpressionStepSolver#ItDepends} steps.
  * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
  * (the above is all done by {@link AbstractQuantifierEliminationStepSolver}.
  * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,

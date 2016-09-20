@@ -47,7 +47,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 
 /**
  * A context-dependent problem step solver deciding whether the number of unique given expression is smaller than a given limit
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolve
  *
  */
 @Beta
-public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ExpressionStepSolver {
 
 	private int limit;
 	private List<Expression> expressions;

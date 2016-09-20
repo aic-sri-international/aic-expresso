@@ -42,7 +42,7 @@ import static com.sri.ai.grinder.sgdpllt.theory.base.ConstantStepSolver.constant
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 
 /**
@@ -54,7 +54,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
  *
  */
 @Beta
-public class LiteralStepSolver implements ContextDependentProblemStepSolver<Boolean> {
+public class LiteralStepSolver implements StepSolver<Boolean> {
 
 	protected Expression literal;
 
@@ -73,7 +73,7 @@ public class LiteralStepSolver implements ContextDependentProblemStepSolver<Bool
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver.SolverStep<Boolean> step(Context context) {
+	public StepSolver.SolverStep<Boolean> step(Context context) {
 		ContextSplitting split = new ContextSplitting(literal, context);
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:
@@ -83,8 +83,8 @@ public class LiteralStepSolver implements ContextDependentProblemStepSolver<Bool
 		case LITERAL_IS_FALSE:
 			return new Solution<Boolean>(false);
 		case LITERAL_IS_UNDEFINED:
-			ContextDependentProblemStepSolver<Boolean> ifTrue  = constantStepSolver(true);
-			ContextDependentProblemStepSolver<Boolean> ifFalse = constantStepSolver(false);
+			StepSolver<Boolean> ifTrue  = constantStepSolver(true);
+			StepSolver<Boolean> ifFalse = constantStepSolver(false);
 			return new ItDependsOn<Boolean>(literal, split, ifTrue, ifFalse);
 		default:
 			throw new Error("Unrecognized splitting result.");

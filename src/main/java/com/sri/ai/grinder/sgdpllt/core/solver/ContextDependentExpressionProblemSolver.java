@@ -42,19 +42,19 @@ import static com.sri.ai.util.Util.myAssert;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 /**
- * Solves a {@link ContextDependentExpressionProblemStepSolver} by successively conditioning the context on provided splitters.
+ * Solves a {@link ExpressionStepSolver} by successively conditioning the context on provided splitters.
  * 
  * For those familiar with the "Probabilistic Inference Modulo Theories" paper on IJCAI-16,
  * this corresponds to repeatedly applying if-splitting to a problem
  * until it is solved.
  * Note that quantifier-splitting only happens for quantifier elimination,
- * and at the level of {@link ContextDependentExpressionProblemStepSolver}
+ * and at the level of {@link ExpressionStepSolver}
  * there is not necessarily a quantifier involved.
  * This is currently done at the level of {@link QuantifierEliminationStepSolver}.
  * 
@@ -76,13 +76,13 @@ public class ContextDependentExpressionProblemSolver {
 	 * @param context
 	 * @return
 	 */
-	public Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+	public Expression solve(StepSolver<Expression> stepSolver, Context context) {
 		if (interrupted) {
 			throw new Error("Solver interrupted.");
 		}
 		
 		Expression result;
-		ContextDependentProblemStepSolver.SolverStep<Expression> step = stepSolver.step(context);
+		StepSolver.SolverStep<Expression> step = stepSolver.step(context);
 		if (step.itDepends()) {
 			Expression splitter = step.getLiteral();
 			ContextSplitting split = (ContextSplitting) step.getContextSplitting();
@@ -97,7 +97,7 @@ public class ContextDependentExpressionProblemSolver {
 		return result;
 	}
 	
-	public static Expression staticSolve(ContextDependentProblemStepSolver<Expression> stepSolver, Context context) {
+	public static Expression staticSolve(StepSolver<Expression> stepSolver, Context context) {
 		ContextDependentExpressionProblemSolver solver = new ContextDependentExpressionProblemSolver();
 		Expression result = solver.solve(stepSolver, context);
 		return result;

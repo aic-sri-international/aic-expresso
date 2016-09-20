@@ -67,10 +67,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractSingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.helper.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
@@ -87,7 +87,7 @@ import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver}
+ * A {@link AbstractExpressionWithPropagatedLiteralsStepSolver}
  * for a {@link AbstractSingleVariableNumericConstraint}
  * with basic methods for determining the feasibility region of the variable,
  * but leaving the determination of the final solution to {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context)}.
@@ -96,7 +96,7 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
  *
  */
 @Beta
-public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver extends AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver {
+public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver extends AbstractExpressionWithPropagatedLiteralsStepSolver {
 
 	/**
 	 * SUBTLETY NOTES:
@@ -134,7 +134,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 * and {@link #getMapFromUpperBoundsToStrictness(Context)}.
 	 * <p>
 	 * This method also receives a "sequel base", which should be used as follows.
-	 * If the step being returned in a conditional one ({@link ContextDependentProblemStepSolver#ItDepends}),
+	 * If the step being returned in a conditional one ({@link StepSolver#ItDepends}),
 	 * its sequel step solvers (provided at its construction)
 	 * should be provided by method {@link #makeSequelStepSolver(AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver)}
 	 * with the given sequel base as its argument.
@@ -279,21 +279,21 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 * It may have been set to the sequel of a step solver of the same problem,
 	 * during the execution of a prequel step solver.
 	 */
-	private ContextDependentProblemStepSolver<Expression> initialMaximumLowerBoundStepSolver;
+	private StepSolver<Expression> initialMaximumLowerBoundStepSolver;
 
 	/**
 	 * The initial step solver to use to decide which upper bound is the minimum one.
 	 * It may have been set to the sequel of a step solver of the same problem,
 	 * during the execution of a prequel step solver.
 	 */
-	private ContextDependentProblemStepSolver<Expression> initialMinimumUpperBoundStepSolver;
+	private StepSolver<Expression> initialMinimumUpperBoundStepSolver;
 
 	/**
 	 * The initial step solver to use to decide whether the lower bound is less than the upper bound.
 	 * It may have been set to the sequel of a step solver of the same problem,
 	 * during the execution of a prequel step solver.
 	 */
-	private ContextDependentProblemStepSolver<Boolean> initialBoundedSpaceIsNotEmptyStepSolver;
+	private StepSolver<Boolean> initialBoundedSpaceIsNotEmptyStepSolver;
 
 
 	public 
@@ -695,7 +695,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			solutionExpression = getSolutionExpressionForBoundVariable();
 		}
 		else {
-			ContextDependentProblemStepSolver<Expression> maximumLowerBoundStepSolver;
+			StepSolver<Expression> maximumLowerBoundStepSolver;
 			if (initialMaximumLowerBoundStepSolver == null) {
 				maximumLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -707,7 +707,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				maximumLowerBoundStepSolver = initialMaximumLowerBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolverStep<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
+			StepSolver.SolverStep<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
 			if (maximumLowerBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -720,7 +720,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			
 			sequelBase.initialMaximumLowerBoundStepSolver = new ConstantExpressionStepSolver(maximumLowerBound);
 			
-			ContextDependentProblemStepSolver<Expression> minimumUpperBoundStepSolver;
+			StepSolver<Expression> minimumUpperBoundStepSolver;
 			if (initialMinimumUpperBoundStepSolver == null) {
 				minimumUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -732,7 +732,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				minimumUpperBoundStepSolver = initialMinimumUpperBoundStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolverStep<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
+			StepSolver.SolverStep<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
 			if (minimumUpperBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenLiteralIsTrue();
@@ -749,7 +749,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				solutionExpression = getSolutionExpressionForUnboundedVariables();
 			}
 			else {
-				ContextDependentProblemStepSolver<Boolean> boundedSpaceIsNotEmptyStepSolver;
+				StepSolver<Boolean> boundedSpaceIsNotEmptyStepSolver;
 				if (initialBoundedSpaceIsNotEmptyStepSolver == null) {
 					Expression boundedSpaceIsNotEmpty = makeLiteralCheckingWhetherThereAreAnyValuesWithinBounds(maximumLowerBound, minimumUpperBound, context);
 					boundedSpaceIsNotEmptyStepSolver = new LiteralStepSolver(boundedSpaceIsNotEmpty);
@@ -757,7 +757,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				else {
 					boundedSpaceIsNotEmptyStepSolver = initialBoundedSpaceIsNotEmptyStepSolver;
 				}
-				ContextDependentProblemStepSolver.SolverStep<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
+				StepSolver.SolverStep<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 					ifTrue.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenLiteralIsTrue();

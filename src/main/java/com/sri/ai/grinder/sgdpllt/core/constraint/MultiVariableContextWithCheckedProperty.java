@@ -52,7 +52,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
@@ -62,7 +62,7 @@ import com.sri.ai.util.base.Pair;
 /**
  * An {@link Context} on multiple variables,
  * with the ability to ensure all single-variable constraints that are part of it
- * have a property determined by a {@link ContextDependentExpressionProblemStepSolver},
+ * have a property determined by a {@link ExpressionStepSolver},
  * or otherwise the total constraint is deemed unsatisfiable.
  * 
  * @author braz
@@ -85,7 +85,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 */
 	public static
 	interface ContextDependentProblemStepSolverMaker
-	extends BinaryFunction<SingleVariableConstraint, Context, ContextDependentExpressionProblemStepSolver> {}
+	extends BinaryFunction<SingleVariableConstraint, Context, ExpressionStepSolver> {}
 	
 	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
 	
@@ -312,7 +312,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = this;
 		}
 		else {
-			ContextDependentExpressionProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
+			ExpressionStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
 			Expression solution = problem.solve(tail);
 			if (solution == null) { // tail is found to be inconsistent with given context
 				result = makeContradiction();

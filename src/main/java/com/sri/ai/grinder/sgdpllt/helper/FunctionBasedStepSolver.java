@@ -35,40 +35,59 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
-
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
+package com.sri.ai.grinder.sgdpllt.helper;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 
 /**
- * A specialization of {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver}
- * that returns solution <code>false</code> if propagated literals and propagated CNF are not satisfied
- * by the context.
- * This has been written with satisfiability in mind although it could apply to other problems.
- * <p>
- * Like its super class, this class still requires extensions to provide propagated literals and propagated CNF.
- * <p>
- * While it already provides the solution <code>false</code> for when
- * propagated literals and propagated CNF are not satisfied by the context,
- * it still requires extensions to provide a way to compute the solution
- * for all remaining situations in which those literals and CNF are defined by the context
- * (that is, when all propagated literals and propagated CNF are satisfied.
- * 
+ * A context-dependent expression problem step solver
+ * based on applying a given function to the result of another
+ * context-dependent expression problem step solver.
+ *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver extends AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver {
+public class FunctionBasedStepSolver implements ExpressionStepSolver {
 
-	public AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver(Constraint constraint) {
-		super(constraint);
-	}
+	private Function<Expression, Expression> function;
+	private ExpressionStepSolver base;
 	
+	public FunctionBasedStepSolver(
+			Function<Expression, Expression> function,
+			ExpressionStepSolver base) {
+		super();
+		this.function = function;
+		this.base = base;
+	}
+
 	@Override
-	protected Expression getSolutionExpressionGivenContradiction() {
-		return FALSE;
+	public ExpressionStepSolver clone() {
+		ExpressionStepSolver result = null;
+		try {
+			result = (ExpressionStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	@Override
+	public SolverStep step(Context context) {
+		SolverStep result;
+		SolverStep baseResult = base.step(context);
+		if (baseResult.itDepends()) {
+			result = baseResult;
+		}
+		else {
+			Expression value = baseResult.getValue();
+			Expression functionResult = function.apply(value);
+			result = new Solution(functionResult);
+		}
+		return result;
 	}
 }

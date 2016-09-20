@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
@@ -206,7 +206,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 				variable, true, theory);
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
-		ContextDependentExpressionProblemStepSolver stepSolver =
+		ExpressionStepSolver stepSolver =
 				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
 						(SingleVariableDifferenceArithmeticConstraint) constraint,
 						body);

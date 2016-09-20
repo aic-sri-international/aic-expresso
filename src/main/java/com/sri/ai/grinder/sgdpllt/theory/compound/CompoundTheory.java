@@ -63,7 +63,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
@@ -212,23 +212,23 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+	public ExpressionStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+		ExpressionStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
-	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+	public ExpressionStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
+		ExpressionStepSolver result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
-	public 	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
+	public 	ExpressionStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ContextDependentExpressionProblemStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, context);
+		ExpressionStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, context);
 		return result;
 	}
 

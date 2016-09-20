@@ -41,8 +41,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 
 /**
  * A context-dependent problem step solver adapting a non-Expression
@@ -53,12 +53,12 @@ import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
  *
  */
 @Beta
-public class ExpressionWrapperStepSolver<T> implements ContextDependentExpressionProblemStepSolver {
+public class ExpressionWrapperStepSolver<T> implements ExpressionStepSolver {
 
-	private ContextDependentProblemStepSolver<T> base;
+	private StepSolver<T> base;
 	private Function<T, Expression> wrapper;
 	
-	public ExpressionWrapperStepSolver(ContextDependentProblemStepSolver<T> base, Function<T, Expression> wrapper) {
+	public ExpressionWrapperStepSolver(StepSolver<T> base, Function<T, Expression> wrapper) {
 		super();
 		this.base = base;
 		this.wrapper = wrapper;
@@ -80,7 +80,7 @@ public class ExpressionWrapperStepSolver<T> implements ContextDependentExpressio
 	@Override
 	public SolverStep step(Context context) {
 		
-		ContextDependentProblemStepSolver.SolverStep<T> step =
+		StepSolver.SolverStep<T> step =
 				base.step(context);
 
 		SolverStep result;

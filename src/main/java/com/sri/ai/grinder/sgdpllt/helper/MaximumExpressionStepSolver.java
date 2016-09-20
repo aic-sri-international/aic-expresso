@@ -44,16 +44,16 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver;
 
 /**
  * A context-dependent problem step solver deciding which in a set of expressions is the maximum one
  * given an order.
  * <p>
- * Note that it would be intuitive to have this class implement {@link ContextDependentExpressionProblemStepSolver},
+ * Note that it would be intuitive to have this class implement {@link ExpressionStepSolver},
  * but this class delegates to its super class, whose {@link #step(Context)} method returns a {@link ContextDependentProblemStepSolver#SolverStep<Expression>},
- * and we do not want to have to construct a new {@link ContextDependentExpressionProblemStepSolver#SolverStep}
+ * and we do not want to have to construct a new {@link ExpressionStepSolver#SolverStep}
  * object every time just to conform to the interface.
  *
  * @author braz
@@ -111,18 +111,18 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 
 	@Override
-	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsTrue() {
+	protected StepSolver<Expression> makeSubStepSolverWhenLiteralIsTrue() {
 		return new MaximumExpressionStepSolver(getExpressions(), order, orderMaximum, getCurrentExpression(), getCurrent() + 1);
 	}
 
 	@Override
-	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsFalse() {
+	protected StepSolver<Expression> makeSubStepSolverWhenLiteralIsFalse() {
 		return new MaximumExpressionStepSolver(getExpressions(), order, orderMaximum, maximumSoFar, getCurrent() + 1);
 	}
 
 	@Override
 	protected SolverStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
-		Solution<Expression> result = new ContextDependentProblemStepSolver.Solution<Expression>(maximumSoFar);
+		Solution<Expression> result = new StepSolver.Solution<Expression>(maximumSoFar);
 		return result;
 	}
 }

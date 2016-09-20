@@ -57,7 +57,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.helper.SelectExpressionsSatisfyingComparisonStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantStepSolver;
@@ -125,11 +125,11 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 				super.makeSequelStepSolver(sequelBase);
 	}
 
-	private ContextDependentProblemStepSolver<List<Expression>> initialDisequalsGreaterThanMaximumLowerBoundStepSolver;
+	private StepSolver<List<Expression>> initialDisequalsGreaterThanMaximumLowerBoundStepSolver;
 
-	private ContextDependentProblemStepSolver<List<Expression>> initialDisequalsWithinBoundsStepSolver;
+	private StepSolver<List<Expression>> initialDisequalsWithinBoundsStepSolver;
 
-	private ContextDependentProblemStepSolver<Expression> initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+	private StepSolver<Expression> initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 
 	private DistinctExpressionsStepSolver initialDistinctDisequalsStepSolver;
 	
@@ -143,7 +143,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver sequelBase
 		= (AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver) sequelBaseAsNumericStepSolver;
 		
-		ContextDependentProblemStepSolver<List<Expression>> disequalsGreaterThanMaximumLowerBoundStepSolver;
+		StepSolver<List<Expression>> disequalsGreaterThanMaximumLowerBoundStepSolver;
 		if (initialDisequalsGreaterThanMaximumLowerBoundStepSolver == null) {
 			disequalsGreaterThanMaximumLowerBoundStepSolver
 			= new SelectExpressionsSatisfyingComparisonStepSolver(
@@ -153,7 +153,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		else {
 			disequalsGreaterThanMaximumLowerBoundStepSolver = initialDisequalsGreaterThanMaximumLowerBoundStepSolver;
 		}
-		ContextDependentProblemStepSolver.SolverStep<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStep
+		StepSolver.SolverStep<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStep
 		= disequalsGreaterThanMaximumLowerBoundStepSolver.step(context);
 		if (disequalsGreaterThanGreatestStrictLowerBoundStep.itDepends()) {
 			AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
@@ -166,7 +166,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		List<Expression> disequalsGreaterThanGreatestStrictLowerBound = disequalsGreaterThanGreatestStrictLowerBoundStep.getValue();
 		sequelBase.initialDisequalsGreaterThanMaximumLowerBoundStepSolver = new ConstantStepSolver<List<Expression>>(disequalsGreaterThanGreatestStrictLowerBound);
 
-		ContextDependentProblemStepSolver<List<Expression>> disequalsWithinBoundsStepSolver;
+		StepSolver<List<Expression>> disequalsWithinBoundsStepSolver;
 		if (initialDisequalsWithinBoundsStepSolver == null) {
 			disequalsWithinBoundsStepSolver
 			= new SelectExpressionsSatisfyingComparisonStepSolver(
@@ -176,7 +176,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		else {
 			disequalsWithinBoundsStepSolver = initialDisequalsWithinBoundsStepSolver;
 		}
-		ContextDependentProblemStepSolver.SolverStep<List<Expression>> disequalsWithinBoundsStep = disequalsWithinBoundsStepSolver.step(context);
+		StepSolver.SolverStep<List<Expression>> disequalsWithinBoundsStep = disequalsWithinBoundsStepSolver.step(context);
 		if (disequalsWithinBoundsStep.itDepends()) {
 			AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 			ifTrue.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStep.getStepSolverForWhenLiteralIsTrue();
@@ -199,7 +199,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		DistinctExpressionsStepSolver distinctExpressionsStepSolver;
 		
 		if (isNumber(boundsDifference)) {
-			ContextDependentProblemStepSolver<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+			StepSolver<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 			if (initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver == null) {
 				numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
 				= new NumberOfDistinctExpressionsIsLessThanStepSolver(boundsDifference.intValue(), disequalsWithinBounds);
@@ -207,7 +207,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 			else {
 				numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
 			}
-			ContextDependentProblemStepSolver.SolverStep<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
+			StepSolver.SolverStep<Expression> numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(context);
 
 			if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
 				AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);

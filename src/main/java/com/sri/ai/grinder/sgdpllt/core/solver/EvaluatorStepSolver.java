@@ -59,7 +59,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Conjunction;
@@ -129,12 +129,12 @@ else
  *
  */
 @Beta
-public class EvaluatorStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class EvaluatorStepSolver implements ExpressionStepSolver {
 
 	private Expression expression;
 	private boolean alreadyExhaustivelyTopSimplified;
 	private int subExpressionIndex;
-	private Map<IdentityWrapper, ContextDependentExpressionProblemStepSolver> evaluators;
+	private Map<IdentityWrapper, ExpressionStepSolver> evaluators;
 	
 	public EvaluatorStepSolver(Expression expression) {
 		super();
@@ -224,7 +224,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		}
 		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
-			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = 
+			ExpressionStepSolver subExpressionEvaluator = 
 					getEvaluatorFor(subExpression, false /* not known to be exhaustively top-simplified already */);
 			SolverStep subExpressionStep = subExpressionEvaluator.step(context);
 
@@ -245,7 +245,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			}
 			else if (subExpressionStep.getValue() == subExpression) {
 				// no change, just record the evaluator for this sub-expression and move on to the next one
-				ContextDependentExpressionProblemStepSolver nextStepSolver;
+				ExpressionStepSolver nextStepSolver;
 				nextStepSolver = clone();
 				((EvaluatorStepSolver) nextStepSolver).setEvaluatorFor(subExpression, subExpressionEvaluator);
 				((EvaluatorStepSolver) nextStepSolver).subExpressionIndex++;
@@ -266,7 +266,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 				else {
 					// topSimplified is either a former sub-expression, or new.
 					// try to reuse evaluator if available, or a make a new one, and use it
-					ContextDependentExpressionProblemStepSolver nextStepSolver
+					ExpressionStepSolver nextStepSolver
 					= getEvaluatorFor(exhaustivelyTopSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
 					result = nextStepSolver.step(context);
 				}
@@ -279,8 +279,8 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		return result;
 	}
 
-	private ContextDependentExpressionProblemStepSolver getEvaluatorFor(Expression anotherExpression, boolean alreadyExhaustivelyTopSimplified) {
-		ContextDependentExpressionProblemStepSolver result	= evaluators.get(anotherExpression);
+	private ExpressionStepSolver getEvaluatorFor(Expression anotherExpression, boolean alreadyExhaustivelyTopSimplified) {
+		ExpressionStepSolver result	= evaluators.get(anotherExpression);
 		if (result == null) {
 			result = cloneWithAnotherExpression(anotherExpression, alreadyExhaustivelyTopSimplified);
 			setEvaluatorFor(anotherExpression, result);
@@ -288,7 +288,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 		return result;
 	}
 
-	private void setEvaluatorFor(Expression expression, ContextDependentExpressionProblemStepSolver stepSolver) {
+	private void setEvaluatorFor(Expression expression, ExpressionStepSolver stepSolver) {
 		// make new map based on old one, without altering it
 		evaluators = stackedHashMap(new IdentityWrapper(expression), stepSolver, evaluators);
 	}

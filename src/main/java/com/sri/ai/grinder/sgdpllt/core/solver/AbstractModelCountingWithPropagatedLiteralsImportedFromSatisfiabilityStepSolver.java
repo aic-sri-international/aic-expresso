@@ -45,21 +45,21 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 /**
  * An abstract step solver for model counting step solvers.
  * <p>
- * It extends {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver}
+ * It extends {@link AbstractExpressionWithPropagatedLiteralsStepSolver}
  * and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
  * step solver, which is obtained through the theory's
  * {@link Theory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)}.
  * However, it is important that the satisfiability step solver provided by the theory
- * be an instance of {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver},
+ * be an instance of {@link AbstractExpressionWithPropagatedLiteralsStepSolver},
  * because {@link #getPropagatedCNF(Context)} is delegated to the satisfiability step solver's
- * {@link AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver#getPropagatedCNF(Context)}
+ * {@link AbstractExpressionWithPropagatedLiteralsStepSolver#getPropagatedCNF(Context)}
  * method.
  * An error is thrown if this assumption is violated.
  * <p>
@@ -72,7 +72,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
  *
  */
 @Beta
-public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver extends AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver {
+public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver extends AbstractExpressionWithPropagatedLiteralsStepSolver {
 
 	public AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver(Constraint constraint) {
 		super(constraint);
@@ -100,16 +100,16 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	@Override
 	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(Context context) {
 		Theory theory = getConstraint().getTheory();
-		ContextDependentExpressionProblemStepSolver satisfiability =
+		ExpressionStepSolver satisfiability =
 				theory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), context);
-		AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
+		AbstractExpressionWithPropagatedLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {
 			satisfiabilityWithPropagatedLiterals =
-					(AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver) satisfiability;
+					(AbstractExpressionWithPropagatedLiteralsStepSolver) satisfiability;
 		} catch (ClassCastException e) {
 			throw new Error(this.getClass() + 
 					" can only be used with theories providing satisfiability context-dependent step solvers"
-					+ " that are extensions of " + AbstractContextDependentExpressionProblemWithPropagatedLiteralsStepSolver.class
+					+ " that are extensions of " + AbstractExpressionWithPropagatedLiteralsStepSolver.class
 					+ ", but theory " + theory.getClass() + " provided instead an instance of"
 					+ satisfiability.getClass());
 		}
