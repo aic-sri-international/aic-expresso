@@ -70,8 +70,7 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 	@Override
 	public ExpressionLiteralSplitterStepSolver clone() {
 
-		ExpressionFormulaSplitterStepSolver formulaSplitterStepSolverClone = (ExpressionFormulaSplitterStepSolver) formulaSplitterStepSolver
-				.clone();
+		ExpressionFormulaSplitterStepSolver formulaSplitterStepSolverClone = formulaSplitterStepSolver.clone();
 
 		ExpressionLiteralSplitterStepSolver result = new ExpressionFormulaToLiteralSplitterStepSolverAdapter(
 				formulaSplitterStepSolverClone);
@@ -81,14 +80,18 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 
 	@Override
 	public SolverStep step(Context context) {
-		SolverStep result = formulaSplitterStepSolver.step(context);
-		if (result.itDepends()) {
+		ExpressionLiteralSplitterStepSolver.SolverStep result;
+		ExpressionFormulaSplitterStepSolver.SolverStep formulaSolverStep = formulaSplitterStepSolver.step(context);
+		if (formulaSolverStep.itDepends()) {
 // TODO - support formulas in addition to literals.			
 			// We need to wrap the ItDepends result sub-solvers in adapters as well.
-			result = new ItDependsOn(result.getSplitter(),
-						result.getContextSplitting(),
-						new ExpressionFormulaToLiteralSplitterStepSolverAdapter((ExpressionFormulaSplitterStepSolver) result.getStepSolverForWhenSplitterIsTrue()),
-						new ExpressionFormulaToLiteralSplitterStepSolverAdapter((ExpressionFormulaSplitterStepSolver) result.getStepSolverForWhenSplitterIsFalse()));
+			result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(formulaSolverStep.getSplitter(),
+						formulaSolverStep.getContextSplitting(),
+						new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsTrue()),
+						new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsFalse()));
+		}
+		else {
+			result = new ExpressionLiteralSplitterStepSolver.Solution(formulaSolverStep.getValue());
 		}
 		return result;
 	}

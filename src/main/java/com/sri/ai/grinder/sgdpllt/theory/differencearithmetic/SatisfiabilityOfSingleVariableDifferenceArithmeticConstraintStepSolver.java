@@ -93,9 +93,9 @@ public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSol
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers must be satisfiability step solvers.
 			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue = clone();
-			ifTrue.modelCounting = (ExpressionLiteralSplitterStepSolver) modelCountingStep.getStepSolverForWhenSplitterIsTrue();
+			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsTrue();
 			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = clone();
-			ifFalse.modelCounting = (ExpressionLiteralSplitterStepSolver) modelCountingStep.getStepSolverForWhenSplitterIsFalse();
+			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsFalse();
 			return new ItDependsOn(modelCountingStep.getSplitter(), modelCountingStep.getContextSplitting(), ifTrue, ifFalse);
 		}
 

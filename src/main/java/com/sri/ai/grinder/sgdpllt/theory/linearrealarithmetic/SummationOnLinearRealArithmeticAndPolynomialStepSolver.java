@@ -50,6 +50,7 @@ import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialIntegration;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
@@ -102,7 +103,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Expression literalFreeBody,
 			Context context) {
 
-		SolverStep step = 
+		ExpressionLiteralSplitterStepSolver.SolverStep step = 
 				valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;

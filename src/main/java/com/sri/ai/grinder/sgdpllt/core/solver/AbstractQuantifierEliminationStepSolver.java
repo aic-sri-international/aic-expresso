@@ -208,7 +208,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		}
 		else {
 			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
-			SolverStep bodyStep = bodyStepSolver.step(contextForBody); 
+			ExpressionLiteralSplitterStepSolver.SolverStep bodyStep = bodyStepSolver.step(contextForBody); 
 			
 			// At this point, bodyStep may be a non-conditional solver step
 			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
@@ -245,8 +245,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver ifTrue = clone();
 					AbstractQuantifierEliminationStepSolver ifFalse = clone();
-					ifTrue.initialBodyEvaluationStepSolver = (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsTrue();
-					ifFalse.initialBodyEvaluationStepSolver = (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsFalse();
+					ifTrue.initialBodyEvaluationStepSolver  = bodyStep.getStepSolverForWhenSplitterIsTrue();
+					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
 					ifTrue.initialContextForBody  = bodyStep.getContextSplitting().getContextAndLiteral();
 					ifFalse.initialContextForBody = bodyStep.getContextSplitting().getContextAndLiteralNegation();
 					
@@ -273,7 +273,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	protected SolverStep resultIfLiteralContainsIndex(Expression literal, SolverStep bodyStep, Context contextForBody, Context context) {
+	protected SolverStep resultIfLiteralContainsIndex(Expression literal, ExpressionLiteralSplitterStepSolver.SolverStep bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
@@ -337,15 +337,15 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 	
-	protected AbstractQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, SolverStep bodyStep, Constraint newIndexConstraint) {
+	protected AbstractQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, ExpressionLiteralSplitterStepSolver.SolverStep bodyStep, Constraint newIndexConstraint) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
 				(SingleVariableConstraint) newIndexConstraint;
 		AbstractQuantifierEliminationStepSolver result = 
 				makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		result.initialBodyEvaluationStepSolver =
 				valueForLiteral
-				? (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsTrue() 
-				: (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsFalse();
+				? bodyStep.getStepSolverForWhenSplitterIsTrue() 
+				: bodyStep.getStepSolverForWhenSplitterIsFalse();
 		result.initialContextForBody = 
 				valueForLiteral
 				? bodyStep.getContextSplitting().getConstraintAndLiteral() 

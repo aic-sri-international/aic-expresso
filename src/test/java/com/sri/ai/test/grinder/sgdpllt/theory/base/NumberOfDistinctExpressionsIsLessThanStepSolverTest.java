@@ -52,8 +52,8 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver.SolverStep;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.SolverStep;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
 
@@ -77,8 +77,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getSplitter());
 		
-		ExpressionStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenSplitterIsTrue();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
 
 		// if X = c, the number of distinct values is at most 4, so it will never reach the limit
 		step = stepSolverIfXEqualsC.step(context);
@@ -102,8 +102,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		assertEquals(parse("Y = a"), step.getSplitter());
 		
 
-		ExpressionStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenSplitterIsTrue();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIsFalse();
 
 		// ok, moving on, assuming Y = a, limit will not be reached
 		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(context);
@@ -115,8 +115,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getSplitter());
 		
-		ExpressionStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenSplitterIsTrue();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
 
 		// if Y = c, then limit is not going to be reached
 		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(context);

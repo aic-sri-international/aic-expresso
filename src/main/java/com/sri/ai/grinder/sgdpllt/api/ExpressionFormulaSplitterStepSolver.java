@@ -38,6 +38,8 @@
 package com.sri.ai.grinder.sgdpllt.api;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 
 /**
  * An indicator interface for ExpressionStepSolvers that split on the
@@ -48,5 +50,81 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface ExpressionFormulaSplitterStepSolver extends ExpressionStepSolver {
+	@Override
+	ExpressionFormulaSplitterStepSolver clone();
+	
+	@Override
+	ExpressionFormulaSplitterStepSolver.SolverStep step(Context context);
+	
+	public static interface SolverStep extends StepSolver.SolverStep<Expression> {
+		/**
+		 * 
+		 * @return the formula splitter.
+		 */
+		Expression getFormula();
+		 
+		/**
+		 * Returns a {@link ExpressionLiteralSplitterStepSolver} to be used for finding the final solution
+		 * in case the literal is defined as true by the context.
+		 * This is merely an optimization, and using the original step solver should still work,
+		 * but will perform wasted working re-discovering that expressions is already true.
+		 * @return
+		 */
+		@Override
+		ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsTrue();
+		
+		/**
+		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when literal is false.
+		 * @return
+		 */
+		@Override
+		ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsFalse();
+	}
+	
+	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements SolverStep {
 
+		public ItDependsOn(
+				Expression formula,
+				ContextSplitting contextSplitting,
+				ExpressionFormulaSplitterStepSolver stepSolverIfExpressionIsTrue,
+				ExpressionFormulaSplitterStepSolver stepSolverIfExpressionIsFalse) {
+			super(formula, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+		}
+		
+		@Override
+		public Expression getFormula() {
+			return getSplitter();
+		}
+		
+		@Override
+		public ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
+			return (ExpressionFormulaSplitterStepSolver) super.getStepSolverForWhenSplitterIsTrue();
+		}
+		
+		@Override
+		public ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsFalse() {
+			return (ExpressionFormulaSplitterStepSolver) super.getStepSolverForWhenSplitterIsFalse();
+		}
+	}
+	
+	public static class Solution extends StepSolver.Solution<Expression> implements SolverStep {
+
+		public Solution(Expression value) {
+			super(value);
+		}
+		
+		public Expression getFormula() {
+			throw new Error("Solution does not define getFormula().");
+		}
+		
+		@Override
+		public ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+
+		@Override
+		public ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsFalse() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+	}
 }

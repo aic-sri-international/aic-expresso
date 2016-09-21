@@ -233,9 +233,9 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 			}
 			if (subExpressionStep.itDepends()) {
 				EvaluatorStepSolver ifTrue = clone();
-				ifTrue.setEvaluatorFor(subExpression, (ExpressionLiteralSplitterStepSolver) subExpressionStep.getStepSolverForWhenSplitterIsTrue());
+				ifTrue.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsTrue());
 				EvaluatorStepSolver ifFalse = clone();
-				ifFalse.setEvaluatorFor(subExpression, (ExpressionLiteralSplitterStepSolver) subExpressionStep.getStepSolverForWhenSplitterIsFalse());
+				ifFalse.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsFalse());
 				result =
 						new ItDependsOn(
 								subExpressionStep.getSplitter(),

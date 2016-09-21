@@ -54,6 +54,7 @@ import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
@@ -106,7 +107,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 			Expression literalFreeBody,
 			Context context) {
 
-		SolverStep step = 
+		ExpressionLiteralSplitterStepSolver.SolverStep step = 
 				valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;
