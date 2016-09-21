@@ -62,9 +62,11 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionFormulaSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionFormulaToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
@@ -173,25 +175,28 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		ExpressionLiteralSplitterStepSolver result = new SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
+		return result;
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		ExpressionLiteralSplitterStepSolver result = new ModelCountingOfSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) constraint);
+		return result;
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
-		ExpressionStepSolver result;
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
+		ExpressionFormulaSplitterStepSolver formulaSplitterStepSolver;
 		if (group instanceof Sum) {
-			result = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(constraint, currentBody);
+			formulaSplitterStepSolver = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(constraint, currentBody);
 		}
 		else {
-			result = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
+			formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
 					(group, constraint, currentBody);
 		}
+		ExpressionLiteralSplitterStepSolver result = new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
 		return result;
 	}
 

@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
@@ -77,7 +77,7 @@ import com.sri.ai.util.collect.NestedIterator;
  *
  */
 @Beta
-public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver implements ExpressionStepSolver {
+public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver implements ExpressionLiteralSplitterStepSolver {
 
 	final static boolean MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF = false;
 	

@@ -50,10 +50,12 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionFormulaSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
+import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionFormulaToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
@@ -105,19 +107,22 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		ExpressionLiteralSplitterStepSolver result = new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
+		return result;
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return new ModelCountingOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		ExpressionLiteralSplitterStepSolver result = new ModelCountingOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
+		return result;
 	}
 
 	@Override
-	public 	ExpressionStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context) {
-		return new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
-		(group, constraintForThisIndex, currentBody);
+	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context) {
+		ExpressionFormulaSplitterStepSolver formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(group, constraintForThisIndex, currentBody);
+		ExpressionLiteralSplitterStepSolver result = new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
+		return result;
 	}
 
 	@Override

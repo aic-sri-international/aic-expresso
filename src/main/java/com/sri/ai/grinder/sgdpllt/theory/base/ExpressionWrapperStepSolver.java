@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 
 /**
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.api.StepSolver;
  *
  */
 @Beta
-public class ExpressionWrapperStepSolver<T> implements ExpressionStepSolver {
+public class ExpressionWrapperStepSolver<T> implements ExpressionLiteralSplitterStepSolver {
 
 	private StepSolver<T> base;
 	private Function<T, Expression> wrapper;

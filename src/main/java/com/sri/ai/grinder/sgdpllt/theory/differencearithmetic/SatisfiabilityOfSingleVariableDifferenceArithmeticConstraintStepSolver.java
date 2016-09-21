@@ -47,7 +47,7 @@ import static com.sri.ai.grinder.sgdpllt.theory.base.ExpressionConditionedOnLite
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
@@ -59,10 +59,10 @@ import com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanWithPropagatedLiter
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver implements ExpressionStepSolver {
+public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver implements ExpressionLiteralSplitterStepSolver {
 
 	private SingleVariableDifferenceArithmeticConstraint constraint;
-	private ExpressionStepSolver modelCounting;
+	private ExpressionLiteralSplitterStepSolver modelCounting;
 	
 	public SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver(SingleVariableDifferenceArithmeticConstraint constraint) {
 		this.constraint = constraint;
@@ -93,9 +93,9 @@ public class SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSol
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers must be satisfiability step solvers.
 			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifTrue = clone();
-			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsTrue();
+			ifTrue.modelCounting = (ExpressionLiteralSplitterStepSolver) modelCountingStep.getStepSolverForWhenSplitterIsTrue();
 			SatisfiabilityOfSingleVariableDifferenceArithmeticConstraintStepSolver ifFalse = clone();
-			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsFalse();
+			ifFalse.modelCounting = (ExpressionLiteralSplitterStepSolver) modelCountingStep.getStepSolverForWhenSplitterIsFalse();
 			return new ItDependsOn(modelCountingStep.getSplitter(), modelCountingStep.getContextSplitting(), ifTrue, ifFalse);
 		}
 

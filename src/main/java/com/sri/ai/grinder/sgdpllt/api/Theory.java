@@ -219,19 +219,19 @@ public interface Theory extends Cloneable {
 
 	/**
 	 * Given a single-variable constraint in this theory, returns
-	 * a {@link ExpressionStepSolver} deciding its satisfiability.
+	 * a {@link ExpressionLiteralSplitterStepSolver} deciding its satisfiability.
 	 * @param context TODO
-	 * @return a {@link ExpressionStepSolver} deciding a constraint's satisfiability.
+	 * @return a {@link ExpressionLiteralSplitterStepSolver} deciding a constraint's satisfiability.
 	 */
-	ExpressionStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context);
+	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context);
 	
 	/**
 	 * Given a single-variable constraint in this theory, returns
-	 * a {@link ExpressionStepSolver} computing its model count.
+	 * a {@link ExpressionLiteralSplitterStepSolver} computing its model count.
 	 * @param context TODO
-	 * @return a {@link ExpressionStepSolver} computing a constraint's model count.
+	 * @return a {@link ExpressionLiteralSplitterStepSolver} computing a constraint's model count.
 	 */
-	ExpressionStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
+	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
 
 	/**
 	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
@@ -241,7 +241,7 @@ public interface Theory extends Cloneable {
 	 * @param context
 	 * @return
 	 */
-	ExpressionStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
+	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
 
 	/**
 	 * Returns the negation of a literal.

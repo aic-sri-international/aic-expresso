@@ -63,7 +63,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
@@ -212,23 +212,23 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
-	public ExpressionStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionStepSolver result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
+		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
 		return result;
 	}
 
 	@Override
-	public 	ExpressionStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, context);
+		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, context);
 		return result;
 	}
 

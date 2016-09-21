@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 
 /**
  * A context-dependent expression problem step solver
@@ -52,24 +52,24 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
  *
  */
 @Beta
-public class FunctionBasedStepSolver implements ExpressionStepSolver {
+public class FunctionBasedStepSolver implements ExpressionLiteralSplitterStepSolver {
 
 	private Function<Expression, Expression> function;
-	private ExpressionStepSolver base;
+	private ExpressionLiteralSplitterStepSolver base;
 	
 	public FunctionBasedStepSolver(
 			Function<Expression, Expression> function,
-			ExpressionStepSolver base) {
+			ExpressionLiteralSplitterStepSolver base) {
 		super();
 		this.function = function;
 		this.base = base;
 	}
 
 	@Override
-	public ExpressionStepSolver clone() {
-		ExpressionStepSolver result = null;
+	public ExpressionLiteralSplitterStepSolver clone() {
+		ExpressionLiteralSplitterStepSolver result = null;
 		try {
-			result = (ExpressionStepSolver) super.clone();
+			result = (ExpressionLiteralSplitterStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}

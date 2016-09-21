@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
@@ -110,7 +110,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	protected Expression body;
 	
-	private ExpressionStepSolver initialBodyEvaluationStepSolver;
+	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
 	
 	private Context initialContextForBody;
 
@@ -177,7 +177,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return body;
 	}
 	
-	private ExpressionStepSolver getInitialBodyStepSolver(Theory theory) {
+	private ExpressionLiteralSplitterStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
 			= new EvaluatorStepSolver(body);
@@ -207,7 +207,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-			ExpressionStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
+			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
 			SolverStep bodyStep = bodyStepSolver.step(contextForBody); 
 			
 			// At this point, bodyStep may be a non-conditional solver step
@@ -245,8 +245,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver ifTrue = clone();
 					AbstractQuantifierEliminationStepSolver ifFalse = clone();
-					ifTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsTrue();
-					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
+					ifTrue.initialBodyEvaluationStepSolver = (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsTrue();
+					ifFalse.initialBodyEvaluationStepSolver = (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsFalse();
 					ifTrue.initialContextForBody  = bodyStep.getContextSplitting().getContextAndLiteral();
 					ifFalse.initialContextForBody = bodyStep.getContextSplitting().getContextAndLiteralNegation();
 					
@@ -344,8 +344,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		result.initialBodyEvaluationStepSolver =
 				valueForLiteral
-				? bodyStep.getStepSolverForWhenSplitterIsTrue() 
-				: bodyStep.getStepSolverForWhenSplitterIsFalse();
+				? (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsTrue() 
+				: (ExpressionLiteralSplitterStepSolver) bodyStep.getStepSolverForWhenSplitterIsFalse();
 		result.initialContextForBody = 
 				valueForLiteral
 				? bodyStep.getContextSplitting().getConstraintAndLiteral() 
@@ -408,9 +408,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 * @param simplifier
 	 * @return
 	 */
-	public static ExpressionStepSolver makeEvaluator(Expression expression) {
-		ExpressionStepSolver evaluator;
-		evaluator = new EvaluatorStepSolver(expression);
-		return evaluator;
+	public static ExpressionLiteralSplitterStepSolver makeEvaluator(Expression expression) {
+		ExpressionLiteralSplitterStepSolver result;
+		result = new EvaluatorStepSolver(expression);
+		return result;
 	}
 }

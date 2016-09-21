@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.theory.base;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 
 /**
  * A step solver always returning a constant expression solution regardless of the context.
@@ -49,7 +49,7 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
  *
  */
 @Beta
-public class ConstantExpressionStepSolver implements ExpressionStepSolver {
+public class ConstantExpressionStepSolver implements ExpressionLiteralSplitterStepSolver {
 
 	private Solution solution;
 
