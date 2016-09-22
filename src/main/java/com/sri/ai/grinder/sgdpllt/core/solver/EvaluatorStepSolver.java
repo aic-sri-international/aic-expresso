@@ -168,8 +168,8 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 	}
 
 	@Override
-	public SolverStep step(Context context) {
-		SolverStep result;
+	public Step step(Context context) {
+		Step result;
 		
 		TopSimplifier topSimplifier = context.getTheory().getMapBasedTopSimplifier();
 		TopSimplifier exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
@@ -226,7 +226,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
 			ExpressionLiteralSplitterStepSolver subExpressionEvaluator = 
 					getEvaluatorFor(subExpression, false /* not known to be exhaustively top-simplified already */);
-			SolverStep subExpressionStep = subExpressionEvaluator.step(context);
+			Step subExpressionStep = subExpressionEvaluator.step(context);
 
 			if (subExpressionStep == null) {
 				return null;

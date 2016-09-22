@@ -82,7 +82,7 @@ public class ContextDependentExpressionProblemSolver {
 		}
 		
 		Expression result;
-		StepSolver.SolverStep<Expression> step = stepSolver.step(context);
+		StepSolver.Step<Expression> step = stepSolver.step(context);
 		if (step.itDepends()) {
 			Expression splitter = step.getSplitter();
 			ContextSplitting split = (ContextSplitting) step.getContextSplitting();

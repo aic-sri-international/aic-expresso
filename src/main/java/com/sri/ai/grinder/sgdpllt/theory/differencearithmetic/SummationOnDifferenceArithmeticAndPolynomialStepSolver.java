@@ -102,12 +102,12 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	}
 
 	@Override
-	protected SolverStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+	protected Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
 			Context context) {
 
-		ExpressionLiteralSplitterStepSolver.SolverStep step = 
+		ExpressionLiteralSplitterStepSolver.Step step = 
 				valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver.step(context);
 		if (step == null) {
 			return null;

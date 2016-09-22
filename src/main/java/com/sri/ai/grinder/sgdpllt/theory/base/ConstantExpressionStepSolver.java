@@ -67,7 +67,7 @@ public class ConstantExpressionStepSolver implements ExpressionLiteralSplitterSt
 	}
 
 	@Override
-	public SolverStep step(Context context) {
+	public Step step(Context context) {
 		return solution;
 	}
 	

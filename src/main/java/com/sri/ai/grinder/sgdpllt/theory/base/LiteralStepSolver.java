@@ -73,7 +73,7 @@ public class LiteralStepSolver implements StepSolver<Boolean> {
 	}
 
 	@Override
-	public StepSolver.SolverStep<Boolean> step(Context context) {
+	public StepSolver.Step<Boolean> step(Context context) {
 		ContextSplitting split = new ContextSplitting(literal, context);
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:

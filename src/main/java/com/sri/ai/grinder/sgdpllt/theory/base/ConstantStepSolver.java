@@ -66,7 +66,7 @@ public class ConstantStepSolver<T> implements StepSolver<T> {
 	}
 
 	@Override
-	public StepSolver.SolverStep<T> step(Context context) {
+	public StepSolver.Step<T> step(Context context) {
 		return solution;
 	}	
 }

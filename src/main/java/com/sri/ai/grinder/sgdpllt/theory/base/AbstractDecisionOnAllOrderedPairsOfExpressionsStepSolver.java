@@ -191,7 +191,7 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public SolverStep step(Context context) {
+	public Step step(Context context) {
 		
 		if (expressions.size() < 2) {
 			return makeSolutionStepWhenThereAreNoPairs();

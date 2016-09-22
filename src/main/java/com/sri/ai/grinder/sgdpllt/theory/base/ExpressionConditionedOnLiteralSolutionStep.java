@@ -45,7 +45,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.ItDependsOn;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.SolverStep;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 
 /**
  * Provides a static method for generating {@link Expression}-valued solver steps based on a literal.
@@ -65,16 +65,16 @@ public class ExpressionConditionedOnLiteralSolutionStep {
 	 * @param context
 	 * @return
 	 */
-	public static SolverStep
+	public static Step
 	stepDependingOnLiteral(
 			Expression literal, 
 			Expression solutionIfTrue, 
 			Expression solutionIfFalse, 
 			Context context) {
 		
-		SolverStep result;
+		Step result;
 		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
-		StepSolver.SolverStep<Boolean> step =
+		StepSolver.Step<Boolean> step =
 				literalStepSolver.step(context);
 		if (step.itDepends()) {
 			result =

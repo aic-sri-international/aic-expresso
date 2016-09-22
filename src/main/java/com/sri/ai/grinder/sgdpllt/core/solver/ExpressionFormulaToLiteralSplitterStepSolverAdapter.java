@@ -79,9 +79,9 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 	}
 
 	@Override
-	public SolverStep step(Context context) {
-		ExpressionLiteralSplitterStepSolver.SolverStep result;
-		ExpressionFormulaSplitterStepSolver.SolverStep formulaSolverStep = formulaSplitterStepSolver.step(context);
+	public Step step(Context context) {
+		ExpressionLiteralSplitterStepSolver.Step result;
+		ExpressionFormulaSplitterStepSolver.Step formulaSolverStep = formulaSplitterStepSolver.step(context);
 		if (formulaSolverStep.itDepends()) {
 // TODO - support formulas in addition to literals.			
 			// We need to wrap the ItDepends result sub-solvers in adapters as well.

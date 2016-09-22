@@ -54,9 +54,9 @@ public interface ExpressionFormulaSplitterStepSolver extends ExpressionStepSolve
 	ExpressionFormulaSplitterStepSolver clone();
 	
 	@Override
-	ExpressionFormulaSplitterStepSolver.SolverStep step(Context context);
+	ExpressionFormulaSplitterStepSolver.Step step(Context context);
 	
-	public static interface SolverStep extends StepSolver.SolverStep<Expression> {
+	public static interface Step extends StepSolver.Step<Expression> {
 		/**
 		 * 
 		 * @return the formula splitter.
@@ -81,7 +81,7 @@ public interface ExpressionFormulaSplitterStepSolver extends ExpressionStepSolve
 		ExpressionFormulaSplitterStepSolver getStepSolverForWhenSplitterIsFalse();
 	}
 	
-	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements SolverStep {
+	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements Step {
 
 		public ItDependsOn(
 				Expression formula,
@@ -107,7 +107,7 @@ public interface ExpressionFormulaSplitterStepSolver extends ExpressionStepSolve
 		}
 	}
 	
-	public static class Solution extends StepSolver.Solution<Expression> implements SolverStep {
+	public static class Solution extends StepSolver.Solution<Expression> implements Step {
 
 		public Solution(Expression value) {
 			super(value);

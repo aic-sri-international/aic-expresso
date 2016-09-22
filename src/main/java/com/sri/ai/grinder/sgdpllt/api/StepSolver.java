@@ -44,7 +44,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
- * Method {@link #step(Context)} returns a {@link SolverStep},
+ * Method {@link #step(Context)} returns a {@link Step},
  * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getSplitter()} returning a literal
  * that, if used to split the context
@@ -117,7 +117,7 @@ public interface StepSolver<T> extends Cloneable {
 	 * @author braz
 	 *
 	 */
-	public static interface SolverStep<T> {
+	public static interface Step<T> {
 		boolean itDepends();
 		
 		/**
@@ -156,7 +156,7 @@ public interface StepSolver<T> extends Cloneable {
 		ContextSplitting getContextSplitting();
 	}
 	
-	public static class ItDependsOn<T> implements SolverStep<T> {
+	public static class ItDependsOn<T> implements Step<T> {
 
 		private Expression splitter;
 		private ContextSplitting constraintSplitting;
@@ -223,7 +223,7 @@ public interface StepSolver<T> extends Cloneable {
 	}
 	
 	
-	public static class Solution<T> implements SolverStep<T> {
+	public static class Solution<T> implements Step<T> {
 
 		private T value;
 		
@@ -274,5 +274,5 @@ public interface StepSolver<T> extends Cloneable {
 	 * @param context
 	 * @return
 	 */
-	SolverStep<T> step(Context context);
+	Step<T> step(Context context);
 }

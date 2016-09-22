@@ -126,7 +126,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 
 	/**
 	 * Given the maximum lower bound and minimum upper bound for the constraint's variable,
-	 * this method must provide s {@link SolverStep} towards determining the final solution
+	 * this method must provide s {@link Step} towards determining the final solution
 	 * of whatever problem the extension is trying to solve.
 	 * <p>
 	 * Bounds may be strict (<code><, ></code>) or non-strict (<code><=, >=</code>).
@@ -156,7 +156,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 * @param context
 	 * @return
 	 */
-	abstract protected SolverStep getSolutionStepAfterBoundsAreCheckedForFeasibility(
+	abstract protected Step getSolutionStepAfterBoundsAreCheckedForFeasibility(
 			Expression maximumLowerBound,
 			Expression minimumUpperBound,
 			AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase,
@@ -675,7 +675,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	}
 	
 	@Override
-	protected SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
+	protected Step solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
 
 		Expression solutionExpression;
 		
@@ -707,7 +707,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				maximumLowerBoundStepSolver = initialMaximumLowerBoundStepSolver;
 			}
-			StepSolver.SolverStep<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
+			StepSolver.Step<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
 			if (maximumLowerBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsTrue();
@@ -732,7 +732,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				minimumUpperBoundStepSolver = initialMinimumUpperBoundStepSolver;
 			}
-			StepSolver.SolverStep<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
+			StepSolver.Step<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
 			if (minimumUpperBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
@@ -757,7 +757,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				else {
 					boundedSpaceIsNotEmptyStepSolver = initialBoundedSpaceIsNotEmptyStepSolver;
 				}
-				StepSolver.SolverStep<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
+				StepSolver.Step<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 					ifTrue.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
@@ -772,7 +772,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				// else, bounds difference is positive and we can move on
 				sequelBase.initialBoundedSpaceIsNotEmptyStepSolver = new ConstantStepSolver<Boolean>(true);
 
-				SolverStep result = getSolutionStepAfterBoundsAreCheckedForFeasibility(maximumLowerBound, minimumUpperBound, sequelBase, context);
+				Step result = getSolutionStepAfterBoundsAreCheckedForFeasibility(maximumLowerBound, minimumUpperBound, sequelBase, context);
 				return result;
 			}
 		}

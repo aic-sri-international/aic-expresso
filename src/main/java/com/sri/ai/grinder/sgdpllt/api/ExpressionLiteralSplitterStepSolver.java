@@ -55,9 +55,9 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 	ExpressionLiteralSplitterStepSolver clone();
 	
 	@Override
-	ExpressionLiteralSplitterStepSolver.SolverStep step(Context context);
+	ExpressionLiteralSplitterStepSolver.Step step(Context context);
 	
-	public static interface SolverStep extends StepSolver.SolverStep<Expression> {
+	public static interface Step extends StepSolver.Step<Expression> {
 		/**
 		 * 
 		 * @return the literal splitter.
@@ -82,7 +82,7 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse();
 	}
 	
-	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements SolverStep {
+	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements Step {
 
 		public ItDependsOn(
 				Expression literal,
@@ -108,7 +108,7 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		}
 	}
 	
-	public static class Solution extends StepSolver.Solution<Expression> implements SolverStep {
+	public static class Solution extends StepSolver.Solution<Expression> implements Step {
 
 		public Solution(Expression value) {
 			super(value);

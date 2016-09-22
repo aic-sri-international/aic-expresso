@@ -224,17 +224,17 @@ public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver impleme
 	 */
 	protected abstract Expression getSolutionExpressionGivenContradiction();
 
-	protected abstract SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context);
+	protected abstract Step solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context);
 
 	@Override
-	public SolverStep step(Context context) {
+	public Step step(Context context) {
 		if (getConstraint().isContradiction()) {
 			return new Solution(getSolutionExpressionGivenContradiction());
 		}
 		
-		SolverStep propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), context);
+		Step propagatedCNFIsSatisfiedStep = cnfIsSatisfied(getPropagatedCNF(context), context);
 		
-		SolverStep result;
+		Step result;
 		if (propagatedCNFIsSatisfiedStep == null) {
 			result = null;
 		}
@@ -264,7 +264,7 @@ public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver impleme
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolverStep cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context context) {
+	protected Step cnfIsSatisfied(ArrayList<ArrayList<Expression>> cnf, Context context) {
 		// note the very unusual initialization of literalIndex
 		// this is due to our wanting to be initialized to initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF,
 		// but only the first time the loop is executed (that is, inside the first clause loop)
@@ -324,7 +324,7 @@ public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver impleme
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected SolverStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context context) {
+	protected Step conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Context context) {
 		for (Expression literal : conjunctiveClause) {
 			ContextSplitting split = new ContextSplitting(literal, context);
 

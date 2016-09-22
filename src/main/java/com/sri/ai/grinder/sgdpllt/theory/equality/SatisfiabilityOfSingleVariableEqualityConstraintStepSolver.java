@@ -269,10 +269,10 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
-		SolverStep result;
+	protected Step solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context context) {
+		Step result;
 		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(context) != null) {
-			SolverStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(context).step(context);
+			Step numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(context).step(context);
 			if (numberStep.itDepends()) {
 				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsTrue = clone();
 				stepSolverIfExpressionIsTrue.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenSplitterIsTrue());

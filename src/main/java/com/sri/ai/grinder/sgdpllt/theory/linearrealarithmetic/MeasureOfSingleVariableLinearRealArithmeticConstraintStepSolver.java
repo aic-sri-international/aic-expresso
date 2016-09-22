@@ -75,7 +75,7 @@ public class MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver ext
 	}
 
 	@Override
-	protected SolverStep getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
+	protected Step getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
 		Expression boundsDifference = applyAndSimplify(MINUS, arrayList(upperBound, lowerBound), context);
 		return new Solution(boundsDifference);
 	}

@@ -77,9 +77,9 @@ public class FunctionBasedStepSolver implements ExpressionLiteralSplitterStepSol
 	}
 
 	@Override
-	public SolverStep step(Context context) {
-		SolverStep result;
-		SolverStep baseResult = base.step(context);
+	public Step step(Context context) {
+		Step result;
+		Step baseResult = base.step(context);
 		if (baseResult.itDepends()) {
 			result = baseResult;
 		}

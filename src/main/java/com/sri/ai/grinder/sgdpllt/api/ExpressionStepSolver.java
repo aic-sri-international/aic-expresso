@@ -77,5 +77,5 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 	 * @return
 	 */
 	@Override
-	SolverStep<Expression> step(Context context);
+	Step<Expression> step(Context context);
 }

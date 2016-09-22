@@ -51,7 +51,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.SolverStep;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.NumberOfDistinctExpressionsStepSolver;
 
@@ -69,7 +69,7 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
 		NumberOfDistinctExpressionsStepSolver stepSolver = new NumberOfDistinctExpressionsStepSolver(list);
 
-		SolverStep step = stepSolver.step(context);
+		Step step = stepSolver.step(context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getSplitter());
 		

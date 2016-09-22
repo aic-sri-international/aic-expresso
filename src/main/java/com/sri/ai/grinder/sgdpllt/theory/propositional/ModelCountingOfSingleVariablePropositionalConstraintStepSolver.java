@@ -69,7 +69,7 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 	}
 
 	@Override
-	protected SolverStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
+	protected Step solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
 			Context context) {
 		
 		boolean variableIsNotConstrained = 

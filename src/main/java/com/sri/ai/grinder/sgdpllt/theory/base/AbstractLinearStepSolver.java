@@ -85,7 +85,7 @@ public abstract class AbstractLinearStepSolver<T> implements StepSolver<T> {
 	 * Provides solution if all elements have already been checked.
 	 * @return
 	 */
-	abstract protected SolverStep<T> makeSolutionWhenAllElementsHaveBeenChecked();
+	abstract protected Step<T> makeSolutionWhenAllElementsHaveBeenChecked();
 
 	/**
 	 * Makes a step solver in this class for the sequence of integers
@@ -116,8 +116,8 @@ public abstract class AbstractLinearStepSolver<T> implements StepSolver<T> {
 	}
 	
 	@Override
-	public SolverStep<T> step(Context context) {
-		SolverStep<T> result;
+	public Step<T> step(Context context) {
+		Step<T> result;
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();
 			Expression literal = context.getTheory().simplify(unsimplifiedLiteral, context);

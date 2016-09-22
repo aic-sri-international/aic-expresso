@@ -93,8 +93,8 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 	
 	@Override
-	public SolverStep<Expression> step(Context context) {
-		SolverStep<Expression> result;
+	public Step<Expression> step(Context context) {
+		Step<Expression> result;
 		if (maximumSoFar.equals(orderMaximum)) { // short-circuiting if maximum already found
 			result = new Solution<Expression>(orderMaximum);
 		}
@@ -121,7 +121,7 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 
 	@Override
-	protected SolverStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
+	protected Step<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
 		Solution<Expression> result = new StepSolver.Solution<Expression>(maximumSoFar);
 		return result;
 	}

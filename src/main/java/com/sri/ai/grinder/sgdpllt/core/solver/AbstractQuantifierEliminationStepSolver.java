@@ -125,7 +125,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 * @param indexConstraint the index constraint
 	 * @param literalFreeBody literal-free body
 	 */
-	protected abstract SolverStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+	protected abstract Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
 			Context context);
@@ -197,9 +197,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	@Override
-	public SolverStep step(Context context) {
+	public Step step(Context context) {
 		
-		SolverStep result;
+		Step result;
 
 		Context contextForBody = getContextForBody(context);
 		
@@ -208,7 +208,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		}
 		else {
 			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
-			ExpressionLiteralSplitterStepSolver.SolverStep bodyStep = bodyStepSolver.step(contextForBody); 
+			ExpressionLiteralSplitterStepSolver.Step bodyStep = bodyStepSolver.step(contextForBody); 
 			
 			// At this point, bodyStep may be a non-conditional solver step
 			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
@@ -273,11 +273,11 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	protected SolverStep resultIfLiteralContainsIndex(Expression literal, ExpressionLiteralSplitterStepSolver.SolverStep bodyStep, Context contextForBody, Context context) {
+	protected Step resultIfLiteralContainsIndex(Expression literal, ExpressionLiteralSplitterStepSolver.Step bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
-		SolverStep result;
+		Step result;
 		Expression solutionValue;
 
 		// Here, we need to obtain the new index constraints, for the case in which the splitter literal is true and false,
@@ -337,7 +337,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 	
-	protected AbstractQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, ExpressionLiteralSplitterStepSolver.SolverStep bodyStep, Constraint newIndexConstraint) {
+	protected AbstractQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, ExpressionLiteralSplitterStepSolver.Step bodyStep, Constraint newIndexConstraint) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
 				(SingleVariableConstraint) newIndexConstraint;
 		AbstractQuantifierEliminationStepSolver result = 

@@ -78,12 +78,12 @@ public class ExpressionWrapperStepSolver<T> implements ExpressionLiteralSplitter
 	}
 
 	@Override
-	public SolverStep step(Context context) {
+	public Step step(Context context) {
 		
-		StepSolver.SolverStep<T> step =
+		StepSolver.Step<T> step =
 				base.step(context);
 
-		SolverStep result;
+		Step result;
 		
 		if (step.itDepends()) {
 			ExpressionWrapperStepSolver<T> subIfTrue = clone();

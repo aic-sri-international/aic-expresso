@@ -94,7 +94,7 @@ public abstract class AbstractSelectionStepSolver extends AbstractExpressionsSeq
 	}
 
 	@Override
-	protected SolverStep<List<Expression>> makeSolutionWhenAllElementsHaveBeenChecked() {
+	protected Step<List<Expression>> makeSolutionWhenAllElementsHaveBeenChecked() {
 		Solution<List<Expression>> result = new Solution<List<Expression>>(selection);
 		return result;
 	}
