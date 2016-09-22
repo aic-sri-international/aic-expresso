@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionFormulaSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 
 /**
@@ -54,10 +54,10 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 @Beta
 public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements ExpressionLiteralSplitterStepSolver {
 
-	private ExpressionFormulaSplitterStepSolver formulaSplitterStepSolver;
+	private ExpressionStepSolver formulaSplitterStepSolver;
 
 	public ExpressionFormulaToLiteralSplitterStepSolverAdapter(
-			ExpressionFormulaSplitterStepSolver formulaSplitterStepSolver) {
+			ExpressionStepSolver formulaSplitterStepSolver) {
 		this.formulaSplitterStepSolver = formulaSplitterStepSolver;
 	}
 
@@ -70,7 +70,7 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 	@Override
 	public ExpressionLiteralSplitterStepSolver clone() {
 
-		ExpressionFormulaSplitterStepSolver formulaSplitterStepSolverClone = formulaSplitterStepSolver.clone();
+		ExpressionStepSolver formulaSplitterStepSolverClone = formulaSplitterStepSolver.clone();
 
 		ExpressionLiteralSplitterStepSolver result = new ExpressionFormulaToLiteralSplitterStepSolverAdapter(
 				formulaSplitterStepSolverClone);
@@ -81,7 +81,7 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 	@Override
 	public Step step(Context context) {
 		ExpressionLiteralSplitterStepSolver.Step result;
-		ExpressionFormulaSplitterStepSolver.Step formulaSolverStep = formulaSplitterStepSolver.step(context);
+		ExpressionStepSolver.Step formulaSolverStep = formulaSplitterStepSolver.step(context);
 		if (formulaSolverStep.itDepends()) {
 // TODO - support formulas in addition to literals.			
 			// We need to wrap the ItDepends result sub-solvers in adapters as well.

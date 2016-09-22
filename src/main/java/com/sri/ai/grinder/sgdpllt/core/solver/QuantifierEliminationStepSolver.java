@@ -4,7 +4,7 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionFormulaSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -17,7 +17,7 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
  *
  */
 @Beta
-public interface QuantifierEliminationStepSolver extends ExpressionFormulaSplitterStepSolver, Cloneable {
+public interface QuantifierEliminationStepSolver extends ExpressionStepSolver, Cloneable {
 
 	AssociativeCommutativeGroup getGroup();
 	

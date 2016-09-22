@@ -62,7 +62,7 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionFormulaSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -188,7 +188,7 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
-		ExpressionFormulaSplitterStepSolver formulaSplitterStepSolver;
+		ExpressionStepSolver formulaSplitterStepSolver;
 		if (group instanceof Sum) {
 			formulaSplitterStepSolver = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(constraint, currentBody);
 		}

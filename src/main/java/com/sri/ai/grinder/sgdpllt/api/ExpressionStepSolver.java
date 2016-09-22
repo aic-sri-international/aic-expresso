@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpllt.api;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
@@ -77,5 +78,66 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 	 * @return
 	 */
 	@Override
-	Step<Expression> step(Context context);
+	Step step(Context context);
+	
+	public static interface Step extends StepSolver.Step<Expression> {		 
+		/**
+		 * Returns a {@link ExpressionLiteralSplitterStepSolver} to be used for finding the final solution
+		 * in case the literal is defined as true by the context.
+		 * This is merely an optimization, and using the original step solver should still work,
+		 * but will perform wasted working re-discovering that expressions is already true.
+		 * @return
+		 */
+		@Override
+		ExpressionStepSolver getStepSolverForWhenSplitterIsTrue();
+		
+		/**
+		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when literal is false.
+		 * @return
+		 */
+		@Override
+		ExpressionStepSolver getStepSolverForWhenSplitterIsFalse();
+	}
+	
+	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements Step {
+
+		public ItDependsOn(
+				Expression formula,
+				ContextSplitting contextSplitting,
+				ExpressionStepSolver stepSolverIfExpressionIsTrue,
+				ExpressionStepSolver stepSolverIfExpressionIsFalse) {
+			super(formula, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+		}
+		
+		@Override
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsTrue() {
+			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIsTrue();
+		}
+		
+		@Override
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsFalse() {
+			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIsFalse();
+		}
+	}
+	
+	public static class Solution extends StepSolver.Solution<Expression> implements Step {
+
+		public Solution(Expression value) {
+			super(value);
+		}
+		
+		public Expression getFormula() {
+			throw new Error("Solution does not define getFormula().");
+		}
+		
+		@Override
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsTrue() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+
+		@Override
+		public ExpressionStepSolver getStepSolverForWhenSplitterIsFalse() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+	}
 }

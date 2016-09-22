@@ -57,12 +57,12 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 	@Override
 	ExpressionLiteralSplitterStepSolver.Step step(Context context);
 	
-	public static interface Step extends StepSolver.Step<Expression> {
+	public static interface Step extends ExpressionStepSolver.Step {
 		/**
 		 * 
-		 * @return the literal splitter.
+		 * @return the splitter literal.
 		 */
-		Expression getLiteral();
+		Expression getSplitterLiteral();
 		 
 		/**
 		 * Returns a {@link ExpressionLiteralSplitterStepSolver} to be used for finding the final solution
@@ -82,7 +82,7 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse();
 	}
 	
-	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements Step {
+	public static class ItDependsOn extends ExpressionStepSolver.ItDependsOn implements Step {
 
 		public ItDependsOn(
 				Expression literal,
@@ -93,7 +93,7 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		}
 		
 		@Override
-		public Expression getLiteral() {
+		public Expression getSplitterLiteral() {
 			return getSplitter();
 		}
 		
@@ -108,14 +108,14 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		}
 	}
 	
-	public static class Solution extends StepSolver.Solution<Expression> implements Step {
+	public static class Solution extends ExpressionStepSolver.Solution implements Step {
 
 		public Solution(Expression value) {
 			super(value);
 		}
 		
-		public Expression getLiteral() {
-			throw new Error("Solution does not define getLiteral().");
+		public Expression getSplitterLiteral() {
+			throw new Error("Solution does not define getSplitterLiteral().");
 		}
 		
 		@Override
