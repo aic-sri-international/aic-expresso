@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 
 /**
  * A {@link StepSolver} specialized for problems with {@link Expression}-typed solutions.
@@ -55,18 +55,12 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemS
 @Beta
 public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable {
 
-	/**
-	 * Convenience method invoking
-	 * {@link ContextDependentExpressionProblemSolver#staticSolve(ExpressionStepSolver, Context)}
-	 * on this step solver.
-	 * @param context
-	 * @return
-	 */
 	default Expression solve(Context context) {
-		Expression result = ContextDependentExpressionProblemSolver.staticSolve(this, context);
+		ExpressionStepSolverToLiteralSplitterStepSolverAdapter adapter = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(this);
+		Expression result = adapter.solve(context);
 		return result;
 	}
-
+	
 	@Override
 	ExpressionStepSolver clone();
 	

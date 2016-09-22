@@ -52,6 +52,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -85,7 +86,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 */
 	public static
 	interface ContextDependentProblemStepSolverMaker
-	extends BinaryFunction<SingleVariableConstraint, Context, ExpressionStepSolver> {}
+	extends BinaryFunction<SingleVariableConstraint, Context, ExpressionLiteralSplitterStepSolver> {}
 	
 	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
 	
@@ -312,7 +313,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = this;
 		}
 		else {
-			ExpressionStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
+			ExpressionLiteralSplitterStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
 			Expression solution = problem.solve(tail);
 			if (solution == null) { // tail is found to be inconsistent with given context
 				result = makeContradiction();

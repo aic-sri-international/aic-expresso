@@ -41,7 +41,7 @@ import java.io.Serializable;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
@@ -69,8 +69,8 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 			this.theory = theory;
 		}
 		@Override
-		public ExpressionStepSolver apply(SingleVariableConstraint constraint, Context context) {
-			ExpressionStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+		public ExpressionLiteralSplitterStepSolver apply(SingleVariableConstraint constraint, Context context) {
+			ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 			return result;
 		}
 	}

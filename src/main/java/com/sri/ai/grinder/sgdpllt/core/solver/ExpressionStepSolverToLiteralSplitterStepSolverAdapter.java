@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -52,19 +51,16 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
  *
  */
 @Beta
-public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements ExpressionLiteralSplitterStepSolver {
+public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements ExpressionLiteralSplitterStepSolver {
 
 	private ExpressionStepSolver formulaSplitterStepSolver;
 
-	public ExpressionFormulaToLiteralSplitterStepSolverAdapter(
+	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 			ExpressionStepSolver formulaSplitterStepSolver) {
+		if (formulaSplitterStepSolver instanceof ExpressionLiteralSplitterStepSolver) {
+			throw new IllegalArgumentException("You do not pass an ExpressionLiteralSplitterStepSolver to this adapter, i.e. recursive calls will occur");
+		}
 		this.formulaSplitterStepSolver = formulaSplitterStepSolver;
-	}
-
-	@Override
-	public Expression solve(Context context) {
-		Expression result = formulaSplitterStepSolver.solve(context);
-		return result;
 	}
 
 	@Override
@@ -72,7 +68,7 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 
 		ExpressionStepSolver formulaSplitterStepSolverClone = formulaSplitterStepSolver.clone();
 
-		ExpressionLiteralSplitterStepSolver result = new ExpressionFormulaToLiteralSplitterStepSolverAdapter(
+		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 				formulaSplitterStepSolverClone);
 
 		return result;
@@ -87,8 +83,8 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 			// We need to wrap the ItDepends result sub-solvers in adapters as well.
 			result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(formulaSolverStep.getSplitter(),
 						formulaSolverStep.getContextSplittingWhenSplitterIsLiteral(),
-						new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsTrue()),
-						new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsFalse()));
+						new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsTrue()),
+						new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsFalse()));
 		}
 		else {
 			result = new ExpressionLiteralSplitterStepSolver.Solution(formulaSolverStep.getValue());

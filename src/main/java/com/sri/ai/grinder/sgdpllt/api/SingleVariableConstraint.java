@@ -132,7 +132,7 @@ public interface SingleVariableConstraint extends Constraint {
 	 * @return
 	 */
 	default Expression satisfiability(Context context) {
-		ExpressionStepSolver satisfiabilityStepSolver = getTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
+		ExpressionLiteralSplitterStepSolver satisfiabilityStepSolver = getTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
 		Expression satisfiability = satisfiabilityStepSolver.solve(context);
 		return satisfiability;
 	}
@@ -143,7 +143,7 @@ public interface SingleVariableConstraint extends Constraint {
 	 * @return
 	 */
 	default Expression modelCount(Context context) {
-		ExpressionStepSolver modelCountingStepSolver = 
+		ExpressionLiteralSplitterStepSolver modelCountingStepSolver = 
 				getTheory()
 				.getSingleVariableConstraintModelCountingStepSolver(this, context);
 		Expression modelCount = modelCountingStepSolver.solve(context);

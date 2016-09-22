@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpllt.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
+import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
  * An indicator interface for ExpressionStepSolvers that only split on the
@@ -50,6 +51,19 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
  */
 @Beta
 public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolver, LiteralSplitterStepSolver<Expression> {
+	
+	/**
+	 * Convenience method invoking
+	 * {@link ContextDependentExpressionProblemSolver#staticSolve(ExpressionLiteralSplitterStepSolver, Context)}
+	 * on this step solver.
+	 * @param context
+	 * @return
+	 */
+	@Override
+	default Expression solve(Context context) {
+		Expression result = ContextDependentExpressionProblemSolver.staticSolve(this, context);
+		return result;
+	}
 
 	@Override
 	ExpressionLiteralSplitterStepSolver clone();

@@ -48,7 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
@@ -104,7 +104,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest 
 				variable, true, context.getTheory());
 		constraint = constraint.conjoin(parse(constraintString), context);
 		
-		ExpressionStepSolver stepSolver =
+		ExpressionLiteralSplitterStepSolver stepSolver =
 				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint) constraint);
 		
 		Expression actual = stepSolver.solve(context);

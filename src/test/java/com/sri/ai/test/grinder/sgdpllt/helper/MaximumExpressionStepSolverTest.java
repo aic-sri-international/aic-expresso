@@ -55,7 +55,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.helper.MaximumExpressionStepSolver;
@@ -133,7 +132,7 @@ public class MaximumExpressionStepSolverTest {
 	}
 
 	private void runTest(List<String> expressions, String order, Expression orderMinimum, Expression orderMaximum, Expression expected, Context context) {
-		StepSolver<Expression> stepSolver =
+		MaximumExpressionStepSolver stepSolver =
 				new MaximumExpressionStepSolver(
 						mapIntoArrayList(expressions, Expressions::parse),
 						makeSymbol(order),

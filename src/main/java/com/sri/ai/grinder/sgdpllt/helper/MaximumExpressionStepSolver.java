@@ -44,6 +44,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver;
 
@@ -60,12 +61,18 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSol
  *
  */
 @Beta
-public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStepSolver<Expression> {
+public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStepSolver<Expression> implements ExpressionLiteralSplitterStepSolver {
 
 	private Expression order;
 	private Expression orderMaximum;
 	private Expression maximumSoFar;
 
+	@Override
+	public MaximumExpressionStepSolver clone() {
+		MaximumExpressionStepSolver clone = (MaximumExpressionStepSolver) super.clone();
+		return clone;
+	}
+	
 	/**
 	 * Makes step solver
 	 * @param expressions the expressions being compared
@@ -93,13 +100,22 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 	
 	@Override
-	public Step<Expression> step(Context context) {
-		Step<Expression> result;
+	public ExpressionLiteralSplitterStepSolver.Step step(Context context) {
+		ExpressionLiteralSplitterStepSolver.Step result;
 		if (maximumSoFar.equals(orderMaximum)) { // short-circuiting if maximum already found
-			result = new Solution<Expression>(orderMaximum);
+			result = new ExpressionLiteralSplitterStepSolver.Solution(orderMaximum);
 		}
 		else {
-			result = super.step(context);
+			StepSolver.Step<Expression> innerResult = super.step(context);
+			if (innerResult.itDepends()) {
+				result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(innerResult.getSplitter(), 
+								innerResult.getContextSplittingWhenSplitterIsLiteral(), 
+								(ExpressionLiteralSplitterStepSolver) innerResult.getStepSolverForWhenSplitterIsTrue(), 
+								(ExpressionLiteralSplitterStepSolver) innerResult.getStepSolverForWhenSplitterIsFalse());
+			}
+			else {
+				result = new ExpressionLiteralSplitterStepSolver.Solution(innerResult.getValue());
+			}
 		}
 		return result;
 	}
@@ -111,18 +127,18 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 	}
 
 	@Override
-	protected StepSolver<Expression> makeSubStepSolverWhenLiteralIsTrue() {
+	protected ExpressionLiteralSplitterStepSolver makeSubStepSolverWhenLiteralIsTrue() {
 		return new MaximumExpressionStepSolver(getExpressions(), order, orderMaximum, getCurrentExpression(), getCurrent() + 1);
 	}
 
 	@Override
-	protected StepSolver<Expression> makeSubStepSolverWhenLiteralIsFalse() {
+	protected ExpressionLiteralSplitterStepSolver makeSubStepSolverWhenLiteralIsFalse() {
 		return new MaximumExpressionStepSolver(getExpressions(), order, orderMaximum, maximumSoFar, getCurrent() + 1);
 	}
 
 	@Override
-	protected Step<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
-		Solution<Expression> result = new StepSolver.Solution<Expression>(maximumSoFar);
+	protected ExpressionLiteralSplitterStepSolver.Step makeSolutionWhenAllElementsHaveBeenChecked() {
+		ExpressionLiteralSplitterStepSolver.Solution result = new ExpressionLiteralSplitterStepSolver.Solution(maximumSoFar);
 		return result;
 	}
 }
