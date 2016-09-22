@@ -94,7 +94,7 @@ public class ExpressionWrapperStepSolver<T> implements ExpressionLiteralSplitter
 
 			result = new ItDependsOn(
 					step.getSplitter(),
-					step.getContextSplitting(),
+					step.getContextSplittingWhenSplitterIsLiteral(),
 					subIfTrue,
 					subIfFalse);
 		}

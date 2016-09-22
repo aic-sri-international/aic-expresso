@@ -239,7 +239,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 				result =
 						new ItDependsOn(
 								subExpressionStep.getSplitter(),
-								subExpressionStep.getContextSplitting(),
+								subExpressionStep.getContextSplittingWhenSplitterIsLiteral(),
 								ifTrue,
 								ifFalse);
 			}

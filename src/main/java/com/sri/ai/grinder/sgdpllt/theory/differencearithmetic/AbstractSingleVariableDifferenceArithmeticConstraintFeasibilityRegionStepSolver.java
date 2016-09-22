@@ -160,7 +160,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 			ifTrue.initialDisequalsGreaterThanMaximumLowerBoundStepSolver = disequalsGreaterThanGreatestStrictLowerBoundStep.getStepSolverForWhenSplitterIsTrue();
 			AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 			ifFalse.initialDisequalsGreaterThanMaximumLowerBoundStepSolver = disequalsGreaterThanGreatestStrictLowerBoundStep.getStepSolverForWhenSplitterIsFalse();
-			ItDependsOn result = new ItDependsOn(disequalsGreaterThanGreatestStrictLowerBoundStep.getSplitter(), disequalsGreaterThanGreatestStrictLowerBoundStep.getContextSplitting(), ifTrue, ifFalse);
+			ItDependsOn result = new ItDependsOn(disequalsGreaterThanGreatestStrictLowerBoundStep.getSplitter(), disequalsGreaterThanGreatestStrictLowerBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 			return result;
 		}
 		List<Expression> disequalsGreaterThanGreatestStrictLowerBound = disequalsGreaterThanGreatestStrictLowerBoundStep.getValue();
@@ -182,7 +182,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 			ifTrue.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStep.getStepSolverForWhenSplitterIsTrue();
 			AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 			ifFalse.initialDisequalsWithinBoundsStepSolver = disequalsWithinBoundsStep.getStepSolverForWhenSplitterIsFalse();
-			ItDependsOn result = new ItDependsOn(disequalsWithinBoundsStep.getSplitter(), disequalsWithinBoundsStep.getContextSplitting(), ifTrue, ifFalse);
+			ItDependsOn result = new ItDependsOn(disequalsWithinBoundsStep.getSplitter(), disequalsWithinBoundsStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 			return result;
 		}
 		ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(disequalsWithinBoundsStep.getValue());
@@ -214,7 +214,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 				ifTrue.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getStepSolverForWhenSplitterIsTrue();
 				AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 				ifFalse.initialNumberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getStepSolverForWhenSplitterIsFalse();
-				ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getSplitter(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getContextSplitting(), ifTrue, ifFalse);
+				ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getSplitter(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression numberOfDistinctDisequalsIsLessThanBoundsDifference = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue();
@@ -257,7 +257,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 				ifTrue.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenSplitterIsTrue();
 				AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 				ifFalse.initialDistinctDisequalsStepSolver = (DistinctExpressionsStepSolver) distinctDisequalsStep.getStepSolverForWhenSplitterIsFalse();
-				ItDependsOn result = new ItDependsOn(distinctDisequalsStep.getSplitter(), distinctDisequalsStep.getContextSplitting(), ifTrue, ifFalse);
+				ItDependsOn result = new ItDependsOn(distinctDisequalsStep.getSplitter(), distinctDisequalsStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression distinctDisequalsExtensionalUniSet = distinctDisequalsStep.getValue();

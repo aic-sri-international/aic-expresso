@@ -92,7 +92,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 				ifTrue.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenSplitterIsTrue();
 				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifFalse = clone();
 				ifFalse.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenSplitterIsFalse();
-				Step result = new ItDependsOn(step.getSplitter(), step.getContextSplitting(), ifTrue, ifFalse);
+				Step result = new ItDependsOn(step.getSplitter(), step.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			long numberOfNonAvailableValues = step.getValue().longValue();

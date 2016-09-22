@@ -86,7 +86,7 @@ public class ExpressionFormulaToLiteralSplitterStepSolverAdapter implements Expr
 // TODO - support formulas in addition to literals.			
 			// We need to wrap the ItDepends result sub-solvers in adapters as well.
 			result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(formulaSolverStep.getSplitter(),
-						formulaSolverStep.getContextSplitting(),
+						formulaSolverStep.getContextSplittingWhenSplitterIsLiteral(),
 						new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsTrue()),
 						new ExpressionFormulaToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsFalse()));
 		}

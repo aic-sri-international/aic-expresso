@@ -713,7 +713,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsTrue();
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 				ifFalse.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsFalse();
-				ItDependsOn result = new ItDependsOn(maximumLowerBoundStep.getSplitter(), maximumLowerBoundStep.getContextSplitting(), ifTrue, ifFalse);
+				ItDependsOn result = new ItDependsOn(maximumLowerBoundStep.getSplitter(), maximumLowerBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression maximumLowerBound = maximumLowerBoundStep.getValue();
@@ -738,7 +738,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 				ifFalse.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsFalse();
-				ItDependsOn result = new ItDependsOn(minimumUpperBoundStep.getSplitter(), minimumUpperBoundStep.getContextSplitting(), ifTrue, ifFalse);
+				ItDependsOn result = new ItDependsOn(minimumUpperBoundStep.getSplitter(), minimumUpperBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression minimumUpperBound = minimumUpperBoundStep.getValue();
@@ -763,7 +763,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 					ifTrue.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
 					AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 					ifFalse.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIsFalse();
-					ItDependsOn result = new ItDependsOn(lowerBoundIsLessThanUpperBoundStep.getSplitter(), lowerBoundIsLessThanUpperBoundStep.getContextSplitting(), ifTrue, ifFalse);
+					ItDependsOn result = new ItDependsOn(lowerBoundIsLessThanUpperBoundStep.getSplitter(), lowerBoundIsLessThanUpperBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 					return result;
 				}
 				if ( ! lowerBoundIsLessThanUpperBoundStep.getValue()) {

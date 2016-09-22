@@ -121,7 +121,7 @@ public interface StepSolver<T> extends Cloneable {
 		boolean itDepends();
 		
 		/**
-		 * If {@link #itDepends()} is true, returns the splitter (e.g. literal) the solution depends on.
+		 * If {@link #itDepends()} is true, returns the splitter formula (e.g. a literal) the solution depends on.
 		 * @return
 		 */
 		Expression getSplitter();
@@ -153,7 +153,7 @@ public interface StepSolver<T> extends Cloneable {
 		 * or null otherwise.
 		 * @return
 		 */
-		ContextSplitting getContextSplitting();
+		ContextSplitting getContextSplittingWhenSplitterIsLiteral();
 	}
 	
 	public static class ItDependsOn<T> implements Step<T> {
@@ -202,7 +202,7 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public ContextSplitting getContextSplitting() {
+		public ContextSplitting getContextSplittingWhenSplitterIsLiteral() {
 			return constraintSplitting;
 		}
 
@@ -262,7 +262,7 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public ContextSplitting getContextSplitting() {
+		public ContextSplitting getContextSplittingWhenSplitterIsLiteral() {
 			return null;
 		}
 	}

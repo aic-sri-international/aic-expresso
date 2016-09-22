@@ -247,8 +247,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 					AbstractQuantifierEliminationStepSolver ifFalse = clone();
 					ifTrue.initialBodyEvaluationStepSolver  = bodyStep.getStepSolverForWhenSplitterIsTrue();
 					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
-					ifTrue.initialContextForBody  = bodyStep.getContextSplitting().getContextAndLiteral();
-					ifFalse.initialContextForBody = bodyStep.getContextSplitting().getContextAndLiteralNegation();
+					ifTrue.initialContextForBody  = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteral();
+					ifFalse.initialContextForBody = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteralNegation();
 					
 					// to compute the result's constraint splitting,
 					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from
@@ -282,7 +282,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 		// Here, we need to obtain the new index constraints, for the case in which the splitter literal is true and false,
 		// to create the corresponding sub-problems, solve them, and combine them.
-		// However, it is important to remember that bodyStep.getContextSplitting()
+		// However, it is important to remember that bodyStep.getContextSplittingWhenSplitterIsLiteral()
 		// contains the splitting of contextForBody with the splitter literal,
 		// so the information on the new index constraints is already there in some form.
 		// TODO: We current don't have a Constraint-generic way to extract it, but expect to do it in the future.
@@ -348,8 +348,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				: bodyStep.getStepSolverForWhenSplitterIsFalse();
 		result.initialContextForBody = 
 				valueForLiteral
-				? bodyStep.getContextSplitting().getConstraintAndLiteral() 
-				: bodyStep.getContextSplitting().getConstraintAndLiteralNegation();
+				? bodyStep.getContextSplittingWhenSplitterIsLiteral().getConstraintAndLiteral() 
+				: bodyStep.getContextSplittingWhenSplitterIsLiteral().getConstraintAndLiteralNegation();
 		return result;
 	}
 
