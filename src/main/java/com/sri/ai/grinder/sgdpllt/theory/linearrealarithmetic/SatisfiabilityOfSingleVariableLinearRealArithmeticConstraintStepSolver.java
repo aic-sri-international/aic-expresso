@@ -96,7 +96,7 @@ public class SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSol
 			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsTrue();
 			SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = clone();
 			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsFalse();
-			return new ItDependsOn(modelCountingStep.getSplitter(), modelCountingStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
+			return new ItDependsOn(modelCountingStep.getSplitterLiteral(), modelCountingStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 		}
 
 		Step result;

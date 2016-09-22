@@ -238,7 +238,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 				ifFalse.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsFalse());
 				result =
 						new ItDependsOn(
-								subExpressionStep.getSplitter(),
+								subExpressionStep.getSplitterLiteral(),
 								subExpressionStep.getContextSplittingWhenSplitterIsLiteral(),
 								ifTrue,
 								ifFalse);

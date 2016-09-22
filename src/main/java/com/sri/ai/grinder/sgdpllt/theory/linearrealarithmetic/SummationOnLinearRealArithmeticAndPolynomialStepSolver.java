@@ -117,7 +117,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			ifFalse.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 					(MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenSplitterIsFalse();
-			return new ItDependsOn(step.getSplitter(), step.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
+			return new ItDependsOn(step.getSplitterLiteral(), step.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 		}
 		Expression values = step.getValue();
 		

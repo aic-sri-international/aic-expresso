@@ -67,6 +67,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractSingleVariableConstraint;
@@ -279,14 +280,14 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 * It may have been set to the sequel of a step solver of the same problem,
 	 * during the execution of a prequel step solver.
 	 */
-	private StepSolver<Expression> initialMaximumLowerBoundStepSolver;
+	private ExpressionLiteralSplitterStepSolver initialMaximumLowerBoundStepSolver;
 
 	/**
 	 * The initial step solver to use to decide which upper bound is the minimum one.
 	 * It may have been set to the sequel of a step solver of the same problem,
 	 * during the execution of a prequel step solver.
 	 */
-	private StepSolver<Expression> initialMinimumUpperBoundStepSolver;
+	private ExpressionLiteralSplitterStepSolver initialMinimumUpperBoundStepSolver;
 
 	/**
 	 * The initial step solver to use to decide whether the lower bound is less than the upper bound.
@@ -695,7 +696,7 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			solutionExpression = getSolutionExpressionForBoundVariable();
 		}
 		else {
-			StepSolver<Expression> maximumLowerBoundStepSolver;
+			ExpressionLiteralSplitterStepSolver maximumLowerBoundStepSolver;
 			if (initialMaximumLowerBoundStepSolver == null) {
 				maximumLowerBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -707,20 +708,20 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				maximumLowerBoundStepSolver = initialMaximumLowerBoundStepSolver;
 			}
-			StepSolver.Step<Expression> maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
+			ExpressionLiteralSplitterStepSolver.Step maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
 			if (maximumLowerBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsTrue();
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 				ifFalse.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsFalse();
-				ItDependsOn result = new ItDependsOn(maximumLowerBoundStep.getSplitter(), maximumLowerBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
+				ItDependsOn result = new ItDependsOn(maximumLowerBoundStep.getSplitterLiteral(), maximumLowerBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression maximumLowerBound = maximumLowerBoundStep.getValue();
 			
 			sequelBase.initialMaximumLowerBoundStepSolver = new ConstantExpressionStepSolver(maximumLowerBound);
 			
-			StepSolver<Expression> minimumUpperBoundStepSolver;
+			ExpressionLiteralSplitterStepSolver minimumUpperBoundStepSolver;
 			if (initialMinimumUpperBoundStepSolver == null) {
 				minimumUpperBoundStepSolver
 				= new MaximumExpressionStepSolver(
@@ -732,13 +733,13 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			else {
 				minimumUpperBoundStepSolver = initialMinimumUpperBoundStepSolver;
 			}
-			StepSolver.Step<Expression> minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
+			ExpressionLiteralSplitterStepSolver.Step minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
 			if (minimumUpperBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
 				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
 				ifFalse.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsFalse();
-				ItDependsOn result = new ItDependsOn(minimumUpperBoundStep.getSplitter(), minimumUpperBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
+				ItDependsOn result = new ItDependsOn(minimumUpperBoundStep.getSplitterLiteral(), minimumUpperBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
 			Expression minimumUpperBound = minimumUpperBoundStep.getValue();

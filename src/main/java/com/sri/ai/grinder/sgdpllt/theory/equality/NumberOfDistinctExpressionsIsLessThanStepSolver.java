@@ -106,7 +106,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements Expressi
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse = clone();
 			subStepSolverWhenFormulaIsFalse.distinctExpressionsStepSolver = (DistinctExpressionsStepSolver) step.getStepSolverForWhenSplitterIsFalse();
 
-			return new ItDependsOn(step.getSplitter(), step.getContextSplittingWhenSplitterIsLiteral(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
+			return new ItDependsOn(step.getSplitterLiteral(), step.getContextSplittingWhenSplitterIsLiteral(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
 		}
 		else {
 			return new Solution(makeSymbol(step.getValue().numberOfArguments() < limit));

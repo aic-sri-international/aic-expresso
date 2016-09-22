@@ -238,8 +238,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
-				if (isSubExpressionOf(getIndex(), bodyStep.getSplitter())) {
-					Expression literalOnIndex = bodyStep.getSplitter();
+				if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
+					Expression literalOnIndex = bodyStep.getSplitterLiteral();
 					result = resultIfLiteralContainsIndex(literalOnIndex, bodyStep, contextForBody, context);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
@@ -258,9 +258,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 					// we calculate the splittings here.
 					// TODO: In the future, we expect it possible to efficiently extract the contextForBody component relative
 					// to the original context only, excluding the index.
-					ContextSplitting split = new ContextSplitting(bodyStep.getSplitter(), context);
+					ContextSplitting split = new ContextSplitting(bodyStep.getSplitterLiteral(), context);
 					
-					result = new ItDependsOn(bodyStep.getSplitter(), split, ifTrue, ifFalse);
+					result = new ItDependsOn(bodyStep.getSplitterLiteral(), split, ifTrue, ifFalse);
 				}
 			}
 			else { // body is already literal free
