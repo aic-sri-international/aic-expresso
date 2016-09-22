@@ -42,74 +42,66 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 
 /**
- * An indicator interface for ExpressionStepSolvers that only split on the
- * context using literals (i.e. atomic formulas or their negations).
+ * A specialization of the StepSolver interface that indicates splitting only
+ * ever occurs using literals and not general formulas. 
  * 
  * @author oreilly
  *
+ * @param <T>
  */
 @Beta
-public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolver, LiteralSplitterStepSolver<Expression> {
-
-	@Override
-	ExpressionLiteralSplitterStepSolver clone();
-	
-	@Override
-	ExpressionLiteralSplitterStepSolver.Step step(Context context);
-	
-	public static interface Step extends ExpressionStepSolver.Step, LiteralSplitterStepSolver.Step<Expression> {		 
-		/**
-		 * Returns a {@link ExpressionLiteralSplitterStepSolver} to be used for finding the final solution
-		 * in case the literal is defined as true by the context.
-		 * This is merely an optimization, and using the original step solver should still work,
-		 * but will perform wasted working re-discovering that expressions is already true.
-		 * @return
-		 */
-		@Override
-		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue();
+public interface LiteralSplitterStepSolver<T> extends StepSolver<T> {
+	public static interface Step<T> extends StepSolver.Step<T> {
+		Expression getSplitterLiteral();
 		
-		/**
-		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when literal is false.
-		 * @return
-		 */
 		@Override
-		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse();
+		LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsTrue();
+		@Override
+		LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsFalse();
 	}
 	
-	public static class ItDependsOn extends LiteralSplitterStepSolver.ItDependsOn<Expression> implements Step {
-
+	public static class ItDependsOn<T> extends StepSolver.ItDependsOn<T> implements Step<T> {
+		
 		public ItDependsOn(
-				Expression literal,
+				Expression splitterLiteral,
 				ContextSplitting contextSplitting,
-				ExpressionLiteralSplitterStepSolver stepSolverIfExpressionIsTrue,
-				ExpressionLiteralSplitterStepSolver stepSolverIfExpressionIsFalse) {
-			super(literal, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+				LiteralSplitterStepSolver<T> stepSolverIfSplitterIsTrue,
+				LiteralSplitterStepSolver<T> stepSolverIfSplitterIsFalse) {
+			super(splitterLiteral, contextSplitting, stepSolverIfSplitterIsTrue, stepSolverIfSplitterIsFalse);
 		}
 		
 		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
-			return (ExpressionLiteralSplitterStepSolver) super.getStepSolverForWhenSplitterIsTrue();
+		public Expression getSplitterLiteral() {
+			return getSplitter();
 		}
 		
 		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse() {
-			return (ExpressionLiteralSplitterStepSolver) super.getStepSolverForWhenSplitterIsFalse();
+		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsTrue() {
+			return (LiteralSplitterStepSolver<T>) super.getStepSolverForWhenSplitterIsTrue();
+		}
+		
+		@Override
+		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsFalse() {
+			return (LiteralSplitterStepSolver<T>) super.getStepSolverForWhenSplitterIsFalse();
 		}
 	}
 	
-	public static class Solution extends LiteralSplitterStepSolver.Solution<Expression> implements Step {
-
-		public Solution(Expression value) {
+	public static class Solution<T> extends StepSolver.Solution<T> implements Step<T> {
+		public Solution(T value) {
 			super(value);
 		}
 		
+		public Expression getSplitterLiteral() {
+			throw new Error("Solution does not define getSplitterLiteral().");
+		}
+		
 		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
+		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsTrue() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
-
+		
 		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse() {
+		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsFalse() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}
