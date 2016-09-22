@@ -43,7 +43,7 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 
 /**
- * An adapter that allows ExpressionFormulaSplitterStepSolvers to be used in
+ * An adapter that allows ExpressionStepSolvers to be used in
  * situations where ExpressionLiteralSplitterStepSolvers are required (i.e.
  * splitting on literals is assumed).
  * 
