@@ -58,7 +58,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	private static final boolean _supportGeneralFormulas = false;
 	//
 	private ExpressionStepSolver currentFormulaSplitterStepSolver;
-	private ExpressionLiteralSplitterStepSolver currentFormulaSplitterLiteralSplitterStepSolver;
+	private ExpressionLiteralSplitterStepSolver currentFormulaSplitterEvaluatorStepSolver;
 
 	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 			ExpressionStepSolver formulaSplitterStepSolver) {
@@ -107,16 +107,16 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	        else {
 	        	// May not be a literal here
 	            Expression formulaSplitter = currentFormulaSplitterStepSolverStep.getSplitter(); 
-	            if (currentFormulaSplitterLiteralSplitterStepSolver == null) {
-	            	currentFormulaSplitterLiteralSplitterStepSolver = new EvaluatorStepSolver(formulaSplitter);
+	            if (currentFormulaSplitterEvaluatorStepSolver == null) {
+	            	currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(formulaSplitter);
 	            }
 
-	            Step splitterEvaluationStep = currentFormulaSplitterLiteralSplitterStepSolver.step(context);
+	            Step splitterEvaluationStep = currentFormulaSplitterEvaluatorStepSolver.step(context);
 	            if (splitterEvaluationStep.itDepends()) {
 	            	ExpressionStepSolverToLiteralSplitterStepSolverAdapter ifTrue = this.clone();
-	            	ifTrue.currentFormulaSplitterLiteralSplitterStepSolver = (ExpressionLiteralSplitterStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsTrue();
+	            	ifTrue.currentFormulaSplitterEvaluatorStepSolver = (ExpressionLiteralSplitterStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsTrue();
 	            	ExpressionStepSolverToLiteralSplitterStepSolverAdapter ifFalse = this.clone();
-	            	ifFalse.currentFormulaSplitterLiteralSplitterStepSolver = (ExpressionLiteralSplitterStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsFalse();
+	            	ifFalse.currentFormulaSplitterEvaluatorStepSolver = (ExpressionLiteralSplitterStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsFalse();
 	                // note that cloning will preserve currentFssStep for the sequel step solvers
 	                // this matters because it contains the sequels for currentFss,
 	                // which we will need below when we finish evaluating the formula splitter
