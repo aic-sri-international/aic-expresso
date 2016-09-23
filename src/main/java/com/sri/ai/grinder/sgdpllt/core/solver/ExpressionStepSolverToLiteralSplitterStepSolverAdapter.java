@@ -104,16 +104,18 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	            return new ExpressionLiteralSplitterStepSolver.Solution(currentFormulaSplitterStepSolverStep.getValue());
 	        }
 	        else {
-	        	// may not be a literal her
+	        	// May not be a literal here
 	            Expression formulaSplitter = currentFormulaSplitterStepSolverStep.getSplitter(); 
-	            currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(formulaSplitter);
+	            if (currentFormulaSplitterEvaluatorStepSolver == null) {
+	            	currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(formulaSplitter);
+	            }
 
 	            Step splitterEvaluationStep = currentFormulaSplitterEvaluatorStepSolver.step(context);
 	            if (splitterEvaluationStep.itDepends()) {
 	            	ExpressionStepSolverToLiteralSplitterStepSolverAdapter ifTrue = this.clone();
 	            	ifTrue.currentFormulaSplitterEvaluatorStepSolver = (EvaluatorStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsTrue();
 	            	ExpressionStepSolverToLiteralSplitterStepSolverAdapter ifFalse = this.clone();
-	            	ifTrue.currentFormulaSplitterEvaluatorStepSolver = (EvaluatorStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsFalse();
+	            	ifFalse.currentFormulaSplitterEvaluatorStepSolver = (EvaluatorStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsFalse();
 	                // note that cloning will preserve currentFssStep for the sequel step solvers
 	                // this matters because it contains the sequels for currentFss,
 	                // which we will need below when we finish evaluating the formula splitter
