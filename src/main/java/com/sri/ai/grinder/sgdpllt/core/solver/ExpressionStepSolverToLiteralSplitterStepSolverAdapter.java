@@ -71,12 +71,13 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	@Override
 	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter clone() {
 
-		ExpressionStepSolver currentFormulaSplitterStepSolverClone = currentFormulaSplitterStepSolver.clone();
-		ExpressionLiteralSplitterStepSolver currentFormulaSplitterLiteralSplitterStepSolverClone = currentFormulaSplitterLiteralSplitterStepSolver.clone();
-		
-		ExpressionStepSolverToLiteralSplitterStepSolverAdapter result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
-				currentFormulaSplitterStepSolverClone);
-		result.currentFormulaSplitterLiteralSplitterStepSolver = currentFormulaSplitterLiteralSplitterStepSolverClone;
+		ExpressionStepSolverToLiteralSplitterStepSolverAdapter result;
+		try {
+			result = (ExpressionStepSolverToLiteralSplitterStepSolverAdapter) super.clone();
+		}
+		catch (CloneNotSupportedException cnse) {
+			throw new Error(cnse);
+		}
 
 		return result;
 	}
