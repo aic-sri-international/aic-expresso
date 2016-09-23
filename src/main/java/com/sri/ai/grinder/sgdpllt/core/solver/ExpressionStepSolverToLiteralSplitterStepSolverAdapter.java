@@ -38,6 +38,8 @@
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -53,38 +55,103 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 @Beta
 public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements ExpressionLiteralSplitterStepSolver {
 
-	private ExpressionStepSolver formulaSplitterStepSolver;
+	private static final boolean _supportGeneralFormulas = false;
+	//
+	private ExpressionStepSolver currentFormulaSplitterStepSolver;
+	private ExpressionStepSolver.Step currentFormulaSplitterStepSolverStep;
+	private EvaluatorStepSolver currentFormulaSplitterEvaluatorStepSolver;
 
 	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 			ExpressionStepSolver formulaSplitterStepSolver) {
 		if (formulaSplitterStepSolver instanceof ExpressionLiteralSplitterStepSolver) {
-			throw new IllegalArgumentException("You do not pass an ExpressionLiteralSplitterStepSolver to this adapter, i.e. recursive calls will occur");
+			throw new IllegalArgumentException("You do not pass an ExpressionLiteralSplitterStepSolver to this adapter.");
 		}
-		this.formulaSplitterStepSolver = formulaSplitterStepSolver;
+		this.currentFormulaSplitterStepSolver = formulaSplitterStepSolver;
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver clone() {
+	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter clone() {
 
-		ExpressionStepSolver formulaSplitterStepSolverClone = formulaSplitterStepSolver.clone();
+		ExpressionStepSolver formulaSplitterStepSolverClone = currentFormulaSplitterStepSolver.clone();
 
-		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
+		ExpressionStepSolverToLiteralSplitterStepSolverAdapter result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 				formulaSplitterStepSolverClone);
 
 		return result;
 	}
-
+	
 	@Override
 	public Step step(Context context) {
+		Step result;
+		if (_supportGeneralFormulas) {
+			result = stepSupportGeneralFormulaSplitters(context);
+		}
+		else {
+			result = stepSupportOnlyLiteralSplitters(context);
+		}
+		return result;
+	}
+	
+	//
+	//
+	protected Step stepSupportGeneralFormulaSplitters(Context context) {
+		Step result = null;
+		// we are not currently evaluating a formula splitter from currentFormulaSplitterStepSolver
+		while (currentFormulaSplitterEvaluatorStepSolver == null) {
+	        // so we need one:
+			currentFormulaSplitterStepSolverStep = currentFormulaSplitterStepSolver.step(context);
+	        if (!currentFormulaSplitterStepSolverStep.itDepends()) { 
+	        	// is a final solution, return it
+	            result = new ExpressionLiteralSplitterStepSolver.Solution(currentFormulaSplitterStepSolverStep.getValue());
+	        }
+	        else {
+	        	// may not be a literal her
+	            Expression formulaSplitter = currentFormulaSplitterStepSolverStep.getSplitter(); 
+	            currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(formulaSplitter);
+
+	            Step splitterEvaluationStep = currentFormulaSplitterEvaluatorStepSolver.step(context);
+	            if (splitterEvaluationStep.itDepends()) {
+	            	ExpressionStepSolverToLiteralSplitterStepSolverAdapter ifTrue = this.clone();
+	            	ifTrue.currentFormulaSplitterEvaluatorStepSolver = (EvaluatorStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsTrue();
+	            	ExpressionStepSolverToLiteralSplitterStepSolverAdapter ifFalse = this.clone();
+	            	ifTrue.currentFormulaSplitterEvaluatorStepSolver = (EvaluatorStepSolver) splitterEvaluationStep.getStepSolverForWhenSplitterIsFalse();
+	                // note that cloning will preserve currentFssStep for the sequel step solvers
+	                // this matters because it contains the sequels for currentFss,
+	                // which we will need below when we finish evaluating the formula splitter
+	                result = new ItDependsOn(splitterEvaluationStep.getSplitterLiteral(), splitterEvaluationStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
+	            }
+	            else {
+// TODO - We will want to loop again??????
+	            	currentFormulaSplitterEvaluatorStepSolver = null;
+	            	// we have a value for the formula splitter under the current context
+	                if (splitterEvaluationStep.getValue().equals(Expressions.TRUE)) {
+	                    // now we know that the fss' formula splitter is true, so we use its continuation as the next current fss
+	                	currentFormulaSplitterStepSolver = currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsTrue();
+	                }
+	                else {
+	                	currentFormulaSplitterStepSolver = currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsFalse();
+	                }
+	            }
+	        }
+	    } 
+		return result;
+	}
+	
+	protected Step stepSupportOnlyLiteralSplitters(Context context) {
 		ExpressionLiteralSplitterStepSolver.Step result;
-		ExpressionStepSolver.Step formulaSolverStep = formulaSplitterStepSolver.step(context);
+		ExpressionStepSolver.Step formulaSolverStep = currentFormulaSplitterStepSolver.step(context);
 		if (formulaSolverStep.itDepends()) {
-// TODO - support formulas in addition to literals.			
-			// We need to wrap the ItDepends result sub-solvers in adapters as well.
-			result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(formulaSolverStep.getSplitter(),
-						formulaSolverStep.getContextSplittingWhenSplitterIsLiteral(),
-						new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsTrue()),
-						new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsFalse()));
+			if (context.getTheory().isLiteral(formulaSolverStep.getSplitter(), context)) {		
+				// We need to wrap the ItDepends result sub-solvers in adapters as well.
+				result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(formulaSolverStep.getSplitter(),
+							formulaSolverStep.getContextSplittingWhenSplitterIsLiteral(),
+							new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsTrue()),
+							new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSolverStep.getStepSolverForWhenSplitterIsFalse()));
+			}
+			else {
+				// The splitter is a complex formula (i.e. not a literal).	
+				throw new UnsupportedOperationException("Complex splitter formulas are not supported: "+formulaSolverStep.getSplitter());
+			}
 		}
 		else {
 			result = new ExpressionLiteralSplitterStepSolver.Solution(formulaSolverStep.getValue());
