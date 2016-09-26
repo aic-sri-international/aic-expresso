@@ -75,12 +75,11 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	}
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {
-		private List<Expression> conjuncts = new ArrayList<>();
-		private List<Expression> solutionConjuncts = new ArrayList<>();
+		private List<Expression> problemConjuncts = new ArrayList<>();
 		
 		public GeneralFormulaExpressionTestStepSolver(Expression... formulas) {
 			for (Expression conjunct : formulas) {
-				conjuncts.add(conjunct);
+				problemConjuncts.add(conjunct);
 			}
 		}
 		
@@ -92,12 +91,12 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 					literal2 = theory.makeRandomAtom(random, context);
 				}
 				
-				conjuncts.add(Or.make(literal1, literal2)); 
+				problemConjuncts.add(Or.make(literal1, literal2)); 
 			}
 		}
 		
 		public Expression getExpressionToSolve() {
-			return And.make(conjuncts);
+			return And.make(problemConjuncts);
 		}
 		
 		@Override
@@ -113,8 +112,9 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		@Override
 		public Step step(Context context) {
 			Step result = null;
-			for (int i = solutionConjuncts.size(); i < conjuncts.size(); i++) {
-				Expression conjunct = conjuncts.get(i);
+			List<Expression> solutionConjuncts = new ArrayList<>();
+			for (int i = 0; i < problemConjuncts.size(); i++) {
+				Expression conjunct = problemConjuncts.get(i);
 				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(conjunct);
 				Expression conjunctResult = evaluatorStepSolver.solve(context);
 				if (Expressions.TRUE.equals(conjunctResult)) {
@@ -123,15 +123,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 				else if (Expressions.FALSE.equals(conjunctResult)) {
 					solutionConjuncts.add(Not.make(conjunct));
 				}
-				else {
-					GeneralFormulaExpressionTestStepSolver ifTrue = this.clone();
-					ifTrue.solutionConjuncts = new ArrayList<>(ifTrue.solutionConjuncts);
-					ifTrue.solutionConjuncts.add(conjunct);
-					GeneralFormulaExpressionTestStepSolver ifFalse = this.clone();
-					ifFalse.solutionConjuncts = new ArrayList<>(ifFalse.solutionConjuncts);
-					ifFalse.solutionConjuncts.add(Not.make(conjunct));
-					
-					result = new ExpressionStepSolver.ItDependsOn(conjunct, null, ifTrue, ifFalse);
+				else {					
+					result = new ExpressionStepSolver.ItDependsOn(conjunct, null, this, this);
 					break;
 				}
 			}
