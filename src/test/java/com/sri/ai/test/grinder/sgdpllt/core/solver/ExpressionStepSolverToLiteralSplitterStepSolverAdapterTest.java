@@ -120,7 +120,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 				if (Expressions.TRUE.equals(conjunctResult)) {
 					solutionConjuncts.add(conjunct);
 				}
-				else if (Expressions.FALSE.equals(conjunct)) {
+				else if (Expressions.FALSE.equals(conjunctResult)) {
 					solutionConjuncts.add(Not.make(conjunct));
 				}
 				else {
