@@ -42,11 +42,10 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		runTest(new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or Q")), 
 				Expressions.parse("if P then if R then (P or Q) and (R or Q) else if Q then (P or Q) and (R or Q) else (P or Q) and not (R or Q) else if Q then (P or Q) and (R or Q) else if R then not (P or Q) and (R or Q) else not (P or Q) and not (R or Q)"),
 				context);
-
-// TODO - this test is failing and looking at the output the adapter is producing an invalid result.		
-//		runTest(new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or S")), 
-//				Expressions.parse("if P then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if Q then (P or Q) and (R or S) else if R then not (P or Q) and (R or S) else if S then not (P or Q) and (R or S) else not (P or Q) and not (R or S)"),
-//				context);
+		
+		runTest(new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or S")), 
+				Expressions.parse("if P then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if Q then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if R then not (P or Q) and (R or S) else if S then not (P or Q) and (R or S) else not (P or Q) and not (R or S)"),
+				context);
 	}
 	
 	private void runTest(GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
@@ -77,7 +76,6 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {
 		private List<Expression> conjuncts = new ArrayList<>();
-		private int randomFormulaConjunctsIdx = -1;
 		private List<Expression> solutionConjuncts = new ArrayList<>();
 		
 		public GeneralFormulaExpressionTestStepSolver(Expression... formulas) {
@@ -114,26 +112,34 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		
 		@Override
 		public Step step(Context context) {
-			Step result;
-			randomFormulaConjunctsIdx++;
-			if (randomFormulaConjunctsIdx < conjuncts.size()) {
-				GeneralFormulaExpressionTestStepSolver ifTrue = this.clone();
-				ifTrue.solutionConjuncts = new ArrayList<>(ifTrue.solutionConjuncts);
-				ifTrue.solutionConjuncts.add(conjuncts.get(randomFormulaConjunctsIdx));
-				GeneralFormulaExpressionTestStepSolver ifFalse = this.clone();
-				ifFalse.solutionConjuncts = new ArrayList<>(ifFalse.solutionConjuncts);
-				ifFalse.solutionConjuncts.add(Not.make(conjuncts.get(randomFormulaConjunctsIdx)));
-				
-				result = new ExpressionStepSolver.ItDependsOn(conjuncts.get(randomFormulaConjunctsIdx), null, ifTrue, ifFalse);
-			}
-			else {
-				if (solutionConjuncts.size() < conjuncts.size()) {
-					// Means we determined a solution without having to run an evaluator over literals of a formula splitter, 
-					// i.e. the context made things true straight away. 					
-					solutionConjuncts.addAll(conjuncts.subList(solutionConjuncts.size()-1, conjuncts.size()));
+			Step result = null;
+			for (int i = solutionConjuncts.size(); i < conjuncts.size(); i++) {
+				Expression conjunct = conjuncts.get(i);
+				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(conjunct);
+				Expression conjunctResult = evaluatorStepSolver.solve(context);
+				if (Expressions.TRUE.equals(conjunctResult)) {
+					solutionConjuncts.add(conjunct);
 				}
+				else if (Expressions.FALSE.equals(conjunct)) {
+					solutionConjuncts.add(Not.make(conjunct));
+				}
+				else {
+					GeneralFormulaExpressionTestStepSolver ifTrue = this.clone();
+					ifTrue.solutionConjuncts = new ArrayList<>(ifTrue.solutionConjuncts);
+					ifTrue.solutionConjuncts.add(conjunct);
+					GeneralFormulaExpressionTestStepSolver ifFalse = this.clone();
+					ifFalse.solutionConjuncts = new ArrayList<>(ifFalse.solutionConjuncts);
+					ifFalse.solutionConjuncts.add(Not.make(conjunct));
+					
+					result = new ExpressionStepSolver.ItDependsOn(conjunct, null, ifTrue, ifFalse);
+					break;
+				}
+			}
+			
+			if (result == null) {
 				result = new ExpressionStepSolver.Solution(And.make(solutionConjuncts));
 			}
+				
 			return result;
 		}
 	}
