@@ -57,7 +57,6 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.group.Max;
@@ -65,6 +64,7 @@ import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.SingleVariableEqualityConstraint;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryIncludingEqualityTest;
@@ -73,7 +73,7 @@ import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryIncludingEquali
 public abstract class AbstractEqualityConstraintTest extends AbstractTheoryIncludingEqualityTest {
 
 	@Override
-	protected Theory makeTheory() {
+	protected TheoryTestingSupport makeTheoryTestingSupport() {
 		return new EqualityTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
@@ -85,7 +85,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		SGDPLLTTester.testSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -96,7 +96,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		SGDPLLTTester.testMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(500) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -107,7 +107,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -118,7 +118,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				makeRandom(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -130,7 +130,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(50) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -143,7 +143,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Max(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(50) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -157,7 +157,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(50) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -171,7 +171,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Max(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(50) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -182,9 +182,9 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	public void testSatisfiabilitySpecialCases() {
 		String conjunction;
 		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
-		Theory theory = makeTheory();
-		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, theory);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = makeTheoryTestingSupport();
+		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, theoryTestingSupport);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), context);
 		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
 	}
@@ -197,51 +197,51 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		String conjunction;
 		Expression expected;
 
-		Theory theory = makeTheory();
-		Map<String, Type> variableNamesAndTypes = new HashMap<>(theory.getVariableNamesAndTypesForTesting());
+		TheoryTestingSupport theoryTestingSupport = makeTheoryTestingSupport();
+		Map<String, Type> variableNamesAndTypes = new HashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		variableNamesAndTypes.put("W", variableNamesAndTypes.get("X"));
-		theory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
 		
-		if (theory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
+		if (theoryTestingSupport.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
 			conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 			expected = null;
-			runCompleteSatisfiabilityTest(conjunction, expected, theory);
+			runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport);
 
 			conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 			expected = null;
-			runCompleteSatisfiabilityTest(conjunction, expected, theory);
+			runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport);
 		}
 
-		Theory theory2 = makeTheory();
+		TheoryTestingSupport theoryTestingSupport2 = makeTheoryTestingSupport();
 		Categorical type = new Categorical("Type", 1, arrayList(parse("a")));
-		theory2.setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type, "W", type));
+		theoryTestingSupport2.setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type, "W", type));
 		conjunction = "X != Y";
 		expected = null;
-		runCompleteSatisfiabilityTest(conjunction, expected, theory2);
+		runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport2);
 
-		Theory theory3 = makeTheory();
+		TheoryTestingSupport theoryTestingSupport3 = makeTheoryTestingSupport();
 		type = new Categorical("Type", 2, arrayList(parse("a"), parse("b")));
-		theory3.setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type, "W", type));
+		theoryTestingSupport3.setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type, "W", type));
 		conjunction = "X != Y and X != a";
 		expected = parse("Y != b and X != a and X != Y");
-		runCompleteSatisfiabilityTest(conjunction, expected, theory3);
+		runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport3);
 		
 		conjunction = "X != a and X != b and X != c and X != sometype5 and X != Y";
 		expected = parse("Y != d and X != a and X != b and X != c and X != sometype5 and X != Y and X != Y");
-		runCompleteSatisfiabilityTest(conjunction, expected, theory);
+		runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport);
 
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
-		runCompleteSatisfiabilityTest(conjunction, expected, theory);
+		runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport);
 	}
 
 	/**
 	 * @param conjunction
 	 * @param expected
 	 */
-	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Theory theory) {
-		Context context = theory.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theory, context);
+	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, TheoryTestingSupport theoryTestingSupport) {
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 			if (constraint.isContradiction()) {
@@ -255,7 +255,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 			throw new AssertionError("Expected <" + expected + "> but was null");
 		}
 		else if (expected != null && !constraint.isContradiction() && !expected.equals(constraint)) {
-			Simplifier interpreter = new Evaluator(theory);
+			Simplifier interpreter = new Evaluator(theoryTestingSupport);
 			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
 			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);
 			Expression equivalent = interpreter.apply(universallyQuantified, context);

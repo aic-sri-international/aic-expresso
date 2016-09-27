@@ -24,7 +24,6 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
@@ -33,6 +32,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -43,86 +43,86 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testPropositionalTheoryWithFixedDisjunctiveFormulas() {
-		Theory theory = new PropositionalTheory();
+		TheoryTestingSupport theoryTestingSupport = new PropositionalTheory();
 		
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
-		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = theory.makeContextWithTestingInformation();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
-		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P"), Expressions.parse("Q")), 
+		runTest(theoryTestingSupport, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P"), Expressions.parse("Q")), 
 				Expressions.parse("if P then if Q then P and Q else P and not Q else if Q then not P and Q else not P and not Q"),
 				context);
 		
-		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or Q")), 
+		runTest(theoryTestingSupport, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or Q")), 
 				Expressions.parse("if P then if R then (P or Q) and (R or Q) else if Q then (P or Q) and (R or Q) else (P or Q) and not (R or Q) else if Q then (P or Q) and (R or Q) else if R then not (P or Q) and (R or Q) else not (P or Q) and not (R or Q)"),
 				context);
 		
-		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or S")), 
+		runTest(theoryTestingSupport, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or S")), 
 				Expressions.parse("if P then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if Q then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if R then not (P or Q) and (R or S) else if S then not (P or Q) and (R or S) else not (P or Q) and not (R or S)"),
 				context);
 	}
 	
 	@Test
 	public void testPropositionalTheoryWithRandomDisjunctiveFormulas() {
-		Theory theory = new PropositionalTheory();		
-		extendTestingVaribles("P", theory, "S", "T", "U", "V", "W", "X", "Y", "Z");
+		TheoryTestingSupport theoryTestingSupport = new PropositionalTheory();		
+		extendTestingVaribles("P", theoryTestingSupport, "S", "T", "U", "V", "W", "X", "Y", "Z");
 		
-		runRandomDisjunctiveFormulasTest(theory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Ignore("Random generation of linear real arithmetic not yet implemented")
 	@Test
 	public void testLinearRealArithmeticTheoryWithRandomDisjunctiveFormulas() {
-		Theory theory = new LinearRealArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = new LinearRealArithmeticTheory(true, true);
 	
-		extendTestingVaribles("X", theory, "S", "T", "U", "V", "W");
+		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
-		runRandomDisjunctiveFormulasTest(theory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Test
 	public void testEqualityTheoryWithoutPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		Theory theory = new EqualityTheory(true, false);
+		TheoryTestingSupport theoryTestingSupport = new EqualityTheory(true, false);
 	
-		extendTestingVaribles("X", theory, "S", "T", "U", "V", "W");
+		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
-		runRandomDisjunctiveFormulasTest(theory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Test
 	public void testEqualityTheoryWithPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		Theory theory = new EqualityTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = new EqualityTheory(true, true);
 	
-		extendTestingVaribles("X", theory, "S", "T", "U", "V", "W");
+		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
-		runRandomDisjunctiveFormulasTest(theory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Test
 	public void testDifferenceArithmeticTheoryWithoutPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		Theory theory = new DifferenceArithmeticTheory(true, false);
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, false);
 	
-		extendTestingVaribles("K", theory, "L", "M", "N", "O", "P");
+		extendTestingVaribles("K", theoryTestingSupport, "L", "M", "N", "O", "P");
 		
-		runRandomDisjunctiveFormulasTest(theory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Test
 	public void testDifferenceArithmeticTheoryWithPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
 	
-		extendTestingVaribles("K", theory, "L", "M", "N", "O", "P");
+		extendTestingVaribles("K", theoryTestingSupport, "L", "M", "N", "O", "P");
 		
-		runRandomDisjunctiveFormulasTest(theory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Test
 	public void testCompoundTheoryWithDifferenceArithmeticWithRandomDisjunctiveFormulas() {
-		CompoundTheory compoundTheory = new CompoundTheory(
+		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory());
@@ -144,26 +144,26 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 						"U", oneTwoThree
 						);
 		
-		compoundTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		runRandomDisjunctiveFormulasTest(compoundTheory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	@Test
 	public void testCompoundTheoryWithoutDifferenceArithmeticWithRandomDisjunctiveFormulas() {
-		CompoundTheory compoundTheory = new CompoundTheory(
+		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory());
 		
-		runRandomDisjunctiveFormulasTest(compoundTheory);
+		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
 	
 	//
 	//
 	
-	private void extendTestingVaribles(String variableToBaseTypeOn, Theory theory, String... newVariables) {
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
+	private void extendTestingVaribles(String variableToBaseTypeOn, TheoryTestingSupport theoryTestingSupport, String... newVariables) {
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type type = variablesAndTypes.get(variableToBaseTypeOn);
 		if (type == null) {
 			throw new IllegalArgumentException("variableToBaseTypeOn="+variableToBaseTypeOn+", is not already part of the theory.");
@@ -171,26 +171,26 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		for (String newVariable : newVariables) {
 			variablesAndTypes.put(newVariable, type);
 		}
-		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 	}
 	
-	private void runRandomDisjunctiveFormulasTest(Theory theory) {
+	private void runRandomDisjunctiveFormulasTest(TheoryTestingSupport theoryTestingSupport) {
 		for (int numberDisjuncts = 1; numberDisjuncts < 4; numberDisjuncts++) {
 			// NOTE: we want to start with # literals per disjunct = 1 so that the expression step solver
 			// acts like a literal step solver for this case.
 			for (int numberLiteralsPerDisjunct = 1; numberLiteralsPerDisjunct < 4; numberLiteralsPerDisjunct++) {
 				// # tests to run for combination.
 				for (int j = 0; j < 3; j++) {
-					Context context = theory.makeContextWithTestingInformation();
+					Context context = theoryTestingSupport.makeContextWithTestingInformation();
 					Random random = new Random();
 					
-					runTest(theory, new GeneralFormulaExpressionTestStepSolver(theory, random, context, numberDisjuncts, numberLiteralsPerDisjunct), null, context);
+					runTest(theoryTestingSupport, new GeneralFormulaExpressionTestStepSolver(theoryTestingSupport, random, context, numberDisjuncts, numberLiteralsPerDisjunct), null, context);
 				}
 			}
 		}
 	}
 	
-	private void runTest(Theory theory, GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
+	private void runTest(TheoryTestingSupport theoryTestingSupport, GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
 		ExpressionStepSolverToLiteralSplitterStepSolverAdapter stepSolver = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(generalFormulaExpressionTestStepSolver);
 		System.out.println("Evaluating " + generalFormulaExpressionTestStepSolver.getExpressionToSolve());
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
@@ -200,7 +200,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			assertEquals(expected, solution);
 		}
 		
-		assertEquals(Expressions.TRUE, new Evaluator(theory).apply(solution, context));
+		assertEquals(Expressions.TRUE, new Evaluator(theoryTestingSupport).apply(solution, context));
 	}
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {
@@ -213,9 +213,9 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			}
 		}
 		
-		public GeneralFormulaExpressionTestStepSolver(Theory theory, Random random, Context context, int numberDisjuncts, int numberLiteralsPerDisjunct) {			
+		public GeneralFormulaExpressionTestStepSolver(TheoryTestingSupport theoryTestingSupport, Random random, Context context, int numberDisjuncts, int numberLiteralsPerDisjunct) {			
 			for (int i = 0; i < numberDisjuncts; i++) {
-				problemConjuncts.add(Or.make(IntStream.range(0, numberLiteralsPerDisjunct).mapToObj(idx -> theory.makeRandomLiteral(random, context)).collect(Collectors.toList())));
+				problemConjuncts.add(Or.make(IntStream.range(0, numberLiteralsPerDisjunct).mapToObj(idx -> theoryTestingSupport.makeRandomLiteral(random, context)).collect(Collectors.toList())));
 			}
 		}
 		

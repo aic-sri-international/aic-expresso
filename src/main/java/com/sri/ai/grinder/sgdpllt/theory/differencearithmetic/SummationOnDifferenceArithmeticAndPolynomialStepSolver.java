@@ -59,6 +59,7 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 /**
  * A step solver for a summation with an integer index constrained by difference arithmetic literals,
@@ -198,7 +199,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	@Override
 	public Expression makeRandomUnconditionalBody(Random random) {
 		// unconditional body class is polynomials
-		ArrayList<Expression> freeVariables = getTheory().getVariablesForTesting();
+		ArrayList<Expression> freeVariables = ((TheoryTestingSupport)getTheory()).getVariablesForTesting();
 		int degree = random.nextInt(3);
 		int maximumNumberOfFreeVariablesInEach = 2;
 		int maximumConstant = 10;

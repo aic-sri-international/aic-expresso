@@ -96,15 +96,15 @@ public class SGDPLLTTester {
 	 * without brute-force correctness testing.
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static long measureTimeSingleVariableConstraints(Random random, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static long measureTimeSingleVariableConstraints(Random random, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
 		long start = System.currentTimeMillis();
-		testSingleVariableConstraints(random, false, theory, numberOfTests, maxNumberOfLiterals, false /* no correctness test */);
+		testSingleVariableConstraints(random, false, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, false /* no correctness test */);
 		long result = System.currentTimeMillis() - start;
 		if (outputCount) {
 			System.out.println("Total time: " + result + " ms.");
@@ -119,27 +119,27 @@ public class SGDPLLTTester {
 	 * are indeed unsatisfiable (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
 	public static void testSingleVariableConstraints(
-			Random random, boolean testAgainstBruteForce, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = theory.makeContextWithTestingInformation();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theory.makeSingleVariableConstraint(makeSymbol(theory.pickTestingVariableAtRandom(random)), theory, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random)), theoryTestingSupport, context);
 
-		Function<Constraint, Expression> makeRandomLiteral = c -> theory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
+		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
 
-		boolean isComplete = theory.singleVariableConstraintIsCompleteWithRespectToItsVariable();
+		boolean isComplete = theoryTestingSupport.singleVariableConstraintIsCompleteWithRespectToItsVariable();
 
 		TestRunner tester = isComplete? SGDPLLTTester::testCompleteSatisfiability : SGDPLLTTester::testIncompleteSatisfiability;
 		
 		String problemName = (isComplete? "complete" : "incomplete") + " satisfiability for single-variable constraints";
 		
-		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	/**
@@ -149,23 +149,23 @@ public class SGDPLLTTester {
 	 * are indeed unsatisfiable (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
 	public static void testMultiVariableConstraints(
-			Random random, boolean testAgainstBruteForce, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(theory);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(theoryTestingSupport);
 
-		Context context = theory.makeContextWithTestingInformation();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		Function<Constraint, Expression> makeRandomLiteral = c -> theory.makeRandomLiteral(random, context);
+		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteral(random, context);
 
 		TestRunner tester = SGDPLLTTester::testIncompleteSatisfiability; // DefaultMultiVariableConstraint is incomplete
 		
-		runTesterGivenConjunctionsOfLiterals(random, "incomplete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenConjunctionsOfLiterals(random, "incomplete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	/**
@@ -175,27 +175,27 @@ public class SGDPLLTTester {
 	 * are indeed unsatisfiable (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
 	public static void testCompleteMultiVariableConstraints(
-			Random random, boolean testAgainstBruteForce, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = theory.makeContextWithTestingInformation();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(theory, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(theoryTestingSupport, context);
 
-		Function<Constraint, Expression> makeRandomLiteral = c -> theory.makeRandomLiteral(random, context);
+		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteral(random, context);
 
 		TestRunner tester = SGDPLLTTester::testCompleteSatisfiability; // CompleteMultiVariableContext is complete
 		
-		runTesterGivenConjunctionsOfLiterals(random, "complete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenConjunctionsOfLiterals(random, "complete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	private static interface TestRunner {
-		void runOneTest(Random random, Collection<Expression> literals, Constraint constraint, boolean testAgainstBruteForce, Theory theory, Context context) throws Error;		
+		void runOneTest(Random random, Collection<Expression> literals, Constraint constraint, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, Context context) throws Error;		
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class SGDPLLTTester {
 	 * @param tester the {@link TestRunner}
 	 * @param numberOfTests the number of tests to run
 	 * @param maxNumberOfLiterals the maximum number of literals to add to each test conjunction
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param makeInitialConstraint a thunk generating new constraints equivalent to TRUE
 	 * @param makeRandomLiteralGivenConstraint a function generating appropriate new literals (given generated constraint if needed)
 	 * @param outputCount whether to output the test count
@@ -219,7 +219,7 @@ public class SGDPLLTTester {
 			long numberOfTests,
 			int maxNumberOfLiterals,
 			boolean testAgainstBruteForce,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			NullaryFunction<Constraint> makeInitialConstraint,
 			Function<Constraint, Expression> makeRandomLiteralGivenConstraint,
 			boolean outputCount,
@@ -232,27 +232,27 @@ public class SGDPLLTTester {
 			output("\n\nStarting new conjunction");	
 			for (int j = 0; !constraint.isContradiction() && j != maxNumberOfLiterals; j++) {
 				Expression literal = makeRandomLiteralGivenConstraint.apply(constraint);
-				constraint = addLiteralToConstraintAndTest(random, tester, literal, constraint, literals, testAgainstBruteForce, theory, context);
+				constraint = addLiteralToConstraintAndTest(random, tester, literal, constraint, literals, testAgainstBruteForce, theoryTestingSupport, context);
 			}
 			
 			if (outputCount && i % NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE == 0) {
 				if (testAgainstBruteForce) {
-				System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theory);
+					System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theoryTestingSupport);
 				}
 				else {
-					System.out.println("Computed (without comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theory);
+					System.out.println("Computed (without comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theoryTestingSupport);
 				}
 			}	
 		}
 	}
 
-	private static Constraint addLiteralToConstraintAndTest(Random random, TestRunner tester, Expression literal, Constraint constraint, Collection<Expression> literals, boolean testAgainstBruteForce, Theory theory, Context context) throws Error {
+	private static Constraint addLiteralToConstraintAndTest(Random random, TestRunner tester, Expression literal, Constraint constraint, Collection<Expression> literals, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, Context context) throws Error {
 		output("Constraint is " + constraint);
 		output("Adding " + literal + " (literals added so far: " + join(literals, " and ") + ")");
 		literals.add(literal);
 		Constraint newConstraint = constraint.conjoin(literal, context);
 		output("New constraint is " + newConstraint);
-		tester.runOneTest(random, literals, newConstraint, testAgainstBruteForce, theory, context);
+		tester.runOneTest(random, literals, newConstraint, testAgainstBruteForce, theoryTestingSupport, context);
 		return newConstraint;
 	}
 
@@ -261,12 +261,12 @@ public class SGDPLLTTester {
 			Collection<Expression> literals,
 			Constraint constraint,
 			boolean testAgainstBruteForce,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			Context context)
 					throws Error {
 		
 		if (constraint.isContradiction()) {
-			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, theory, context);
+			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, theoryTestingSupport, context);
 		}
 		else {
 			// if constraint is not null, the conjunction of literals may or may not be satisfiable,
@@ -280,33 +280,33 @@ public class SGDPLLTTester {
 			Collection<Expression> literals,
 			Constraint constraint,
 			boolean testAgainstBruteForce,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			Context context)
 					throws Error {
 		
 		if (constraint.isContradiction()) {
-			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, theory, context);
+			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, theoryTestingSupport, context);
 		}
 		else {
-			solverSaysItIsSatisfiable(literals, constraint, testAgainstBruteForce, theory, context);
+			solverSaysItIsSatisfiable(literals, constraint, testAgainstBruteForce, theoryTestingSupport, context);
 		}
 	}
 
 	/**
 	 * @param literals
 	 * @param constraint
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param context
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint constraint, boolean testAgainstBruteForce, Theory theory, Context context) throws Error {
+	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint constraint, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, Context context) throws Error {
 		if (testAgainstBruteForce) {
 			output("SolverUnderAssignment thinks it is satisfiable. Current constraint is " + constraint);	
 			Expression literalsConjunction = And.make(literals);
-			boolean isUnsatisfiable = ! SGDPLLTTester.isSatisfiableByBruteForce(literalsConjunction, theory, context);;
+			boolean isUnsatisfiable = ! SGDPLLTTester.isSatisfiableByBruteForce(literalsConjunction, theoryTestingSupport, context);;
 			if (isUnsatisfiable) {
 				String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
-						theory.getClass().getSimpleName() + " says it is satisfiable. " +
+						theoryTestingSupport.getClass().getSimpleName() + " says it is satisfiable. " +
 						"Current constraint is " + constraint;
 				output(message);
 				throw new Error(message);
@@ -322,18 +322,18 @@ public class SGDPLLTTester {
 
 	/**
 	 * @param literals
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param context
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, boolean testAgainstBruteForce, Theory theory, Context context) throws Error {
+	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, Context context) throws Error {
 		if (testAgainstBruteForce) {
 			output("SolverUnderAssignment thinks it is unsatisfiable.");	
 			Expression formula = And.make(literals);
-			boolean isSatisfiable = SGDPLLTTester.isSatisfiableByBruteForce(formula, theory, context);
+			boolean isSatisfiable = SGDPLLTTester.isSatisfiableByBruteForce(formula, theoryTestingSupport, context);
 			if (isSatisfiable) {
 				String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
-						theory.getClass().getSimpleName() + " says it is not. "
+						theoryTestingSupport.getClass().getSimpleName() + " says it is not. "
 						//			+ "Satisfying assignment is " + satisfyingAssignment + "."
 						;
 				output(message);
@@ -352,14 +352,14 @@ public class SGDPLLTTester {
 	 * Determines whether a formula is satisfiable by adding existential quantifiers for each of its variables
 	 * (according to the theory provided) and evaluating it.
 	 * @param formula
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param context
 	 * @return whether the formula is satisfiable.
 	 */
-	public static boolean isSatisfiableByBruteForce(Expression formula, Theory theory, Context context) {
-		Map<String, Type> variableNamesAndTypesForTesting = theory.getVariableNamesAndTypesForTesting();
+	public static boolean isSatisfiableByBruteForce(Expression formula, TheoryTestingSupport theoryTestingSupport, Context context) {
+		Map<String, Type> variableNamesAndTypesForTesting = theoryTestingSupport.getVariableNamesAndTypesForTesting();
 		Expression quantifiedFormula = formula;
-		Collection<Expression> variables = theory.getVariablesIn(formula, context);
+		Collection<Expression> variables = theoryTestingSupport.getVariablesIn(formula, context);
 		for (Expression variable : variables) {
 			Expression typeNameExpression = parse(variableNamesAndTypesForTesting.get(variable).toString());
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, typeNameExpression), quantifiedFormula);
@@ -375,25 +375,25 @@ public class SGDPLLTTester {
 	 * and see if the model counting solver works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
 	public static void testModelCountingForSingleVariableConstraints(
-			Random random, boolean testAgainstBruteForce, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		Context context = theory.makeContextWithTestingInformation();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		Symbol variable = makeSymbol(theory.pickTestingVariableAtRandom(random));
+		Symbol variable = makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random));
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theory.makeSingleVariableConstraint(variable, theory, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.makeSingleVariableConstraint(variable, theoryTestingSupport, context);
 
-		Function<Constraint, Expression> makeRandomLiteral = c -> theory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
+		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
 
 		TestRunner tester = (r, ls, c, tB, cT, p) -> runModelCountingTestForSingleVariableConstraint(r, variable, ls, c, tB, cT, p);
 		
-		runTesterGivenConjunctionsOfLiterals(random, "model counting", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenConjunctionsOfLiterals(random, "model counting", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	private static void runModelCountingTestForSingleVariableConstraint(
@@ -470,7 +470,7 @@ public class SGDPLLTTester {
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
 	 * @param problemTypes
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param bodyDepth
@@ -480,7 +480,7 @@ public class SGDPLLTTester {
 			Random random,
 			boolean testAgainstBruteForce,
 			AssociativeCommutativeGroup group,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			long numberOfTests,
 			int maxNumberOfLiterals,
 			int bodyDepth,
@@ -488,7 +488,7 @@ public class SGDPLLTTester {
 		
 		String problemName = "quantification of " + group.getClass().getSimpleName() + " with single index";
 		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForSingleVariableConstraint(r, c, group, tB, cT, ls, bodyDepth, p);
-		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, group, theory, numberOfTests, maxNumberOfLiterals, outputCount);
+		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, outputCount);
 	}
 
 	private static void runGroupProblemSolvingTestForSingleVariableConstraint(
@@ -496,14 +496,14 @@ public class SGDPLLTTester {
 			Constraint constraint,
 			AssociativeCommutativeGroup group,
 			boolean testAgainstBruteForce,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			Collection<Expression> literals,
 			int bodyDepth,
 			Context context) {
 		
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Expression index = singleVariableConstraint.getVariable();
-		runGroupProblemSolvingTest(random, list(index), constraint, group, testAgainstBruteForce, theory, bodyDepth, context);
+		runGroupProblemSolvingTest(random, list(index), constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
 	}
 
 	/**
@@ -514,7 +514,7 @@ public class SGDPLLTTester {
 	 * @param random
 	 * @param numberOfIndices
 	 * @param group
-	 * @param theory
+	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param bodyDepth
@@ -525,7 +525,7 @@ public class SGDPLLTTester {
 			int numberOfIndices,
 			boolean testAgainstBruteForce,
 			AssociativeCommutativeGroup group,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			long numberOfTests,
 			int maxNumberOfLiterals,
 			int bodyDepth,
@@ -533,7 +533,7 @@ public class SGDPLLTTester {
 		
 		String problemName = "quantification of " + group.getClass().getSimpleName() + " with " + numberOfIndices + " indices";
 		TestRunner tester = (r, ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndices(r, numberOfIndices, c, group, tB, cT, ls, bodyDepth, p);
-		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, group, theory, numberOfTests, maxNumberOfLiterals, outputCount);
+		runGroupProblemSolvingTest(random, problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, outputCount);
 	}
 
 	private static void runGroupProblemSolvingTestForMultipleIndices(
@@ -542,39 +542,39 @@ public class SGDPLLTTester {
 			Constraint constraint,
 			AssociativeCommutativeGroup group,
 			boolean testAgainstBruteForce,
-			Theory theory,
+			TheoryTestingSupport theoryTestingSupport,
 			Collection<Expression> literals,
 			int bodyDepth, 
 			Context context) {
 		
-		if (numberOfIndices > theory.getVariablesForTesting().size()) {
-			throw new Error("Test specifies " + numberOfIndices + " indices, but there are only " + theory.getVariablesForTesting().size() + " available for testing in the theory: " + theory.getVariablesForTesting());
+		if (numberOfIndices > theoryTestingSupport.getVariablesForTesting().size()) {
+			throw new Error("Test specifies " + numberOfIndices + " indices, but there are only " + theoryTestingSupport.getVariablesForTesting().size() + " available for testing in the theory: " + theoryTestingSupport.getVariablesForTesting());
 		}
 		
 		Collection<Expression> indices = 
 				pickKElementsWithoutReplacement(
-						theory.getVariablesForTesting(),
+						theoryTestingSupport.getVariablesForTesting(),
 						numberOfIndices,
 						random);
-		runGroupProblemSolvingTest(random, indices, constraint, group, testAgainstBruteForce, theory, bodyDepth, context);
+		runGroupProblemSolvingTest(random, indices, constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
 	}
 
-	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, Theory theory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
-		Context context = theory.makeContextWithTestingInformation();
+	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theory.makeSingleVariableConstraint(makeSymbol(theory.pickTestingVariableAtRandom(random)), theory, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random)), theoryTestingSupport, context);
 		
-		Function<Constraint, Expression> makeRandomLiteral = c -> theory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
+		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
 		
-		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theory, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenConjunctionsOfLiterals(random, problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
-	private static void runGroupProblemSolvingTest(Random random, Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, Theory theory, int bodyDepth, Context context) throws Error {
+	private static void runGroupProblemSolvingTest(Random random, Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) throws Error {
 		
-		Expression body = makeBody(random, group, theory, bodyDepth, context);
+		Expression body = makeBody(random, group, theoryTestingSupport, bodyDepth, context);
 		Expression problem = makeProblem(indices, constraint, body, group, context);
 		
-		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, theory, context);
+		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, theoryTestingSupport, context);
 	}
 
 	/**
@@ -646,9 +646,9 @@ public class SGDPLLTTester {
 		return problem;
 	}
 
-	private static Expression makeBody(Random random, AssociativeCommutativeGroup group, Theory theory, int bodyDepth, Context context) {
+	private static Expression makeBody(Random random, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) {
 		NullaryFunction<Expression> leafGenerator = () -> group.makeRandomConstant(random);
-		Expression body = new RandomConditionalExpressionGenerator(random, theory, bodyDepth, leafGenerator, context).apply();
+		Expression body = new RandomConditionalExpressionGenerator(random, theoryTestingSupport, bodyDepth, leafGenerator, context).apply();
 		return body;
 	}
 

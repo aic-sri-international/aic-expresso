@@ -39,22 +39,16 @@ package com.sri.ai.grinder.sgdpllt.api;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.sgdpllt.library.boole.And.getConjuncts;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
-import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.thereExists;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -62,12 +56,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedTopSimplifier;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -296,148 +288,15 @@ public interface Theory extends Cloneable {
 				&& !thereExists(context.getTypes(), t -> t.contains(expression));
 		return result;
 	}
-
-	//////////// AUTOMATIC TESTING 
-	
-	/** Sets variables to be used in randomly generated literals. */
-	void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesForTesting);
-	
-	/** Gets variables to be used in randomly generated literals. */
-	Map<String, Type> getVariableNamesAndTypesForTesting();
-
-	/**
-	 * Returns the variable names as returned by {@link #getVariableNamesAndTypesForTesting()}
-	 * as an array list (this is cached and updated as needed).
-	 * @return
-	 */
-	List<String> getVariableNamesForTesting();
-	
-	default ArrayList<Expression> getVariablesForTesting() {
-		List<String> variableNames = getVariableNamesForTesting();
-		ArrayList<Expression> result = mapIntoArrayList(variableNames, s -> parse(s));
-		return result;
-	}
-
-	/**
-	 * Returns a set of types appropriate for testing this theory;
-	 * note that this set may include types not related to any of the testing variables. 
-	 */
-	Collection<Type> getTypesForTesting();
 	
 	/**
 	 * Provides types that must be present in the context while using theory,
-	 * even if no testing variable is associated with them.
-	 * Default implementation is no types; override for introducing them.
+	 * even if no variables are associated with them. Default
+	 * implementation is no types; override for introducing them.
+	 * 
 	 * @return
 	 */
 	Collection<Type> getNativeTypes();
-	
-	
-	//	/** Samples a uniquely named constant of given appropriate for testing this theory. */
-//	Expression sampleUniquelyNamedConstantsForTesting(Type type);
-//	
-//	/**
-//	 * Sets an iterable of uniquely named constants for given type appropriate for testing this theory.
-//	 * Note that all types must have testing uniquely named constants associated with them.
-//	 * If you want a type to simply use {@link Type#sampleConstant(Random)},
-//	 * use methods {@link #setUseTypeUniquelyNamedConstantSampling(Type, boolean)}
-//	 * or {@link #setUseTypeUniquelyNamedConstantSamplingForAllTypes(boolean)}.
-//	 */
-//	void setUniquelyNamedConstantsForTesting(Type type, Iterable<Expression> newUniquelyNamedConstantsForTesting);
-//	
-//	/**
-//	 * Indicates whether the sampling of a type's uniquely named constant for testing must
-//	 * use the types {@link Type#sampleConstant(Random)}.
-//	 * @return
-//	 */
-//	boolean getUseTypeUniquelyNamedConstantSampling(Type type);
-//	
-//	/**
-//	 * Sets the flag indicating whether the sampling of a type's uniquely named constant for testing must
-//	 * use the types {@link Type#sampleConstant(Random)}.
-//	 * @return
-//	 */
-//	void setUseTypeUniquelyNamedConstantSampling(Type type, boolean newValue);
-//	
-//	/**
-//	 * Indicates whether the sampling of <i>all</i> types uniquely named constant for testing must
-//	 * use the types {@link Type#sampleConstant(Random)}.
-//	 * @return
-//	 */
-//	boolean getUseTypeUniquelyNamedConstantSamplingForAllTypes();
-//	
-//	/**
-//	 * Sets the flag indicating whether the sampling of <i>all</i> types uniquely named constant for testing must
-//	 * use the types {@link Type#sampleConstant(Random)}.
-//	 * @return
-//	 */
-//	void setUseTypeUniquelyNamedConstantSamplingForAllTypes(boolean newValue);
-//	
-	/**
-	 * Picks one of the testing variables returned by {@link #getTestingVariables()}
-	 * with uniform probability.
-	 * @param random
-	 * @return
-	 */
-	default String pickTestingVariableAtRandom(Random random) {
-		String result = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), random);
-		return result;
-	}
-	
-	/**
-	 * Returns a random atom in this theory on a given variable.
-	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param random a random generator
-	 * @param context a context
-	 */
-	Expression makeRandomAtomOn(String variable, Random random, Context context);
-	
-	/**
-	 * Same as {@link #makeRandomAtomOn(String, Random, Context),
-	 * but applied randomly to one of the test variables.
-	 */
-	default Expression makeRandomAtom(Random random, Context context) {
-		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet().iterator(), random);
-		Expression result = makeRandomAtomOn(variableToBeUsed, random, context);
-		return result;
-	}
-	
-	/**
-	 * Same as {@link #makeRandomAtomOn(String, Random, Context) for testing variable
-	 * (returned by {@link #pickTestingVariableAtRandom()}).
-	 */
-	default Expression makeRandomAtomOnTestingVariable(Random random, Context context) {
-		Expression result = makeRandomAtomOn(pickTestingVariableAtRandom(random), random, context);
-		return result;
-	}
-
-	/**
-	 * @param variable
-	 * @param random
-	 * @param context
-	 * @return
-	 */
-	default Expression makeRandomLiteralOn(String variable, Random random, Context context) {
-		Expression atom = makeRandomAtomOn(variable, random, context);
-		Expression literal = random.nextBoolean()? atom : getLiteralNegation(atom, context);
-		return literal;
-	}
-
-	/**
-	 * Same as {@link #makeRandomLiteralOn(String, Random, Context),
-	 * but applied randomly to one of the testing variables.
-	 */
-	default Expression makeRandomLiteral(Random random, Context context) {
-		String variableToBeUsed = pickTestingVariableAtRandom(random);
-		Expression result = makeRandomLiteralOn(variableToBeUsed, random, context);
-		return result;
-	}
-
-	Context extendWithTestingInformation(Context context);
-
-	default Context makeContextWithTestingInformation() {
-		return extendWithTestingInformation(new TrueContext(this));
-	}
 	
 	Theory clone();
 }

@@ -53,9 +53,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.helper.SelectExpressionsSatisfyingComparisonStepSolver;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.base.ExpressionWrapperStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 
@@ -64,8 +64,8 @@ public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 
 	@Test
 	public void test() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		List<String> expressionStrings;
 		Expression bound;

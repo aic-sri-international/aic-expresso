@@ -49,7 +49,7 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
@@ -59,14 +59,14 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest 
 
 	@Test
 	public void test() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		theory.setVariableNamesAndTypesForTesting(
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(
 				map(
 						"I", new IntegerInterval(0,4),
 						"J", new IntegerInterval(0,4),
 						"K", new IntegerInterval(0,4)
 						));
-		Context context = theory.makeContextWithTestingInformation();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;

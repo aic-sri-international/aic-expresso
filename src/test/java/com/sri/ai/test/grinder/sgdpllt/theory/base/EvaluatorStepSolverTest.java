@@ -49,10 +49,10 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -63,21 +63,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfFunctionApplications() {
-		Theory theory
+		TheoryTestingSupport theoryTestingSupport
 		= new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory());
 
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -121,21 +121,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfGroupOperationsOnSets() {
-		Theory theory
+		TheoryTestingSupport theoryTestingSupport
 		= new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory());
 
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -184,21 +184,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfCardinalityExpressions() {
-		Theory theory
+		TheoryTestingSupport theoryTestingSupport
 		= new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory());
 	
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;
@@ -226,21 +226,21 @@ public class EvaluatorStepSolverTest {
 
 	@Test
 	public void testEvaluationOfQuantifiedExpressions() {
-		Theory theory
+		TheoryTestingSupport theoryTestingSupport
 		= new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory());
 	
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theory.getVariableNamesAndTypesForTesting());
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
 		variablesAndTypes.put("S", booleanType);
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
-		theory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		Context context = theory.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theory.getMapBasedTopSimplifier();
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;

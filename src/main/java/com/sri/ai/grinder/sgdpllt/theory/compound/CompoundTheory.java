@@ -70,6 +70,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.util.Util;
 
 /** 
@@ -90,7 +91,7 @@ public class CompoundTheory extends AbstractTheory {
 	private void aggregateTestingInformation() throws Error {
 		Map<String, Type> variableNamesAndTypesForTesting = new LinkedHashMap<>();
 		for (Theory theory : getSubConstraintTheories()) {
-			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = theory.getVariableNamesAndTypesForTesting().entrySet();
+			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = ((TheoryTestingSupport)theory).getVariableNamesAndTypesForTesting().entrySet();
 			for (Map.Entry<String, Type> variableNameAndTypeName : variableNamesAndTypeNameEntries) {
 				String variableName = variableNameAndTypeName.getKey();
 				Type type = variableNameAndTypeName.getValue();
@@ -132,7 +133,7 @@ public class CompoundTheory extends AbstractTheory {
 	
 			for (Theory subTheory : getSubConstraintTheories()) {
 				Map<String, Type> forThisSubTheory = mapForSubTheory.get(subTheory);
-				subTheory.setVariableNamesAndTypesForTesting(forThisSubTheory);
+				((TheoryTestingSupport)subTheory).setVariableNamesAndTypesForTesting(forThisSubTheory);
 			}
 		}
 	
@@ -143,7 +144,7 @@ public class CompoundTheory extends AbstractTheory {
 	public Collection<Type> getNativeTypes() {
 		Collection<Type> result = new LinkedHashSet<Type>();
 		for (Theory subTheory : getSubConstraintTheories()) {
-			result.addAll(subTheory.getNativeTypes());
+			result.addAll(((TheoryTestingSupport)subTheory).getNativeTypes());
 		}
 		return result;
 	}
@@ -243,7 +244,7 @@ public class CompoundTheory extends AbstractTheory {
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
 		Theory theory = getTheory(parse(variable), context);
-		Expression result = theory.makeRandomAtomOn(variable, random, context);
+		Expression result = ((TheoryTestingSupport)theory).makeRandomAtomOn(variable, random, context);
 		return result;
 	}
 

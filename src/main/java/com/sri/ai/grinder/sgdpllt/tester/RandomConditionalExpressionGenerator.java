@@ -70,7 +70,7 @@ import com.sri.ai.util.base.NullaryFunction;
 public class RandomConditionalExpressionGenerator implements NullaryFunction<Expression> {
 	
 	private Random random;
-	private Theory theory;
+	private TheoryTestingSupport theoryTestingSupport;
 	private int depth;
 	private NullaryFunction<Expression> leafGenerator;
 	private Context context;
@@ -78,15 +78,15 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	/**
 	 * Constructs a random conditional expression generator based on given parameters.
 	 * @param random a random generator to be used throughout
-	 * @param theory the theory used to generate the literals in the conditional's conditions
+	 * @param theoryTestingSupport the theory testing support used to generate the literals in the conditional's conditions
 	 * @param depth the depth of the conditional tree
 	 * @param leafGenerator a generators for expressions appearing at the leaves of the conditional tree
 	 * @param context
 	 */
-	public RandomConditionalExpressionGenerator(Random random, Theory theory, int depth, NullaryFunction<Expression> leafGenerator, Context context) {
+	public RandomConditionalExpressionGenerator(Random random, TheoryTestingSupport theoryTestingSupport, int depth, NullaryFunction<Expression> leafGenerator, Context context) {
 		super();
 		this.random = random;
-		this.theory = theory;
+		this.theoryTestingSupport = theoryTestingSupport;
 		this.depth = depth;
 		this.leafGenerator = leafGenerator;
 		this.context = context;
@@ -104,7 +104,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 			result = leafGenerator.apply();
 		}
 		else {
-			Expression literal = theory.makeRandomLiteral(random, context);
+			Expression literal = theoryTestingSupport.makeRandomLiteral(random, context);
 			result = IfThenElse.make(literal, apply(depth - 1), apply(depth - 1));
 		}
 		return result;
@@ -112,19 +112,19 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	
 	public static void main(String[] args) {
 		Random random = new Random();
-		Theory theory = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
 		for (int numberOfVariables = 3; numberOfVariables != 5; numberOfVariables++) {
 			Map<String, Type> variableNamesAndTypes = map();
 			Type integerInterval = new IntegerInterval(0, 100);
 			for (int v = 0; v != numberOfVariables; v++) {
 				variableNamesAndTypes.put("v" + v, integerInterval);
 			}
-			theory.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
-			Context context = theory.makeContextWithTestingInformation();
+			theoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
+			Context context = theoryTestingSupport.makeContextWithTestingInformation();
 			RandomConditionalExpressionGenerator generator = 
 					new RandomConditionalExpressionGenerator(
 							random, 
-							theory, 
+							theoryTestingSupport, 
 							4, 
 							() -> makeSymbol(random.nextDouble()), 
 							context);

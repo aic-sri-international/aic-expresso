@@ -62,12 +62,13 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 /** 
  * Basic implementation of some methods of {@link Theory}.
  */
-abstract public class AbstractTheory implements Theory {
+abstract public class AbstractTheory implements TheoryTestingSupport {
 
 	protected Simplifier simplifier;
 	protected MapBasedTopSimplifier topSimplifier;

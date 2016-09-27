@@ -55,9 +55,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.helper.MaximumExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 
 @Beta
@@ -65,8 +65,8 @@ public class MaximumExpressionStepSolverTest {
 
 	@Test
 	public void test() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		List<String> expressionStrings;
 		String order;

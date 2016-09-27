@@ -5,7 +5,7 @@ import static java.lang.Math.round;
 
 import java.util.Random;
 
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 public abstract class AbstractTheoryTest {
 
@@ -25,7 +25,7 @@ public abstract class AbstractTheoryTest {
 	 * Provides a way to regulate which theory to use.
 	 * @return
 	 */
-	abstract protected Theory makeTheory();
+	abstract protected TheoryTestingSupport makeTheoryTestingSupport();
 
 	/**
 	 * Indicates whether correctness should be checked against brute-force methods when possible.

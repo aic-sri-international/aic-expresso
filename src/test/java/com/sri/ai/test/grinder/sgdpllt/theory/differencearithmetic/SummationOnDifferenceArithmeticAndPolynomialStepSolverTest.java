@@ -52,6 +52,7 @@ import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
@@ -61,8 +62,8 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void simpleBodyTest() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
 		String constraintString;
@@ -99,8 +100,8 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyTest() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;
@@ -137,8 +138,8 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 	
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;
@@ -175,8 +176,8 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
-		Theory theory = new DifferenceArithmeticTheory(true, true);
-		Context context = theory.makeContextWithTestingInformation();
+		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
 		String constraintString;

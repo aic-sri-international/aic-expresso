@@ -53,7 +53,6 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
@@ -63,6 +62,7 @@ import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -73,7 +73,7 @@ import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryTest;
 public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheoryTest {
 
 	@Override
-	protected CompoundTheory makeTheory() {
+	protected TheoryTestingSupport makeTheoryTestingSupport() {
 		CompoundTheory compoundTheory = new CompoundTheory(
 				new EqualityTheory(true, true),
 				new PropositionalTheory());
@@ -92,17 +92,17 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void basicTests() {
 		
-		Theory compoundTheory = makeTheory();
+		TheoryTestingSupport theoryTestingSupport = makeTheoryTestingSupport();
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
-		Context context = compoundTheory.extendWithTestingInformation(new TrueContext(compoundTheory));
-		Constraint constraint = new CompleteMultiVariableContext(compoundTheory, context);
+		Context context = theoryTestingSupport.extendWithTestingInformation(new TrueContext(theoryTestingSupport));
+		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport, context);
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
 		
-		Simplifier interpreter = new Evaluator(compoundTheory);
+		Simplifier interpreter = new Evaluator(theoryTestingSupport);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 : X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		Expression result = interpreter.apply(input, context);
@@ -115,7 +115,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		SGDPLLTTester.testSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -126,7 +126,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		SGDPLLTTester.testMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(300) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -137,7 +137,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -148,7 +148,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				getTestAgainstBruteForce(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -160,7 +160,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -173,7 +173,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
-				makeTheory(),
+				makeTheoryTestingSupport(),
 				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -217,9 +217,9 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
 		AbstractTheoryWithBinaryAtoms equalityTheory = new EqualityTheory(true, true);
 		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-		Theory theory = new CompoundTheory(equalityTheory, new PropositionalTheory());
-		Context context = theory.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theory, context);
+		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(equalityTheory, new PropositionalTheory());
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport, context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 		}
