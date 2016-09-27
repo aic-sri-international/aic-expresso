@@ -75,7 +75,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	}
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {
-		private List<Expression> problemConjuncts = new ArrayList<>();
+		private List<Expression> problemConjuncts  = new ArrayList<>();
+		private List<Expression> solutionConjuncts = new ArrayList<>();
 		
 		public GeneralFormulaExpressionTestStepSolver(Expression... formulas) {
 			for (Expression conjunct : formulas) {
@@ -112,25 +113,33 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		@Override
 		public Step step(Context context) {
 			Step result = null;
-			List<Expression> solutionConjuncts = new ArrayList<>();
-			for (int i = 0; i < problemConjuncts.size(); i++) {
+			List<Expression> stepSolutionConjuncts = new ArrayList<>(solutionConjuncts);
+			for (int i = stepSolutionConjuncts.size(); i < problemConjuncts.size(); i++) {
 				Expression conjunct = problemConjuncts.get(i);
 				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(conjunct);
 				Expression conjunctResult = evaluatorStepSolver.solve(context);
 				if (Expressions.TRUE.equals(conjunctResult)) {
-					solutionConjuncts.add(conjunct);
+					stepSolutionConjuncts.add(conjunct);
 				}
 				else if (Expressions.FALSE.equals(conjunctResult)) {
-					solutionConjuncts.add(Not.make(conjunct));
+					stepSolutionConjuncts.add(Not.make(conjunct));
 				}
-				else {					
-					result = new ExpressionStepSolver.ItDependsOn(conjunct, null, this, this);
+				else {	
+					GeneralFormulaExpressionTestStepSolver ifTrue = this.clone();
+					ifTrue.solutionConjuncts = new ArrayList<>(stepSolutionConjuncts);
+					ifTrue.solutionConjuncts.add(conjunct);
+					
+					GeneralFormulaExpressionTestStepSolver ifFalse = this.clone();
+					ifFalse.solutionConjuncts = new ArrayList<>(stepSolutionConjuncts);
+					ifFalse.solutionConjuncts.add(Not.make(conjunct));
+					
+					result = new ExpressionStepSolver.ItDependsOn(conjunct, null, ifTrue, ifFalse);
 					break;
 				}
 			}
 			
 			if (result == null) {
-				result = new ExpressionStepSolver.Solution(And.make(solutionConjuncts));
+				result = new ExpressionStepSolver.Solution(And.make(stepSolutionConjuncts));
 			}
 				
 			return result;
