@@ -23,7 +23,6 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 
 public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
