@@ -93,23 +93,21 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	            result = new ExpressionLiteralSplitterStepSolver.Solution(currentFormulaSplitterStepSolverStep.getValue());
 	        }
 			else {
-// TODO - make more efficient by taking into account that the currentFormulaSplitterStepSolverStep may return a literal splitter, in
-// that case there is no need to introduce the overhead of using an Evaluator to work through the splitter formula
-// one literal at a time.	
-// NOTE: Un-commenting the following lines and completing the else should provide this enhancement:	
-//				if (context.getTheory().isLiteral(currentFormulaSplitterStepSolverStep.getSplitter(), context)) {		
-//					// We need to wrap the ItDepends result sub-solvers in adapters as well.
-//					result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(currentFormulaSplitterStepSolverStep.getSplitter(),
-//							currentFormulaSplitterStepSolverStep.getContextSplittingWhenSplitterIsLiteral(),
-//								new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsTrue()),
-//								new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsFalse()));
-//				}
-//				else {
-				
-				// We have a new splitter formula that we have obtained from the formula splitter step solver
-				// over which we want to walk the individual literals in that formula splitter. This is done
-				// by delegating to a evaluator/literal step solver while extracting these literals.
-				currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(currentFormulaSplitterStepSolverStep.getSplitter());
+				// The currentFormulaSplitterStepSolverStep may return a literal splitter, in that case there is no need 
+				// to introduce the overhead of using an Evaluator to work through the splitter formula one literal at a time.
+				if (context.getTheory().isLiteral(currentFormulaSplitterStepSolverStep.getSplitter(), context)) {		
+					// We need to wrap the ItDepends result sub-solvers in adapters as well.
+					result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(currentFormulaSplitterStepSolverStep.getSplitter(),
+							currentFormulaSplitterStepSolverStep.getContextSplittingWhenSplitterIsLiteral(),
+								new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsTrue()),
+								new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsFalse()));
+				}
+				else {	
+					// We have a new non-literal splitter formula that we have obtained from the formula splitter step solver
+					// over which we want to walk the individual literals in that formula splitter. This is done
+					// by delegating to a evaluator/literal step solver while extracting these literals.
+					currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(currentFormulaSplitterStepSolverStep.getSplitter());
+				}
 			}
 		}
 		

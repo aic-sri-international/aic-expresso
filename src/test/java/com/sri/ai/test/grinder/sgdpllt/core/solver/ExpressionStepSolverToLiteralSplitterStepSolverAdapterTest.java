@@ -25,6 +25,7 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
@@ -52,6 +53,10 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		
 		Context context = theory.makeContextWithTestingInformation();
 	
+		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P"), Expressions.parse("Q")), 
+				Expressions.parse("if P then if Q then P and Q else P and not Q else if Q then not P and Q else not P and not Q"),
+				context);
+		
 		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or Q")), 
 				Expressions.parse("if P then if R then (P or Q) and (R or Q) else if Q then (P or Q) and (R or Q) else (P or Q) and not (R or Q) else if Q then (P or Q) and (R or Q) else if R then not (P or Q) and (R or Q) else not (P or Q) and not (R or Q)"),
 				context);
@@ -251,7 +256,14 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 					ifFalse.solutionConjuncts = new ArrayList<>(stepSolutionConjuncts);
 					ifFalse.solutionConjuncts.add(Not.make(conjunct));
 					
-					result = new ExpressionStepSolver.ItDependsOn(conjunct, null, ifTrue, ifFalse);
+					ContextSplitting contextSplitting = null;
+					// If the splitter is a literal then we want to include the context splitting
+					// information for the literal.
+					if (context.getTheory().isLiteral(conjunct, context)) {
+						contextSplitting = new ContextSplitting(conjunct, context);
+					}
+					
+					result = new ExpressionStepSolver.ItDependsOn(conjunct, contextSplitting, ifTrue, ifFalse);
 					break;
 				}
 			}
