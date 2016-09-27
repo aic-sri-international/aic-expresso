@@ -17,6 +17,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
@@ -39,39 +40,23 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 		
 		Context context = theory.makeContextWithTestingInformation();
 	
-		runTest(new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or Q")), 
+		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or Q")), 
 				Expressions.parse("if P then if R then (P or Q) and (R or Q) else if Q then (P or Q) and (R or Q) else (P or Q) and not (R or Q) else if Q then (P or Q) and (R or Q) else if R then not (P or Q) and (R or Q) else not (P or Q) and not (R or Q)"),
 				context);
 		
-		runTest(new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or S")), 
+		runTest(theory, new GeneralFormulaExpressionTestStepSolver(Expressions.parse("P or Q"), Expressions.parse("R or S")), 
 				Expressions.parse("if P then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if Q then if R then (P or Q) and (R or S) else if S then (P or Q) and (R or S) else (P or Q) and not (R or S) else if R then not (P or Q) and (R or S) else if S then not (P or Q) and (R or S) else not (P or Q) and not (R or S)"),
 				context);
 	}
 	
-	private void runTest(GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
+	private void runTest(Theory theory, GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
 		ExpressionStepSolverToLiteralSplitterStepSolverAdapter stepSolver = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(generalFormulaExpressionTestStepSolver);
 		System.out.println("Evaluating " + generalFormulaExpressionTestStepSolver.getExpressionToSolve());
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
 		System.out.println(generalFormulaExpressionTestStepSolver.getExpressionToSolve() + " -----> " + solution + "\n");
 		assertEquals(expected, solution);
 		
-		testLeavesAreTrue(solution, context);
-	}
-	
-	private void testLeavesAreTrue(Expression solution, Context context) {
-		if (IfThenElse.isIfThenElse(solution)) {
-			Context thenContext = context.conjoinWithLiteral(IfThenElse.condition(solution), context);
-			Expression thenSolution = IfThenElse.thenBranch(solution);
-			testLeavesAreTrue(thenSolution, thenContext);
-			
-			Context elseContext = context.conjoinWithLiteral(Not.make(IfThenElse.condition(solution)), context);
-			Expression elseSolution = IfThenElse.elseBranch(solution);
-			testLeavesAreTrue(elseSolution, elseContext);
-		}
-		else {
-			EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(solution);
-			assertEquals(Expressions.TRUE, evaluatorStepSolver.solve(context));			
-		}
+		assertEquals(Expressions.TRUE, new Evaluator(theory).apply(solution, context));
 	}
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {
