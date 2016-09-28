@@ -2,17 +2,11 @@ package com.sri.ai.grinder.sgdpllt.theory.base;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
-import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
@@ -20,7 +14,6 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
-import com.sri.ai.util.collect.PredicateIterator;
 
 public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 
@@ -33,7 +26,7 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	/**
 	 * The strings of the theory functors
 	 */
-	protected Collection<String> theoryFunctors;
+	Collection<String> theoryFunctors; // NOTE: package protected so AbstractTheoryWithBinaryAtomsTestingSupport can access
 
 	/**
 	 * Constructor taking the theory's functor strings,
@@ -118,38 +111,6 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 							});
 		}
 		
-		return result;
-	}
-
-	/**
-	 * Makes a random atom by uniformly picking among the theory functors and testing variables.
-	 */
-	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
-		Map<String, Type> variablesAndTypes = getVariableNamesAndTypesForTesting();
-		Type type = variablesAndTypes.get(variable);
-		Set<String> allVariables = variablesAndTypes.keySet();
-		PredicateIterator<String> isNameOfOtherVariableOfSameTypeAsMainVariable =
-				PredicateIterator.make(allVariables, s -> {
-					Type typeOfOther = variablesAndTypes.get(s);
-					return typeOfOther.equals(type) || typeOfOther.toString().equals(type.toString());	
-				});
-		Expression otherTerm;
-		if (random.nextBoolean()) {
-			otherTerm = makeSymbol(pickUniformly(isNameOfOtherVariableOfSameTypeAsMainVariable, random));
-		}
-		else {
-			otherTerm = type.sampleUniquelyNamedConstant(random);
-		}
-		
-		String functor = pickUniformly(theoryFunctors, random);
-		
-		Expression possiblyTrivialAtom =
-				random.nextBoolean()?
-						apply(functor, variable, otherTerm) : apply(functor, otherTerm, variable);
-						
-		Expression result = simplify(possiblyTrivialAtom, context);
-				
 		return result;
 	}
 

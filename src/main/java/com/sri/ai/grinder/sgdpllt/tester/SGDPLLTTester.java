@@ -129,11 +129,11 @@ public class SGDPLLTTester {
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random)), theoryTestingSupport, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random)), theoryTestingSupport.getTheory(), context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
 
-		boolean isComplete = theoryTestingSupport.singleVariableConstraintIsCompleteWithRespectToItsVariable();
+		boolean isComplete = theoryTestingSupport.getTheory().singleVariableConstraintIsCompleteWithRespectToItsVariable();
 
 		TestRunner tester = isComplete? SGDPLLTTester::testCompleteSatisfiability : SGDPLLTTester::testIncompleteSatisfiability;
 		
@@ -157,7 +157,7 @@ public class SGDPLLTTester {
 	public static void testMultiVariableConstraints(
 			Random random, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(theoryTestingSupport);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(theoryTestingSupport.getTheory());
 
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
@@ -185,7 +185,7 @@ public class SGDPLLTTester {
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(theoryTestingSupport, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteral(random, context);
 
@@ -359,7 +359,7 @@ public class SGDPLLTTester {
 	public static boolean isSatisfiableByBruteForce(Expression formula, TheoryTestingSupport theoryTestingSupport, Context context) {
 		Map<String, Type> variableNamesAndTypesForTesting = theoryTestingSupport.getVariableNamesAndTypesForTesting();
 		Expression quantifiedFormula = formula;
-		Collection<Expression> variables = theoryTestingSupport.getVariablesIn(formula, context);
+		Collection<Expression> variables = theoryTestingSupport.getTheory().getVariablesIn(formula, context);
 		for (Expression variable : variables) {
 			Expression typeNameExpression = parse(variableNamesAndTypesForTesting.get(variable).toString());
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, typeNameExpression), quantifiedFormula);
@@ -387,11 +387,11 @@ public class SGDPLLTTester {
 		
 		Symbol variable = makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random));
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.makeSingleVariableConstraint(variable, theoryTestingSupport, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(variable, theoryTestingSupport.getTheory(), context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
 
-		TestRunner tester = (r, ls, c, tB, cT, p) -> runModelCountingTestForSingleVariableConstraint(r, variable, ls, c, tB, cT, p);
+		TestRunner tester = (r, ls, c, tB, cT, p) -> runModelCountingTestForSingleVariableConstraint(r, variable, ls, c, tB, cT.getTheory(), p);
 		
 		runTesterGivenConjunctionsOfLiterals(random, "model counting", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
@@ -562,7 +562,7 @@ public class SGDPLLTTester {
 	private static void runGroupProblemSolvingTest(Random random, String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random)), theoryTestingSupport, context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom(random)), theoryTestingSupport.getTheory(), context);
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, context);
 		
@@ -574,7 +574,7 @@ public class SGDPLLTTester {
 		Expression body = makeBody(random, group, theoryTestingSupport, bodyDepth, context);
 		Expression problem = makeProblem(indices, constraint, body, group, context);
 		
-		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, theoryTestingSupport, context);
+		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, theoryTestingSupport.getTheory(), context);
 	}
 
 	/**

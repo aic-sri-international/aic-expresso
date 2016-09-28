@@ -50,7 +50,6 @@ import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -62,8 +61,8 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
@@ -138,13 +137,6 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	protected void initializeTestingInformation() {
-		String typeName = "[0;4]";
-		RealInterval type = new RealInterval(typeName);
-		setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type));
-	}
-
-	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
 		boolean result = 
 				type instanceof RealExpressoType || 
@@ -198,18 +190,6 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 		}
 		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
 		return result;
-	}
-
-	/**
-	 * Makes a linear real arithmetic random atom on variable.
-	 * Currently unimplemented, throwing an Error instead
-	 * (generating random atoms is not as useful for this theory,
-	 * since it cannot be tested by brute force).
-	 */
-	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
-		// TODO: write this method
-		throw new Error("Random generation of linear real arithmetic not yet implemented.");
 	}
 	
 	/**

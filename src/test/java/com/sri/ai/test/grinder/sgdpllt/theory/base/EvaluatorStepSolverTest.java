@@ -64,10 +64,10 @@ public class EvaluatorStepSolverTest {
 	@Test
 	public void testEvaluationOfFunctionApplications() {
 		TheoryTestingSupport theoryTestingSupport
-		= new CompoundTheory(
+		= TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
@@ -77,7 +77,7 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
+		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -122,10 +122,10 @@ public class EvaluatorStepSolverTest {
 	@Test
 	public void testEvaluationOfGroupOperationsOnSets() {
 		TheoryTestingSupport theoryTestingSupport
-		= new CompoundTheory(
+		= TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
@@ -135,7 +135,7 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
+		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
@@ -185,10 +185,10 @@ public class EvaluatorStepSolverTest {
 	@Test
 	public void testEvaluationOfCardinalityExpressions() {
 		TheoryTestingSupport theoryTestingSupport
-		= new CompoundTheory(
+		= TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 	
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
@@ -198,7 +198,7 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
+		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;
@@ -227,10 +227,10 @@ public class EvaluatorStepSolverTest {
 	@Test
 	public void testEvaluationOfQuantifiedExpressions() {
 		TheoryTestingSupport theoryTestingSupport
-		= new CompoundTheory(
+		= TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 	
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
@@ -240,7 +240,7 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getMapBasedTopSimplifier();
+		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;

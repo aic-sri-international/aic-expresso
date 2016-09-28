@@ -62,7 +62,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void simpleBodyTest() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -100,7 +100,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyTest() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -138,7 +138,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 	
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -176,7 +176,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;

@@ -63,7 +63,7 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testMeasureEquivalentInterval() {
-		TheoryTestingSupport theoryTestingSupport = new LinearRealArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -246,7 +246,7 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testSatisfiability() {
-		TheoryTestingSupport theoryTestingSupport = new LinearRealArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -472,7 +472,7 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testMeasure() {
-		TheoryTestingSupport theoryTestingSupport = new LinearRealArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -698,9 +698,9 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testSummation() {
-		TheoryTestingSupport theoryTestingSupport = new LinearRealArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		Simplifier simplifier = (e,c) -> theoryTestingSupport.simplify(e, c);
+		Simplifier simplifier = (e,c) -> theoryTestingSupport.getTheory().simplify(e, c);
 		
 		Expression variable;
 		String constraintString;

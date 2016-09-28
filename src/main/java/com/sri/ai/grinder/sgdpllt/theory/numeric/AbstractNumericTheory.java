@@ -90,7 +90,6 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
 				new DefaultMapBasedTopSimplifier(map(), map()));
-		initializeTestingInformation();
 		setExtraSimplifier(extraSimplifier);
 	}
 
@@ -110,8 +109,6 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 						new CardinalityOfSetConstantSimplifier(),
 						extraSimplifier));
 	}
-	
-	abstract protected void initializeTestingInformation();
 	
 	private static final Map<String, String> negationFunctor =
 	Util.map(

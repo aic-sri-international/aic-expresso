@@ -43,13 +43,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testPropositionalTheoryWithFixedDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new PropositionalTheory();
-		
-		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
-		Type booleanType = variablesAndTypes.get("P");
-		variablesAndTypes.put("S", booleanType);
-		variablesAndTypes.put("T", booleanType);
-		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new PropositionalTheory());	
+		extendTestingVaribles("P", theoryTestingSupport, "S", "T");
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
@@ -68,7 +63,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testPropositionalTheoryWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new PropositionalTheory();		
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new PropositionalTheory());		
 		extendTestingVaribles("P", theoryTestingSupport, "S", "T", "U", "V", "W", "X", "Y", "Z");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
@@ -77,7 +72,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	@Ignore("Random generation of linear real arithmetic not yet implemented")
 	@Test
 	public void testLinearRealArithmeticTheoryWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new LinearRealArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
 	
 		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
@@ -86,7 +81,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testEqualityTheoryWithoutPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new EqualityTheory(true, false);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, false));
 	
 		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
@@ -95,7 +90,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testEqualityTheoryWithPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new EqualityTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, true));
 	
 		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
@@ -104,7 +99,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testDifferenceArithmeticTheoryWithoutPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, false);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, false));
 	
 		extendTestingVaribles("K", theoryTestingSupport, "L", "M", "N", "O", "P");
 		
@@ -113,7 +108,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testDifferenceArithmeticTheoryWithPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 	
 		extendTestingVaribles("K", theoryTestingSupport, "L", "M", "N", "O", "P");
 		
@@ -122,10 +117,10 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testCompoundTheoryWithDifferenceArithmeticWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 		
 		// using different testing variables and types to test distribution of testing information
 		// to sub constraint theories.
@@ -151,10 +146,10 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	@Test
 	public void testCompoundTheoryWithoutDifferenceArithmeticWithRandomDisjunctiveFormulas() {
-		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -200,7 +195,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			assertEquals(expected, solution);
 		}
 		
-		assertEquals(Expressions.TRUE, new Evaluator(theoryTestingSupport).apply(solution, context));
+		assertEquals(Expressions.TRUE, new Evaluator(theoryTestingSupport.getTheory()).apply(solution, context));
 	}
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {

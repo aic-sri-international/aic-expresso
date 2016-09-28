@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2016, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -52,10 +52,26 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheoryTestingSupport;
 import com.sri.ai.util.Util;
 
 @Beta
-public interface TheoryTestingSupport extends Theory {
+public interface TheoryTestingSupport {
+	
+	/**
+	 * 
+	 * @return the theory testing support is being provided for.
+	 */
+	Theory getTheory();
 
 	/** Sets variables to be used in randomly generated literals. */
 	void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesForTesting);
@@ -130,7 +146,7 @@ public interface TheoryTestingSupport extends Theory {
 	 */
 	default Expression makeRandomLiteralOn(String variable, Random random, Context context) {
 		Expression atom = makeRandomAtomOn(variable, random, context);
-		Expression literal = random.nextBoolean()? atom : getLiteralNegation(atom, context);
+		Expression literal = random.nextBoolean()? atom : getTheory().getLiteralNegation(atom, context);
 		return literal;
 	}
 
@@ -147,7 +163,32 @@ public interface TheoryTestingSupport extends Theory {
 	Context extendWithTestingInformation(Context context);
 
 	default Context makeContextWithTestingInformation() {
-		return extendWithTestingInformation(new TrueContext(this));
+		return extendWithTestingInformation(new TrueContext(getTheory()));
+	}
+	
+	static TheoryTestingSupport make(Theory theory) {
+		TheoryTestingSupport result;
+		
+		if (theory instanceof CompoundTheory) {
+			result = new CompoundTheoryTestingSupport((CompoundTheory) theory);
+		}
+		else if (theory instanceof DifferenceArithmeticTheory) {
+			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory);
+		}
+		else if (theory instanceof EqualityTheory) {
+			result = new EqualityTheoryTestingSupport((EqualityTheory) theory);
+		}
+		else if (theory instanceof LinearRealArithmeticTheory) {
+			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory);
+		}
+		else if (theory instanceof PropositionalTheory) {
+			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory);
+		}
+		else {
+			throw new UnsupportedOperationException(""+theory.getClass().getSimpleName()+" currently does not have testing support in place.");
+		}
+		
+		return result;
 	}
 
 	// /** Samples a uniquely named constant of given appropriate for testing

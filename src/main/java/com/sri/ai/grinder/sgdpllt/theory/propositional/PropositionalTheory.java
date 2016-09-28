@@ -37,21 +37,16 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.propositional;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.sgdpllt.library.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
-import static com.sri.ai.util.Util.map;
-
-import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
@@ -83,7 +78,6 @@ public class PropositionalTheory extends AbstractTheory {
 	 */
 	public PropositionalTheory() {
 		super(new BooleanSimplifier());
-		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
 	}
 
 	@Override
@@ -128,11 +122,6 @@ public class PropositionalTheory extends AbstractTheory {
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
 		return true;
-	}
-
-	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
-		return makeSymbol(variable);
 	}
 
 	@Override

@@ -37,38 +37,27 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.constraint;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.camelCaseToSpacedString;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.mapIntoArrayList;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 /** 
  * Basic implementation of some methods of {@link Theory}.
  */
-abstract public class AbstractTheory implements TheoryTestingSupport {
+abstract public class AbstractTheory implements Theory {
 
 	protected Simplifier simplifier;
 	protected MapBasedTopSimplifier topSimplifier;
@@ -83,8 +72,6 @@ abstract public class AbstractTheory implements TheoryTestingSupport {
 	 */
 	public AbstractTheory(MapBasedSimplifier simplifier) {
 		super();
-		Categorical someType = getDefaultTestingType();
-		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
 		setSimplifierFromElementarySimplifiersIn(simplifier);
 	}
 
@@ -98,24 +85,6 @@ abstract public class AbstractTheory implements TheoryTestingSupport {
 //		this.cachedTotalSimplifier = new RecursiveExhaustiveMapBasedSimplifier(topSimplifier);
 		this.topSimplifier = new SeriallyMergedMapBasedTopSimplifier(simplifier);
 	}
-
-	private static Categorical someType;
-	
-	/**
-	 * Returns the type used for the default testing variables.
-	 * @return
-	 */
-	static public Categorical getDefaultTestingType() {
-		if (someType == null) {
-			ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
-			someType = new Categorical("SomeType", 5, knownConstants);
-		}
-		return someType;
-	}
-	
-	private Map<String, Type> variableNamesAndTypesForTesting;
-	private Collection<Type>  cachedTypesForTesting;
-	private ArrayList<String> cachedVariableNamesForTesting;
 	
 	@Override
 	public Expression simplify(Expression expression, Context context) {
@@ -131,52 +100,6 @@ abstract public class AbstractTheory implements TheoryTestingSupport {
 	@Override
 	public MapBasedTopSimplifier getMapBasedTopSimplifier() {
 		return topSimplifier;
-	}
-	
-	@Override
-	public Collection<Type> getTypesForTesting() {
-		if (cachedTypesForTesting == null) {
-			cachedTypesForTesting = new LinkedHashSet<Type>(variableNamesAndTypesForTesting.values());
-			cachedTypesForTesting.addAll(getNativeTypes());
-		}
-		return Collections.unmodifiableCollection(cachedTypesForTesting);
-	}
-
-	@Override
-	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
-		this.variableNamesAndTypesForTesting = variableNamesAndTypesForTesting;
-		this.cachedTypesForTesting = null; // force recomputation if needed.
-		this.cachedVariableNamesForTesting = null; // force recomputation if needed.
-	}
-	
-	@Override
-	public Map<String, Type> getVariableNamesAndTypesForTesting() {
-		return Collections.unmodifiableMap(variableNamesAndTypesForTesting);
-	}
-
-	@Override
-	public List<String> getVariableNamesForTesting() {
-		if (cachedVariableNamesForTesting == null) {
-			if (variableNamesAndTypesForTesting == null) {
-				cachedVariableNamesForTesting = null;
-			}
-			else {
-				cachedVariableNamesForTesting = new ArrayList<String>(variableNamesAndTypesForTesting.keySet());
-			}
-		}
-		return Collections.unmodifiableList(cachedVariableNamesForTesting);
-	}
-	
-	@Override
-	public Context extendWithTestingInformation(Context context) {
-		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.
-		Map<String, String> mapFromSymbolNamesToTypeNames = new LinkedHashMap<String, String>();
-		for (Map.Entry<String, Type> symbolAndType : getVariableNamesAndTypesForTesting().entrySet()) {
-			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
-		}
-		
-		Context result = (Context) GrinderUtil.extendRegistryWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), context);
-		return result;
 	}
 	
 	@Override

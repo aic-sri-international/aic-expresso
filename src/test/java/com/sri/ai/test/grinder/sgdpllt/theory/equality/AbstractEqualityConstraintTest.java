@@ -74,7 +74,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		return new EqualityTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
+		return TheoryTestingSupport.make(new EqualityTheory(true, getPropagateAllLiteralsWhenVariableIsBound()));
 	}
 
 	// DO NOT CHANGE TEST PARAMETERS! IMPLEMENTATIONS HAVE RUN-TIME HISTORY WRITTEN DOWN
@@ -183,7 +183,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		String conjunction;
 		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
 		TheoryTestingSupport theoryTestingSupport = makeTheoryTestingSupport();
-		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, theoryTestingSupport);
+		Constraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, theoryTestingSupport.getTheory());
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), context);
 		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
@@ -202,7 +202,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 		variableNamesAndTypes.put("W", variableNamesAndTypes.get("X"));
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
 		
-		if (theoryTestingSupport.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
+		if (theoryTestingSupport.getTheory().singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
 			conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 			expected = null;
 			runCompleteSatisfiabilityTest(conjunction, expected, theoryTestingSupport);
@@ -241,7 +241,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, TheoryTestingSupport theoryTestingSupport) {
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport, context);
+		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 			if (constraint.isContradiction()) {
@@ -255,7 +255,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 			throw new AssertionError("Expected <" + expected + "> but was null");
 		}
 		else if (expected != null && !constraint.isContradiction() && !expected.equals(constraint)) {
-			Simplifier interpreter = new Evaluator(theoryTestingSupport);
+			Simplifier interpreter = new Evaluator(theoryTestingSupport.getTheory());
 			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
 			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);
 			Expression equivalent = interpreter.apply(universallyQuantified, context);

@@ -148,7 +148,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	@Override
 	public Expression makeRandomUnconditionalBody(Random random) {
 		// unconditional body class is polynomials
-		ArrayList<Expression> freeVariables = ((TheoryTestingSupport)getTheory()).getVariablesForTesting();
+		ArrayList<Expression> freeVariables = TheoryTestingSupport.make(getTheory()).getVariablesForTesting();
 		int degree = random.nextInt(3);
 		int maximumNumberOfFreeVariablesInEach = 2;
 		int maximumConstant = 10;

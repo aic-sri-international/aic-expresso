@@ -22,7 +22,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		return new DifferenceArithmeticTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
+		return TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, getPropagateAllLiteralsWhenVariableIsBound()));
 	}
 
 	@Override

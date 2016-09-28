@@ -37,30 +37,21 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.compound;
 
-import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.expresso.helper.Expressions.primedUntilUnique;
 import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArray;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -70,7 +61,6 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.util.Util;
 
 /** 
@@ -85,66 +75,13 @@ public class CompoundTheory extends AbstractTheory {
 		super(makeSimplifier(list(subConstraintTheoriesArray)));
 		this.subConstraintTheories = list(subConstraintTheoriesArray);
 		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-theory but got none.");
-		aggregateTestingInformation();
-	}
-
-	private void aggregateTestingInformation() throws Error {
-		Map<String, Type> variableNamesAndTypesForTesting = new LinkedHashMap<>();
-		for (Theory theory : getSubConstraintTheories()) {
-			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = ((TheoryTestingSupport)theory).getVariableNamesAndTypesForTesting().entrySet();
-			for (Map.Entry<String, Type> variableNameAndTypeName : variableNamesAndTypeNameEntries) {
-				String variableName = variableNameAndTypeName.getKey();
-				Type type = variableNameAndTypeName.getValue();
-				if (variableNamesAndTypesForTesting.containsKey(variableName)) {
-					variableName = primedUntilUnique(
-							variableName, 
-							s -> variableNamesAndTypesForTesting.containsKey(s.toString()));
-				}
-				variableNamesAndTypesForTesting.put(variableName, type);
-			}
-		}
-		setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-	}
-	
-	/**
-	 * This is overridden so that given variables and types for testing are distributed to their
-	 * respective theories according to {@link #isSuitableFor(Expression, Type)}.
-	 */
-	@Override
-	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
-		
-		Map<Theory, Map<String, Type>> mapForSubTheory = map();
-		
-		if (getSubConstraintTheories() != null) { // during construction, these may not be available yet.
-			for (Theory subTheory : getSubConstraintTheories()) {
-				mapForSubTheory.put(subTheory, map());
-			}
-	
-			for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
-				String variableName = variableNameAndType.getKey();
-				Expression variable = Expressions.parse(variableName);
-				Type type = variableNameAndType.getValue();
-				for (Theory subTheory : getSubConstraintTheories()) {
-					if (subTheory.isSuitableFor(variable, type)) {
-						mapForSubTheory.get(subTheory).put(variableName, type);
-					}
-				}
-			}
-	
-			for (Theory subTheory : getSubConstraintTheories()) {
-				Map<String, Type> forThisSubTheory = mapForSubTheory.get(subTheory);
-				((TheoryTestingSupport)subTheory).setVariableNamesAndTypesForTesting(forThisSubTheory);
-			}
-		}
-	
-		super.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 	}
 
 	@Override
 	public Collection<Type> getNativeTypes() {
 		Collection<Type> result = new LinkedHashSet<Type>();
 		for (Theory subTheory : getSubConstraintTheories()) {
-			result.addAll(((TheoryTestingSupport)subTheory).getNativeTypes());
+			result.addAll(subTheory.getNativeTypes());
 		}
 		return result;
 	}
@@ -159,7 +96,8 @@ public class CompoundTheory extends AbstractTheory {
 		return subConstraintTheories;
 	}
 
-	private Theory getTheory(Expression variable, Context context) {
+	// NOTE: package protected so TestingSupport can utilize.
+	Theory getTheory(Expression variable, Context context) {
 		String typeName = GrinderUtil.getType(variable, context).toString();
 		Type type = context.getType(typeName);
 		
@@ -238,13 +176,6 @@ public class CompoundTheory extends AbstractTheory {
 		Theory theory =
 				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, context));
 		Expression result = theory.getLiteralNegation(literal, context);
-		return result;
-	}
-
-	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
-		Theory theory = getTheory(parse(variable), context);
-		Expression result = ((TheoryTestingSupport)theory).makeRandomAtomOn(variable, random, context);
 		return result;
 	}
 

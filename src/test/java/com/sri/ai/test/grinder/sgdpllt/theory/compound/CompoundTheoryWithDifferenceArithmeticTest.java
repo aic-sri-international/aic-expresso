@@ -56,7 +56,7 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
+import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.group.Max;
@@ -65,8 +65,8 @@ import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
@@ -83,10 +83,10 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		CompoundTheory compoundTheory = new CompoundTheory(
+		TheoryTestingSupport result = TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 		
 		// using different testing variables and types to test distribution of testing information
 		// to sub constraint theories.
@@ -105,9 +105,9 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 						"U", oneTwoThree
 						);
 		
-		compoundTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		result.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
-		return compoundTheory;
+		return result;
 	}
 	
 	/**
@@ -122,20 +122,20 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void basicTests() {
 		
-		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory());
+				new PropositionalTheory()));
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport, context);
+		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
 		
-		Simplifier interpreter = new Evaluator(theoryTestingSupport);
+		Simplifier interpreter = new Evaluator(theoryTestingSupport.getTheory());
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 : X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		Expression result = interpreter.apply(input, context);
@@ -224,7 +224,7 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 
 		String conjunction;
 		Expression expected;
-		Categorical someType = AbstractTheory.getDefaultTestingType();
+		Categorical someType = AbstractTheoryTestingSupport.getDefaultTestingType();
 
 		Map<String, Type> variableNamesAndTypesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
 				map("X", someType, "Y", someType, "Z", someType, "W", someType);
@@ -248,11 +248,11 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
-		AbstractTheoryWithBinaryAtoms equalityTheory = new EqualityTheory(true, true);
-		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-		TheoryTestingSupport theoryTestingSupport = new CompoundTheory(equalityTheory, new PropositionalTheory());
+		TheoryTestingSupport equalityTheoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, true));
+		equalityTheoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
+		TheoryTestingSupport theoryTestingSupport = new CompoundTheoryTestingSupport(equalityTheoryTestingSupport, TheoryTestingSupport.make(new PropositionalTheory()));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport, context);
+		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, context);
 		}

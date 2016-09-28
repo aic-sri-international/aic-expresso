@@ -65,7 +65,7 @@ public class MaximumExpressionStepSolverTest {
 
 	@Test
 	public void test() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		List<String> expressionStrings;

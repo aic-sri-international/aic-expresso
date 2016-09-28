@@ -59,7 +59,7 @@ public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest 
 
 	@Test
 	public void test() {
-		TheoryTestingSupport theoryTestingSupport = new DifferenceArithmeticTheory(true, true);
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(
 				map(
 						"I", new IntegerInterval(0,4),
