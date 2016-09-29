@@ -118,25 +118,6 @@ public interface TheoryTestingSupport {
 	 * @param context a context
 	 */
 	Expression makeRandomAtomOn(String variable, Random random, Context context);
-	
-	/**
-	 * Same as {@link #makeRandomAtomOn(String, Random, Context),
-	 * but applied randomly to one of the test variables.
-	 */
-	default Expression makeRandomAtom(Random random, Context context) {
-		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet().iterator(), random);
-		Expression result = makeRandomAtomOn(variableToBeUsed, random, context);
-		return result;
-	}
-	
-	/**
-	 * Same as {@link #makeRandomAtomOn(String, Random, Context) for testing variable
-	 * (returned by {@link #pickTestingVariableAtRandom()}).
-	 */
-	default Expression makeRandomAtomOnTestingVariable(Random random, Context context) {
-		Expression result = makeRandomAtomOn(pickTestingVariableAtRandom(random), random, context);
-		return result;
-	}
 
 	/**
 	 * @param variable
