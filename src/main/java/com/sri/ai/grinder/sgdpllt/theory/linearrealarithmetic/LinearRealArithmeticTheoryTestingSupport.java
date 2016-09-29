@@ -45,13 +45,15 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTestingSupport;
 
 @Beta
-public class LinearRealArithmeticTheoryTestingSupport extends AbstractNumericTheoryTestingSupport {
-
+public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
+	public static final RealInterval TESTING_REAL_INTERVAL_TYPE = new RealInterval("[0;4]"); 
+	
 	public LinearRealArithmeticTheoryTestingSupport(LinearRealArithmeticTheory theory, boolean generalizedVariableSupportEnabled) {
 		super(theory, generalizedVariableSupportEnabled);
+		setVariableNamesAndTypesForTesting(map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE));
 	}
 	
 	/**
@@ -64,13 +66,5 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractNumericThe
 	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
 		// TODO: write this method
 		throw new Error("Random generation of linear real arithmetic not yet implemented.");
-	}
-	
-	
-	@Override
-	protected void initializeTestingInformation() {
-		String typeName = "[0;4]";
-		RealInterval type = new RealInterval(typeName);
-		setVariableNamesAndTypesForTesting(map("X", type, "Y", type, "Z", type));
 	}
 }

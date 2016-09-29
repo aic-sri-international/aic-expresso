@@ -53,14 +53,17 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.number.Plus;
 import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
-import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTestingSupport;
 import com.sri.ai.util.Util;
 
 @Beta
-public class DifferenceArithmeticTheoryTestingSupport extends AbstractNumericTheoryTestingSupport {
+public class DifferenceArithmeticTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
 
+	public static final IntegerInterval TESTING_INTEGER_INTERVAL_TYPE = new IntegerInterval("0..4");
+	
 	public DifferenceArithmeticTheoryTestingSupport(DifferenceArithmeticTheory theory, boolean generalizedVariableSupportEnabled) {
 		super(theory, generalizedVariableSupportEnabled);
+		setVariableNamesAndTypesForTesting(map("I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE));
 	}
 	
 	/**
@@ -111,12 +114,5 @@ public class DifferenceArithmeticTheoryTestingSupport extends AbstractNumericThe
 		// allowing us to eliminate them here. TODO
 		
 		return result;
-	}
-	
-	@Override
-	protected void initializeTestingInformation() {
-		String typeName = "0..4";
-		IntegerInterval type = new IntegerInterval(typeName);
-		setVariableNamesAndTypesForTesting(map("I", type, "J", type, "K", type));
 	}
 }

@@ -59,8 +59,6 @@ import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
-	
-	private boolean superInitialized = false;
 	private Map<Theory, TheoryTestingSupport> theoryToTestingSupport;
 	
 	public CompoundTheoryTestingSupport(CompoundTheory theory, boolean generalizedVariableSupportEnabled) {
@@ -88,29 +86,28 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	 */
 	@Override
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {		
-		if (superInitialized) {
-			Map<Theory, Map<String, Type>> mapForSubTheory = map();
-			
+		Map<Theory, Map<String, Type>> mapForSubTheory = map();
+		
+		for (Theory subTheory : getTheory().getSubConstraintTheories()) {
+			mapForSubTheory.put(subTheory, map());
+		}
+
+		for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
+			String variableName = variableNameAndType.getKey();
+			Expression variable = Expressions.parse(variableName);
+			Type type = variableNameAndType.getValue();
 			for (Theory subTheory : getTheory().getSubConstraintTheories()) {
-				mapForSubTheory.put(subTheory, map());
-			}
-	
-			for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
-				String variableName = variableNameAndType.getKey();
-				Expression variable = Expressions.parse(variableName);
-				Type type = variableNameAndType.getValue();
-				for (Theory subTheory : getTheory().getSubConstraintTheories()) {
-					if (subTheory.isSuitableFor(variable, type)) {
-						mapForSubTheory.get(subTheory).put(variableName, type);
-					}
+				if (subTheory.isSuitableFor(variable, type)) {
+					mapForSubTheory.get(subTheory).put(variableName, type);
 				}
 			}
-	
-			for (Map.Entry<Theory, TheoryTestingSupport> entry : getTheoryToTestingSupport().entrySet()) {
-				Map<String, Type> forThisSubTheory = mapForSubTheory.get(entry.getKey());
-				entry.getValue().setVariableNamesAndTypesForTesting(forThisSubTheory);
-			}
-		}	
+		}
+
+		for (Map.Entry<Theory, TheoryTestingSupport> entry : getTheoryToTestingSupport().entrySet()) {
+			Map<String, Type> forThisSubTheory = mapForSubTheory.get(entry.getKey());
+			entry.getValue().setVariableNamesAndTypesForTesting(forThisSubTheory);
+		}
+
 		super.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 	}
 	
@@ -124,11 +121,6 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	//
 	//	
 	private void aggregateTestingInformation() throws Error {
-		// This method only called once super has been initialized.
-		// Required so that the side effects on the sub-theories caused
-		// by the call to setVariableNamesAndTypesForTesting() only happens
-		// once the logic in this method has executed.
-		superInitialized = true;
 		Map<String, Type> variableNamesAndTypesForTesting = new LinkedHashMap<>();
 		for (TheoryTestingSupport theoryTestingSupport : getSubConstraintTheoryTestingSupports()) {
 			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = theoryTestingSupport.getVariableNamesAndTypesForTesting().entrySet();

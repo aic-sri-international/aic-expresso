@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpllt.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
@@ -72,8 +71,6 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	public AbstractTheoryTestingSupport(Theory theory, boolean generalizedVariableSupportEnabled) {
 		this.theory = theory;
 		this.generalizedVariableSupportEnabled = generalizedVariableSupportEnabled;
-		Categorical someType = getDefaultTestingType();
-		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
 	}
 	
 	@Override
