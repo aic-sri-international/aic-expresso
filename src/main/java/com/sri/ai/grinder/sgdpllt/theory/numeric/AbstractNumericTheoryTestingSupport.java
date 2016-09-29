@@ -42,8 +42,8 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTesti
 
 @Beta
 abstract public class AbstractNumericTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
-	public AbstractNumericTheoryTestingSupport(AbstractNumericTheory theory) {
-		super(theory);
+	public AbstractNumericTheoryTestingSupport(AbstractNumericTheory theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 		initializeTestingInformation();
 	}
 	

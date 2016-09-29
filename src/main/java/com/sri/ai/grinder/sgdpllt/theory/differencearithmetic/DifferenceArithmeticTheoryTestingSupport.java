@@ -59,8 +59,8 @@ import com.sri.ai.util.Util;
 @Beta
 public class DifferenceArithmeticTheoryTestingSupport extends AbstractNumericTheoryTestingSupport {
 
-	public DifferenceArithmeticTheoryTestingSupport(DifferenceArithmeticTheory theory) {
-		super(theory);
+	public DifferenceArithmeticTheoryTestingSupport(DifferenceArithmeticTheory theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 	}
 	
 	/**

@@ -50,8 +50,8 @@ import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheoryTestingSup
 @Beta
 public class LinearRealArithmeticTheoryTestingSupport extends AbstractNumericTheoryTestingSupport {
 
-	public LinearRealArithmeticTheoryTestingSupport(LinearRealArithmeticTheory theory) {
-		super(theory);
+	public LinearRealArithmeticTheoryTestingSupport(LinearRealArithmeticTheory theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 	}
 	
 	/**

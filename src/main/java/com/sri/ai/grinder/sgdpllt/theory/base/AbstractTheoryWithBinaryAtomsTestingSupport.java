@@ -56,8 +56,8 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends AbstractTheoryTestingSupport {
 
-	public AbstractTheoryWithBinaryAtomsTestingSupport(AbstractTheoryWithBinaryAtoms theory) {
-		super(theory);
+	public AbstractTheoryWithBinaryAtomsTestingSupport(AbstractTheoryWithBinaryAtoms theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 	}
 	
 	@Override

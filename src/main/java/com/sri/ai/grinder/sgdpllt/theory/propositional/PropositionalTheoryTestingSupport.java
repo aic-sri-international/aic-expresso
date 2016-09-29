@@ -50,8 +50,8 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
 
 @Beta
 public class PropositionalTheoryTestingSupport extends AbstractTheoryTestingSupport {
-	public PropositionalTheoryTestingSupport(PropositionalTheory theory) {
-		super(theory);
+	public PropositionalTheoryTestingSupport(PropositionalTheory theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
 	}
 	

@@ -64,7 +64,6 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryTest;
@@ -217,7 +216,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
 		TheoryTestingSupport equalityTheoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, true));
 		equalityTheoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-		TheoryTestingSupport theoryTestingSupport = new CompoundTheoryTestingSupport(equalityTheoryTestingSupport, TheoryTestingSupport.make(new PropositionalTheory()));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(equalityTheoryTestingSupport, TheoryTestingSupport.make(new PropositionalTheory()));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

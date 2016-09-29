@@ -66,12 +66,19 @@ import com.sri.ai.util.Util;
 
 @Beta
 public interface TheoryTestingSupport {
+	boolean GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT = false;
 	
 	/**
 	 * 
 	 * @return the theory testing support is being provided for.
 	 */
 	Theory getTheory();
+	
+	/**
+	 * 
+	 * @return true is generalized variables are to be supported, false otherwise.
+	 */
+	boolean isGeneralizedVariableSupportEnabled();
 
 	/** Sets variables to be used in randomly generated literals. */
 	void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesForTesting);
@@ -148,22 +155,37 @@ public interface TheoryTestingSupport {
 	}
 	
 	static TheoryTestingSupport make(Theory theory) {
+		TheoryTestingSupport result = make(GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theory);
+		return result;
+	}
+	
+	static TheoryTestingSupport make(TheoryTestingSupport... theoryTestingSupports) {
+		TheoryTestingSupport result = make(GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theoryTestingSupports);
+		return result;
+	}
+	
+	static TheoryTestingSupport make(boolean generalizedVariableSupportEnabled, TheoryTestingSupport... theoryTestingSupports) {
+		TheoryTestingSupport result = new CompoundTheoryTestingSupport(generalizedVariableSupportEnabled, theoryTestingSupports);
+		return result;
+	}
+	
+	static TheoryTestingSupport make(boolean generalizedVariableSupportEnabled, Theory theory) {
 		TheoryTestingSupport result;
 		
 		if (theory instanceof CompoundTheory) {
-			result = new CompoundTheoryTestingSupport((CompoundTheory) theory);
+			result = new CompoundTheoryTestingSupport((CompoundTheory) theory, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof DifferenceArithmeticTheory) {
-			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory);
+			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof EqualityTheory) {
-			result = new EqualityTheoryTestingSupport((EqualityTheory) theory);
+			result = new EqualityTheoryTestingSupport((EqualityTheory) theory, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof LinearRealArithmeticTheory) {
-			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory);
+			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof PropositionalTheory) {
-			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory);
+			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, generalizedVariableSupportEnabled);
 		}
 		else {
 			throw new UnsupportedOperationException(""+theory.getClass().getSimpleName()+" currently does not have testing support in place.");

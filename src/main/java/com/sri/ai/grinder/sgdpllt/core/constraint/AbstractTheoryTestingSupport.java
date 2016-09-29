@@ -64,12 +64,14 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	private static Categorical _someType;
 	//
 	private Theory theory;
+	private boolean generalizedVariableSupportEnabled;
 	private Map<String, Type> variableNamesAndTypesForTesting;
 	private Collection<Type>  cachedTypesForTesting;
 	private ArrayList<String> cachedVariableNamesForTesting;
 	
-	public AbstractTheoryTestingSupport(Theory theory) {
+	public AbstractTheoryTestingSupport(Theory theory, boolean generalizedVariableSupportEnabled) {
 		this.theory = theory;
+		this.generalizedVariableSupportEnabled = generalizedVariableSupportEnabled;
 		Categorical someType = getDefaultTestingType();
 		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
 	}
@@ -77,6 +79,11 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	@Override
 	public Theory getTheory() {
 		return theory;
+	}
+	
+	@Override
+	public boolean isGeneralizedVariableSupportEnabled() {
+		return generalizedVariableSupportEnabled;
 	}
 	
 	@Override

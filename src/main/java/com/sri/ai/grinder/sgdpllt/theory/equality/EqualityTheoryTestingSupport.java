@@ -42,7 +42,7 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTesti
 
 @Beta
 public class EqualityTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
-	public EqualityTheoryTestingSupport(EqualityTheory theory) {
-		super(theory);
+	public EqualityTheoryTestingSupport(EqualityTheory theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 	}
 }

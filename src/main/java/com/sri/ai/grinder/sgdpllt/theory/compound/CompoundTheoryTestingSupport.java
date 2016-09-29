@@ -63,13 +63,13 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	private boolean superInitialized = false;
 	private Map<Theory, TheoryTestingSupport> theoryToTestingSupport;
 	
-	public CompoundTheoryTestingSupport(CompoundTheory theory) {
-		super(theory);
+	public CompoundTheoryTestingSupport(CompoundTheory theory, boolean generalizedVariableSupportEnabled) {
+		super(theory, generalizedVariableSupportEnabled);
 		aggregateTestingInformation();
 	}
 	
-	public CompoundTheoryTestingSupport(TheoryTestingSupport... subTheoryTestingSupports) {
-		super(newCompoundTheory(subTheoryTestingSupports));
+	public CompoundTheoryTestingSupport(boolean generalizedVariableSupportEnabled, TheoryTestingSupport... subTheoryTestingSupports) {
+		super(newCompoundTheory(subTheoryTestingSupports), generalizedVariableSupportEnabled);
 		theoryToTestingSupport = new LinkedHashMap<>();
 		for (TheoryTestingSupport subTheoryTestingSupport : subTheoryTestingSupports) {
 			theoryToTestingSupport.put(subTheoryTestingSupport.getTheory(), subTheoryTestingSupport);
