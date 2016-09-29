@@ -42,6 +42,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PROD
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -115,5 +116,14 @@ public class FunctionType implements Type, Serializable {
 			cachedString = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, getArgumentTypes()), getCodomain()).toString();
 		}
 		return cachedString;
+	}
+	
+	// NOTE: Only to be used under testing conditions.	
+	protected void updateTestArgumentTypes(List<Type> updatedArgumentTypes) {
+		if (updatedArgumentTypes.size() != getArity()) {
+			throw new IllegalArgumentException("Update arguments #= "+updatedArgumentTypes.size()+" does not match function types arity of "+getArity());
+		}
+		this.argumentTypes = Collections.unmodifiableList(new ArrayList<>(updatedArgumentTypes));
+		this.cachedString = null; // re-calculate just in case.
 	}
 }
