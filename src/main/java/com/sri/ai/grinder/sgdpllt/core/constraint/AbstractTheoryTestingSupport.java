@@ -65,8 +65,9 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	private Theory theory;
 	private boolean generalizedVariableSupportEnabled;
 	private Map<String, Type> variableNamesAndTypesForTesting;
-	private Collection<Type>  cachedTypesForTesting;
-	private ArrayList<String> cachedVariableNamesForTesting;
+	//
+	private Collection<Type> cachedTypesForTesting;
+	private List<String> cachedVariableNamesForTesting;
 	
 	public AbstractTheoryTestingSupport(Theory theory, boolean generalizedVariableSupportEnabled) {
 		this.theory = theory;
@@ -85,14 +86,14 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	
 	@Override
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
-		this.variableNamesAndTypesForTesting = variableNamesAndTypesForTesting;
+		this.variableNamesAndTypesForTesting = Collections.unmodifiableMap(variableNamesAndTypesForTesting);
 		this.cachedTypesForTesting = null; // force recomputation if needed.
 		this.cachedVariableNamesForTesting = null; // force recomputation if needed.
 	}
 	
 	@Override
 	public Map<String, Type> getVariableNamesAndTypesForTesting() {
-		return Collections.unmodifiableMap(variableNamesAndTypesForTesting);
+		return variableNamesAndTypesForTesting;
 	}
 	
 	@Override
@@ -102,10 +103,10 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 				cachedVariableNamesForTesting = null;
 			}
 			else {
-				cachedVariableNamesForTesting = new ArrayList<String>(variableNamesAndTypesForTesting.keySet());
+				cachedVariableNamesForTesting = Collections.unmodifiableList(new ArrayList<String>(variableNamesAndTypesForTesting.keySet()));
 			}
 		}
-		return Collections.unmodifiableList(cachedVariableNamesForTesting);
+		return cachedVariableNamesForTesting;
 	}
 	
 	@Override
@@ -113,8 +114,9 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		if (cachedTypesForTesting == null) {
 			cachedTypesForTesting = new LinkedHashSet<Type>(variableNamesAndTypesForTesting.values());
 			cachedTypesForTesting.addAll(getTheory().getNativeTypes());
+			cachedTypesForTesting = Collections.unmodifiableCollection(cachedTypesForTesting);
 		}
-		return Collections.unmodifiableCollection(cachedTypesForTesting);
+		return cachedTypesForTesting;
 	}
 	
 	@Override
