@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.randomPick;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -106,7 +107,7 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
 		this.variableNamesAndTypesForTesting = new LinkedHashMap<>();
 		
-		Map<String, TestingFunctionType> testingFunctionTypesToBeUpdated = new LinkedHashMap<>();
+		List<TestingFunctionType> testingFunctionTypesToBeUpdated = new ArrayList<>();
 		
 		for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
 			String variableSignature = variableNameAndType.getKey();
@@ -128,14 +129,21 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 							throw new IllegalArgumentException("Arity specified on variable signature of "+arity+" does not match that of provided function type, which is "+functionTypeArity);
 						}
 						this.variableNamesAndTypesForTesting.put(name, variableType);
+						// If we are in a compound theory, we will be pulling types across theories
+						// in this case we will re-assign the argument types to take into account
+						// the set of types across all theories, so we need to track these for 
+						// updating as well.
+						if (variableType instanceof TestingFunctionType) {
+							testingFunctionTypesToBeUpdated.add((TestingFunctionType)variableType);
+						}
 					}
-					else {						
+					else {												
 						if (getTheory().isInterpretedInThisTheoryBesidesBooleanConnectives(parse(name))) {
 							throw new IllegalArgumentException("Provided generalized variable functor = "+name+" is interpreted in this theory.");
 						}
 						// In this instance the variableType represents the codomain
 						TestingFunctionType testingFunctionType = new TestingFunctionType(variableType, new Type[arity]);
-						testingFunctionTypesToBeUpdated.put(name, testingFunctionType);						
+						testingFunctionTypesToBeUpdated.add(testingFunctionType);						
 						this.variableNamesAndTypesForTesting.put(name, testingFunctionType);
 					}
 				}
@@ -150,8 +158,15 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		this.cachedTypesForTesting = null;
 		this.cachedVariableNamesForTesting = null;
 		
-// TODO - now we update the testing function types, to have argument types
-// selected at random that are dependent on the theory being used.
+		// Now we update the testing function types, to have argument types
+		// selected at random that are dependent on the theory being used.
+		List<Type> allTestingTypes = new ArrayList<>(getTypesForTesting());
+		for (TestingFunctionType testingFunctionTypeToUpdate : testingFunctionTypesToBeUpdated) {
+			List<Type> allExceptThisTypes = new ArrayList<>(allTestingTypes);
+			// Do not allow recursive function type declarations.
+			allExceptThisTypes.remove(testingFunctionTypeToUpdate);
+			testingFunctionTypeToUpdate.updateTestArgumentTypes(randomPick(testingFunctionTypeToUpdate.getArity(), getRandom(), allExceptThisTypes));
+		}
 	}
 	
 	@Override
@@ -216,6 +231,10 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 			}
 			name  = parts[0];
 			arity = Integer.parseInt(parts[1]);
+		}
+		
+		if (parse(name) == null) {
+			name = "'"+name+"'"; // Quote the name
 		}
 		
 		Pair<String, Integer> result = new Pair<>(name, arity);

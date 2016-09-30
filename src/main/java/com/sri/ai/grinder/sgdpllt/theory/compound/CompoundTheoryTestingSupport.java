@@ -85,14 +85,18 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	 * respective theories according to {@link #isSuitableFor(Expression, Type)}.
 	 */
 	@Override
-	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {		
+	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
+		// First ensure the compound set of variables names and type information is setup correctly
+		super.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
+		
+		// Then update the sub-theories so that they share appropriate subsets of this information
 		Map<Theory, Map<String, Type>> mapForSubTheory = map();
 		
 		for (Theory subTheory : getTheory().getSubConstraintTheories()) {
 			mapForSubTheory.put(subTheory, map());
 		}
 
-		for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
+		for (Map.Entry<String, Type> variableNameAndType : getVariableNamesAndTypesForTesting().entrySet()) {
 			String variableName = variableNameAndType.getKey();
 			Expression variable = Expressions.parse(variableName);
 			Type type = variableNameAndType.getValue();
@@ -107,8 +111,6 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 			Map<String, Type> forThisSubTheory = mapForSubTheory.get(entry.getKey());
 			entry.getValue().setVariableNamesAndTypesForTesting(forThisSubTheory);
 		}
-
-		super.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 	}
 	
 	@Override
