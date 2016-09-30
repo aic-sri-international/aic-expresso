@@ -96,7 +96,7 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
 		return false; // nothing else is interpreted
 	}
 

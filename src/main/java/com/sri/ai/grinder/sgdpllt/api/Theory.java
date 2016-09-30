@@ -202,12 +202,11 @@ public interface Theory extends Cloneable {
 	
 	/**
 	 * Indicates whether an expression is an application of a function belonging to this theory,
-	 * or a constant belonging to this theory.
-	 * @param term
-	 * @param context
+	 * or a constant (including constant functions) belonging to this theory.
+	 * @param expression
 	 * @return
 	 */
-	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context);
+	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression);
 
 	/**
 	 * Given a single-variable constraint in this theory, returns
@@ -281,7 +280,7 @@ public interface Theory extends Cloneable {
 		boolean result =
 				!context.isUniquelyNamedConstant(expression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
-				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
+				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
 				&& (typeExpression = GrinderUtil.getType(expression, context)) != null
 				&& (type = context.getType(typeExpression)) != null
 				&& isSuitableFor(expression, type)

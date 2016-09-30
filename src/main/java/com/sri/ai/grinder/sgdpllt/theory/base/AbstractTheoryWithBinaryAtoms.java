@@ -77,7 +77,7 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
 		boolean result = isApplicationOfTheoryFunctor(expression) || theoryFunctors.contains(expression.toString()); 
 		return result;
 	}

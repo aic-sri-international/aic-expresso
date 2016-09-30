@@ -142,11 +142,11 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
 		boolean result =
 				thereExists(
 						getSubConstraintTheories(),
-						t -> t.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context));
+						t -> t.isInterpretedInThisTheoryBesidesBooleanConnectives(expression));
 		return result;
 	}
 

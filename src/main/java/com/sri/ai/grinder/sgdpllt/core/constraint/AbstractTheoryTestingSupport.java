@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 
@@ -128,11 +129,13 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 						}
 						this.variableNamesAndTypesForTesting.put(name, variableType);
 					}
-					else {
+					else {						
+						if (getTheory().isInterpretedInThisTheoryBesidesBooleanConnectives(parse(name))) {
+							throw new IllegalArgumentException("Provided generalized variable functor = "+name+" is interpreted in this theory.");
+						}
 						// In this instance the variableType represents the codomain
 						TestingFunctionType testingFunctionType = new TestingFunctionType(variableType, new Type[arity]);
-						testingFunctionTypesToBeUpdated.put(name, testingFunctionType);
-// TODO - ensure does not conflict with functors associated with the theory.						
+						testingFunctionTypesToBeUpdated.put(name, testingFunctionType);						
 						this.variableNamesAndTypesForTesting.put(name, testingFunctionType);
 					}
 				}

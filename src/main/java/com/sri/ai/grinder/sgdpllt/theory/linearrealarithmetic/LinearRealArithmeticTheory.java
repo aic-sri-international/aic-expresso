@@ -209,8 +209,8 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	/**
 	 * Extends super implementation by considering * applications as interpreted in this theory.
 	 */
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
-		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
+		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
 				|| expression.equals(TIMES)
 				|| expression.hasFunctor(TIMES); 
 		return result;

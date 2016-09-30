@@ -52,7 +52,6 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
@@ -136,8 +135,8 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	/**
 	 * Extends super implementation by considering + and - applications as interpreted in this theory.
 	 */
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, Context context) {
-		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, context)
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
+		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
 				|| expression.equals(PLUS) || expression.equals(MINUS)
 				|| expression.hasFunctor(PLUS) || expression.hasFunctor(MINUS); 
 		return result;
