@@ -60,6 +60,7 @@ import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.util.base.Pair;
 
@@ -138,7 +139,8 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 						}
 					}
 					else {												
-						if (getTheory().isInterpretedInThisTheoryBesidesBooleanConnectives(parse(name))) {
+						if (getTheory().isInterpretedInThisTheoryBesidesBooleanConnectives(parse(name)) ||
+							FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals(parse(name))) {
 							throw new IllegalArgumentException("Provided generalized variable functor = "+name+" is interpreted in this theory.");
 						}
 						// In this instance the variableType represents the codomain

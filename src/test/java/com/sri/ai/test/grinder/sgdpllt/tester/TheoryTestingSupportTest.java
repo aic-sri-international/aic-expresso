@@ -23,6 +23,14 @@ import static com.sri.ai.util.Util.map;
 public class TheoryTestingSupportTest {
 
 	private Random seededRandom = new Random(1);
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testInterpretedPropositionalLogicFunctorOnStandaloneTheory() {
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
+				new PropositionalTheory());
+
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("and/2", BOOLEAN_TYPE));
+	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInterpretedFunctorOnStandaloneTheory() {
