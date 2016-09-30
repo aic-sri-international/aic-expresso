@@ -164,10 +164,23 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		// selected at random that are dependent on the theory being used.
 		List<Type> allTestingTypes = new ArrayList<>(getTypesForTesting());
 		for (TestingFunctionType testingFunctionTypeToUpdate : testingFunctionTypesToBeUpdated) {
+			List<Type> updatedArgTypes    = new ArrayList<>();
 			List<Type> allExceptThisTypes = new ArrayList<>(allTestingTypes);
-			// Do not allow recursive function type declarations.
+			// Ensure we do not allow recursive function type declarations.
+			// by first excluding the types of args to be updated form the list
+			// types to choose from.
 			allExceptThisTypes.remove(testingFunctionTypeToUpdate);
-			testingFunctionTypeToUpdate.updateTestArgumentTypes(randomPick(testingFunctionTypeToUpdate.getArity(), getRandom(), allExceptThisTypes));
+			for (int i = 0; i < testingFunctionTypeToUpdate.getArity(); i++) {
+				// We also need to ensure that one of the arg types isn't a function type
+				// that refers to the function type whose args are being updated (as this
+				// would cause recursive calls as well).
+				Type updatedArgType;
+				do {
+					updatedArgType = randomPick(getRandom(), allExceptThisTypes);
+				} while (isTypeContainedIn(testingFunctionTypeToUpdate, updatedArgType));
+				updatedArgTypes.add(updatedArgType);				
+			}
+			testingFunctionTypeToUpdate.updateTestArgumentTypes(updatedArgTypes);
 		}
 	}
 	
@@ -253,5 +266,24 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		public void updateTestArgumentTypes(List<Type> updatedArgumentTypes) {
 			super.updateTestArgumentTypes(updatedArgumentTypes);
 		}
+	}
+	
+	private boolean isTypeContainedIn(Type type, Type containedInType) {
+		boolean result = false;
+		
+		if (type == containedInType) {
+			result = true;
+		}
+		else if (containedInType instanceof FunctionType) {
+			FunctionType containedInFunctionType = (FunctionType) containedInType;
+			for (int i = 0; i < containedInFunctionType.getArity(); i++) {
+				if (isTypeContainedIn(type, containedInFunctionType.getArgumentTypes().get(i))) {
+					result = true;
+					break;
+				}
+			}
+		}
+		
+		return result;
 	}
 }
