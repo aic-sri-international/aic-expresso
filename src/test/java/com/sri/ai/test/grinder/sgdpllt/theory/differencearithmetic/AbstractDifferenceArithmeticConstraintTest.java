@@ -22,7 +22,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		return TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, getPropagateAllLiteralsWhenVariableIsBound()));
+		return TheoryTestingSupport.make(makeRandom(), new DifferenceArithmeticTheory(true, getPropagateAllLiteralsWhenVariableIsBound()));
 	}
 
 	@Override
@@ -44,7 +44,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testSingleVariableConstraints() {
 		SGDPLLTTester.testSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(500) /* number of tests */,
@@ -55,7 +54,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testMultiVariableConstraints() {
 		SGDPLLTTester.testMultiVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(500) /* number of tests */,
@@ -66,7 +64,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testCompleteMultiVariableConstraints() {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
@@ -80,7 +77,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
@@ -91,7 +87,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
@@ -104,7 +99,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),
@@ -117,7 +111,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testSum() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
-				makeRandom(),
 				getNumberOfIndices(),
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -131,7 +124,6 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 	@Test
 	public void testMax() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
-				makeRandom(),
 				getNumberOfIndices(),
 				getTestAgainstBruteForce(),
 				new Max(),

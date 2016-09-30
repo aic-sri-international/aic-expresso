@@ -48,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -66,20 +67,33 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	private static int CONSTANT_ARITY = -1;
 	//
 	private Theory theory;
+	//
+	private Random random;
 	private boolean generalizedVariableSupportEnabled;
+	//
 	private Map<String, Type> variableNamesAndTypesForTesting;
 	//
 	private Collection<Type> cachedTypesForTesting;
 	private List<String> cachedVariableNamesForTesting;
 	
-	public AbstractTheoryTestingSupport(Theory theory, boolean generalizedVariableSupportEnabled) {
+	public AbstractTheoryTestingSupport(Theory theory, Random random, boolean generalizedVariableSupportEnabled) {
 		this.theory = theory;
+		this.random = random;
 		this.generalizedVariableSupportEnabled = generalizedVariableSupportEnabled;
 	}
 	
 	@Override
 	public Theory getTheory() {
 		return theory;
+	}
+	
+	@Override
+	public Random getRandom() {
+		return random;
+	}
+	
+	public void setRandom(Random random) {
+		this.random = random;
 	}
 	
 	@Override
@@ -118,6 +132,7 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 						// In this instance the variableType represents the codomain
 						TestingFunctionType testingFunctionType = new TestingFunctionType(variableType, new Type[arity]);
 						testingFunctionTypesToBeUpdated.put(name, testingFunctionType);
+// TODO - ensure does not conflict with functors associated with the theory.						
 						this.variableNamesAndTypesForTesting.put(name, testingFunctionType);
 					}
 				}

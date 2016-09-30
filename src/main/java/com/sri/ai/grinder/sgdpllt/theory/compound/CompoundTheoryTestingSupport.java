@@ -61,13 +61,13 @@ import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	private Map<Theory, TheoryTestingSupport> theoryToTestingSupport;
 	
-	public CompoundTheoryTestingSupport(CompoundTheory theory, boolean generalizedVariableSupportEnabled) {
-		super(theory, generalizedVariableSupportEnabled);
+	public CompoundTheoryTestingSupport(CompoundTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
+		super(theory, random, generalizedVariableSupportEnabled);
 		aggregateTestingInformation();
 	}
 	
-	public CompoundTheoryTestingSupport(boolean generalizedVariableSupportEnabled, TheoryTestingSupport... subTheoryTestingSupports) {
-		super(newCompoundTheory(subTheoryTestingSupports), generalizedVariableSupportEnabled);
+	public CompoundTheoryTestingSupport(Random random, boolean generalizedVariableSupportEnabled, TheoryTestingSupport... subTheoryTestingSupports) {
+		super(newCompoundTheory(subTheoryTestingSupports), random, generalizedVariableSupportEnabled);
 		theoryToTestingSupport = new LinkedHashMap<>();
 		for (TheoryTestingSupport subTheoryTestingSupport : subTheoryTestingSupports) {
 			theoryToTestingSupport.put(subTheoryTestingSupport.getTheory(), subTheoryTestingSupport);
@@ -112,9 +112,9 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable, context);
-		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, random, context);
+		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, context);
 		return result;
 	}
 	

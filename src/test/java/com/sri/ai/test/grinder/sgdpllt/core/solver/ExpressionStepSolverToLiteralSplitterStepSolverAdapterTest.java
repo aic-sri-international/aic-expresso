@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -176,10 +175,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			for (int numberLiteralsPerDisjunct = 1; numberLiteralsPerDisjunct < 4; numberLiteralsPerDisjunct++) {
 				// # tests to run for combination.
 				for (int j = 0; j < 3; j++) {
-					Context context = theoryTestingSupport.makeContextWithTestingInformation();
-					Random random = new Random();
-					
-					runTest(theoryTestingSupport, new GeneralFormulaExpressionTestStepSolver(theoryTestingSupport, random, context, numberDisjuncts, numberLiteralsPerDisjunct), null, context);
+					Context context = theoryTestingSupport.makeContextWithTestingInformation();					
+					runTest(theoryTestingSupport, new GeneralFormulaExpressionTestStepSolver(theoryTestingSupport, context, numberDisjuncts, numberLiteralsPerDisjunct), null, context);
 				}
 			}
 		}
@@ -208,9 +205,9 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			}
 		}
 		
-		public GeneralFormulaExpressionTestStepSolver(TheoryTestingSupport theoryTestingSupport, Random random, Context context, int numberDisjuncts, int numberLiteralsPerDisjunct) {			
+		public GeneralFormulaExpressionTestStepSolver(TheoryTestingSupport theoryTestingSupport, Context context, int numberDisjuncts, int numberLiteralsPerDisjunct) {			
 			for (int i = 0; i < numberDisjuncts; i++) {
-				problemConjuncts.add(Or.make(IntStream.range(0, numberLiteralsPerDisjunct).mapToObj(idx -> theoryTestingSupport.makeRandomLiteral(random, context)).collect(Collectors.toList())));
+				problemConjuncts.add(Or.make(IntStream.range(0, numberLiteralsPerDisjunct).mapToObj(idx -> theoryTestingSupport.makeRandomLiteral(context)).collect(Collectors.toList())));
 			}
 		}
 		

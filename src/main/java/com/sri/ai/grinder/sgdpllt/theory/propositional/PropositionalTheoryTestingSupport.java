@@ -50,13 +50,13 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
 
 @Beta
 public class PropositionalTheoryTestingSupport extends AbstractTheoryTestingSupport {
-	public PropositionalTheoryTestingSupport(PropositionalTheory theory, boolean generalizedVariableSupportEnabled) {
-		super(theory, generalizedVariableSupportEnabled);
+	public PropositionalTheoryTestingSupport(PropositionalTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
+		super(theory, random, generalizedVariableSupportEnabled);
 		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 		return makeSymbol(variable);
 	}
 }

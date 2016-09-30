@@ -76,6 +76,20 @@ public interface TheoryTestingSupport {
 	
 	/**
 	 * 
+	 * @return get the Random being used for testing support.
+	 */
+	Random getRandom();
+
+	/**
+	 * Set the random to be used for testing support.
+	 * 
+	 * @param random
+	 *            the random to use.
+	 */
+	void setRandom(Random random);
+	
+	/**
+	 * 
 	 * @return true is generalized variables are to be supported, false otherwise.
 	 */
 	boolean isGeneralizedVariableSupportEnabled();
@@ -110,41 +124,40 @@ public interface TheoryTestingSupport {
 	/**
 	 * Picks one of the testing variables returned by {@link #getTestingVariables()}
 	 * with uniform probability.
-	 * @param random
+	 * 
 	 * @return
 	 */
-	default String pickTestingVariableAtRandom(Random random) {
-		String result = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), random);
+	default String pickTestingVariableAtRandom() {
+		String result = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), getRandom());
 		return result;
 	}
 	
 	/**
 	 * Returns a random atom in this theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param random a random generator
+	 * @param variable the name of the variable to make the random atom on.
 	 * @param context a context
 	 */
-	Expression makeRandomAtomOn(String variable, Random random, Context context);
+	Expression makeRandomAtomOn(String variable, Context context);
 
 	/**
 	 * @param variable
-	 * @param random
 	 * @param context
 	 * @return
 	 */
-	default Expression makeRandomLiteralOn(String variable, Random random, Context context) {
-		Expression atom = makeRandomAtomOn(variable, random, context);
-		Expression literal = random.nextBoolean()? atom : getTheory().getLiteralNegation(atom, context);
+	default Expression makeRandomLiteralOn(String variable, Context context) {
+		Expression atom = makeRandomAtomOn(variable, context);
+		Expression literal = getRandom().nextBoolean()? atom : getTheory().getLiteralNegation(atom, context);
 		return literal;
 	}
 
 	/**
-	 * Same as {@link #makeRandomLiteralOn(String, Random, Context),
+	 * Same as {@link #makeRandomLiteralOn(String, Context),
 	 * but applied randomly to one of the testing variables.
 	 */
-	default Expression makeRandomLiteral(Random random, Context context) {
-		String variableToBeUsed = pickTestingVariableAtRandom(random);
-		Expression result = makeRandomLiteralOn(variableToBeUsed, random, context);
+	default Expression makeRandomLiteral(Context context) {
+		String variableToBeUsed = pickTestingVariableAtRandom();
+		Expression result = makeRandomLiteralOn(variableToBeUsed, context);
 		return result;
 	}
 
@@ -155,37 +168,47 @@ public interface TheoryTestingSupport {
 	}
 	
 	static TheoryTestingSupport make(Theory theory) {
-		TheoryTestingSupport result = make(GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theory);
+		TheoryTestingSupport result = make(new Random(), theory);
+		return result;
+	}
+	
+	static TheoryTestingSupport make(Random random, Theory theory) {
+		TheoryTestingSupport result = make(random, GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theory);
 		return result;
 	}
 	
 	static TheoryTestingSupport make(TheoryTestingSupport... theoryTestingSupports) {
-		TheoryTestingSupport result = make(GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theoryTestingSupports);
+		TheoryTestingSupport result = make(new Random(), theoryTestingSupports);
 		return result;
 	}
 	
-	static TheoryTestingSupport make(boolean generalizedVariableSupportEnabled, TheoryTestingSupport... theoryTestingSupports) {
-		TheoryTestingSupport result = new CompoundTheoryTestingSupport(generalizedVariableSupportEnabled, theoryTestingSupports);
+	static TheoryTestingSupport make(Random random, TheoryTestingSupport... theoryTestingSupports) {
+		TheoryTestingSupport result = make(random, GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theoryTestingSupports);
 		return result;
 	}
 	
-	static TheoryTestingSupport make(boolean generalizedVariableSupportEnabled, Theory theory) {
+	static TheoryTestingSupport make(Random random, boolean generalizedVariableSupportEnabled, TheoryTestingSupport... theoryTestingSupports) {
+		TheoryTestingSupport result = new CompoundTheoryTestingSupport(random, generalizedVariableSupportEnabled, theoryTestingSupports);
+		return result;
+	}
+	
+	static TheoryTestingSupport make(Random random, boolean generalizedVariableSupportEnabled, Theory theory) {
 		TheoryTestingSupport result;
 		
 		if (theory instanceof CompoundTheory) {
-			result = new CompoundTheoryTestingSupport((CompoundTheory) theory, generalizedVariableSupportEnabled);
+			result = new CompoundTheoryTestingSupport((CompoundTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof DifferenceArithmeticTheory) {
-			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory, generalizedVariableSupportEnabled);
+			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof EqualityTheory) {
-			result = new EqualityTheoryTestingSupport((EqualityTheory) theory, generalizedVariableSupportEnabled);
+			result = new EqualityTheoryTestingSupport((EqualityTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof LinearRealArithmeticTheory) {
-			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory, generalizedVariableSupportEnabled);
+			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof PropositionalTheory) {
-			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, generalizedVariableSupportEnabled);
+			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else {
 			throw new UnsupportedOperationException(""+theory.getClass().getSimpleName()+" currently does not have testing support in place.");

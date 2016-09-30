@@ -39,6 +39,8 @@ package com.sri.ai.grinder.sgdpllt.theory.equality;
 
 import static com.sri.ai.util.Util.map;
 
+import java.util.Random;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTestingSupport;
@@ -47,8 +49,8 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTesti
 public class EqualityTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
 	public static final Categorical TESTING_CATEGORICAL_TYPE = getDefaultTestingType();
 	
-	public EqualityTheoryTestingSupport(EqualityTheory theory, boolean generalizedVariableSupportEnabled) {
-		super(theory, generalizedVariableSupportEnabled);
+	public EqualityTheoryTestingSupport(EqualityTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
+		super(theory, random, generalizedVariableSupportEnabled);
 		setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE));
 	}
 }

@@ -51,8 +51,8 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTesti
 public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
 	public static final RealInterval TESTING_REAL_INTERVAL_TYPE = new RealInterval("[0;4]"); 
 	
-	public LinearRealArithmeticTheoryTestingSupport(LinearRealArithmeticTheory theory, boolean generalizedVariableSupportEnabled) {
-		super(theory, generalizedVariableSupportEnabled);
+	public LinearRealArithmeticTheoryTestingSupport(LinearRealArithmeticTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
+		super(theory, random, generalizedVariableSupportEnabled);
 		setVariableNamesAndTypesForTesting(map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE));
 	}
 	
@@ -63,7 +63,7 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWith
 	 * since it cannot be tested by brute force).
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 		// TODO: write this method
 		throw new Error("Random generation of linear real arithmetic not yet implemented.");
 	}

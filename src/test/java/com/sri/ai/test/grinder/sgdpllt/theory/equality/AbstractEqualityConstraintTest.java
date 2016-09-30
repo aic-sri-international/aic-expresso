@@ -74,7 +74,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		return TheoryTestingSupport.make(new EqualityTheory(true, getPropagateAllLiteralsWhenVariableIsBound()));
+		return TheoryTestingSupport.make(makeRandom(), new EqualityTheory(true, getPropagateAllLiteralsWhenVariableIsBound()));
 	}
 
 	// DO NOT CHANGE TEST PARAMETERS! IMPLEMENTATIONS HAVE RUN-TIME HISTORY WRITTEN DOWN
@@ -83,7 +83,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testSingleVariableConstraints() {
 		SGDPLLTTester.testSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
@@ -94,7 +93,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testMultiVariableConstraints() {
 		SGDPLLTTester.testMultiVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(500) /* number of tests */,
@@ -105,7 +103,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testCompleteMultiVariableConstraints() {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
@@ -116,7 +113,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
@@ -127,7 +123,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
@@ -140,7 +135,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				makeRandom(),
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),
@@ -153,7 +147,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testSum() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
-				makeRandom(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -167,7 +160,6 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	@Test
 	public void testMax() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
-				makeRandom(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Max(),

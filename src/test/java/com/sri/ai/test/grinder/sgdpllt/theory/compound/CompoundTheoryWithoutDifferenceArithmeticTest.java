@@ -43,7 +43,6 @@ import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
-import java.util.Random;
 
 import org.junit.Test;
 
@@ -112,7 +111,6 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void testSingleVariableConstraints() {
 		SGDPLLTTester.testSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
@@ -123,7 +121,6 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void testMultiVariableConstraints() {
 		SGDPLLTTester.testMultiVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(300) /* number of tests */,
@@ -134,7 +131,6 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void testCompleteMultiVariableConstraints() {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
@@ -145,7 +141,6 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(200) /* number of tests */,
@@ -156,7 +151,6 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
@@ -169,7 +163,6 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),

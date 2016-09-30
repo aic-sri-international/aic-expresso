@@ -45,7 +45,6 @@ import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
-import java.util.Random;
 
 import org.junit.Test;
 
@@ -145,7 +144,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void testSingleVariableConstraints() {
 		SGDPLLTTester.testSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				100 /* number of tests */,
@@ -156,7 +154,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void testMultiVariableConstraints() {
 		SGDPLLTTester.testMultiVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				1 /* number of tests */,
@@ -167,7 +164,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void testCompleteMultiVariableConstraints() {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				20 /* number of tests */,
@@ -178,7 +174,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				200 /* number of tests */,
@@ -189,7 +184,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
@@ -202,7 +196,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),

@@ -69,7 +69,6 @@ import com.sri.ai.util.base.NullaryFunction;
 @Beta
 public class RandomConditionalExpressionGenerator implements NullaryFunction<Expression> {
 	
-	private Random random;
 	private TheoryTestingSupport theoryTestingSupport;
 	private int depth;
 	private NullaryFunction<Expression> leafGenerator;
@@ -77,15 +76,13 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	
 	/**
 	 * Constructs a random conditional expression generator based on given parameters.
-	 * @param random a random generator to be used throughout
 	 * @param theoryTestingSupport the theory testing support used to generate the literals in the conditional's conditions
 	 * @param depth the depth of the conditional tree
 	 * @param leafGenerator a generators for expressions appearing at the leaves of the conditional tree
 	 * @param context
 	 */
-	public RandomConditionalExpressionGenerator(Random random, TheoryTestingSupport theoryTestingSupport, int depth, NullaryFunction<Expression> leafGenerator, Context context) {
+	public RandomConditionalExpressionGenerator(TheoryTestingSupport theoryTestingSupport, int depth, NullaryFunction<Expression> leafGenerator, Context context) {
 		super();
-		this.random = random;
 		this.theoryTestingSupport = theoryTestingSupport;
 		this.depth = depth;
 		this.leafGenerator = leafGenerator;
@@ -104,7 +101,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 			result = leafGenerator.apply();
 		}
 		else {
-			Expression literal = theoryTestingSupport.makeRandomLiteral(random, context);
+			Expression literal = theoryTestingSupport.makeRandomLiteral(context);
 			result = IfThenElse.make(literal, apply(depth - 1), apply(depth - 1));
 		}
 		return result;
@@ -122,8 +119,7 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 			theoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
 			Context context = theoryTestingSupport.makeContextWithTestingInformation();
 			RandomConditionalExpressionGenerator generator = 
-					new RandomConditionalExpressionGenerator(
-							random, 
+					new RandomConditionalExpressionGenerator( 
 							theoryTestingSupport, 
 							4, 
 							() -> makeSymbol(random.nextDouble()), 

@@ -56,8 +56,8 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends AbstractTheoryTestingSupport {
 
-	public AbstractTheoryWithBinaryAtomsTestingSupport(AbstractTheoryWithBinaryAtoms theory, boolean generalizedVariableSupportEnabled) {
-		super(theory, generalizedVariableSupportEnabled);
+	public AbstractTheoryWithBinaryAtomsTestingSupport(AbstractTheoryWithBinaryAtoms theory, Random random, boolean generalizedVariableSupportEnabled) {
+		super(theory, random, generalizedVariableSupportEnabled);
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends Abstra
 	 * Makes a random atom by uniformly picking among the theory functors and testing variables.
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, Context context) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 		Map<String, Type> variablesAndTypes = getVariableNamesAndTypesForTesting();
 		Type type = variablesAndTypes.get(variable);
 		Set<String> allVariables = variablesAndTypes.keySet();
@@ -79,17 +79,17 @@ abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends Abstra
 					return typeOfOther.equals(type) || typeOfOther.toString().equals(type.toString());	
 				});
 		Expression otherTerm;
-		if (random.nextBoolean()) {
-			otherTerm = makeSymbol(pickUniformly(isNameOfOtherVariableOfSameTypeAsMainVariable, random));
+		if (getRandom().nextBoolean()) {
+			otherTerm = makeSymbol(pickUniformly(isNameOfOtherVariableOfSameTypeAsMainVariable, getRandom()));
 		}
 		else {
-			otherTerm = type.sampleUniquelyNamedConstant(random);
+			otherTerm = type.sampleUniquelyNamedConstant(getRandom());
 		}
 		
-		String functor = pickUniformly(getTheoryFunctors(), random);
+		String functor = pickUniformly(getTheoryFunctors(), getRandom());
 		
 		Expression possiblyTrivialAtom =
-				random.nextBoolean()?
+				getRandom().nextBoolean()?
 						apply(functor, variable, otherTerm) : apply(functor, otherTerm, variable);
 						
 		Expression result = getTheory().simplify(possiblyTrivialAtom, context);

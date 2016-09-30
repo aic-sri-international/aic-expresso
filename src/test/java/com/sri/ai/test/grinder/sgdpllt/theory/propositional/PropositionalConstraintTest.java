@@ -37,8 +37,6 @@
  */
 package com.sri.ai.test.grinder.sgdpllt.theory.propositional;
 
-import java.util.Random;
-
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -60,7 +58,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testSingleVariableConstraints() {
 		SGDPLLTTester.testSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(30) /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
@@ -71,7 +68,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testMultiVariableConstraints() {
 		SGDPLLTTester.testMultiVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests - many more possibilities when we have multiple variables */,
@@ -82,7 +78,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
@@ -93,7 +88,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
@@ -106,7 +100,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),
@@ -119,7 +112,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testCompleteMultiVariableConstraints() {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
-				new Random(),
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests */,
@@ -130,7 +122,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testSum() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
-				new Random(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Sum(),
@@ -144,7 +135,6 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 	@Test
 	public void testMax() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
-				new Random(),
 				3, /* number of indices */
 				getTestAgainstBruteForce(),
 				new Max(),
