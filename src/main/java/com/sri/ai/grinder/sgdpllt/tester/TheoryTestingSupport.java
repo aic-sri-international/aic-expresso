@@ -45,10 +45,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
@@ -128,9 +132,60 @@ public interface TheoryTestingSupport {
 	 * @return
 	 */
 	default String pickTestingVariableAtRandom() {
-		String result = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), getRandom());
+		String variableName = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), getRandom());
+		Type type = getVariableNamesAndTypesForTesting().get(variableName);
+		
+		String result = makeGeneralizedVariableArgumentAtRandom(variableName, type);
+		
 		return result;
 	}
+	
+	default List<String> pickGeneralizedTestingVariableArgumentsAtRandom(List<Type> argumentTypes) {
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < argumentTypes.size(); i++) {
+			Type argType = argumentTypes.get(i);
+			String variableName = Util.pickUniformly(getCompatibleVariableNames(argType), getRandom());
+			result.add(makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName)));
+		}
+		return result;
+	}
+	
+	// TODO - delegate to appropriate subclass?
+	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type argumentType) {
+		String result = variableName;
+		if (argumentType instanceof FunctionType) {
+			FunctionType functionType = (FunctionType) argumentType;
+			List<String> args = pickGeneralizedTestingVariableArgumentsAtRandom(functionType.getArgumentTypes());
+			List<Expression> expArgs = args.stream().map(strArg -> Expressions.parse(strArg)).collect(Collectors.toList());
+			result = Expressions.apply(result, expArgs).toString();
+		}
+		
+		return result;
+	}
+	
+	default List<String> getCompatibleVariableNames(Type type) {
+		List<String> result =
+				getVariableNamesAndTypesForTesting().entrySet().stream()
+					.filter(entry -> GrinderUtil.isTypesCompatible(entry.getValue(), type))
+					.map(entry -> entry.getKey())
+					.collect(Collectors.toList());
+		return result;
+	}
+	
+	// getGeneralizedVariableArgument
+	//
+	// makeRandomGeneralizedVariableArgument(Random random, String (Type?) type) 
+	// which will generate a generalized variable argument of a given type. 
+	// This method should be implemented in the following ways for the following theories:
+	// propositional theory: delegate to makeRandomAtom
+	//
+	// generalize pickTestingVariableAtRandom(Random random) to 
+	// pickTestingGeneralizedVariableAtRandom(Random random, 
+	//   BinaryFunction<Random, String (Type?)> randomGeneralizedVariableArgumentMaker)
+	// which picks either a testing variable or a testing function symbol and 
+	// uses it to make a new random generalized variable, filling out the 
+	// arguments, according to their type, with the given 
+	// randomGeneralizedVariableArgumentMaker.
 	
 	/**
 	 * Returns a random atom in this theory on a given variable.

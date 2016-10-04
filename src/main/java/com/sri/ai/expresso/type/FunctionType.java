@@ -52,6 +52,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.util.Util;
 
 /**
  * Represents function types.
@@ -62,25 +63,25 @@ import com.sri.ai.expresso.api.Type;
 @Beta
 public class FunctionType implements Type, Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private Type codomain;
 	private List<Type> argumentTypes;
 	//
 	private String cachedString;
-	
+
 	public FunctionType(Type codomain, Type... argumentTypes) {
-		this.codomain = codomain;	
+		this.codomain = codomain;
 		this.argumentTypes = Collections.unmodifiableList(Arrays.asList(argumentTypes));
 	}
-	
+
 	public Type getCodomain() {
 		return codomain;
 	}
-	
+
 	public int getArity() {
 		return getArgumentTypes().size();
 	}
-	
+
 	public List<Type> getArgumentTypes() {
 		return argumentTypes;
 	}
@@ -109,19 +110,165 @@ public class FunctionType implements Type, Serializable {
 	public Expression cardinality() {
 		return codomain.cardinality();
 	}
-	
+
 	@Override
 	public String toString() {
 		if (cachedString == null) {
-			cachedString = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, getArgumentTypes()), getCodomain()).toString();
+			if (getArgumentTypes().size() == 0) {
+				cachedString = apply(FUNCTION_TYPE, getCodomain()).toString();
+			} else {
+				cachedString = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, getArgumentTypes()), getCodomain())
+						.toString();
+			}
 		}
 		return cachedString;
 	}
-	
-	// NOTE: Only to be used under testing conditions.	
+
+	/**
+	 * Make a function type expression.
+	 * 
+	 * @param codomainType
+	 *            the codomain type of the function type.
+	 * @param argumentTypes
+	 *            0 or more argument types to the function type.
+	 * @return a function type expression.
+	 */
+	public static Expression make(Expression codomainType, Expression... argumentTypes) {
+		Expression result = make(codomainType, Arrays.asList(argumentTypes));
+		return result;
+	}
+
+	/**
+	 * Make a function type expression.
+	 * 
+	 * @param codomainType
+	 *            the codomain type of the function type.
+	 * @param argumentTypes
+	 *            0 or more argument types to the function type.
+	 * @return a function type expression.
+	 */
+	public static Expression make(Expression codomainType, List<Expression> argumentTypes) {
+		Expression result;
+		if (argumentTypes.size() == 0) {
+			result = apply(FUNCTION_TYPE, codomainType);
+		} else {
+			result = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, argumentTypes), codomainType);
+		}
+
+		return result;
+	}
+
+	/**
+	 * A function type's codomain may be described in terms of another function
+	 * type. However, in many cases you want to know the final atomic type that
+	 * the codomain of the top level function type represents.
+	 * 
+	 * @param functionTypeExpression
+	 *            the function type whose atomic codomain is to be returned.
+	 * @return the atomic type of the function types codomain.
+	 */
+	public static Expression getAtomicCodomain(Expression functionTypeExpression) {
+		Expression result = functionTypeExpression;
+		do {
+			result = getCodomain(result);
+		} while (isFunctionType(result));
+
+		return result;
+	}
+
+	/**
+	 * Get the codomain type expression from the function type.
+	 * 
+	 * @param functionTypeExpression
+	 *            the function type expression whose codomain is to be
+	 *            retrieved.
+	 * 
+	 * @return the codomain type expression for the given function type
+	 *         expression.
+	 */
+	public static Expression getCodomain(Expression functionTypeExpression) {
+		assertFunctionType(functionTypeExpression);
+		Expression result;
+		if (functionTypeExpression.numberOfArguments() == 1) {
+			result = functionTypeExpression.get(0);
+		} else {
+			result = functionTypeExpression.get(1);
+		}
+		return result;
+	}
+
+	/**
+	 * Get the given function type expression's argument type expression list.
+	 * 
+	 * @param functionTypeExpression
+	 *            the function type expression list whose argument type
+	 *            expressions are to be retrieved.
+	 * @return the argument type expressions of the given function type
+	 *         expression.
+	 */
+	public static List<Expression> getArgumentList(Expression functionTypeExpression) {
+		assertFunctionType(functionTypeExpression);
+		List<Expression> result = new ArrayList<>();
+
+		// If arity is 2 then we have argument types defined
+		if (functionTypeExpression.numberOfArguments() == 2) {
+			result.addAll(functionTypeExpression.get(0).getArguments());
+		}
+
+		return result;
+	}
+
+	/**
+	 * Determine if a given expression is a function type expression.
+	 * 
+	 * @param expression
+	 *            the expresison to be tested.
+	 * @return true if the given expression is a function type, false otherwise.
+	 */
+	public static boolean isFunctionType(Expression expression) {
+		boolean result = false;
+
+		if (expression.hasFunctor(FUNCTION_TYPE)) {
+			// A Nullary function, with a codomain defined
+			if (expression.numberOfArguments() == 1) {
+				result = true;
+			} else if (expression.numberOfArguments() == 2) {
+				Expression cartesianProductFunctionApplication = expression.get(0);
+				if (cartesianProductFunctionApplication.hasFunctor(CARTESIAN_PRODUCT)) {
+					result = true;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Assert that the give expression represents a function type application.
+	 * 
+	 * @param expression
+	 *            the expression to be tested.
+	 */
+	public static void assertFunctionType(Expression expression) {
+		Util.myAssert(expression.hasFunctor(FUNCTION_TYPE), () -> "Functor in expression " + expression
+				+ " should be a functional type (that is, have functor '->')");
+		Util.myAssert(expression.numberOfArguments() == 1 || expression.numberOfArguments() == 2,
+				() -> "Function type has illegal number of arguments (should be 1 or 2), has "
+						+ expression.numberOfArguments() + " for " + expression);
+		if (expression.numberOfArguments() == 2) {
+			// First argument must be a cartesian product function application,
+			// which describes the arguments of the function
+			Expression cartesianProductFunctionApplication = expression.get(0);
+			Util.myAssert(cartesianProductFunctionApplication.hasFunctor(CARTESIAN_PRODUCT),
+					() -> "First argument of two must be a cartesian product function application, given instead " + expression);
+		}
+	}
+
+	// NOTE: Only to be used under testing conditions.
 	protected void updateTestArgumentTypes(List<Type> updatedArgumentTypes) {
 		if (updatedArgumentTypes.size() != getArity()) {
-			throw new IllegalArgumentException("Update arguments #= "+updatedArgumentTypes.size()+" does not match function types arity of "+getArity());
+			throw new IllegalArgumentException("Update arguments #= " + updatedArgumentTypes.size()
+					+ " does not match function types arity of " + getArity());
 		}
 		this.argumentTypes = Collections.unmodifiableList(new ArrayList<>(updatedArgumentTypes));
 		this.cachedString = null; // re-calculate just in case.

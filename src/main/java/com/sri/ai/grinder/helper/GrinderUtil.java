@@ -45,7 +45,6 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARDINALITY;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
@@ -87,6 +86,7 @@ import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
@@ -101,7 +101,6 @@ import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
 import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -285,8 +284,7 @@ public class GrinderUtil {
 				result = null; // unknown type
 			}
 			else {
-				Expression argumentTypesTuple = Tuple.make(argumentTypes);
-				result = Expressions.apply("->", argumentTypesTuple, functionApplication);
+				result = FunctionType.make(functionApplicationType, argumentTypes);
 			}
 		}
 		else {
@@ -333,7 +331,7 @@ public class GrinderUtil {
 				expression.equals(FunctorConstants.REAL_INTERVAL_OPEN_CLOSED) ||
 				expression.equals(FunctorConstants.REAL_INTERVAL_OPEN_OPEN)
 				) {
-			result = Expressions.apply("->", Tuple.make("Number", "Number"), "Set");
+			result = FunctionType.make(parse("Set"), parse("Number"), parse("Number"));
 		}
 		else if (IfThenElse.isIfThenElse(expression)) {
 			Expression thenType = getType(IfThenElse.thenBranch(expression), registry);
@@ -456,22 +454,8 @@ public class GrinderUtil {
 				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to registry.");
 			}
 			
-			if (!functionType.hasFunctor("->")) {
-				throw new Error("Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type (that is, have functor '->'), but has type instead equal to " + functionType);
-			}
-			
-			List<Expression> argumentsTypesList;
-			Expression coDomain;
-			if (functionType.numberOfArguments() == 1) {
-				argumentsTypesList = Util.list();
-				coDomain = functionType.get(0);
-			}
-			else {
-				Expression argumentsType = functionType.get(0);
-				boolean multipleArguments = argumentsType.hasFunctor(CARTESIAN_PRODUCT);
-				argumentsTypesList = multipleArguments? argumentsType.getArguments() : list(argumentsType);
-				coDomain = functionType.get(1);
-			}
+			Expression coDomain = FunctionType.getAtomicCodomain(functionType);
+			List<Expression> argumentsTypesList = FunctionType.getArgumentList(functionType);
 
 			if (!mapIntoList(expression.getArguments(), new GetType(registry)).equals(argumentsTypesList)) {
 				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(registry)));
@@ -668,5 +652,32 @@ public class GrinderUtil {
 			type = null;
 		}
 		return type;
+	}
+	
+	/**
+	 * Test if two types are compatible with each other. That is they are the
+	 * same type or they are function types whose codomains are the same.
+	 * 
+	 * @param typeA
+	 * @param typeB
+	 * 
+	 * @return true if the types are compatible, false otherwise.
+	 */
+	public static boolean isTypesCompatible(Type typeA, Type typeB) {
+		boolean result = false;
+		if (typeA.equals(typeB)) {
+			result = true;
+		}
+		else if (typeA instanceof FunctionType && typeB instanceof FunctionType) {
+			result = isTypesCompatible(((FunctionType)typeA).getCodomain(), ((FunctionType)typeB).getCodomain());
+		}
+		else if (typeA instanceof FunctionType) {
+			result = isTypesCompatible(((FunctionType)typeA).getCodomain(), typeB);
+		}
+		else if (typeB instanceof FunctionType) {
+			result = isTypesCompatible(typeA, ((FunctionType)typeB).getCodomain());
+		}
+		
+		return result;
 	}
 }
