@@ -62,7 +62,6 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.mapIntoList;
 import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
@@ -71,6 +70,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -236,7 +236,7 @@ public class GrinderUtil {
 				}
 				else {
 					ArrayList<Expression> knownConstants = 
-							getKnownUniquelyNamedConstaintsOf(
+							getKnownUniquelyNamedConstantsOf(
 									typeExpressionString,
 									mapFromSymbolNameToTypeName,
 									isUniquelyNamedConstantPredicate,
@@ -259,7 +259,7 @@ public class GrinderUtil {
 	 * @param registry
 	 * @return
 	 */
-	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, Registry registry) {
+	public static ArrayList<Expression> getKnownUniquelyNamedConstantsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, Registry registry) {
 		ArrayList<Expression> knownConstants = new ArrayList<Expression>();
 		for (Map.Entry<String, String> symbolNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			if (symbolNameAndTypeName.getValue().equals(typeName)) {
@@ -454,11 +454,14 @@ public class GrinderUtil {
 				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to registry.");
 			}
 			
-			Expression coDomain = FunctionType.getAtomicCodomain(functionType);
+			Expression coDomain = FunctionType.getCodomain(functionType);
 			List<Expression> argumentsTypesList = FunctionType.getArgumentList(functionType);
 
-			if (!mapIntoList(expression.getArguments(), new GetType(registry)).equals(argumentsTypesList)) {
-				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(registry)));
+			if (expression.getArguments().size() != argumentsTypesList.size()) {
+				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but has incorrect number of arguments = "+ expression.getArguments());
+			}
+			if (IntStream.range(0, expression.getArguments().size()).anyMatch(idx -> !isSubtypeOf(expression.get(idx), registry.getType(argumentsTypesList.get(idx)), registry))) {
+				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but has arguments that are not legal subtypes = "+ expression.getArguments());
 			}
 
 			result = coDomain;
@@ -655,27 +658,31 @@ public class GrinderUtil {
 	}
 	
 	/**
-	 * Test if two types are compatible with each other. That is they are the
-	 * same type or they are function types whose codomains are the same.
+	 * Test if a type is a subtype of another type.
 	 * 
-	 * @param typeA
-	 * @param typeB
+	 * @param type the type to test if it is a subtype.
+	 * @param ofType type to be tested if a subtype of.
 	 * 
-	 * @return true if the types are compatible, false otherwise.
+	 * @return true if 'type' is a subtype of 'ofType', false otherwise.
 	 */
-	public static boolean isTypesCompatible(Type typeA, Type typeB) {
+	public static boolean isTypeSubtypeOf(Type type, Type ofType) {
 		boolean result = false;
-		if (typeA.equals(typeB)) {
+
+		if (type.equals(ofType)) {
 			result = true;
 		}
-		else if (typeA instanceof FunctionType && typeB instanceof FunctionType) {
-			result = isTypesCompatible(((FunctionType)typeA).getCodomain(), ((FunctionType)typeB).getCodomain());
+// TODO - require to support this kind of logic - 2..3 is a sub-type of 0..4 as well.
+		return result;
+	}
+	
+	public static boolean isSubtypeOf(Expression expression, Type ofType, Registry registry) {			
+		boolean result = false;
+		
+		if (ofType.contains(expression)) {
+			result = true;
 		}
-		else if (typeA instanceof FunctionType) {
-			result = isTypesCompatible(((FunctionType)typeA).getCodomain(), typeB);
-		}
-		else if (typeB instanceof FunctionType) {
-			result = isTypesCompatible(typeA, ((FunctionType)typeB).getCodomain());
+		else {
+			result = isTypeSubtypeOf(registry.getType(getType(expression, registry)), ofType);
 		}
 		
 		return result;

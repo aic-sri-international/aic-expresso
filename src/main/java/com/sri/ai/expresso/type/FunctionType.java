@@ -52,6 +52,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**
@@ -93,22 +94,23 @@ public class FunctionType implements Type, Serializable {
 
 	@Override
 	public Iterator<Expression> iterator() {
-		return codomain.iterator();
+		throw new Error("Function types cannot be enumerated.");
 	}
 
 	@Override
 	public boolean contains(Expression uniquelyNamedConstant) {
-		return codomain.contains(uniquelyNamedConstant);
+		// Function types do not contain uniquely named constants.
+		return false;
 	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
-		return codomain.sampleUniquelyNamedConstant(random);
+		throw new Error("Cannot sample uniquely named constant from function type that is infinite and/or defined by variables: " + getName());
 	}
 
 	@Override
 	public Expression cardinality() {
-		return codomain.cardinality();
+		return Expressions.INFINITY;
 	}
 
 	@Override
@@ -154,24 +156,6 @@ public class FunctionType implements Type, Serializable {
 		} else {
 			result = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, argumentTypes), codomainType);
 		}
-
-		return result;
-	}
-
-	/**
-	 * A function type's codomain may be described in terms of another function
-	 * type. However, in many cases you want to know the final atomic type that
-	 * the codomain of the top level function type represents.
-	 * 
-	 * @param functionTypeExpression
-	 *            the function type whose atomic codomain is to be returned.
-	 * @return the atomic type of the function types codomain.
-	 */
-	public static Expression getAtomicCodomain(Expression functionTypeExpression) {
-		Expression result = functionTypeExpression;
-		do {
-			result = getCodomain(result);
-		} while (isFunctionType(result));
 
 		return result;
 	}

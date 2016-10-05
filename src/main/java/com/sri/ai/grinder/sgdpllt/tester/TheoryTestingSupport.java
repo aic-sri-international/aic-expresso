@@ -133,8 +133,7 @@ public interface TheoryTestingSupport {
 	 */
 	default String pickTestingVariableAtRandom() {
 		String variableName = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), getRandom());
-		Type type = getVariableNamesAndTypesForTesting().get(variableName);
-		
+		Type type = getVariableNamesAndTypesForTesting().get(variableName);	
 		String result = makeGeneralizedVariableArgumentAtRandom(variableName, type);
 		
 		return result;
@@ -144,8 +143,15 @@ public interface TheoryTestingSupport {
 		List<String> result = new ArrayList<>();
 		for (int i = 0; i < argumentTypes.size(); i++) {
 			Type argType = argumentTypes.get(i);
-			String variableName = Util.pickUniformly(getCompatibleVariableNames(argType), getRandom());
-			result.add(makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName)));
+			List<String> variableNamesThatAreSubTypes = getVariableNamesThatAreSubtypesOf(argType);
+			if (variableNamesThatAreSubTypes.size() == 0 || getRandom().nextBoolean()) {
+				// We will use a constant in this instance
+				result.add(argType.sampleUniquelyNamedConstant(getRandom()).toString());			
+			}
+			else {
+				String variableName = Util.pickUniformly(variableNamesThatAreSubTypes, getRandom());
+				result.add(makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName)));
+			}
 		}
 		return result;
 	}
@@ -163,29 +169,14 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
-	default List<String> getCompatibleVariableNames(Type type) {
+	default List<String> getVariableNamesThatAreSubtypesOf(Type type) {
 		List<String> result =
 				getVariableNamesAndTypesForTesting().entrySet().stream()
-					.filter(entry -> GrinderUtil.isTypesCompatible(entry.getValue(), type))
+					.filter(entry -> GrinderUtil.isTypeSubtypeOf(entry.getValue(), type))
 					.map(entry -> entry.getKey())
-					.collect(Collectors.toList());
+					.collect(Collectors.toList());		
 		return result;
 	}
-	
-	// getGeneralizedVariableArgument
-	//
-	// makeRandomGeneralizedVariableArgument(Random random, String (Type?) type) 
-	// which will generate a generalized variable argument of a given type. 
-	// This method should be implemented in the following ways for the following theories:
-	// propositional theory: delegate to makeRandomAtom
-	//
-	// generalize pickTestingVariableAtRandom(Random random) to 
-	// pickTestingGeneralizedVariableAtRandom(Random random, 
-	//   BinaryFunction<Random, String (Type?)> randomGeneralizedVariableArgumentMaker)
-	// which picks either a testing variable or a testing function symbol and 
-	// uses it to make a new random generalized variable, filling out the 
-	// arguments, according to their type, with the given 
-	// randomGeneralizedVariableArgumentMaker.
 	
 	/**
 	 * Returns a random atom in this theory on a given variable.
