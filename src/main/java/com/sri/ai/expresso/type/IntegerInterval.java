@@ -162,8 +162,8 @@ public class IntegerInterval implements Type, Serializable {
 		boolean result =
 				uniquelyNamedConstant.getValue() instanceof Rational
 				&& ((Rational) uniquelyNamedConstant.getValue()).isInteger()
-				&& (!noLowerBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictLowerBound) >= 0)
-				&& (!noUpperBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictUpperBound) <= 0);
+				&& (noLowerBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictLowerBound.getValue()) >= 0)
+				&& (noUpperBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictUpperBound.getValue()) <= 0);
 		return result;
 	}
 

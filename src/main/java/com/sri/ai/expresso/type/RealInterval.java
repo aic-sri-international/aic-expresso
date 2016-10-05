@@ -165,9 +165,9 @@ public class RealInterval implements Type, Serializable {
 		if (uniquelyNamedConstant.getValue() instanceof Rational) {
 			Rational value = (Rational) uniquelyNamedConstant.getValue();
 			result =
-					(!noLowerBound() || value.compareTo(lowerBound) > 0 || (!lowerBoundIsOpen && value.compareTo(lowerBound) == 0))
+					(noLowerBound() || value.compareTo(lowerBound.getValue()) > 0 || (!lowerBoundIsOpen && value.compareTo(lowerBound.getValue()) == 0))
 					&&
-					(!noUpperBound() || value.compareTo(upperBound) < 0 || (!upperBoundIsOpen && value.compareTo(upperBound) == 0));
+					(noUpperBound() || value.compareTo(upperBound.getValue()) < 0 || (!upperBoundIsOpen && value.compareTo(upperBound.getValue()) == 0));
 		}
 		else {
 			result = false;

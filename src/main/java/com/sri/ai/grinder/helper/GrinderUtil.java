@@ -668,8 +668,44 @@ public class GrinderUtil {
 	public static boolean isTypeSubtypeOf(Type type, Type ofType) {
 		boolean result = false;
 
-		if (type.equals(ofType)) {
+		if (type.equals(ofType) || type.toString().equals(ofType.toString())) {
 			result = true;
+		}
+		else {
+			if (type instanceof FunctionType && ofType instanceof FunctionType) {
+				FunctionType typeFunctionType   = (FunctionType) type;
+				FunctionType ofTypeFunctionType = (FunctionType) ofType;
+				if (typeFunctionType.getArity() == ofTypeFunctionType.getArity()) {
+					result = isTypeSubtypeOf(typeFunctionType.getCodomain(), ofTypeFunctionType.getCodomain())
+							 &&
+							 IntStream.range(0, typeFunctionType.getArity())
+							 // NOTE: we intentionally flip the values passed to isTypeSubtypeOf due
+							 // to the function type arguments being contravariant, see:
+							 // https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)
+								.allMatch(idx -> isTypeSubtypeOf(ofTypeFunctionType.getArgumentTypes().get(idx), typeFunctionType.getArgumentTypes().get(idx)));
+				}
+			}
+			else if (type instanceof IntegerInterval) {
+				IntegerInterval typeIntegerInterval = (IntegerInterval) type;
+				if (ofType instanceof IntegerInterval) {
+					IntegerInterval ofTypeIntegerInterval = (IntegerInterval) ofType;
+					result = ofTypeIntegerInterval.contains(typeIntegerInterval.getNonStrictLowerBound())
+							 &&
+							 ofTypeIntegerInterval.contains(typeIntegerInterval.getNonStrictUpperBound());
+				}
+				else if (ofType instanceof RealInterval) {
+					
+				}
+				else if (ofType instanceof IntegerExpressoType || ofType instanceof RealExpressoType) {
+					result = true;
+				}
+			}
+			else if (type instanceof IntegerExpressoType) {
+				
+			}
+			else if (type instanceof RealInterval) {
+				
+			}
 		}
 // TODO - require to support this kind of logic - 2..3 is a sub-type of 0..4 as well.
 		return result;
