@@ -72,12 +72,18 @@ public class TheoryTestingSupportTest {
 
 	@Test
 	public void testPickGeneralizedTestingVariable() {
+		for (int i = 0; i < 10; i++) {
+			pickGeneralizedTestingVariable();
+		}
+	}
+	
+	void pickGeneralizedTestingVariable() {
 		//
 		// Propositional
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
 				new PropositionalTheory());
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(
-				map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE, "test_prop/2", BOOLEAN_TYPE));
+				map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE, "gen_prop/1", BOOLEAN_TYPE, "test_prop/2", BOOLEAN_TYPE));
 
 		testGeneralizedVariable(theoryTestingSupport, "test_prop", BOOLEAN_TYPE);
 
@@ -98,23 +104,23 @@ public class TheoryTestingSupportTest {
 						TESTING_INTEGER_INTERVAL_TYPE, "test_diff/2", TESTING_INTEGER_INTERVAL_TYPE));
 
 		testGeneralizedVariable(theoryTestingSupport, "test_diff", TESTING_INTEGER_INTERVAL_TYPE);
-
 	}
 
 	private void testGeneralizedVariable(TheoryTestingSupport theoryTestingSupport,
 			String generalizeVariableFunctorName, Type expectedTargetType) {
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		
 		Expression expectedFunctor = Expressions.parse(generalizeVariableFunctorName);
 		Expression variableExpression;
+		System.out.println("Generating for functor "+expectedFunctor+" of type "+GrinderUtil.getType(expectedFunctor, context));
 		do {
-			String variable = theoryTestingSupport.pickTestingVariableAtRandom();
+			String variable = theoryTestingSupport.pickTestingVariableAtRandom();			
 			variableExpression = Expressions.parse(variable);
 			// Get until we have a generalized variable with a nested
 			// generalized variable argument.
 		} while (variableExpression.getFunctor() == null || !expectedFunctor.equals(variableExpression.getFunctor()));
-
-		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		System.out.println("Generated generalized variable function application = " + variableExpression + " of function type "+GrinderUtil.getType(variableExpression.getFunctor(), context));
+		System.out.println("Generated generalized variable function application = " + variableExpression);
 	
 		Assert.assertTrue(theoryTestingSupport.getTheory().isSuitableFor(variableExpression, expectedTargetType));
 		Assert.assertTrue(theoryTestingSupport.getTheory().isVariable(variableExpression, context));

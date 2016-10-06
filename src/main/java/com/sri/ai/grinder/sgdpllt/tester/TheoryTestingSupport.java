@@ -134,7 +134,14 @@ public interface TheoryTestingSupport {
 	default String pickTestingVariableAtRandom() {
 		String variableName = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), getRandom());
 		Type type = getVariableNamesAndTypesForTesting().get(variableName);	
-		String result = makeGeneralizedVariableArgumentAtRandom(variableName, type);
+		String result;
+		if (type instanceof FunctionType) {
+			FunctionType functionType = (FunctionType) type;
+			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, functionType.getCodomain());
+		}
+		else {
+			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, type);
+		}
 		
 		return result;
 	}
@@ -143,27 +150,31 @@ public interface TheoryTestingSupport {
 		List<String> result = new ArrayList<>();
 		for (int i = 0; i < argumentTypes.size(); i++) {
 			Type argType = argumentTypes.get(i);
-			List<String> variableNamesThatAreSubTypes = getVariableNamesThatAreSubtypesOf(argType);
-			if (variableNamesThatAreSubTypes.size() == 0 || getRandom().nextBoolean()) {
+			List<String> variableNamesThatAreSubTypes = getVariableNamesThatAreSubtypesOf(argType);			
+			if (variableNamesThatAreSubTypes.size() == 0 || (getRandom().nextBoolean() && !(argType instanceof FunctionType))) {
 				// We will use a constant in this instance
 				result.add(argType.sampleUniquelyNamedConstant(getRandom()).toString());			
 			}
 			else {
 				String variableName = Util.pickUniformly(variableNamesThatAreSubTypes, getRandom());
-				result.add(makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName)));
+				result.add(makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName), argType));
 			}
 		}
 		return result;
 	}
 	
 	// TODO - delegate to appropriate subclass?
-	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type argumentType) {
+	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type variableType, Type targetType) {
 		String result = variableName;
-		if (argumentType instanceof FunctionType) {
-			FunctionType functionType = (FunctionType) argumentType;
-			List<String> args = pickGeneralizedTestingVariableArgumentsAtRandom(functionType.getArgumentTypes());
-			List<Expression> expArgs = args.stream().map(strArg -> Expressions.parse(strArg)).collect(Collectors.toList());
-			result = Expressions.apply(result, expArgs).toString();
+		// If the type of the variable is a function type and its codomain is a subtype of the target
+		// type then we want to generate a function application of the variable name's type.
+		if (variableType instanceof FunctionType) {
+			FunctionType functionType = (FunctionType) variableType;
+			if (GrinderUtil.isTypeSubtypeOf(functionType.getCodomain(), targetType)) {
+				List<String> args = pickGeneralizedTestingVariableArgumentsAtRandom(functionType.getArgumentTypes());
+				List<Expression> expArgs = args.stream().map(strArg -> Expressions.parse(strArg)).collect(Collectors.toList());
+				result = Expressions.apply(result, expArgs).toString();
+			}
 		}
 		
 		return result;
@@ -172,7 +183,19 @@ public interface TheoryTestingSupport {
 	default List<String> getVariableNamesThatAreSubtypesOf(Type type) {
 		List<String> result =
 				getVariableNamesAndTypesForTesting().entrySet().stream()
-					.filter(entry -> GrinderUtil.isTypeSubtypeOf(entry.getValue(), type))
+					.filter(entry -> {
+						boolean include;
+						// When the type is a non-function type but the entry's type is a FunctionType
+						// we want to use the entry type's codomain as we can use a function application
+						// of this variable in this instance.
+						if (!(type instanceof FunctionType) && entry.getValue() instanceof FunctionType) {
+							include = GrinderUtil.isTypeSubtypeOf(((FunctionType)entry.getValue()).getCodomain(), type);
+						}
+						else {
+							include = GrinderUtil.isTypeSubtypeOf(entry.getValue(), type);
+						}						
+						return include;
+					})
 					.map(entry -> entry.getKey())
 					.collect(Collectors.toList());		
 		return result;
