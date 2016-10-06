@@ -689,25 +689,50 @@ public class GrinderUtil {
 				IntegerInterval typeIntegerInterval = (IntegerInterval) type;
 				if (ofType instanceof IntegerInterval) {
 					IntegerInterval ofTypeIntegerInterval = (IntegerInterval) ofType;
-					result = ofTypeIntegerInterval.contains(typeIntegerInterval.getNonStrictLowerBound())
-							 &&
-							 ofTypeIntegerInterval.contains(typeIntegerInterval.getNonStrictUpperBound());
+					result = ofTypeIntegerInterval.isSuperset(typeIntegerInterval.getNonStrictLowerBound(), typeIntegerInterval.getNonStrictUpperBound());
 				}
 				else if (ofType instanceof RealInterval) {
-					
+					RealInterval ofTypeRealInterval = (RealInterval) ofType;
+					result = ofTypeRealInterval.isSuperset(typeIntegerInterval.getNonStrictLowerBound(), typeIntegerInterval.getNonStrictUpperBound());
 				}
 				else if (ofType instanceof IntegerExpressoType || ofType instanceof RealExpressoType) {
 					result = true;
 				}
 			}
 			else if (type instanceof IntegerExpressoType) {
-				
+				if (ofType instanceof IntegerInterval) {
+					IntegerInterval ofTypeIntegerInterval = (IntegerInterval) ofType;
+					result = ofTypeIntegerInterval.noLowerBound() && ofTypeIntegerInterval.noUpperBound();
+				}
+				else if (ofType instanceof RealInterval) {
+					RealInterval ofTypeRealInterval = (RealInterval) ofType;
+					result = ofTypeRealInterval.noLowerBound() && ofTypeRealInterval.noUpperBound();
+				}
+				else if (ofType instanceof RealExpressoType) {
+					result = true;
+				}
 			}
 			else if (type instanceof RealInterval) {
-				
+				RealInterval typeRealInterval = (RealInterval) type;
+				if (ofType instanceof RealInterval) {
+					RealInterval ofTypeRealInterval = (RealInterval) ofType;
+					result = ofTypeRealInterval.isSuperset(typeRealInterval.getLowerBound(), typeRealInterval.getUpperBound());
+				}
+				else if (ofType instanceof RealExpressoType) {
+					result = true;
+				}
+			}
+			else if (type instanceof RealExpressoType) {
+				if (ofType instanceof RealInterval) {
+					RealInterval ofTypeRealInterval = (RealInterval) ofType;
+					result = ofTypeRealInterval.noLowerBound() && ofTypeRealInterval.noUpperBound();
+				}
+				else if (ofType instanceof RealExpressoType) {
+					result = true;
+				}
 			}
 		}
-// TODO - require to support this kind of logic - 2..3 is a sub-type of 0..4 as well.
+
 		return result;
 	}
 	

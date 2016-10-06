@@ -39,4 +39,72 @@ public class IntegerIntervalTest {
 		Assert.assertTrue(intInterval.contains(parse("5")));
 		Assert.assertTrue(intInterval.contains(parse("500")));
 	}
+	
+	@Test
+	public void testIsSuperset() {
+		IntegerInterval intInterval = new IntegerInterval("Integer");
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("-infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("infinity"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("3")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("4")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("5")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-1"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("1"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0.5"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("3.5")));
+		
+		intInterval = new IntegerInterval("-infinity..4");
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("-infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("infinity"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("3")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-infinity"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("5")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-1"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("1"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("4")));
+		Assert.assertTrue(intInterval.isSuperset(parse("1"), parse("3")));
+		Assert.assertTrue(intInterval.isSuperset(parse("-1"), parse("3")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("5")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0.5"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("3.5")));
+		
+		intInterval = new IntegerInterval("0..infinity");
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("-infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("infinity"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("3")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("5")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-1"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("1"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("4")));
+		Assert.assertTrue(intInterval.isSuperset(parse("1"), parse("3")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-1"), parse("3")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("5")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0.5"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("3.5")));
+		
+		intInterval = new IntegerInterval("0..4");
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("-infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("infinity"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("3")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-infinity"), parse("5")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-1"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("infinity")));
+		Assert.assertFalse(intInterval.isSuperset(parse("1"), parse("infinity")));
+		Assert.assertTrue(intInterval.isSuperset(parse("0"), parse("4")));
+		Assert.assertTrue(intInterval.isSuperset(parse("1"), parse("3")));
+		Assert.assertFalse(intInterval.isSuperset(parse("-1"), parse("3")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("5")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0.5"), parse("4")));
+		Assert.assertFalse(intInterval.isSuperset(parse("0"), parse("3.5")));
+	}
 }

@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.type;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -166,6 +167,36 @@ public class IntegerInterval implements Type, Serializable {
 				&& (noUpperBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictUpperBound.getValue()) <= 0);
 		return result;
 	}
+	
+	public boolean isSuperset(Expression lowerBound, Expression upperBound) {
+		boolean result = true;
+		if (lowerBound.equals(MINUS_INFINITY)) {
+			if (!noLowerBound()) {
+				result = false;
+			}
+		}
+		else if (!lowerBound.equals(INFINITY)) { // if lower bound is infinity then upper bound must be infinity
+			if (!contains(lowerBound)) {
+				result = false;
+			}
+		}
+		
+		// If we know lower bound is good, then check upper bound
+		if (result) {
+			if (upperBound.equals(INFINITY)) {
+				if (!noUpperBound()) {
+					result = false;
+				}
+			}
+			else if (!upperBound.equals(MINUS_INFINITY)){ // if upper bound is -infinity then lower bound must be the same and will have been tested
+				if (!contains(upperBound)) {
+					result = false;
+				}
+			}
+		}
+		
+		return result;
+	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
@@ -201,15 +232,15 @@ public class IntegerInterval implements Type, Serializable {
 		return cachedCardinality;
 	}
 
-	private boolean noLowerBound() {
+	public boolean noLowerBound() {
 		return nonStrictLowerBound.equals(apply(MINUS, INFINITY));
 	}
 
-	private boolean noUpperBound() {
+	public boolean noUpperBound() {
 		return nonStrictUpperBound.equals(INFINITY);
 	}
 
-	private boolean boundsAreConstants() {
+	public boolean boundsAreConstants() {
 		return isNumber(nonStrictLowerBound) && isNumber(nonStrictUpperBound);
 	}
 	

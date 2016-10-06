@@ -174,6 +174,36 @@ public class RealInterval implements Type, Serializable {
 		}
 		return result;
 	}
+	
+	public boolean isSuperset(Expression lowerBound, Expression upperBound) {
+		boolean result = true;
+		if (lowerBound.equals(MINUS_INFINITY)) {
+			if (!noLowerBound()) {
+				result = false;
+			}
+		}
+		else if (!lowerBound.equals(INFINITY)) { // if lower bound is infinity then upper bound must be infinity
+			if (!contains(lowerBound)) {
+				result = false;
+			}
+		}
+		
+		// If we know lower bound is good, then check upper bound
+		if (result) {
+			if (upperBound.equals(INFINITY)) {
+				if (!noUpperBound()) {
+					result = false;
+				}
+			}
+			else if (!upperBound.equals(MINUS_INFINITY)){ // if upper bound is -infinity then lower bound must be the same and will have been tested
+				if (!contains(upperBound)) {
+					result = false;
+				}
+			}
+		}
+		
+		return result;
+	}
 
 	private final int SAMPLING_RESOLUTION = 1000000;
 	
@@ -259,15 +289,15 @@ public class RealInterval implements Type, Serializable {
 		return cachedCardinality;
 	}
 
-	private boolean noLowerBound() {
+	public boolean noLowerBound() {
 		return lowerBound.equals(MINUS_INFINITY);
 	}
 
-	private boolean noUpperBound() {
+	public boolean noUpperBound() {
 		return upperBound.equals(INFINITY);
 	}
 
-	private boolean boundsAreConstants() {
+	public boolean boundsAreConstants() {
 		return isNumber(lowerBound) && isNumber(upperBound);
 	}
 	
