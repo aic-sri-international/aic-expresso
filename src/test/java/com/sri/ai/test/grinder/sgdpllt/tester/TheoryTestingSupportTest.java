@@ -8,6 +8,7 @@ import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
 import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport.TESTING_INTEGER_INTERVAL_TYPE;
 import static com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheoryTestingSupport.TESTING_CATEGORICAL_TYPE;
+import static com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport.TESTING_REAL_INTERVAL_TYPE;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
@@ -72,20 +73,27 @@ public class TheoryTestingSupportTest {
 
 	@Test
 	public void testPickGeneralizedTestingVariable() {
+		for (int i = 0; i < 10; i++) {
+			pickGeneralizedTestingVariable();
+		}
+	}
+
+	void pickGeneralizedTestingVariable() {
 		//
 		// Propositional
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
 				new PropositionalTheory());
-		theoryTestingSupport.setVariableNamesAndTypesForTesting(
-				map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE, "test_prop/2", BOOLEAN_TYPE));
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R",
+				BOOLEAN_TYPE, "gen_prop/1", BOOLEAN_TYPE, "test_prop/2", BOOLEAN_TYPE));
 
 		testGeneralizedVariable(theoryTestingSupport, "test_prop", BOOLEAN_TYPE);
 
 		//
 		// Equality
 		theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new EqualityTheory(true, true));
-		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y",
-				TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, "test_eq/2", TESTING_CATEGORICAL_TYPE));
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(
+				map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE,
+						"gen_eq/1", TESTING_CATEGORICAL_TYPE, "test_eq/2", TESTING_CATEGORICAL_TYPE));
 
 		testGeneralizedVariable(theoryTestingSupport, "test_eq", TESTING_CATEGORICAL_TYPE);
 
@@ -93,18 +101,48 @@ public class TheoryTestingSupportTest {
 		// DifferenceArithmetic
 		theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
 				new DifferenceArithmeticTheory(true, true));
-		theoryTestingSupport.setVariableNamesAndTypesForTesting(
-				map("I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K",
-						TESTING_INTEGER_INTERVAL_TYPE, "test_diff/2", TESTING_INTEGER_INTERVAL_TYPE));
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("I", TESTING_INTEGER_INTERVAL_TYPE, "J",
+				TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE, "gen_diff/1",
+				TESTING_INTEGER_INTERVAL_TYPE, "test_diff/2", TESTING_INTEGER_INTERVAL_TYPE));
 
 		testGeneralizedVariable(theoryTestingSupport, "test_diff", TESTING_INTEGER_INTERVAL_TYPE);
 
+		//
+		// LinearRealArithmetic
+		theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
+				new LinearRealArithmeticTheory(true, true));
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(
+				map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE,
+						"gen_lr/1", TESTING_REAL_INTERVAL_TYPE, "test_lr/2", TESTING_REAL_INTERVAL_TYPE));
+
+		testGeneralizedVariable(theoryTestingSupport, "test_lr", TESTING_REAL_INTERVAL_TYPE);
+
+		//
+		// Compound
+		theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
+				new CompoundTheory(new PropositionalTheory(), new EqualityTheory(true, true),
+						new DifferenceArithmeticTheory(true, true), new LinearRealArithmeticTheory(true, true)));
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R",
+				BOOLEAN_TYPE, "gen_prop/1", BOOLEAN_TYPE, "test_prop/2", BOOLEAN_TYPE, "X", TESTING_CATEGORICAL_TYPE,
+				"Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, "gen_eq/1", TESTING_CATEGORICAL_TYPE,
+				"test_eq/2", TESTING_CATEGORICAL_TYPE, "I", TESTING_INTEGER_INTERVAL_TYPE, "J",
+				TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE, "gen_diff/1",
+				TESTING_INTEGER_INTERVAL_TYPE, "test_diff/2", TESTING_INTEGER_INTERVAL_TYPE, "U",
+				TESTING_REAL_INTERVAL_TYPE, "V", TESTING_REAL_INTERVAL_TYPE, "W", TESTING_REAL_INTERVAL_TYPE,
+				"gen_lr/1", TESTING_REAL_INTERVAL_TYPE, "test_lr/2", TESTING_REAL_INTERVAL_TYPE,
+				"compound/4", BOOLEAN_TYPE));
+		
+		testGeneralizedVariable(theoryTestingSupport, "compound", BOOLEAN_TYPE);
 	}
 
 	private void testGeneralizedVariable(TheoryTestingSupport theoryTestingSupport,
 			String generalizeVariableFunctorName, Type expectedTargetType) {
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+
 		Expression expectedFunctor = Expressions.parse(generalizeVariableFunctorName);
 		Expression variableExpression;
+		System.out.println("Generating for functor " + expectedFunctor + " of type "
+				+ GrinderUtil.getType(expectedFunctor, context));
 		do {
 			String variable = theoryTestingSupport.pickTestingVariableAtRandom();
 			variableExpression = Expressions.parse(variable);
@@ -112,10 +150,8 @@ public class TheoryTestingSupportTest {
 			// generalized variable argument.
 		} while (variableExpression.getFunctor() == null || !expectedFunctor.equals(variableExpression.getFunctor()));
 
-		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		
-		System.out.println("Generated generalized variable function application = " + variableExpression + " of function type "+GrinderUtil.getType(variableExpression.getFunctor(), context));
-	
+		System.out.println("Generated generalized variable function application = " + variableExpression);
+
 		Assert.assertTrue(theoryTestingSupport.getTheory().isSuitableFor(variableExpression, expectedTargetType));
 		Assert.assertTrue(theoryTestingSupport.getTheory().isVariable(variableExpression, context));
 		Assert.assertEquals(Expressions.parse(expectedTargetType.toString()),
