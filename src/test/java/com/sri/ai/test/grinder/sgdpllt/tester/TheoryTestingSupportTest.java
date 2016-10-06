@@ -130,9 +130,15 @@ public class TheoryTestingSupportTest {
 				TESTING_INTEGER_INTERVAL_TYPE, "test_diff/2", TESTING_INTEGER_INTERVAL_TYPE, "U",
 				TESTING_REAL_INTERVAL_TYPE, "V", TESTING_REAL_INTERVAL_TYPE, "W", TESTING_REAL_INTERVAL_TYPE,
 				"gen_lr/1", TESTING_REAL_INTERVAL_TYPE, "test_lr/2", TESTING_REAL_INTERVAL_TYPE,
-				"compound/4", BOOLEAN_TYPE));
+				"compound_boolean/4", BOOLEAN_TYPE,
+				"compound_categorical/4", TESTING_CATEGORICAL_TYPE,
+				"compound_int_interval/4", TESTING_INTEGER_INTERVAL_TYPE,
+				"compound_real_interval/4", TESTING_REAL_INTERVAL_TYPE));
 		
-		testGeneralizedVariable(theoryTestingSupport, "compound", BOOLEAN_TYPE);
+		testGeneralizedVariable(theoryTestingSupport, "compound_boolean", BOOLEAN_TYPE);
+		testGeneralizedVariable(theoryTestingSupport, "compound_categorical", TESTING_CATEGORICAL_TYPE);
+		testGeneralizedVariable(theoryTestingSupport, "compound_int_interval", TESTING_INTEGER_INTERVAL_TYPE);
+		testGeneralizedVariable(theoryTestingSupport, "compound_real_interval", TESTING_REAL_INTERVAL_TYPE);
 	}
 
 	private void testGeneralizedVariable(TheoryTestingSupport theoryTestingSupport,
@@ -156,6 +162,21 @@ public class TheoryTestingSupportTest {
 		Assert.assertTrue(theoryTestingSupport.getTheory().isVariable(variableExpression, context));
 		Assert.assertEquals(Expressions.parse(expectedTargetType.toString()),
 				GrinderUtil.getType(variableExpression, context));
+		
+		// Ensure we can make a random atom using the generalized variable
+		try {
+			Expression randomAtom = theoryTestingSupport.makeRandomAtomOn(variableExpression.toString(), context);
+			System.out.println("Generated random atom, using generalized variable function application, is = "+randomAtom);
+		}
+		catch (Error error) {
+			// At the moment we permit this error.
+			if (error.getMessage().equals("Random generation of linear real arithmetic not yet implemented.")) {
+				System.out.println("--- makeRandomAtomOn() call for "+variableExpression.toString()+" not supported: "+error.getMessage());
+			}
+			else {
+				throw error;
+			}
+		}
 	}
 
 	private void testFunctionType(Type type) {

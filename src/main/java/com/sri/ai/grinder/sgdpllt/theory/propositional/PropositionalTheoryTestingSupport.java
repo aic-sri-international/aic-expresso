@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.propositional;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.map;
 
@@ -47,6 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 public class PropositionalTheoryTestingSupport extends AbstractTheoryTestingSupport {
@@ -56,7 +57,7 @@ public class PropositionalTheoryTestingSupport extends AbstractTheoryTestingSupp
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context) {
-		return makeSymbol(variable);
+	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
+		return parse(variable);
 	}
 }

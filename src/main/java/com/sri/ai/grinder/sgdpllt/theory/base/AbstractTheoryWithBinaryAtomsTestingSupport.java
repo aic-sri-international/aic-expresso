@@ -38,20 +38,18 @@
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
-import com.sri.ai.util.collect.PredicateIterator;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends AbstractTheoryTestingSupport {
@@ -69,28 +67,18 @@ abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends Abstra
 	 * Makes a random atom by uniformly picking among the theory functors and testing variables.
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context) {
-		Map<String, Type> variablesAndTypes = getVariableNamesAndTypesForTesting();
-		Type type = variablesAndTypes.get(variable);
-		Set<String> allVariables = variablesAndTypes.keySet();
-		PredicateIterator<String> isNameOfOtherVariableOfSameTypeAsMainVariable =
-				PredicateIterator.make(allVariables, s -> {
-					Type typeOfOther = variablesAndTypes.get(s);
-					return typeOfOther.equals(type) || typeOfOther.toString().equals(type.toString());	
-				});
-		Expression otherTerm;
-		if (getRandom().nextBoolean()) {
-			otherTerm = makeSymbol(pickUniformly(isNameOfOtherVariableOfSameTypeAsMainVariable, getRandom()));
-		}
-		else {
-			otherTerm = type.sampleUniquelyNamedConstant(getRandom());
-		}
+	public Expression makeRandomAtomOn(String mainVariable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
+		String mainVariableName = globalTheoryTestingSupport.getVariableName(mainVariable);
+		Type mainType = globalTheoryTestingSupport.getTestingVariableType(mainVariable);
+				
+		Expression otherTerm = parse(globalTheoryTestingSupport.pickGeneralizedTestingVariableArgumentAtRandom(mainType, otherName -> !otherName.equals(mainVariableName)));
 		
 		String functor = pickUniformly(getTheoryFunctors(), getRandom());
-		
+
+		Expression mainVariableExpression = parse(mainVariable);
 		Expression possiblyTrivialAtom =
 				getRandom().nextBoolean()?
-						apply(functor, variable, otherTerm) : apply(functor, otherTerm, variable);
+						apply(functor, mainVariableExpression, otherTerm) : apply(functor, otherTerm, mainVariableExpression);
 						
 		Expression result = getTheory().simplify(possiblyTrivialAtom, context);
 				

@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.annotations.Beta;
@@ -52,7 +53,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -152,24 +155,40 @@ public interface TheoryTestingSupport {
 		List<String> result = new ArrayList<>();
 		for (int i = 0; i < argumentTypes.size(); i++) {
 			Type argType = argumentTypes.get(i);
-			List<String> variableNamesThatAreSubTypes = getVariableNamesThatAreSubtypesOf(argType);			
-			if (variableNamesThatAreSubTypes.size() == 0 
-					||
-					// if we should generate a constant, under the conditions that the argtype is not a function type or real expresso type,
-					// neither of which support sampling uniquely named constants.
-					(getRandom().nextBoolean() && !(argType instanceof FunctionType) && !(argType instanceof RealExpressoType))) {
-				// We will use a constant in this instance
-				result.add(argType.sampleUniquelyNamedConstant(getRandom()).toString());			
-			}
-			else {
-				String variableName = Util.pickUniformly(variableNamesThatAreSubTypes, getRandom());
-				result.add(makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName), argType));
-			}
+			result.add(pickGeneralizedTestingVariableArgumentAtRandom(argType, variableName -> true));
 		}
 		return result;
 	}
 	
-	// TODO - delegate to appropriate subclass?
+	default String pickGeneralizedTestingVariableArgumentAtRandom(Type argumentType, Predicate<String> variableNameFilter) {
+		String result;
+		List<String> variableNamesThatAreSubTypes = getVariableNamesThatAreSubtypesOf(argumentType)
+				.stream()
+				.filter(variableNameFilter)
+				.collect(Collectors.toList());
+		
+		if (variableNamesThatAreSubTypes.size() == 0 
+				||
+				// if we should generate a constant, under the conditions that the argument type is not a function type 
+				// or real expresso type or integer/real intervals with non constant bounds.
+				// None of which support sampling uniquely named constants.
+				(getRandom().nextBoolean() && 
+						!(argumentType instanceof FunctionType) && 
+						!(argumentType instanceof RealExpressoType) && 
+						!(argumentType instanceof RealInterval && !((RealInterval)argumentType).boundsAreConstants()) &&
+						!(argumentType instanceof IntegerInterval && !((IntegerInterval)argumentType).boundsAreConstants())
+						)) {
+			// We will use a constant in this instance
+			result = argumentType.sampleUniquelyNamedConstant(getRandom()).toString();			
+		}
+		else {
+			String variableName = Util.pickUniformly(variableNamesThatAreSubTypes, getRandom());
+			result = makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName), argumentType);
+		}
+		return result;
+	}
+	
+// TODO - delegate to appropriate subclass in order to make more complex terms of the same target type (e.g. in difference arithmetic X + 1).
 	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type variableType, Type targetType) {
 		String result = variableName;
 		// If the type of the variable is a function type and its codomain is a subtype of the target
@@ -207,13 +226,45 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
+	default String getVariableName(String variable) {
+		String result;
+		Expression variableExpresison = parse(variable);
+		Expression functor = variableExpresison.getFunctor();
+		if (functor == null) {
+			result = variable;
+		}
+		else {
+			result = functor.toString();
+		}
+		return result;
+	}
+	
+	default Type getTestingVariableType(String variable) {
+		String variableName = getVariableName(variable);		
+		Type result = getVariableNamesAndTypesForTesting().get(variableName);
+		// We need to check if the variable is a function application
+		// because if it is we need to use the codomain of its function type
+		// as the type of the testing variable.
+		Expression variableExpresison = parse(variable);
+		Expression functor = variableExpresison.getFunctor();
+		if (functor != null) {
+			result = ((FunctionType)result).getCodomain();
+		}
+		return result;
+	}
+	
 	/**
 	 * Returns a random atom in this theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
 	 * @param variable the name of the variable to make the random atom on.
 	 * @param context a context
 	 */
-	Expression makeRandomAtomOn(String variable, Context context);
+	default Expression makeRandomAtomOn(String variable, Context context) {
+		Expression result = makeRandomAtomOn(variable, context, this);
+		return result;
+	}
+	
+	Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport);
 
 	/**
 	 * @param variable

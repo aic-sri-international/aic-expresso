@@ -52,6 +52,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
@@ -101,7 +102,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 			Expression variable = Expressions.parse(variableName);
 			Type type = variableNameAndType.getValue();
 			for (Theory subTheory : getTheory().getSubConstraintTheories()) {
-				if (subTheory.isSuitableFor(variable, type)) {
+				if (subTheory.isSuitableFor(variable, type) || (type instanceof FunctionType && subTheory.isSuitableFor(variable, ((FunctionType)type).getCodomain()))) {
 					mapForSubTheory.get(subTheory).put(variableName, type);
 				}
 			}
@@ -114,9 +115,9 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context) {
+	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
 		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable, context);
-		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, context);
+		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, context, globalTheoryTestingSupport);
 		return result;
 	}
 	

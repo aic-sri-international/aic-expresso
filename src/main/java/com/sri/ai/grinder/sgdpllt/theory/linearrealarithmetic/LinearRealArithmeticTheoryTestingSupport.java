@@ -45,6 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTestingSupport;
 
 @Beta
@@ -63,7 +64,7 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWith
 	 * since it cannot be tested by brute force).
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context) {
+	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
 		// TODO: write this method
 		throw new Error("Random generation of linear real arithmetic not yet implemented.");
 	}
