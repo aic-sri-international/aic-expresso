@@ -100,17 +100,21 @@ public class CompoundTheory extends AbstractTheory {
 	Theory getTheory(Expression variable, Context context) {
 		String typeName = GrinderUtil.getType(variable, context).toString();
 		Type type = context.getType(typeName);
+		Theory result = getTheory(variable, type);
+		return result;
+	}
 		
-		if (type == null) {
+	Theory getTheory(Expression variable, Type variableType) {		
+		if (variableType == null) {
 			throw new Error("Cannot decide which theory to use for variable " + variable + " because it does not have a registered type.");
 		}
 		
 		Theory result =
 				getFirstSatisfyingPredicateOrNull(
 						getSubConstraintTheories(),
-						t -> t.isSuitableFor(variable, type));
+						t -> t.isSuitableFor(variable, variableType));
 
-		check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, context));
+		check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
 		
 		return result;
 	}

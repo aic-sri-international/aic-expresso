@@ -136,33 +136,38 @@ public interface TheoryTestingSupport {
 	 * @return
 	 */
 	default String pickTestingVariableAtRandom() {
-		String variableName = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), getRandom());
-		Type type = getVariableNamesAndTypesForTesting().get(variableName);	
+		String result = pickTestingVariableAtRandom(this);
+		return result;
+	}
+	
+	default String pickTestingVariableAtRandom(TheoryTestingSupport globalTheoryTestingSupport) {
+		String variableName = Util.pickUniformly(globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().keySet(), getRandom());
+		Type type = globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().get(variableName);	
 		String result;
 		if (type instanceof FunctionType) {
 			// In this case we want to generate a function application.
 			FunctionType functionType = (FunctionType) type;			
-			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, functionType.getCodomain());
+			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, functionType.getCodomain(), globalTheoryTestingSupport);
 		}
 		else {
-			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, type);
+			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, type, globalTheoryTestingSupport);
 		}
 		
 		return result;
 	}
 	
-	default List<String> pickGeneralizedTestingVariableArgumentsAtRandom(List<Type> argumentTypes) {
+	default List<String> pickGeneralizedTestingVariableArgumentsAtRandom(List<Type> argumentTypes, TheoryTestingSupport globalTheoryTestingSupport) {
 		List<String> result = new ArrayList<>();
 		for (int i = 0; i < argumentTypes.size(); i++) {
 			Type argType = argumentTypes.get(i);
-			result.add(pickGeneralizedTestingVariableArgumentAtRandom(argType, variableName -> true));
+			result.add(pickGeneralizedTestingVariableArgumentAtRandom(argType, variableName -> true, globalTheoryTestingSupport));
 		}
 		return result;
 	}
 	
-	default String pickGeneralizedTestingVariableArgumentAtRandom(Type argumentType, Predicate<String> variableNameFilter) {
+	default String pickGeneralizedTestingVariableArgumentAtRandom(Type argumentType, Predicate<String> variableNameFilter, TheoryTestingSupport globalTheoryTestingSupport) {
 		String result;
-		List<String> variableNamesThatAreSubTypes = getVariableNamesThatAreSubtypesOf(argumentType)
+		List<String> variableNamesThatAreSubTypes = globalTheoryTestingSupport.getVariableNamesThatAreSubtypesOf(argumentType)
 				.stream()
 				.filter(variableNameFilter)
 				.collect(Collectors.toList());
@@ -183,25 +188,48 @@ public interface TheoryTestingSupport {
 		}
 		else {
 			String variableName = Util.pickUniformly(variableNamesThatAreSubTypes, getRandom());
-			result = makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName), argumentType);
+			result = makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName), argumentType, globalTheoryTestingSupport);
 		}
 		return result;
 	}
 	
-// TODO - delegate to appropriate subclass in order to make more complex terms of the same target type (e.g. in difference arithmetic X + 1).
-	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type variableType, Type targetType) {
+	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type variableType, Type targetType, TheoryTestingSupport globalTheoryTestingSupport) {
 		String result = variableName;
 		// If the type of the variable is a function type and its codomain is a subtype of the target
 		// type then we want to generate a function application of the variable name's type.
 		if (variableType instanceof FunctionType) {
 			FunctionType functionType = (FunctionType) variableType;
 			if (GrinderUtil.isTypeSubtypeOf(functionType.getCodomain(), targetType)) {
-				List<String> args = pickGeneralizedTestingVariableArgumentsAtRandom(functionType.getArgumentTypes());
+				List<String> args = pickGeneralizedTestingVariableArgumentsAtRandom(functionType.getArgumentTypes(), globalTheoryTestingSupport);
 				List<Expression> expArgs = args.stream().map(strArg -> Expressions.parse(strArg)).collect(Collectors.toList());
 				result = Expressions.apply(result, expArgs).toString();
 			}
 		}
 		
+		result = extendGeneralizedVariableArgument(result, globalTheoryTestingSupport);
+		
+		return result;
+	}
+	
+	/**
+	 * A hook method for extending the types of generalized variable arguments
+	 * that can be generated. For example, if the function application 'f(y)'
+	 * returned a real, the LinearRealAritmeticTheoryTestingSupport could extend
+	 * this into a general formula something like:<br>
+	 * 
+	 * <pre>
+	 * 2 * x + 3 * f(y) + 1
+	 * </pre>
+	 * 
+	 * @param variable
+	 *            the variable to be optionally extended.
+	 * @param globalTheoryTestingSupport
+	 *            the global theory in which the extension is to occur.
+	 * @return a possibly extended representation of the input variable.
+	 */
+// TODO - add overridden versions of this method to LinearRealArithmeticTheoryTestingSupport and CompoundTheoryTestingSupport	
+	default String extendGeneralizedVariableArgument(String variable, TheoryTestingSupport globalTheoryTestingSupport) {
+		String result = variable; // by default we don't extend
 		return result;
 	}
 	

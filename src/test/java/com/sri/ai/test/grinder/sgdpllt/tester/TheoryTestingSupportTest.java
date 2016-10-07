@@ -152,8 +152,7 @@ public class TheoryTestingSupportTest {
 		do {
 			String variable = theoryTestingSupport.pickTestingVariableAtRandom();
 			variableExpression = Expressions.parse(variable);
-			// Get until we have a generalized variable with a nested
-			// generalized variable argument.
+			// Get until we have a generalized variable of the expected type
 		} while (variableExpression.getFunctor() == null || !expectedFunctor.equals(variableExpression.getFunctor()));
 
 		System.out.println("Generated generalized variable function application = " + variableExpression);

@@ -116,7 +116,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	
 	@Override
 	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
-		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable, context);
+		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable);
 		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, context, globalTheoryTestingSupport);
 		return result;
 	}
@@ -156,8 +156,9 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 		return theoryToTestingSupport;
 	}
 	
-	private TheoryTestingSupport getTheoryTestingSupport(String variable, Context context) {
-		Theory subconstraintTheory = getTheory().getTheory(parse(variable), context);
+	private TheoryTestingSupport getTheoryTestingSupport(String variable) {
+		Type variableType = getTestingVariableType(variable);
+		Theory subconstraintTheory = getTheory().getTheory(parse(variable), variableType);
 		TheoryTestingSupport result = getTheoryToTestingSupport().get(subconstraintTheory);
 		return result;
 	}

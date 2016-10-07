@@ -71,7 +71,7 @@ abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends Abstra
 		String mainVariableName = globalTheoryTestingSupport.getVariableName(mainVariable);
 		Type mainType = globalTheoryTestingSupport.getTestingVariableType(mainVariable);
 				
-		Expression otherTerm = parse(globalTheoryTestingSupport.pickGeneralizedTestingVariableArgumentAtRandom(mainType, otherName -> !otherName.equals(mainVariableName)));
+		Expression otherTerm = parse(globalTheoryTestingSupport.pickGeneralizedTestingVariableArgumentAtRandom(mainType, otherName -> !otherName.equals(mainVariableName), globalTheoryTestingSupport));
 		
 		String functor = pickUniformly(getTheoryFunctors(), getRandom());
 

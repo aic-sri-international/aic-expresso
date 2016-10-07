@@ -87,7 +87,7 @@ public class DifferenceArithmeticTheoryTestingSupport extends AbstractTheoryWith
 		// Note: that otherVariablesForAtom will contain only one or zero elements
 		ArrayList<String> otherVariablesForAtom = new ArrayList<>();		
 		if (numberOfOtherVariablesInAtom > 0) {
-			otherVariablesForAtom.add(globalTheoryTestingSupport.pickGeneralizedTestingVariableArgumentAtRandom(mainType, otherName -> !otherName.equals(mainVariableName)));
+			otherVariablesForAtom.add(globalTheoryTestingSupport.pickGeneralizedTestingVariableArgumentAtRandom(mainType, otherName -> !otherName.equals(mainVariableName), globalTheoryTestingSupport));
 		}
 		
 		ArrayList<Expression> constants = new ArrayList<Expression>();
