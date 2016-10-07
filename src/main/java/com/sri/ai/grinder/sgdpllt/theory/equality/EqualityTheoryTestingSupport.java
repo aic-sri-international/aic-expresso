@@ -51,6 +51,7 @@ public class EqualityTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsT
 	
 	public EqualityTheoryTestingSupport(EqualityTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
 		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE));
+		setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, 
+				"unary_eq/1", TESTING_CATEGORICAL_TYPE, "binary_eq/2", TESTING_CATEGORICAL_TYPE));
 	}
 }

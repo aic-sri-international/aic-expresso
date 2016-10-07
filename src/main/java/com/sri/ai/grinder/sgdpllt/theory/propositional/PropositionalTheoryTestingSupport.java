@@ -53,7 +53,8 @@ import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 public class PropositionalTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	public PropositionalTheoryTestingSupport(PropositionalTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
 		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
+		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE,
+				"unary_prop/1", BOOLEAN_TYPE, "binary_prop/2", BOOLEAN_TYPE));
 	}
 	
 	@Override

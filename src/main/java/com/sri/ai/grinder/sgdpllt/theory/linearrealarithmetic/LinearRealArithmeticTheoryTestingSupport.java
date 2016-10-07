@@ -54,7 +54,8 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWith
 	
 	public LinearRealArithmeticTheoryTestingSupport(LinearRealArithmeticTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
 		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE));
+		setVariableNamesAndTypesForTesting(map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE, 
+				"unary_lra/1", TESTING_REAL_INTERVAL_TYPE, "binary_lra/2", TESTING_REAL_INTERVAL_TYPE));
 	}
 	
 	/**

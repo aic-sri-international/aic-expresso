@@ -65,7 +65,8 @@ public class DifferenceArithmeticTheoryTestingSupport extends AbstractTheoryWith
 	
 	public DifferenceArithmeticTheoryTestingSupport(DifferenceArithmeticTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
 		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE));
+		setVariableNamesAndTypesForTesting(map("I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE, 
+				"unary_dar/1", TESTING_INTEGER_INTERVAL_TYPE, "binary_dar/2", TESTING_INTEGER_INTERVAL_TYPE));
 	}
 	
 	/**
