@@ -205,6 +205,14 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
+	/**
+	 * Get variable names that are subtypes of a given type.
+	 * 
+	 * @param type
+	 *            the type to be checked.
+	 * @return a list of variable names whose types are subtypes of the given
+	 *         type.
+	 */
 	default List<String> getVariableNamesThatAreSubtypesOf(Type type) {
 		List<String> result =
 				getVariableNamesAndTypesForTesting().entrySet().stream()
@@ -226,6 +234,14 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
+	/**
+	 * Given a variable (a symbolic name or function application) return its
+	 * corresponding identifying name.
+	 * 
+	 * @param variable
+	 *            the variable whose identifying name is to be retrieved.
+	 * @return the identifying name for the variable.
+	 */
 	default String getVariableName(String variable) {
 		String result;
 		Expression variableExpresison = parse(variable);
@@ -239,6 +255,13 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
+	/**
+	 * Get the type associated with the given testing variable.
+	 * 
+	 * @param variable
+	 *            the testing variable whose type is to be returned.
+	 * @return the type of the given testing variable.
+	 */
 	default Type getTestingVariableType(String variable) {
 		String variableName = getVariableName(variable);		
 		Type result = getVariableNamesAndTypesForTesting().get(variableName);

@@ -149,7 +149,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 		if (theoryToTestingSupport == null) {
 			theoryToTestingSupport = new LinkedHashMap<>();
 			for (Theory subConstraintTheory : getTheory().getSubConstraintTheories()) {
-				theoryToTestingSupport.put(subConstraintTheory, TheoryTestingSupport.make(subConstraintTheory));
+				theoryToTestingSupport.put(subConstraintTheory, TheoryTestingSupport.make(getRandom(), subConstraintTheory));
 			}
 		}
 		
