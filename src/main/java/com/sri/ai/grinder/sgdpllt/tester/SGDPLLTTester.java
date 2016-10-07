@@ -56,7 +56,6 @@ import java.util.function.Function;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -126,7 +125,7 @@ public class SGDPLLTTester {
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), context);
 
@@ -376,7 +375,7 @@ public class SGDPLLTTester {
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		Symbol variable = makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom());
+		Expression variable = parse(theoryTestingSupport.pickTestingVariableAtRandom());
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(variable, theoryTestingSupport.getTheory(), context);
 
@@ -546,7 +545,7 @@ public class SGDPLLTTester {
 	private static void runGroupProblemSolvingTest(String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(makeSymbol(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), context);
 		
