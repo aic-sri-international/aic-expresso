@@ -206,13 +206,17 @@ public interface TheoryTestingSupport {
 			}
 		}
 		
-		result = extendGeneralizedVariableArgument(result, globalTheoryTestingSupport);
+		// Restrict extending the generalized variable to simple variables and function applications
+		// as it does not make sense to try to extend a functor argument.
+		if (!(targetType instanceof FunctionType)) {
+			result = extendGeneralizedVariableArgument(result, globalTheoryTestingSupport);
+		}
 		
 		return result;
 	}
 	
 	/**
-	 * A hook method for extending the types of generalized variable arguments
+	 * A hook method for extending the types of generalized (non-functor) variable arguments
 	 * that can be generated. For example, if the function application 'f(y)'
 	 * returned a real, the LinearRealAritmeticTheoryTestingSupport could extend
 	 * this into a general formula something like:<br>
@@ -227,7 +231,6 @@ public interface TheoryTestingSupport {
 	 *            the global theory in which the extension is to occur.
 	 * @return a possibly extended representation of the input variable.
 	 */
-// TODO - add overridden versions of this method to LinearRealArithmeticTheoryTestingSupport and CompoundTheoryTestingSupport	
 	default String extendGeneralizedVariableArgument(String variable, TheoryTestingSupport globalTheoryTestingSupport) {
 		String result = variable; // by default we don't extend
 		return result;

@@ -121,6 +121,13 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 		return result;
 	}
 	
+	@Override
+	public String extendGeneralizedVariableArgument(String variable, TheoryTestingSupport globalTheoryTestingSupport) {
+		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable);
+		String result = theoryTestingSupport.extendGeneralizedVariableArgument(variable, globalTheoryTestingSupport);
+		return result;
+	}
+	
 	//
 	//	
 	private void aggregateTestingInformation() throws Error {
