@@ -54,6 +54,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 
@@ -67,6 +68,8 @@ public class PropositionalTheory extends AbstractTheory {
 	public boolean isSuitableFor(Expression variable, Type type) {
 		boolean result =
 				type.getName().equals("Boolean") &&
+				!variable.hasFunctor(FunctorConstants.EQUALITY) &&
+				!variable.hasFunctor(FunctorConstants.DISEQUALITY) &&
 				!functorIsALogicalConnectiveIncludingConditionals(variable);
 		return result;
 	}
@@ -85,7 +88,9 @@ public class PropositionalTheory extends AbstractTheory {
 		Object syntacticFormType = expression.getSyntacticFormType();
 		boolean result = 
 				(syntacticFormType.equals("Symbol") || syntacticFormType.equals("Function application")) &&
-				GrinderUtil.isBooleanTyped(expression, context) && 
+				GrinderUtil.isBooleanTyped(expression, context) &&
+				!expression.hasFunctor(FunctorConstants.EQUALITY) &&
+				!expression.hasFunctor(FunctorConstants.DISEQUALITY) &&
 				!FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
 		return result;
 	}
