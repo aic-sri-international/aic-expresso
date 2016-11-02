@@ -7,6 +7,7 @@ import static com.sri.ai.util.Util.map;
 import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
@@ -71,11 +72,61 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(localTestContext);
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
-
-		// TODO - Look over with Rodrigo why this doesn't work.
-//		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("not P and Q and not unary_prop(true) and unary_prop(false)"), rootContext);
-//		step = unificationStepSolver.step(localTestContext);
-//		Assert.assertEquals(false,  step.itDepends());
-//		Assert.assertEquals(true, step.getValue());
+		
+		
+		// Now test out individual branches
+		unificationStepSolver = new UnificationStepSolver(parse("binary_prop(P, unary_prop(P))"), parse("binary_prop(unary_prop(Q), Q)"));
+		step = unificationStepSolver.step(rootContext);
+		Assert.assertEquals(true,  step.itDepends());
+		Assert.assertEquals(parse("P = unary_prop(Q)"), step.getSplitter());
+		
+		StepSolver<Boolean> falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
+		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
+		StepSolver<Boolean> trueItDependsSolver = step.getStepSolverForWhenSplitterIsTrue();
+		localTestContext = rootContext.conjoin(parse("P"), rootContext);
+		step = trueItDependsSolver.step(localTestContext);
+		Assert.assertEquals(true,  step.itDepends());
+		Assert.assertEquals(parse("P = unary_prop(Q)"), step.getSplitter());
+		
+		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
+		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
+		localTestContext = localTestContext.conjoin(parse("unary_prop(Q)"), localTestContext);
+		step = trueItDependsSolver.step(localTestContext);
+		Assert.assertEquals(true,  step.itDepends());
+		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
+		
+		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
+		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
+		localTestContext = localTestContext.conjoin(parse("unary_prop(P)"), localTestContext);
+		step = trueItDependsSolver.step(localTestContext);
+		Assert.assertEquals(true,  step.itDepends());
+		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
+		
+		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
+		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
+		localTestContext = localTestContext.conjoin(parse("Q"), localTestContext);
+		step = trueItDependsSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(true, step.getValue());
+	}
+	
+	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
+	@Test
+	public void advancedPropositionalTest() {
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new PropositionalTheory());
+		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE,
+				"unary_prop/1", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), "binary_prop/2", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, BOOLEAN_TYPE)));
+		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
+		
+		UnificationStepSolver unificationStepSolver = new UnificationStepSolver(parse("binary_prop(P, unary_prop(P))"), parse("binary_prop(unary_prop(Q), Q)"));
+		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("not P and Q and not unary_prop(true) and unary_prop(false)"), rootContext);
+		StepSolver.Step<Boolean> step = unificationStepSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(true, step.getValue());
 	}
 }
