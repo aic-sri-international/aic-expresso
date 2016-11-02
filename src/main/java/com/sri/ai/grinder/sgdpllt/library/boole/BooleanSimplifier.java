@@ -42,6 +42,8 @@ import static com.sri.ai.util.Util.map;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.sgdpllt.library.Disequality;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
@@ -83,7 +85,13 @@ public class BooleanSimplifier extends DefaultMapBasedTopSimplifier {
 				Equivalence.simplify(f),
 
 				FunctorConstants.IMPLICATION,     (Simplifier) (f, context) ->
-				Implication.simplify(f)
+				Implication.simplify(f),
+
+				FunctorConstants.EQUALITY,        (Simplifier) (f, context) ->
+				Equality.simplify(f, context),
+
+				FunctorConstants.DISEQUALITY,     (Simplifier) (f, context) ->
+				Disequality.simplify(f, context)
 				);
 	}
 
