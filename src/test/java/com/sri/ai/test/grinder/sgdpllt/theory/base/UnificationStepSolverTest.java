@@ -32,7 +32,9 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(context);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("P = Q"), step.getSplitter());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(context).itDepends());
 		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(context).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(context).itDepends());
 		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(context).getValue());
 		
 		context = context.conjoinWithConjunctiveClause(Expressions.parse("P and not Q"), context);

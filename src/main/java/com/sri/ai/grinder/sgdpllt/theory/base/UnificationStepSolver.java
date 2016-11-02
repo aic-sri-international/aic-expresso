@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +56,7 @@ import com.sri.ai.util.Util;
 
 public class UnificationStepSolver implements StepSolver<Boolean> {
 	
+	private static final Object TRUE = null;
 	private List<Expression> unificationEqualitiesToTest;
 	private List<Integer> unknownSolutionIndexesForUnificationEqualities;
 	private StepSolver.Step<Boolean> precomputedResult;
@@ -109,10 +112,10 @@ public class UnificationStepSolver implements StepSolver<Boolean> {
 				Expression equality = unificationEqualitiesToTest.get(unknownSolutionIndex);
 				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(equality);
 				Expression equalityResult = evaluatorStepSolver.solve(context);
-				if (Expressions.TRUE.equals(equalityResult)) {
+				if (equalityResult.equals(TRUE)) {
 					stepFoundSolutions.add(unknownSolutionIndex);
 				}
-				else if (Expressions.FALSE.equals(equalityResult)) {
+				else if (equalityResult.equals(FALSE)) {
 					// Can't unify
 					result = new StepSolver.Solution<>(Boolean.FALSE);
 					break;
@@ -136,7 +139,7 @@ public class UnificationStepSolver implements StepSolver<Boolean> {
 					
 					StepSolver<Boolean> ifTrue;					
 					if (stepUnknownSolutionIndexesForUnificationEqualities.size() == 1) {
-						// If there is only 1 unknown unification eqaulity remaining, then on the true branch
+						// If there is only 1 unknown unification equality remaining, then on the true branch
 						// we know the unification will result in true, so just return that known up front.
 						ifTrue = new ConstantStepSolver<>(Boolean.TRUE);
 					}
