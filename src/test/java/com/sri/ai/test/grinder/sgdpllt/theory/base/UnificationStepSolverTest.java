@@ -3,7 +3,6 @@ package com.sri.ai.test.grinder.sgdpllt.theory.base;
 import java.util.Random;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
@@ -17,7 +16,6 @@ public class UnificationStepSolverTest {
 
 	private Random seededRandom = new Random(1);
 	
-	@Ignore
 	@Test
 	public void propositionalTest() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new PropositionalTheory());
