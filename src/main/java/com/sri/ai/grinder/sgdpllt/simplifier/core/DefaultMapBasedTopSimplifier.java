@@ -50,6 +50,12 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 /**
  * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
  * and applying them only once to the top expression only.
+ * <p>
+ * The application works by checking if the simplified top expression is a function application
+ * and, if so, if there is a function application simplifier for that particular functor.
+ * Otherwise, check if there is a simplifier for the syntactic form type of the top expression
+ * (note that there may be a simplifier for the "Function application" syntactic form type,
+ * which will be used if there is no function application simplifier for the particular functor in question.
  * 
  * @author braz
  *
@@ -69,11 +75,15 @@ public class DefaultMapBasedTopSimplifier extends AbstractMapBasedSimplifier imp
 
 	@Override
 	public Expression apply(Expression expression, Context context) {
-		Simplifier simplifier;
+		Simplifier simplifier = null;
+		
 		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
 		}
-		else {
+		
+		// if there it is not a function application, or there is no simplifier for the particular functor
+		// go by syntactic form type.
+		if (simplifier == null) {
 			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
 		}
 		

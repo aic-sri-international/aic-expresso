@@ -116,12 +116,11 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		Expression value = group.additiveIdentityElement();
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, context);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
-			Expression indicesConditionEvaluation = 
-					evaluateGivenValuesAndCheckForBeingAConstant(indicesCondition, values, context);
+			Expression indicesConditionEvaluation = evaluateGivenValues(indicesCondition, values, context);
 			if (indicesConditionEvaluation.equals(FALSE)) {
 				continue;
 			}
-			Expression bodyEvaluation = evaluateGivenValuesAndCheckForBeingAConstant(body, values, context);
+			Expression bodyEvaluation = evaluateGivenValues(body, values, context);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;
 			}
@@ -130,7 +129,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		return value;
 	}
 
-	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, Context context) throws Error {
+	private Expression evaluateGivenValues(Expression expression, Map<Expression, Expression> values, Context context) throws Error {
 		Expression expressionEvaluation = extendWith(values, context).apply(expression, context);
 		return expressionEvaluation;
 	}
