@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 
 import java.util.ArrayList;
@@ -56,7 +57,6 @@ import com.sri.ai.util.Util;
 
 public class UnificationStepSolver implements StepSolver<Boolean> {
 	
-	private static final Object TRUE = null;
 	private List<Expression> unificationEqualitiesToTest;
 	private List<Integer> unknownSolutionIndexesForUnificationEqualities;
 	private StepSolver.Step<Boolean> precomputedResult;
