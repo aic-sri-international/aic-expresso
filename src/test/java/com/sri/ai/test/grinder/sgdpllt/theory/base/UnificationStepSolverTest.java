@@ -3,6 +3,7 @@ package com.sri.ai.test.grinder.sgdpllt.theory.base;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheoryTestingSupport.TESTING_CATEGORICAL_TYPE;
 
 import java.util.Random;
 
@@ -16,6 +17,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.base.UnificationStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 
 public class UnificationStepSolverTest {
@@ -128,5 +130,71 @@ public class UnificationStepSolverTest {
 		StepSolver.Step<Boolean> step = unificationStepSolver.step(localTestContext);
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(true, step.getValue());
+	}
+	
+	@Test
+	public void equalityTest() {
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new EqualityTheory(false, true));
+		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, 
+				"unary_eq/1", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
+				"binary_eq/2", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE)));
+		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
+		
+		UnificationStepSolver unificationStepSolver = new UnificationStepSolver(parse("unary_eq(X)"), parse("unary_eq(X)"));
+		
+		StepSolver.Step<Boolean> step = unificationStepSolver.step(rootContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(true, step.getValue());
+		
+		unificationStepSolver = new UnificationStepSolver(parse("unary_eq(X)"), parse("unary_eq(Y)"));
+		step = unificationStepSolver.step(rootContext);
+		Assert.assertEquals(true, step.itDepends());		
+		Assert.assertEquals(Expressions.parse("X = Y"), step.getSplitter());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		
+		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = a and Y = b"), rootContext);
+		step = unificationStepSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(false, step.getValue());
+		
+		unificationStepSolver = new UnificationStepSolver(parse("unary_eq(X)"), parse("unary_eq(a)"));
+		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = a"), rootContext);
+		step = unificationStepSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(true, step.getValue());
+		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = b"), rootContext);
+		step = unificationStepSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(false, step.getValue());
+		
+		unificationStepSolver = new UnificationStepSolver(parse("binary_eq(X, unary_eq(X))"), parse("binary_eq(unary_eq(Y), Y)"));
+		step = unificationStepSolver.step(rootContext);
+		Assert.assertEquals(true, step.itDepends());		
+		Assert.assertEquals(Expressions.parse("X = unary_eq(Y)"), step.getSplitter());
+	}
+	
+	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
+	@Test
+	public void advancedEqualityTest() {
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new EqualityTheory(false, true));
+		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, 
+				"unary_eq/1", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
+				"binary_eq/2", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE)));
+		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
+		
+		UnificationStepSolver unificationStepSolver = new UnificationStepSolver(parse("binary_eq(X, unary_eq(X))"), parse("binary_eq(unary_eq(Y), Y)"));
+		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = b and Y = a and unary_eq(Y) = b and unary_eq(X) = a"), rootContext);
+		StepSolver.Step<Boolean> step = unificationStepSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(true, step.getValue());
+		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = a and Y = a and unary_eq(Y) = b and unary_eq(X) = a"), rootContext);
+		step = unificationStepSolver.step(localTestContext);
+		Assert.assertEquals(false,  step.itDepends());
+		Assert.assertEquals(false, step.getValue());
 	}
 }
