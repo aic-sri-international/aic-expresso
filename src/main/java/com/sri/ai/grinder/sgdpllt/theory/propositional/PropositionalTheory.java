@@ -42,6 +42,8 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -87,7 +89,7 @@ public class PropositionalTheory extends AbstractTheory {
 	public boolean isNonTrivialAtom(Expression expression, Context context) {
 		Object syntacticFormType = expression.getSyntacticFormType();
 		boolean result = 
-				(syntacticFormType.equals("Symbol") || syntacticFormType.equals("Function application")) &&
+				(syntacticFormType.equals(Symbol.SYNTACTIC_FORM_TYPE) || syntacticFormType.equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) &&
 				GrinderUtil.isBooleanTyped(expression, context) &&
 				!expression.hasFunctor(FunctorConstants.EQUALITY) &&
 				!expression.hasFunctor(FunctorConstants.DISEQUALITY) &&

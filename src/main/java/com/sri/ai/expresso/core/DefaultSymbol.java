@@ -85,7 +85,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 
 	@Override
 	public Object getSyntacticFormType() {
-		return "Symbol";
+		return Symbol.SYNTACTIC_FORM_TYPE;
 	}
 
 	@Override

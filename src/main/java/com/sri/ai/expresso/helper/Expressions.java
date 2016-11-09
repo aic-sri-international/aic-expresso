@@ -61,6 +61,7 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
@@ -533,13 +534,13 @@ public class Expressions {
 
 	/** Indicates whether an expression is a Symbol representing a numeric constant. */
 	public static boolean isNumber(Expression expression) {
-		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
+		boolean result = expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) &&
 				expression.getValue() instanceof Number;
 		return result;
 	}
 	
 	public static boolean isStringLiteral(Expression expression) {
-		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
+		boolean result = expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) &&
 				((Symbol)expression).isStringLiteral();
 		return result;
 	}
@@ -633,14 +634,14 @@ public class Expressions {
 	
 	public static boolean isSymbolOrFunctionApplication(Expression expression) {
 		boolean result =
-			expression.getSyntacticFormType().equals("Function application") ||
-			expression.getSyntacticFormType().equals("Symbol");
+			expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE) ||
+			expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE);
 		return result;
 	}
 
 	public static boolean isFunctionApplicationWithArguments(Expression expression) {
 		boolean result =
-			expression.getSyntacticFormType().equals("Function application") &&
+			expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE) &&
 			expression.numberOfArguments() > 0;
 		return result;
 	}
@@ -665,7 +666,7 @@ public class Expressions {
 			return expression;
 		}
 		else {
-			if ( ! expression.getSyntacticFormType().equals("Function application")) {
+			if ( ! expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 				throw new Error("Expressions.replaceArguments can only be invoked with a number of new arguments different from the number of old arguments if the expression is a function application.");
 			}
 			return apply(expression.getFunctor(), newArguments);
@@ -824,7 +825,7 @@ public class Expressions {
 		// this method became more fundamentally distinct since Expression.replace uses contextual expansion and therefore these checks,
 		// while this method here does not perform such checks.
 		
-		if (expression.getSyntacticFormType().equals("Symbol")) {
+		if (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
 			if (registry.isVariable(expression)) {
 				if (!quantifiedVariables.contains(expression)) {
 					freeVariables.add(expression);
@@ -865,7 +866,7 @@ public class Expressions {
 
 	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Stack<Expression> quantifiedSymbols, Registry registry) {
 		
-		if (expression.getSyntacticFormType().equals("Symbol")) {
+		if (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
 			if (!quantifiedSymbols.contains(expression)) {
 				freeSymbols.add(expression);
 			}

@@ -40,6 +40,7 @@ package com.sri.ai.expresso.helper;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 
 /**
  * A {@link Predicate} indicating whether an expression is a
@@ -67,7 +68,7 @@ public class ExpressionIsSymbolOfType implements Predicate<Expression> {
 
 	public static boolean isSymbolOfType(Expression expression, Class clazz) {
 		return
-		(expression.getSyntacticFormType().equals("Symbol") &&
+		(expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) &&
 				clazz.isInstance(expression.getValue()))
 		||
 		clazz.isInstance(expression);

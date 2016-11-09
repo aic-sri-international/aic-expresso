@@ -40,6 +40,7 @@ package com.sri.ai.expresso.helper;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 
 /**
  * A unary function returning the value of an atomic expression. Returns
@@ -54,7 +55,7 @@ public class GetValue implements Function<Expression, Object> {
 	
 	@Override
 	public Object apply(Expression expression) {
-		if ( ! (expression.getSyntacticFormType().equals("Symbol"))) {
+		if ( ! (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE))) {
 			return null;
 		}
 		return expression.getValue();

@@ -53,6 +53,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 
@@ -71,7 +72,7 @@ public class BooleanUtil {
 	 * @return removes any duplicates from expression
 	 */
 	public static Expression removeUnnecessary(Expression expression) {
-		if (expression.getSyntacticFormType().equals("Function application")) {
+		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			Expression functor = expression.getFunctor();
 			if ( And.isConjunction(expression) || Or.isDisjunction(expression) ) {
 				boolean isConjunction = And.isConjunction(expression);

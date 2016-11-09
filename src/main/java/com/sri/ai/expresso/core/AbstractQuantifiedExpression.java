@@ -49,6 +49,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
@@ -118,7 +119,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		for (int indexExpressionIndex = 0; indexExpressionIndex != indexExpressionsList.size(); indexExpressionIndex++) {
 			Expression indexExpression = indexExpressionsList.get(indexExpressionIndex);
 			Expression index = IndexExpressions.getIndex(indexExpression);
-			if (index.getSyntacticFormType().equals("Function application")) {
+			if (index.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 				for (int argumentIndex = 0; argumentIndex != index.numberOfArguments(); argumentIndex++) {
 					ExpressionAndSyntacticContext expressionAndSyntacticContext = makeAddressForIndexArgument(indexExpressionIndex, index, argumentIndex);
 					result.add(expressionAndSyntacticContext);

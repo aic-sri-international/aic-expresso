@@ -166,7 +166,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 
 	@Override
 	public Object getSyntacticFormType() {
-		return "Function application";
+		return FunctionApplication.SYNTACTIC_FORM_TYPE;
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 
 		@Override
 		public Expression replace(Expression expression, Expression newSubExpression) {
-			Util.myAssert(() -> expression.getSyntacticFormType().equals("Function application"), () -> DefaultFunctionApplication.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
+			Util.myAssert(() -> expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE), () -> DefaultFunctionApplication.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
 			Expression result = expression.set(this.index, newSubExpression);
 			return result;
 		}
@@ -299,7 +299,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	 */
 	public static int getPrecedence(Expression expression) {
 		int result = 100;
-		if (expression.getSyntacticFormType().equals("Function application")) {
+		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			if (
 					expression.hasFunctor(FunctorConstants.IF_THEN_ELSE)
 					||

@@ -46,6 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.SubExpressionAddress;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -298,7 +299,7 @@ public abstract class AbstractExpression implements Expression {
 	@Override
 	public Expression getFunctorOrSymbol() {
 		Expression result = getFunctor();
-		if (result == null && getSyntacticFormType().equals("Symbol")) {
+		if (result == null && getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
 			result = this;
 		}
 		return result;

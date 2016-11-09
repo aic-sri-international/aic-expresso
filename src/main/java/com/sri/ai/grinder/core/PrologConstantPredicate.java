@@ -40,6 +40,7 @@ package com.sri.ai.grinder.core;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 
 /**
  * A predicate indicating which symbols are considered constants by Prolog conventions.
@@ -51,7 +52,7 @@ public class PrologConstantPredicate implements Predicate<Expression> {
 	
 	@Override
 	public boolean apply(Expression expression) {
-		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
+		boolean result = expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) &&
 				!isPrologVariable(expression);
 		return result;
 	}

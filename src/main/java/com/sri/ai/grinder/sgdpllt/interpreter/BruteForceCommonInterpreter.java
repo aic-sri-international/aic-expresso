@@ -46,6 +46,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -98,7 +99,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		Map<String, Simplifier> result = super.makeSyntacticFormTypeSimplifiers();
 		result.put(
-				"Symbol", (Simplifier) (s, p) -> {
+				Symbol.SYNTACTIC_FORM_TYPE, (Simplifier) (s, p) -> {
 					Expression symbolValue = assignment.get(s);
 					if (symbolValue == null) {
 						symbolValue = s;

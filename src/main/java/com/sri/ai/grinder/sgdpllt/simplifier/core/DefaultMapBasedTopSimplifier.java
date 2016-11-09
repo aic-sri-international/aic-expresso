@@ -54,7 +54,7 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
  * The application works by checking if the simplified top expression is a function application
  * and, if so, if there is a function application simplifier for that particular functor.
  * Otherwise, check if there is a simplifier for the syntactic form type of the top expression
- * (note that there may be a simplifier for the "Function application" syntactic form type,
+ * (note that there may be a simplifier for the FunctionApplication.SYNTACTIC_FORM_TYPE,
  * which will be used if there is no function application simplifier for the particular functor in question.
  * 
  * @author braz

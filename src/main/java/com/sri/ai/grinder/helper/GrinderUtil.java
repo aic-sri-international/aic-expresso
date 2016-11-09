@@ -76,9 +76,11 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.AbstractExtensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
@@ -278,7 +280,7 @@ public class GrinderUtil {
 	 */
 	public static Expression getTypeOfFunctor(Expression functionApplication, Expression functionApplicationType, Registry registry) {
 		Expression result;
-		if (functionApplication.getSyntacticFormType().equals("Function application")) {
+		if (functionApplication.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			List<Expression> argumentTypes = Util.mapIntoArrayList(functionApplication.getArguments(), new GetType(registry));
 			if (argumentTypes.contains(null)) {
 				result = null; // unknown type
@@ -304,7 +306,7 @@ public class GrinderUtil {
 		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
 			result = makeSymbol("Boolean");
 		}
-		else if (expression.getSyntacticFormType().equals("Function application") &&
+		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE) &&
 				list(SUM, PRODUCT, MAX).contains(expression.getFunctor().toString())) {
 			Expression argument = expression.get(0);
 			if (argument.getSyntacticFormType().equals("Intensional set")) {
@@ -413,7 +415,7 @@ public class GrinderUtil {
 			Expression headType = getType(set.getHead(), registry);
 			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
-		else if (expression.getSyntacticFormType().equals("Symbol")) {
+		else if (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
 			if (expression.getValue() instanceof Integer) {
 				result = makeSymbol("Integer");
 			}
@@ -448,7 +450,7 @@ public class GrinderUtil {
 				}
 			}
 		}
-		else if (expression.getSyntacticFormType().equals("Function application")) {
+		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			Expression functionType = getType(expression.getFunctor(), registry);
 			if (functionType == null) {
 				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to registry.");
@@ -527,7 +529,7 @@ public class GrinderUtil {
 	
 	public static boolean isNumericFunctionApplication(Expression expression) {
 		boolean result =
-				expression.getSyntacticFormType().equals("Function application")
+				expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)
 				&& arithmeticFunctors.contains(expression.getFunctor().toString());
 		return result;
 	}
@@ -536,7 +538,7 @@ public class GrinderUtil {
 	
 	public static boolean isComparisonFunctionApplication(Expression expression) {
 		boolean result =
-				expression.getSyntacticFormType().equals("Function application")
+				expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)
 				&& comparisonFunctors.contains(expression.getFunctor().toString());
 		return result;
 	}

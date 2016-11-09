@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpllt.library;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 
 /**
@@ -68,6 +69,6 @@ public class IsVariable implements Predicate<Expression> {
 	}
 
 	public static boolean isVariable(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return expression.getSyntacticFormType().equals("Symbol") && !isUniquelyNamedConstantPredicate.apply(expression);
+		return expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) && !isUniquelyNamedConstantPredicate.apply(expression);
 	}
 }

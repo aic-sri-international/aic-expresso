@@ -40,6 +40,7 @@ package com.sri.ai.expresso.helper;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 
 /**
  * A {@link Predicate} that determines if a given expression is a function application.
@@ -51,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 public class IsFunctionApplication implements Predicate<Expression> {
 	@Override
 	public boolean apply(Expression expression) {
-		boolean result = expression.getSyntacticFormType().equals("Function application");
+		boolean result = expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE);
 		return result;
 	}
 }

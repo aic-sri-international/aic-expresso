@@ -47,6 +47,8 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface Symbol extends Expression {
 	
+	String SYNTACTIC_FORM_TYPE = "Symbol";
+	
 	/**
 	 * Returns the value of an expression if it is based on a symbol.
 	 */

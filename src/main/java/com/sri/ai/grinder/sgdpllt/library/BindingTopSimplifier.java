@@ -41,6 +41,7 @@ import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
@@ -56,7 +57,7 @@ public class BindingTopSimplifier extends DefaultMapBasedTopSimplifier {
 	public BindingTopSimplifier() {
 		super(
 				map(),
-				map("Symbol", (Simplifier) (e, c) -> {
+				map(Symbol.SYNTACTIC_FORM_TYPE, (Simplifier) (e, c) -> {
 					Expression binding = c.binding(e);
 					Expression result = binding != null? binding : e;
 					return result;

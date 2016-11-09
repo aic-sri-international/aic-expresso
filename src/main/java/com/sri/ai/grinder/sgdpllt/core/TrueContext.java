@@ -53,6 +53,8 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Registry;
@@ -330,10 +332,10 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
 			Expression index     = entry.getKey();
 			Expression indexType = entry.getValue();
-			if (index.getSyntacticFormType().equals("Symbol")) {
+			if (index.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
 				result.put(index, indexType);
 			}
-			else if (index.getSyntacticFormType().equals("Function application")) {
+			else if (index.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 				Expression typeOfFunctor = getTypeOfFunctor(index, indexType, this);
 				result.put(index.getFunctorOrSymbol(), typeOfFunctor);
 			}
