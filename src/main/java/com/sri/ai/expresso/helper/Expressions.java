@@ -181,7 +181,7 @@ public class Expressions {
 		else if (label.equals(CountingFormula.LABEL)) {
 			result = makeDefaultCountingFormulaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(LambdaExpression.ROOT)) {
+		else if (label.equals(LambdaExpression.LABEL)) {
 			result = makeDefaultLambdaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
 		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {

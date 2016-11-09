@@ -64,12 +64,12 @@ public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABo
 
 	@Override
 	public Object getSyntacticFormType() {
-		return "Lambda expression";
+		return LambdaExpression.SYNTACTIC_FORM_TYPE;
 	}
 
 	@Override
 	public String getSyntaxTreeLabel() {
-		return LambdaExpression.ROOT;
+		return LambdaExpression.LABEL;
 	}
 
 	@Override

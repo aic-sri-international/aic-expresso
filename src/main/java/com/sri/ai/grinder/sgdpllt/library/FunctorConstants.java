@@ -60,7 +60,7 @@ public class FunctorConstants {
 	public static final String IF_THEN_ELSE = "if . then . else .";
 	public final static String THERE_EXISTS  = ThereExists.LABEL;
 	public final static String FOR_ALL  = ForAll.LABEL;
-	public final static String LAMBDA_EXPRESSION = LambdaExpression.ROOT;
+	public final static String LAMBDA_EXPRESSION = LambdaExpression.LABEL;
 	public final static String PLUS  = "+";
 	public static final String MINUS = "-";
 	public final static String TIMES  = "*";
