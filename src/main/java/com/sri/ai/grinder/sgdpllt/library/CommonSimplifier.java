@@ -41,6 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
@@ -69,6 +70,7 @@ public class CommonSimplifier extends RecursiveExhaustiveSeriallyMergedMapBasedS
 				new NumericSimplifier(),
 				new EqualitySimplifier(),
 				new InequalitySimplifier(),
-				new CardinalityOfSetConstantSimplifier());
+				new CardinalityOfSetConstantSimplifier(),
+				new LambdaBetaReductionSimplifier());
 	}
 }
