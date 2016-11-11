@@ -100,6 +100,16 @@ public class IntegerExpressoType implements Type, Serializable {
 	}
 	
 	@Override
+	public boolean isDiscrete() {
+		return true;
+	}
+	
+	@Override
+	public boolean isFinite() {
+		return false;
+	}
+	
+	@Override
 	public String toString() {
 		return "Integer";
 	}

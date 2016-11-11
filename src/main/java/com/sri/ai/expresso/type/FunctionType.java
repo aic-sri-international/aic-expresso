@@ -38,6 +38,8 @@
 package com.sri.ai.expresso.type;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
 
@@ -46,14 +48,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.StringJoiner;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.util.math.Rational;
 
 /**
  * Represents function types.
@@ -69,6 +79,12 @@ public class FunctionType implements Type, Serializable {
 	private List<Type> argumentTypes;
 	//
 	private String cachedString;
+	// NOTE: Following used for iteration logic
+	private Registry cachedIterateRegistry;
+	private Expression coDomainVariable;
+	private List<Expression> argVariables;
+	private StringJoiner lambdaApplicationPrefix;
+	private List<Expression> variables;
 
 	public FunctionType(Type codomain, Type... argumentTypes) {
 		this.codomain = codomain;
@@ -94,7 +110,57 @@ public class FunctionType implements Type, Serializable {
 
 	@Override
 	public Iterator<Expression> iterator() {
-		throw new Error("Function types cannot be enumerated.");
+		if (!isDiscrete()) {
+			throw new Error("Only discrete function types can be enumerated.");
+		}
+		
+		if (cachedIterateRegistry == null) {
+			// Pre-compute
+			cachedIterateRegistry = new DefaultRegistry();
+			Map<Expression, Expression> symbolsAndTypes = new LinkedHashMap<>();
+			
+			coDomainVariable = makeSymbol("C");
+			cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
+			symbolsAndTypes.put(coDomainVariable, parse(getCodomain().getName()));
+			
+			argVariables = new ArrayList<>();
+			for (int i = 0; i < getArgumentTypes().size(); i++) {
+				cachedIterateRegistry = cachedIterateRegistry.add(getArgumentTypes().get(i));
+				argVariables.add(makeSymbol("A"+(i+1)));
+				symbolsAndTypes.put(argVariables.get(i), parse(getArgumentTypes().get(i).getName()));
+			}
+			cachedIterateRegistry = cachedIterateRegistry.setSymbolsAndTypes(symbolsAndTypes);
+			
+			lambdaApplicationPrefix = new StringJoiner(", ", "(lambda ", " : ");
+			for (Expression argVar : argVariables) {
+				lambdaApplicationPrefix.add(argVar + " in " + symbolsAndTypes.get(argVar));
+			}
+			
+			variables = new ArrayList<>(argVariables);
+			variables.add(coDomainVariable);
+		}
+		
+		return FunctionIterator.functionIterator(new AssignmentsIterator(variables, cachedIterateRegistry), assignment -> {
+			StringBuilder lambdaApplication = new StringBuilder();
+			lambdaApplication.append(lambdaApplicationPrefix.toString());
+			
+			Expression coDomainValue = assignment.get(coDomainVariable);
+			StringJoiner lambdaApplicationBody = new StringJoiner(" else ", "", ")");
+// NOTE: Not required to create a conditional.			
+//			for (int i = 0; i < argVariables.size()-1; i++) {
+//				lambdaApplicationBody.add("if "+argVariables.get(i) + " = "+assignment.get(argVariables.get(i))+" then "+coDomainValue);
+//			}
+			lambdaApplicationBody.add(coDomainValue.toString());
+			lambdaApplication.append(lambdaApplicationBody.toString());
+			
+			StringJoiner lambdaApplicationArgs = new StringJoiner(", ", "(", ")");
+			for (Expression argVar : argVariables) {
+				lambdaApplicationArgs.add(assignment.get(argVar).toString());
+			}
+			lambdaApplication.append(lambdaApplicationArgs.toString());
+			
+			return parse(lambdaApplication.toString());
+		});
 	}
 
 	@Override
@@ -110,7 +176,27 @@ public class FunctionType implements Type, Serializable {
 
 	@Override
 	public Expression cardinality() {
+		if (isFinite()) {
+			Rational cardinality = codomain.cardinality().rationalValue().multiply( 
+					argumentTypes.stream()
+						.map(Type::cardinality)
+						.map(Expression::rationalValue)						
+						.reduce(Rational.ONE, Rational::multiply)
+			);
+			
+			return makeSymbol(cardinality);
+		}
 		return Expressions.INFINITY;
+	}
+	
+	@Override
+	public boolean isDiscrete() {
+		return codomain.isDiscrete() && argumentTypes.stream().allMatch(Type::isDiscrete);
+	}
+	
+	@Override
+	public boolean isFinite() {
+		return codomain.isFinite() && argumentTypes.stream().allMatch(Type::isFinite);
 	}
 
 	@Override

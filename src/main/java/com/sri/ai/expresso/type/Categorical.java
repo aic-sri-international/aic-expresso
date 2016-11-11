@@ -179,6 +179,16 @@ public class Categorical implements Type, Serializable {
 	public Expression cardinality() {
 		return cardinalityExpression;
 	}
+	
+	@Override
+	public boolean isDiscrete() {
+		return true;
+	}
+	
+	@Override
+	public boolean isFinite() {
+		return cardinality >= 0; // NOTE: -1 if unknown, -2 if infinite
+	}
 
 	@Override
 	public String toString() {

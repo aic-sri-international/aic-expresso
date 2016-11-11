@@ -272,6 +272,16 @@ public class RealInterval implements Type, Serializable {
 		}
 		return cachedCardinality;
 	}
+	
+	@Override
+	public boolean isDiscrete() {
+		return false;
+	}
+	
+	@Override
+	public boolean isFinite() {
+		return false;
+	}
 
 	private Expression cardinalityWhenOneOfTheBoundsIsNotANumber() {
 		if (lowerBoundIsOpen || upperBoundIsOpen) {

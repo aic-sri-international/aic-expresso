@@ -1,0 +1,172 @@
+package com.sri.ai.test.expresso.type;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
+import java.util.StringJoiner;
+
+import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.expresso.type.IntegerExpressoType;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
+
+public class TypeTest {
+	
+	@Test
+	public void testCardinality() {
+		Assert.assertEquals(parse("24"), new FunctionType(new IntegerInterval(1, 3), new IntegerInterval(1, 4), new IntegerInterval(1, 2)).cardinality());
+	}
+	
+	@Test
+	public void testIterator() {
+		FunctionType fType;
+		
+		fType = new FunctionType(new IntegerInterval(1, 2));
+		checkFunctionIteration(fType, 
+				"(lambda : 1)()",
+				"(lambda : 2)()"
+				);
+		
+		fType = new FunctionType(new IntegerInterval(1, 2), new Categorical("Car", 2));
+		checkFunctionIteration(fType, 
+				"(lambda A1 in Car : 1)(car1)",
+				"(lambda A1 in Car : 1)(car2)",
+				"(lambda A1 in Car : 2)(car1)",
+				"(lambda A1 in Car : 2)(car2)"
+				);
+		
+		fType = new FunctionType(new IntegerInterval(1, 2), new Categorical("Car", 2), new Categorical("Bike", 2));
+		checkFunctionIteration(fType, 
+				"(lambda A1 in Car, A2 in Bike : 1)(car1, bike1)",
+				"(lambda A1 in Car, A2 in Bike : 1)(car2, bike1)",
+				"(lambda A1 in Car, A2 in Bike : 1)(car1, bike2)",
+				"(lambda A1 in Car, A2 in Bike : 1)(car2, bike2)",
+				"(lambda A1 in Car, A2 in Bike : 2)(car1, bike1)",
+				"(lambda A1 in Car, A2 in Bike : 2)(car2, bike1)",
+				"(lambda A1 in Car, A2 in Bike : 2)(car1, bike2)",
+				"(lambda A1 in Car, A2 in Bike : 2)(car2, bike2)"
+				);
+	}
+	
+	public void checkFunctionIteration(FunctionType type, String... expectedLines) {
+		StringJoiner expected = new StringJoiner("\n", type.getName()+"\n", "");
+		for (String expectedLine : expectedLines) {
+			expected.add(expectedLine);
+		}
+		StringJoiner actual = new StringJoiner("\n", type.getName()+"\n", "");
+		type.iterator().forEachRemaining(actualLine -> actual.add(actualLine.toString()));
+		
+		Assert.assertEquals(expected.toString(), actual.toString());
+	}
+	
+	@Test
+	public void testIsDiscrete() {
+		//
+		// Categorical type tests
+		Assert.assertTrue(new Categorical("UnknownCardCatType", -1).isDiscrete());
+		Assert.assertTrue(new Categorical("InfiniteCardCatType", -2).isDiscrete());
+		Assert.assertTrue(new Categorical("CardCatType", 0).isDiscrete());
+		Assert.assertTrue(new Categorical("CardCatType", 100).isDiscrete());
+		
+		//
+		// Integer type tests
+		Assert.assertTrue(new IntegerExpressoType().isDiscrete());
+		
+		//
+		// Real type tests
+		Assert.assertFalse(new RealExpressoType().isDiscrete());
+		
+		//
+		// Integer Interval type tests
+		Assert.assertTrue(new IntegerInterval("Integer").isDiscrete());
+		Assert.assertTrue(new IntegerInterval("integer_Interval(-infinity, inifinity)").isDiscrete());
+		Assert.assertTrue(new IntegerInterval("integer_Interval(-10, inifinity)").isDiscrete());
+		Assert.assertTrue(new IntegerInterval("integer_Interval(-infinity, 10)").isDiscrete());
+		Assert.assertTrue(new IntegerInterval("integer_Interval(-10, 10)").isDiscrete());
+		
+		//
+		// Real Interval type tests
+		Assert.assertFalse(new RealInterval("Real").isDiscrete());
+		Assert.assertFalse(new RealInterval("[-infinity;infinity]").isDiscrete());
+		Assert.assertFalse(new RealInterval("[-10;infinity]").isDiscrete());
+		Assert.assertFalse(new RealInterval("[-infinity;10]").isDiscrete());
+		Assert.assertFalse(new RealInterval("[0;1]").isDiscrete());
+		
+		//
+		// Function Type
+		Assert.assertTrue(new FunctionType(new IntegerExpressoType()).isDiscrete());
+		Assert.assertFalse(new FunctionType(new RealExpressoType()).isDiscrete());
+		Assert.assertTrue(new FunctionType(new Categorical("Cat", 10)).isDiscrete());
+		Assert.assertTrue(new FunctionType(new IntegerInterval("Integer")).isDiscrete());
+		Assert.assertFalse(new FunctionType(new RealInterval("Real")).isDiscrete());
+		//
+		Assert.assertTrue(new FunctionType(new IntegerExpressoType(), new Categorical("Cat", 10)).isDiscrete());
+		Assert.assertFalse(new FunctionType(new IntegerExpressoType(), new RealExpressoType()).isDiscrete());
+		Assert.assertFalse(new FunctionType(new RealExpressoType(), new IntegerExpressoType()).isDiscrete());
+		Assert.assertTrue(new FunctionType(new Categorical("Cat", 10), new IntegerExpressoType()).isDiscrete());
+		Assert.assertFalse(new FunctionType(new Categorical("Cat", 10), new RealExpressoType()).isDiscrete());
+		Assert.assertTrue(new FunctionType(new IntegerInterval("Integer"), new IntegerExpressoType()).isDiscrete());
+		Assert.assertFalse(new FunctionType(new IntegerInterval("Integer"), new RealExpressoType()).isDiscrete());
+		Assert.assertFalse(new FunctionType(new RealInterval("Real")).isDiscrete());
+		Assert.assertFalse(new FunctionType(new RealInterval("Real"), new IntegerExpressoType()).isDiscrete());
+	}
+	
+	@Test
+	public void testIsFinite() {
+		//
+		// Categorical type tests
+		Assert.assertFalse(new Categorical("UnknownCardCatType", -1).isFinite());
+		Assert.assertFalse(new Categorical("InfiniteCardCatType", -2).isFinite());
+		Assert.assertTrue(new Categorical("CardCatType", 0).isFinite());
+		Assert.assertTrue(new Categorical("CardCatType", 100).isFinite());
+		
+		//
+		// Integer type tests
+		Assert.assertFalse(new IntegerExpressoType().isFinite());
+		
+		//
+		// Real type tests
+		Assert.assertFalse(new RealExpressoType().isFinite());
+		
+		//
+		// Integer Interval type tests
+		Assert.assertFalse(new IntegerInterval("Integer").isFinite());
+		Assert.assertFalse(new IntegerInterval("integer_Interval(-infinity, inifinity)").isFinite());
+		Assert.assertFalse(new IntegerInterval("integer_Interval(-10, inifinity)").isFinite());
+		Assert.assertFalse(new IntegerInterval("integer_Interval(-infinity, 10)").isFinite());
+		Assert.assertTrue(new IntegerInterval("integer_Interval(-10, 10)").isFinite());
+		
+		//
+		// Real Interval type tests
+		Assert.assertFalse(new RealInterval("Real").isFinite());
+		Assert.assertFalse(new RealInterval("[-infinity;infinity]").isFinite());
+		Assert.assertFalse(new RealInterval("[-10;infinity]").isFinite());
+		Assert.assertFalse(new RealInterval("[-infinity;10]").isFinite());
+		Assert.assertFalse(new RealInterval("[0;1]").isFinite());
+		
+		//
+		// Function Type
+		Assert.assertFalse(new FunctionType(new IntegerExpressoType()).isFinite());
+		Assert.assertFalse(new FunctionType(new RealExpressoType()).isFinite());
+		Assert.assertTrue(new FunctionType(new Categorical("Cat", 10)).isFinite());
+		Assert.assertTrue(new FunctionType(new IntegerInterval(1, 3)).isFinite());
+		Assert.assertFalse(new FunctionType(new IntegerInterval("Integer")).isFinite());
+		Assert.assertFalse(new FunctionType(new RealInterval("Real")).isFinite());
+		//
+		Assert.assertFalse(new FunctionType(new IntegerExpressoType(), new Categorical("Cat", 10)).isFinite());
+		Assert.assertFalse(new FunctionType(new IntegerExpressoType(), new RealExpressoType()).isFinite());
+		Assert.assertFalse(new FunctionType(new RealExpressoType(), new IntegerExpressoType()).isFinite());
+		Assert.assertFalse(new FunctionType(new Categorical("Cat", 10), new IntegerExpressoType()).isFinite());
+		Assert.assertFalse(new FunctionType(new Categorical("Cat", 10), new RealExpressoType()).isFinite());
+		Assert.assertFalse(new FunctionType(new IntegerInterval("Integer"), new IntegerExpressoType()).isFinite());
+		Assert.assertTrue(new FunctionType(new IntegerInterval(1, 2), new IntegerInterval(3, 5)).isFinite());
+		Assert.assertFalse(new FunctionType(new IntegerInterval("Integer"), new RealExpressoType()).isFinite());
+		Assert.assertFalse(new FunctionType(new RealInterval("Real")).isFinite());
+		Assert.assertFalse(new FunctionType(new RealInterval("Real"), new IntegerExpressoType()).isFinite());
+	}
+
+}

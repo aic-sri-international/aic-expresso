@@ -81,4 +81,33 @@ public interface Type {
 	 * @return
 	 */
 	Expression cardinality();
+	
+	/**
+	 * 
+	 * @return true if the type is discrete, (e.g like the integers).
+	 */
+	boolean isDiscrete();
+	
+	/**
+	 * 
+	 * @return true if the type is continuous, (e.g like the reals).
+	 */
+	default boolean isContinuous() {
+		return !isDiscrete();
+	}
+	
+	/**
+	 * 
+	 * @return true if the type is finite (i.e. discrete and a known cardinality). 
+	 *         If the type is discrete but the cardinality is unknown this should return false.
+	 */
+	boolean isFinite();
+	
+	/**
+	 * 
+	 * @return true if the type is inifinte (e.g. the integer (discrete) or reals (continuous)).
+	 */
+	default boolean isInfinite() {
+		return !isFinite();
+	}
 }

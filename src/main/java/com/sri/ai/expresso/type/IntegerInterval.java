@@ -231,6 +231,16 @@ public class IntegerInterval implements Type, Serializable {
 		}
 		return cachedCardinality;
 	}
+	
+	@Override
+	public boolean isDiscrete() {
+		return true;
+	}
+	
+	@Override
+	public boolean isFinite() {
+		return boundsAreConstants();
+	}
 
 	public boolean noLowerBound() {
 		return nonStrictLowerBound.equals(apply(MINUS, INFINITY));

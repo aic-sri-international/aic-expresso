@@ -89,6 +89,16 @@ public class RealExpressoType implements Type, Serializable {
 	}
 	
 	@Override
+	public boolean isDiscrete() {
+		return false;
+	}
+	
+	@Override
+	public boolean isFinite() {
+		return false;
+	}
+	
+	@Override
 	public String toString() {
 		return "Real";
 	}
