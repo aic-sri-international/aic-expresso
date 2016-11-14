@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -81,10 +82,8 @@ public class FunctionType implements Type, Serializable {
 	private String cachedString;
 	// NOTE: Following used for iteration logic
 	private Registry cachedIterateRegistry;
-	private Expression coDomainVariable;
-	private List<Expression> argVariables;
-	private StringJoiner lambdaApplicationPrefix;
-	private List<Expression> variables;
+	private List<Expression> codomainVariables;
+	private String genericLambda;
 
 	public FunctionType(Type codomain, Type... argumentTypes) {
 		this.codomain = codomain;
@@ -110,20 +109,30 @@ public class FunctionType implements Type, Serializable {
 
 	@Override
 	public Iterator<Expression> iterator() {
-		if (!isDiscrete()) {
-			throw new Error("Only discrete function types can be enumerated.");
+		if (!(getCodomain().isDiscrete() && getArgumentTypes().stream().allMatch(Type::isFinite))) {
+			throw new Error("Only function types with finite argument types and a discrete codomain can be enumerated.");
 		}
 		
 		if (cachedIterateRegistry == null) {
 			// Pre-compute
-			cachedIterateRegistry = new DefaultRegistry();
+			cachedIterateRegistry = new DefaultRegistry();		
+			int numCodomainValues = argumentTypes.stream()
+					.map(Type::cardinality)
+					.map(Expression::rationalValue)						
+					.reduce(Rational.ONE, Rational::multiply)
+					.intValue();
+			
+			Expression codomainTypeExpression = parse(getCodomain().getName());
+			codomainVariables = new ArrayList<>(numCodomainValues);
 			Map<Expression, Expression> symbolsAndTypes = new LinkedHashMap<>();
+			for (int i = 0; i < numCodomainValues; i++) {
+				Expression coDomainVariableI = makeSymbol("C"+(i+1));
+				codomainVariables.add(coDomainVariableI);
+				cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
+				symbolsAndTypes.put(coDomainVariableI, codomainTypeExpression);
+			}
 			
-			coDomainVariable = makeSymbol("C");
-			cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
-			symbolsAndTypes.put(coDomainVariable, parse(getCodomain().getName()));
-			
-			argVariables = new ArrayList<>();
+			List<Expression> argVariables = new ArrayList<>();
 			for (int i = 0; i < getArgumentTypes().size(); i++) {
 				cachedIterateRegistry = cachedIterateRegistry.add(getArgumentTypes().get(i));
 				argVariables.add(makeSymbol("A"+(i+1)));
@@ -131,35 +140,40 @@ public class FunctionType implements Type, Serializable {
 			}
 			cachedIterateRegistry = cachedIterateRegistry.setSymbolsAndTypes(symbolsAndTypes);
 			
-			lambdaApplicationPrefix = new StringJoiner(", ", "(lambda ", " : ");
+			StringJoiner lambdaApplicationPrefix = new StringJoiner(", ", "(lambda ", " : ");
 			for (Expression argVar : argVariables) {
 				lambdaApplicationPrefix.add(argVar + " in " + symbolsAndTypes.get(argVar));
 			}
 			
-			variables = new ArrayList<>(argVariables);
-			variables.add(coDomainVariable);
+			AssignmentsIterator assignmentsIterator = new AssignmentsIterator(argVariables, cachedIterateRegistry);
+			StringJoiner lambdaApplicationBody = new StringJoiner(" else ", "", ")");
+			AtomicInteger cnt = new AtomicInteger(0);
+			assignmentsIterator.forEachRemaining(assignment -> {
+				if (cnt.incrementAndGet() != numCodomainValues) { 
+					StringJoiner condition = new StringJoiner(" and ", "if ", " then C"+cnt);
+					for (int i = 0; i < argVariables.size(); i++) {
+						Expression argVariable = argVariables.get(i);
+						condition.add(argVariable+" = "+assignment.get(argVariable));
+					}
+					lambdaApplicationBody.add(condition.toString());
+				}
+				else {
+					lambdaApplicationBody.add("C"+numCodomainValues);
+				}
+			});
+			
+			genericLambda = lambdaApplicationPrefix.toString() + lambdaApplicationBody.toString();
 		}
 		
-		return FunctionIterator.functionIterator(new AssignmentsIterator(variables, cachedIterateRegistry), assignment -> {
-			StringBuilder lambdaApplication = new StringBuilder();
-			lambdaApplication.append(lambdaApplicationPrefix.toString());
+		return FunctionIterator.functionIterator(new AssignmentsIterator(codomainVariables, cachedIterateRegistry), assignment -> {
 			
-			Expression coDomainValue = assignment.get(coDomainVariable);
-			StringJoiner lambdaApplicationBody = new StringJoiner(" else ", "", ")");
-// NOTE: Not required to create a conditional.			
-//			for (int i = 0; i < argVariables.size()-1; i++) {
-//				lambdaApplicationBody.add("if "+argVariables.get(i) + " = "+assignment.get(argVariables.get(i))+" then "+coDomainValue);
-//			}
-			lambdaApplicationBody.add(coDomainValue.toString());
-			lambdaApplication.append(lambdaApplicationBody.toString());
-			
-			StringJoiner lambdaApplicationArgs = new StringJoiner(", ", "(", ")");
-			for (Expression argVar : argVariables) {
-				lambdaApplicationArgs.add(assignment.get(argVar).toString());
+			String lambda = genericLambda;
+			for (int i = 0; i < codomainVariables.size(); i++) {
+				Expression codomainVariable = codomainVariables.get(i);
+				lambda = lambda.replace(codomainVariable.toString(), assignment.get(codomainVariable).toString());
 			}
-			lambdaApplication.append(lambdaApplicationArgs.toString());
 			
-			return parse(lambdaApplication.toString());
+			return parse(lambda);
 		});
 	}
 
@@ -177,12 +191,11 @@ public class FunctionType implements Type, Serializable {
 	@Override
 	public Expression cardinality() {
 		if (isFinite()) {
-			Rational cardinality = codomain.cardinality().rationalValue().multiply( 
-					argumentTypes.stream()
-						.map(Type::cardinality)
-						.map(Expression::rationalValue)						
-						.reduce(Rational.ONE, Rational::multiply)
-			);
+			Rational cardinality = argumentTypes.stream()
+				.map(Type::cardinality)
+				.map(Expression::rationalValue)						
+				.reduce(Rational.ONE, Rational::multiply)
+				.pow(codomain.cardinality().intValue());
 			
 			return makeSymbol(cardinality);
 		}

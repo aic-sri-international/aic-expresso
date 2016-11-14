@@ -18,37 +18,48 @@ public class TypeTest {
 	
 	@Test
 	public void testCardinality() {
-		Assert.assertEquals(parse("24"), new FunctionType(new IntegerInterval(1, 3), new IntegerInterval(1, 4), new IntegerInterval(1, 2)).cardinality());
+		// i.e. (4x2)^3
+		Assert.assertEquals(parse("512"), new FunctionType(new IntegerInterval(1, 3), new IntegerInterval(1, 4), new IntegerInterval(1, 2)).cardinality());
 	}
 	
 	@Test
 	public void testIterator() {
 		FunctionType fType;
-		
+		 // i.e. 1^2
 		fType = new FunctionType(new IntegerInterval(1, 2));
 		checkFunctionIteration(fType, 
-				"(lambda : 1)()",
-				"(lambda : 2)()"
+				"lambda : 1",
+				"lambda : 2"
 				);
 		
+		// i.e. 2^2
 		fType = new FunctionType(new IntegerInterval(1, 2), new Categorical("Car", 2));
 		checkFunctionIteration(fType, 
-				"(lambda A1 in Car : 1)(car1)",
-				"(lambda A1 in Car : 1)(car2)",
-				"(lambda A1 in Car : 2)(car1)",
-				"(lambda A1 in Car : 2)(car2)"
+				"lambda A1 in Car : if A1 = car1 then 1 else 1",
+				"lambda A1 in Car : if A1 = car1 then 2 else 1",
+				"lambda A1 in Car : if A1 = car1 then 1 else 2",
+				"lambda A1 in Car : if A1 = car1 then 2 else 2"
 				);
 		
+		// i.e. (2*2)^2
 		fType = new FunctionType(new IntegerInterval(1, 2), new Categorical("Car", 2), new Categorical("Bike", 2));
 		checkFunctionIteration(fType, 
-				"(lambda A1 in Car, A2 in Bike : 1)(car1, bike1)",
-				"(lambda A1 in Car, A2 in Bike : 1)(car2, bike1)",
-				"(lambda A1 in Car, A2 in Bike : 1)(car1, bike2)",
-				"(lambda A1 in Car, A2 in Bike : 1)(car2, bike2)",
-				"(lambda A1 in Car, A2 in Bike : 2)(car1, bike1)",
-				"(lambda A1 in Car, A2 in Bike : 2)(car2, bike1)",
-				"(lambda A1 in Car, A2 in Bike : 2)(car1, bike2)",
-				"(lambda A1 in Car, A2 in Bike : 2)(car2, bike2)"
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 1 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 1 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 1 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 1 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 2 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 2 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 2 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 2 else 1",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 1 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 1 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 1 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 1 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 2 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 2 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 2 else 2",
+				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 2 else if (A1 = car2) and (A2 = bike1) then 2 else if (A1 = car1) and (A2 = bike2) then 2 else 2"
 				);
 	}
 	
