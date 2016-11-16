@@ -1,0 +1,30 @@
+package com.sri.ai.test.grinder.sgdpllt.interpreter;
+
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
+
+public class BruteForceCommonInterpreterTest {
+	@Test
+	public void testAggregationOnFunctionIndex() {
+		BruteForceCommonInterpreter bf = new BruteForceCommonInterpreter();
+		Context context = new TrueContext();
+		context = context.add(new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval("0..2")));
+		context = context.add(new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval("1..2")));
+		
+		Expression result = bf.apply(parse("sum({{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )"), context);
+		Assert.assertEquals(parse("11"), result);
+		
+		result = bf.apply(parse("sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3  :  f(2) }} )"), context);
+		Assert.assertEquals(parse("22"), result);
+	}
+}

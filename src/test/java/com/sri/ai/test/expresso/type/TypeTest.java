@@ -25,7 +25,7 @@ public class TypeTest {
 	@Test
 	public void testIterator() {
 		FunctionType fType;
-		 // i.e. 1^2
+		 // i.e. 2
 		fType = new FunctionType(new IntegerInterval(1, 2));
 		checkFunctionIteration(fType, 
 				"lambda : 1",

@@ -46,8 +46,10 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -105,6 +107,15 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 						symbolValue = s;
 					}
 					return symbolValue;
+				});
+		result.put(
+				FunctionApplication.SYNTACTIC_FORM_TYPE, (Simplifier) (f, c) -> {
+					Expression lambdaApplication = f;
+					Expression lambda = assignment.get(f.getFunctor());				
+					if (lambda != null) {
+						lambdaApplication = Expressions.apply(lambda, f.getArguments());
+					}
+					return lambdaApplication;
 				});
 		return result;
 	}
