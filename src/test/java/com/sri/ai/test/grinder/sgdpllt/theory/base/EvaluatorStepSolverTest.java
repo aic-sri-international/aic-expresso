@@ -48,10 +48,12 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -77,46 +79,45 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
 		
 		expressionString = "0";
 		expected = parse("0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "I > J";
 		expected = parse("I > J");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "I > J and I < J";
 		expected = parse("false");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "(if I > J then 1 else 2) + (if I <= J then 30 else 40)";
 		expected = parse("if I > J then 41 else 32");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "(if I > J then 1 else 2) + (if I <= J then 3 else 4)";
 		expected = parse("5");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "(if I > J then if P or Q then 1 else 2 else 5) + (if I <= J then 3 else if not Q then 4 else -3)";
 		expected = parse("if I > J then if P then if not Q then 5 else -2 else if Q then -2 else 6 else 8");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "(if I > J then if P or X = a or Y != b then 1 else 2 else 5) + (if I <= J then 3 else if not (X != a or Y = c and Q) then 4 else -3)";
 		expected = parse("if I > J then if P then if X != a then -2 else if Y = c then if Q then -2 else 5 else 5 else if X = a then if Y = c then if Q then -2 else 5 else 5 else if Y != b then -2 else -1 else 8");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "if P and Q and R then 1 else 0";
 		expected = parse("if P then if Q then if R then 1 else 0 else 0 else 0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 		
 		expressionString = "if P and Q and R and S and T and U then 1 else 0";
 		expected = parse("if P then if Q then if R then if S then if T then if U then 1 else 0 else 0 else 0 else 0 else 0 else 0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 	}
 
 	@Test
@@ -135,51 +136,50 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 
 		String expressionString;
 		Expression expected;
 		
 		expressionString = "sum( {{ (on I in 1..10) 3 : I != 4 and P }} )";
 		expected = parse("if P then 27 else 0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "sum( {{ (on ) 3 : I != 4 and P }} )";
 		expected = parse("if I != 4 then if P then 3 else 0 else 0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "sum( {{ (on ) 3 : P and not P }} )";
 		expected = parse("0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "sum( {{ (on I in 1..10, J in 1..2) 3 : I != 4 }} )";
 		expected = parse("54");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "sum( {{ (on I in 1..10, P in Boolean) 3 : I != 4 }} )";
 		expected = parse("54");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		
 		expressionString = "max( {{ (on I in 1..10) 3 : I != 4 and P }} )";
 		expected = parse("if P then 3 else -infinity");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "max( {{ (on ) 3 : I != 4 and P }} )";
 		expected = parse("if I != 4 then if P then 3 else -infinity else -infinity");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "max( {{ (on ) 3 : P and not P }} )";
 		expected = parse("-infinity");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "max( {{ (on I in 1..10, J in 1..2) 3 : I != 4 }} )";
 		expected = parse("3");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		expressionString = "max( {{ (on I in 1..10, P in Boolean) 3 : I != 4 }} )";
 		expected = parse("3");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 	}
 
 	@Test
@@ -198,30 +198,49 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;
 		
 		expressionString = "| {{ (on I in 1..10) 3 : I != 4 and P }} |";
 		expected = parse("if P then 9 else 0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
+		
+		expressionString = "| I in 1..10 : I != 4 and P |";
+		expected = parse("if P then 9 else 0");
+		runTest(expressionString, expected, context);
 	
 		expressionString = "| {{ (on ) 3 : I != 4 and P }} |";
 		expected = parse("if I != 4 then if P then 1 else 0 else 0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);
+		
+		expressionString = "| : I != 4 and P |";
+		expected = parse("if I != 4 then if P then 1 else 0 else 0");
+		runTest(expressionString, expected, context);	
 	
 		expressionString = "| {{ (on ) 3 : P and not P }} |";
 		expected = parse("0");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
+		
+		expressionString = "| : P and not P |";
+		expected = parse("0");
+		runTest(expressionString, expected, context);
 	
 		expressionString = "| {{ (on I in 1..10, J in 1..2) 3 : I != 4 }} |";
 		expected = parse("18");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
+		
+		expressionString = "| I in 1..10, J in 1..2 : I != 4 |";
+		expected = parse("18");
+		runTest(expressionString, expected, context);
 	
 		expressionString = "| {{ (on I in 1..10, P in Boolean) 3 : I != 4 }} |";
 		expected = parse("18");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
+		
+		expressionString = "| I in 1..10, P in Boolean: I != 4 |";
+		expected = parse("18");
+		runTest(expressionString, expected, context);
 	}
 
 	@Test
@@ -240,38 +259,87 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		TopSimplifier topSimplifier = theoryTestingSupport.getTheory().getMapBasedTopSimplifier();
 	
 		String expressionString;
 		Expression expected;
 		
 		expressionString = "for all I in 1..10 : (I != 4 or I = 4) and P";
 		expected = parse("P");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 	
 		expressionString = "for all I in 1..10 : for all J in 1..2 : I != 4";
 		expected = parse("false");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 	
 		expressionString = "for all I in 1..10 : for all P in Boolean : I != 4 or I = 4 and (P or not P)";
 		expected = parse("true");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 
 		
 		expressionString = "there exists I in 1..10 : I != 4 and P";
 		expected = parse("P");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 	
 		expressionString = "there exists I in 1..10 : there exists J in 1..2 : I != 4 and J != 1";
 		expected = parse("true");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
 	
 		expressionString = "there exists I in 1..10 : there exists P in Boolean : I != 4 and P";
 		expected = parse("true");
-		runTest(expressionString, expected, topSimplifier, context);	
+		runTest(expressionString, expected, context);	
+	}
+	
+
+	@Test
+	public void testEvaluationOfQuantifiersOverFunctions() {
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport
+				.make(new CompoundTheory(new EqualityTheory(false, true), new DifferenceArithmeticTheory(false, true),
+						new PropositionalTheory()));
+
+		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(
+				theoryTestingSupport.getVariableNamesAndTypesForTesting());
+		Type booleanType = variablesAndTypes.get("P");
+		variablesAndTypes.put("S", booleanType);
+		variablesAndTypes.put("T", booleanType);
+		variablesAndTypes.put("U", booleanType);
+		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
+
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		context = context.add(new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval("0..2")));
+
+		String expressionString;
+		Expression expected;
+
+		expressionString = "sum( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
+		expected = parse("11"); // 2+3+3+3
+		runTest(expressionString, expected, context);
+
+		expressionString = "product( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
+		expected = parse("54"); // 2*3*3*3
+		runTest(expressionString, expected, context);
+
+		expressionString = "max( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
+		expected = parse("3");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "| f in '->'(x(0..2), Boolean) : f(0) |";
+		expected = parse("4");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "for all f in '->'(x(0..2), Boolean) : f(0)";
+		expected = parse("false");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "for all f in '->'(x(0..2), Boolean) : (f(0) or not f(0)) and P";
+		expected = parse("P");
+		runTest(expressionString, expected, context);	
+		
+		expressionString = "there exists f in '->'(x(0..2), Boolean) : f(0)";
+		expected = parse("true");
+		runTest(expressionString, expected, context);
 	}
 
-	private void runTest(String expressionString, Expression expected, TopSimplifier topSimplifier, Context context) {
+	private void runTest(String expressionString, Expression expected, Context context) {
 		Expression expression = parse(expressionString);
 		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression);
 		System.out.println("Evaluating " + expression);

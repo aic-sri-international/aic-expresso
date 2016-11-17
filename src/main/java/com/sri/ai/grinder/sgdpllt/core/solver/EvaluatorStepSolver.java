@@ -58,6 +58,8 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.QuantifiedExpression;
+import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
@@ -68,7 +70,11 @@ import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.group.SumProduct;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.Recursive;
@@ -191,16 +197,22 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 		// TODO: the next few cases always produce solver steps, never a ItDependsOn solver step.
 		// We should eventually use quantifier eliminator step solvers that may return ItDependsOn solver steps
 		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
-			QuantifierEliminator quantifierEliminator;
-			if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
-				quantifierEliminator = new SGVET(new SumProduct());
+			if (isQuantifierOverFunctions((QuantifiedExpression)expression.get(0), context)) {
+				// TODO - more optimal approach
+				result = getQuantificationOverFunctionsSolutionUsingBruteForce(expression, context);
 			}
 			else {
-				AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
-				quantifierEliminator = new SGDPLLT(group);
+				QuantifierEliminator quantifierEliminator;
+				if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
+					quantifierEliminator = new SGVET(new SumProduct());
+				}
+				else {
+					AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
+					quantifierEliminator = new SGDPLLT(group);
+				}
+				Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
+				result = new Solution(quantifierFreeExpression);
 			}
-			Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
-			result = new Solution(quantifierFreeExpression);
 		}
 		else if (isCountingFormulaEquivalentExpression(expression)) {
 			// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
@@ -208,19 +220,37 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 			// | I : Condition | --> sum({{ (on I) 1 : Condition }})
 			Expression set = intensionalMultiSet(getIndexExpressions(expression), ONE, getCondition(expression));
 			Expression functionOnSet = apply(SUM, set);
-			QuantifierEliminator sgvet = new SGVET(new SumProduct());
-			Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
-			result = new Solution(quantifierFreeExpression);
+			if (isQuantifierOverFunctions((QuantifiedExpression) set, context)) {
+				// TODO - more optimal approach
+				result = getQuantificationOverFunctionsSolutionUsingBruteForce(functionOnSet, context);
+			}
+			else {
+				QuantifierEliminator sgvet = new SGVET(new SumProduct());
+				Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
+				result = new Solution(quantifierFreeExpression);
+			}
 		}
-		else if (expression.getSyntacticFormType().equals("For all")) {
-			QuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction());
-			Expression resultExpression = sgdpllt.solve(expression, context);
-			result = new Solution(resultExpression);
+		else if (expression.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
+			if (isQuantifierOverFunctions((QuantifiedExpression) expression, context)) {
+				// TODO - more optimal approach
+				result = getQuantificationOverFunctionsSolutionUsingBruteForce(expression, context);
+			}
+			else {
+				QuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction());
+				Expression resultExpression = sgdpllt.solve(expression, context);
+				result = new Solution(resultExpression);
+			}
 		}
-		else if (expression.getSyntacticFormType().equals("There exists")) {
-			QuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction());
-			Expression resultExpression = sgdpllt.solve(expression, context);
-			result = new Solution(resultExpression);
+		else if (expression.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)) {
+			if (isQuantifierOverFunctions((QuantifiedExpression) expression, context)) {
+				// TODO - more optimal approach
+				result = getQuantificationOverFunctionsSolutionUsingBruteForce(expression, context);
+			}
+			else {
+				QuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction());
+				Expression resultExpression = sgdpllt.solve(expression, context);
+				result = new Solution(resultExpression);
+			}
 		}
 		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
 			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
@@ -297,6 +327,26 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 	public String toString() {
 		return "Evaluate " + expression + " from " + subExpressionIndex + "-th sub-expression on";
 	}
+	
+
+	private static boolean isQuantifierOverFunctions(QuantifiedExpression quantifiedExpression, Context context) {
+		boolean result = false;
+		for (Expression typeExpression : IndexExpressions.getIndexDomains(quantifiedExpression)) {
+			if (context.getType(typeExpression) instanceof FunctionType) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	private static Solution getQuantificationOverFunctionsSolutionUsingBruteForce(Expression expression, Context context) {
+		BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
+		Expression quantifierFreeExpression = bruteForceCommonInterpreter.apply(expression, context);
+		Solution result = new Solution(quantifierFreeExpression);
+		return result;
+	}
+	
 	
 	private static Map<Expression, AssociativeCommutativeGroup> fromFunctorToGroup
 	= map(
