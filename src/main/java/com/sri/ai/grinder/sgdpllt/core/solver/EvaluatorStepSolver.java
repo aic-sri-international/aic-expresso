@@ -88,30 +88,28 @@ import com.sri.ai.util.base.IdentityWrapper;
  *
  * This step solver implements the following pseudo-code:
  * <pre>
- * An evaluator step solver for an expression E
-keeps a map Evaluators from identity wrappers
-and the index SEIndex of the next sub-expression to be analyzed.
-of the sub-expression of E to their own evaluator step solver.
-Step solver assumes sub-expressions before SEIndex
-fully evaluated.
+ * An evaluator step solver for an expression E keeps:
+ * - a map Evaluators from identity wrappers
+ * of the sub-expression of E to their own evaluator step solver
+ * (this allows us to remember sequel step solvers obtained from previous attempts at evaluating each sub-expression).
+ * - the index SEIndex of the next sub-expression to be analyzed.
+ * All sub-expressions with indices less than SEIndex are considered fully evaluated.
 
 Its step is:
 
 E <- exhaustively top-simplify E if not already so
 
-if E is literal
-    split on it with sub step solvers true and false
-else if SEIndex != E.numberOfArguments
+if E is a literal
+    split on it with sequel step solvers true and false
+else if SEIndex != E.numberOfArguments // not yet evaluated all sub-expressions
     SE <- E.get(SEIndex)
-    SEEvaluator <- Evaluators(SE), or make a new one
+    SEEvaluator <- Evaluators(SE), or make a new one // this may re-use sequel step solver for SE from previous attempt
     SEStep <- SEEvaluator.step
     if SEStep depends on L with sub step solvers S1 and S2
-        return ItDependsOn on literal SE
-            with sub-step solvers for true and false literals,
-            to evaluate E,
-            containing a Evaluators(SE) modified to map
-            to SEStep's sub-step solvers for SE being true and false,
-            respectively.
+        return ItDependsOn on literal L
+            with two sequel step solvers (for evaluating E) for cases L true and L false.
+            The sequel step solver for L true (false) contains a Evaluators(SE) map modified to map SE to
+            its own sequel solver, provided by SEStep for when L is true (false).
     else
         SEvalue <- SEStep.getValue() // for abbreviation only
 
@@ -120,10 +118,10 @@ else if SEIndex != E.numberOfArguments
             Evaluator' <- clone
             Evaluator'.Evaluators <- stacked map on Evaluators with new entry { SE -> SEEvaluator // so we remember the solution if a future simplification surfaces an already fully evaluated sub-expression, including SE, as E'
             Evaluator'.SEIndex++ // go to next sub-expression
-            return Evaluator'.step
+            return Evaluator'.step()
         else
             E' <- exhaustively top-simplify(E[SE/SEvalue])
-		    if E' == SE // E has been reduced to SE itself, which we just evaluated
+		    if E' == SE // E has been reduced to SE itself, which we just evaluated, so  we just return the step for SE
 		        return SEStep
             else
                 Evaluator' <- Evaluators(E') // E' may be a previously evaluated sub-expression or not; re-use evaluator or make a new one 

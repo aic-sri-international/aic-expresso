@@ -126,7 +126,7 @@ public class FunctionType implements Type, Serializable {
 			codomainVariables = new ArrayList<>(numCodomainValues);
 			Map<Expression, Expression> symbolsAndTypes = new LinkedHashMap<>();
 			for (int i = 0; i < numCodomainValues; i++) {
-				Expression coDomainVariableI = makeSymbol("C"+(i+1));
+				Expression coDomainVariableI = makeSymbol("C" + (i + 1));
 				codomainVariables.add(coDomainVariableI);
 				cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
 				symbolsAndTypes.put(coDomainVariableI, codomainTypeExpression);
@@ -135,7 +135,7 @@ public class FunctionType implements Type, Serializable {
 			List<Expression> argVariables = new ArrayList<>();
 			for (int i = 0; i < getArgumentTypes().size(); i++) {
 				cachedIterateRegistry = cachedIterateRegistry.add(getArgumentTypes().get(i));
-				argVariables.add(makeSymbol("A"+(i+1)));
+				argVariables.add(makeSymbol("A" + (i + 1)));
 				symbolsAndTypes.put(argVariables.get(i), parse(getArgumentTypes().get(i).getName()));
 			}
 			cachedIterateRegistry = cachedIterateRegistry.setSymbolsAndTypes(symbolsAndTypes);
@@ -147,18 +147,18 @@ public class FunctionType implements Type, Serializable {
 			
 			AssignmentsIterator assignmentsIterator = new AssignmentsIterator(argVariables, cachedIterateRegistry);
 			StringJoiner lambdaApplicationBody = new StringJoiner(" else ", "", ")");
-			AtomicInteger cnt = new AtomicInteger(0);
+			AtomicInteger counter = new AtomicInteger(0);
 			assignmentsIterator.forEachRemaining(assignment -> {
-				if (cnt.incrementAndGet() != numCodomainValues) { 
-					StringJoiner condition = new StringJoiner(" and ", "if ", " then C"+cnt);
+				if (counter.incrementAndGet() != numCodomainValues) { 
+					StringJoiner condition = new StringJoiner(" and ", "if ", " then C" + counter);
 					for (int i = 0; i < argVariables.size(); i++) {
 						Expression argVariable = argVariables.get(i);
-						condition.add(argVariable+" = "+assignment.get(argVariable));
+						condition.add(argVariable + " = " + assignment.get(argVariable));
 					}
 					lambdaApplicationBody.add(condition.toString());
 				}
 				else {
-					lambdaApplicationBody.add("C"+numCodomainValues);
+					lambdaApplicationBody.add("C" + numCodomainValues);
 				}
 			});
 			
