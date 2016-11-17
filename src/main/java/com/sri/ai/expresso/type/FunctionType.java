@@ -190,13 +190,14 @@ public class FunctionType implements Type, Serializable {
 
 	@Override
 	public Expression cardinality() {
-		if (isFinite()) {
-			Rational cardinality = argumentTypes.stream()
-				.map(Type::cardinality)
-				.map(Expression::rationalValue)						
-				.reduce(Rational.ONE, Rational::multiply)
-				.pow(codomain.cardinality().intValue());
-			
+		if (isFinite()) {		
+			Rational cardinality = codomain.cardinality()
+					.rationalValue()
+					.pow(argumentTypes.stream()
+							.map(Type::cardinality)
+							.map(Expression::rationalValue)
+							.reduce(Rational.ONE, Rational::multiply).intValue()
+					);
 			return makeSymbol(cardinality);
 		}
 		return Expressions.INFINITY;

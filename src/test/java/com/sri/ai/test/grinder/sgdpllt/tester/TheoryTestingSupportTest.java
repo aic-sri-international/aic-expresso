@@ -4,16 +4,17 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
-import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport.TESTING_INTEGER_INTERVAL_TYPE;
-import static com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheoryTestingSupport.TESTING_CATEGORICAL_TYPE;
 import static com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport.TESTING_REAL_INTERVAL_TYPE;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
@@ -25,9 +26,13 @@ import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 
 import org.junit.Assert;
 
+import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 
 public class TheoryTestingSupportTest {
+	public static final IntegerInterval TESTING_INTEGER_INTERVAL_TYPE = new IntegerInterval("0..2");
+	public static final Categorical TESTING_CATEGORICAL_TYPE = new Categorical("SomeType", 3, mapIntoArrayList(list("a", "b"), s -> makeSymbol(s)));
 
 	private Random seededRandom = new Random(1);
 

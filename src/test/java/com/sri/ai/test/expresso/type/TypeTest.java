@@ -13,13 +13,19 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
+import com.sri.ai.grinder.helper.GrinderUtil;
 
 public class TypeTest {
 	
 	@Test
 	public void testCardinality() {
-		// i.e. (4x2)^3
-		Assert.assertEquals(parse("512"), new FunctionType(new IntegerInterval(1, 3), new IntegerInterval(1, 4), new IntegerInterval(1, 2)).cardinality());
+		// i.e. 2^3
+		Assert.assertEquals(parse("8"),
+				new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval(0, 2)).cardinality());
+		// i.e. 3^(4*2)
+		Assert.assertEquals(parse("6561"),
+				new FunctionType(new IntegerInterval(1, 3), new IntegerInterval(1, 4), new IntegerInterval(1, 2))
+						.cardinality());
 	}
 	
 	@Test
