@@ -656,18 +656,12 @@ public class GrinderUtil {
 				&& typeExpression.numberOfArguments() == 2) {
 			type = new RealInterval(typeExpression.toString());
 		}
-		else if (typeExpression.hasFunctor(FunctorConstants.FUNCTION_TYPE)) {
+		else if (FunctionType.isFunctionType(typeExpression)) {
 			Function<Expression, Type> getType = e -> registry.getType(e);
 			
-			Type codomain = getType.apply(typeExpression.get(1));
+			Type codomain = getType.apply(FunctionType.getCodomain(typeExpression));
 			
-			List<Expression> argumentTypeExpressions;
-			if (typeExpression.get(0).hasFunctor(FunctorConstants.CARTESIAN_PRODUCT)) {
-				argumentTypeExpressions = typeExpression.get(0).getArguments();
-			}
-			else {
-				argumentTypeExpressions = list(typeExpression.get(0));
-			}
+			List<Expression> argumentTypeExpressions = FunctionType.getArgumentList(typeExpression);
 			
 			ArrayList<Type> argumentTypes = mapIntoArrayList(argumentTypeExpressions, getType);
 			Type[] argumentTypesArray = new Type[argumentTypes.size()];
