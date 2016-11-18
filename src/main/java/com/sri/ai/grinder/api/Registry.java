@@ -137,8 +137,18 @@ public interface Registry extends Cloneable {
 		return result;
 	}
 	
+	/**
+	 * Returns the {@link Type} represented by the given type string representation.
+	 * @param typeExpression
+	 * @return
+	 */
 	Type getType(String typeStringRepresentation);
 	
+	/**
+	 * Returns the {@link Type} represented by the given type expression.
+	 * @param typeExpression
+	 * @return
+	 */
 	Type getType(Expression typeExpression);
 	
 	Collection<Type> getTypes();

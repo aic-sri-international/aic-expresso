@@ -286,7 +286,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	public Type getType(Expression typeExpression) {
 		Type result = fromTypeExpressionToType.get(typeExpression);
 		if (result == null) {
-			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression);
+			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression, this);
 		}
 		return result;
 	}

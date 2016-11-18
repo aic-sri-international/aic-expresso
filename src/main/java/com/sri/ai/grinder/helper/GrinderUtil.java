@@ -62,6 +62,7 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
@@ -73,6 +74,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
@@ -627,9 +629,10 @@ public class GrinderUtil {
 	 * of the type <code>m..n</code>.
 	 * If there is no such meaning, the method returns <code>null</code>.
 	 * @param typeExpression
+	 * @param registry TODO
 	 * @return
 	 */
-	public static Type fromTypeExpressionToItsIntrinsicMeaning(Expression typeExpression) throws Error {
+	public static Type fromTypeExpressionToItsIntrinsicMeaning(Expression typeExpression, Registry registry) throws Error {
 		Type type;
 		if (typeExpression.equals("Boolean")) {
 			type = BOOLEAN_TYPE;
@@ -652,6 +655,24 @@ public class GrinderUtil {
 				)
 				&& typeExpression.numberOfArguments() == 2) {
 			type = new RealInterval(typeExpression.toString());
+		}
+		else if (typeExpression.hasFunctor(FunctorConstants.FUNCTION_TYPE)) {
+			Function<Expression, Type> getType = e -> registry.getType(e);
+			
+			Type codomain = getType.apply(typeExpression.get(1));
+			
+			List<Expression> argumentTypeExpressions;
+			if (typeExpression.get(0).hasFunctor(FunctorConstants.CARTESIAN_PRODUCT)) {
+				argumentTypeExpressions = typeExpression.get(0).getArguments();
+			}
+			else {
+				argumentTypeExpressions = list(typeExpression.get(0));
+			}
+			
+			ArrayList<Type> argumentTypes = mapIntoArrayList(argumentTypeExpressions, getType);
+			Type[] argumentTypesArray = new Type[argumentTypes.size()];
+			
+			type = new FunctionType(codomain, argumentTypes.toArray(argumentTypesArray));
 		}
 		else {
 			type = null;

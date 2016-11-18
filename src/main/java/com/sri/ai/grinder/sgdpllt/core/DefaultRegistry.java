@@ -265,7 +265,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	public Type getType(Expression typeExpression) {
 		Type result = fromTypeExpressionToType.get(typeExpression);
 		if (result == null) {
-			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression);
+			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression, this);
 		}
 		return result;
 	}
