@@ -97,13 +97,21 @@ public class Recursive implements Simplifier {
 		Expression result = expression;
 		result = base.apply(result, context);
 		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			List<Expression> originalArguments = result.getArguments();
-			ArrayList<Expression> simplifiedArguments =
-					mapIntoArrayList(originalArguments, e -> apply(base, e, context));
-			if ( ! sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds up cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
-				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
+			// Ensure we check the functor before attempting to deal with the arguments
+			Expression simplifiedFunctor = base.apply(result.getFunctor(), context);
+			if (simplifiedFunctor != result.getFunctor()) {
+				result = base.apply(Expressions.apply(simplifiedFunctor, result.getArguments()), context);				
 			}
-			result = base.apply(result, context);
+			// If we are still a function application after possibly changing the functor and simplifying
+			if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
+				List<Expression> originalArguments = result.getArguments();
+				ArrayList<Expression> simplifiedArguments =
+						mapIntoArrayList(originalArguments, e -> apply(base, e, context));
+				if (simplifiedFunctor != result.getFunctor() || !sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds up cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
+					result = Expressions.apply(result.getFunctor(), simplifiedArguments);
+				}
+				result = base.apply(result, context);
+			}
 		}
 	
 		return result;
