@@ -48,9 +48,6 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.FunctionType;
-import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
@@ -305,7 +302,6 @@ public class EvaluatorStepSolverTest {
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variablesAndTypes);
 
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		context = context.add(new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval("0..2")));
 
 		String expressionString;
 		Expression expected;
