@@ -313,8 +313,12 @@ public class GrinderUtil {
 				list(SUM, PRODUCT, MAX).contains(expression.getFunctor().toString())) {
 			Expression argument = expression.get(0);
 			if (argument.getSyntacticFormType().equals(IntensionalSet.SYNTACTIC_FORM_TYPE)) {
-				Expression head = ((IntensionalSet)argument).getHead();
-				result = getType(head, registry);
+				IntensionalSet intensionalSetArgument = (IntensionalSet) argument;
+				Expression head = intensionalSetArgument.getHead();
+				// NOTE: Need to extend the registry as the index expressions in the quantifier may
+				// declare new types (i.e. function types).
+				Registry headRegistry = GrinderUtil.extendRegistryWithIndexExpressions(intensionalSetArgument.getIndexExpressions(), registry);
+				result = getType(head, headRegistry);
 			}
 			else if (argument.getSyntacticFormType().equals(ExtensionalSet.SYNTACTIC_FORM_TYPE)) {
 				List<Expression> arguments = ((AbstractExtensionalSet)argument).getElementsDefinitions();
@@ -415,7 +419,10 @@ public class GrinderUtil {
 		}
 		else if (Sets.isIntensionalMultiSet(expression)) {
 			IntensionalSet set = (IntensionalSet) expression;
-			Expression headType = getType(set.getHead(), registry);
+			// NOTE: Need to extend the registry as the index expressions in the quantifier may
+			// declare new types (i.e. function types).
+			Registry headRegistry = GrinderUtil.extendRegistryWithIndexExpressions(set.getIndexExpressions(), registry);
+			Expression headType = getType(set.getHead(), headRegistry);
 			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
 		else if (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
@@ -471,8 +478,12 @@ public class GrinderUtil {
 
 			result = coDomain;
 		}
-		else if (expression instanceof QuantifiedExpressionWithABody){
-			return getType(((QuantifiedExpressionWithABody) expression).getBody(), registry);
+		else if (expression instanceof QuantifiedExpressionWithABody) {
+			QuantifiedExpressionWithABody quantifiedExpressionWithABody = (QuantifiedExpressionWithABody) expression;
+			// NOTE: Need to extend the registry as the index expressions in the quantifier may
+			// declare new types (i.e. function types).
+			Registry quantifiedExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(quantifiedExpressionWithABody.getIndexExpressions(), registry);
+			return getType(quantifiedExpressionWithABody.getBody(), quantifiedExpressionWithABodyRegistry);
 		}
 		else {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);

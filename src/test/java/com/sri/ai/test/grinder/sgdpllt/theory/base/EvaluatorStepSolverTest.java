@@ -329,9 +329,18 @@ public class EvaluatorStepSolverTest {
 		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  if f(1) = 1 then 2 else 3 }} )";
 		expected = parse("10"); 
 		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  f(1) }} )";
+		expected = parse("6"); 
+		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(1..2))  f() }} )";
+		expected = parse("3"); 
+		runTest(expressionString, expected, context);
+
 // TODO - fix		
-//		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  f(1) }} )";
-//		expected = parse("10"); 
+//		expressionString = "sum({{ (on f in '->'(1..2))  f }} )";
+//		expected = parse("3"); 
 //		runTest(expressionString, expected, context);
 
 		expressionString = "product( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
