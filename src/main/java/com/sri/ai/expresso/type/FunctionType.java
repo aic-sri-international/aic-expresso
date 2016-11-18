@@ -83,7 +83,7 @@ public class FunctionType implements Type, Serializable {
 	// NOTE: Following used for iteration logic
 	private Registry cachedIterateRegistry;
 	private List<Expression> codomainVariables;
-	private String genericLambda;
+	private Expression genericLambda;
 
 	public FunctionType(Type codomain, Type... argumentTypes) {
 		this.codomain = codomain;
@@ -121,6 +121,7 @@ public class FunctionType implements Type, Serializable {
 					.map(Expression::rationalValue)						
 					.reduce(Rational.ONE, Rational::multiply)
 					.intValue();
+			cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
 			
 			Expression codomainTypeExpression = parse(getCodomain().getName());
 			codomainVariables = new ArrayList<>(numCodomainValues);
@@ -128,7 +129,6 @@ public class FunctionType implements Type, Serializable {
 			for (int i = 0; i < numCodomainValues; i++) {
 				Expression coDomainVariableI = makeSymbol("C" + (i + 1));
 				codomainVariables.add(coDomainVariableI);
-				cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
 				symbolsAndTypes.put(coDomainVariableI, codomainTypeExpression);
 			}
 			
@@ -162,18 +162,20 @@ public class FunctionType implements Type, Serializable {
 				}
 			});
 			
-			genericLambda = lambdaApplicationPrefix.toString() + lambdaApplicationBody.toString();
+			genericLambda = parse(lambdaApplicationPrefix.toString() + lambdaApplicationBody.toString());
 		}
 		
 		return FunctionIterator.functionIterator(new AssignmentsIterator(codomainVariables, cachedIterateRegistry), assignment -> {
 			
-			String lambda = genericLambda;
+			Expression lambda = genericLambda;
 			for (int i = 0; i < codomainVariables.size(); i++) {
 				Expression codomainVariable = codomainVariables.get(i);
-				lambda = lambda.replace(codomainVariable.toString(), assignment.get(codomainVariable).toString());
+				// NOTE: There will only be one occurrence of the codomain variable to replace, 
+				// so can avoid doing an AllOccurrences replacement.
+				lambda = lambda.replaceFirstOccurrence(codomainVariable, assignment.get(codomainVariable), cachedIterateRegistry);
 			}
 			
-			return parse(lambda);
+			return lambda;
 		});
 	}
 
