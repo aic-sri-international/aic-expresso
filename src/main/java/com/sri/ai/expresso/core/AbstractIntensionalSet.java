@@ -101,7 +101,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 
 	@Override
 	public Object getSyntacticFormType() {
-		return "Intensional set";
+		return IntensionalSet.SYNTACTIC_FORM_TYPE;
 	}
 
 	@Override

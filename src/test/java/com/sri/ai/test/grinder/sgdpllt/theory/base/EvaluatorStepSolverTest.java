@@ -309,6 +309,30 @@ public class EvaluatorStepSolverTest {
 		expressionString = "sum( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
 		expected = parse("11"); // 2+3+3+3
 		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3  :  f(2) }} )";
+		expected = parse("22"); 
+		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3 }} )";
+		expected = parse("44"); 
+		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) then 2 else 3 }} )";
+		expected = parse("40"); 
+		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean))  if f(1) then 2 else 3 }} )";
+		expected = parse("10"); 
+		runTest(expressionString, expected, context);
+		
+		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  if f(1) = 1 then 2 else 3 }} )";
+		expected = parse("10"); 
+		runTest(expressionString, expected, context);
+// TODO - fix		
+//		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  f(1) }} )";
+//		expected = parse("10"); 
+//		runTest(expressionString, expected, context);
 
 		expressionString = "product( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
 		expected = parse("54"); // 2*3*3*3

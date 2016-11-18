@@ -13,6 +13,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.util.Util;
 
 public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpression implements ExtensionalSetInterface {
@@ -100,7 +101,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 
 	@Override
 	public Object getSyntacticFormType() {
-		return "Extensional set";
+		return ExtensionalSet.SYNTACTIC_FORM_TYPE;
 	}
 
 	@Override

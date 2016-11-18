@@ -105,6 +105,7 @@ import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
 import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -311,11 +312,11 @@ public class GrinderUtil {
 		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE) &&
 				list(SUM, PRODUCT, MAX).contains(expression.getFunctor().toString())) {
 			Expression argument = expression.get(0);
-			if (argument.getSyntacticFormType().equals("Intensional set")) {
+			if (argument.getSyntacticFormType().equals(IntensionalSet.SYNTACTIC_FORM_TYPE)) {
 				Expression head = ((IntensionalSet)argument).getHead();
 				result = getType(head, registry);
 			}
-			else if (argument.getSyntacticFormType().equals("Extensional set")) {
+			else if (argument.getSyntacticFormType().equals(ExtensionalSet.SYNTACTIC_FORM_TYPE)) {
 				List<Expression> arguments = ((AbstractExtensionalSet)argument).getElementsDefinitions();
 				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(arguments, registry);
 			}

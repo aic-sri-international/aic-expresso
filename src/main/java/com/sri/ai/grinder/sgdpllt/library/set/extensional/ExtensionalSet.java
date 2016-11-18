@@ -56,6 +56,7 @@ import com.sri.ai.util.Util;
  */
 @Beta
 public class ExtensionalSet {
+	public static final String SYNTACTIC_FORM_TYPE = "Extensional set";
 
 	public static final String UNI_SET_LABEL = "{ . }";
 	public static final String MULTI_SET_LABEL = "{{ . }}";

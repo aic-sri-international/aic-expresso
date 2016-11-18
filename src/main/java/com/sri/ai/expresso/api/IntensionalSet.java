@@ -55,48 +55,50 @@ import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 @Beta
 public interface IntensionalSet extends QuantifiedExpression {
 	
-	public static final String UNI_SET_LABEL          = "{ . . . }";
-	public static final String MULTI_SET_LABEL        = "{{ . . . }}";
-	public static final String CONDITION_LABEL        = ":";
-	public static final String SCOPED_VARIABLES_LABEL = "( on . )";
+	String SYNTACTIC_FORM_TYPE = "Intensional set";
+	//
+	String UNI_SET_LABEL          = "{ . . . }";
+	String MULTI_SET_LABEL        = "{{ . . . }}";
+	String CONDITION_LABEL        = ":";
+	String SCOPED_VARIABLES_LABEL = "( on . )";
 
 	/**
 	 * Indicates whether the set is a uniset.
 	 */
-	public boolean isUniSet();
+	boolean isUniSet();
 	
 	/**
 	 * Indicates whether the set is a multiset.
 	 */
-	public boolean isMultiSet();
+	boolean isMultiSet();
 
 	/**
 	 * Returns the head <code>H</code> of the set <code>{ (on I) H | C }</code>
 	 */
-	public Expression getHead();
+	Expression getHead();
 
 	/**
 	 * Returns the condition <code>C</code> of the set <code>{ (on I) H | C }</code>
 	 */
-	public Expression getCondition();
+	Expression getCondition();
 
 	/**
 	 * Returns a new instance with the head replaced by given new one.
 	 */
-	public Expression setHead(Expression newHead);
+	Expression setHead(Expression newHead);
 
 	/**
 	 * Returns a new instance with the condition replaced by given new one.
 	 */
-	public Expression setCondition(Expression newCondition);
+	Expression setCondition(Expression newCondition);
 
 	/**
 	 * Returns a new instance with the head and condition replaced by given new ones.
 	 */
-	public IntensionalSet setHeadAndCondition(Expression newHead, Expression newCondition);
+	IntensionalSet setHeadAndCondition(Expression newHead, Expression newCondition);
 
 	@Override
-	public IntensionalSet setIndexExpressions(IndexExpressionsSet newIndexExpressions);
+	IntensionalSet setIndexExpressions(IndexExpressionsSet newIndexExpressions);
 	
 	/**
 	 * Makes an intensional multi-set.
