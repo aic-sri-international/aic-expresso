@@ -3,8 +3,12 @@ package com.sri.ai.test.expresso.type;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
 
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 import com.sri.ai.expresso.type.Categorical;
@@ -184,6 +188,23 @@ public class TypeTest {
 		Assert.assertFalse(new FunctionType(new IntegerInterval("Integer"), new RealExpressoType()).isFinite());
 		Assert.assertFalse(new FunctionType(new RealInterval("Real")).isFinite());
 		Assert.assertFalse(new FunctionType(new RealInterval("Real"), new IntegerExpressoType()).isFinite());
+	}
+	
+	@Test
+	public void testThreeFormsOfFunctionType() {
+		Assert.assertEquals(apply(FUNCTION_TYPE, parse("Boolean")), parse("'->'(Boolean)"));
+		Assert.assertEquals(apply(FUNCTION_TYPE, parse("Boolean"), parse("Boolean")), parse("'->'(Boolean, Boolean)"));
+		Assert.assertEquals(apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, parse("Boolean")), parse("Boolean")), parse("'->'(x(Boolean), Boolean)"));
+		Assert.assertEquals(apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, parse("Boolean"), parse("Boolean")), parse("Boolean")), parse("'->'(x(Boolean, Boolean), Boolean)"));
+		
+		Assert.assertEquals(0, FunctionType.getArgumentList(parse("'->'(Boolean)")).size());
+		Assert.assertEquals(1, FunctionType.getArgumentList(parse("'->'(Boolean, Boolean)")).size());
+		Assert.assertEquals(1, FunctionType.getArgumentList(parse("'->'(x(Boolean), Boolean)")).size());
+		Assert.assertEquals(2, FunctionType.getArgumentList(parse("'->'(x(Boolean, Boolean), Boolean)")).size());
+		
+		Assert.assertEquals(Arrays.asList(parse("Boolean")), FunctionType.getArgumentList(parse("'->'(Boolean, Boolean)")));
+		Assert.assertEquals(Arrays.asList(parse("Boolean")), FunctionType.getArgumentList(parse("'->'(x(Boolean), Boolean)")));
+		Assert.assertEquals(Arrays.asList(parse("Boolean"), parse("Boolean")), FunctionType.getArgumentList(parse("'->'(x(Boolean, Boolean), Boolean)")));
 	}
 
 }

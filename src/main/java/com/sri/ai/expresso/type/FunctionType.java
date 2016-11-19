@@ -220,6 +220,9 @@ public class FunctionType implements Type, Serializable {
 		if (cachedString == null) {
 			if (getArgumentTypes().size() == 0) {
 				cachedString = apply(FUNCTION_TYPE, getCodomain()).toString();
+				
+			} else if (getArgumentTypes().size() == 1) {
+				cachedString = apply(FUNCTION_TYPE, getArgumentTypes().get(0), getCodomain()).toString();
 			} else {
 				cachedString = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, getArgumentTypes()), getCodomain())
 						.toString();
@@ -255,6 +258,8 @@ public class FunctionType implements Type, Serializable {
 		Expression result;
 		if (argumentTypes.size() == 0) {
 			result = apply(FUNCTION_TYPE, codomainType);
+		} else if (argumentTypes.size() == 0) {
+			result = apply(FUNCTION_TYPE, argumentTypes.get(0), codomainType);
 		} else {
 			result = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, argumentTypes), codomainType);
 		}
@@ -298,7 +303,12 @@ public class FunctionType implements Type, Serializable {
 
 		// If arity is 2 then we have argument types defined
 		if (functionTypeExpression.numberOfArguments() == 2) {
-			result.addAll(functionTypeExpression.get(0).getArguments());
+			if (functionTypeExpression.get(0).hasFunctor(CARTESIAN_PRODUCT)) {
+				result.addAll(functionTypeExpression.get(0).getArguments());
+			}
+			else {
+				result.add(functionTypeExpression.get(0));
+			}
 		}
 
 		return result;
@@ -318,11 +328,8 @@ public class FunctionType implements Type, Serializable {
 			// A Nullary function, with a codomain defined
 			if (expression.numberOfArguments() == 1) {
 				result = true;
-			} else if (expression.numberOfArguments() == 2) {
-				Expression cartesianProductFunctionApplication = expression.get(0);
-				if (cartesianProductFunctionApplication.hasFunctor(CARTESIAN_PRODUCT)) {
-					result = true;
-				}
+			} else if (expression.numberOfArguments() == 2) {				
+				result = true;
 			}
 		}
 
@@ -341,13 +348,6 @@ public class FunctionType implements Type, Serializable {
 		Util.myAssert(expression.numberOfArguments() == 1 || expression.numberOfArguments() == 2,
 				() -> "Function type has illegal number of arguments (should be 1 or 2), has "
 						+ expression.numberOfArguments() + " for " + expression);
-		if (expression.numberOfArguments() == 2) {
-			// First argument must be a cartesian product function application,
-			// which describes the arguments of the function
-			Expression cartesianProductFunctionApplication = expression.get(0);
-			Util.myAssert(cartesianProductFunctionApplication.hasFunctor(CARTESIAN_PRODUCT),
-					() -> "First argument of two must be a cartesian product function application, given instead " + expression);
-		}
 	}
 
 	// NOTE: Only to be used under testing conditions.
