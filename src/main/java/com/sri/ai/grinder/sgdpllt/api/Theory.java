@@ -53,6 +53,7 @@ import java.util.LinkedHashSet;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -279,12 +280,13 @@ public interface Theory extends Cloneable {
 		Type type;
 		boolean result =
 				!context.isUniquelyNamedConstant(expression)
+				&& !(expression instanceof QuantifiedExpression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
 				&& (typeExpression = GrinderUtil.getType(expression, context)) != null
 				&& (type = context.getType(typeExpression)) != null
 				&& isSuitableFor(expression, type)
-				&& !thereExists(context.getTypes(), t -> t.contains(expression));
+				&& !thereExists(context.getTypes(), t -> t.contains(expression));		
 		return result;
 	}
 	
