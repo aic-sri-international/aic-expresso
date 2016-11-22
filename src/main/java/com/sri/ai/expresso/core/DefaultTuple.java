@@ -49,19 +49,19 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.api.TupleInterface;
+import com.sri.ai.expresso.api.Tuple;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.util.Util;
 
 /**
- * A default implementation of a {@link TupleInterface}.
+ * A default implementation of a {@link Tuple}.
  * 
  * @author braz
  */
 @Beta
-public class DefaultTuple extends AbstractNonQuantifiedExpression implements TupleInterface {
+public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tuple {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -90,7 +90,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		else {
 			ArrayList<SyntaxTree> argumentsSyntaxTrees = Util.mapIntoArrayList(arguments, e -> e == null? null : e.getSyntaxTree());
 			SyntaxTree kleeneList = SyntaxTrees.makeKleeneListIfNeeded(argumentsSyntaxTrees);
-			result = new DefaultCompoundSyntaxTree(TupleInterface.TUPLE_LABEL, kleeneList);
+			result = new DefaultCompoundSyntaxTree(Tuple.TUPLE_LABEL, kleeneList);
 		}
 		return result;
 	}
@@ -112,7 +112,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
-		TupleInterface result;
+		Tuple result;
 		
 		if (get(i) == newIthArgument) {
 			result = this;
@@ -171,7 +171,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 
 		@Override
 		public Expression getSubExpressionOf(Expression expression) {
-			TupleInterface tuple = castOrThrowError(TupleInterface.class, expression, "Attempt at obtaining " + index + "-th component expression of %s which should be an instance of %s but is an instance of %s");
+			Tuple tuple = castOrThrowError(Tuple.class, expression, "Attempt at obtaining " + index + "-th component expression of %s which should be an instance of %s but is an instance of %s");
 			Expression result = tuple.get(index);
 			return result;
 		}

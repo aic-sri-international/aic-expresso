@@ -50,26 +50,26 @@ import com.google.common.annotations.Beta;
  * @author braz
  */
 @Beta
-public interface TupleInterface extends Expression {
-	 String TUPLE_LABEL = "( . )";
+public interface Tuple extends Expression {
+	String TUPLE_LABEL = "( . )";
 	
 	/**
 	 * Returns the arguments of a function application expression if this is one.
 	 */
 	@Override
-	public List<Expression> getArguments();
+	List<Expression> getArguments();
 	
 	/**
 	 * Same as {@link #getArguments()}<code>.size()</code>, but potentially more efficient.
 	 */
 	@Override
-	public int numberOfArguments();
+	int numberOfArguments();
 	
 	/**
 	 * Same as {@link #getArguments()}<code>.get(i)</code>, but potentially more efficient.
 	 */
 	@Override
-	public Expression get(int i);
+	Expression get(int i);
 	
 	/**
 	 * If this is a tuple,
@@ -79,6 +79,13 @@ public interface TupleInterface extends Expression {
 	@Override
 	Expression set(int i, Expression newIthArgument);
 	
+	/**
+	 * Is given expression a Tuple.
+	 * 
+	 * @param expression
+	 *            to be tested if a Tuple.
+	 * @return true if the given expressions is a Tuple, false otherwise.
+	 */
 	static boolean isTuple(Expression expression) {
 		boolean result =
 				expression.getSyntaxTree().getLabel().equals(TUPLE_LABEL)
