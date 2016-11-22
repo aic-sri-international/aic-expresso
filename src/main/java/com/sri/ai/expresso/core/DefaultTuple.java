@@ -53,7 +53,6 @@ import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 
 /**
@@ -70,9 +69,9 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 	private SyntaxTree                 syntaxTree;
 	private List<ExpressionAndSyntacticContext> expressionAndSyntacticContexts;
 	
-	public DefaultTuple(ArrayList<Expression> arguments) {
+	public DefaultTuple(List<Expression> arguments) {
 		super();
-		this.arguments = arguments;
+		this.arguments = new ArrayList<>(arguments);
 		
 		this.syntaxTree = makeSyntaxTree();
 		
@@ -91,7 +90,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		else {
 			ArrayList<SyntaxTree> argumentsSyntaxTrees = Util.mapIntoArrayList(arguments, e -> e == null? null : e.getSyntaxTree());
 			SyntaxTree kleeneList = SyntaxTrees.makeKleeneListIfNeeded(argumentsSyntaxTrees);
-			result = new DefaultCompoundSyntaxTree(Tuple.TUPLE_LABEL, kleeneList);
+			result = new DefaultCompoundSyntaxTree(TupleInterface.TUPLE_LABEL, kleeneList);
 		}
 		return result;
 	}

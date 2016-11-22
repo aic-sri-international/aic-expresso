@@ -42,9 +42,9 @@ import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 
 /**
  * A collection of utility routines around counting formula equivalent
@@ -121,7 +121,7 @@ public class CountingFormulaEquivalentExpressions {
 			} else if (Sets.isIntensionalUniSet(cardinalityArg)) {
 				IntensionalSet intensionalUniSet = (IntensionalSet) cardinalityArg;
 				Expression head = intensionalUniSet.getHead();
-				if (Tuple.isTuple(head)) {
+				if (TupleInterface.isTuple(head)) {
 					// TODO - we should really test if the args of the tuple
 					// match the indices but for now we will trust they are the
 					// same.

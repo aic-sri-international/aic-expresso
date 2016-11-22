@@ -69,6 +69,7 @@ import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.core.DefaultCountingFormula;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
@@ -92,7 +93,6 @@ import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
-import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;
@@ -185,7 +185,7 @@ public class Expressions {
 		else if (label.equals(LambdaExpression.LABEL)) {
 			result = makeDefaultLambdaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {
+		else if (label.equals(TupleInterface.TUPLE_LABEL) || label.equals("tuple")) {
 			result = makeDefaultTupleFromLabelAndSubTrees(label, subTreeObjects);
 		}
 		else if (label.equals(ExtensionalSet.UNI_SET_LABEL)) {
@@ -357,6 +357,15 @@ public class Expressions {
 	 */
 	public static Symbol makeSymbol(Object object) {
 		return DefaultSymbol.createSymbol(object);
+	}
+	
+	public static TupleInterface makeTuple(Expression... elements) {
+		return makeTuple(Arrays.asList(elements));
+	}
+	
+	public static TupleInterface makeTuple(List<Expression> elements) {
+		TupleInterface result = new DefaultTuple(elements);
+		return result;
 	}
 	
 	public static Symbol makeStringLiteral(String object) {

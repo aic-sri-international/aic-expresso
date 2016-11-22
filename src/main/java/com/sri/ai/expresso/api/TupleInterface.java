@@ -40,20 +40,18 @@ package com.sri.ai.expresso.api;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 
 /**
  * An {@link Expression} that represents a tuple of sub-expressions.
  * Like a {@link FunctionApplication}, a tuple has a number of arguments;
  * but unlike function applications, it does not have a functor.
  * <p>
- * Currently named {@link TupleInterface} in order not to be confused with {@link Tuple},
- * which will be phased out in time.
  * 
  * @author braz
  */
 @Beta
 public interface TupleInterface extends Expression {
+	 String TUPLE_LABEL = "( . )";
 	
 	/**
 	 * Returns the arguments of a function application expression if this is one.
@@ -80,4 +78,12 @@ public interface TupleInterface extends Expression {
 	 */
 	@Override
 	Expression set(int i, Expression newIthArgument);
+	
+	static boolean isTuple(Expression expression) {
+		boolean result =
+				expression.getSyntaxTree().getLabel().equals(TUPLE_LABEL)
+				||
+				expression.getSyntaxTree().getLabel().equals("tuple");
+		return result;
+	}
 }

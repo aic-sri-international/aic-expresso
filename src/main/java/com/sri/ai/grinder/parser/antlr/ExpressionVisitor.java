@@ -64,7 +64,6 @@ import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
-import com.sri.ai.grinder.sgdpllt.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 
 @Beta
@@ -148,7 +147,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// '(' expr ',' expr (',' expr)* ')' #tuple
 	@Override 
 	public Expression visitTuple(AntlrGrinderParser.TupleContext ctx) {	
-		Expression result = Tuple.make(expressions(ctx.expr()));
+		Expression result = Expressions.makeTuple(expressions(ctx.expr()));
 		return result;
 	}
 
@@ -465,12 +464,12 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	protected Object[] expressions(List<AntlrGrinderParser.ExprContext> exprContexts) {
+	protected Expression[] expressions(List<AntlrGrinderParser.ExprContext> exprContexts) {
 		List<Expression> result = new ArrayList<Expression>();
 		for (AntlrGrinderParser.ExprContext exprContext : exprContexts) {
 			result.add(visit(exprContext));
 		}
-		return result.toArray();
+		return result.toArray(new Expression[result.size()]);
 	}
 	
 	protected List<Expression> expressionsList(List<AntlrGrinderParser.ExprContext> exprContexts) {
