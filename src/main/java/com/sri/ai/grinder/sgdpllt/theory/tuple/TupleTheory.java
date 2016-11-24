@@ -37,9 +37,30 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
-import com.google.common.annotations.Beta;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.util.Util.set;
 
+import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
+
+/**
+ * A {@link Theory) for Tuples.
+ * 
+ * @author oreilly
+ *
+ */
+// TODO - should not be abstract
 @Beta
-public class TupleTheory {
-// TODO - implement
+public abstract class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality {
+	
+	public TupleTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+		super(
+				set(EQUALITY, DISEQUALITY),
+				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				propagateAllLiteralsWhenVariableIsBound, new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
+	}
 }

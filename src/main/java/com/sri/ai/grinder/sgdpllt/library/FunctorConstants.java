@@ -119,6 +119,7 @@ public class FunctorConstants {
 		ARITHMETIC_FUNCTORS = Collections.unmodifiableSet(arithmeticFunctors);
 	}
 	public static final String CARTESIAN_PRODUCT = "x";
+	public static final String TUPLE_TYPE = "(...)";
 	public static final String FUNCTION_TYPE = "->";
 	public static final String INTEGER_INTERVAL = "integer_Interval";
 
