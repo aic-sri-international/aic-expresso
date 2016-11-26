@@ -66,15 +66,8 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheory;
 
@@ -101,14 +94,8 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				new SeriallyMergedMapBasedTopSimplifier(
-						new BindingTopSimplifier(),
-						new BooleanSimplifier(),
-						new NumericSimplifier(),
-						new EqualitySimplifier(),
-						new InequalitySimplifier(),
-						new CardinalityOfSetConstantSimplifier()
-						));
+				new DefaultMapBasedTopSimplifier(map(), map()) // placeholder; need to use non-static simplifier, see below
+				);
 		// Numeric simplifiers are included to take care of polynomials
 		// in the body expression (conditional polynomials) of summations.
 		// In the future, we want these simplifiers to be automatically extracted

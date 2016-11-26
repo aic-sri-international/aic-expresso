@@ -47,8 +47,8 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhich
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 
@@ -67,14 +67,6 @@ import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 @Beta
 public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality {
 
-//	/**
-//	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
-//	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
-//	 */
-//	public EqualityTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
-//		this(false, propagateAllLiteralsWhenVariableIsBound);
-//	}
-	
 	/**
 	 * Creates an equality theory.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
@@ -89,7 +81,10 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				propagateAllLiteralsWhenVariableIsBound, new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
+				propagateAllLiteralsWhenVariableIsBound,
+				new SeriallyMergedMapBasedTopSimplifier(
+						new EqualitySimplifier(),
+						new BooleanSimplifier()));
 	}
 	
 	@Override

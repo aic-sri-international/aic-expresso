@@ -51,6 +51,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 
 @Beta
@@ -59,9 +60,8 @@ import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimpl
  */
 abstract public class AbstractTheory implements Theory {
 
-	protected Simplifier simplifier;
 	protected MapBasedTopSimplifier topSimplifier;
-	
+
 	/**
 	 * Initializes types for testing to be the collection of a single type,
 	 * a {@link Categorical} {@link Type} named <code>SomeType</code>
@@ -75,20 +75,21 @@ abstract public class AbstractTheory implements Theory {
 		setSimplifierFromElementarySimplifiersIn(simplifier);
 	}
 
+	private Simplifier cachedRecursiveExhaustiveSimplifier;
+	
 	/**
 	 * Sets the theory's simplifier based on elementary simplifiers
 	 * present in given {@link MapBasedSimplifier}.
 	 * @param simplifier
 	 */
 	protected void setSimplifierFromElementarySimplifiersIn(MapBasedSimplifier simplifier) {
-		this.simplifier = simplifier;
-//		this.cachedTotalSimplifier = new RecursiveExhaustiveMapBasedSimplifier(topSimplifier);
 		this.topSimplifier = new SeriallyMergedMapBasedTopSimplifier(simplifier);
+		this.cachedRecursiveExhaustiveSimplifier = new RecursiveExhaustiveMapBasedSimplifier(topSimplifier);
 	}
 	
 	@Override
 	public Expression simplify(Expression expression, Context context) {
-		Expression result = simplifier.apply(expression, context);
+		Expression result = cachedRecursiveExhaustiveSimplifier.apply(expression, context);
 		return result;
 	}
 

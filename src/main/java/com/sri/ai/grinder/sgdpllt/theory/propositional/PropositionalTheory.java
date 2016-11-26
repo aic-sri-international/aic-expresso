@@ -66,6 +66,10 @@ import com.sri.ai.grinder.sgdpllt.library.boole.Not;
  */
 public class PropositionalTheory extends AbstractTheory {
 
+	public PropositionalTheory() {
+		super(new BooleanSimplifier());
+	}
+
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
 		boolean result =
@@ -76,15 +80,6 @@ public class PropositionalTheory extends AbstractTheory {
 		return result;
 	}
 	
-	/**
-	 * Constructor overrides default constructor in order to define
-	 * testing symbols <code>P, Q, R</code> of type <code>Boolean</code>,
-	 * and main testing variable as <code>P</code>.
-	 */
-	public PropositionalTheory() {
-		super(new BooleanSimplifier());
-	}
-
 	@Override
 	public boolean isNonTrivialAtom(Expression expression, Context context) {
 		Object syntacticFormType = expression.getSyntacticFormType();

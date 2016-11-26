@@ -46,7 +46,6 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
-import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
@@ -60,8 +59,7 @@ import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.util.Util;
@@ -88,8 +86,7 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				new DefaultMapBasedTopSimplifier(map(), map()));
-		setExtraSimplifier(extraSimplifier);
+				makeSimplifiers(extraSimplifier));
 	}
 
 	/**
@@ -97,16 +94,24 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * @param extraSimplifier
 	 */
 	protected void setExtraSimplifier(MapBasedSimplifier extraSimplifier) {
-		setSimplifierFromElementarySimplifiersIn(
-				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
-						// basic simplification of involved interpreted functions in this theory:
-						new BindingTopSimplifier(),
-						new EqualitySimplifier(),
-						new InequalitySimplifier(),
-						new BooleanSimplifier(),
-						new NumericSimplifier(),
-						new CardinalityOfSetConstantSimplifier(),
-						extraSimplifier));
+		setSimplifierFromElementarySimplifiersIn(makeSimplifiers(extraSimplifier));
+	}
+
+	/**
+	 * Make simplifiers from numeric simplifiers plus elementary simpliiers in given extra simplifier.
+	 * @param extraSimplifier
+	 * @return
+	 */
+	private static SeriallyMergedMapBasedTopSimplifier makeSimplifiers(MapBasedSimplifier extraSimplifier) {
+		return new SeriallyMergedMapBasedTopSimplifier(
+				// basic simplification of involved interpreted functions in this theory:
+				new BindingTopSimplifier(),
+				new EqualitySimplifier(),
+				new InequalitySimplifier(),
+				new BooleanSimplifier(),
+				new NumericSimplifier(),
+				new CardinalityOfSetConstantSimplifier(),
+				extraSimplifier);
 	}
 	
 	private static final Map<String, String> negationFunctor =
