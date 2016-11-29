@@ -104,12 +104,37 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// function application, e.g.: f(X)
-	// functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
-	@Override 
-	public Expression visitFunctionApplication(
-			AntlrGrinderParser.FunctionApplicationContext ctx) {
+	
+	// expr_function_application
+    // : functor=expr_functor_name '(' ( args+=expr (',' args+=expr)* )? ')'
+    // ;
+	@Override
+	public Expression visitExpr_function_application(AntlrGrinderParser.Expr_function_applicationContext ctx) { 
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, visit(ctx.functor), expressions(ctx.args));
+	
+		return result;
+	}
+	
+	@Override
+	public Expression visitFunctorSymbol(AntlrGrinderParser.FunctorSymbolContext ctx) { 
+		return newSymbol(ctx.getText()); 
+	}
+	
+	@Override 
+	public Expression visitFunctorLambda(AntlrGrinderParser.FunctorLambdaContext ctx) { 
+		Expression result = visit(ctx.lambda);
+		
+		// Keep track of explicitly bracketed expressions
+		// so that the are not flattened as part of the 
+		// possiblyFlatten()
+		// call for some expressions, e.g.: 1 + 2 + 3.
+		parenthesizedExpressions.put(result, result);
+		return result; 
+	}
+	
+	@Override
+	public Expression visitFunctorFunctionApplication(AntlrGrinderParser.FunctorFunctionApplicationContext ctx) { 	
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, newSymbol(ctx.functor.getText()), expressions(ctx.args));
 		
 		return result;
 	}
@@ -358,8 +383,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// lambda, e.g.: lambda f(X) : 2 + f(X)
 	// LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
 	@Override
-	public Expression visitLamda(
-			AntlrGrinderParser.LamdaContext ctx) {
+	public Expression visitExpr_lambda(AntlrGrinderParser.Expr_lambdaContext ctx) { 
 		Expression result = new DefaultLambdaExpression(expressionsList(ctx.parameters), visit(ctx.body));
 		return result;
 	}
