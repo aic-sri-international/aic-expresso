@@ -51,9 +51,11 @@ import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentEx
 import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression;
 import static com.sri.ai.grinder.sgdpllt.library.set.Sets.isIntensionalMultiSet;
 import static com.sri.ai.grinder.sgdpllt.theory.base.ExpressionConditionedOnLiteralSolutionStep.stepDependingOnLiteral;
+import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.collect.StackedHashMap.stackedHashMap;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -79,6 +81,7 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.TopExhaustive;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
 
 /**
@@ -135,6 +138,10 @@ else
 @Beta
 public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver {
 
+	private static interface Rewriter {
+		public Step rewrite(Expression expression, Context context);
+	};
+	
 	private Expression expression;
 	private boolean alreadyExhaustivelyTopSimplified;
 	private int subExpressionIndex;
@@ -171,13 +178,12 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 		return expression;
 	}
 
-	@Override
+	Collection<Rewriter> rewriters;	@Override
 	public Step step(Context context) {
-		Step result;
+		Step result = null;
 		
 		TopSimplifier topSimplifier = context.getTheory().getMapBasedTopSimplifier();
 		TopSimplifier exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
-		Simplifier totalSimplifier = new Recursive(exhaustiveTopSimplifier);
 
 		Expression exhaustivelyTopSimplifiedExpression;
 		if (alreadyExhaustivelyTopSimplified) {
@@ -187,48 +193,122 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 			exhaustivelyTopSimplifiedExpression = exhaustiveTopSimplifier.apply(expression, context);
 		}
 		
+		rewriters = Util.<Rewriter>list(
+					
+					(Expression e, Context c) -> {
+						if (c.isLiteral(e)) {
+							Simplifier totalSimplifier = new Recursive(exhaustiveTopSimplifier);
+							Expression completelySimplifiedLiteral = totalSimplifier.apply(e, c);
+							return stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, c);
+						}
+						else {
+							return null;
+						}
+					}
+
+					,
+					(Expression e, Context c) -> {
+						if (fromFunctorToGroup.containsKey(e.getFunctor())&& isIntensionalMultiSet(e.get(0)) ) {
+							if (isQuantifierOverFunctions((QuantifiedExpression)e.get(0), c)) {
+								// TODO - more optimal approach
+								return getQuantificationOverFunctionsSolutionUsingBruteForce(e, c);
+							}
+							else {
+								QuantifierEliminator quantifierEliminator;
+								if (e.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
+									quantifierEliminator = new SGVET(new SumProduct());
+								}
+								else {
+									AssociativeCommutativeGroup group = fromFunctorToGroup.get(e.getFunctor());
+									quantifierEliminator = new SGDPLLT(group);
+								}
+								Expression quantifierFreeExpression = quantifierEliminator.solve(e, c);
+								return new Solution(quantifierFreeExpression);
+							}
+						}
+						else {
+							return null;
+						}
+					}
+
+					,
+					(Expression e, Context c) -> {
+						if (isCountingFormulaEquivalentExpression(e)) {
+							// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
+							// or:
+							// | I : Condition | --> sum({{ (on I) 1 : Condition }})
+							Expression set = intensionalMultiSet(getIndexExpressions(e), ONE, getCondition(e));
+							Expression functionOnSet = apply(SUM, set);
+							if (isQuantifierOverFunctions((QuantifiedExpression) set, c)) {
+								// TODO - more optimal approach
+								return getQuantificationOverFunctionsSolutionUsingBruteForce(functionOnSet, c);
+							}
+							else {
+								QuantifierEliminator sgvet = new SGVET(new SumProduct());
+								Expression quantifierFreeExpression = sgvet.solve(functionOnSet, c);
+								return new Solution(quantifierFreeExpression);
+							}
+						}
+						else return null;
+					}
+
+				);
 		
-		if (context.isLiteral(exhaustivelyTopSimplifiedExpression)) {
-			Expression completelySimplifiedLiteral = totalSimplifier.apply(exhaustivelyTopSimplifiedExpression, context);
-			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
+
+		for (Rewriter rewriter : rewriters) {
+			if (result == null) {
+				result = rewriter.rewrite(exhaustivelyTopSimplifiedExpression, context);
+			}
 		}
+		
+		
+		if (result == null) {
+			
+//		if (context.isLiteral(exhaustivelyTopSimplifiedExpression)) {
+//			Simplifier totalSimplifier = new Recursive(exhaustiveTopSimplifier);
+//			Expression completelySimplifiedLiteral = totalSimplifier.apply(exhaustivelyTopSimplifiedExpression, context);
+//			result = stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
+//		}
 		// TODO: the next few cases always produce solver steps, never a ItDependsOn solver step.
 		// We should eventually use quantifier eliminator step solvers that may return ItDependsOn solver steps
-		else if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
-			if (isQuantifierOverFunctions((QuantifiedExpression)expression.get(0), context)) {
-				// TODO - more optimal approach
-				result = getQuantificationOverFunctionsSolutionUsingBruteForce(expression, context);
-			}
-			else {
-				QuantifierEliminator quantifierEliminator;
-				if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
-					quantifierEliminator = new SGVET(new SumProduct());
-				}
-				else {
-					AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
-					quantifierEliminator = new SGDPLLT(group);
-				}
-				Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
-				result = new Solution(quantifierFreeExpression);
-			}
-		}
-		else if (isCountingFormulaEquivalentExpression(expression)) {
-			// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
-			// or:
-			// | I : Condition | --> sum({{ (on I) 1 : Condition }})
-			Expression set = intensionalMultiSet(getIndexExpressions(expression), ONE, getCondition(expression));
-			Expression functionOnSet = apply(SUM, set);
-			if (isQuantifierOverFunctions((QuantifiedExpression) set, context)) {
-				// TODO - more optimal approach
-				result = getQuantificationOverFunctionsSolutionUsingBruteForce(functionOnSet, context);
-			}
-			else {
-				QuantifierEliminator sgvet = new SGVET(new SumProduct());
-				Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
-				result = new Solution(quantifierFreeExpression);
-			}
-		}
-		else if (expression.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
+//		else 
+//			if (fromFunctorToGroup.containsKey(expression.getFunctor())&& isIntensionalMultiSet(expression.get(0)) ) {
+//			if (isQuantifierOverFunctions((QuantifiedExpression)expression.get(0), context)) {
+//				// TODO - more optimal approach
+//				result = getQuantificationOverFunctionsSolutionUsingBruteForce(expression, context);
+//			}
+//			else {
+//				QuantifierEliminator quantifierEliminator;
+//				if (expression.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
+//					quantifierEliminator = new SGVET(new SumProduct());
+//				}
+//				else {
+//					AssociativeCommutativeGroup group = fromFunctorToGroup.get(expression.getFunctor());
+//					quantifierEliminator = new SGDPLLT(group);
+//				}
+//				Expression quantifierFreeExpression = quantifierEliminator.solve(expression, context);
+//				result = new Solution(quantifierFreeExpression);
+//			}
+//		}
+//		else
+//			if (isCountingFormulaEquivalentExpression(expression)) {
+//			// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
+//			// or:
+//			// | I : Condition | --> sum({{ (on I) 1 : Condition }})
+//			Expression set = intensionalMultiSet(getIndexExpressions(expression), ONE, getCondition(expression));
+//			Expression functionOnSet = apply(SUM, set);
+//			if (isQuantifierOverFunctions((QuantifiedExpression) set, context)) {
+//				// TODO - more optimal approach
+//				result = getQuantificationOverFunctionsSolutionUsingBruteForce(functionOnSet, context);
+//			}
+//			else {
+//				QuantifierEliminator sgvet = new SGVET(new SumProduct());
+//				Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
+//				result = new Solution(quantifierFreeExpression);
+//			}
+//		}
+//		else
+			if (expression.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
 			if (isQuantifierOverFunctions((QuantifiedExpression) expression, context)) {
 				// TODO - more optimal approach
 				result = getQuantificationOverFunctionsSolutionUsingBruteForce(expression, context);
@@ -250,58 +330,62 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 				result = new Solution(resultExpression);
 			}
 		}
-		else if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
-			Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
-			ExpressionLiteralSplitterStepSolver subExpressionEvaluator = 
-					getEvaluatorFor(subExpression, false /* not known to be exhaustively top-simplified already */);
-			Step subExpressionStep = subExpressionEvaluator.step(context);
+		}
+		
+		if (result == null) {
+			if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
+				Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
+				ExpressionLiteralSplitterStepSolver subExpressionEvaluator = 
+						getEvaluatorFor(subExpression, false /* not known to be exhaustively top-simplified already */);
+				Step subExpressionStep = subExpressionEvaluator.step(context);
 
-			if (subExpressionStep == null) {
-				return null;
-			}
-			if (subExpressionStep.itDepends()) {
-				EvaluatorStepSolver ifTrue = clone();
-				ifTrue.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsTrue());
-				EvaluatorStepSolver ifFalse = clone();
-				ifFalse.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsFalse());
-				result =
-						new ItDependsOn(
-								subExpressionStep.getSplitterLiteral(),
-								subExpressionStep.getContextSplittingWhenSplitterIsLiteral(),
-								ifTrue,
-								ifFalse);
-			}
-			else if (subExpressionStep.getValue() == subExpression) {
-				// no change, just record the evaluator for this sub-expression and move on to the next one
-				ExpressionLiteralSplitterStepSolver nextStepSolver;
-				nextStepSolver = clone();
-				((EvaluatorStepSolver) nextStepSolver).setEvaluatorFor(subExpression, subExpressionEvaluator);
-				((EvaluatorStepSolver) nextStepSolver).subExpressionIndex++;
-				result = nextStepSolver.step(context);
-			}
-			else {
-				Expression expressionWithSubExpressionReplacedByItsValue
-				= exhaustivelyTopSimplifiedExpression.set(subExpressionIndex, subExpressionStep.getValue());
-
-				Expression exhaustivelyTopSimplifiedAfterSubExpressionEvaluation
-				= exhaustiveTopSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, context);
-
-				if (exhaustivelyTopSimplifiedAfterSubExpressionEvaluation == subExpression) {
-					// topSimplified turns out to be the sub-expression itself
-					// we already know the result for that: the non-dependent subExpressionStep itself.
-					return subExpressionStep;
+				if (subExpressionStep == null) {
+					return null;
 				}
-				else {
-					// topSimplified is either a former sub-expression, or new.
-					// try to reuse evaluator if available, or a make a new one, and use it
-					ExpressionLiteralSplitterStepSolver nextStepSolver
-					= getEvaluatorFor(exhaustivelyTopSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
+				if (subExpressionStep.itDepends()) {
+					EvaluatorStepSolver ifTrue = clone();
+					ifTrue.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsTrue());
+					EvaluatorStepSolver ifFalse = clone();
+					ifFalse.setEvaluatorFor(subExpression, subExpressionStep.getStepSolverForWhenSplitterIsFalse());
+					result =
+							new ItDependsOn(
+									subExpressionStep.getSplitterLiteral(),
+									subExpressionStep.getContextSplittingWhenSplitterIsLiteral(),
+									ifTrue,
+									ifFalse);
+				}
+				else if (subExpressionStep.getValue() == subExpression) {
+					// no change, just record the evaluator for this sub-expression and move on to the next one
+					ExpressionLiteralSplitterStepSolver nextStepSolver;
+					nextStepSolver = clone();
+					((EvaluatorStepSolver) nextStepSolver).setEvaluatorFor(subExpression, subExpressionEvaluator);
+					((EvaluatorStepSolver) nextStepSolver).subExpressionIndex++;
 					result = nextStepSolver.step(context);
 				}
+				else {
+					Expression expressionWithSubExpressionReplacedByItsValue
+					= exhaustivelyTopSimplifiedExpression.set(subExpressionIndex, subExpressionStep.getValue());
+
+					Expression exhaustivelyTopSimplifiedAfterSubExpressionEvaluation
+					= exhaustiveTopSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, context);
+
+					if (exhaustivelyTopSimplifiedAfterSubExpressionEvaluation == subExpression) {
+						// topSimplified turns out to be the sub-expression itself
+						// we already know the result for that: the non-dependent subExpressionStep itself.
+						return subExpressionStep;
+					}
+					else {
+						// topSimplified is either a former sub-expression, or new.
+						// try to reuse evaluator if available, or a make a new one, and use it
+						ExpressionLiteralSplitterStepSolver nextStepSolver
+						= getEvaluatorFor(exhaustivelyTopSimplifiedAfterSubExpressionEvaluation, true /* already top-simplified */);
+						result = nextStepSolver.step(context);
+					}
+				}
 			}
-		}
-		else {
-			result = new Solution(exhaustivelyTopSimplifiedExpression);
+			else {
+				result = new Solution(exhaustivelyTopSimplifiedExpression);
+			}
 		}
 		
 		return result;
