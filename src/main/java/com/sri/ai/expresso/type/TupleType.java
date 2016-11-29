@@ -42,7 +42,6 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TUPLE_TYPE;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +70,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class TupleType implements Type, Serializable {
+public class TupleType extends AbstractType {
 	private static final long serialVersionUID = 1L;
 
 	private List<Type> elementTypes;
@@ -83,7 +82,11 @@ public class TupleType implements Type, Serializable {
 	private Expression genericTuple;
 
 	public TupleType(Type... elementTypes) {
-		this.elementTypes = Collections.unmodifiableList(Arrays.asList(elementTypes));
+		this(Arrays.asList(elementTypes));
+	}
+	
+	public TupleType(List<Type> elementTypes) {
+		this.elementTypes = Collections.unmodifiableList(new ArrayList<>(elementTypes));
 	}
 
 	public int getArity() {

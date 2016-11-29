@@ -163,6 +163,7 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		// Now we update the testing function types, to have argument types
 		// selected at random that are dependent on the theory being used.
 		List<Type> allTestingTypes = new ArrayList<>(getTypesForTesting());
+		List<Pair<TestingFunctionType, List<Type>>> updatesToReApply = new ArrayList<>();
 		for (TestingFunctionType testingFunctionTypeToUpdate : testingFunctionTypesToBeUpdated) {
 			List<Type> updatedArgTypes    = new ArrayList<>();
 			List<Type> allExceptThisTypes = new ArrayList<>(allTestingTypes);
@@ -181,6 +182,14 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 				updatedArgTypes.add(updatedArgType);				
 			}
 			testingFunctionTypeToUpdate.updateTestArgumentTypes(updatedArgTypes);
+			updatesToReApply.add(new Pair<>(testingFunctionTypeToUpdate, updatedArgTypes));
+		}
+		// NOTE: Due to Type's using getName() during equality checking (see AbstracType) 
+		// we need to ensure we re-update all the compound types together so that
+		// their string representations are updated correctly as well as this 
+		// affects their identity (i.e. equality and hashCode checks).
+		for (Pair<TestingFunctionType, List<Type>> updateToReApply : updatesToReApply) {
+			updateToReApply.first.updateTestArgumentTypes(updateToReApply.second);
 		}
 	}
 	

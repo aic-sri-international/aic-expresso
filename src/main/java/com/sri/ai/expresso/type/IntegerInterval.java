@@ -49,14 +49,12 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
 import com.sri.ai.util.collect.BreadthFirstIterator;
 import com.sri.ai.util.collect.IntegerIterator;
@@ -68,7 +66,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class IntegerInterval implements Type, Serializable {
+public class IntegerInterval extends AbstractType {
 	private static final long serialVersionUID = 1L;
 
 	private String cachedString;

@@ -38,20 +38,56 @@
 package com.sri.ai.test.grinder.helper;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
 import static com.sri.ai.grinder.helper.GrinderUtil.REAL_TYPE;
 import static com.sri.ai.grinder.helper.GrinderUtil.isTypeSubtypeOf;
+import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.map;
 
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealInterval;
+import com.sri.ai.expresso.type.TupleType;
+import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 
 public class GrinderUtilTest {
+	Registry registry;
+	Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("oscar"), makeSymbol("mary")));
+	Type petsType = new Categorical("Pets", 3, arrayList(makeSymbol("fido"), makeSymbol("purrs")));
+	
+	@Before
+	public void setUp() {
+		registry = new DefaultRegistry();
+		Symbol x = makeSymbol("X");
+		Symbol y = makeSymbol("Y");
+		Symbol myPeopleTypeExpression = makeSymbol(peopleType.getName());
+		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
+		registry = registry.add(peopleType);
+		registry = registry.add(petsType);
+		registry = registry.registerIndicesAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
+	}
+	
+	@Test
+	public void testGetTypeForTupleType() {
+		Assert.assertEquals(parse("'(...)'(People, Pets)"), GrinderUtil.getType(parse("(X, Y)"), registry));		
+	}
+	
+	@Test
+	public void testFromTypeExpressionToItsIntrinsicMeaningForTupleType() {
+		Assert.assertEquals(new TupleType(peopleType, petsType), 
+				GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(parse("'(...)'(People, Pets)"), registry));
+	}
 	
 	@Test
 	public void testIsBooleanTypeSubtypeOf() {
@@ -287,5 +323,21 @@ public class GrinderUtilTest {
 				
 		Assert.assertTrue(isTypeSubtypeOf(new FunctionType(INTEGER_TYPE, REAL_TYPE), new FunctionType(REAL_TYPE, INTEGER_TYPE)));
 		Assert.assertFalse(isTypeSubtypeOf(new FunctionType(INTEGER_TYPE, INTEGER_TYPE), new FunctionType(REAL_TYPE, REAL_TYPE)));
+	}
+	
+	@Test
+	public void testIsTupleTypeSubtypeOf() {
+		Assert.assertTrue(isTypeSubtypeOf(new TupleType(BOOLEAN_TYPE), new TupleType(BOOLEAN_TYPE)));
+		Assert.assertTrue(isTypeSubtypeOf(new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE), new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE)));
+
+		Assert.assertFalse(isTypeSubtypeOf(new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE), BOOLEAN_TYPE));
+		Assert.assertFalse(isTypeSubtypeOf(new TupleType(BOOLEAN_TYPE), new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE)));
+		Assert.assertFalse(isTypeSubtypeOf(new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE), new TupleType(BOOLEAN_TYPE)));
+
+		Assert.assertTrue(isTypeSubtypeOf(new TupleType(INTEGER_TYPE), new TupleType(REAL_TYPE)));
+		Assert.assertFalse(isTypeSubtypeOf(new TupleType(REAL_TYPE), new TupleType(INTEGER_TYPE)));
+				
+		Assert.assertFalse(isTypeSubtypeOf(new TupleType(INTEGER_TYPE, REAL_TYPE), new TupleType(REAL_TYPE, INTEGER_TYPE)));
+		Assert.assertTrue(isTypeSubtypeOf(new TupleType(INTEGER_TYPE, INTEGER_TYPE), new TupleType(REAL_TYPE, REAL_TYPE)));
 	}
 }

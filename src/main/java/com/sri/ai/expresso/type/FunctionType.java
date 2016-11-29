@@ -43,7 +43,6 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,7 +72,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class FunctionType implements Type, Serializable {
+public class FunctionType extends AbstractType {
 	private static final long serialVersionUID = 1L;
 
 	private Type codomain;

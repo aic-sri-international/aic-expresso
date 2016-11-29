@@ -71,6 +71,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.google.common.annotations.Beta;
@@ -83,6 +84,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Tuple;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.AbstractExtensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
@@ -95,6 +97,7 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
+import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.library.Disequality;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
@@ -478,6 +481,13 @@ public class GrinderUtil {
 
 			result = coDomain;
 		}
+		else if (Tuple.isTuple(expression)) {
+			List<Expression> elementTypes =
+					expression.getArguments().stream()
+						.map(element -> getType(element, registry))
+						.collect(Collectors.toList());
+			result = TupleType.make(elementTypes);
+		}
 		else if (expression instanceof QuantifiedExpressionWithABody) {
 			QuantifiedExpressionWithABody quantifiedExpressionWithABody = (QuantifiedExpressionWithABody) expression;
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may
@@ -680,6 +690,12 @@ public class GrinderUtil {
 			
 			type = new FunctionType(codomain, argumentTypes.toArray(argumentTypesArray));
 		}
+		else if (TupleType.isTupleType(typeExpression)) {
+			List<Type> elementTypes = typeExpression.getArguments().stream()
+				.map(elementTypeExpression -> registry.getType(elementTypeExpression))
+				.collect(Collectors.toList());
+			type = new TupleType(elementTypes);
+		}
 		else {
 			type = null;
 		}
@@ -696,8 +712,8 @@ public class GrinderUtil {
 	 */
 	public static boolean isTypeSubtypeOf(Type type, Type ofType) {
 		boolean result = false;
-
-		if (type.equals(ofType) || type.toString().equals(ofType.toString())) {
+		
+		if (type.equals(ofType)) {
 			result = true;
 		}
 		else {
@@ -712,6 +728,14 @@ public class GrinderUtil {
 							 // to the function type arguments being contravariant, see:
 							 // https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)
 								.allMatch(idx -> isTypeSubtypeOf(ofTypeFunctionType.getArgumentTypes().get(idx), typeFunctionType.getArgumentTypes().get(idx)));
+				}
+			}
+			else if (type instanceof TupleType && ofType instanceof TupleType) {
+				TupleType typeTupleType   = (TupleType) type;
+				TupleType ofTypeTupleType = (TupleType) ofType;
+				if (typeTupleType.getArity() == ofTypeTupleType.getArity()) {
+					result = IntStream.range(0, typeTupleType.getArity())
+								.allMatch(idx -> isTypeSubtypeOf(typeTupleType.getElementTypes().get(idx), ofTypeTupleType.getElementTypes().get(idx)));
 				}
 			}
 			else if (type instanceof IntegerInterval) {

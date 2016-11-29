@@ -37,13 +37,11 @@
  */
 package com.sri.ai.expresso.type;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.math.Rational;
 
@@ -53,7 +51,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class RealExpressoType implements Type, Serializable {
+public class RealExpressoType extends AbstractType {
 	private static final long serialVersionUID = 1L;
 
 	@Override
