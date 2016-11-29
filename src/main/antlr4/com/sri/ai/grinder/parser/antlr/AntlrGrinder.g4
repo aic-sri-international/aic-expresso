@@ -59,16 +59,6 @@ expr :
      | IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
        // lambda, e.g.: lambda f(X) : 2 + f(X)
      | LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
-       // e.g.: previous message to <<expression>> from <<expression>>
-     | PREVIOUS MESSAGE TO to=expr FROM from=expr #previousMessageToFrom
-       // e.g.: message to <<expression>> from <<expression>>
-     | MESSAGE TO to=expr FROM from=expr #messageToFrom
-       // e.g.: neighbors of variable <<expression>>
-     | NEIGHBORS OF VARIABLE variable=expr #neighborsOfVariable
-       // e.g.: neighbors of factor <<expression>>
-     | NEIGHBORS OF FACTOR factor=expr #neighborsOfFactor
-       // e.g.: neighbors of <<expression>> from <<expression>>
-     | NEIGHBORS OF of=expr FROM from=expr #neighborsOfFrom
        // universal quantification, e.g.: for all X : X != a
      | FOR ALL index=expr ':' body=expr #forAll
        // existential quantification, e.g.: there exists X : X = a
@@ -86,8 +76,7 @@ expr :
      | (NOT | AND | OR | FOR | ALL | THERE | EXISTS // Keywords
         | LAMBDA | IF | THEN | ELSE
         | INTERSECTION | UNION
-        | ON | IN | VALUE | OF
-        | PREVIOUS | MESSAGE | NEIGHBORS | VARIABLE | FACTOR | TO | FROM
+        | ON | IN
         | CARTESIAN_PRODUCT | FUNCTION_TYPE
         | IMPLICATION | BICONDITIONAL // Logic Operators
         | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
@@ -125,15 +114,6 @@ INTERSECTION            : 'intersection' ;
 UNION                   : 'union' ;
 ON                      : 'on' ;
 IN                      : 'in' ;
-VALUE                   : 'value' ;
-OF                      : 'of' ;
-PREVIOUS                : 'previous' ;
-MESSAGE                 : 'message' ;
-NEIGHBORS               : 'neighbors' ;
-VARIABLE                : 'variable' ;
-FACTOR                  : 'factor' ;
-TO                      : 'to' ;
-FROM                    : 'from' ;
 // Special Functions
 CARTESIAN_PRODUCT       : 'x' ;
 FUNCTION_TYPE           : '->' ;

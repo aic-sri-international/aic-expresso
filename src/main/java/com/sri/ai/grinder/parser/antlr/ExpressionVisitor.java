@@ -363,46 +363,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		Expression result = new DefaultLambdaExpression(expressionsList(ctx.parameters), visit(ctx.body));
 		return result;
 	}
-
-	// e.g.: previous message to <<expression>> from <<expression>>
-	@Override
-	public Expression visitPreviousMessageToFrom(
-			AntlrGrinderParser.PreviousMessageToFromContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("previous message to . from .", visit(ctx.to), visit(ctx.from));
-		return result;
-	}
-
-	// e.g.: message to <<expression>> from <<expression>>
-	@Override
-	public Expression visitMessageToFrom(
-			AntlrGrinderParser.MessageToFromContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("message to . from .", visit(ctx.to), visit(ctx.from));
-		return result;
-	}
-	
-	// e.g.: neighbors of variable <<expression>>
-	@Override
-	public Expression visitNeighborsOfVariable(
-			AntlrGrinderParser.NeighborsOfVariableContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", visit(ctx.variable));
-		return result;
-	}
-	
-	// e.g.: neighbors of factor <<expression>>
-	@Override
-	public Expression visitNeighborsOfFactor(
-			AntlrGrinderParser.NeighborsOfFactorContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", visit(ctx.factor));
-		return result;
-	}
-
-	// e.g.: neighbors of <<expression>> from <<expression>>
-	@Override
-	public Expression visitNeighborsOfFrom(
-			AntlrGrinderParser.NeighborsOfFromContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", visit(ctx.of), visit(ctx.from));
-		return result;
-	}
 	
 	// universal quantification, e.g.: for all X : X != a
 	// FOR ALL index=expr ':' body=expr #forAll
