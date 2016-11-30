@@ -71,7 +71,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	private Collection<FunctionSignature> randomPredicatesSignatures;
 	
-	// Note track bracketed expressions based on identity to ensure no accidental overal by value.
+	// Note track bracketed expressions based on identity to ensure no accidental replacement by value.
 	private Map<Expression, Expression> parenthesizedExpressions = new IdentityHashMap<Expression, Expression>(); 
 	
 	public ExpressionVisitor(Collection<FunctionSignature> randomPredicatesSignatures) {
@@ -142,11 +142,12 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override 
 	public Expression visitCartesianProduct(AntlrGrinderParser.CartesianProductContext ctx) { 
 		Object[] arguments = new Object[1+ctx.additionalargs.size()];
-		arguments[0] = newSymbol(ctx.firstarg.getText());
+		arguments[0] = visit(ctx.firstarg);
 		for (int i = 0; i < ctx.additionalargs.size(); i++) {
-			arguments[i+1] = newSymbol(ctx.additionalargs.get(i).getText());
+			arguments[i+1] = visit(ctx.additionalargs.get(i));
 		}
 		Expression result = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, arguments);
+		result = possiblyFlatten(result);
 		return result;
 	}
 	
@@ -154,16 +155,18 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitFunctionType(AntlrGrinderParser.FunctionTypeContext ctx) { 
 		Object[] arguments  = new Object[2];
 		if (ctx.domaintypes.size() == 1) {
-			arguments[0] = newSymbol(ctx.domaintypes.get(0).getText());
+			arguments[0] = visit(ctx.domaintypes.get(0));
 		}
 		else {
 			Object[] domainArgs = new Object[ctx.domaintypes.size()];
 			for (int i = 0; i < ctx.domaintypes.size(); i++) {
-				domainArgs[i] = newSymbol(ctx.domaintypes.get(i).getText());
+				domainArgs[i] = visit(ctx.domaintypes.get(i));
 			}
-			arguments[0] = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, domainArgs);
+			Expression cartesianProduct = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, domainArgs);
+			cartesianProduct = possiblyFlatten(cartesianProduct);
+			arguments[0] = cartesianProduct;
 		}
-		arguments[1] = newSymbol(ctx.rangetype.getText());
+		arguments[1] = visit(ctx.rangetype);
 		Expression result = Expressions.apply(FunctorConstants.FUNCTION_TYPE, arguments);
 		return result;
 	}
@@ -469,10 +472,14 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		
 		Object functor = expression.getFunctor();
 		if (functor != null) {
-			if (functor.equals(FunctorConstants.TIMES) || functor.equals(FunctorConstants.PLUS) || 
-			    functor.equals(FunctorConstants.INTERSECTION) || functor.equals(FunctorConstants.UNION) || 
+			if (functor.equals(FunctorConstants.TIMES) || 
+				functor.equals(FunctorConstants.PLUS) || 
+			    functor.equals(FunctorConstants.INTERSECTION) || 
+			    functor.equals(FunctorConstants.UNION) || 
 			    functor.equals(FunctorConstants.EQUAL) ||
-			    functor.equals(FunctorConstants.AND) || functor.equals(FunctorConstants.OR)) {
+			    functor.equals(FunctorConstants.AND) || 
+			    functor.equals(FunctorConstants.OR) ||
+			    functor.equals(FunctorConstants.CARTESIAN_PRODUCT)) {
 				List<Expression> args = new ArrayList<Expression>();
 				for (Expression arg : expression.getArguments()) {
 					if (arg.getFunctor() != null && functor.equals(arg.getFunctor()) && !parenthesizedExpressions.containsKey(arg)) {

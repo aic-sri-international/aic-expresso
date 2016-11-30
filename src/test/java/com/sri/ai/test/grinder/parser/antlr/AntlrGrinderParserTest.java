@@ -474,9 +474,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		
 		string = "A x B -> C";
 		test(string, Expressions.apply("->", Expressions.apply("x", "A", "B"), "C"));
+		
+		string = "A x B x C -> D";
+		test(string, Expressions.apply("->", Expressions.apply("x", "A", "B", "C"), "D"));
 
 		string = "A -> B x C";
-		testFail(string);
+		test(string, Expressions.apply("->", "A", Expressions.apply("x", "B", "C")));
 	}
 	
 	

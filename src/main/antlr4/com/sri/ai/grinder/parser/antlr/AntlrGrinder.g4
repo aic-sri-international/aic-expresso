@@ -64,9 +64,9 @@ expr :
        // existential quantification, e.g.: there exists X : X = a
      | THERE EXISTS index=expr ':' body=expr #thereExists
        // cartesian product
-     | firstarg=expr_constant_name (X additionalargs+=expr_constant_name)+ #cartesianProduct
+     | firstarg=expr (X additionalargs+=expr)+ #cartesianProduct
        // function type
-     | domaintypes+=expr_constant_name (X domaintypes+=expr_constant_name)* FUNCTION_TYPE rangetype=expr_constant_name #functionType
+     | domaintypes+=expr (X domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType
      | expr_symbol #symbol
      ;
      
