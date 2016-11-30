@@ -82,13 +82,32 @@ expr_functor
     
 expr_lambda
     : LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr
-    ; 
-     
+    ;    
+         
 expr_symbol
-    : expr_constant_name
+    : expr_non_numeric_symbol
     | expr_constant_number
-      // NOTE: even though the expr_constant_name pattern should match these keywords
-      // ANTLR excludes the set of keywords/tokens that are used from matching
+    ;
+    
+expr_non_numeric_symbol
+    : expr_constant_name    
+      // NOTE: even though the expr_constant_name pattern should match these tokens
+      // ANTLR excludes the set of tokens that are used from matching
+      // this pattern (see chapter5 of reference manual). Therefore, we
+      // need to explicitly list all of the keywords and operators that we
+      // want also to be interpreted as Symbols.
+    | FUNCTION_TYPE
+    | IMPLICATION | BICONDITIONAL // Logic Operators
+    | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
+    | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison, Note: We intentionally exclude '<' and '>' as these can affect parsing of an expression symbol
+    | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc    
+    ;
+    
+expr_constant_name
+    : CONSTANT_STR
+    | QUOTED_CONSTANT_STR
+      // NOTE: even though the expr_constant_name pattern should match these tokens
+      // ANTLR excludes the set of tokens that are used from matching
       // this pattern (see chapter5 of reference manual). Therefore, we
       // need to explicitly list all of the keywords and operators that we
       // want also to be interpreted as Symbols.
@@ -96,16 +115,7 @@ expr_symbol
     | LAMBDA | IF | THEN | ELSE
     | INTERSECTION | UNION
     | ON | IN
-    | X | FUNCTION_TYPE
-    | IMPLICATION | BICONDITIONAL // Logic Operators
-    | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
-    | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison
-    | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc    
-    ;
-    
-expr_constant_name
-    : CONSTANT_STR
-    | QUOTED_CONSTANT_STR
+    | X
     ;
     
 expr_constant_number

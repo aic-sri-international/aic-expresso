@@ -463,7 +463,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.apply("x", "A", "B", "C"));
 
 		string = "A x x";
-		testFail(string);
+		test(string, Expressions.apply("x", "A", "x"));
 	}
 	
 	@Test
