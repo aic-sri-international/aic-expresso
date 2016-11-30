@@ -884,6 +884,40 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10")),
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
 		
+		string = "| X in tuple_type(1..10, People) : X < 5 |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+		
+		string = "| X in 1..10 x People : X < 5 |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+		
+		string = "| X in 1..10 x (People x Pets) : X < 5 |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+		
+		string = "| X in 1..10 x (People x Pets x Homes) : X < 5 |";
+		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets", "Homes"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+		
 		string = "| X in 1..10, Y in 1..10 : X < 5 and Y < X |";
 		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",

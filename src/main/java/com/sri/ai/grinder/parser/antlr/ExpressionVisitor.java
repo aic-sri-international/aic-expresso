@@ -47,6 +47,7 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.Token;
 
@@ -159,7 +160,8 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	//  '|' ( indexes+=expr (',' indexes+=expr)* )? ':' body=expr '|' #countingFormula
 	@Override 
 	public Expression visitCountingFormula(AntlrGrinderParser.CountingFormulaContext ctx) { 
-		Expression result = new DefaultCountingFormula(expressionsList(ctx.indexes), visit(ctx.body));
+		Expression result = new DefaultCountingFormula(cartesianProductsToTupleType(expressionsList(ctx.indexes)), 
+										visit(ctx.body));
 		return result;
 	}
 	
@@ -442,6 +444,39 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			indexExpressionsList.add(visit(exprContext));
 		}
 		return indexExpressionsList;
+	}
+	
+	protected List<Expression> cartesianProductsToTupleType(List<Expression> indexExpressions) {
+		List<Expression> result = indexExpressions.stream()
+				.map(ExpressionVisitor.this::cartesianProductToTupleType)
+				.collect(Collectors.toList());
+		
+		return result;
+	}
+	
+	protected Expression cartesianProductToTupleType(Expression indexExpression) {
+		Expression result = indexExpression;
+		
+		if (indexExpression.hasFunctor(FunctorConstants.IN)) {
+			result = replaceCartesianProductWithTupleType(indexExpression);
+		}
+		
+		return result;
+	}
+	
+	protected Expression replaceCartesianProductWithTupleType(Expression expression) {
+		Expression result = Expressions.replaceImmediateSubexpressions(expression, e -> {
+			if (e.hasFunctor(FunctorConstants.CARTESIAN_PRODUCT) && 
+				// Ensure its not the cartesian product argument to a function type.
+				!(expression.hasFunctor(FunctorConstants.FUNCTION_TYPE) && e == expression.get(0) && expression.numberOfArguments() == 2)) {					
+				return Expressions.apply(FunctorConstants.TUPLE_TYPE, 
+						replaceCartesianProductWithTupleType(e).getArguments());
+			}
+			else {
+				return replaceCartesianProductWithTupleType(e);
+			}
+		});
+		return result;
 	}
 	
 	protected Expression possiblyFlatten(Expression expression) {

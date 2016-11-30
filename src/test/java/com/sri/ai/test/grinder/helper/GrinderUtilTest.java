@@ -80,13 +80,13 @@ public class GrinderUtilTest {
 	
 	@Test
 	public void testGetTypeForTupleType() {
-		Assert.assertEquals(parse("'(...)'(People, Pets)"), GrinderUtil.getType(parse("(X, Y)"), registry));		
+		Assert.assertEquals(parse("tuple_type(People, Pets)"), GrinderUtil.getType(parse("(X, Y)"), registry));		
 	}
 	
 	@Test
 	public void testFromTypeExpressionToItsIntrinsicMeaningForTupleType() {
 		Assert.assertEquals(new TupleType(peopleType, petsType), 
-				GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(parse("'(...)'(People, Pets)"), registry));
+				GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(parse("tuple_type(People, Pets)"), registry));
 	}
 	
 	@Test
