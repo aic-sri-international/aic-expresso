@@ -8,7 +8,7 @@ expr :
        // an expression symbol, e.g.:<X + Y>
      | '<' expr '>' #expressionSymbol
        // function application, e.g.: f(X)
-     | expr_function_application # functionApplication
+     | functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
        // tuple, e.g.: (A, B, C)
      | '(' expr ',' expr (',' expr)* ')' #tuple
        // counting formula, e.g.: | X in 1..10 : X < 5 |
@@ -58,7 +58,7 @@ expr :
        // conditional, e.g.: if X = Y then 1 else 2
      | IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
        // lambda, e.g.: lambda f(X) : 2 + f(X)
-     | expr_lambda #lamda
+     | LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
        // universal quantification, e.g.: for all X : X != a
      | FOR ALL index=expr ':' body=expr #forAll
        // existential quantification, e.g.: there exists X : X = a
@@ -68,21 +68,7 @@ expr :
        // function type
      | domaintypes+=expr (X domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType
      | expr_symbol #symbol
-     ;
-     
-expr_function_application
-     : functor=expr_functor '(' ( args+=expr (',' args+=expr)* )? ')'
-     ;
-     
-expr_functor
-    : expr_symbol          #functorSymbol
-    | '(' lambda=expr_lambda ')'  #functorLambda
-    | functor=expr_symbol '(' ( args+=expr (',' args+=expr)* )? ')' #functorFunctionApplication
-    ;    
-    
-expr_lambda
-    : LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr
-    ;    
+     ;  
          
 expr_symbol
     : expr_non_numeric_symbol
