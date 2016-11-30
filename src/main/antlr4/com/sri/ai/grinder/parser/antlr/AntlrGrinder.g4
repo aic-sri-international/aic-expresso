@@ -43,6 +43,10 @@ expr :
      | leftop=expr INTERSECTION rightop=expr #intersection
        // set union, {a, b, c} union {b, d}
      | leftop=expr UNION rightop=expr #union
+       // cartesian product
+     | firstarg=expr (X additionalargs+=expr)+ #cartesianProduct
+       // function type
+     | domaintypes+=expr (X domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType     
        // set membership, x in {x, y, z}
      | leftop=expr IN rightop=expr #in
        // comparison operators, e.g.: X = Y, 2 < 3
@@ -63,10 +67,6 @@ expr :
      | FOR ALL index=expr ':' body=expr #forAll
        // existential quantification, e.g.: there exists X : X = a
      | THERE EXISTS index=expr ':' body=expr #thereExists
-       // cartesian product
-     | firstarg=expr (X additionalargs+=expr)+ #cartesianProduct
-       // function type
-     | domaintypes+=expr (X domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType
      | expr_symbol #symbol
      ;  
          
@@ -101,7 +101,7 @@ expr_constant_name
     | LAMBDA | IF | THEN | ELSE
     | INTERSECTION | UNION
     | ON | IN
-    | X
+    | X | TUPLE_TYPE
     ;
     
 expr_constant_number
@@ -140,6 +140,7 @@ ON                      : 'on' ;
 IN                      : 'in' ;
 // Special Functions
 X                       : 'x' ; // Used for Cartesian Product
+TUPLE_TYPE              : '(...)';
 FUNCTION_TYPE           : '->' ;
 // Logic Operators
 IMPLICATION             : '=>' ;

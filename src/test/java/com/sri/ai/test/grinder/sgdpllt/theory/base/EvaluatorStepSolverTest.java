@@ -350,8 +350,24 @@ public class EvaluatorStepSolverTest {
 		expected = parse("3");
 		runTest(expressionString, expected, context);
 		
+		expressionString = "| f in '->'(0..2, Boolean) : f(0) |";
+		expected = parse("4");
+		runTest(expressionString, expected, context);
+		
 		expressionString = "| f in '->'(x(0..2), Boolean) : f(0) |";
 		expected = parse("4");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "| f in 0..2 -> Boolean : f(0) |";
+		expected = parse("4");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "| f in '->'(x(0..2, 0..2), Boolean) : f(0, 0) |";
+		expected = parse("256");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "| f in 0..2 x 0..2 -> Boolean : f(0, 0) |";
+		expected = parse("256");
 		runTest(expressionString, expected, context);
 		
 		expressionString = "for all f in '->'(x(0..2), Boolean) : f(0)";
