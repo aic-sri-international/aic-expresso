@@ -8,7 +8,7 @@ expr :
        // an expression symbol, e.g.:<X + Y>
      | '<' expr '>' #expressionSymbol
        // function application, e.g.: f(X)
-     | functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
+     | expr_function_application # functionApplication
        // tuple, e.g.: (A, B, C)
      | '(' expr ',' expr (',' expr)* ')' #tuple
        // counting formula, e.g.: | X in 1..10 : X < 5 |
@@ -58,43 +58,60 @@ expr :
        // conditional, e.g.: if X = Y then 1 else 2
      | IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
        // lambda, e.g.: lambda f(X) : 2 + f(X)
-     | LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
-       // e.g.: previous message to <<expression>> from <<expression>>
-     | PREVIOUS MESSAGE TO to=expr FROM from=expr #previousMessageToFrom
-       // e.g.: message to <<expression>> from <<expression>>
-     | MESSAGE TO to=expr FROM from=expr #messageToFrom
-       // e.g.: neighbors of variable <<expression>>
-     | NEIGHBORS OF VARIABLE variable=expr #neighborsOfVariable
-       // e.g.: neighbors of factor <<expression>>
-     | NEIGHBORS OF FACTOR factor=expr #neighborsOfFactor
-       // e.g.: neighbors of <<expression>> from <<expression>>
-     | NEIGHBORS OF of=expr FROM from=expr #neighborsOfFrom
+     | expr_lambda #lamda
        // universal quantification, e.g.: for all X : X != a
      | FOR ALL index=expr ':' body=expr #forAll
        // existential quantification, e.g.: there exists X : X = a
      | THERE EXISTS index=expr ':' body=expr #thereExists
        // cartesian product
-     | firstarg=SYMBOLIC_NAME (CARTESIAN_PRODUCT additionalargs+=SYMBOLIC_NAME)+ #cartesianProduct
+     | firstarg=expr_constant_name (X additionalargs+=expr_constant_name)+ #cartesianProduct
        // function type
-     | domaintypes+=SYMBOLIC_NAME (CARTESIAN_PRODUCT domaintypes+=SYMBOLIC_NAME)* FUNCTION_TYPE rangetype=SYMBOLIC_NAME #functionType
-       // a symbol
-       // NOTE: even though the SYMBOLIC_NAME pattern should match these keywords
-       // ANTLR excludes the set of keywords/tokens that are used from matching
-       // this pattern (see chapter5 of reference manual). Therefore, we
-       // need to explicitly list all of the keywords and operators that we
-       // want also to be interpreted as Symbols.
-     | (NOT | AND | OR | FOR | ALL | THERE | EXISTS // Keywords
-        | LAMBDA | IF | THEN | ELSE
-        | INTERSECTION | UNION
-        | ON | IN | VALUE | OF
-        | PREVIOUS | MESSAGE | NEIGHBORS | VARIABLE | FACTOR | TO | FROM
-        | CARTESIAN_PRODUCT | FUNCTION_TYPE
-        | IMPLICATION | BICONDITIONAL // Logic Operators
-        | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
-        | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison, Note: We intentionally exclude '<' and '>' as these can affect parsing of an expression symbol
-        | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc
-        | RATIONAL | SYMBOLIC_NAME) #symbol
+     | domaintypes+=expr_constant_name (X domaintypes+=expr_constant_name)* FUNCTION_TYPE rangetype=expr_constant_name #functionType
+     | expr_symbol #symbol
      ;
+     
+expr_function_application
+     : functor=expr_functor '(' ( args+=expr (',' args+=expr)* )? ')'
+     ;
+     
+expr_functor
+    : expr_symbol          #functorSymbol
+    | '(' lambda=expr_lambda ')'  #functorLambda
+    | functor=expr_symbol '(' ( args+=expr (',' args+=expr)* )? ')' #functorFunctionApplication
+    ;    
+    
+expr_lambda
+    : LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr
+    ; 
+     
+expr_symbol
+    : expr_constant_name
+    | expr_constant_number
+      // NOTE: even though the expr_constant_name pattern should match these keywords
+      // ANTLR excludes the set of keywords/tokens that are used from matching
+      // this pattern (see chapter5 of reference manual). Therefore, we
+      // need to explicitly list all of the keywords and operators that we
+      // want also to be interpreted as Symbols.
+    | NOT | AND | OR | FOR | ALL | THERE | EXISTS // Keywords
+    | LAMBDA | IF | THEN | ELSE
+    | INTERSECTION | UNION
+    | ON | IN
+    | X | FUNCTION_TYPE
+    | IMPLICATION | BICONDITIONAL // Logic Operators
+    | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
+    | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison
+    | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc    
+    ;
+    
+expr_constant_name
+    : CONSTANT_STR
+    | QUOTED_CONSTANT_STR
+    ;
+    
+expr_constant_number
+    : INTEGER
+    | RATIONAL
+    ;
 
 /*
     The lexer tokenizes the input string that the parser is asked to
@@ -125,17 +142,8 @@ INTERSECTION            : 'intersection' ;
 UNION                   : 'union' ;
 ON                      : 'on' ;
 IN                      : 'in' ;
-VALUE                   : 'value' ;
-OF                      : 'of' ;
-PREVIOUS                : 'previous' ;
-MESSAGE                 : 'message' ;
-NEIGHBORS               : 'neighbors' ;
-VARIABLE                : 'variable' ;
-FACTOR                  : 'factor' ;
-TO                      : 'to' ;
-FROM                    : 'from' ;
 // Special Functions
-CARTESIAN_PRODUCT       : 'x' ;
+X                       : 'x' ; // Used for Cartesian Product
 FUNCTION_TYPE           : '->' ;
 // Logic Operators
 IMPLICATION             : '=>' ;
@@ -171,6 +179,10 @@ COMMA                   : ',' ;
 UNDERSCORE              : '_' ;
 PERIOD                  : '.' ;
 
+INTEGER 
+    : ('0'..'9')+
+    ;
+    
 RATIONAL
     : ('0' | '1'..'9' '0'..'9'*)
     | ('0'..'9')+ '.' ('0'..'9')+ EXPONENT? FLOAT_TYPE_SUFFIX?
@@ -185,9 +197,12 @@ RATIONAL
       FLOAT_TYPE_SUFFIX?
     ;
 
-SYMBOLIC_NAME
+CONSTANT_STR 
     : ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9] | '_')* ('\'')*
-    | '"'  (ESCAPE_SEQUENCE | ~('\\' | '"' ) )* '"'
+    ;
+
+QUOTED_CONSTANT_STR
+    : '"'  (ESCAPE_SEQUENCE | ~('\\' | '"' ) )* '"'
     | '\'' (ESCAPE_SEQUENCE | ~('\\' | '\'') )* '\''
     ;
 

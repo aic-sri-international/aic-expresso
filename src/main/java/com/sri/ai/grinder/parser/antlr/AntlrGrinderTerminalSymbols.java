@@ -66,15 +66,6 @@ public class AntlrGrinderTerminalSymbols {
 		terminalSymbols.add("union");
 		terminalSymbols.add("on");
 		terminalSymbols.add("in");
-		terminalSymbols.add("value");
-		terminalSymbols.add("of");
-		terminalSymbols.add("previous");
-		terminalSymbols.add("message");
-		terminalSymbols.add("neighbors");
-		terminalSymbols.add("variable");
-		terminalSymbols.add("factor");
-		terminalSymbols.add("to");
-		terminalSymbols.add("from");
 		// Special Functions
 		terminalSymbols.add("x");
 		terminalSymbols.add("->");
