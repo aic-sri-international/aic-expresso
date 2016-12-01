@@ -98,22 +98,22 @@ public class SymbolicShell {
 		context = context.add(new IntegerInterval("Integer"));
 		context = context.add(new RealInterval("Real"));
 		
-		context = context.registerIndicesAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
 
-		context = context.registerIndicesAndTypes(map(makeSymbol("C"), makeSymbol("People")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("D"), makeSymbol("People")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("E"), makeSymbol("People")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("C"), makeSymbol("People")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("D"), makeSymbol("People")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("E"), makeSymbol("People")));
 
-		context = context.registerIndicesAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
 
-		context = context.registerIndicesAndTypes(map(makeSymbol("X"), makeSymbol("Real")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("Y"), makeSymbol("Real")));
-		context = context.registerIndicesAndTypes(map(makeSymbol("Z"), makeSymbol("Real")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("X"), makeSymbol("Real")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("Y"), makeSymbol("Real")));
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("Z"), makeSymbol("Real")));
 		
 		ConsoleIterator consoleIterator = getConsole(args);
 		
@@ -200,7 +200,7 @@ public class SymbolicShell {
 			if (input.hasFunctor("var")) {
 				Expression variable = input.get(0);
 				Expression type = input.get(1);
-				context = context.registerIndicesAndTypes(map(variable, type));
+				context = context.registerAdditionalSymbolsAndTypes(map(variable, type));
 				consoleIterator.getOutputWriter().println();	
 				return context;
 			}

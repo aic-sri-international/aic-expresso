@@ -85,7 +85,7 @@ public class ConstraintSplitting {
 		}
 	}
 	
-	/** The result of the splitting. */
+	/** The result of the splitting, which is one of the value of type {@link Result}. */
 	public Result getResult() {
 		return result;
 	}

@@ -80,7 +80,7 @@ public class CompoundTheory extends AbstractTheory {
 	@Override
 	public Collection<Type> getNativeTypes() {
 		Collection<Type> result = new LinkedHashSet<Type>();
-		for (Theory subTheory : getSubConstraintTheories()) {
+		for (Theory subTheory : getSubTheories()) {
 			result.addAll(subTheory.getNativeTypes());
 		}
 		return result;
@@ -88,11 +88,11 @@ public class CompoundTheory extends AbstractTheory {
 
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = thereExists(getSubConstraintTheories(), t -> t.isSuitableFor(variable, type));
+		boolean result = thereExists(getSubTheories(), t -> t.isSuitableFor(variable, type));
 		return result;
 	}
 	
-	public Collection<Theory> getSubConstraintTheories() {
+	public Collection<Theory> getSubTheories() {
 		return subConstraintTheories;
 	}
 
@@ -111,7 +111,7 @@ public class CompoundTheory extends AbstractTheory {
 		
 		Theory result =
 				getFirstSatisfyingPredicateOrNull(
-						getSubConstraintTheories(),
+						getSubTheories(),
 						t -> t.isSuitableFor(variable, variableType));
 
 		check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
@@ -121,7 +121,7 @@ public class CompoundTheory extends AbstractTheory {
 	
 	@Override
 	public boolean isNonTrivialAtom(Expression expression, Context context) {
-		boolean result = thereExists(getSubConstraintTheories(), t -> t.isNonTrivialAtom(expression, context));
+		boolean result = thereExists(getSubTheories(), t -> t.isNonTrivialAtom(expression, context));
 		return result;
 	}
 
@@ -138,7 +138,7 @@ public class CompoundTheory extends AbstractTheory {
 		if (cachedSingleVariableConstraintIsCompleteWithRespectToItsVariable == -1) {
 			boolean trueForAllTheories =
 					forAll(
-							getSubConstraintTheories(),
+							getSubTheories(),
 							Theory::singleVariableConstraintIsCompleteWithRespectToItsVariable);
 			cachedSingleVariableConstraintIsCompleteWithRespectToItsVariable = trueForAllTheories ? 1 : 0;
 		}
@@ -149,7 +149,7 @@ public class CompoundTheory extends AbstractTheory {
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
 		boolean result =
 				thereExists(
-						getSubConstraintTheories(),
+						getSubTheories(),
 						t -> t.isInterpretedInThisTheoryBesidesBooleanConnectives(expression));
 		return result;
 	}
@@ -178,7 +178,10 @@ public class CompoundTheory extends AbstractTheory {
 	@Override
 	public Expression getLiteralNegation(Expression literal, Context context) {
 		Theory theory =
-				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, context));
+				getFirstSatisfyingPredicateOrNull(getSubTheories(), t -> t.isLiteral(literal, context));
+		if (theory == null) {
+			throw new Error("The expression '" + literal + "' has not been recognized as a literal in any of the registered theories: " + join(",", getSubTheories()));
+		}
 		Expression result = theory.getLiteralNegation(literal, context);
 		return result;
 	}
@@ -197,6 +200,6 @@ public class CompoundTheory extends AbstractTheory {
 
 	@Override
 	public String toString() {
-		return "Compound theory (" + join(getSubConstraintTheories()) + ")";
+		return "Compound theory (" + join(getSubTheories()) + ")";
 	}
 }

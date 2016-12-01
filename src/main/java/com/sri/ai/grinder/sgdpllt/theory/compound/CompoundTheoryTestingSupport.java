@@ -93,7 +93,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 		// Then update the sub-theories so that they share appropriate subsets of this information
 		Map<Theory, Map<String, Type>> mapForSubTheory = map();
 		
-		for (Theory subTheory : getTheory().getSubConstraintTheories()) {
+		for (Theory subTheory : getTheory().getSubTheories()) {
 			mapForSubTheory.put(subTheory, map());
 		}
 
@@ -101,7 +101,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 			String variableName = variableNameAndType.getKey();
 			Expression variable = Expressions.parse(variableName);
 			Type type = variableNameAndType.getValue();
-			for (Theory subTheory : getTheory().getSubConstraintTheories()) {
+			for (Theory subTheory : getTheory().getSubTheories()) {
 				if (subTheory.isSuitableFor(variable, type) || (type instanceof FunctionType && subTheory.isSuitableFor(variable, ((FunctionType)type).getCodomain()))) {
 					mapForSubTheory.get(subTheory).put(variableName, type);
 				}
@@ -155,7 +155,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	private Map<Theory, TheoryTestingSupport> getTheoryToTestingSupport() {
 		if (theoryToTestingSupport == null) {
 			theoryToTestingSupport = new LinkedHashMap<>();
-			for (Theory subConstraintTheory : getTheory().getSubConstraintTheories()) {
+			for (Theory subConstraintTheory : getTheory().getSubTheories()) {
 				theoryToTestingSupport.put(subConstraintTheory, TheoryTestingSupport.make(getRandom(), subConstraintTheory));
 			}
 		}

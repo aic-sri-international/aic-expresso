@@ -125,7 +125,7 @@ public class GrinderUtil {
 	 */
 	public static Registry extendRegistryWithIndexExpressions(IndexExpressionsSet indexExpressions, Registry registry) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		Registry result = registry.registerIndicesAndTypes(indexToTypeMap);
+		Registry result = registry.registerAdditionalSymbolsAndTypes(indexToTypeMap);
 		return result;
 	}
 

@@ -35,18 +35,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.simplifier.api;
+package com.sri.ai.grinder.sgdpllt.rewriter.api;
 
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
+import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
- * A type of {@link Simplifier} that only simplifies the top expression
- * (that is, does not recurse into sub-expressions).
- * <p>
- * This property is important if the simplifier is being used by
- * code that is taking care of the recursion itself.
- *  
+ * A rewriter can be seen as a "step solver applier" to a given expression under a given context.
+ * 
+ * Rewriting works as follows: given the expression and context, it must provide a {@link ExpressionLiteralSplitterStepSolver}
+ * that will take one step under the given context. This step is then returned.
+ * Therefore, a rewriting does not return an Expression, but either a conditional step or a solution (which contains an Expression).
+ * 
  * @author braz
  *
  */
-public interface TopSimplifier extends Simplifier {
+@FunctionalInterface
+public interface Rewriter {
+	
+	ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression, Context context);
+	
+	default Step step(Expression expression, Context context) {
+		ExpressionLiteralSplitterStepSolver stepSolver = makeStepSolver(expression, context);
+		Step step = stepSolver.step(context);
+		return step;
+	}
+	
+	default Expression rewrite(Expression expression, Context context) {
+		Expression result = 
+				ContextDependentExpressionProblemSolver.staticSolve(
+						makeStepSolver(expression, context), context);
+		return result;
+	}
 }

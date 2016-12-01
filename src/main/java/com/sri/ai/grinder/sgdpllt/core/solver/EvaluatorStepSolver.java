@@ -76,7 +76,8 @@ import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.core.Recursive;
@@ -167,7 +168,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 		return expression;
 	}
 
-	Collection<Rewriter> rewriters;	
+	Collection<? extends Rewriter> rewriters;	
 	
 	@Override
 	public Step step(Context context) {
@@ -182,12 +183,14 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 		Step result = new Solution(exhaustivelyTopSimplifiedExpression);
 		for (Rewriter rewriter : rewriters) {
 			if (!result.itDepends() && result.getValue() == exhaustivelyTopSimplifiedExpression) {
-				result = rewriter.rewrite(exhaustivelyTopSimplifiedExpression, context);
+				result = rewriter.step(exhaustivelyTopSimplifiedExpression, context);
 			}
 		}
-
+		
 		if (!result.itDepends() && result.getValue() == exhaustivelyTopSimplifiedExpression) {
-			if (subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
+			if (exhaustivelyTopSimplifiedExpression.getSyntacticFormType().equals("Function application")
+					&& subExpressionIndex != exhaustivelyTopSimplifiedExpression.numberOfArguments()) {
+				
 				Expression subExpression = exhaustivelyTopSimplifiedExpression.get(subExpressionIndex);
 				ExpressionLiteralSplitterStepSolver subExpressionEvaluator = getEvaluatorFor(subExpression);
 
@@ -236,7 +239,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 	 * @param exhaustiveTopSimplifier
 	 */
 	public void makeRewriters(TopSimplifier exhaustiveTopSimplifier) {
-		rewriters = Util.<Rewriter>list(
+		rewriters = Util.<RewriterFromStepMaker>list(
 
 				(Expression e, Context c) -> {
 					if (c.isLiteral(e)) {
@@ -248,7 +251,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 						return new Solution(e);
 					}
 				}
-
+				
 				,
 				(Expression e, Context c) -> {
 					if (fromFunctorToGroup.containsKey(e.getFunctor())&& isIntensionalMultiSet(e.get(0)) ) {

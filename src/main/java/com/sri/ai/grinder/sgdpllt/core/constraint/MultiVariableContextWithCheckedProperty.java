@@ -242,7 +242,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			if (variablesInLiteral.isEmpty()) {
 				Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
 				if (literalSimplifiedToConstant == literal) {
-					throw new Error("Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context.");
+					throw new Error("Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context, or has been declared as a uniquely named constant in the Context (for example by constructing the Context with the default PrologConstantPredicate as a default predicate for recognizing constants, which recognizes all non-capitalized identifiers as such)");
 				}
 				result = conjoinWithLiteral(literalSimplifiedToConstant, context);
 			}
@@ -406,9 +406,9 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes) {
+	public MultiVariableContextWithCheckedProperty registerAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes) {
 		MultiVariableContextWithCheckedProperty result = clone();
-		Context newTail = tail.registerIndicesAndTypes(indicesAndTypes);
+		Context newTail = tail.registerAdditionalSymbolsAndTypes(indicesAndTypes);
 		result.tail = newTail;
 		return result;
 	}

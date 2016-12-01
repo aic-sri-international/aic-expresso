@@ -276,14 +276,14 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
-	public DefaultRegistry registerIndicesAndTypes(
-			Map<Expression, Expression> expressionsAndTypes) {
-		if (expressionsAndTypes.isEmpty()) { // nothing to do
+	public DefaultRegistry registerAdditionalSymbolsAndTypes(
+			Map<Expression, Expression> symbolsAndTypes) {
+		if (symbolsAndTypes.isEmpty()) { // nothing to do
 			return this;
 		}
 		
 		Map<Expression, Expression> newSymbolsAndTypes = 
-				createNewSymbolsAndTypes(expressionsAndTypes);
+				createNewSymbolsAndTypes(symbolsAndTypes);
 		
 		DefaultRegistry result = clone();
 		result.symbolsAndTypes = newSymbolsAndTypes;
@@ -291,9 +291,9 @@ public class DefaultRegistry implements Registry, Serializable {
 		return result;
 	}
 
-	private Map<Expression, Expression> createNewSymbolsAndTypes(Map<Expression, Expression> expressionsAndTypes) {
+	private Map<Expression, Expression> createNewSymbolsAndTypes(Map<Expression, Expression> additionalSymbolsAndTypes) {
 		Map<Expression, Expression> symbolsAndTypes = 
-				getTypesOfIndicesFunctorsOrSymbols(expressionsAndTypes); // returns a fresh map, so we can use it below without copying
+				getTypesOfIndicesFunctorsOrSymbols(additionalSymbolsAndTypes); // returns a fresh map, so we can use it below without copying
 		Map<Expression, Expression> newSymbolsAndTypes = 
 				new StackedHashMap<Expression, Expression>(symbolsAndTypes, getSymbolsAndTypes());
 		return newSymbolsAndTypes;

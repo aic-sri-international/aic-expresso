@@ -256,6 +256,16 @@ public interface Theory extends Cloneable {
 	 * @return
 	 */
 	default Collection<Expression> getVariablesIn(Expression expression, Context context) {
+//      For debugging:
+//		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
+//		Collection<Expression> subExpressions = Util.addAllToList(subExpressionsIterator);
+//		System.out.println("Sub-expressions: " + subExpressions);	
+//		Predicate<Expression> isVariablePredicate = e -> isVariable(e, context);
+//		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressions, isVariablePredicate);
+//		LinkedHashSet<Expression> variables = addAllToSet(variablesIterator);
+//		System.out.println("Variables: " + variables);	
+//		return variables;
+
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
 		Predicate<Expression> isVariablePredicate = e -> isVariable(e, context);
 		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariablePredicate);

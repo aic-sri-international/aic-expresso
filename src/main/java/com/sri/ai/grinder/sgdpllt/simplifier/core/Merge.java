@@ -97,7 +97,7 @@ public class Merge  {
 		return FunctionIterator.make(asList(simplifiers), fromSimplifierToMapOfSyntacticFormTypeSimplifiers());
 	}
 
-	public static
+	private static
 	Function<MapBasedSimplifier, Map<String, Simplifier>>
 	fromSimplifierToMapOfFunctionApplicationSimplifiers() {
 		return s -> s.getFunctionApplicationSimplifiers();

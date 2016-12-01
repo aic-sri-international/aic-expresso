@@ -98,7 +98,7 @@ public interface Registry extends Cloneable {
 	 * Create a new sub-registry and registers the symbols
 	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
-	Registry registerIndicesAndTypes(Map<Expression, Expression> indicesAndTypes);
+	Registry registerAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
 	 * Creates a new registry identical to a given one but for additional global objects.

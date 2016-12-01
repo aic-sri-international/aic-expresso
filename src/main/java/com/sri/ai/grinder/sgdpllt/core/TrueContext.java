@@ -297,14 +297,14 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TrueContext registerIndicesAndTypes(
-			Map<Expression, Expression> expressionsAndTypes) {
-		if (expressionsAndTypes.isEmpty()) { // nothing to do
+	public TrueContext registerAdditionalSymbolsAndTypes(
+			Map<Expression, Expression> symbolsAndTypes) {
+		if (symbolsAndTypes.isEmpty()) { // nothing to do
 			return this;
 		}
 		
 		Map<Expression, Expression> newSymbolsAndTypes = 
-				createNewSymbolsAndTypes(expressionsAndTypes);
+				createAugmentedSymbolsAndTypes(symbolsAndTypes);
 		
 		TrueContext result = clone();
 		result.registry = registry.setSymbolsAndTypes(newSymbolsAndTypes);
@@ -312,9 +312,9 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		return result;
 	}
 
-	private Map<Expression, Expression> createNewSymbolsAndTypes(Map<Expression, Expression> expressionsAndTypes) {
+	private Map<Expression, Expression> createAugmentedSymbolsAndTypes(Map<Expression, Expression> additionalSymbolsAndTypes) {
 		Map<Expression, Expression> symbolsAndTypes = 
-				getTypesOfIndicesFunctorsOrSymbols(expressionsAndTypes); // returns a fresh map, so we can use it below without copying
+				getTypesOfIndicesFunctorsOrSymbols(additionalSymbolsAndTypes); // returns a fresh map, so we can use it below without copying
 		Map<Expression, Expression> newSymbolsAndTypes = 
 				new StackedHashMap<Expression, Expression>(symbolsAndTypes, getSymbolsAndTypes());
 		return newSymbolsAndTypes;

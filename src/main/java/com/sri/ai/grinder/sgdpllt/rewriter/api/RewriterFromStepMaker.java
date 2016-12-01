@@ -35,18 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.simplifier.api;
+package com.sri.ai.grinder.sgdpllt.rewriter.api;
 
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 
 /**
- * A type of {@link Simplifier} that only simplifies the top expression
- * (that is, does not recurse into sub-expressions).
- * <p>
- * This property is important if the simplifier is being used by
- * code that is taking care of the recursion itself.
- *  
+ * A utility functional interface to make {@link Rewriter}s out of functions from (Expression, Context) to Steps.
+ * 
  * @author braz
  *
  */
-public interface TopSimplifier extends Simplifier {
+@FunctionalInterface
+public interface RewriterFromStepMaker extends Rewriter {
+	
+	Step make(Expression expression, Context context);
+	
+	public static class StepSolverFromStepMaker implements ExpressionLiteralSplitterStepSolver {
+		
+		private RewriterFromStepMaker stepMaker;
+		private Expression expression;
+		
+		public StepSolverFromStepMaker(RewriterFromStepMaker stepMaker, Expression expression) {
+			super();
+			this.stepMaker = stepMaker;
+			this.expression = expression;
+		}
+
+		@Override
+		public StepSolverFromStepMaker clone() {
+			StepSolverFromStepMaker result = null;
+			try {
+				result = (StepSolverFromStepMaker) super.clone();
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+			return result;
+		}
+		
+		@Override
+		public Step step(Context context) {
+			return stepMaker.make(expression, context);
+		}
+	}
+	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression, Context context) {
+		return new StepSolverFromStepMaker(this, expression);
+	}
 }
