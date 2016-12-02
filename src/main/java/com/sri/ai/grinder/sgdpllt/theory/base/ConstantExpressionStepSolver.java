@@ -63,7 +63,7 @@ public class ConstantExpressionStepSolver implements ExpressionLiteralSplitterSt
 	
 	@Override
 	public ConstantExpressionStepSolver clone() {
-		return this; // this this is immutable, it is ok to re-use it as its own clone
+		return this; // this is immutable, it is ok to re-use it as its own clone
 	}
 
 	@Override

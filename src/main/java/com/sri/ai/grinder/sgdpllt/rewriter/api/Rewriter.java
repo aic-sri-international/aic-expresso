@@ -56,10 +56,10 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemS
 @FunctionalInterface
 public interface Rewriter {
 	
-	ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression, Context context);
+	ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression);
 	
 	default Step step(Expression expression, Context context) {
-		ExpressionLiteralSplitterStepSolver stepSolver = makeStepSolver(expression, context);
+		ExpressionLiteralSplitterStepSolver stepSolver = makeStepSolver(expression);
 		Step step = stepSolver.step(context);
 		return step;
 	}
@@ -67,7 +67,7 @@ public interface Rewriter {
 	default Expression rewrite(Expression expression, Context context) {
 		Expression result = 
 				ContextDependentExpressionProblemSolver.staticSolve(
-						makeStepSolver(expression, context), context);
+						makeStepSolver(expression), context);
 		return result;
 	}
 }

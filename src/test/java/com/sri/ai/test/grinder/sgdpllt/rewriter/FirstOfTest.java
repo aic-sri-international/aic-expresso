@@ -165,9 +165,9 @@ public class FirstOfTest {
 		};
 		
 		List<Rewriter> rewriters = Util.<Rewriter>list(
-				(Expression e, Context c) -> new JumperAtStepSolver(e, 5)
+				(Expression e) -> new JumperAtStepSolver(e, 5)
 				,
-				(Expression e, Context c) -> new JumperAtStepSolver(e, 8)
+				(Expression e) -> new JumperAtStepSolver(e, 8)
 				);
 		
 		Expression initial;

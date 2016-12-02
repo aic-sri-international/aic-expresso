@@ -38,35 +38,42 @@
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.StepSolver;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 
 /**
- * A step solver always returning a constant solution regardless of the context.
+ * A step solver always returning the result of a function (on the context) as a {@link Solution}.
  *
  * @author braz
  *
  */
 @Beta
-public class ConstantStepSolver<T> implements StepSolver<T> {
+public class FunctionExpressionStepSolver implements ExpressionLiteralSplitterStepSolver {
 
-	private Solution<T> solution;
+	private Function<Context, Expression> function;
 
-	public ConstantStepSolver(T value) {
-		this.solution = new Solution<T>(value);
+	public FunctionExpressionStepSolver(Function<Context, Expression> function) {
+		this.function = function;
 	}
 	
-	public static <T> ConstantStepSolver<T> constantStepSolver(T value) {
-		return new ConstantStepSolver<T>(value);
+	public static FunctionExpressionStepSolver functionExpressionStepSolver(Function<Context, Expression> function) {
+		return new FunctionExpressionStepSolver(function);
 	}
 	
 	@Override
-	public ConstantStepSolver<T> clone() {
+	public FunctionExpressionStepSolver clone() {
 		return this; // this is immutable, it is ok to re-use it as its own clone
 	}
 
 	@Override
-	public StepSolver.Step<T> step(Context context) {
-		return solution;
-	}	
+	public Step step(Context context) {
+		return new Solution(function.apply(context));
+	}
+	
+	@Override
+	public String toString() {
+		return "Function step solver based on function " + function;
+	}
 }

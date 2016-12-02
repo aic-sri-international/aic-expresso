@@ -58,9 +58,9 @@ public class Exhaustive implements Rewriter {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression, Context context) {
+	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 		ExhaustiveStepSolver stepSolver = 
-				new ExhaustiveStepSolver(baseRewriter.makeStepSolver(expression, context), expression, this);
+				new ExhaustiveStepSolver(baseRewriter.makeStepSolver(expression), expression, this);
 		return stepSolver;
 	}
 

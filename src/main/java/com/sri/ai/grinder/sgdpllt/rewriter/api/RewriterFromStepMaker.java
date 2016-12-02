@@ -80,7 +80,7 @@ public interface RewriterFromStepMaker extends Rewriter {
 			return stepMaker.make(expression, context);
 		}
 	}
-	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression, Context context) {
+	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 		return new StepSolverFromStepMaker(this, expression);
 	}
 }

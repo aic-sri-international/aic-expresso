@@ -121,7 +121,7 @@ public class ExhaustiveTest {
 			}
 		};
 		
-		Rewriter rewriter = (Expression e, Context c) -> new FunkyStepSolver(e);
+		Rewriter rewriter = (Expression e) -> new FunkyStepSolver(e);
 		Expression initial = parse("1");
 		Expression expected = parse("if JumpAt5 then 20 else 10");
 

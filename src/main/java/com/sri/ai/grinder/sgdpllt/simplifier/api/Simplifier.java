@@ -40,10 +40,10 @@ package com.sri.ai.grinder.sgdpllt.simplifier.api;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.base.FunctionExpressionStepSolver;
 import com.sri.ai.util.base.BinaryFunction;
 
 /**
@@ -61,10 +61,8 @@ import com.sri.ai.util.base.BinaryFunction;
 @FunctionalInterface
 public interface Simplifier extends BinaryFunction<Expression, Context, Expression>, Rewriter {
 	
-	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression, Context context) {
-		Expression simplifiedExpression = apply(expression, context);
-		ExpressionLiteralSplitterStepSolver stepSolver = new ConstantExpressionStepSolver(simplifiedExpression);
-		return stepSolver;
+	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+		return new FunctionExpressionStepSolver(c -> apply(expression, c));
 	}
 	
 	default Step step(Expression expression, Context context) { // optimized version

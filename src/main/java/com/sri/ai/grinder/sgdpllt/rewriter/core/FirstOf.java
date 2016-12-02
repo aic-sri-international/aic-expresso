@@ -65,8 +65,8 @@ public class FirstOf implements Rewriter {
 	}
 
 	@Override
-	public FirstOfStepSolver makeStepSolver(Expression expression, Context context) {
-		FirstOfStepSolver stepSolver = new FirstOfStepSolver(expression, baseRewriters, 0, context);
+	public FirstOfStepSolver makeStepSolver(Expression expression) {
+		FirstOfStepSolver stepSolver = new FirstOfStepSolver(expression, baseRewriters);
 		return stepSolver;
 	}
 	
@@ -127,21 +127,21 @@ public class FirstOf implements Rewriter {
 		private int currentBaseRewriterIndex;
 		private ExpressionLiteralSplitterStepSolver currentBaseStepSolver;
 		
-		public FirstOfStepSolver(Expression expression, List<Rewriter> baseRewriters, int currentBaseRewriterIndex, Context context) {
+		public FirstOfStepSolver(Expression expression, List<Rewriter> baseRewriters) {
 			super();
 			this.expression = expression;
 			this.baseRewriters = baseRewriters;
-			setCurrentBaseRewriterIndex(currentBaseRewriterIndex, context);
+			setCurrentBaseRewriterIndex(0);
 		}
 
-		private void setCurrentBaseRewriterIndex(int currentBaseRewriterIndex, Context context) {
+		private void setCurrentBaseRewriterIndex(int currentBaseRewriterIndex) {
 			this.currentBaseRewriterIndex = currentBaseRewriterIndex;
-			makeCurrentStepSolver(this.expression, this.baseRewriters, context);
+			makeCurrentStepSolver(expression, baseRewriters);
 		}
 
-		private void makeCurrentStepSolver(Expression expression, List<Rewriter> baseRewriters, Context context) {
+		private void makeCurrentStepSolver(Expression expression, List<Rewriter> baseRewriters) {
 			Rewriter currentBaseRewriter = baseRewriters.get(currentBaseRewriterIndex);
-			this.currentBaseStepSolver = currentBaseRewriter.makeStepSolver(expression, context);
+			this.currentBaseStepSolver = currentBaseRewriter.makeStepSolver(expression);
 		}
 
 		@Override
@@ -184,7 +184,7 @@ public class FirstOf implements Rewriter {
 				// or stop otherwise
 				if (currentBaseRewriterIndex + 1 != baseRewriters.size()) {
 					FirstOfStepSolver next = clone();
-					next.setCurrentBaseRewriterIndex(currentBaseRewriterIndex + 1, context);
+					next.setCurrentBaseRewriterIndex(currentBaseRewriterIndex + 1);
 					result = next.step(context);
 				}
 				else { // ran out of base rewriters, so returns original expression
