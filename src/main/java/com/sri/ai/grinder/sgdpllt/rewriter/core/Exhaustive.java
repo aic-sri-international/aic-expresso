@@ -74,7 +74,7 @@ public class Exhaustive implements Rewriter {
 	 * 
 	 * If the base rewriter's sequel step solver does not find a solution,
 	 * this {@link ExhaustiveStepSolver} returns a {@link ItDependsOn}
-	 * step with a clone of itself, but with an updated base sequel.
+	 * step with the appropriate sequel step solvers.
 	 * 
 	 * If the base rewriter's sequel step solver does find a solution,
 	 * checks to see if there has been a change.

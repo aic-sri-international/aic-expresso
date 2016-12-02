@@ -41,6 +41,8 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -55,41 +57,82 @@ import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.util.Util;
 
 
-public class ExhaustiveTest {
+public class FirstOfTest {
 
 	@Test
-	public void testSimpleExhaustiveRewriter() {
-		RewriterFromStepMaker rewriter = 
+	public void testSimpleFirstOfRewriter() {
+		List<RewriterFromStepMaker> rewriters = Util.<RewriterFromStepMaker>list(
+				
 				(Expression e, Context c) -> {
-					if (Expressions.isNumber(e) && e.intValue() < 10) {
-						return new Solution(DefaultSymbol.createSymbol(e.intValue() + 1));
+					if (Expressions.isNumber(e) && e.intValue() == 10) {
+						return new Solution(DefaultSymbol.createSymbol(e.intValue() - 1));
 					}
 					return new Solution(e);
-				};
-		Expression initial = parse("1");
-		Expression expected = parse("10");
+				}
+				,				
+				(Expression e, Context c) -> {
+					if (Expressions.isNumber(e) && e.intValue() == 9) {
+						return new Solution(DefaultSymbol.createSymbol(e.intValue() - 1));
+					}
+					return new Solution(e);
+				}
+				,				
+				(Expression e, Context c) -> {
+					if (Expressions.isNumber(e) && e.intValue() == 8) {
+						return new Solution(DefaultSymbol.createSymbol(e.intValue() - 1));
+					}
+					return new Solution(e);
+				}
+				,				
+				(Expression e, Context c) -> {
+					if (Expressions.isNumber(e) && e.intValue() == 7) {
+						return new Solution(DefaultSymbol.createSymbol(e.intValue() - 1));
+					}
+					return new Solution(e);
+				}
+				,				
+				(Expression e, Context c) -> {
+					if (Expressions.isNumber(e) && e.intValue() == 6) {
+						return new Solution(DefaultSymbol.createSymbol(e.intValue() - 1));
+					}
+					return new Solution(e);
+				}
+				);
 
-		runTest(rewriter, initial, expected, map());
+		Expression initial = parse("8");
+		Expression expected = parse("7");
+		runTest(new LinkedList<Rewriter>(rewriters), initial, expected, map());
+
+		initial = parse("7");
+		expected = parse("6");
+		runTest(new LinkedList<Rewriter>(rewriters), initial, expected, map());
 	}
 
 	@Test
 	public void testSimpleExhaustiveConditionalRewriter() {
-		class FunkyStepSolver implements ExpressionLiteralSplitterStepSolver {
+		
+		class JumperAtStepSolver implements ExpressionLiteralSplitterStepSolver {
+			
 			private Expression expression;
-			public FunkyStepSolver(Expression expression) {
+			private int jumpPoint;
+			
+			public JumperAtStepSolver(Expression expression, int jumpPoint) {
 				this.expression = expression;
+				this.jumpPoint = jumpPoint;
 			}
+			
 			@Override
-			public FunkyStepSolver clone() {
-				FunkyStepSolver result = null;
+			public JumperAtStepSolver clone() {
+				JumperAtStepSolver result = null;
 				try {
-					result = (FunkyStepSolver) super.clone();
+					result = (JumperAtStepSolver) super.clone();
 				} catch (CloneNotSupportedException e) {
 					e.printStackTrace();
 				}
@@ -99,14 +142,14 @@ public class ExhaustiveTest {
 			@Override
 			public Step step(Context context) {
 				if (Expressions.isNumber(expression) && expression.intValue() % 10 != 0) {
-					if (expression.intValue() == 5) {
-						Expression literal = parse("JumpAt5");
+					if (expression.intValue() == jumpPoint) {
+						Expression literal = parse("Jump5");
 						ContextSplitting splitting = new ContextSplitting(literal, context);
 						switch (splitting.getResult()) {
 						case LITERAL_IS_TRUE:
-							return new Solution(parse("11"));
+							return new Solution(DefaultSymbol.createSymbol(jumpPoint + 5));
 						case LITERAL_IS_FALSE:
-							return new Solution(parse("6"));
+							return new Solution(DefaultSymbol.createSymbol(jumpPoint + 1));
 						case LITERAL_IS_UNDEFINED:
 							return new ItDependsOn(literal, splitting, this, this);
 						default:
@@ -114,26 +157,41 @@ public class ExhaustiveTest {
 						}
 					}
 					else {
-						return new Solution(DefaultSymbol.createSymbol(expression.intValue() + 1));
+						return new Solution(expression);
 					}
 				}
 				else return new Solution(expression);
 			}
 		};
 		
-		Rewriter rewriter = (Expression e, Context c) -> new FunkyStepSolver(e);
-		Expression initial = parse("1");
-		Expression expected = parse("if JumpAt5 then 20 else 10");
+		List<Rewriter> rewriters = Util.<Rewriter>list(
+				(Expression e, Context c) -> new JumperAtStepSolver(e, 5)
+				,
+				(Expression e, Context c) -> new JumperAtStepSolver(e, 8)
+				);
+		
+		Expression initial;
+		Expression expected;
 
-		runTest(rewriter, initial, expected, map(parse("JumpAt5"), parse("Boolean")));
+		initial = parse("1");
+		expected = parse("1"); // no jumps at 1
+		runTest(rewriters, initial, expected, map(parse("Jump5"), parse("Boolean")));
+		
+		initial = parse("5");
+		expected = parse("if Jump5 then 10 else 6");
+		runTest(rewriters, initial, expected, map(parse("Jump5"), parse("Boolean")));
+		
+		initial = parse("8");
+		expected = parse("if Jump5 then 13 else 9");
+		runTest(rewriters, initial, expected, map(parse("Jump5"), parse("Boolean")));
 	}
 
-	private void runTest(Rewriter rewriter, Expression initial, Expression expected, Map<Expression, Expression> symbolsAndTypes) {
+	private void runTest(List<Rewriter> rewriters, Expression initial, Expression expected, Map<Expression, Expression> symbolsAndTypes) {
 		CompoundTheory theory = new CompoundTheory(new PropositionalTheory(), new DifferenceArithmeticTheory(false, true));
 		Context context = new TrueContext(theory);
 		context = context.registerAdditionalSymbolsAndTypes(symbolsAndTypes);
-		Rewriter exhaustive = new Exhaustive(rewriter);
-		Expression solution = exhaustive.rewrite(initial, context);
+		Rewriter firstOf = new FirstOf(rewriters);
+		Expression solution = firstOf.rewrite(initial, context);
 		System.out.println("Solution: " + solution);	
 		assertEquals(expected, solution);
 	}
