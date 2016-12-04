@@ -116,7 +116,7 @@ public class FirstOfTest {
 	}
 
 	@Test
-	public void testSimpleExhaustiveConditionalRewriter() {
+	public void testSimpleFirstOfConditionalRewriter() {
 		
 		class JumperAtStepSolver implements ExpressionLiteralSplitterStepSolver {
 			

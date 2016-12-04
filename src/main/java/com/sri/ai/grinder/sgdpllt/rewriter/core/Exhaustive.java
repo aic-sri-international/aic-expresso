@@ -43,7 +43,7 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 
 /**
- * Applies another rewriter exhaustively.
+ * Applies a base rewriter exhaustively.
  * 
  * @author braz
  *
@@ -65,7 +65,7 @@ public class Exhaustive implements Rewriter {
 	}
 
 	/**
-	 * Implements sequel step solvers for {@link ItDependsOn} steps provided by a {@link Exhaustive}'s base rewriter.
+	 * Implements a step solver for {@link Exhaustive} rewriter.
 	 * 
 	 * It stores one of the sequel step solvers from a previous application of the {@link Exhaustive}'s base rewriter,
 	 * the current expression being rewritten,

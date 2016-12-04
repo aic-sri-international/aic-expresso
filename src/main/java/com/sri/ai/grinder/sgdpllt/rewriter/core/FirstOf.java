@@ -46,7 +46,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.util.collect.ImmutableStackedLinkedList;
 
 /**
- * Applies a list of rewriters until one of them modifies the original expression, returning this as the overall result.
+ * Applies a list of base rewriters until one of them modifies the original expression, returning this as the overall result.
  * If no rewriter modifies the expression, the same instance is provided as a solution.
  * If any rewriter splits (returns a conditional step),
  * this rewriter splits as well, providing the appropriate sequel step solvers to continue the sequential rewriting
@@ -101,7 +101,7 @@ public class FirstOf implements Rewriter {
 	}
 
 	/**
-	 * Implements sequel step solvers for {@link ItDependsOn} steps provided by a {@link FirstOf} rewriter.
+	 * Implements a step solver for {@link FirstOf} rewriter.
 	 * 
 	 * It stores the original expression, the base rewriters list, and the index of the 
 	 * base rewriter being currently applied.

@@ -128,4 +128,16 @@ public interface ExpressionAndSyntacticContext extends Serializable {
 	 *         parent expression imposes on the sub-expression in this context.
 	 */
 	Expression getConstrainingCondition();
+
+	/**
+	 * Returns the result of pluging a new sub-expression into expression according to the address of this expression and syntactic context.
+	 * @param expression
+	 * @param newSubExpression
+	 * @return
+	 */
+	default public Expression replaceSubExpressionIn(Expression expression, Expression newSubExpression) {
+		ExpressionAndSyntacticContext newSubExpressionAndSyntacticContext = setExpression(newSubExpression);
+		Expression newCurrentExpression = expression.replace(newSubExpressionAndSyntacticContext);
+		return newCurrentExpression;
+	}
 }

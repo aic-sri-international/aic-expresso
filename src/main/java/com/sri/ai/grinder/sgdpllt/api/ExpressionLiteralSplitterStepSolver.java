@@ -99,6 +99,19 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 				ExpressionLiteralSplitterStepSolver stepSolverIfExpressionIsFalse) {
 			super(literal, contextSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
 		}
+
+		/**
+		 * Alternative constructor re-using splitter and context splitting from another {@link ItDependsOn} step.
+		 * @param itDependsOn
+		 * @param stepSolverIfExpressionIsTrue
+		 * @param stepSolverIfExpressionIsFalse
+		 */
+		public ItDependsOn(
+				Step itDependsOn,
+				ExpressionLiteralSplitterStepSolver stepSolverIfExpressionIsTrue,
+				ExpressionLiteralSplitterStepSolver stepSolverIfExpressionIsFalse) {
+			super(itDependsOn.getSplitter(), itDependsOn.getContextSplittingWhenSplitterIsLiteral(), stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+		}
 		
 		@Override
 		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
