@@ -374,7 +374,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// FOR ALL index=expr ':' body=expr #forAll
 	@Override
 	public Expression visitForAll(AntlrGrinderParser.ForAllContext ctx) {
-		Expression result = ForAll.make(visit(ctx.index), visit(ctx.body));
+		Expression result = ForAll.make(cartesianProductToTupleType(visit(ctx.index)), visit(ctx.body));
 		return result;
 	}
 
