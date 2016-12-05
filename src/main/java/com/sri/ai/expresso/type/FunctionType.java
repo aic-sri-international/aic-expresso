@@ -257,7 +257,7 @@ public class FunctionType extends AbstractType {
 		Expression result;
 		if (argumentTypes.size() == 0) {
 			result = apply(FUNCTION_TYPE, codomainType);
-		} else if (argumentTypes.size() == 0) {
+		} else if (argumentTypes.size() == 1) {
 			result = apply(FUNCTION_TYPE, argumentTypes.get(0), codomainType);
 		} else {
 			result = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, argumentTypes), codomainType);

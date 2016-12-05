@@ -480,7 +480,44 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.apply("->", Expressions.apply("x", "A", "B", "C"), "D"));
 
 		string = "A -> B x C";
-		test(string, Expressions.apply("->", "A", Expressions.apply("x", "B", "C")));
+		test(string, Expressions.apply("->", "A", Expressions.apply(FunctorConstants.TUPLE_TYPE, "B", "C")));
+		
+		string = "tuple_type(1..10, People) -> B x C";
+		test(string, Expressions.apply("->", 
+				Expressions.apply(FunctorConstants.TUPLE_TYPE,
+						Expressions.apply(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+						"People"), 				
+				Expressions.apply(FunctorConstants.TUPLE_TYPE, "B", "C")));
+		
+		string = "1..10 x People -> B x C";
+		test(string, Expressions.apply("->", 
+				Expressions.apply("x", 
+						Expressions.apply(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+						"People"), 				
+				Expressions.apply(FunctorConstants.TUPLE_TYPE, "B", "C")));
+		
+		string = "x(1..10 x People) -> B x C";
+		test(string, Expressions.apply("->", 
+				Expressions.apply(FunctorConstants.TUPLE_TYPE, 
+						Expressions.apply(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+						"People"), 				
+				Expressions.apply(FunctorConstants.TUPLE_TYPE, "B", "C")));
+		
+		string = "1..10 x (People x Pets) -> B x C";
+		test(string, Expressions.apply("->", 
+				Expressions.apply("x", 
+						Expressions.apply(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+						Expressions.apply(FunctorConstants.TUPLE_TYPE, 
+								"People", "Pets")), 				
+				Expressions.apply(FunctorConstants.TUPLE_TYPE, "B", "C")));	
+		
+		string = "1..10 x (People x Pets x Homes) -> B x C";
+		test(string, Expressions.apply("->", 
+				Expressions.apply("x", 
+						Expressions.apply(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
+						Expressions.apply(FunctorConstants.TUPLE_TYPE, 
+								"People", "Pets", "Homes")), 				
+				Expressions.apply(FunctorConstants.TUPLE_TYPE, "B", "C")));	
 	}
 	
 	

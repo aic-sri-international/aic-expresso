@@ -132,7 +132,13 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitFunctionType(AntlrGrinderParser.FunctionTypeContext ctx) { 
 		Object[] arguments  = new Object[2];
 		if (ctx.domaintypes.size() == 1) {
-			arguments[0] = visit(ctx.domaintypes.get(0));
+			Expression domain = visit(ctx.domaintypes.get(0));		
+			if (domain.hasFunctor(FunctorConstants.CARTESIAN_PRODUCT) && domain.numberOfArguments() == 1) {
+				arguments[0] = replaceCartesianProductWithTupleType(domain).get(0);
+			}
+			else {
+				arguments[0] = domain;
+			}
 		}
 		else {
 			Object[] domainArgs = new Object[ctx.domaintypes.size()];
@@ -145,6 +151,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		}
 		arguments[1] = visit(ctx.rangetype);
 		Expression result = Expressions.apply(FunctorConstants.FUNCTION_TYPE, arguments);
+		result = replaceCartesianProductWithTupleType(result);
 		return result;
 	}
 	
