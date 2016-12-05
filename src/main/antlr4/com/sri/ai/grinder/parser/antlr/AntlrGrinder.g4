@@ -140,7 +140,7 @@ ON                      : 'on' ;
 IN                      : 'in' ;
 // Special Functions
 X                       : 'x' ; // Used for Cartesian Product
-TUPLE_TYPE              : '(...)';
+TUPLE_TYPE              : 'tuple_type' ;
 FUNCTION_TYPE           : '->' ;
 // Logic Operators
 IMPLICATION             : '=>' ;
