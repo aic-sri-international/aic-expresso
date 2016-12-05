@@ -38,6 +38,7 @@
 package com.sri.ai.test.grinder.sgdpllt.rewriter;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
@@ -45,6 +46,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
@@ -55,11 +57,14 @@ import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.util.Util;
 
 
 public class SwitchTest {
@@ -229,5 +234,84 @@ public class SwitchTest {
 		Expression solution = recursive.rewrite(initial, context);
 		System.out.println("Solution: " + solution);	
 		assertEquals(expected, solution);
+	}
+	
+	@Test
+	public void testMerge() {
+		class SimpleRewriter implements Rewriter {
+			private String key;
+			public SimpleRewriter(String key) {
+				super();
+				this.key = key;
+			}
+			@Override
+			public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+				return new ConstantExpressionStepSolver(DefaultSymbol.createSymbol(expression.intValue() + 1));
+			}
+			public String toString() {
+				return "SimplerRewriter(" + key + ")";
+			}
+			@Override
+			public boolean equals(Object another) {
+				boolean result =
+						another instanceof SimpleRewriter
+						&& ((SimpleRewriter) another).key.equals(key);
+				return result;
+			}
+			@Override
+			public int hashCode() {
+				return key.hashCode();
+			}
+		};
+		Function<Expression, String> stringMaker = e -> e.toString();
+		Switch<String> switch1 = 
+				new Switch<>(
+						stringMaker,
+						Util.map(
+								"1", new SimpleRewriter("1"),
+								"2", new SimpleRewriter("2")
+								));
+
+		Switch<String> switch2 = 
+				new Switch<>(
+						stringMaker,
+						Util.map(
+								"1", new SimpleRewriter("1"),
+								"3", new SimpleRewriter("3")
+								));
+
+		Switch<String> switch3 = 
+				new Switch<>(
+						stringMaker,
+						Util.map(
+								));
+
+		Switch<String> switch4 = 
+				new Switch<>(
+						stringMaker,
+						Util.map(
+								"4", new SimpleRewriter("4")
+								));
+
+		Switch<String> switch5 = 
+				new Switch<>(
+						stringMaker,
+						Util.map(
+								"3", new SimpleRewriter("3")
+								));
+		
+		Switch<String> expected = 
+				new Switch<>(
+						stringMaker,
+						Util.map(
+								"1", new FirstOf(list(new SimpleRewriter("1"), new SimpleRewriter("1"))),
+								"2", new SimpleRewriter("2"),
+								"3", new FirstOf(list(new SimpleRewriter("3"), new SimpleRewriter("3"))),
+								"4", new SimpleRewriter("4")
+								));
+
+		Rewriter merged = Switch.merge(list(switch1, switch2, switch3, switch4, switch5));
+		
+		assertEquals(expected, merged);
 	}
 }

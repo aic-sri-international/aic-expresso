@@ -37,6 +37,14 @@
  */
 package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
+import static com.sri.ai.util.Util.applyFunctionToValuesOf;
+import static com.sri.ai.util.Util.getFirst;
+import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.mapWithValuesEqualToListOfValuesOfTheseMapsUnderSameKey;
+import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
@@ -44,6 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
+import com.sri.ai.util.Util;
 
 /**
  * A rewriter that stores a map from keys in some type to base {@link Rewriter}s
@@ -51,6 +60,17 @@ import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
  * When rewriting an expression, it computes a key for it and
  * acts as the key's corresponding base rewriter.
  * If the computed key has no corresponding base rewriter, the same expression instance is returned.
+ * 
+ * {@link Switch} rewriters can be merged.
+ * If there are two {@link Switch} rewriters <code>S1</code> and <code>S2</code>
+ * using the same key maker function (instance-wise, naturally,
+ * since it would be too hard to decide that two distinct instance of function objects represent
+ * the same key maker), they can be merged into a new {@link Switch} rewriter <code>S</code>.
+ * This merged rewriter <code>S</code> maps each key value <code>K</code>
+ * into a {@link FirstOf} rewriter composed of the rewriters under the same key value <code>K</code>
+ * in <code>S1</code> and <code>S2</code>, in this order
+ * (or just the original base rewriter if <code>K</code> is used in only one of <code>S1</code> and <code>S2</code>.
+ * 
  * @author braz
  *
  */
@@ -76,6 +96,53 @@ public class Switch<T> implements Rewriter {
 		else {
 			result = new ConstantExpressionStepSolver(expression);
 		}
+		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return "Switch rewriter with key maker " + keyMaker + " and map " + fromKeyToRewriter;
+	}
+	
+	@Override
+	public boolean equals(Object another) {
+		boolean result =
+				another instanceof Switch
+				&& ((Switch) another).keyMaker == keyMaker
+				&& ((Switch) another).fromKeyToRewriter.equals(fromKeyToRewriter);
+		return result;
+	}
+	
+	@Override
+	public int hashCode() {
+		return keyMaker.hashCode() + fromKeyToRewriter.hashCode();
+	}
+	
+	public static <T> Rewriter merge(List<Switch<T>> switchRewriters) {
+		if (switchRewriters.size() == 0) {
+			throw new Error("Only a non-empty set of switch rewriters can be merged.");
+		}
+		Switch<T> first = getFirst(switchRewriters);
+		Function<Expression, T> keyMaker = first.keyMaker;
+		Switch doesNotHaveSameKeyMaker = 
+				getFirstSatisfyingPredicateOrNull(switchRewriters, s -> s.keyMaker != keyMaker);
+		if (doesNotHaveSameKeyMaker != null) {
+			throw new Error(
+					"Set of switch rewriters to be merged must all have the same instance of key maker, but " + 
+							doesNotHaveSameKeyMaker + " has a different key maker from the first switch rewriter " + first);
+		}
+		Map<T, LinkedList<Rewriter>> union = 
+				mapWithValuesEqualToListOfValuesOfTheseMapsUnderSameKey(
+						functionIterator(switchRewriters, s -> s.fromKeyToRewriter));
+		Function<List<Rewriter>, Rewriter> makeRewriterFromListOfRewriters =
+				c -> {
+					if (c.size() == 1) {
+						return Util.getFirst(c);
+					}
+					return new FirstOf(c);
+				};
+		Map<T, Rewriter> fromKeyToRewriter = applyFunctionToValuesOf(union, makeRewriterFromListOfRewriters);
+		Switch<T> result = new Switch<T>(keyMaker, fromKeyToRewriter);
 		return result;
 	}
 }

@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
+import static com.sri.ai.util.Util.join;
+
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
@@ -98,6 +100,24 @@ public class FirstOf implements Rewriter {
 			result = this;
 		}
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return "FirstOf rewriter on " + join(baseRewriters);
+	}
+
+	@Override
+	public boolean equals(Object another) {
+		boolean result =
+				another instanceof FirstOf
+				&& ((FirstOf) another).baseRewriters.equals(baseRewriters);
+		return result;
+	}
+	
+	@Override
+	public int hashCode() {
+		return baseRewriters.hashCode();
 	}
 
 	/**
