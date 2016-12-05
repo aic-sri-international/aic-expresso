@@ -374,7 +374,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// FOR ALL index=expr ':' body=expr #forAll
 	@Override
 	public Expression visitForAll(AntlrGrinderParser.ForAllContext ctx) {
-		Expression result = ForAll.make(visit(ctx.index), visit(ctx.body));
+		Expression result = ForAll.make(cartesianProductToTupleType(visit(ctx.index)), visit(ctx.body));
 		return result;
 	}
 
@@ -382,7 +382,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// THERE EXISTS index=expr ':' body=expr #thereExists
 	@Override
 	public Expression visitThereExists(AntlrGrinderParser.ThereExistsContext ctx) {
-		Expression result = ThereExists.make(visit(ctx.index), visit(ctx.body));
+		Expression result = ThereExists.make(cartesianProductToTupleType(visit(ctx.index)), visit(ctx.body));
 		return result;
 	}
 	

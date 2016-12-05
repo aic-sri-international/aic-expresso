@@ -52,6 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.api.Tuple;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
@@ -884,39 +885,45 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10")),
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
 		
-		string = "| X in tuple_type(1..10, People) : X < 5 |";
+		string = "| X in tuple_type(1..10, People) : X != (0, john) |";
 		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john"))));
 		
-		string = "| X in 1..10 x People : X < 5 |";
+		string = "| X in 1..10 x People : X != (0, john) |";
 		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john"))));
 		
-		string = "| X in 1..10 x (People x Pets) : X < 5 |";
+		string = "| X in 1..10 x (People x Pets) : X != (0, (john, tom)) |";
 		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets"))),
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "john", "tom")))));
 		
-		string = "| X in 1..10 x (People x Pets x Homes) : X < 5 |";
+		string = "| X in 1..10 x (People x Pets x Homes) : X != (0, (john, tom, mgm)) |";
 		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| # |",
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"),
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets", "Homes"))),
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "john", "tom", "mgm")))));
 		
 		string = "| X in 1..10, Y in 1..10 : X < 5 and Y < X |";
 		Assert.assertTrue(parser.parse(string) instanceof CountingFormula);
@@ -1131,7 +1138,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "bar", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "foo", "bar"))));
 		
-		string = "{ (on X in tuple_type(1..10, People)) X : X < 5 }";
+		string = "{ (on X in tuple_type(1..10, People)) X : X != (0, john) }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1139,9 +1146,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))));
 
-		string = "{{ (on X in tuple_type(1..10, People)) X : X < 5 }}";
+		string = "{{ (on X in tuple_type(1..10, People)) X : X != (0, john) }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1149,9 +1157,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))));
 
-		string = "{ (on X in 1..10 x People) X : X < 5 }";
+		string = "{ (on X in 1..10 x People) X : X != (0, john) }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1159,9 +1168,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))));
 		
-		string = "{{ (on X in 1..10 x People) X : X < 5 }}";
+		string = "{{ (on X in 1..10 x People) X : X != (0, john) }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1169,9 +1179,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));	
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))));	
 		
-		string = "{ (on X in 1..10 x (People x Pets)) X : X < 5 }";
+		string = "{ (on X in 1..10 x (People x Pets)) X : X != (0, (john, tom)) }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1180,9 +1191,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets"))))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", 
+									    		  Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "john", "tom"))))));
 		
-		string = "{{ (on X in 1..10 x (People x Pets)) X : X < 5 }}";
+		string = "{{ (on X in 1..10 x (People x Pets)) X : X != (0, (john, tom)) }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1191,9 +1204,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets"))))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", 
+									    		  Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "john", "tom"))))));
 		
-		string = "{ (on X in 1..10 x (People x Pets x Homes)) X : X < 5 }";
+		string = "{ (on X in 1..10 x (People x Pets x Homes)) X : X != (0, (john, tom, mgm)) }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1202,9 +1217,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets", "Homes"))))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", 
+									    		  Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "john", "tom", "mgm"))))));
 		
-		string = "{{ (on X in 1..10 x (People x Pets x Homes)) X : X < 5 }}";
+		string = "{{ (on X in 1..10 x (People x Pets x Homes)) X : X != (0, (john, tom, mgm)) }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
@@ -1213,7 +1230,9 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets", "Homes"))))), 
 						"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "5"))));	
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+									      Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", 
+									    		  Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "john", "tom", "mgm"))))));	
 		
 		string = "{}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
@@ -2321,7 +2340,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	public void testExists () {
+	public void testExists() {
 		String string;
 		string = "there exists a : b";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "a", "b"));
@@ -2330,6 +2349,48 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "a", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "b", "c")));
 
+		string = "there exists X in tuple_type(1..10, People) : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);
+		
+		string = "there exists X in 1..10 x People : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);
+		
+		string = "there exists X in 1..10 x (People x Pets) : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);
+		
+		string = "there exists X in 1..10 x (People x Pets x Homes) : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets", "Homes"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);	
+		
 		// Testing illegal strings
 		string = "there exi a : b";
 		testFail(string);
@@ -2402,6 +2463,48 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "a"), 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Alpha", "Beta"))))))));
+	
+		string = "for all X in tuple_type(1..10, People) : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);
+		
+		string = "for all X in 1..10 x People : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), "People")),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);
+		
+		string = "for all X in 1..10 x (People x Pets) : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);
+		
+		string = "for all X in 1..10 x (People x Pets x Homes) : X != (0, john)";
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL,
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X",
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTEGER_INTERVAL, "1", "10"), 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.TUPLE_TYPE, "People", "Pets", "Homes"))),
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Tuple.TUPLE_LABEL, "0", "john")))
+			);	
 	}
 
 	@Test
