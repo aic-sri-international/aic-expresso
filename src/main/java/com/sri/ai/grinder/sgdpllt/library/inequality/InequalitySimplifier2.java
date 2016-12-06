@@ -35,39 +35,51 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
+package com.sri.ai.grinder.sgdpllt.library.inequality;
 
-import java.util.Collection;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
+import com.sri.ai.grinder.sgdpllt.library.number.GreaterThanOrEqualTo;
+import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
+import com.sri.ai.grinder.sgdpllt.library.number.LessThanOrEqualTo;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
-
-/** 
- * A {@link Theory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
+/**
+ * A {@link Simplifier} with inequality functions (<code>> <, >=, <=</code>)
  * 
  * @author braz
+ *
  */
 @Beta
-abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends AbstractTheoryWithBinaryAtoms {
-
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			Rewriter rewriter) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, rewriter);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
-	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
+public class InequalitySimplifier2 extends Switch<String> {
+	
+	public InequalitySimplifier2() {
+		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
 	}
 	
+	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
+		return map(
+				LESS_THAN_OR_EQUAL_TO,    (Simplifier) (f, context) ->
+				LessThanOrEqualTo.simplify(f, context),
+
+				LESS_THAN,                (Simplifier) (f, context) ->
+				LessThan.simplify(f, context),
+				
+				GREATER_THAN_OR_EQUAL_TO, (Simplifier) (f, context) ->
+				GreaterThanOrEqualTo.simplify(f, context),
+
+				GREATER_THAN,             (Simplifier) (f, context) ->
+				GreaterThan.simplify(f, context)
+				);
+	}
 }

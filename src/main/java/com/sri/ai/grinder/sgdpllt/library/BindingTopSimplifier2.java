@@ -35,39 +35,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
+package com.sri.ai.grinder.sgdpllt.library;
 
-import java.util.Collection;
+import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
-
-/** 
- * A {@link Theory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
+/**
+ * A {@link Switch} rewriter replacing symbols by their bound value from context, if any.
  * 
  * @author braz
+ *
  */
 @Beta
-abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends AbstractTheoryWithBinaryAtoms {
-
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			Rewriter rewriter) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, rewriter);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
+public class BindingTopSimplifier2 extends Switch<Object> {
+	public BindingTopSimplifier2() {
+		super(
+				Switch.SYNTACTIC_FORM_TYPE,
+				map(
+						Symbol.SYNTACTIC_FORM_TYPE,
+						(Simplifier) (e, c) -> {
+							Expression binding = c.binding(e);
+							Expression result = binding != null? binding : e;
+							return result;
+						}));
 	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
-	}
-	
 }

@@ -78,6 +78,22 @@ public class Switch<T> implements Rewriter {
 
 	private Function<Expression, T> keyMaker;
 	private Map<T, Rewriter> fromKeyToRewriter;
+
+	/**
+	 * A standard key maker mapping expressions to their functors's string value
+	 * (unfortunately, this is different from their toString() output -- for example, the functor of 'if p then 1 else 0' has string value "if . then . else ." but toString returns "'if . then . else .'").
+	 * Using standard key makers minimizes search cost in merged {@link Switch} rewriters
+	 * because merging uses instance identity of key makers (see {@link #merge(List)}.
+	 */
+	public final static Function<Expression, String> FUNCTOR = 
+			e -> e.getFunctor() == null || !(e.getFunctor().getValue() instanceof String)? "" : (String) e.getFunctor().getValue();
+	
+	/**
+	 * A standard key maker mapping expressions to the syntactic form types.
+	 * Using standard key makers minimizes search cost in merged {@link Switch} rewriters
+	 * because merging uses instance identity of key makers (see {@link #merge(List)}.
+	 */
+	public final static Function<Expression, Object> SYNTACTIC_FORM_TYPE = e -> e.getSyntacticFormType();
 	
 	public Switch(Function <Expression, T> keyMaker, Map<T, Rewriter> fromKeyToRewriter) {
 		super();

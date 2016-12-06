@@ -52,14 +52,14 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier2;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.util.Util;
@@ -79,38 +79,38 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
-	 * @param extraSimplifier an extra {@link MapBasedSimplifier} containing extra elementary simplifiers besides the basic numeric ones.
+	 * @param extraRewriter an extra {@link Rewriter} containing extra elementary operations besides the basic numeric ones.
 	 */
-	public AbstractNumericTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound, MapBasedSimplifier extraSimplifier) {
+	public AbstractNumericTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound, Rewriter extraRewriter) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				makeSimplifiers(extraSimplifier));
+				makeRewriter(extraRewriter));
 	}
 
 	/**
 	 * Sets the extra simplifier (besides the mandatory ones).
 	 * @param extraSimplifier
 	 */
-	protected void setExtraSimplifier(MapBasedSimplifier extraSimplifier) {
-		setSimplifierFromElementarySimplifiersIn(makeSimplifiers(extraSimplifier));
+	protected void setExtraRewriter(Rewriter extraSimplifier) {
+		setRewriter(makeRewriter(extraSimplifier));
 	}
 
 	/**
-	 * Make simplifiers from numeric simplifiers plus elementary simpliiers in given extra simplifier.
+	 * Make simplifiers from numeric simplifiers plus elementary simplifiers in given extra simplifier.
 	 * @param extraSimplifier
 	 * @return
 	 */
-	private static SeriallyMergedMapBasedTopSimplifier makeSimplifiers(MapBasedSimplifier extraSimplifier) {
-		return new SeriallyMergedMapBasedTopSimplifier(
+	private static Rewriter makeRewriter(Rewriter extraSimplifier) {
+		return FirstOfSwitchMerge.merge(
 				// basic simplification of involved interpreted functions in this theory:
-				new BindingTopSimplifier(),
-				new EqualitySimplifier(),
-				new InequalitySimplifier(),
-				new BooleanSimplifier(),
-				new NumericSimplifier(),
-				new CardinalityOfSetConstantSimplifier(),
+				new BindingTopSimplifier2(),
+				new EqualitySimplifier2(),
+				new InequalitySimplifier2(),
+				new BooleanSimplifier2(),
+				new NumericSimplifier2(),
+				new CardinalityOfSetConstantSimplifier2(),
 				extraSimplifier);
 	}
 	

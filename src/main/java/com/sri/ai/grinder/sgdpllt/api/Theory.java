@@ -60,7 +60,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -125,11 +125,11 @@ public interface Theory extends Cloneable {
 	Expression simplify(Expression expression, Context context);
 
 	/**
-	 * Returns a simplifier performing the same simplification as {@link #simplify(Expression, Context)},
+	 * Returns a rewriter performing the same simplification as {@link #simplify(Expression, Context)},
 	 * but only on the top expression (that is, without recursing to sub-expressions).
 	 * @return
 	 */
-	MapBasedTopSimplifier getMapBasedTopSimplifier();
+	Rewriter getRewriter();
 	
 	boolean isSuitableFor(Expression variable, Type type);
 	

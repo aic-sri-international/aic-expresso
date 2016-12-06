@@ -48,11 +48,9 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveMapBasedSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 @Beta
 /** 
@@ -60,36 +58,35 @@ import com.sri.ai.grinder.sgdpllt.simplifier.core.SeriallyMergedMapBasedTopSimpl
  */
 abstract public class AbstractTheory implements Theory {
 
-	protected MapBasedTopSimplifier topSimplifier;
-
+	protected Rewriter rewriter;
+	
 	/**
 	 * Initializes types for testing to be the collection of a single type,
 	 * a {@link Categorical} {@link Type} named <code>SomeType</code>
 	 * with domain size 5 and known constants <code>a, b, c, d</code>,
 	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
-	 * @param simplifier a source of elementary simplifiers for this theory
+	 * @param rewriter a source of elementary simplifiers for this theory
 	 */
-	public AbstractTheory(MapBasedSimplifier simplifier) {
+	public AbstractTheory(Rewriter rewriter) {
 		super();
-		setSimplifierFromElementarySimplifiersIn(simplifier);
+		setRewriter(rewriter);
 	}
 
-	private Simplifier cachedRecursiveExhaustiveSimplifier;
+	private Rewriter cachedRecursiveExhaustiveRewriter;
 	
 	/**
-	 * Sets the theory's simplifier based on elementary simplifiers
-	 * present in given {@link MapBasedSimplifier}.
-	 * @param simplifier
+	 * Sets the theory's rewriter.
+	 * @param rewriter
 	 */
-	protected void setSimplifierFromElementarySimplifiersIn(MapBasedSimplifier simplifier) {
-		this.topSimplifier = new SeriallyMergedMapBasedTopSimplifier(simplifier);
-		this.cachedRecursiveExhaustiveSimplifier = new RecursiveExhaustiveMapBasedSimplifier(topSimplifier);
+	protected void setRewriter(Rewriter rewriter) {
+		this.rewriter = rewriter;
+		this.cachedRecursiveExhaustiveRewriter = new Recursive(new Exhaustive(rewriter));
 	}
 	
 	@Override
 	public Expression simplify(Expression expression, Context context) {
-		Expression result = cachedRecursiveExhaustiveSimplifier.apply(expression, context);
+		Expression result = cachedRecursiveExhaustiveRewriter.rewrite(expression, context);
 		return result;
 	}
 
@@ -99,8 +96,8 @@ abstract public class AbstractTheory implements Theory {
 	}
 	
 	@Override
-	public MapBasedTopSimplifier getMapBasedTopSimplifier() {
-		return topSimplifier;
+	public Rewriter getRewriter() {
+		return rewriter;
 	}
 	
 	@Override

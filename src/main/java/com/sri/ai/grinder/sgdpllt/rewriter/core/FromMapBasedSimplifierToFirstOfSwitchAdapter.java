@@ -35,39 +35,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
+package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
-import java.util.Collection;
+import java.util.HashMap;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 
-
-/** 
- * A {@link Theory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
+/**
+ * Temporary tool; delete in or after January 2017.
  * 
  * @author braz
+ *
  */
-@Beta
-abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends AbstractTheoryWithBinaryAtoms {
+public class FromMapBasedSimplifierToFirstOfSwitchAdapter<T> extends FirstOf {
 
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			Rewriter rewriter) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, rewriter);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
+	public FromMapBasedSimplifierToFirstOfSwitchAdapter(MapBasedSimplifier base) {
+		super(
+				new Switch<String>(
+						Switch.FUNCTOR,
+						new HashMap<String, Rewriter>(base.getFunctionApplicationSimplifiers())),
+				new Switch<Object>(
+						Switch.SYNTACTIC_FORM_TYPE,
+						new HashMap<Object, Rewriter>(base.getSyntacticFormTypeSimplifiers()))
+				);
+		
 	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
-	}
-	
 }

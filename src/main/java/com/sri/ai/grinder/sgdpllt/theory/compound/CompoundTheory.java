@@ -42,7 +42,7 @@ import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.mapIntoArray;
+import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
@@ -59,8 +59,8 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
 import com.sri.ai.util.Util;
 
 /** 
@@ -69,12 +69,13 @@ import com.sri.ai.util.Util;
 @Beta
 public class CompoundTheory extends AbstractTheory {
 
-	private List<Theory> subConstraintTheories;
+	private List<Theory> subTheories;
 	
-	public CompoundTheory(Theory... subConstraintTheoriesArray) {
-		super(makeSimplifier(list(subConstraintTheoriesArray)));
-		this.subConstraintTheories = list(subConstraintTheoriesArray);
-		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-theory but got none.");
+	public CompoundTheory(Theory... subTheoriesArray) {
+//		super(makeSimplifier(list(subTheoriesArray)));
+		super(makeRewriter(list(subTheoriesArray)));
+		this.subTheories = list(subTheoriesArray);
+		Util.myAssert(() -> subTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-theory but got none.");
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class CompoundTheory extends AbstractTheory {
 	}
 	
 	public Collection<Theory> getSubTheories() {
-		return subConstraintTheories;
+		return subTheories;
 	}
 
 	// NOTE: package protected so TestingSupport can utilize.
@@ -186,16 +187,10 @@ public class CompoundTheory extends AbstractTheory {
 		return result;
 	}
 
-	private static MapBasedSimplifier makeSimplifier(Collection<Theory> subConstraintTheories) {
-		
-		MapBasedSimplifier[] subSimplifiers
-		= mapIntoArray(MapBasedSimplifier.class, subConstraintTheories, t -> t.getMapBasedTopSimplifier());
-		
-		
-		MapBasedSimplifier simplifier
-		= new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(subSimplifiers);
-		
-		return simplifier;
+	private static Rewriter makeRewriter(Collection<Theory> subTheories) {
+		List<Rewriter> subRewriters = mapIntoList(subTheories, t -> t.getRewriter());
+		Rewriter rewriter = FirstOfSwitchMerge.merge(subRewriters);
+		return rewriter;
 	}
 
 	@Override

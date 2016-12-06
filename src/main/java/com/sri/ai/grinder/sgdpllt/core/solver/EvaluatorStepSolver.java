@@ -78,10 +78,8 @@ import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.Recursive;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.TopExhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
 
@@ -173,12 +171,11 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 	@Override
 	public Step step(Context context) {
 		
-		TopSimplifier topSimplifier = context.getTheory().getMapBasedTopSimplifier();
-		TopSimplifier exhaustiveTopSimplifier = new TopExhaustive(topSimplifier);
+		Rewriter topRewriter = context.getTheory().getRewriter();
+		Rewriter exhaustiveTopSimplifier = new Exhaustive(topRewriter);
+		makeRewriters(new Recursive(exhaustiveTopSimplifier));
 
-		makeRewriters(exhaustiveTopSimplifier);
-
-		Expression exhaustivelyTopSimplifiedExpression = exhaustiveTopSimplifier.apply(expression, context);
+		Expression exhaustivelyTopSimplifiedExpression = exhaustiveTopSimplifier.rewrite(expression, context);
 
 		Step result = new Solution(exhaustivelyTopSimplifiedExpression);
 		for (Rewriter rewriter : rewriters) {
@@ -236,15 +233,14 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 	}
 
 	/**
-	 * @param exhaustiveTopSimplifier
+	 * @param recursiveExhaustiveTopSimplifier
 	 */
-	public void makeRewriters(TopSimplifier exhaustiveTopSimplifier) {
+	public void makeRewriters(Rewriter totalSimplifier) {
 		rewriters = Util.<RewriterFromStepMaker>list(
 
 				(Expression e, Context c) -> {
 					if (c.isLiteral(e)) {
-						Simplifier totalSimplifier = new Recursive(exhaustiveTopSimplifier);
-						Expression completelySimplifiedLiteral = totalSimplifier.apply(e, c);
+						Expression completelySimplifiedLiteral = totalSimplifier.rewrite(e, c);
 						return stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, c);
 					}
 					else {

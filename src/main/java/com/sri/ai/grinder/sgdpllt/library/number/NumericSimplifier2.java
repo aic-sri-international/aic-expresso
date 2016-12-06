@@ -35,39 +35,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
+package com.sri.ai.grinder.sgdpllt.library.number;
 
-import java.util.Collection;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
-
-/** 
- * A {@link Theory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
+/**
+ * A {@link Rewriter} with common numeric functions:
+ * 
+ * <ul>
+ * <li> arithmetic (<code>+, -, *, /</code>)
+ * <li> inequalities (<code><, <=, >=, ></code>)
+ * </ul>
  * 
  * @author braz
+ *
  */
 @Beta
-abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends AbstractTheoryWithBinaryAtoms {
-
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			Rewriter rewriter) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, rewriter);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
-	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
+public class NumericSimplifier2 extends Switch<String> {
+	
+	public NumericSimplifier2() {
+		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
 	}
 	
+	private static Simplifier plus = new Plus();
+	private static Simplifier times = new Times();
+
+	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
+		return map(
+				FunctorConstants.TIMES,           (Simplifier) (f, context) ->
+				times.apply(f, context),
+
+				FunctorConstants.DIVISION,        (Simplifier) (f, context) ->
+				Division.simplify(f),
+
+				FunctorConstants.PLUS,            (Simplifier) (f, context) ->
+				plus.apply(f, context),
+
+				FunctorConstants.MINUS,           (Simplifier) (f, context) ->
+				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),
+
+				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, context) ->
+				Exponentiation.simplify(f, context),
+
+				FunctorConstants.LESS_THAN,       (Simplifier) (f, context) ->
+				LessThan.simplify(f, context),
+
+				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, context) ->
+				LessThanOrEqualTo.simplify(f, context),
+
+				FunctorConstants.GREATER_THAN,              (Simplifier) (f, context) ->
+				GreaterThan.simplify(f, context),
+
+				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, context) ->
+				GreaterThanOrEqualTo.simplify(f, context)
+				);
+	}
 }

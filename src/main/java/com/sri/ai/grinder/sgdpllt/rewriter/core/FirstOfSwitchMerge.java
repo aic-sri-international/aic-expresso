@@ -41,6 +41,7 @@ import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,16 @@ import com.sri.ai.util.Util;
  *
  */
 public class FirstOfSwitchMerge {
+	
+	/**
+	 * Varargs version of {@link #merge(List)}.
+	 * @param rewriters
+	 * @param <T> the type of keys in the switch rewriters.
+	 * @return
+	 */
+	public static <T> Rewriter merge(Rewriter... rewriters) {
+		return merge(Arrays.asList(rewriters));
+	}
 	
 	/**
 	 * Takes a list of rewriters, each of which can be either a {@link Switch<T>>} rewriter,
@@ -78,19 +89,26 @@ public class FirstOfSwitchMerge {
 
 		Map<Function<Expression, T>, List<Switch<T>>> switchRewritersSeparatedByKeyMaker = map();
 		for (Rewriter switchRewriterAsRewriter : flattenedRewriters) {
-			@SuppressWarnings("unchecked")
-			Switch<T> switchRewriter = (Switch<T>) switchRewriterAsRewriter;
-			Util.addToCollectionValuePossiblyCreatingIt(
-					switchRewritersSeparatedByKeyMaker,
-					switchRewriter.getKeyMaker(),
-					switchRewriter,
-					LinkedList.class);
+			if ( ! (switchRewriterAsRewriter instanceof Switch)) {
+				throw new Error(FirstOfSwitchMerge.class + " merge must be applied only to lists of rewriters that, once flattened with regard to " + FirstOf.class + ", are composed only of " + Switch.class + " rewriters. This is requires because the final product must be a " + Switch.class + " rewriter, and it needs each basic rewriter to be associated with a key value, and only other " + Switch.class + "rewriters provide those.");
+			}
+			else {
+				@SuppressWarnings("unchecked")
+				Switch<T> switchRewriter = (Switch<T>) switchRewriterAsRewriter;
+				Util.addToCollectionValuePossiblyCreatingIt(
+						switchRewritersSeparatedByKeyMaker,
+						switchRewriter.getKeyMaker(),
+						switchRewriter,
+						LinkedList.class);
+			}
 		}
 
 		List<Rewriter> mergedRewriters = list();
 		for (Map.Entry<Function<Expression, T>, List<Switch<T>>> entry : switchRewritersSeparatedByKeyMaker.entrySet()) {
 			Rewriter mergedForEntry = Switch.merge(entry.getValue());
 			mergedRewriters.add(mergedForEntry);
+			// we don't need to use entry.getKey() because that's the keyMaker, which is also present in the values ({@link Switch} rewriters).
+			// The entry.getKey()s are only needed to make sure the rewriters being merged share the same keyMaker.
 		}
 		
 		Rewriter result;

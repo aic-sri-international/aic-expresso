@@ -48,6 +48,7 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -66,8 +67,10 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.DefaultMapBasedTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheory;
 
@@ -94,7 +97,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				new DefaultMapBasedTopSimplifier(map(), map()) // placeholder; need to use non-static simplifier, see below
+				new FirstOf() // placeholder; need to use non-static simplifier, see below
 				);
 		// Numeric simplifiers are included to take care of polynomials
 		// in the body expression (conditional polynomials) of summations.
@@ -102,10 +105,11 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		// from the quantifier eliminators, which are the objects that know
 		// which languages they deal with.
 		
-		setExtraSimplifier(
-				new DefaultMapBasedTopSimplifier(
-						makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier(), 
-						map()));
+		setExtraRewriter(
+				new Switch<String>(
+						Switch.FUNCTOR,
+						new HashMap<String, Rewriter>(
+								makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier())));
 		// It's important to include the difference arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
 		// but actually contain variables that cancel out (for example, X - X = 0),
 		// with the result of the literal becoming a boolean constant unfit to be splitter.

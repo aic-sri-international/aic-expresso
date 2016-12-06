@@ -13,7 +13,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 
 public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 
@@ -40,8 +40,8 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	public AbstractTheoryWithBinaryAtoms(
 			Collection<String> theoryFunctors,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			MapBasedSimplifier simplifier) {
-		super(simplifier);
+			Rewriter rewriter) {
+		super(rewriter);
 		this.assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory = assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory;
 		this.theoryFunctors = theoryFunctors;
 	}
