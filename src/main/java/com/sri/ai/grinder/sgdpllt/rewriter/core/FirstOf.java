@@ -39,12 +39,18 @@ package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
 import static com.sri.ai.util.Util.join;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.ImmutableStackedLinkedList;
 
 /**
@@ -64,6 +70,10 @@ public class FirstOf implements Rewriter {
 	public FirstOf(List<Rewriter> baseRewriters) {
 		super();
 		this.baseRewriters = baseRewriters;
+	}
+	
+	public FirstOf(Rewriter... baseRewriters) {
+		this(Arrays.asList(baseRewriters));
 	}
 
 	@Override
@@ -102,6 +112,10 @@ public class FirstOf implements Rewriter {
 		return result;
 	}
 	
+	public List<Rewriter> getBaseRewriters() {
+		return Collections.unmodifiableList(baseRewriters);
+	}
+
 	@Override
 	public String toString() {
 		return "FirstOf rewriter on " + join(baseRewriters);
@@ -214,5 +228,33 @@ public class FirstOf implements Rewriter {
 			
 			return result;
 		}
+	}
+	
+	/**
+	 * Flattens origin list of rewriters by adding them to destination while replacing {@link FirstOf} rewriters by the flattened versions of their base rewriters.
+	 * @param origin
+	 * @param destination
+	 */
+	private static void flatten(List<Rewriter> origin, Collection<Rewriter> destination) {
+		for (Rewriter rewriter : origin) {
+			if (rewriter instanceof FirstOf) {
+				flatten(((FirstOf) rewriter).baseRewriters, destination);
+			}
+			else {
+				destination.add(rewriter);
+			}
+		}
+	}
+
+	/**
+	 * Flattens origin list of rewriters by adding them to a returned list without duplicates while replacing {@link FirstOf} rewriters by the flattened versions of their base rewriters.
+	 * @param list
+	 * @return a flattened list of rewriters
+	 */
+	public static LinkedList<Rewriter> flatten(List<Rewriter> list) {
+		LinkedHashSet<Rewriter> set = Util.set();
+		flatten(list, set);
+		LinkedList<Rewriter> result = new LinkedList<>(set);
+		return result;
 	}
 }

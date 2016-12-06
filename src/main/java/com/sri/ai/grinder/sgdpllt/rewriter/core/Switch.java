@@ -99,6 +99,14 @@ public class Switch<T> implements Rewriter {
 		return result;
 	}
 	
+	public Function<Expression, T> getKeyMaker() {
+		return keyMaker;
+	}
+
+	public Map<T, Rewriter> getMapFromKeyToRewriter() {
+		return fromKeyToRewriter;
+	}
+
 	@Override
 	public String toString() {
 		return "Switch rewriter with key maker " + keyMaker + " and map " + fromKeyToRewriter;
@@ -134,6 +142,10 @@ public class Switch<T> implements Rewriter {
 		Map<T, LinkedList<Rewriter>> union = 
 				mapWithValuesEqualToListOfValuesOfTheseMapsUnderSameKey(
 						functionIterator(switchRewriters, s -> s.fromKeyToRewriter));
+
+		Function<List<Rewriter>, List<Rewriter>> makeFlatListOfRewriters = list -> FirstOf.flatten(list);
+		Map<T, List<Rewriter>> flattenedUnion = applyFunctionToValuesOf(union, makeFlatListOfRewriters);
+
 		Function<List<Rewriter>, Rewriter> makeRewriterFromListOfRewriters =
 				c -> {
 					if (c.size() == 1) {
@@ -141,7 +153,7 @@ public class Switch<T> implements Rewriter {
 					}
 					return new FirstOf(c);
 				};
-		Map<T, Rewriter> fromKeyToRewriter = applyFunctionToValuesOf(union, makeRewriterFromListOfRewriters);
+		Map<T, Rewriter> fromKeyToRewriter = applyFunctionToValuesOf(flattenedUnion, makeRewriterFromListOfRewriters);
 		Switch<T> result = new Switch<T>(keyMaker, fromKeyToRewriter);
 		return result;
 	}

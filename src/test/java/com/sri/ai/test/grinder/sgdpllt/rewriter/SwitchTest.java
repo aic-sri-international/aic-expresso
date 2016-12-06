@@ -42,6 +42,7 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -58,6 +59,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
@@ -236,48 +238,59 @@ public class SwitchTest {
 		assertEquals(expected, solution);
 	}
 	
+	/**
+	 * A local class representing a very simple, printable increment rewriter.
+	 * @author braz
+	 *
+	 */
+	private static class Label implements Rewriter {
+		private String key;
+		public Label(String key) {
+			super();
+			this.key = key;
+		}
+		@Override
+		public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+			return new ConstantExpressionStepSolver(DefaultSymbol.createSymbol(key));
+		}
+		public String toString() {
+			return "Label(" + key + ")";
+		}
+		@Override
+		public boolean equals(Object another) {
+			boolean result =
+					another instanceof Label
+					&& ((Label) another).key.equals(key);
+			return result;
+		}
+		@Override
+		public int hashCode() {
+			return key.hashCode();
+		}
+	}
+
+	/** A simple key maker transforming each expression into its string. */
+	private static Function<Expression, String> stringMaker = e -> e.toString();
+
+	/** A simple key maker transforming each expression into its syntatic form type. */
+	private static Function<Expression, Object> syntacticFormTypeMaker = e -> e.getSyntacticFormType();
+
 	@Test
 	public void testMerge() {
-		class SimpleRewriter implements Rewriter {
-			private String key;
-			public SimpleRewriter(String key) {
-				super();
-				this.key = key;
-			}
-			@Override
-			public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-				return new ConstantExpressionStepSolver(DefaultSymbol.createSymbol(expression.intValue() + 1));
-			}
-			public String toString() {
-				return "SimplerRewriter(" + key + ")";
-			}
-			@Override
-			public boolean equals(Object another) {
-				boolean result =
-						another instanceof SimpleRewriter
-						&& ((SimpleRewriter) another).key.equals(key);
-				return result;
-			}
-			@Override
-			public int hashCode() {
-				return key.hashCode();
-			}
-		};
-		Function<Expression, String> stringMaker = e -> e.toString();
 		Switch<String> switch1 = 
 				new Switch<>(
 						stringMaker,
 						Util.map(
-								"1", new SimpleRewriter("1"),
-								"2", new SimpleRewriter("2")
+								"1", new Label("11"),
+								"2", new Label("21")
 								));
 
 		Switch<String> switch2 = 
 				new Switch<>(
 						stringMaker,
 						Util.map(
-								"1", new SimpleRewriter("1"),
-								"3", new SimpleRewriter("3")
+								"1", new Label("12"),
+								"3", new Label("31")
 								));
 
 		Switch<String> switch3 = 
@@ -290,28 +303,181 @@ public class SwitchTest {
 				new Switch<>(
 						stringMaker,
 						Util.map(
-								"4", new SimpleRewriter("4")
+								"4", new Label("41")
 								));
 
 		Switch<String> switch5 = 
 				new Switch<>(
 						stringMaker,
 						Util.map(
-								"3", new SimpleRewriter("3")
+								"3", new Label("32")
 								));
 		
 		Switch<String> expected = 
 				new Switch<>(
 						stringMaker,
 						Util.map(
-								"1", new FirstOf(list(new SimpleRewriter("1"), new SimpleRewriter("1"))),
-								"2", new SimpleRewriter("2"),
-								"3", new FirstOf(list(new SimpleRewriter("3"), new SimpleRewriter("3"))),
-								"4", new SimpleRewriter("4")
+								"1", new FirstOf(list(new Label("11"), new Label("12"))),
+								"2", new Label("21"),
+								"3", new FirstOf(list(new Label("31"), new Label("32"))),
+								"4", new Label("41")
 								));
 
 		Rewriter merged = Switch.merge(list(switch1, switch2, switch3, switch4, switch5));
 		
+		assertEquals(expected, merged);
+	}
+	
+	@Test
+	public void firstOfSwitchMergeTest() {
+		List<Rewriter> initialRewriters;
+		Rewriter expected;
+		Rewriter merged;
+		
+		initialRewriters = list(
+				new Switch<String>(
+						stringMaker,
+						Util.map(
+								))
+				,
+				new FirstOf(
+						new Switch<String>(
+								stringMaker,
+								Util.map(
+										))
+				)
+				);
+
+		expected =
+				new Switch<String>(
+						stringMaker,
+						Util.map()
+				);
+		merged = FirstOfSwitchMerge.merge(initialRewriters);
+		assertEquals(expected, merged);
+
+		initialRewriters = list(
+				new Switch<String>(
+						stringMaker,
+						Util.map(
+								))
+				,
+				new FirstOf(
+						new Switch<String>(
+								stringMaker,
+								Util.map(
+										))
+										,
+						new Switch<Object>(
+								syntacticFormTypeMaker,
+								Util.map(
+										))
+				)
+				,
+				new Switch<Object>(
+						syntacticFormTypeMaker,
+						Util.map(
+								))
+				
+				);
+
+		expected =
+				new FirstOf(
+						new Switch<String>(
+								stringMaker,
+								Util.map(
+										))
+						,
+						new Switch<Object>(
+								syntacticFormTypeMaker,
+								Util.map(
+										))
+				);
+		merged = FirstOfSwitchMerge.merge(initialRewriters);
+		assertEquals(expected, merged);
+
+		initialRewriters = list(
+				new Switch<String>(
+						stringMaker,
+						Util.map(
+								"1", new FirstOf(new Label("11"), new Label("12")),
+								"2", new Label("21"),
+								"3", new Label("31"),
+								"4", new Label("41")
+								))
+				);
+
+		expected =
+				new Switch<String>(
+						stringMaker,
+						Util.map(
+								"1", new FirstOf(new Label("11"), new Label("12")),
+								"2", new Label("21"),
+								"3", new Label("31"),
+								"4", new Label("41")
+								));
+		merged = FirstOfSwitchMerge.merge(initialRewriters);
+		assertEquals(expected, merged);
+
+		initialRewriters = list(
+				new Switch<String>(
+						stringMaker,
+						Util.map(
+								"1", new FirstOf(new Label("11"), new Label("12")),
+								"2", new Label("21"),
+								"3", new FirstOf(new Label("31")),
+								"4", new Label("41")
+								))
+				,
+				new FirstOf(
+						new Switch<String>(
+								stringMaker,
+								Util.map(
+										"1", new FirstOf(new Label("12") /* again */, new Label("13")),
+										"2", new FirstOf(new Label("22"), new Label("23")),
+										"3", new Label("31"), /* again */
+										"4", new Label("42")
+										))
+										,
+						new Switch<Object>(
+								syntacticFormTypeMaker,
+								Util.map(
+										"Symbol", new FirstOf(new Label("S1"), new Label("S2")),
+										"Function application", new FirstOf(new Label("F1"), new Label("F2")),
+										"Lambda expression", new Label("L1")
+										))
+				)
+				,
+				new Switch<Object>(
+						syntacticFormTypeMaker,
+						Util.map(
+								"Symbol", new FirstOf(new Label("S2"), new Label("S3")),
+								"Function application", new Label("F2"),
+								"Lambda expression", new FirstOf(new Label("L2"), new Label("L3"))
+								))
+				
+				);
+
+		expected =
+				new FirstOf(
+						new Switch<String>(
+								stringMaker,
+								Util.map(
+										"1", new FirstOf(new Label("11"), new Label("12"), new Label("13")),
+										"2", new FirstOf(new Label("21"), new Label("22"), new Label("23")),
+										"3", new Label("31"),
+										"4", new FirstOf(list(new Label("41"), new Label("42")))
+										))
+						,
+						new Switch<Object>(
+								syntacticFormTypeMaker,
+								Util.map(
+										"Symbol", new FirstOf(new Label("S1"), new Label("S2"), new Label("S3")),
+										"Function application", new FirstOf(new Label("F1"), new Label("F2")),
+										"Lambda expression", new FirstOf(new Label("L1"), new Label("L2"), new Label("L3"))
+										))
+				);
+		merged = FirstOfSwitchMerge.merge(initialRewriters);
 		assertEquals(expected, merged);
 	}
 }
