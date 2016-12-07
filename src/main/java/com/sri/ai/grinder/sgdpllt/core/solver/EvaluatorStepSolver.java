@@ -171,7 +171,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 	@Override
 	public Step step(Context context) {
 		
-		Rewriter topRewriter = context.getTheory().getRewriter();
+		Rewriter topRewriter = context.getTheory().getTopRewriter();
 		Rewriter exhaustiveTopSimplifier = new Exhaustive(topRewriter);
 		makeRewriters(new Recursive(exhaustiveTopSimplifier));
 

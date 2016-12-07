@@ -35,39 +35,42 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
-
-import java.util.Collection;
+package com.sri.ai.grinder.sgdpllt.library;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 
-
-/** 
- * A {@link Theory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
+/**
+ * A {@link Simplifier} aggregating:
+ * 
+ * <ul>
+ * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
+ * <li> {@link BooleanSimplifier}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
+ * <li> {@link NumericSimplifier}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
+ * <li> {@link CardinalityOfSetConstantSimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
+ * </ul>
  * 
  * @author braz
+ *
  */
 @Beta
-abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends AbstractTheoryWithBinaryAtoms {
-
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			TopRewriter topRewriter) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, topRewriter);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
-	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
-	}
+public class CommonSimplifier2 extends RecursiveExhaustiveSeriallyMergedMapBasedSimplifier {
 	
+	public CommonSimplifier2() {
+		super(
+				new BindingTopSimplifier(),
+				new BooleanSimplifier(),
+				new NumericSimplifier(),
+				new EqualitySimplifier(),
+				new InequalitySimplifier(),
+				new CardinalityOfSetConstantSimplifier(),
+				new LambdaBetaReductionSimplifier());
+	}
 }

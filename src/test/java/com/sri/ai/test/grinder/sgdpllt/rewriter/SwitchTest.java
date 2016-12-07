@@ -58,8 +58,9 @@ import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
@@ -329,8 +330,8 @@ public class SwitchTest {
 	}
 	
 	@Test
-	public void firstOfSwitchMergeTest() {
-		List<Rewriter> initialRewriters;
+	public void topRewriterTest() {
+		List<TopRewriter> initialRewriters;
 		Rewriter expected;
 		Rewriter merged;
 		
@@ -340,7 +341,7 @@ public class SwitchTest {
 						Util.map(
 								))
 				,
-				new FirstOf(
+				new DefaultTopRewriter(
 						new Switch<String>(
 								stringMaker,
 								Util.map(
@@ -350,10 +351,11 @@ public class SwitchTest {
 
 		expected =
 				new Switch<String>(
-						stringMaker,
-						Util.map()
-				);
-		merged = FirstOfSwitchMerge.merge(initialRewriters);
+								stringMaker,
+								Util.map()
+						);
+
+		merged = TopRewriter.merge(initialRewriters);
 		assertEquals(expected, merged);
 
 		initialRewriters = list(
@@ -362,7 +364,7 @@ public class SwitchTest {
 						Util.map(
 								))
 				,
-				new FirstOf(
+				new DefaultTopRewriter(
 						new Switch<String>(
 								stringMaker,
 								Util.map(
@@ -393,7 +395,7 @@ public class SwitchTest {
 								Util.map(
 										))
 				);
-		merged = FirstOfSwitchMerge.merge(initialRewriters);
+		merged = TopRewriter.merge(initialRewriters);
 		assertEquals(expected, merged);
 
 		initialRewriters = list(
@@ -416,7 +418,7 @@ public class SwitchTest {
 								"3", new Label("31"),
 								"4", new Label("41")
 								));
-		merged = FirstOfSwitchMerge.merge(initialRewriters);
+		merged = TopRewriter.merge(initialRewriters);
 		assertEquals(expected, merged);
 
 		initialRewriters = list(
@@ -429,7 +431,7 @@ public class SwitchTest {
 								"4", new Label("41")
 								))
 				,
-				new FirstOf(
+				new DefaultTopRewriter(
 						new Switch<String>(
 								stringMaker,
 								Util.map(
@@ -459,7 +461,7 @@ public class SwitchTest {
 				);
 
 		expected =
-				new FirstOf(
+				new DefaultTopRewriter(
 						new Switch<String>(
 								stringMaker,
 								Util.map(
@@ -477,7 +479,7 @@ public class SwitchTest {
 										"Lambda expression", new FirstOf(new Label("L1"), new Label("L2"), new Label("L3"))
 										))
 				);
-		merged = FirstOfSwitchMerge.merge(initialRewriters);
+		merged = TopRewriter.merge(initialRewriters);
 		assertEquals(expected, merged);
 	}
 }

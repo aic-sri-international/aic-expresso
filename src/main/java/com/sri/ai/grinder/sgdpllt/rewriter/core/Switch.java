@@ -51,6 +51,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
 import com.sri.ai.util.Util;
 
@@ -74,7 +75,7 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public class Switch<T> implements Rewriter {
+public class Switch<T> implements TopRewriter {
 
 	private Function<Expression, T> keyMaker;
 	private Map<T, Rewriter> fromKeyToRewriter;
@@ -142,7 +143,7 @@ public class Switch<T> implements Rewriter {
 		return keyMaker.hashCode() + fromKeyToRewriter.hashCode();
 	}
 	
-	public static <T> Rewriter merge(List<Switch<T>> switchRewriters) {
+	public static <T> Switch<T> merge(List<Switch<T>> switchRewriters) {
 		if (switchRewriters.size() == 0) {
 			throw new Error("Only a non-empty set of switch rewriters can be merged.");
 		}

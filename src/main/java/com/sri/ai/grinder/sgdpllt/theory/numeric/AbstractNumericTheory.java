@@ -46,6 +46,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import java.util.Map;
 
@@ -58,8 +59,7 @@ import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
 import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier2;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier2;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.util.Util;
@@ -79,22 +79,25 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
-	 * @param extraRewriter an extra {@link Rewriter} containing extra elementary operations besides the basic numeric ones.
+	 * @param extraTopRewriter an extra {@link TopRewriter} containing extra elementary operations besides the basic numeric ones.
 	 */
-	public AbstractNumericTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound, Rewriter extraRewriter) {
+	public AbstractNumericTheory(
+			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+			boolean propagateAllLiteralsWhenVariableIsBound,
+			TopRewriter extraTopRewriter) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				makeRewriter(extraRewriter));
+				makeTopRewriter(extraTopRewriter));
 	}
 
 	/**
 	 * Sets the extra simplifier (besides the mandatory ones).
-	 * @param extraSimplifier
+	 * @param extraTopRewriter
 	 */
-	protected void setExtraRewriter(Rewriter extraSimplifier) {
-		setRewriter(makeRewriter(extraSimplifier));
+	protected void setExtraTopRewriter(TopRewriter extraTopRewriter) {
+		setTopRewriter(makeTopRewriter(extraTopRewriter));
 	}
 
 	/**
@@ -102,8 +105,8 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * @param extraSimplifier
 	 * @return
 	 */
-	private static Rewriter makeRewriter(Rewriter extraSimplifier) {
-		return FirstOfSwitchMerge.merge(
+	private static TopRewriter makeTopRewriter(TopRewriter extraSimplifier) {
+		return merge(
 				// basic simplification of involved interpreted functions in this theory:
 				new BindingTopSimplifier2(),
 				new EqualitySimplifier2(),

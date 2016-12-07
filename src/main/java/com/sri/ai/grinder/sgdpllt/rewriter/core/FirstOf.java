@@ -51,7 +51,6 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.collect.ImmutableStackedLinkedList;
 
 /**
  * Applies a list of base rewriters until one of them modifies the original expression, returning this as the overall result.
@@ -65,9 +64,9 @@ import com.sri.ai.util.collect.ImmutableStackedLinkedList;
  */
 public class FirstOf implements Rewriter {
 	
-	private List<Rewriter> baseRewriters;
+	private List<? extends Rewriter> baseRewriters;
 	
-	public FirstOf(List<Rewriter> baseRewriters) {
+	public FirstOf(List<? extends Rewriter> baseRewriters) {
 		super();
 		this.baseRewriters = baseRewriters;
 	}
@@ -89,25 +88,6 @@ public class FirstOf implements Rewriter {
 			result = (FirstOf) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
-		}
-		return result;
-	}
-	
-	/**
-	 * Creates a new instance of {@link FirstOf} rewriter with new baseRewriter,
-	 * if it is not already present in the current base rewriters,
-	 * or this same instance otherwise.
-	 * @param baseRewriter
-	 * @return
-	 */
-	public FirstOf addBaseRewriter(Rewriter baseRewriter) {
-		FirstOf result;
-		if ( ! baseRewriters.contains(baseRewriter)) {
-			result = clone();
-			result.baseRewriters = new ImmutableStackedLinkedList<Rewriter>(baseRewriter, baseRewriters);
-		}
-		else {
-			result = this;
 		}
 		return result;
 	}
@@ -157,11 +137,11 @@ public class FirstOf implements Rewriter {
 	private static class FirstOfStepSolver implements ExpressionLiteralSplitterStepSolver {
 		
 		private Expression expression;
-		private List<Rewriter> baseRewriters;
+		private List<? extends Rewriter> baseRewriters;
 		private int currentBaseRewriterIndex;
 		private ExpressionLiteralSplitterStepSolver currentBaseStepSolver;
 		
-		public FirstOfStepSolver(Expression expression, List<Rewriter> baseRewriters) {
+		public FirstOfStepSolver(Expression expression, List<? extends Rewriter> baseRewriters) {
 			super();
 			this.expression = expression;
 			this.baseRewriters = baseRewriters;
@@ -173,7 +153,7 @@ public class FirstOf implements Rewriter {
 			makeCurrentStepSolver(expression, baseRewriters);
 		}
 
-		private void makeCurrentStepSolver(Expression expression, List<Rewriter> baseRewriters) {
+		private void makeCurrentStepSolver(Expression expression, List<? extends Rewriter> baseRewriters) {
 			Rewriter currentBaseRewriter = baseRewriters.get(currentBaseRewriterIndex);
 			this.currentBaseStepSolver = currentBaseRewriter.makeStepSolver(expression);
 		}
@@ -235,7 +215,7 @@ public class FirstOf implements Rewriter {
 	 * @param origin
 	 * @param destination
 	 */
-	private static void flatten(List<Rewriter> origin, Collection<Rewriter> destination) {
+	private static void flatten(List<? extends Rewriter> origin, Collection<Rewriter> destination) {
 		for (Rewriter rewriter : origin) {
 			if (rewriter instanceof FirstOf) {
 				flatten(((FirstOf) rewriter).baseRewriters, destination);
@@ -251,7 +231,7 @@ public class FirstOf implements Rewriter {
 	 * @param list
 	 * @return a flattened list of rewriters
 	 */
-	public static LinkedList<Rewriter> flatten(List<Rewriter> list) {
+	public static LinkedList<Rewriter> flatten(List<? extends Rewriter> list) {
 		LinkedHashSet<Rewriter> set = Util.set();
 		flatten(list, set);
 		LinkedList<Rewriter> result = new LinkedList<>(set);

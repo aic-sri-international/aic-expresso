@@ -68,7 +68,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhich
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
@@ -97,7 +97,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				new FirstOf() // placeholder; need to use non-static simplifier, see below
+				new DefaultTopRewriter() // placeholder; need to use non-static top rewriter, see below
 				);
 		// Numeric simplifiers are included to take care of polynomials
 		// in the body expression (conditional polynomials) of summations.
@@ -105,7 +105,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		// from the quantifier eliminators, which are the objects that know
 		// which languages they deal with.
 		
-		setExtraRewriter(
+		setExtraTopRewriter(
 				new Switch<String>(
 						Switch.FUNCTOR,
 						new HashMap<String, Rewriter>(

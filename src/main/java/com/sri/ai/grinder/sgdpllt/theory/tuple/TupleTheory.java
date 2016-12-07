@@ -39,12 +39,12 @@ package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 import static com.sri.ai.util.Util.set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 
 /**
@@ -62,6 +62,6 @@ public abstract class TupleTheory extends AbstractTheoryWithBinaryAtomsIncluding
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				FirstOfSwitchMerge.merge(new EqualitySimplifier2(), new BooleanSimplifier2()));
+				merge(new EqualitySimplifier2(), new BooleanSimplifier2()));
 	}
 }

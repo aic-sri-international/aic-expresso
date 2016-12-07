@@ -59,8 +59,8 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOfSwitchMerge;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.util.Util;
 
 /** 
@@ -73,7 +73,7 @@ public class CompoundTheory extends AbstractTheory {
 	
 	public CompoundTheory(Theory... subTheoriesArray) {
 //		super(makeSimplifier(list(subTheoriesArray)));
-		super(makeRewriter(list(subTheoriesArray)));
+		super(makeTopRewriter(list(subTheoriesArray)));
 		this.subTheories = list(subTheoriesArray);
 		Util.myAssert(() -> subTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-theory but got none.");
 	}
@@ -187,9 +187,9 @@ public class CompoundTheory extends AbstractTheory {
 		return result;
 	}
 
-	private static Rewriter makeRewriter(Collection<Theory> subTheories) {
-		List<Rewriter> subRewriters = mapIntoList(subTheories, t -> t.getRewriter());
-		Rewriter rewriter = FirstOfSwitchMerge.merge(subRewriters);
+	private static TopRewriter makeTopRewriter(Collection<Theory> subTheories) {
+		List<TopRewriter> subRewriters = mapIntoList(subTheories, t -> t.getTopRewriter());
+		TopRewriter rewriter = new DefaultTopRewriter(subRewriters);
 		return rewriter;
 	}
 

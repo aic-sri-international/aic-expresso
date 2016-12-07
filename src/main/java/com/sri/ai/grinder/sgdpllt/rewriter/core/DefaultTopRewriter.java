@@ -35,39 +35,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
+package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
-import java.util.Collection;
+import static com.sri.ai.util.Util.join;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import java.util.List;
+
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 
-/** 
- * A {@link Theory} for constraint theories with binary atoms, including equality.
- * This provides a property for turning off propagation of all literals at single-variable constraint level
- * once the variable is bound.
+/**
+ * A top rewriter combining a list of given top rewriters.
  * 
  * @author braz
+ *
  */
-@Beta
-abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends AbstractTheoryWithBinaryAtoms {
-
-	private boolean propagateAllLiteralsWhenVariableIsBound;
-
-	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			TopRewriter topRewriter) {
-
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, topRewriter);
-		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
-	}
-
-	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
-		return propagateAllLiteralsWhenVariableIsBound;
+public class DefaultTopRewriter extends FirstOf implements TopRewriter {
+	
+	/**
+	 * Creates a {@link FirstOf} rewriter containing {@link Switch} rewriters
+	 * merging all {@link Switch} rewriters embedded in input top rewriters.
+	 * @param topRewriters
+	 */
+	public DefaultTopRewriter(TopRewriter... topRewriters) {
+		super(TopRewriter.makeMergedSwitches(topRewriters));
 	}
 	
+	public DefaultTopRewriter(List<? extends TopRewriter> topRewriters) {
+		super(TopRewriter.makeMergedSwitches(topRewriters));
+	}
+	
+	public <T> DefaultTopRewriter(List<? extends Switch<T>> alreadyMergedTopRewriters, boolean doNotMerge) {
+		super(alreadyMergedTopRewriters);
+		if ( ! doNotMerge) {
+			throw new Error("Use other " + DefaultTopRewriter.class + " if you do want to merge top rewriters.");
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "DefaultTopRewriter on " + join(getBaseRewriters());
+	}
 }

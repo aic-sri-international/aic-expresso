@@ -49,6 +49,7 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
@@ -58,7 +59,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  */
 abstract public class AbstractTheory implements Theory {
 
-	protected Rewriter rewriter;
+	protected TopRewriter rewriter;
 	
 	/**
 	 * Initializes types for testing to be the collection of a single type,
@@ -66,22 +67,22 @@ abstract public class AbstractTheory implements Theory {
 	 * with domain size 5 and known constants <code>a, b, c, d</code>,
 	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
-	 * @param rewriter a source of elementary simplifiers for this theory
+	 * @param topRewriter a source of elementary simplifiers for this theory
 	 */
-	public AbstractTheory(Rewriter rewriter) {
+	public AbstractTheory(TopRewriter topRewriter) {
 		super();
-		setRewriter(rewriter);
+		setTopRewriter(topRewriter);
 	}
 
 	private Rewriter cachedRecursiveExhaustiveRewriter;
 	
 	/**
 	 * Sets the theory's rewriter.
-	 * @param rewriter
+	 * @param topRewriter
 	 */
-	protected void setRewriter(Rewriter rewriter) {
-		this.rewriter = rewriter;
-		this.cachedRecursiveExhaustiveRewriter = new Recursive(new Exhaustive(rewriter));
+	protected void setTopRewriter(TopRewriter topRewriter) {
+		this.rewriter = topRewriter;
+		this.cachedRecursiveExhaustiveRewriter = new Recursive(new Exhaustive(topRewriter));
 	}
 	
 	@Override
@@ -96,7 +97,7 @@ abstract public class AbstractTheory implements Theory {
 	}
 	
 	@Override
-	public Rewriter getRewriter() {
+	public TopRewriter getTopRewriter() {
 		return rewriter;
 	}
 	
