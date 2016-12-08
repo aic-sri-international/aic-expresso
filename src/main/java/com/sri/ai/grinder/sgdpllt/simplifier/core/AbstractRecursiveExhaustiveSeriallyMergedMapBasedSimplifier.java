@@ -42,7 +42,6 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
@@ -61,8 +60,6 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
  * as opposed to through a constructor.
  * This makes its usage a bit more laborious but also more flexible because
  * its extending classes can provide simplifiers based on the extending class' own abstract methods.
- * This is used by {@link AbstractCommonInterpreter} to leave the treatment of quantified expressions
- * open, according to an abstract method.
  *
  * @author braz
  *

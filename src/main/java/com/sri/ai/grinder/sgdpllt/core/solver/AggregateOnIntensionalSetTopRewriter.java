@@ -35,45 +35,60 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library;
+package com.sri.ai.grinder.sgdpllt.core.solver;
+
+import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier2;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
- * A {@link TopRewriter} aggregating:
- * 
- * <ul>
- * <li> {@link BindingTopSimplifier2}: replaces symbols by their values(<code>=, !=</code>)
- * <li> {@link BooleanSimplifier2}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
- * <li> {@link NumericSimplifier2}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link EqualitySimplifier2}: equality and disequality (<code>=, !=</code>)
- * <li> {@link InequalitySimplifier2}: inequality (<code><, <=, >, >=</code>)
- * <li> {@link CardinalityOfSetConstantSimplifier2}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
- * <li> {@link LambdaBetaReductionSimplifier2}: replaces <code>(lambda X : f(X))(E)</code> by <code>f(E)</code>.
- * </ul>
- * 
+ * A {@link Switch<String>} extension solving aggregate functions on intensional sets,
+ * given the functor, group, and {@link AggregateSolver}.
+ *
  * @author braz
  *
  */
 @Beta
-public class CommonSimplifier2 extends DefaultTopRewriter {
-	
-	public CommonSimplifier2() {
+public class AggregateOnIntensionalSetTopRewriter extends Switch<String> {
+
+	public AggregateOnIntensionalSetTopRewriter(
+			String functor, 
+			AssociativeCommutativeGroup group, 
+			AggregateSolver aggregateSolver) {
+		
 		super(
-				new BindingTopSimplifier2(),
-				new BooleanSimplifier2(),
-				new NumericSimplifier2(),
-				new EqualitySimplifier2(),
-				new InequalitySimplifier2(),
-				new CardinalityOfSetConstantSimplifier2(),
-				new LambdaBetaReductionSimplifier2());
+				Switch.FUNCTOR,
+				map(
+						functor, 
+						simplifierForAggregateOnIntensionalSet(group, aggregateSolver)
+				)
+		);
+	}
+
+	private static Simplifier simplifierForAggregateOnIntensionalSet(
+			AssociativeCommutativeGroup group, 
+			AggregateSolver aggregateSolver) {
+		
+		return (e, c) -> {
+			IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
+			ExtensionalIndexExpressionsSet indexExpressions = 
+					(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
+			// the set is intensional, but not the set of index expressions!
+			Expression result =
+					aggregateSolver.evaluateAggregateOperation(
+							group,
+							indexExpressions,
+							intensionalSet.getCondition(),
+							intensionalSet.getHead(),
+							c);
+			return result;
+		};
 	}
 }

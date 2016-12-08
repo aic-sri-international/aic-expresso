@@ -78,7 +78,7 @@ import com.sri.ai.util.Util;
 public class Switch<T> implements TopRewriter {
 
 	private Function<Expression, T> keyMaker;
-	private Map<T, Rewriter> fromKeyToRewriter;
+	private Map<T, ? extends Rewriter> fromKeyToRewriter;
 
 	/**
 	 * A standard key maker mapping expressions to their functors's string value
@@ -96,7 +96,7 @@ public class Switch<T> implements TopRewriter {
 	 */
 	public final static Function<Expression, Object> SYNTACTIC_FORM_TYPE = e -> e.getSyntacticFormType();
 	
-	public Switch(Function <Expression, T> keyMaker, Map<T, Rewriter> fromKeyToRewriter) {
+	public Switch(Function <Expression, T> keyMaker, Map<T, ? extends Rewriter> fromKeyToRewriter) {
 		super();
 		this.keyMaker = keyMaker;
 		this.fromKeyToRewriter = fromKeyToRewriter;
@@ -120,7 +120,7 @@ public class Switch<T> implements TopRewriter {
 		return keyMaker;
 	}
 
-	public Map<T, Rewriter> getMapFromKeyToRewriter() {
+	public Map<T, ? extends Rewriter> getMapFromKeyToRewriter() {
 		return fromKeyToRewriter;
 	}
 

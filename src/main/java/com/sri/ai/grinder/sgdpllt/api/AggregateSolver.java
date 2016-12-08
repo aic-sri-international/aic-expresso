@@ -35,30 +35,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.rewriter.core;
+package com.sri.ai.grinder.sgdpllt.api;
 
-import java.util.HashMap;
-
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
+import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 /**
- * Temporary tool; delete in or after January 2017.
- * 
+ * Defines how an aggregate or quantified expression is to be solved.
+ *
  * @author braz
  *
  */
-public class FromMapBasedSimplifierToFirstOfSwitchAdapter<T> extends FirstOf {
+@Beta
+public interface AggregateSolver {
 
-	public FromMapBasedSimplifierToFirstOfSwitchAdapter(MapBasedSimplifier base) {
-		super(
-				new Switch<String>(
-						Switch.FUNCTOR,
-						new HashMap<String, Rewriter>(base.getFunctionApplicationSimplifiers())),
-				new Switch<Object>(
-						Switch.SYNTACTIC_FORM_TYPE,
-						new HashMap<Object, Rewriter>(base.getSyntacticFormTypeSimplifiers()))
-				);
-		
-	}
+	/**
+	 * Defines how a aggregate or quantified expression is to be solved.
+	 * @param group
+	 * @param indexExpressions
+	 * @param indicesCondition
+	 * @param body
+	 * @param context
+	 * @return
+	 * @throws Error
+	 */
+	Expression evaluateAggregateOperation(
+			AssociativeCommutativeGroup group,
+			ExtensionalIndexExpressionsSet indexExpressions,
+			Expression indicesCondition,
+			Expression body,
+			Context context) throws Error;
 }

@@ -35,45 +35,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library;
+package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier2;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import java.util.HashMap;
+
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.simplifier.api.MapBasedSimplifier;
 
 /**
- * A {@link TopRewriter} aggregating:
- * 
- * <ul>
- * <li> {@link BindingTopSimplifier2}: replaces symbols by their values(<code>=, !=</code>)
- * <li> {@link BooleanSimplifier2}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
- * <li> {@link NumericSimplifier2}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link EqualitySimplifier2}: equality and disequality (<code>=, !=</code>)
- * <li> {@link InequalitySimplifier2}: inequality (<code><, <=, >, >=</code>)
- * <li> {@link CardinalityOfSetConstantSimplifier2}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
- * <li> {@link LambdaBetaReductionSimplifier2}: replaces <code>(lambda X : f(X))(E)</code> by <code>f(E)</code>.
- * </ul>
+ * Temporary tool; delete in or after January 2017.
  * 
  * @author braz
  *
  */
-@Beta
-public class CommonSimplifier2 extends DefaultTopRewriter {
-	
-	public CommonSimplifier2() {
+public class MapBasedSimplifierTopRewriterAdapter extends DefaultTopRewriter {
+
+	public MapBasedSimplifierTopRewriterAdapter(MapBasedSimplifier base) {
 		super(
-				new BindingTopSimplifier2(),
-				new BooleanSimplifier2(),
-				new NumericSimplifier2(),
-				new EqualitySimplifier2(),
-				new InequalitySimplifier2(),
-				new CardinalityOfSetConstantSimplifier2(),
-				new LambdaBetaReductionSimplifier2());
+				new Switch<String>(
+						Switch.FUNCTOR,
+						new HashMap<String, Rewriter>(base.getFunctionApplicationSimplifiers())),
+				new Switch<Object>(
+						Switch.SYNTACTIC_FORM_TYPE,
+						new HashMap<Object, Rewriter>(base.getSyntacticFormTypeSimplifiers()))
+				);
+		
 	}
 }
