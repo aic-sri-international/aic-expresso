@@ -133,7 +133,7 @@ public class ExhaustiveTest {
 		Context context = new TrueContext(theory);
 		context = context.registerAdditionalSymbolsAndTypes(symbolsAndTypes);
 		Rewriter exhaustive = new Exhaustive(rewriter);
-		Expression solution = exhaustive.rewrite(initial, context);
+		Expression solution = exhaustive.apply(initial, context);
 		System.out.println("Solution: " + solution);	
 		assertEquals(expected, solution);
 	}

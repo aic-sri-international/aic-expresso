@@ -141,7 +141,7 @@ public class RecursiveTest {
 		Context context = new TrueContext(theory);
 		context = context.registerAdditionalSymbolsAndTypes(symbolsAndTypes);
 		Rewriter recursive = new Recursive(rewriter);
-		Expression solution = recursive.rewrite(initial, context);
+		Expression solution = recursive.apply(initial, context);
 		System.out.println("Solution: " + solution);	
 		assertEquals(expected, solution);
 	}

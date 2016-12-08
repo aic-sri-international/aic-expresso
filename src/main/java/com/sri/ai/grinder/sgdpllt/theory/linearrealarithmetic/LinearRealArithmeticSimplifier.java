@@ -62,7 +62,7 @@ public class LinearRealArithmeticSimplifier implements Simplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		Expression result = LinearRealArithmeticUtil.simplify(expression, theory, context);
 		return result;
 	}

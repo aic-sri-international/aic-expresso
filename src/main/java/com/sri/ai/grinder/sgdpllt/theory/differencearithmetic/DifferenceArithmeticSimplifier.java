@@ -59,7 +59,7 @@ public class DifferenceArithmeticSimplifier implements Simplifier {
 	}
 	
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		return DifferenceArithmeticUtil.simplify(expression, theory, context);
 	}
 }

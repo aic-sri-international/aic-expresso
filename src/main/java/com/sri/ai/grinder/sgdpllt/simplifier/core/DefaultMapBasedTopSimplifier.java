@@ -74,7 +74,7 @@ public class DefaultMapBasedTopSimplifier extends AbstractMapBasedSimplifier imp
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		Simplifier simplifier = null;
 		
 		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {

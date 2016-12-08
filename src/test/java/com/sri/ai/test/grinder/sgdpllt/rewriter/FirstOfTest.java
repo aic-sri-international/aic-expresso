@@ -191,7 +191,7 @@ public class FirstOfTest {
 		Context context = new TrueContext(theory);
 		context = context.registerAdditionalSymbolsAndTypes(symbolsAndTypes);
 		Rewriter firstOf = new FirstOf(rewriters);
-		Expression solution = firstOf.rewrite(initial, context);
+		Expression solution = firstOf.apply(initial, context);
 		System.out.println("Solution: " + solution);	
 		assertEquals(expected, solution);
 	}

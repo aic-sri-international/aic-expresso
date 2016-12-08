@@ -55,13 +55,12 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.util.collect.StackedHashMap;
-import com.sri.ai.util.collect.StackedMap;
 
 /**
  * An extension of {@link AggregateSolver}
@@ -76,69 +75,11 @@ import com.sri.ai.util.collect.StackedMap;
 @Beta
 public class BruteForceAggregateSolver implements AggregateSolver {
 
-	/**
-	 * {@link BruteForceAggregateSolver} needs a rewriter to evaluate bodies of expressions.
-	 * It needs this rewriter to consider the current assignment, which is modified by {@link BruteForceAggregateSolver}
-	 * at every iteration.
-	 * This class serves as a super class for rewriters, ensuring that they can take
-	 * an assignment from {@link BruteForceAggregateSolver} into account,
-	 * It also takes a base top rewriter that includes any other desired operations.
-	 * 
-	 * @author braz
-	 *
-	 */
-	public static class TopRewriterWithAssignment implements TopRewriter {
+	protected TopRewriterWithAssignment topRewriterWithBaseAssignment;
 
-		/**
-		 * We use a field to store the actual top rewriter to be used because
-		 * when we update the base top rewriter, we get a whole new instance to use
-		 * as top rewriter, and "this" is always the same fixed instance.
-		 */
-		private TopRewriter actualTopRewriter;
-		
-		/** The assignment to use to replace values for symbols. */
-		private Map<Expression, Expression> assignment;
-		
-		private Switch<Object> valueReplacer = new Switch<Object>(
-				Switch.SYNTACTIC_FORM_TYPE,
-				map(
-						Symbol.SYNTACTIC_FORM_TYPE,
-						(Simplifier) (e, c) -> {
-							Expression result = assignment.get(e);
-							if (result == null) {
-								result = e;
-							}
-							return result;
-						}));
-
-		/** Updates the base top rewriters used. */
-		public void setBaseTopRewriter(TopRewriter baseTopRewriter) {
-			this.actualTopRewriter = new DefaultTopRewriter(valueReplacer, baseTopRewriter);
-		}
-		
-		public void setAssignment(Map<Expression, Expression> assignment) {
-			this.assignment = assignment;
-		}
-		
-		@Override
-		public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-			return actualTopRewriter.makeStepSolver(expression);
-		}
-	}
-	
-	private StackedMap<Expression, Expression> totalAssignment;
-	
-	private Rewriter rewriter;
-	
-	public BruteForceAggregateSolver(TopRewriterWithAssignment topRewriterWithAssignment) {
-		this(topRewriterWithAssignment, map());
-	}
-	
-	public BruteForceAggregateSolver(TopRewriterWithAssignment topRewriterWithAssignment, Map<Expression, Expression> baseAssignment) {
+	public BruteForceAggregateSolver(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
 		super();
-		this.totalAssignment = new StackedHashMap<>(map(), baseAssignment);
-		topRewriterWithAssignment.setAssignment(totalAssignment);
-		this.rewriter = new Recursive(new Exhaustive(topRewriterWithAssignment));
+		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
 	}
 	
 	@Override
@@ -155,13 +96,79 @@ public class BruteForceAggregateSolver implements AggregateSolver {
 		Expression bodyWithCondition = IfThenElse.make(indicesCondition, body, additiveIdentityValue);
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, context);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
-			totalAssignment.setTop(values);
-			Expression bodyEvaluation = rewriter.rewrite(bodyWithCondition, context);
+			TopRewriterWithAssignment extended = topRewriterWithBaseAssignment.extendWith(values);
+			Rewriter rewriter = new Recursive(new Exhaustive(extended));
+			Expression bodyEvaluation = rewriter.apply(bodyWithCondition, context);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;
 			}
 			value = group.add(value, bodyEvaluation, context);
 		}
 		return value;
+	}
+	
+	/**
+	 * {@link BruteForceAggregateSolver} needs a rewriter to evaluate bodies of expressions.
+	 * It needs this rewriter to consider the current assignment
+	 * and replace symbols by their values according to it.
+	 * It also takes a base top rewriter that includes any other desired operations,
+	 * and to be extensible with a new assignment;
+	 * {@link BruteForceAggregateSolver} will do this at every iteration with a new assignment..
+	 * {@link TopRewriterWithAssignment} serves as a super class for rewriters of this type.
+	 * 
+	 * @author braz
+	 *
+	 */
+	public static class TopRewriterWithAssignment implements TopRewriter {
+	
+		private TopRewriter baseTopRewriter;
+		
+		/** The assignment to use to replace values for symbols. */
+		private Map<Expression, Expression> assignment;
+		
+		private Switch<Object> valueReplacer;
+	
+		public TopRewriterWithAssignment(Map<Expression, Expression> assignment) {
+			this(null, assignment); // delayed setting of baseTopRewriter
+		}
+		
+		private TopRewriterWithAssignment(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
+			this.baseTopRewriter = baseTopRewriter;
+			this.assignment = assignment;
+			this.valueReplacer = new Switch<Object>(
+					Switch.SYNTACTIC_FORM_TYPE,
+					map(
+							Symbol.SYNTACTIC_FORM_TYPE,
+							(Simplifier) (e, c) -> {
+								Expression result = this.assignment.get(e);
+								if (result == null) {
+									result = e;
+								}
+								return result;
+							}));
+		}
+		
+		/** Updates the base top rewriters used. */
+		public void setBaseTopRewriter(TopRewriter baseTopRewriter) {
+			this.baseTopRewriter = baseTopRewriter;
+		}
+		
+		@Override
+		public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+			return new FirstOf(valueReplacer, baseTopRewriter).makeStepSolver(expression);
+			// we use {@link FirstOf} because it is much cheaper than merging all rewriters every time with {@link DefaultTopRewriter}
+			// This is crucial because we extend this rewriter with new assignments at inner loops, so it needs to be fast.
+		}
+		
+		/**
+		 * Creates a copy of this class, with the assignment extended by given more assignments.
+		 * @param moreAssignments
+		 * @return
+		 */
+		public TopRewriterWithAssignment extendWith(Map<Expression, Expression> moreAssignments) {
+			StackedHashMap<Expression, Expression> extendedAssignment = new StackedHashMap<>(moreAssignments, assignment);
+			TopRewriterWithAssignment result = new TopRewriterWithAssignment(baseTopRewriter, extendedAssignment);
+			return result;
+		}
 	}
 }

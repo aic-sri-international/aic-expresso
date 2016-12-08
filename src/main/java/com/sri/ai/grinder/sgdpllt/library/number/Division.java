@@ -59,7 +59,7 @@ import com.sri.ai.util.math.Rational;
 public class Division implements TopSimplifier {
 	
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		return simplify(expression);
 	}
 	

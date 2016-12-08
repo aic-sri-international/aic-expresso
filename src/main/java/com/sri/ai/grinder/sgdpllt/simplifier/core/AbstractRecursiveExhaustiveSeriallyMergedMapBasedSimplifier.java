@@ -115,7 +115,7 @@ public abstract class AbstractRecursiveExhaustiveSeriallyMergedMapBasedSimplifie
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		Expression result = getSimplifier().apply(expression, context);
 		return result;
 	}

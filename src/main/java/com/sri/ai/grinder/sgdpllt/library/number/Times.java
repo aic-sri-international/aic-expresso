@@ -65,7 +65,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly im
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		// takes care of infinity arguments before deferring to super method
 		if ( ! expression.hasFunctor(getFunctor())) {
 			return expression;

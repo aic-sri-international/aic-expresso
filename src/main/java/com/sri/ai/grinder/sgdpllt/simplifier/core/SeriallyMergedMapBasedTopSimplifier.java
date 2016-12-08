@@ -201,7 +201,7 @@ public class SeriallyMergedMapBasedTopSimplifier extends DefaultMapBasedTopSimpl
 		}
 		
 		@Override
-		public Expression apply(Expression expression, Context context) {
+		public Expression applySimplifier(Expression expression, Context context) {
 			Expression current = expression;
 			for (Simplifier subSimplifier : subSimplifiers) {
 				Expression previous = current;

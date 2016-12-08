@@ -175,7 +175,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 		Rewriter exhaustiveTopSimplifier = new Exhaustive(topRewriter);
 		makeRewriters(new Recursive(exhaustiveTopSimplifier));
 
-		Expression exhaustivelyTopSimplifiedExpression = exhaustiveTopSimplifier.rewrite(expression, context);
+		Expression exhaustivelyTopSimplifiedExpression = exhaustiveTopSimplifier.apply(expression, context);
 
 		Step result = new Solution(exhaustivelyTopSimplifiedExpression);
 		for (Rewriter rewriter : rewriters) {
@@ -240,7 +240,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 
 				(Expression e, Context c) -> {
 					if (c.isLiteral(e)) {
-						Expression completelySimplifiedLiteral = totalSimplifier.rewrite(e, c);
+						Expression completelySimplifiedLiteral = totalSimplifier.apply(e, c);
 						return stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, c);
 					}
 					else {

@@ -43,6 +43,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
 import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier2;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllByBruteForce;
@@ -51,9 +52,11 @@ import com.sri.ai.grinder.sgdpllt.library.number.MaxByBruteForce;
 import com.sri.ai.grinder.sgdpllt.library.number.ProductByBruteForce;
 import com.sri.ai.grinder.sgdpllt.library.number.SummationByBruteForce;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityByBruteForce;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * An extension of {@link AbstractCommonInterpreter}
@@ -66,20 +69,25 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  *
  */
 @Beta
-public class BruteForceCommonInterpreter2 extends Recursive {
+public class BruteForceCommonInterpreter2 implements Rewriter {
+	
+	private Rewriter actualRewriter;
+	private Map<Expression, Expression> assignment;
 	
 	public BruteForceCommonInterpreter2() {
 		this(map());
 	}
 
 	public BruteForceCommonInterpreter2(Map<Expression, Expression> assignment) {
-		super(new Exhaustive(new BruteForceCommonTopRewriter(assignment)));
+		actualRewriter = new Recursive(new Exhaustive(new BruteForceCommonTopRewriter(assignment)));
+		this.assignment = assignment;
 	}
 
 	private static class BruteForceCommonTopRewriter extends BruteForceAggregateSolver.TopRewriterWithAssignment {
 
 		public BruteForceCommonTopRewriter(Map<Expression, Expression> assignment) {
-			BruteForceAggregateSolver bruteForceAggregateSolver = new BruteForceAggregateSolver(this, assignment);
+			super(assignment);
+			BruteForceAggregateSolver bruteForceAggregateSolver = new BruteForceAggregateSolver(this);
 			setBaseTopRewriter(
 					TopRewriter.merge(
 							new CommonSimplifier2(),
@@ -94,5 +102,14 @@ public class BruteForceCommonInterpreter2 extends Recursive {
 							new CardinalityByBruteForce(bruteForceAggregateSolver)
 							));
 		}
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+		return actualRewriter.makeStepSolver(expression);
+	}
+	
+	public BruteForceCommonInterpreter2 extendsWith(Map<Expression, Expression> moreAssignments) {
+		return new BruteForceCommonInterpreter2(new StackedHashMap<>(moreAssignments, assignment));
 	}
 }

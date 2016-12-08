@@ -63,7 +63,7 @@ public class Evaluator implements Simplifier {
 	}
 	
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		// create an EvaluatorStepSolver on expression, and solve it.
 		EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(expression);
 		Expression result = solver.solve(evaluatorStepSolver, context);

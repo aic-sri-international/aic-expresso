@@ -76,7 +76,7 @@ public class Recursive implements Simplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		Expression result = apply(base, expression, context);
 		return result;
 		// The reason we use static apply here is to enforce that the 'apply' using recursively is the static one that

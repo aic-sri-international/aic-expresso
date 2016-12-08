@@ -44,7 +44,6 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Soluti
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.FunctionExpressionStepSolver;
-import com.sri.ai.util.base.BinaryFunction;
 
 /**
  * A Simplifier knows just enough about the symbols in a language to simplify it in a shallow way,
@@ -59,7 +58,20 @@ import com.sri.ai.util.base.BinaryFunction;
  *
  */
 @FunctionalInterface
-public interface Simplifier extends BinaryFunction<Expression, Context, Expression>, Rewriter {
+public interface Simplifier extends Rewriter {
+	
+	/**
+	 * We define this method to make this a functional interface again,
+	 * so that simplifiers can be easily defined with lambda expressions.
+	 * @param expression
+	 * @param context
+	 * @return
+	 */
+	Expression applySimplifier(Expression expression, Context context);
+	
+	default Expression apply(Expression expression, Context context) { // more efficient
+		return applySimplifier(expression, context);
+	}
 	
 	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 		return new FunctionExpressionStepSolver(c -> apply(expression, c));

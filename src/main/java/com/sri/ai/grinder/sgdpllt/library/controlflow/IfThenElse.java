@@ -312,7 +312,7 @@ public class IfThenElse implements TopSimplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		return simplify(expression);
 	}
 	

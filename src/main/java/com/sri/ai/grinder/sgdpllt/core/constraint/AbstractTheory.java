@@ -87,7 +87,7 @@ abstract public class AbstractTheory implements Theory {
 	
 	@Override
 	public Expression simplify(Expression expression, Context context) {
-		Expression result = cachedRecursiveExhaustiveRewriter.rewrite(expression, context);
+		Expression result = cachedRecursiveExhaustiveRewriter.apply(expression, context);
 		return result;
 	}
 

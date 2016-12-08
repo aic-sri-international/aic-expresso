@@ -14,7 +14,7 @@ import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter2;
 
 public class BruteForceCommonInterpreter2Test {
 	@Test
-	public void testAggregationOnFunctionIndex() {
+	public void test() {
 		BruteForceCommonInterpreter2 interpreter = new BruteForceCommonInterpreter2(map(parse("Two"), Expressions.TWO));
 		Context context = new TrueContext();
 		
@@ -69,7 +69,7 @@ public class BruteForceCommonInterpreter2Test {
 	}
 
 	public void runTest(String expression, String expected, BruteForceCommonInterpreter2 interpreter, Context context) {
-		Expression result = interpreter.rewrite(parse(expression), context);
+		Expression result = interpreter.apply(parse(expression), context);
 		Assert.assertEquals(parse(expected), result);
 	}
 }

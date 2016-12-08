@@ -42,6 +42,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.util.base.BinaryFunction;
 
 /**
  * A rewriter can be seen as a "step solver applier" to a given expression under a given context.
@@ -54,7 +55,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemS
  *
  */
 @FunctionalInterface
-public interface Rewriter {
+public interface Rewriter extends BinaryFunction<Expression, Context, Expression> {
 	
 	ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression);
 	
@@ -64,7 +65,7 @@ public interface Rewriter {
 		return step;
 	}
 	
-	default Expression rewrite(Expression expression, Context context) {
+	default Expression apply(Expression expression, Context context) {
 		Expression result = 
 				ContextDependentExpressionProblemSolver.staticSolve(
 						makeStepSolver(expression), context);

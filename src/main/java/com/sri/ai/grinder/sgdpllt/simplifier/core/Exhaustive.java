@@ -59,7 +59,7 @@ public class Exhaustive implements Simplifier {
 	}
 
 	@Override
-	public Expression apply(Expression expression, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
 		// Recursive version for debugging purposes -- keeps record of transformations on stack.
 		Expression next = base.apply(expression, context);
 		if (next == expression) {
