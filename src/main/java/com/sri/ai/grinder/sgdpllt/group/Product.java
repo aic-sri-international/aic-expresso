@@ -50,9 +50,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.number.Exponentiation;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
 import com.sri.ai.grinder.sgdpllt.library.number.Times;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 
 /**
  * Object representing a group on symbolic numbers with multiplication.
@@ -90,7 +90,7 @@ public class Product extends AbstractFunctionBasedGroup {
 		return result;
 	}
 
-	private static Simplifier numericSimplifier = new NumericSimplifier();
+	private static Rewriter numericSimplifier = new NumericSimplifier2();
 	
 	@Override
 	protected Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {

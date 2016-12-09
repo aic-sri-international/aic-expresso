@@ -38,39 +38,42 @@
 package com.sri.ai.grinder.sgdpllt.library;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.simplifier.core.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier2;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 
 /**
- * A {@link Simplifier} aggregating:
+ * A {@link TopRewriter} aggregating:
  * 
  * <ul>
- * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
- * <li> {@link BooleanSimplifier}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
- * <li> {@link NumericSimplifier}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link CardinalityOfSetConstantSimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
+ * <li> {@link BindingTopSimplifier2}: replaces symbols by their values(<code>=, !=</code>)
+ * <li> {@link BooleanSimplifier2}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
+ * <li> {@link NumericSimplifier2}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
+ * <li> {@link EqualitySimplifier2}: equality and disequality (<code>=, !=</code>)
+ * <li> {@link InequalitySimplifier2}: inequality (<code><, <=, >, >=</code>)
+ * <li> {@link CardinalityOfSetConstantSimplifier2}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
+ * <li> {@link LambdaBetaReductionSimplifier2}: replaces <code>(lambda X : f(X))(E)</code> by <code>f(E)</code>.
  * </ul>
  * 
  * @author braz
  *
  */
 @Beta
-public class CommonSimplifier extends RecursiveExhaustiveSeriallyMergedMapBasedSimplifier {
+public class CommonSimplifier extends DefaultTopRewriter {
 	
 	public CommonSimplifier() {
 		super(
-				new BindingTopSimplifier(),
-				new BooleanSimplifier(),
-				new NumericSimplifier(),
-				new EqualitySimplifier(),
-				new InequalitySimplifier(),
-				new CardinalityOfSetConstantSimplifier(),
-				new LambdaBetaReductionSimplifier());
+				new BindingTopSimplifier2(),
+				new BooleanSimplifier2(),
+				new NumericSimplifier2(),
+				new EqualitySimplifier2(),
+				new InequalitySimplifier2(),
+				new CardinalityOfSetConstantSimplifier2(),
+				new LambdaBetaReductionSimplifier2());
 	}
 }

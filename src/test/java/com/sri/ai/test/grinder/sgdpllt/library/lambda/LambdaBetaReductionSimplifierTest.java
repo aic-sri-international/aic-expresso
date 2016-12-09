@@ -37,23 +37,23 @@
  */
 package com.sri.ai.test.grinder.sgdpllt.library.lambda;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.arrayList;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier2;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 public class LambdaBetaReductionSimplifierTest {
 	
-	public Simplifier simplifier = (f, context) -> LambdaBetaReductionSimplifier.simplify(f, context);
+	public Simplifier simplifier = (f, context) -> LambdaBetaReductionSimplifier2.simplify(f, context);
 
 	@Test
 	public void testSimpleReduction() {

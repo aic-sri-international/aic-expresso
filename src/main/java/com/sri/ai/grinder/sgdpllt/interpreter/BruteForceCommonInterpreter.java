@@ -46,7 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
-import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllByBruteForce;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsByBruteForce;
 import com.sri.ai.grinder.sgdpllt.library.number.MaxByBruteForce;
@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An extension of {@link AbstractCommonInterpreter}
+ * An extension of {@link Rewriter}
  * that solves quantified and aggregate expressions by brute force.
  * <p>
  * Additionally, it takes an assignment to symbols as a constructing parameter,
@@ -91,7 +91,7 @@ public class BruteForceCommonInterpreter implements Rewriter {
 			BruteForceAggregateSolver bruteForceAggregateSolver = new BruteForceAggregateSolver(this);
 			setBaseTopRewriter(
 					TopRewriter.merge(
-							new CommonSimplifier2(),
+							new CommonSimplifier(),
 
 							new SummationByBruteForce(bruteForceAggregateSolver),
 							new ProductByBruteForce(bruteForceAggregateSolver),
