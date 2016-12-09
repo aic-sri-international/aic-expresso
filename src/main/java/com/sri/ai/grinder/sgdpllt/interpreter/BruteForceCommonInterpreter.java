@@ -37,21 +37,26 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpressions;
-import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
+import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAllByBruteForce;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsByBruteForce;
+import com.sri.ai.grinder.sgdpllt.library.number.MaxByBruteForce;
+import com.sri.ai.grinder.sgdpllt.library.number.ProductByBruteForce;
+import com.sri.ai.grinder.sgdpllt.library.number.SummationByBruteForce;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityByBruteForce;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -65,73 +70,47 @@ import com.sri.ai.util.collect.StackedHashMap;
  *
  */
 @Beta
-public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
-
+public class BruteForceCommonInterpreter implements Rewriter {
+	
+	private Rewriter actualRewriter;
 	private Map<Expression, Expression> assignment;
 	
-	/**
-	 * Constructs {@link BruteForceCommonInterpreter} with an empty initial assignment.
-	 */
 	public BruteForceCommonInterpreter() {
 		this(map());
 	}
 
-	/**
-	 * Constructs {@link BruteForceCommonInterpreter} with an initial assignment.
-	 * @param assignment
-	 */
 	public BruteForceCommonInterpreter(Map<Expression, Expression> assignment) {
-		super();
+		actualRewriter = new Recursive(new Exhaustive(new BruteForceCommonTopRewriter(assignment)));
 		this.assignment = assignment;
 	}
-	
-	/**
-	 * Creates a new interpreter with current assignment extended by new ones.
-	 * @param extendingAssignment new value of assignments
-	 * @param context the context
-	 * @return
-	 */
-	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment, Context context) {
-		return new BruteForceCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment));
-	}
 
-	@Override
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		Map<String, Simplifier> result = super.makeSyntacticFormTypeSimplifiers();
-		result.put(
-				Symbol.SYNTACTIC_FORM_TYPE, (Simplifier) (s, p) -> {
-					Expression symbolValue = assignment.get(s);
-					if (symbolValue == null) {
-						symbolValue = s;
-					}
-					return symbolValue;
-				});
-		return result;
-	}
+	public static class BruteForceCommonTopRewriter extends BruteForceAggregateSolver.TopRewriterWithAssignment {
 
-	@Override
-	protected Expression evaluateAggregateOperation(
-			AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
-		
-		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
-		Expression value = group.additiveIdentityElement();
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, context);
-		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
-			Expression indicesConditionEvaluation = evaluateGivenValues(indicesCondition, values, context);
-			if (indicesConditionEvaluation.equals(FALSE)) {
-				continue;
-			}
-			Expression bodyEvaluation = evaluateGivenValues(body, values, context);
-			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
-				return bodyEvaluation;
-			}
-			value = group.add(value, bodyEvaluation, context);
+		public BruteForceCommonTopRewriter(Map<Expression, Expression> assignment) {
+			super(assignment);
+			BruteForceAggregateSolver bruteForceAggregateSolver = new BruteForceAggregateSolver(this);
+			setBaseTopRewriter(
+					TopRewriter.merge(
+							new CommonSimplifier2(),
+
+							new SummationByBruteForce(bruteForceAggregateSolver),
+							new ProductByBruteForce(bruteForceAggregateSolver),
+							new MaxByBruteForce(bruteForceAggregateSolver),
+
+							new ThereExistsByBruteForce(bruteForceAggregateSolver),
+							new ForAllByBruteForce(bruteForceAggregateSolver),
+
+							new CardinalityByBruteForce(bruteForceAggregateSolver)
+							));
 		}
-		return value;
 	}
 
-	private Expression evaluateGivenValues(Expression expression, Map<Expression, Expression> values, Context context) throws Error {
-		Expression expressionEvaluation = extendWith(values, context).apply(expression, context);
-		return expressionEvaluation;
+	@Override
+	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+		return actualRewriter.makeStepSolver(expression);
+	}
+	
+	public BruteForceCommonInterpreter extendWith(Map<Expression, Expression> moreAssignments, Context context) {
+		return new BruteForceCommonInterpreter(new StackedHashMap<>(moreAssignments, assignment));
 	}
 }

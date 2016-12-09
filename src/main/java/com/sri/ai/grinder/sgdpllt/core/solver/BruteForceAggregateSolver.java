@@ -41,6 +41,7 @@ import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpre
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -121,19 +122,15 @@ public class BruteForceAggregateSolver implements AggregateSolver {
 	 */
 	public static class TopRewriterWithAssignment implements TopRewriter {
 	
-		private TopRewriter baseTopRewriter;
-		
 		/** The assignment to use to replace values for symbols. */
 		private Map<Expression, Expression> assignment;
 		
+		private TopRewriter baseTopRewriter;
+		
 		private Switch<Object> valueReplacer;
 	
-		public TopRewriterWithAssignment(Map<Expression, Expression> assignment) {
-			this(null, assignment); // delayed setting of baseTopRewriter
-		}
-		
-		private TopRewriterWithAssignment(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
-			this.baseTopRewriter = baseTopRewriter;
+		protected TopRewriterWithAssignment(Map<Expression, Expression> assignment) {
+			this.baseTopRewriter = null; // delayed setting of baseTopRewriter by extending class
 			this.assignment = assignment;
 			this.valueReplacer = new Switch<Object>(
 					Switch.SYNTACTIC_FORM_TYPE,
@@ -167,7 +164,12 @@ public class BruteForceAggregateSolver implements AggregateSolver {
 		 */
 		public TopRewriterWithAssignment extendWith(Map<Expression, Expression> moreAssignments) {
 			StackedHashMap<Expression, Expression> extendedAssignment = new StackedHashMap<>(moreAssignments, assignment);
-			TopRewriterWithAssignment result = new TopRewriterWithAssignment(baseTopRewriter, extendedAssignment);
+			TopRewriterWithAssignment result = null;
+			try {
+				result = getClass().getConstructor(Map.class).newInstance(extendedAssignment);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				throw new Error("Something wrong with using " + getClass() + " constructor taking a new assignment.");
+			}
 			return result;
 		}
 	}

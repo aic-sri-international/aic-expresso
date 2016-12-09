@@ -45,6 +45,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
@@ -77,17 +78,23 @@ public class AggregateOnIntensionalSetTopRewriter extends Switch<String> {
 			AggregateSolver aggregateSolver) {
 		
 		return (e, c) -> {
-			IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
-			ExtensionalIndexExpressionsSet indexExpressions = 
-					(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
-			// the set is intensional, but not the set of index expressions!
-			Expression result =
-					aggregateSolver.evaluateAggregateOperation(
-							group,
-							indexExpressions,
-							intensionalSet.getCondition(),
-							intensionalSet.getHead(),
-							c);
+			Expression result;
+			if (Sets.isIntensionalMultiSet(e.get(0))) {
+				IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
+				ExtensionalIndexExpressionsSet indexExpressions = 
+						(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
+				// the set is intensional, but not the set of index expressions!
+				result =
+						aggregateSolver.evaluateAggregateOperation(
+								group,
+								indexExpressions,
+								intensionalSet.getCondition(),
+								intensionalSet.getHead(),
+								c);
+			}
+			else {
+				result = e;
+			}
 			return result;
 		};
 	}

@@ -71,6 +71,7 @@ import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.util.base.NullaryFunction;
 
@@ -440,7 +441,7 @@ public class SGDPLLTTester {
 		Expression testingVariable = variable;
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), context);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			Simplifier completeInterpreter = interpreter.extendWith(testingVariableAssignment, context);
+			Rewriter completeInterpreter = interpreter.extendWith(testingVariableAssignment, context);
 			Expression value = completeInterpreter.apply(conjunction, context);
 			if (value.equals(TRUE)) {
 				modelCount++;
