@@ -35,18 +35,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.simplifier.api;
+package com.sri.ai.grinder.sgdpllt.library;
 
+import static com.sri.ai.util.Util.map;
+
+import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
- * A type of {@link Simplifier} that only simplifies the top expression
- * (that is, does not recurse into sub-expressions).
- * <p>
- * This property is important if the simplifier is being used by
- * code that is taking care of the recursion itself.
- *  
+ * A {@link Switch} rewriter replacing symbols by their bound value from context, if any.
+ * 
  * @author braz
  *
  */
-public interface TopSimplifier extends Simplifier {
+@Beta
+public class BindingTopSimplifier extends Switch<Object> {
+	public BindingTopSimplifier() {
+		super(
+				Switch.SYNTACTIC_FORM_TYPE,
+				map(
+						Symbol.SYNTACTIC_FORM_TYPE,
+						(Simplifier) (e, c) -> {
+							Expression binding = c.binding(e);
+							Expression result = binding != null? binding : e;
+							return result;
+						}));
+	}
 }

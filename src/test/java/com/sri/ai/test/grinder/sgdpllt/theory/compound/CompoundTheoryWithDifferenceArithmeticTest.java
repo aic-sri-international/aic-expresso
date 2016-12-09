@@ -61,7 +61,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;

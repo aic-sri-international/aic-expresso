@@ -35,14 +35,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.simplifier.api;
+package com.sri.ai.grinder.sgdpllt.rewriter.api;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.FunctionExpressionStepSolver;
 
 /**

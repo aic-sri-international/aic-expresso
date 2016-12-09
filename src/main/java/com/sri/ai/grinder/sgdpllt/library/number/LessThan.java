@@ -50,13 +50,13 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * @author braz
  */
 @Beta
-public class LessThan implements TopSimplifier {
+public class LessThan implements Simplifier {
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {

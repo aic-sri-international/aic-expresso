@@ -51,7 +51,7 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 
@@ -70,7 +70,7 @@ import com.sri.ai.util.base.Equals;
  * @author braz
  */
 @Beta
-public abstract class CommutativeAssociative implements TopSimplifier {
+public abstract class CommutativeAssociative implements Simplifier {
 	
 	public abstract Object getFunctor();
 	protected abstract Expression getNeutralElement();

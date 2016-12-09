@@ -52,7 +52,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
@@ -63,7 +63,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  */
 @Beta
-public class Equality implements TopSimplifier {
+public class Equality implements Simplifier {
 
 	public static final Expression FUNCTOR = Expressions.makeSymbol("=");
 	

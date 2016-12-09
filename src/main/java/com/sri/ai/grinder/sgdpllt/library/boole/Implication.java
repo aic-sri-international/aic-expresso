@@ -43,14 +43,14 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * @author braz
  *
  */
 @Beta
-public class Implication implements TopSimplifier {
+public class Implication implements Simplifier {
 
 	/**
 	 * Make a material implication:<br>

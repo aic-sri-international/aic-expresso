@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -61,7 +61,7 @@ import com.sri.ai.util.base.BinaryFunction;
  * @author braz
  */
 @Beta
-public class Disequality  implements TopSimplifier {
+public class Disequality  implements Simplifier {
 
 	public  static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.DISEQUALITY);
 	

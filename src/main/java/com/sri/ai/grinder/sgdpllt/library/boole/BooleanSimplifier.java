@@ -35,22 +35,68 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.simplifier.core;
+package com.sri.ai.grinder.sgdpllt.library.boole;
+
+import static com.sri.ai.util.Util.map;
+
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.Disequality;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
- * An {@link Exhaustive} simplifier applied to a {@link TopSimplifier},
- * and thus being a {@link TopSimplifier} itself.
+ * A {@link Rewriter} with commonly boolean connectives plus conditionals:
+ * 
+ * <ul>
+ * <li> boolean connectives (<code>and, or, not, <=>, =></code>)
+ * <li> if then else
+ * </ul>
  * 
  * @author braz
  *
  */
 @Beta
-public class TopExhaustive extends Exhaustive implements TopSimplifier {
+public class BooleanSimplifier extends Switch<String> {
+	
+	public BooleanSimplifier() {
+		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
+	}
+	
+	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
+		return map(
+				FunctorConstants.AND,             (Simplifier) (f, context) ->
+				And.simplify(f),
 
-	public TopExhaustive(TopSimplifier base) {
-		super(base);
+				FunctorConstants.OR,              (Simplifier) (f, context) ->
+				Or.simplify(f),
+
+				FunctorConstants.NOT,             (Simplifier) (f, context) ->
+				Not.simplify(f),
+
+				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, context) ->
+				IfThenElse.simplify(f),
+
+				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, context) ->
+				Equivalence.simplify(f),
+
+				FunctorConstants.IMPLICATION,     (Simplifier) (f, context) ->
+				Implication.simplify(f),
+
+				FunctorConstants.EQUALITY,        (Simplifier) (f, context) ->
+				Equality.simplify(f, context),
+
+				FunctorConstants.DISEQUALITY,     (Simplifier) (f, context) ->
+				Disequality.simplify(f, context)
+				);
+	}
+
+	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
+		return map();
 	}
 }

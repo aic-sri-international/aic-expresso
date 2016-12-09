@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.interpreter;
+package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry;
 import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
@@ -53,7 +53,6 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;

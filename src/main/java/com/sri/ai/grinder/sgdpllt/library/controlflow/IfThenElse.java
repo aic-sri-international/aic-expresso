@@ -54,7 +54,7 @@ import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -62,7 +62,7 @@ import com.sri.ai.util.base.Pair;
  * 
  */
 @Beta
-public class IfThenElse implements TopSimplifier {
+public class IfThenElse implements Simplifier {
 
 	//
 	private static final SubExpressionAddress _pathToFunctor   = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(-1)));

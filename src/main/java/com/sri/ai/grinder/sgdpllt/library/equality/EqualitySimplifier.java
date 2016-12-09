@@ -43,19 +43,19 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.library.Disequality;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
- * A {@link Simplifier} with equality functions (<code>=, !=</code>)
+ * A {@link Rewriter} with equality functions (<code>=, !=</code>)
  * 
  * @author braz
  *
  */
 @Beta
-public class EqualitySimplifier2 extends Switch<String> {
+public class EqualitySimplifier extends Switch<String> {
 	
-	public EqualitySimplifier2() {
+	public EqualitySimplifier() {
 		super(
 				Switch.FUNCTOR,
 				map(

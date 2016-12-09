@@ -53,12 +53,12 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
@@ -108,12 +108,12 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	private static TopRewriter makeTopRewriter(TopRewriter extraSimplifier) {
 		return merge(
 				// basic simplification of involved interpreted functions in this theory:
-				new BindingTopSimplifier2(),
-				new EqualitySimplifier2(),
-				new InequalitySimplifier2(),
-				new BooleanSimplifier2(),
-				new NumericSimplifier2(),
-				new CardinalityOfSetConstantSimplifier2(),
+				new BindingTopSimplifier(),
+				new EqualitySimplifier(),
+				new InequalitySimplifier(),
+				new BooleanSimplifier(),
+				new NumericSimplifier(),
+				new CardinalityOfSetConstantSimplifier(),
 				extraSimplifier);
 	}
 	

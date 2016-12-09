@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * A {@link Simplifier} based on {@link EvaluatorStepSolver}.

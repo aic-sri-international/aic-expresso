@@ -50,10 +50,10 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A {@link TopRewriter} cardinality and counting formulas according to a given {@link AggregateSolver}.

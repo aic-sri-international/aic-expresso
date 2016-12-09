@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -50,7 +50,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class Exponentiation implements TopSimplifier {
+public class Exponentiation implements Simplifier {
 	public static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
 	private static int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));

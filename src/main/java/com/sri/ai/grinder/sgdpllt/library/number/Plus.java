@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociative;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeOnNumbers;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeWithOperationOnConstantsOnly;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 
 /**
@@ -61,7 +61,7 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly implements TopSimplifier {
+public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly implements Simplifier {
 
 	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
 

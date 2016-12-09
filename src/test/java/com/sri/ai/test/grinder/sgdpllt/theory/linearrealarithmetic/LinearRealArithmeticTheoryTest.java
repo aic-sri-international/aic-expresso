@@ -48,7 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver;

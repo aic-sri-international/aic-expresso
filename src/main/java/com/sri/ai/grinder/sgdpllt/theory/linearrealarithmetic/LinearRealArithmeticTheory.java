@@ -71,9 +71,9 @@ import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhich
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheory;
 

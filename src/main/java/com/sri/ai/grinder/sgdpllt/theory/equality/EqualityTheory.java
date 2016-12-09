@@ -55,8 +55,8 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier2;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier2;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 
@@ -82,7 +82,7 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound,
-				merge(new EqualitySimplifier2(), new BooleanSimplifier2()));
+				merge(new EqualitySimplifier(), new BooleanSimplifier()));
 	}
 	
 	@Override

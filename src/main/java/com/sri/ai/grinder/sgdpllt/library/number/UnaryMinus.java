@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * Implements the unary MINUS operation.
@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
  * @author braz
  */
 @Beta
-public class UnaryMinus implements TopSimplifier {
+public class UnaryMinus implements Simplifier {
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {

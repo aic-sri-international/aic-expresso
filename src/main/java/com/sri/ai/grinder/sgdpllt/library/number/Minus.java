@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -50,7 +50,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class Minus implements TopSimplifier {
+public class Minus implements Simplifier {
 	public static String FUNCTOR = FunctorConstants.MINUS;
 	
 	@Override

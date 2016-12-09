@@ -49,13 +49,13 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * @author braz
  */
 @Beta
-public class LessThanOrEqualTo  implements TopSimplifier {
+public class LessThanOrEqualTo  implements Simplifier {
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {

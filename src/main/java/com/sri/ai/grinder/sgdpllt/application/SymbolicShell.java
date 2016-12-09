@@ -62,7 +62,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;

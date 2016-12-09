@@ -49,9 +49,9 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Max;
-import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
 import com.sri.ai.util.Util;
 
 /**

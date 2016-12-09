@@ -46,8 +46,8 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A {@link Switch<String>} extension solving aggregate functions on intensional sets,

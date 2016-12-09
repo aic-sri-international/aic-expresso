@@ -55,12 +55,12 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**

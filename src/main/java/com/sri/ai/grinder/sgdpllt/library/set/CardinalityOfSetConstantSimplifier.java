@@ -35,51 +35,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library.inequality;
+package com.sri.ai.grinder.sgdpllt.library.set;
 
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
-import com.sri.ai.grinder.sgdpllt.library.number.GreaterThanOrEqualTo;
-import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
-import com.sri.ai.grinder.sgdpllt.library.number.LessThanOrEqualTo;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
- * A {@link Simplifier} with inequality functions (<code>> <, >=, <=</code>)
+ * A {@link Rewriter} with a cardinality of set constants simplifier
+ * (cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).))
  * 
  * @author braz
  *
  */
 @Beta
-public class InequalitySimplifier2 extends Switch<String> {
+public class CardinalityOfSetConstantSimplifier extends Switch<String> {
 	
-	public InequalitySimplifier2() {
+	public CardinalityOfSetConstantSimplifier() {
 		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
 	}
 	
 	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
 		return map(
-				LESS_THAN_OR_EQUAL_TO,    (Simplifier) (f, context) ->
-				LessThanOrEqualTo.simplify(f, context),
-
-				LESS_THAN,                (Simplifier) (f, context) ->
-				LessThan.simplify(f, context),
-				
-				GREATER_THAN_OR_EQUAL_TO, (Simplifier) (f, context) ->
-				GreaterThanOrEqualTo.simplify(f, context),
-
-				GREATER_THAN,             (Simplifier) (f, context) ->
-				GreaterThan.simplify(f, context)
+				FunctorConstants.CARDINALITY,     (Simplifier) (f, context) ->
+				{ 
+					Expression cardinality = (Expression) context.getGlobalObject(f); 
+					Expression result = cardinality == null? f : cardinality;
+					return result; }
 				);
 	}
 }

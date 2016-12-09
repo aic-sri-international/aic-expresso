@@ -46,9 +46,9 @@ import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A {@link TopRewriter} solving quantified expressions,

@@ -35,47 +35,51 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.simplifier.core;
+package com.sri.ai.grinder.sgdpllt.library.inequality;
+
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
+import com.sri.ai.grinder.sgdpllt.library.number.GreaterThanOrEqualTo;
+import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
+import com.sri.ai.grinder.sgdpllt.library.number.LessThanOrEqualTo;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
- * A {@link Simplifier} exhaustively applying another.
+ * A {@link Simplifier} with inequality functions (<code>> <, >=, <=</code>)
  * 
  * @author braz
  *
  */
 @Beta
-public class Exhaustive implements Simplifier {
-
-	private Simplifier base;
+public class InequalitySimplifier extends Switch<String> {
 	
-	public Exhaustive(Simplifier base) {
-		super();
-		this.base = base;
+	public InequalitySimplifier() {
+		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
 	}
+	
+	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
+		return map(
+				LESS_THAN_OR_EQUAL_TO,    (Simplifier) (f, context) ->
+				LessThanOrEqualTo.simplify(f, context),
 
-	@Override
-	public Expression applySimplifier(Expression expression, Context context) {
-		// Recursive version for debugging purposes -- keeps record of transformations on stack.
-		Expression next = base.apply(expression, context);
-		if (next == expression) {
-			return expression;
-		}
-		else {
-			Expression result = apply(next, context);
-			return result;
-		}
-//		Expression current = expression;
-//		Expression previous;
-//		do {
-//			previous = current;
-//			current = base.apply(current, context);
-//		} while (current != previous);
-//		
-//		return current;
+				LESS_THAN,                (Simplifier) (f, context) ->
+				LessThan.simplify(f, context),
+				
+				GREATER_THAN_OR_EQUAL_TO, (Simplifier) (f, context) ->
+				GreaterThanOrEqualTo.simplify(f, context),
+
+				GREATER_THAN,             (Simplifier) (f, context) ->
+				GreaterThan.simplify(f, context)
+				);
 	}
 }

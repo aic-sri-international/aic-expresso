@@ -72,7 +72,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**

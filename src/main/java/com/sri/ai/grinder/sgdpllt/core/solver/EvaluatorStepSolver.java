@@ -72,7 +72,6 @@ import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.group.SumProduct;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;

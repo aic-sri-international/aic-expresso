@@ -50,8 +50,8 @@ import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
  * A lambda calculus beta reduction simplifier, which simply means a 
@@ -67,8 +67,8 @@ import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
  *
  */
 @Beta
-public class LambdaBetaReductionSimplifier2 extends Switch<Object> {
-	public LambdaBetaReductionSimplifier2() {
+public class LambdaBetaReductionSimplifier extends Switch<Object> {
+	public LambdaBetaReductionSimplifier() {
 		super(
 				Switch.SYNTACTIC_FORM_TYPE,
 				new HashMap<Object, Rewriter>(makeSyntacticFormTypeSimplifiers()));

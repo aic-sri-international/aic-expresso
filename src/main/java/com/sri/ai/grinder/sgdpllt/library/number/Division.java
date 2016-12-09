@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.TopSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -56,7 +56,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class Division implements TopSimplifier {
+public class Division implements Simplifier {
 	
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {

@@ -35,40 +35,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library.set;
+package com.sri.ai.grinder.sgdpllt.library.number;
 
 import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
 
 /**
- * A {@link Rewriter} with a cardinality of set constants simplifier
- * (cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).))
+ * A {@link Rewriter} with common numeric functions:
+ * 
+ * <ul>
+ * <li> arithmetic (<code>+, -, *, /</code>)
+ * <li> inequalities (<code><, <=, >=, ></code>)
+ * </ul>
  * 
  * @author braz
  *
  */
 @Beta
-public class CardinalityOfSetConstantSimplifier2 extends Switch<String> {
+public class NumericSimplifier extends Switch<String> {
 	
-	public CardinalityOfSetConstantSimplifier2() {
+	public NumericSimplifier() {
 		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
 	}
 	
+	private static Simplifier plus = new Plus();
+	private static Simplifier times = new Times();
+
 	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.CARDINALITY,     (Simplifier) (f, context) ->
-				{ 
-					Expression cardinality = (Expression) context.getGlobalObject(f); 
-					Expression result = cardinality == null? f : cardinality;
-					return result; }
+				FunctorConstants.TIMES,           (Simplifier) (f, context) ->
+				times.apply(f, context),
+
+				FunctorConstants.DIVISION,        (Simplifier) (f, context) ->
+				Division.simplify(f),
+
+				FunctorConstants.PLUS,            (Simplifier) (f, context) ->
+				plus.apply(f, context),
+
+				FunctorConstants.MINUS,           (Simplifier) (f, context) ->
+				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),
+
+				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, context) ->
+				Exponentiation.simplify(f, context),
+
+				FunctorConstants.LESS_THAN,       (Simplifier) (f, context) ->
+				LessThan.simplify(f, context),
+
+				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, context) ->
+				LessThanOrEqualTo.simplify(f, context),
+
+				FunctorConstants.GREATER_THAN,              (Simplifier) (f, context) ->
+				GreaterThan.simplify(f, context),
+
+				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, context) ->
+				GreaterThanOrEqualTo.simplify(f, context)
 				);
 	}
 }

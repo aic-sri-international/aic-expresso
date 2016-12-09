@@ -69,7 +69,6 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing;
-import com.sri.ai.grinder.sgdpllt.interpreter.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.PairOf;
 

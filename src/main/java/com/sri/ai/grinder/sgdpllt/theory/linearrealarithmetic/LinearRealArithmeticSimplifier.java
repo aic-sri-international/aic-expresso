@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.simplifier.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * A simplifier that rewrites numerical comparisons in linear real arithmetic
