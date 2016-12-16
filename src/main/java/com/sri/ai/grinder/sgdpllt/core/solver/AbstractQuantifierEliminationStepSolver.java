@@ -59,14 +59,14 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * An abstract implementation for step solvers for quantified expressions
  * (the quantification being based on an associative commutative group's operation).
  * <p>
- * This is done by applying a {@link EvaluatorStepSolver} on the body expression,
+ * This is done by applying an evaluator step solver on the body expression,
  * picking literals in it according to the context conjoined with the index constraint,
  * and "intercepting" literals containing the indices and splitting the quantifier
  * based on that, solving the two resulting sub-problems.
  * <p>
  * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
  * under context <code>Z = alice</code>,
- * {@link EvaluatorStepSolver#step(Context)} is
+ * the evaluator step solver is
  * invoked with context <code>Z = alice and X != john</code>.
  * The solver step will depend on literal <code>Y != bob</code>.
  * <p>
@@ -88,7 +88,8 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * for the given context and index constraint.
  * <p>
  * At the time of this writing,
- * {@link EvaluatorStepSolver} supports only expressions that are composed of
+ * {@link Recursive} (on which evaluator step solvers are based)
+ * supports only expressions that are composed of
  * function applications or symbols only,
  * so this extension inherits this restriction if that is still in place.
  * <p>
@@ -180,7 +181,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	private ExpressionLiteralSplitterStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
-			= new EvaluatorStepSolver(body);
+			= theory.makeEvaluatorStepSolver(body);
+//			= new EvaluatorStepSolver(body);
 		}
 		return initialBodyEvaluationStepSolver;
 	}
@@ -232,7 +234,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// not exhaustive solving).
 			// Check (**) in this file to see where this happens
 			if ( ! bodyStep.itDepends()) {
-				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue());
+				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
+//				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue());
 				bodyStep = evaluatorStepSolver.step(context);
 			}
 			
@@ -400,17 +403,6 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		else {
 			result = group.add(solution1, solution2, context);
 		}
-		return result;
-	}
-
-	/**
-	 * @param expression
-	 * @param simplifier
-	 * @return
-	 */
-	public static ExpressionLiteralSplitterStepSolver makeEvaluator(Expression expression) {
-		ExpressionLiteralSplitterStepSolver result;
-		result = new EvaluatorStepSolver(expression);
 		return result;
 	}
 }

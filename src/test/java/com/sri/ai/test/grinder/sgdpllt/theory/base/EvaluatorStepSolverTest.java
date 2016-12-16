@@ -49,8 +49,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -385,7 +385,8 @@ public class EvaluatorStepSolverTest {
 
 	private void runTest(String expressionString, Expression expected, Context context) {
 		Expression expression = parse(expressionString);
-		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression);
+		ExpressionLiteralSplitterStepSolver stepSolver = context.getTheory().makeEvaluatorStepSolver(expression);
+//		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression);
 		System.out.println("Evaluating " + expression);
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
 		System.out.println(expression + " -----> " + solution + "\n");

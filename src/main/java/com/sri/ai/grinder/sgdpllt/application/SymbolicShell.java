@@ -59,9 +59,8 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
-import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -73,7 +72,7 @@ import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
 
 /**
- * Provides a shell for use of {@link EvaluatorStepSolver}.
+ * Provides a shell for evaluating expressions.
  * 
  * @author braz
  *
@@ -90,7 +89,8 @@ public class SymbolicShell {
 				new DifferenceArithmeticTheory(false, false),
 				new LinearRealArithmeticTheory(false, false),
 				new PropositionalTheory());
-		Simplifier evaluator = new Evaluator(theory);
+		Simplifier evaluator = (e, c) -> theory.evaluate(e, c);
+//		Simplifier evaluator = new Evaluator(theory);
 		
 		Context context = new TrueContext(theory);
 		context = context.add(BOOLEAN_TYPE);
@@ -159,7 +159,7 @@ public class SymbolicShell {
 				);
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
-			evaluate(consoleIterator, evaluator, example, context);
+			evaluate(consoleIterator, evaluator, theory, example, context);
 			consoleIterator.getOutputWriter().println("\n");
 		}
 
@@ -180,7 +180,7 @@ public class SymbolicShell {
 				help(consoleIterator);
 			}
 			else {
-				context = evaluate(consoleIterator, evaluator, input, context);
+				context = evaluate(consoleIterator, evaluator, theory, input, context);
 			}
 		}
 		
@@ -189,11 +189,12 @@ public class SymbolicShell {
 
 	/**
 	 * @param evaluator
+	 * @param theory TODO
 	 * @param inputString
 	 * @param context
 	 * @return 
 	 */
-	private static Context evaluate(ConsoleIterator consoleIterator, Simplifier evaluator, String inputString, Context context) {
+	private static Context evaluate(ConsoleIterator consoleIterator, Simplifier evaluator, Theory theory, String inputString, Context context) {
 		
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});
@@ -204,7 +205,7 @@ public class SymbolicShell {
 				consoleIterator.getOutputWriter().println();	
 				return context;
 			}
-			Expression result = evaluator.apply(input, context);
+			Expression result = theory.evaluate(input, context);//evaluator.apply(input, context);
 			consoleIterator.getOutputWriter().println("\n" + result + "\n");
 		} catch (Error e) {
 			dealWith(consoleIterator, e);

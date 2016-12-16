@@ -35,23 +35,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library.boole;
+package com.sri.ai.grinder.sgdpllt.library.number;
+
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierTopRewriter;
-import com.sri.ai.grinder.sgdpllt.group.Conjunction;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter;
+import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * A {@link TopRewriter} solving universal quantification by brute-force.
+ * A {@link TopRewriter} solving intensional products by using a given quantifier eliminator.
  * 
  * @author braz
  *
  */
 @Beta
-public class ForAllByBruteForce extends QuantifierTopRewriter {
-	public ForAllByBruteForce(BruteForceAggregateSolver bruteForceAggregateSolver) {
-		super(ForAll.SYNTACTIC_FORM_TYPE, new Conjunction(), bruteForceAggregateSolver);
+public class ProductRewriter extends QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter {
+	public ProductRewriter(QuantifierEliminator quantifierEliminator) {
+		super(PRODUCT, new Product(), quantifierEliminator);
 	}
 }

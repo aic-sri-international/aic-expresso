@@ -47,7 +47,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -88,6 +90,12 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public Expression simplify(Expression expression, Context context) {
 		Expression result = cachedRecursiveExhaustiveRewriter.apply(expression, context);
+		return result;
+	}
+	
+	@Override
+	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
+		EvaluatorStepSolver result = new EvaluatorStepSolver(expression);
 		return result;
 	}
 

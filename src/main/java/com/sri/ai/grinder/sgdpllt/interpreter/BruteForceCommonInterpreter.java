@@ -45,13 +45,13 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAllByBruteForce;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsByBruteForce;
-import com.sri.ai.grinder.sgdpllt.library.number.MaxByBruteForce;
-import com.sri.ai.grinder.sgdpllt.library.number.ProductByBruteForce;
-import com.sri.ai.grinder.sgdpllt.library.number.SummationByBruteForce;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityByBruteForce;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -84,21 +84,21 @@ public class BruteForceCommonInterpreter implements Rewriter {
 		this.assignment = assignment;
 	}
 
-	public static class BruteForceCommonTopRewriter extends BruteForceAggregateSolver.TopRewriterWithAssignment {
+	public static class BruteForceCommonTopRewriter extends BruteForceQuantifierEliminator.TopRewriterWithAssignment {
 
 		public BruteForceCommonTopRewriter(Map<Expression, Expression> assignment) {
 			super(assignment);
-			BruteForceAggregateSolver bruteForceAggregateSolver = new BruteForceAggregateSolver(this);
+			BruteForceQuantifierEliminator bruteForceAggregateSolver = new BruteForceQuantifierEliminator(this);
 			setBaseTopRewriter(
 					TopRewriter.merge(
 							new CommonSimplifier(),
 
-							new SummationByBruteForce(bruteForceAggregateSolver),
-							new ProductByBruteForce(bruteForceAggregateSolver),
-							new MaxByBruteForce(bruteForceAggregateSolver),
+							new SummationRewriter(bruteForceAggregateSolver),
+							new ProductRewriter(bruteForceAggregateSolver),
+							new MaxRewriter(bruteForceAggregateSolver),
 
-							new ThereExistsByBruteForce(bruteForceAggregateSolver),
-							new ForAllByBruteForce(bruteForceAggregateSolver),
+							new ThereExistsRewriter(bruteForceAggregateSolver),
+							new ForAllRewriter(bruteForceAggregateSolver),
 
 							new CardinalityByBruteForce(bruteForceAggregateSolver)
 							));

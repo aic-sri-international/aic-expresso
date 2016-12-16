@@ -42,6 +42,8 @@ import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -49,11 +51,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
-import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -64,8 +66,8 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An extension of {@link AggregateSolver}
- * that solves quantified and aggregate expressions by brute force.
+ * An extension of {@link AbstractQuantifierEliminator}
+ * that solves quantified expressions by brute force.
  * <p>
  * Additionally, it takes an assignment to symbols as a constructing parameter,
  * and throws an error when a symbol with unassigned value is found.
@@ -74,17 +76,23 @@ import com.sri.ai.util.collect.StackedHashMap;
  *
  */
 @Beta
-public class BruteForceAggregateSolver implements AggregateSolver {
+public class BruteForceQuantifierEliminator extends AbstractQuantifierEliminator {
 
 	protected TopRewriterWithAssignment topRewriterWithBaseAssignment;
 
-	public BruteForceAggregateSolver(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
+	public BruteForceQuantifierEliminator(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
 		super();
 		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
 	}
 	
 	@Override
-	public Expression evaluateAggregateOperation(
+	public AssociativeCommutativeGroup getGroup() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Expression solve(
 			AssociativeCommutativeGroup group, 
 			ExtensionalIndexExpressionsSet indexExpressions, 
 			Expression indicesCondition, 
@@ -92,10 +100,15 @@ public class BruteForceAggregateSolver implements AggregateSolver {
 			Context context) throws Error {
 		
 		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
+		return solve(group, indices, indicesCondition, body, context);
+	}
+
+	public Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Expression additiveIdentityValue = group.additiveIdentityElement();
 		Expression value = additiveIdentityValue;
 		Expression bodyWithCondition = IfThenElse.make(indicesCondition, body, additiveIdentityValue);
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indexExpressions, context);
+		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indices, context);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
 			TopRewriterWithAssignment extended = topRewriterWithBaseAssignment.extendWith(values);
 			Rewriter rewriter = new Recursive(new Exhaustive(extended));
@@ -109,12 +122,12 @@ public class BruteForceAggregateSolver implements AggregateSolver {
 	}
 	
 	/**
-	 * {@link BruteForceAggregateSolver} needs a rewriter to evaluate bodies of expressions.
+	 * {@link BruteForceQuantifierEliminator} needs a rewriter to evaluate bodies of expressions.
 	 * It needs this rewriter to consider the current assignment
 	 * and replace symbols by their values according to it.
 	 * It also takes a base top rewriter that includes any other desired operations,
 	 * and to be extensible with a new assignment;
-	 * {@link BruteForceAggregateSolver} will do this at every iteration with a new assignment..
+	 * {@link BruteForceQuantifierEliminator} will do this at every iteration with a new assignment..
 	 * {@link TopRewriterWithAssignment} serves as a super class for rewriters of this type.
 	 * 
 	 * @author braz

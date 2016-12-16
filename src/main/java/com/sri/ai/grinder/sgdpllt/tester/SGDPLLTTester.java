@@ -65,7 +65,6 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
@@ -585,8 +584,8 @@ public class SGDPLLTTester {
 		String problemDescription = problem.toString();
 		output(problemDescription);
 		
-		Simplifier symbolicInterpreter =
-				new Evaluator(theory);
+		Simplifier symbolicInterpreter = (e, c) -> theory.evaluate(e,c);
+				//new Evaluator(theory);
 				
 		long start = System.currentTimeMillis();
 		Expression symbolicSolution = symbolicInterpreter.apply(problem, context);

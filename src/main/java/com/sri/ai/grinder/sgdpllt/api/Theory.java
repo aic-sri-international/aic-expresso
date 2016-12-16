@@ -58,6 +58,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -130,6 +131,14 @@ public interface Theory extends Cloneable {
 	 * @return
 	 */
 	TopRewriter getTopRewriter();
+	
+	ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression);
+	
+	default Expression evaluate(Expression expression, Context context) {
+		ExpressionLiteralSplitterStepSolver evaluatorStepSolver = makeEvaluatorStepSolver(expression);
+		Expression result = ContextDependentExpressionProblemSolver.staticSolve(evaluatorStepSolver, context);
+		return result;
+	}
 	
 	boolean isSuitableFor(Expression variable, Type type);
 	

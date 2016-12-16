@@ -35,36 +35,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.api;
+package com.sri.ai.grinder.sgdpllt.core.solver;
+
+import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
- * Defines how an aggregate or quantified expression is to be solved.
+ * A {@link Switch<String>} extension solving aggregate functions on intensional sets,
+ * given the functor, group, and {@link QuantifierEliminator}.
  *
  * @author braz
  *
  */
 @Beta
-public interface AggregateSolver {
+public class QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter extends Switch<String> {
 
-	/**
-	 * Defines how a aggregate or quantified expression is to be solved.
-	 * @param group
-	 * @param indexExpressions
-	 * @param indicesCondition
-	 * @param body
-	 * @param context
-	 * @return
-	 * @throws Error
-	 */
-	Expression evaluateAggregateOperation(
-			AssociativeCommutativeGroup group,
-			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression indicesCondition,
-			Expression body,
-			Context context) throws Error;
+	public QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter(
+			String functor, 
+			AssociativeCommutativeGroup group, 
+			QuantifierEliminator quantifierEliminator) {
+		
+		super(
+				Switch.FUNCTOR,
+				map(
+						functor, 
+						simplifierForAggregateOnIntensionalSet(group, quantifierEliminator)
+				)
+		);
+	}
+
+	private static Simplifier simplifierForAggregateOnIntensionalSet(
+			AssociativeCommutativeGroup group, 
+			QuantifierEliminator quantifierEliminator) {
+		
+		return (e, c) -> {
+			Expression result;
+			if (Sets.isIntensionalMultiSet(e.get(0))) {
+				IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
+				ExtensionalIndexExpressionsSet indexExpressions = 
+						(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
+				// the set is intensional, but not the set of index expressions!
+				result =
+						quantifierEliminator.solve(
+								group,
+								indexExpressions,
+								intensionalSet.getCondition(),
+								intensionalSet.getHead(),
+								c);
+			}
+			else {
+				result = e;
+			}
+			return result;
+		};
+	}
 }

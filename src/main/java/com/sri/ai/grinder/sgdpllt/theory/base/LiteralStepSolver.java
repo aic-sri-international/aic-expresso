@@ -49,6 +49,9 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
  * A context-dependent problem step solver
  * that simply decides whether a literal is true or not.
  * <p>
+ * <p>
+ * Note that this is different from {@link LiteralExpressionStepSolver}
+ * because that class produces a boolean {@link Expression}.
  *
  * @author braz
  *

@@ -58,7 +58,6 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
-import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
 import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
@@ -247,7 +246,8 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 			throw new AssertionError("Expected <" + expected + "> but was null");
 		}
 		else if (expected != null && !constraint.isContradiction() && !expected.equals(constraint)) {
-			Simplifier interpreter = new Evaluator(theoryTestingSupport.getTheory());
+			Simplifier interpreter = (e, c) -> theoryTestingSupport.getTheory().evaluate(e, c);
+//			Simplifier interpreter = new Evaluator(theoryTestingSupport.getTheory());
 			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
 			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);
 			Expression equivalent = interpreter.apply(universallyQuantified, context);

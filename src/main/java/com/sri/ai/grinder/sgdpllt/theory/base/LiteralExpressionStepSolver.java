@@ -35,24 +35,64 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library.number;
+package com.sri.ai.grinder.sgdpllt.theory.base;
+
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.sgdpllt.theory.base.ConstantStepSolver.constantStepSolver;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.AggregateOnIntensionalSetTopRewriter;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
-import com.sri.ai.grinder.sgdpllt.group.Product;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
+import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 
 /**
- * A {@link TopRewriter} solving intensional products by brute-force.
- * 
+ * A context-dependent problem step solver
+ * that simply decides whether a literal is true or not,
+ * producing  boolean {@link Expression}.
+ * <p>
+ * Note that this is different from {@link LiteralStepSolver}
+ * because that class produces a Java {@link Boolean} solution.
+ *
  * @author braz
  *
  */
 @Beta
-public class ProductByBruteForce extends AggregateOnIntensionalSetTopRewriter {
-	public ProductByBruteForce(BruteForceAggregateSolver bruteForceAggregateSolver) {
-		super(FunctorConstants.PRODUCT, new Product(), bruteForceAggregateSolver);
+public class LiteralExpressionStepSolver implements StepSolver<Expression> {
+
+	protected Expression literal;
+
+	public LiteralExpressionStepSolver(Expression literal) {
+		super();
+		this.literal = literal;
+	}
+
+	@Override
+	public LiteralExpressionStepSolver clone() {
+		try {
+			return (LiteralExpressionStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new Error("Trying to clone " + getClass() + " but cloning is not supported for this class.");
+		}
+	}
+
+	@Override
+	public StepSolver.Step<Expression> step(Context context) {
+		ContextSplitting split = new ContextSplitting(literal, context);
+		switch (split.getResult()) {
+		case CONSTRAINT_IS_CONTRADICTORY:
+			return null;
+		case LITERAL_IS_TRUE:
+			return new Solution<>(TRUE);
+		case LITERAL_IS_FALSE:
+			return new Solution<>(FALSE);
+		case LITERAL_IS_UNDEFINED:
+			StepSolver<Expression> ifTrue  = constantStepSolver(TRUE);
+			StepSolver<Expression> ifFalse = constantStepSolver(FALSE);
+			return new ItDependsOn<Expression>(literal, split, ifTrue, ifFalse);
+		default:
+			throw new Error("Unrecognized splitting result.");
+		}
 	}
 }

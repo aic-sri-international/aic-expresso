@@ -8,6 +8,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.SGDPLLTUtil;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -22,20 +23,34 @@ import com.sri.ai.util.base.Pair;
  */
 public interface QuantifierEliminator {
 
+	default Expression solve(
+			AssociativeCommutativeGroup group,
+			ExtensionalIndexExpressionsSet indexExpressions,
+			Expression indicesCondition,
+			Expression body,
+			Context context) {
+
+		context = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
+		Expression quantifierFreeExpression = solve(group, indices, indicesCondition, body, context);
+		return quantifierFreeExpression;
+	}
+	
 	public AssociativeCommutativeGroup getGroup();
 	
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context);
+	Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesConstraint, Expression body, Context context);
 	
 	/**
-	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, Context)}
+	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Expression, Expression, Collection, Context)}
 	 * assuming a true constraint.
+	 * @param group TODO
 	 */
-	default Expression solve(Collection<Expression> indices, Expression body, Context context) {
+	default Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression body, Context context) {
 		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
-		Expression result = solve(indices, trueConstraint, body, context);
+		Expression result = solve(group, indices, trueConstraint, body, context);
 		return result;
 	}
 
@@ -56,7 +71,7 @@ public interface QuantifierEliminator {
 		context = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);
 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-		Expression quantifierFreeExpression = solve(indices, body, context);
+		Expression quantifierFreeExpression = solve(getGroup(), indices, body, context);
 		return quantifierFreeExpression;
 	}
 
@@ -69,7 +84,7 @@ public interface QuantifierEliminator {
 	// Convenience:
 	
 	/**
-	 * Convenience substitute for {@link #solve(Collection, Expression, Context)} that takes care of constructing the Context
+	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Collection, Expression, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
 	 */
 	default Expression solve(
@@ -89,7 +104,7 @@ public interface QuantifierEliminator {
 				isUniquelyNamedConstantPredicate,
 				theory);
 		
-		Expression result = solve(indices, expression, context);
+		Expression result = solve(getGroup(), indices, expression, context);
 		return result;
 	}
 }

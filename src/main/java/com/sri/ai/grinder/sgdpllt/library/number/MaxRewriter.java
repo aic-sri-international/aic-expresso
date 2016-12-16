@@ -37,22 +37,23 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.number;
 
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
+
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.AggregateOnIntensionalSetTopRewriter;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter;
+import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * A {@link TopRewriter} solving summation by brute-force.
+ * A {@link TopRewriter} solving intensional products by using a given quantifier eliminator.
  * 
  * @author braz
  *
  */
 @Beta
-public class SummationByBruteForce extends AggregateOnIntensionalSetTopRewriter {
-	public SummationByBruteForce(BruteForceAggregateSolver bruteForceAggregateSolver) {
-		super(FunctorConstants.SUM, new Sum(), bruteForceAggregateSolver);
+public class MaxRewriter extends QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter {
+	public MaxRewriter(QuantifierEliminator quantifierEliminator) {
+		super(MAX, new Max(), quantifierEliminator);
 	}
 }

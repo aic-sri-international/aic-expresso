@@ -35,38 +35,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
+package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
-import com.google.common.annotations.Beta;
+import static com.sri.ai.util.Util.map;
+
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
 
 /**
- * A {@link Simplifier} based on {@link EvaluatorStepSolver}.
+ * A {@link Switch} extension that compares a key maker's result to a predefined value
+ * and executes a given base rewriter if they are equal
+ * and returns the same expression otherwise.
  * 
  * @author braz
  *
  */
-@Beta
-public class Evaluator implements Simplifier {
+public class If<T> extends Switch<T> {
 
-	private ContextDependentExpressionProblemSolver solver;
-	
-	public Evaluator(Theory theory) {
-		this.solver = new ContextDependentExpressionProblemSolver();
+	public If(Function<Expression, T> keyMaker, T value, Rewriter baseRewriter) {
+		super(keyMaker, map(value, baseRewriter));
 	}
 
-	public void interrupt() {
-		solver.interrupt();
+	public If(Function<Expression, T> keyMaker, T value, RewriterFromStepMaker baseRewriter) {
+		super(keyMaker, map(value, baseRewriter));
 	}
 	
-	@Override
-	public Expression applySimplifier(Expression expression, Context context) {
-		// create an EvaluatorStepSolver on expression, and solve it.
-		EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(expression);
-		Expression result = solver.solve(evaluatorStepSolver, context);
-		return result;
+	public static <T> If<T> ifEquals(Function<Expression, T> keyMaker, T value, Rewriter baseRewriter) {
+		return new If<T>(keyMaker, value, baseRewriter);
+	}
+	
+	public static <T> If<T> ifEquals(Function<Expression, T> keyMaker, T value, RewriterFromStepMaker baseRewriter) {
+		return new If<T>(keyMaker, value, baseRewriter);
 	}
 }

@@ -38,20 +38,20 @@
 package com.sri.ai.grinder.sgdpllt.library.boole;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceAggregateSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierTopRewriter;
 import com.sri.ai.grinder.sgdpllt.group.Disjunction;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * A {@link TopRewriter} solving existential quantification by brute-force.
+ * A {@link TopRewriter} solving existential quantification by using a given quantifier eliminator.
  * 
  * @author braz
  *
  */
 @Beta
-public class ThereExistsByBruteForce extends QuantifierTopRewriter {
-	public ThereExistsByBruteForce(BruteForceAggregateSolver bruteForceAggregateSolver) {
-		super(ThereExists.SYNTACTIC_FORM_TYPE, new Disjunction(), bruteForceAggregateSolver);
+public class ThereExistsRewriter extends QuantifierTopRewriter {
+	public ThereExistsRewriter(QuantifierEliminator quantifierEliminator) {
+		super(ThereExists.SYNTACTIC_FORM_TYPE, new Disjunction(), quantifierEliminator);
 	}
 }

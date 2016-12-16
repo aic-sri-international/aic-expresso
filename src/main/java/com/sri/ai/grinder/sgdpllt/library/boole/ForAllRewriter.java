@@ -35,67 +35,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
-
-import static com.sri.ai.util.Util.map;
+package com.sri.ai.grinder.sgdpllt.library.boole;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierTopRewriter;
+import com.sri.ai.grinder.sgdpllt.group.Conjunction;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * A {@link Switch<String>} extension solving aggregate functions on intensional sets,
- * given the functor, group, and {@link AggregateSolver}.
- *
+ * A {@link TopRewriter} solving universal quantification by using a given quantifier eliminator.
+ * 
  * @author braz
  *
  */
 @Beta
-public class AggregateOnIntensionalSetTopRewriter extends Switch<String> {
-
-	public AggregateOnIntensionalSetTopRewriter(
-			String functor, 
-			AssociativeCommutativeGroup group, 
-			AggregateSolver aggregateSolver) {
-		
-		super(
-				Switch.FUNCTOR,
-				map(
-						functor, 
-						simplifierForAggregateOnIntensionalSet(group, aggregateSolver)
-				)
-		);
-	}
-
-	private static Simplifier simplifierForAggregateOnIntensionalSet(
-			AssociativeCommutativeGroup group, 
-			AggregateSolver aggregateSolver) {
-		
-		return (e, c) -> {
-			Expression result;
-			if (Sets.isIntensionalMultiSet(e.get(0))) {
-				IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
-				ExtensionalIndexExpressionsSet indexExpressions = 
-						(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
-				// the set is intensional, but not the set of index expressions!
-				result =
-						aggregateSolver.evaluateAggregateOperation(
-								group,
-								indexExpressions,
-								intensionalSet.getCondition(),
-								intensionalSet.getHead(),
-								c);
-			}
-			else {
-				result = e;
-			}
-			return result;
-		};
+public class ForAllRewriter extends QuantifierTopRewriter {
+	public ForAllRewriter(QuantifierEliminator quantifierEliminator) {
+		super(ForAll.SYNTACTIC_FORM_TYPE, new Conjunction(), quantifierEliminator);
 	}
 }

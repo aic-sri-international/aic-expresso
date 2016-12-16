@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry;
-import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
 import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.getIndex;
 import static com.sri.ai.util.Util.getLast;
 
@@ -47,7 +46,6 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
@@ -78,9 +76,9 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	}
 	
 	@Override
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
+	public Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInRegistry(indices, context);
-		Expression result = solve(group, indexExpressionsSet, constraint, body, context);
+		Expression result = solve(group, indexExpressionsSet, indicesConstraint, body, context);
 		return result;
 	}
 
@@ -96,7 +94,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	 * @param context
 	 * @return
 	 */
-	private static Expression solve(
+	public Expression solve(
 			AssociativeCommutativeGroup group,
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesCondition,
@@ -144,7 +142,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		}
 		
 		// Normalize final result.
-		ExpressionLiteralSplitterStepSolver evaluator = makeEvaluator(currentBody);
+		ExpressionLiteralSplitterStepSolver evaluator = theory.makeEvaluatorStepSolver(currentBody);
 		currentBody = evaluator.solve(context);
 		
 		return currentBody;

@@ -22,11 +22,10 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.Evaluator;
-import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
@@ -192,7 +191,9 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			assertEquals(expected, solution);
 		}
 		
-		assertEquals(Expressions.TRUE, new Evaluator(theoryTestingSupport.getTheory()).apply(solution, context));
+		Expression evaluation = theoryTestingSupport.getTheory().evaluate(solution, context);
+//		Expression evaluation = new Evaluator(theoryTestingSupport.getTheory()).apply(solution, context);
+		assertEquals(Expressions.TRUE, evaluation);
 	}
 	
 	static class GeneralFormulaExpressionTestStepSolver implements ExpressionStepSolver {
@@ -231,7 +232,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			List<Expression> stepSolutionConjuncts = new ArrayList<>(solutionConjuncts);
 			for (int i = stepSolutionConjuncts.size(); i < problemConjuncts.size(); i++) {
 				Expression conjunct = problemConjuncts.get(i);
-				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(conjunct);
+				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(conjunct);
+//				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(conjunct);
 				Expression conjunctResult = evaluatorStepSolver.solve(context);
 				if (Expressions.TRUE.equals(conjunctResult)) {
 					stepSolutionConjuncts.add(conjunct);

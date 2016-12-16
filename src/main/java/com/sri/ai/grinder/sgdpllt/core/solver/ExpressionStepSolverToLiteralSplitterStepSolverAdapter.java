@@ -106,7 +106,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 					// We have a new non-literal splitter formula that we have obtained from the formula splitter step solver
 					// over which we want to walk the individual literals in that formula splitter. This is done
 					// by delegating to a evaluator/literal step solver while extracting these literals.
-					currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(currentFormulaSplitterStepSolverStep.getSplitter());
+					currentFormulaSplitterEvaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(currentFormulaSplitterStepSolverStep.getSplitter());
+//					currentFormulaSplitterEvaluatorStepSolver = new EvaluatorStepSolver(currentFormulaSplitterStepSolverStep.getSplitter());
 				}
 			}
 		}

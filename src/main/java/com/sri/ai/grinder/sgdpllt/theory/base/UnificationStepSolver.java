@@ -37,8 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,9 +49,9 @@ import java.util.stream.IntStream;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.util.Util;
 
@@ -110,7 +110,8 @@ public class UnificationStepSolver implements StepSolver<Boolean> {
 			
 			for (Integer unknownSolutionIndex : stepUnknownSolutionIndexesForUnificationEqualities) {
 				Expression equality = unificationEqualitiesToTest.get(unknownSolutionIndex);
-				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(equality);
+				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(equality);
+//				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(equality);
 				Expression equalityResult = evaluatorStepSolver.solve(context);
 				if (equalityResult.equals(TRUE)) {
 					stepFoundSolutions.add(unknownSolutionIndex);

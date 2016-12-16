@@ -35,54 +35,44 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
+package com.sri.ai.grinder.sgdpllt.library.boole;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.util.Util.map;
+import static com.sri.ai.grinder.sgdpllt.theory.base.ExpressionConditionedOnLiteralSolutionStep.stepDependingOnLiteral;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
 
 /**
- * A {@link TopRewriter} solving quantified expressions,
- * given the syntactic form type, group, and {@link QuantifierEliminator}.
- *
+ * A rewriter that replaces literals by their values according to the context or,
+ * if not defined by the context, splits on them (after a simplification according to a given simplifier).
+ * 
  * @author braz
  *
  */
 @Beta
-public class QuantifierTopRewriter extends Switch<Object> {
+public class LiteralRewriter implements RewriterFromStepMaker {
 
-	public QuantifierTopRewriter(
-			Object syntaticFormType,
-			AssociativeCommutativeGroup group,
-			QuantifierEliminator quantifierEliminator) {
-		
-		super(
-				Switch.SYNTACTIC_FORM_TYPE,
-				map(
-						syntaticFormType,
-						simplifierForQuantificationOn(group, quantifierEliminator)
-				)
-		);
+	private Rewriter simplifier;
+
+	public LiteralRewriter(Rewriter simplifier) {
+		this.simplifier = simplifier;
 	}
-
-	private static Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group, QuantifierEliminator quantifierEliminator) {
-		return (e, c) -> {
-			QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) e;
-			Expression body = quantifiedExpression.getBody();
-			ExtensionalIndexExpressionsSet indexExpressions = 
-					(ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
-			// the set is intensional, but not the set of index expressions!
-			Expression result = quantifierEliminator.solve(group, indexExpressions, TRUE, body, c);
-			return result;
-		};
+	
+	@Override
+	public Step make(Expression expression, Context context) {
+		if (context.isLiteral(expression)) {
+			Expression completelySimplifiedLiteral = simplifier.apply(expression, context);
+			return stepDependingOnLiteral(completelySimplifiedLiteral, TRUE, FALSE, context);
+		}
+		else {
+			return new Solution(expression);
+		}
 	}
 }

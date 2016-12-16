@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.AggregateSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
- * A {@link TopRewriter} cardinality and counting formulas according to a given {@link AggregateSolver}.
+ * A {@link TopRewriter} cardinality and counting formulas according to a given {@link QuantifierEliminator}.
  *
  * @author braz
  *
@@ -64,33 +64,33 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 @Beta
 public class CardinalityTopRewriter extends DefaultTopRewriter {
 
-	public CardinalityTopRewriter(AggregateSolver aggregateSolver) {
+	public CardinalityTopRewriter(QuantifierEliminator quantifierEliminator) {
 		
 		super(
 				new Switch<>(
 				Switch.FUNCTOR,
 				map(
 						FunctorConstants.CARDINALITY, 
-						simplifierForCountingFormulaEquivalentExpression(aggregateSolver)
+						simplifierForCountingFormulaEquivalentExpression(quantifierEliminator)
 				))
 				,
 				new Switch<>(
 				Switch.SYNTACTIC_FORM_TYPE,
 				map(
 						CountingFormula.SYNTACTIC_FORM_TYPE, 
-						simplifierForCountingFormulaEquivalentExpression(aggregateSolver)
+						simplifierForCountingFormulaEquivalentExpression(quantifierEliminator)
 				))
 		);
 	}
 
-	private static Simplifier simplifierForCountingFormulaEquivalentExpression(AggregateSolver aggregateSolver) {
+	private static Simplifier simplifierForCountingFormulaEquivalentExpression(QuantifierEliminator quantifierEliminator) {
 		return (e, p) -> {
 			Expression result;
 			if (isCountingFormulaEquivalentExpression(e)) {
 				ExtensionalIndexExpressionsSet indexExpressions =
 						(ExtensionalIndexExpressionsSet) getIndexExpressions(e);
 				result =
-						aggregateSolver.evaluateAggregateOperation(
+						quantifierEliminator.solve(
 								new Sum(),
 								indexExpressions,
 								getCondition(e),

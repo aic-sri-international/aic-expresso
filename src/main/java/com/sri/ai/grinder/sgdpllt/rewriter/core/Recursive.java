@@ -187,6 +187,10 @@ public class Recursive implements Rewriter {
 
 		public Step step(Context context) {
 			Step result;
+			
+			if ( ! (currentExpression.getSyntacticFormType().equals("Function application") || currentExpression.getSyntacticFormType().equals("Symbol"))) {
+				return new Solution(currentExpression);
+			}
 
 			if (!topExpressionIsNextForUsToTakeAStepOn && currentSubExpressionIndex >= subExpressions.size()) {
 				result = new Solution(currentExpression);

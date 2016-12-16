@@ -126,7 +126,7 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 	}
 	
 	@Override
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
+	public Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
 			
 		checkInterrupted();
 		
@@ -150,7 +150,7 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			if (basicOutput) {
 				System.out.println("No partition");	
 			}
-			result = subSolver.solve(indices, constraint, body, context);
+			result = subSolver.solve(group, indices, indicesConstraint, body, context);
 		}
 		else {
 			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, context);
@@ -169,8 +169,8 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			// BTW, the call to "project" below will also re-context the constraint for the same reason: re-indexing.
 			// In the future it should also re-use the representation.
 			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
-			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getSemiRing().multiplicativeAbsorbingElement());
-			Expression indexSubProblemSolution = subSolver.solve(partition.index, indexSubProblemExpressionWithConstraint, context);
+			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(indicesConstraint, indexSubProblemExpression, getSemiRing().multiplicativeAbsorbingElement());
+			Expression indexSubProblemSolution = subSolver.solve(group, partition.index, indexSubProblemExpressionWithConstraint, context);
 
 			if (basicOutput) {
 				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
@@ -179,7 +179,7 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
 			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, context);
 			Constraint constraintOnRemainingIndices = context; // the constraint is already represented in indexSubProblemSolution
-			result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, context);
+			result = solve(group, partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, context);
 			result = getSemiRing().multiply(result, context);
 		}
 
