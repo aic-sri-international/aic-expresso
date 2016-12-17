@@ -45,8 +45,8 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 public class TupleEqualityTopRewriter extends Switch<String> {
 	public TupleEqualityTopRewriter() {
 		super(Switch.FUNCTOR, 
-				map(FunctorConstants.EQUALITY,    new TupleEquality(), 
-					FunctorConstants.DISEQUALITY, new TupleDisequality())
+				map(FunctorConstants.EQUALITY,    new TupleEqualitySimplifier(), 
+					FunctorConstants.DISEQUALITY, new TupleDisequalitySimplifier())
 		);
 	}
 }

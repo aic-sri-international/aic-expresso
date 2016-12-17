@@ -58,7 +58,7 @@ import com.sri.ai.util.Util;
  * 
  * @author oreilly
  */
-public class TupleDisequality implements Simplifier {
+public class TupleDisequalitySimplifier implements Simplifier {
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
