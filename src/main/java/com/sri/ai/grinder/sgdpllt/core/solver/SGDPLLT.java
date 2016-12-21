@@ -37,35 +37,37 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpressions;
 import static com.sri.ai.util.Util.getLast;
 
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
 
 /**
- * A {@link QuantifierEliminator} implementing the SGDPLL(T) algorithm.
+ * A {@link MultiIndexQuantifierEliminator} implementing the SGDPLL(T) algorithm.
  *
  * @author braz
  *
  */
 @Beta
-public class SGDPLLT extends AbstractQuantifierEliminator {
+public class SGDPLLT extends AbstractMultiIndexQuantifierEliminator {
 
 	private AssociativeCommutativeGroup group;
 	
+	public SGDPLLT() {
+		super();
+		this.group = null;
+	}
+
 	public SGDPLLT(AssociativeCommutativeGroup group) {
 		super();
 		this.group = group;
@@ -75,32 +77,6 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		return group;
 	}
 	
-	/**
-	 * Solves an aggregate operation based on a group operation.
-	 * This is defined as the operation applied to the instantiations of a
-	 * quantifier-free body for each assignment to a set of indices satisfying a given condition,
-	 * under a given context. 
-	 * @param group
-	 * @param indicesCondition
-	 * @param body
-	 * @param body
-	 * @param context
-	 * @return
-	 */
-	public Expression solve(
-			AssociativeCommutativeGroup group,
-			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression indicesCondition,
-			Expression body,
-			Context context) {
-		
-		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
-		
-		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-
-		return solve(group, indices, indicesCondition, body, context);
-	}
-
 	/**
 	 * @param group
 	 * @param indices

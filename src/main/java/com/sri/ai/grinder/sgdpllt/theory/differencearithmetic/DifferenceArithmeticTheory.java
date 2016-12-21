@@ -67,12 +67,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhich
 import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.group.Conjunction;
-import com.sri.ai.grinder.sgdpllt.group.Disjunction;
-import com.sri.ai.grinder.sgdpllt.group.Max;
-import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.group.SumProduct;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
@@ -152,17 +147,17 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		return 
 				TopRewriter.merge(list(
 				
-				new SummationRewriter(new SGVET(new SumProduct()))
+				new SummationRewriter(new SGVET())
 				,
-				new ProductRewriter(new SGDPLLT(new Product()))
+				new ProductRewriter(new SGDPLLT())
 				,
-				new MaxRewriter(new SGDPLLT(new Max()))
+				new MaxRewriter(new SGDPLLT())
 				,
-				new CardinalityTopRewriter(new SGDPLLT(new Sum()))
+				new CardinalityTopRewriter(new SGDPLLT())
 				,
-				new ForAllRewriter(new SGDPLLT(new Conjunction()))
+				new ForAllRewriter(new SGDPLLT())
 				,
-				new ThereExistsRewriter(new SGDPLLT(new Disjunction()))
+				new ThereExistsRewriter(new SGDPLLT())
 				));
 	}
 

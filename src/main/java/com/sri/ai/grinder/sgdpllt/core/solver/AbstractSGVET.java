@@ -50,7 +50,6 @@ import static com.sri.ai.util.Util.collectToLists;
 import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
-import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection;
 import static com.sri.ai.util.Util.removeNonDestructively;
 
@@ -66,14 +65,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.PairOf;
 
 /**
- * A {@link QuantifierEliminator} generalizing the Variable Elimination algorithm in the same manner
+ * A {@link MultiIndexQuantifierEliminator} generalizing the Variable Elimination algorithm in the same manner
  * {@link SGDPLLT} is generalized from DPLL,
  * that is, it can produce symbolic answers and it does not need
  * to only solve problems with the operations from its classic version
@@ -98,12 +97,11 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public class AbstractSGVET extends AbstractQuantifierEliminator {
+public class AbstractSGVET extends AbstractMultiIndexQuantifierEliminator {
 
-	protected QuantifierEliminator subSolver;
+	protected MultiIndexQuantifierEliminator subSolver;
 	
-	public AbstractSGVET(QuantifierEliminator subSolver, AssociativeCommutativeSemiRing semiRing) {
-		myAssert(() -> subSolver.getGroup() instanceof AssociativeCommutativeSemiRing, () -> "AbstractSGVET must receive group that is actually a semiring, but got " + subSolver.getGroup() + " instead");
+	public AbstractSGVET(MultiIndexQuantifierEliminator subSolver) {
 		this.subSolver = subSolver;
 	}
 
@@ -113,10 +111,6 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 
 	public AssociativeCommutativeGroup getGroup() {
 		return subSolver.getGroup();
-	}
-	
-	public AssociativeCommutativeSemiRing getSemiRing() {
-		return (AssociativeCommutativeSemiRing) getGroup();
 	}
 	
 	@Override
@@ -136,14 +130,16 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			System.out.println("Width        : " + width(body, context));
 		}
 
+		AssociativeCommutativeSemiRing semiRing = (AssociativeCommutativeSemiRing) group;
+		
 		Partition partition;
 		if (indices.size() < 1) {
 			partition = null;
 		}
 		else {
 			Expression factoredConditionalsExpression =
-					factoredConditionalsWithAbsorbingElseClause(body, context);
-			partition = pickPartition(factoredConditionalsExpression, indices, context);
+					factoredConditionalsWithAbsorbingElseClause(semiRing, body, context);
+			partition = pickPartition(semiRing, factoredConditionalsExpression, indices, context);
 		}
 
 		if (partition == null) {
@@ -153,7 +149,7 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			result = subSolver.solve(group, indices, indicesConstraint, body, context);
 		}
 		else {
-			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, context);
+			Expression indexSubProblemExpression = product(semiRing, partition.expressionsOnIndexAndNot.first, context);
 			if (basicOutput) {
 				System.out.println("Eliminating: " + getFirst(partition.index));	
 				System.out.println("From       : " + indexSubProblemExpression);	
@@ -169,7 +165,7 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			// BTW, the call to "project" below will also re-context the constraint for the same reason: re-indexing.
 			// In the future it should also re-use the representation.
 			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
-			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(indicesConstraint, indexSubProblemExpression, getSemiRing().multiplicativeAbsorbingElement());
+			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(indicesConstraint, indexSubProblemExpression, semiRing.multiplicativeAbsorbingElement());
 			Expression indexSubProblemSolution = subSolver.solve(group, partition.index, indexSubProblemExpressionWithConstraint, context);
 
 			if (basicOutput) {
@@ -177,10 +173,10 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 			}
 
 			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
-			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, context);
+			Expression remainingSubProblemExpression = product(semiRing, partition.expressionsOnIndexAndNot.second, context);
 			Constraint constraintOnRemainingIndices = context; // the constraint is already represented in indexSubProblemSolution
 			result = solve(group, partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, context);
-			result = getSemiRing().multiply(result, context);
+			result = semiRing.multiply(result, context);
 		}
 
 		return result;
@@ -206,15 +202,15 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 		}
 	}
 	
-	private Partition pickPartition(Expression expression, Collection<Expression> indices, Context context) {
+	private Partition pickPartition(AssociativeCommutativeSemiRing semiRing, Expression expression, Collection<Expression> indices, Context context) {
 		Partition result;
 		if (indices.isEmpty()) {
 			result = null;
 		}
 		else {
-			List<Expression> factors = getSemiRing().getFactors(expression);
+			List<Expression> factors = semiRing.getFactors(expression);
 			List<Partition> allPartitions = mapIntoList(indices, makePartition(indices, factors));
-			result = argmin(allPartitions, width(context)); // min-fill heuristics
+			result = argmin(allPartitions, width(semiRing, context)); // min-fill heuristics
 			if (result.isTrivial()) {
 				result = null; // no need to incur in the overhead for partitioning
 			}
@@ -235,12 +231,12 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 		return result;
 	}
 	
-	public Function<Partition, Integer> width(Context context) {
-		return partition -> width(partition, context);
+	public Function<Partition, Integer> width(AssociativeCommutativeSemiRing semiRing, Context context) {
+		return partition -> width(semiRing, partition, context);
 	}
 
-	private int width(Partition partition, Context context) {
-		Expression product = product(partition.expressionsOnIndexAndNot.first, context);
+	private int width(AssociativeCommutativeSemiRing semiRing, Partition partition, Context context) {
+		Expression product = product(semiRing, partition.expressionsOnIndexAndNot.first, context);
 		int result = width(product, context);
 		return result;
 	}
@@ -258,40 +254,40 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 		return result;
 	}
 
-	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, Context context) {
-		List<Expression> factors = getSemiRing().getFactors(expression);
-		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(factors);
+	public Expression factoredConditionalsWithAbsorbingElseClause(AssociativeCommutativeSemiRing semiRing, Expression expression, Context context) {
+		List<Expression> factors = semiRing.getFactors(expression);
+		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(semiRing, factors);
 		Expression result;
 		if (factorsAfterFactoringConditionals == factors) {
 			result = expression;
 		}
 		else {
-			result = product(factorsAfterFactoringConditionals, context);
+			result = product(semiRing, factorsAfterFactoringConditionals, context);
 		}
 		return result;
 	}
 	
-	private List<Expression> factoredConditionalsWithAbsorbingElseClause(List<Expression> factors) {
+	private List<Expression> factoredConditionalsWithAbsorbingElseClause(AssociativeCommutativeSemiRing semiRing, List<Expression> factors) {
 		List<Expression> result =
 				nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection(
 						factors,
-						this::factorConditionalIfPossible);
+						e -> factorConditionalIfPossible(semiRing, e));
 		return result;
 	}
 	
-	private List<Expression> factorConditionalIfPossible(Expression expression) {
+	private List<Expression> factorConditionalIfPossible(AssociativeCommutativeSemiRing semiRing, Expression expression) {
 		List<Expression> result = null;
 		Expression nthRoot;
-		if (isIfThenElse(expression) && elseBranchIsAbsorbing(expression)
+		if (isIfThenElse(expression) && elseBranchIsAbsorbing(semiRing, expression)
 				&&
 				conditionIsConjunction(expression)
 				&&
-				(nthRoot = getNthRoot(numberOfConjuncts(expression), thenBranch(expression)))
+				(nthRoot = semiRing.getNthRoot(numberOfConjuncts(expression), thenBranch(expression)))
 				!= null) {
 
 			result = mapIntoList(
 					getConjuncts(condition(expression)),
-					(Expression c) -> IfThenElse.make(c, nthRoot, multiplicativeAbsorbingElement()));
+					(Expression c) -> IfThenElse.make(c, nthRoot, semiRing.multiplicativeAbsorbingElement()));
 		}
 		return result; 
 	}
@@ -300,25 +296,17 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 		return isConjunction(condition(expression));
 	}
 
-	public boolean elseBranchIsAbsorbing(Expression expression) {
-		return elseBranch(expression).equals(multiplicativeAbsorbingElement());
-	}
-
-	public Expression multiplicativeAbsorbingElement() {
-		return getSemiRing().multiplicativeAbsorbingElement();
+	public boolean elseBranchIsAbsorbing(AssociativeCommutativeSemiRing semiRing, Expression expression) {
+		return elseBranch(expression).equals(semiRing.multiplicativeAbsorbingElement());
 	}
 
 	public int numberOfConjuncts(Expression expression) {
 		return condition(expression).numberOfArguments();
 	}
 
-	private Expression getNthRoot(int n, Expression expression) {
-		return getSemiRing().getNthRoot(n, expression);
-	}
-
-	private Expression product(Collection<Expression> factors, Context context) {
-		Expression multiplication = apply(getSemiRing().multiplicativeFunctor(), factors);
-		Expression result = getSemiRing().multiply(multiplication, context);
+	private Expression product(AssociativeCommutativeSemiRing semiRing, Collection<Expression> factors, Context context) {
+		Expression multiplication = apply(semiRing.multiplicativeFunctor(), factors);
+		Expression result = semiRing.multiply(multiplication, context);
 		return result;
 	}
 	

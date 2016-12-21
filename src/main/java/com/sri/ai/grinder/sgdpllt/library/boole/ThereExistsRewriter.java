@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.library.boole;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierTopRewriter;
 import com.sri.ai.grinder.sgdpllt.group.Disjunction;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  */
 @Beta
 public class ThereExistsRewriter extends QuantifierTopRewriter {
-	public ThereExistsRewriter(QuantifierEliminator quantifierEliminator) {
+	public ThereExistsRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
 		super(ThereExists.SYNTACTIC_FORM_TYPE, new Disjunction(), quantifierEliminator);
 	}
 }

@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
  * A {@link Switch<String>} extension solving aggregate functions on intensional sets,
- * given the functor, group, and {@link QuantifierEliminator}.
+ * given the functor, group, and {@link MultiIndexQuantifierEliminator}.
  *
  * @author braz
  *
@@ -62,7 +62,7 @@ public class QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter extends S
 	public QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter(
 			String functor, 
 			AssociativeCommutativeGroup group, 
-			QuantifierEliminator quantifierEliminator) {
+			MultiIndexQuantifierEliminator quantifierEliminator) {
 		
 		super(
 				Switch.FUNCTOR,
@@ -75,7 +75,7 @@ public class QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter extends S
 
 	private static Simplifier simplifierForAggregateOnIntensionalSet(
 			AssociativeCommutativeGroup group, 
-			QuantifierEliminator quantifierEliminator) {
+			MultiIndexQuantifierEliminator quantifierEliminator) {
 		
 		return (e, c) -> {
 			Expression result;

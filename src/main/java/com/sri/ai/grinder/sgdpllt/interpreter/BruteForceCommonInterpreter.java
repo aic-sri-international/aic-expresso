@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
@@ -84,11 +84,11 @@ public class BruteForceCommonInterpreter implements Rewriter {
 		this.assignment = assignment;
 	}
 
-	public static class BruteForceCommonTopRewriter extends BruteForceQuantifierEliminator.TopRewriterWithAssignment {
+	public static class BruteForceCommonTopRewriter extends BruteForceMultiIndexQuantifierEliminator.TopRewriterWithAssignment {
 
 		public BruteForceCommonTopRewriter(Map<Expression, Expression> assignment) {
 			super(assignment);
-			BruteForceQuantifierEliminator bruteForceQuantifierEliminator = new BruteForceQuantifierEliminator(this);
+			BruteForceMultiIndexQuantifierEliminator bruteForceQuantifierEliminator = new BruteForceMultiIndexQuantifierEliminator(this);
 			setBaseTopRewriter(
 					TopRewriter.merge(
 							new CommonSimplifier(),

@@ -48,6 +48,10 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing;
 public class SGVET extends AbstractSGVET {
 
 	public SGVET(AssociativeCommutativeSemiRing semiRing) {
-		super(new SGDPLLT(semiRing), semiRing);
+		super(new SGDPLLT(semiRing));
+	}
+
+	public SGVET() {
+		super(new SGDPLLT());
 	}
 }

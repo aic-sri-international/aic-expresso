@@ -65,7 +65,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An extension of {@link AbstractQuantifierEliminator}
+ * An extension of {@link AbstractMultiIndexQuantifierEliminator}
  * that solves quantified expressions by brute force.
  * <p>
  * Additionally, it takes an assignment to symbols as a constructing parameter,
@@ -75,11 +75,11 @@ import com.sri.ai.util.collect.StackedHashMap;
  *
  */
 @Beta
-public class BruteForceQuantifierEliminator extends AbstractQuantifierEliminator {
+public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndexQuantifierEliminator {
 
 	protected TopRewriterWithAssignment topRewriterWithBaseAssignment;
 
-	public BruteForceQuantifierEliminator(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
+	public BruteForceMultiIndexQuantifierEliminator(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
 		super();
 		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
 	}
@@ -121,12 +121,12 @@ public class BruteForceQuantifierEliminator extends AbstractQuantifierEliminator
 	}
 	
 	/**
-	 * {@link BruteForceQuantifierEliminator} needs a rewriter to evaluate bodies of expressions.
+	 * {@link BruteForceMultiIndexQuantifierEliminator} needs a rewriter to evaluate bodies of expressions.
 	 * It needs this rewriter to consider the current assignment
 	 * and replace symbols by their values according to it.
 	 * It also takes a base top rewriter that includes any other desired operations,
 	 * and to be extensible with a new assignment;
-	 * {@link BruteForceQuantifierEliminator} will do this at every iteration with a new assignment..
+	 * {@link BruteForceMultiIndexQuantifierEliminator} will do this at every iteration with a new assignment..
 	 * {@link TopRewriterWithAssignment} serves as a super class for rewriters of this type.
 	 * 
 	 * @author braz

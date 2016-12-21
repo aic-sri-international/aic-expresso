@@ -63,7 +63,7 @@ import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Conjunction;
 import com.sri.ai.grinder.sgdpllt.group.Disjunction;
@@ -255,7 +255,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 							return getQuantificationOverFunctionsSolutionUsingBruteForce(e, c);
 						}
 						else {
-							QuantifierEliminator quantifierEliminator;
+							MultiIndexQuantifierEliminator quantifierEliminator;
 							if (e.hasFunctor(SUM)) { // take advantage of factorized bodies, if available
 								quantifierEliminator = new SGVET(new SumProduct());
 							}
@@ -285,7 +285,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 							return getQuantificationOverFunctionsSolutionUsingBruteForce(functionOnSet, c);
 						}
 						else {
-							QuantifierEliminator sgvet = new SGVET(new SumProduct());
+							MultiIndexQuantifierEliminator sgvet = new SGVET(new SumProduct());
 							Expression quantifierFreeExpression = sgvet.solve(functionOnSet, c);
 							return new Solution(quantifierFreeExpression);
 						}
@@ -304,7 +304,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 							return getQuantificationOverFunctionsSolutionUsingBruteForce(e, c);
 						}
 						else {
-							QuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction());
+							MultiIndexQuantifierEliminator sgdpllt = new SGDPLLT(new Conjunction());
 							Expression resultExpression = sgdpllt.solve(e, c);
 							return new Solution(resultExpression);
 						}
@@ -322,7 +322,7 @@ public class EvaluatorStepSolver implements ExpressionLiteralSplitterStepSolver 
 							return getQuantificationOverFunctionsSolutionUsingBruteForce(e, c);
 						}
 						else {
-							QuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction());
+							MultiIndexQuantifierEliminator sgdpllt = new SGDPLLT(new Disjunction());
 							Expression resultExpression = sgdpllt.solve(e, c);
 							return new Solution(resultExpression);
 						}

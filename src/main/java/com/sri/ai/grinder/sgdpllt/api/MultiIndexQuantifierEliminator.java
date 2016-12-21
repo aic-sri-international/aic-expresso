@@ -21,7 +21,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public interface QuantifierEliminator {
+public interface MultiIndexQuantifierEliminator {
 
 	default Expression solve(
 			AssociativeCommutativeGroup group,
@@ -88,13 +88,13 @@ public interface QuantifierEliminator {
 	 * given the data required to build it.
 	 */
 	default Expression solve(
-			Expression expression, 
-			List<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, 
-			Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			AssociativeCommutativeGroup group, 
+			Expression expression,
+			List<Expression> indices, 
+			Map<String, String> mapFromSymbolNameToTypeName,
+			Map<String, String> mapFromCategoricalTypeNameToSizeString, 
 			Collection<Type> additionalTypes, 
-			Predicate<Expression> isUniquelyNamedConstantPredicate, 
-			Theory theory) {
+			Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
 		
 		Context context =
 				SGDPLLTUtil.makeContext(
@@ -104,7 +104,7 @@ public interface QuantifierEliminator {
 				isUniquelyNamedConstantPredicate,
 				theory);
 		
-		Expression result = solve(getGroup(), indices, expression, context);
+		Expression result = solve(group, indices, expression, context);
 		return result;
 	}
 }

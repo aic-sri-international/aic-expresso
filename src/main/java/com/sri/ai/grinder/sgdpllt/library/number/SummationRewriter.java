@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.library.number;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.group.SumProduct;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  */
 @Beta
 public class SummationRewriter extends QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter {
-	public SummationRewriter(QuantifierEliminator quantifierEliminator) {
+	public SummationRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
 		super(SUM, new SumProduct(), quantifierEliminator);
 	}
 }

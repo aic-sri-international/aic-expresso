@@ -47,7 +47,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -70,11 +70,11 @@ public class Compilation {
 	 * @param solverListener if not null, invoked on solver used for compilation, before and after compilation starts; returned solver on 'before' invocation is used (it may be the same one used as argument, of course).
 	 * @return
 	 */
-	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminator, QuantifierEliminator> solverListener) {
+	public static Expression compile(Expression inputExpression, Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromUniquelyNamedConstantToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<MultiIndexQuantifierEliminator, MultiIndexQuantifierEliminator> solverListener) {
 		AssociativeCommutativeGroup group = new Max(); // the group actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		QuantifierEliminator solver = new SGDPLLT(group);
+		MultiIndexQuantifierEliminator solver = new SGDPLLT(group);
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}
@@ -88,7 +88,7 @@ public class Compilation {
 		
 		// Solve the problem.
 		List<Expression> indices = Util.list(); // no indices; we want to keep all variables
-		Expression result = solver.solve(inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate, theory);	
+		Expression result = solver.solve(group, inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate, theory);	
 		
 		if (solverListener != null) {
 			solverListener.apply(null);
