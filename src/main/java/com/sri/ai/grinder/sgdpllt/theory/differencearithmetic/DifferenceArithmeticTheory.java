@@ -37,36 +37,20 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.differencearithmetic;
 
-import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
-import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.getCondition;
-import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.getIndexExpressions;
-import static com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions.isCountingFormulaEquivalentExpression;
-import static com.sri.ai.grinder.sgdpllt.library.set.Sets.isIntensionalMultiSet;
-import static com.sri.ai.grinder.sgdpllt.rewriter.core.If.ifEquals;
 import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
-import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.SYNTACTIC_FORM_TYPE;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.IntegerExpressoType;
@@ -75,10 +59,7 @@ import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
@@ -92,9 +73,13 @@ import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.group.SumProduct;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -137,140 +122,64 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		// from the quantifier eliminators, which are the objects that know
 		// which languages they deal with.
 		
-		setExtraTopRewriter(makeDifferenceArithmeticSimplifiers());
+		setExtraTopRewriter(makeExtraTopRewriter());
+	}
+
+	private TopRewriter makeExtraTopRewriter() {
 		// It's important to include the difference arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
 		// but actually contain variables that cancel out (for example, X - X = 0),
 		// with the result of the literal becoming a boolean constant unfit to be splitter.
-	}
-
-	/**
-	 * @return
-	 */
-	private Switch<String> makeDifferenceArithmeticSimplifiers() {
-		return new Switch<String>(
-				FUNCTOR,
-				new HashMap<String, Rewriter>(
-						makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier()));
-	}
-	
-	private Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndDifferenceArithmeticSimplifier() {
 		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier(this);
-		Map<String, Simplifier> functionApplicationSimplifiers =
-				map(
-						EQUALITY,                 differenceArithmeticSimplifier,
-						DISEQUALITY,              differenceArithmeticSimplifier,
-						LESS_THAN,                differenceArithmeticSimplifier,
-						LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
-						GREATER_THAN,             differenceArithmeticSimplifier,
-						GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
-						);
-
-		return functionApplicationSimplifiers;
-	}
-	
-	@Override
-	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
-		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
-
-		TopRewriter newTopRewriter = TopRewriter.merge(list(getTopRewriter(), makeNewRewriters()));
-
-		ExpressionLiteralSplitterStepSolver result = new Recursive(new Exhaustive(new FirstOf(newTopRewriter, literalExternalizer))).makeStepSolver(expression);
-		return result;
+		return 
+				TopRewriter.merge(
+						new Switch<>(
+								FUNCTOR,
+								map(
+										EQUALITY,                 differenceArithmeticSimplifier,
+										DISEQUALITY,              differenceArithmeticSimplifier,
+										LESS_THAN,                differenceArithmeticSimplifier,
+										LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
+										GREATER_THAN,             differenceArithmeticSimplifier,
+										GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
+								)
+						)
+						,
+						makeQuantifierEliminatorRewriters()
+				);
 	}
 
-	private TopRewriter makeNewRewriters() {
+	private TopRewriter makeQuantifierEliminatorRewriters() {
 		return 
 				TopRewriter.merge(list(
 				
-				ifEquals(FUNCTOR, SUM, 
-				(e, c) -> {
-					if (isIntensionalMultiSet(e.get(0))) {
-						QuantifierEliminator quantifierEliminator = new SGVET(new SumProduct());
-						Expression quantifierFreeExpression = quantifierEliminator.solve(e, c);
-						return new Solution(quantifierFreeExpression);
-					}
-					else {
-						return new Solution(e);
-					}
-				})
+				new SummationRewriter(new SGVET(new SumProduct()))
 				,
-				
-				ifEquals(FUNCTOR, PRODUCT,
-				(e, c) -> {
-					if (isIntensionalMultiSet(e.get(0))) {
-						QuantifierEliminator quantifierEliminator = new SGDPLLT(new Product());
-						Expression quantifierFreeExpression = quantifierEliminator.solve(e, c);
-						return new Solution(quantifierFreeExpression);
-					}
-					else {
-						return new Solution(e);
-					}
-				})
+				new ProductRewriter(new SGDPLLT(new Product()))
 				,
-				
-				ifEquals(FUNCTOR, MAX,
-				(e, c) -> {
-					if (isIntensionalMultiSet(e.get(0))) {
-						QuantifierEliminator quantifierEliminator = new SGDPLLT(new Max());
-						Expression quantifierFreeExpression = quantifierEliminator.solve(e, c);
-						return new Solution(quantifierFreeExpression);
-					}
-					else {
-						return new Solution(e);
-					}
-				})
+				new MaxRewriter(new SGDPLLT(new Max()))
 				,
-				
-				ifEquals(SYNTACTIC_FORM_TYPE, CountingFormula.SYNTACTIC_FORM_TYPE,
-				(e, c) -> computeCountingFormulaEquivalentExpression(e, c))
+				new CardinalityTopRewriter(new SGDPLLT(new Sum()))
 				,
-				
-				ifEquals(FUNCTOR, CARDINALITY,
-				(e, c) -> {
-					if (isCountingFormulaEquivalentExpression(e)) {
-						return computeCountingFormulaEquivalentExpression(e, c);
-					}
-					else {
-						return new Solution(e);
-					}
-				})
+				new ForAllRewriter(new SGDPLLT(new Conjunction()))
 				,
-				
-				ifEquals(SYNTACTIC_FORM_TYPE, ForAll.SYNTACTIC_FORM_TYPE,
-				(e, c) -> computeQuantifiedFormula(e, new Conjunction(), c))
-				,
-				
-				ifEquals(SYNTACTIC_FORM_TYPE, ThereExists.SYNTACTIC_FORM_TYPE,
-				(e, c) -> computeQuantifiedFormula(e, new Disjunction(), c))
+				new ThereExistsRewriter(new SGDPLLT(new Disjunction()))
 				));
 	}
 
-	/**
-	 * @param expression
-	 * @param group
-	 * @param context
-	 * @return
-	 */
-	private Step computeQuantifiedFormula(Expression expression, AssociativeCommutativeGroup group, Context context) {
-		QuantifierEliminator sgdpllt = new SGDPLLT(group);
-		Expression resultExpression = sgdpllt.solve(expression, context);
-		return new Solution(resultExpression);
-	}
+	@Override
+	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
 
-	/**
-	 * @param expression
-	 * @param context
-	 * @return
-	 */
-	private Step computeCountingFormulaEquivalentExpression(Expression expression, Context context) {
-		// | {{ (on I) Head : Condition }} | ---> sum ( {{ (on I) 1 : Condition }} )
-		// or:
-		// | I : Condition | --> sum({{ (on I) 1 : Condition }})
-		Expression set = intensionalMultiSet(getIndexExpressions(expression), ONE, getCondition(expression));
-		Expression functionOnSet = apply(SUM, set);
-		QuantifierEliminator sgvet = new SGVET(new SumProduct());
-		Expression quantifierFreeExpression = sgvet.solve(functionOnSet, context);
-		return new Solution(quantifierFreeExpression);
+		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
+
+		ExpressionLiteralSplitterStepSolver result =
+				new Recursive(new Exhaustive(
+						new FirstOf(
+//								TopRewriter.merge(getTopRewriter(), makeQuantifierEliminatorRewriters()),
+								getTopRewriter(), 
+								literalExternalizer)))
+				.makeStepSolver(expression);
+		
+		return result;
 	}
 
 	@Override

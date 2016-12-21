@@ -37,11 +37,10 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry;
-import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.getIndex;
+import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpressions;
 import static com.sri.ai.util.Util.getLast;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -53,6 +52,7 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -75,13 +75,6 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		return group;
 	}
 	
-	@Override
-	public Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
-		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInRegistry(indices, context);
-		Expression result = solve(group, indexExpressionsSet, indicesConstraint, body, context);
-		return result;
-	}
-
 	/**
 	 * Solves an aggregate operation based on a group operation.
 	 * This is defined as the operation applied to the instantiations of a
@@ -101,11 +94,28 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 			Expression body,
 			Context context) {
 		
+		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
+		
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
+
+		return solve(group, indices, indicesCondition, body, context);
+	}
+
+	/**
+	 * @param group
+	 * @param indices
+	 * @param indicesCondition
+	 * @param body
+	 * @param context
+	 * @return
+	 */
+	@Override
+	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Theory theory = context.getTheory();
 		
 		Expression currentBody = body;
 		
-		int numberOfIndices = indexExpressions.getList().size();
+		int numberOfIndices = indices.size();
 		
 		if (numberOfIndices != 0) {
 			// Re-use {@link SingleVariableConstraint} if condition is one.
@@ -115,7 +125,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 			// This would also re-use body if it happens to be a constraint.
 			Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
 					SGDPLLT.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
-							group, indexExpressions, indicesCondition, body, theory, context);
+							group, indices, indicesCondition, body, theory, context);
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
@@ -124,8 +134,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 			}
 
 			for (int i = numberOfIndices - 1; i >= 0; i--) { // evaluate from inside out; this may change in the future
-				Expression indexExpression = indexExpressions.getList().get(i);
-				Expression index = getIndex(indexExpression);
+				Expression index = indices.get(i);
 				SingleVariableConstraint constraintForThisIndex =
 						i == numberOfIndices - 1?
 								lastIndexConstraint
@@ -166,7 +175,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 	private static Pair<Expression, SingleVariableConstraint>
 	encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
 			AssociativeCommutativeGroup group,
-			ExtensionalIndexExpressionsSet indexExpressions,
+			List<Expression> indices,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
 			Theory theory,
@@ -174,7 +183,7 @@ public class SGDPLLT extends AbstractQuantifierEliminator {
 		
 		Expression body;
 		SingleVariableConstraint lastIndexConstraint = null;
-		Expression lastIndex = getIndex(getLast(indexExpressions.getList()));
+		Expression lastIndex = getLast(indices);
 		try {
 			body = quantifierFreeBody;
 			lastIndexConstraint = SingleVariableConstraint.make(theory, lastIndex, quantifierFreeIndicesCondition, context);

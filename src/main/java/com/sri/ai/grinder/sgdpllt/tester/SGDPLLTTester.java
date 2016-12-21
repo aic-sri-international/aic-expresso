@@ -56,7 +56,9 @@ import java.util.function.Function;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
@@ -70,8 +72,10 @@ import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
@@ -402,6 +406,10 @@ public class SGDPLLTTester {
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Expression symbolicSolution = symbolicSolver.apply(singleVariableConstraint, context);
 
+		if (Util.thereExists(new SubExpressionsDepthFirstIterator(symbolicSolution), e -> e instanceof QuantifiedExpression || Sets.isIntensionalSet(e))) {
+			throw new Error("Symbolic solution is not quantifier-free: " + symbolicSolution);
+		}
+		
 		output("Symbolic result: " + symbolicSolution);
 		
 		if (testAgainstBruteForce) {
@@ -591,6 +599,10 @@ public class SGDPLLTTester {
 		Expression symbolicSolution = symbolicInterpreter.apply(problem, context);
 		long time = System.currentTimeMillis() - start;
 		
+		if (Util.thereExists(new SubExpressionsDepthFirstIterator(symbolicSolution), e -> e instanceof QuantifiedExpression || Sets.isIntensionalSet(e))) {
+			throw new Error("Symbolic solution is not quantifier-free: " + symbolicSolution);
+		}
+
 		output("Symbolic solution: " + symbolicSolution);
 		output("Computed in " + time + " ms");
 		

@@ -43,6 +43,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -287,6 +288,7 @@ public class EvaluatorStepSolverTest {
 	}
 	
 
+	@Ignore // until we replace EvaluatorStepSolver with theory rewriters, including a theory for functions.
 	@Test
 	public void testEvaluationOfQuantifiersOverFunctions() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport

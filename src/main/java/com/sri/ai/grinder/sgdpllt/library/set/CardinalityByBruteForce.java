@@ -42,14 +42,14 @@ import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * A {@link TopRewriter} solving summation by brute-force.
+ * A {@link TopRewriter} solving cardinality by brute-force.
  * 
  * @author braz
  *
  */
 @Beta
 public class CardinalityByBruteForce extends CardinalityTopRewriter {
-	public CardinalityByBruteForce(BruteForceQuantifierEliminator bruteForceAggregateSolver) {
-		super(bruteForceAggregateSolver);
+	public CardinalityByBruteForce(BruteForceQuantifierEliminator bruteForceQuantifierEliminator) {
+		super(bruteForceQuantifierEliminator);
 	}
 }

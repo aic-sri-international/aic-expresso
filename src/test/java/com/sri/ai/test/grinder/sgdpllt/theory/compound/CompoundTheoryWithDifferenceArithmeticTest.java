@@ -60,7 +60,6 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
@@ -131,14 +130,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
-		
-		Simplifier interpreter = (e, c) -> theoryTestingSupport.getTheory().evaluate(e, c);
-//		Simplifier interpreter = new Evaluator(theoryTestingSupport.getTheory());
-		Expression input = parse(
-				"product({{(on X in SomeType) if X = c then 2 else 3 : X = Y and Y = X and P and not Q and P and X != a and X != b}})");
-		Expression result = interpreter.apply(input, context);
-		Expression expectedProduct = parse("if P then if not Q then if Y != a then if Y != b then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
-		assertEquals(expectedProduct, result);
 	}
 	
 	@Test

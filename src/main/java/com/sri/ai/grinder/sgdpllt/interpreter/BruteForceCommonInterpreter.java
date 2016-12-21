@@ -88,19 +88,19 @@ public class BruteForceCommonInterpreter implements Rewriter {
 
 		public BruteForceCommonTopRewriter(Map<Expression, Expression> assignment) {
 			super(assignment);
-			BruteForceQuantifierEliminator bruteForceAggregateSolver = new BruteForceQuantifierEliminator(this);
+			BruteForceQuantifierEliminator bruteForceQuantifierEliminator = new BruteForceQuantifierEliminator(this);
 			setBaseTopRewriter(
 					TopRewriter.merge(
 							new CommonSimplifier(),
 
-							new SummationRewriter(bruteForceAggregateSolver),
-							new ProductRewriter(bruteForceAggregateSolver),
-							new MaxRewriter(bruteForceAggregateSolver),
+							new SummationRewriter(bruteForceQuantifierEliminator),
+							new ProductRewriter(bruteForceQuantifierEliminator),
+							new MaxRewriter(bruteForceQuantifierEliminator),
 
-							new ThereExistsRewriter(bruteForceAggregateSolver),
-							new ForAllRewriter(bruteForceAggregateSolver),
+							new ThereExistsRewriter(bruteForceQuantifierEliminator),
+							new ForAllRewriter(bruteForceQuantifierEliminator),
 
-							new CardinalityByBruteForce(bruteForceAggregateSolver)
+							new CardinalityByBruteForce(bruteForceQuantifierEliminator)
 							));
 		}
 	}

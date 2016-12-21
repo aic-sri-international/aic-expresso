@@ -42,7 +42,6 @@ import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -104,7 +103,7 @@ public class BruteForceQuantifierEliminator extends AbstractQuantifierEliminator
 		return solve(group, indices, indicesCondition, body, context);
 	}
 
-	public Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesCondition, Expression body, Context context) {
+	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Expression additiveIdentityValue = group.additiveIdentityElement();
 		Expression value = additiveIdentityValue;
 		Expression bodyWithCondition = IfThenElse.make(indicesCondition, body, additiveIdentityValue);

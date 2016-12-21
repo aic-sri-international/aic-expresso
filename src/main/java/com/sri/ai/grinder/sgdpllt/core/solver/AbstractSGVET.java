@@ -126,7 +126,7 @@ public class AbstractSGVET extends AbstractQuantifierEliminator {
 	}
 	
 	@Override
-	public Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
+	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
 			
 		checkInterrupted();
 		

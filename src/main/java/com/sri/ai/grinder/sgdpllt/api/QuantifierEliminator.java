@@ -41,14 +41,14 @@ public interface QuantifierEliminator {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression indicesConstraint, Expression body, Context context);
+	Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context);
 	
 	/**
 	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Expression, Expression, Collection, Context)}
 	 * assuming a true constraint.
 	 * @param group TODO
 	 */
-	default Expression solve(AssociativeCommutativeGroup group, Collection<Expression> indices, Expression body, Context context) {
+	default Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression body, Context context) {
 		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
 		Expression result = solve(group, indices, trueConstraint, body, context);
 		return result;
@@ -89,7 +89,7 @@ public interface QuantifierEliminator {
 	 */
 	default Expression solve(
 			Expression expression, 
-			Collection<Expression> indices,
+			List<Expression> indices,
 			Map<String, String> mapFromSymbolNameToTypeName, 
 			Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Collection<Type> additionalTypes, 

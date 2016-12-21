@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.sri.ai.grinder.sgdpllt.group.Conjunction;
+import com.sri.ai.grinder.sgdpllt.group.Disjunction;
 import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
@@ -127,6 +129,32 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 				getNumberOfIndices(),
 				getTestAgainstBruteForce(),
 				new Max(),
+				makeTheoryTestingSupport(),
+	            scale(10) /* number of tests */,
+				20 /* number of literals per test */,
+				getBodyDepth(), /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testConjunction() {
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
+				getNumberOfIndices(),
+				getTestAgainstBruteForce(),
+				new Conjunction(),
+				makeTheoryTestingSupport(),
+	            scale(10) /* number of tests */,
+				20 /* number of literals per test */,
+				getBodyDepth(), /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testDisjunction() {
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndices(
+				getNumberOfIndices(),
+				getTestAgainstBruteForce(),
+				new Disjunction(),
 				makeTheoryTestingSupport(),
 	            scale(10) /* number of tests */,
 				20 /* number of literals per test */,
