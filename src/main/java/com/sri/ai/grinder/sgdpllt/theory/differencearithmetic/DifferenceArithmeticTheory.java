@@ -64,21 +64,12 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
-import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
@@ -108,25 +99,18 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	public DifferenceArithmeticTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				propagateAllLiteralsWhenVariableIsBound,
-				new DefaultTopRewriter() // placeholder; need to use non-static top rewriter, see below
-				);
-		// Numeric simplifiers are included to take care of polynomials
-		// in the body expression (conditional polynomials) of summations.
-		// In the future, we want these simplifiers to be automatically extracted
-		// from the quantifier eliminators, which are the objects that know
-		// which languages they deal with.
-		
-		setExtraTopRewriter(makeExtraTopRewriter());
+				propagateAllLiteralsWhenVariableIsBound);
 	}
 
-	private TopRewriter makeExtraTopRewriter() {
+	@Override
+	public TopRewriter makeTopRewriter() {
 		// It's important to include the difference arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
 		// but actually contain variables that cancel out (for example, X - X = 0),
 		// with the result of the literal becoming a boolean constant unfit to be splitter.
 		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier(this);
 		return 
 				TopRewriter.merge(
+						super.makeTopRewriter(),
 						new Switch<>(
 								FUNCTOR,
 								map(
@@ -138,27 +122,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 										GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
 								)
 						)
-						,
-						makeQuantifierEliminatorRewriters()
 				);
-	}
-
-	private TopRewriter makeQuantifierEliminatorRewriters() {
-		return 
-				TopRewriter.merge(list(
-				
-				new SummationRewriter(new SGVET())
-				,
-				new ProductRewriter(new SGDPLLT())
-				,
-				new MaxRewriter(new SGDPLLT())
-				,
-				new CardinalityTopRewriter(new SGDPLLT())
-				,
-				new ForAllRewriter(new SGDPLLT())
-				,
-				new ThereExistsRewriter(new SGDPLLT())
-				));
 	}
 
 	@Override
@@ -169,7 +133,6 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		ExpressionLiteralSplitterStepSolver result =
 				new Recursive(new Exhaustive(
 						new FirstOf(
-//								TopRewriter.merge(getTopRewriter(), makeQuantifierEliminatorRewriters()),
 								getTopRewriter(), 
 								literalExternalizer)))
 				.makeStepSolver(expression);

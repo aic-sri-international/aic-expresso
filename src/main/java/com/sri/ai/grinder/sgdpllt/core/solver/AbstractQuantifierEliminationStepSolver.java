@@ -324,7 +324,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 	
 	protected Expression solveSubProblems(AbstractQuantifierEliminationStepSolver subProblem1, AbstractQuantifierEliminationStepSolver subProblem2, Context context) {
-		// (**) IF DELETING THIS MARKER, ALL THE REFERENCES TO IT IN THIS FILE
+		// (**) IF DELETING THIS MARKER, DELETE ALL THE REFERENCES TO IT IN THIS FILE
 		// This is where this step solver may return a Solution with literals in it:
 		// solveSubProblem uses an exhaustive solve.
 		Expression subSolution1 = solveSubProblem(subProblem1, context);

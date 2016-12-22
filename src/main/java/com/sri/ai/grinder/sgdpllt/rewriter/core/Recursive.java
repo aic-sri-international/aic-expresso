@@ -130,7 +130,7 @@ public class Recursive implements Rewriter {
 		private ArrayList<ExpressionAndSyntacticContext> subExpressions;
 		private int currentSubExpressionIndex;
 		private boolean topExpressionIsNextForUsToTakeAStepOn;
-		private ExpressionLiteralSplitterStepSolver currentStepSolver;
+		private ExpressionLiteralSplitterStepSolver initialCurrentStepSolver;
 		
 		// Invariants:
 		// baseRewriter is the base rewriter of the {@link Recursive} rewriter which this step solver implements 
@@ -150,20 +150,20 @@ public class Recursive implements Rewriter {
 			this.currentExpression = currentExpression;
 			this.subExpressions = addAllToArrayList(currentExpression.getImmediateSubExpressionsAndContextsIterator());
 			this.currentSubExpressionIndex = 0;
-			this.currentStepSolver = null;
+			this.initialCurrentStepSolver = null;
 		}
 
 		private RecursiveStepSolver makeRecursiveStepSolverForSameExpressionButSkippingTopExpression() {
 			RecursiveStepSolver next = clone();
 			next.topExpressionIsNextForUsToTakeAStepOn = false;
-			next.currentStepSolver = null;
+			next.initialCurrentStepSolver = null;
 			return next;
 		}
 
 		private RecursiveStepSolver makeRecursiveStepSolverForSameExpressionButTargettingNextSubExpression() {
 			RecursiveStepSolver result = clone();
 			result.topExpressionIsNextForUsToTakeAStepOn = false;
-			result.currentStepSolver = null;
+			result.initialCurrentStepSolver = null;
 			result.currentSubExpressionIndex++;
 			return result;
 		}
@@ -189,7 +189,10 @@ public class Recursive implements Rewriter {
 			Step result;
 			
 			if ( ! (currentExpression.getSyntacticFormType().equals("Function application") || currentExpression.getSyntacticFormType().equals("Symbol"))) {
-				return new Solution(currentExpression);
+				// For expressions other than function applications and symbols, this step solver behaves like the step solver of its base rewriter.
+				// Note that here we assume that topExpressionIsNextForUsToTakeAStepOn must be true, as it would not make sense for it for be false
+				// for non-function applications.
+				return baseRewriter.step(currentExpression, context);
 			}
 
 			if (!topExpressionIsNextForUsToTakeAStepOn && currentSubExpressionIndex >= subExpressions.size()) {
@@ -197,25 +200,26 @@ public class Recursive implements Rewriter {
 			}
 			else {
 				Step step;
-				if (topExpressionIsNextForUsToTakeAStepOn) {
-					if (currentStepSolver == null) { // we keep the currentStepSolver in a field instead of computing it every time so that sequel step solvers can have it set to sequel *base* step solvers.
-						currentStepSolver = baseRewriter.makeStepSolver(currentExpression);
-					}
+				ExpressionLiteralSplitterStepSolver currentStepSolver;
+
+				if (initialCurrentStepSolver != null) {
+					currentStepSolver = initialCurrentStepSolver;
+				}
+				else if (topExpressionIsNextForUsToTakeAStepOn) {
+					currentStepSolver = baseRewriter.makeStepSolver(currentExpression);
 				}
 				else {
-					if (currentStepSolver == null) { // we keep the currentStepSolver in a field instead of computing it every time so that sequel step solvers can have it set to sequel *base* step solvers.
-						Expression subExpression = subExpressions.get(currentSubExpressionIndex).getExpression();
-						currentStepSolver = new RecursiveStepSolver(baseRewriter, subExpression);
-					}
+					Expression subExpression = subExpressions.get(currentSubExpressionIndex).getExpression();
+					currentStepSolver = new RecursiveStepSolver(baseRewriter, subExpression);
 				}
 
 				step = currentStepSolver.step(context);
 
 				if (step.itDepends()) {
 					RecursiveStepSolver ifTrue = clone();
-					ifTrue.currentStepSolver = step.getStepSolverForWhenSplitterIsTrue();
+					ifTrue.initialCurrentStepSolver = step.getStepSolverForWhenSplitterIsTrue();
 					RecursiveStepSolver ifFalse = clone();
-					ifFalse.currentStepSolver = step.getStepSolverForWhenSplitterIsFalse();
+					ifFalse.initialCurrentStepSolver = step.getStepSolverForWhenSplitterIsFalse();
 					result = new ItDependsOn(step, ifTrue, ifFalse);
 				}
 				else if (topExpressionIsNextForUsToTakeAStepOn) {

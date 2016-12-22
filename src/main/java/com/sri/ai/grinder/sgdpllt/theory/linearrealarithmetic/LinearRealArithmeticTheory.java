@@ -45,12 +45,11 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_O
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -70,9 +69,8 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheory;
@@ -99,32 +97,30 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	public LinearRealArithmeticTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
-				propagateAllLiteralsWhenVariableIsBound,
-				new DefaultTopRewriter() // placeholder; need to use non-static top rewriter, see below
-				);
-		
-		setExtraTopRewriter(
-				new Switch<String>(
-						Switch.FUNCTOR,
-						new HashMap<String, Rewriter>(
-								makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier())));
-		// It's important to include the linear real arithmetic simplifier to avoid leaving linear real arithmetic literals that could be picked up as splitters,
-		// but actually contain variables that cancel out, with the result of the literal becoming a boolean constant unfit to be splitter.
+				propagateAllLiteralsWhenVariableIsBound);
 	}
 	
-	private Map<String, Simplifier> makeAssociationBetweenRelationalOperatorsAndLinearRealArithmeticSimplifier() {
+	@Override
+	public TopRewriter makeTopRewriter() {
+		// It's important to include the difference arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
+		// but actually contain variables that cancel out (for example, X - X = 0),
+		// with the result of the literal becoming a boolean constant unfit to be splitter.
 		Simplifier linearRealArithmeticSimplifier = new LinearRealArithmeticSimplifier(this);
-		Map<String, Simplifier> functionApplicationSimplifiers =
-				map(
-						EQUALITY,                 linearRealArithmeticSimplifier,
-						DISEQUALITY,              linearRealArithmeticSimplifier,
-						LESS_THAN,                linearRealArithmeticSimplifier,
-						LESS_THAN_OR_EQUAL_TO,    linearRealArithmeticSimplifier,
-						GREATER_THAN,             linearRealArithmeticSimplifier,
-						GREATER_THAN_OR_EQUAL_TO, linearRealArithmeticSimplifier
-						);
-
-		return functionApplicationSimplifiers;
+		return 
+				TopRewriter.merge(
+						super.makeTopRewriter(),
+						new Switch<>(
+								FUNCTOR,
+								map(
+										EQUALITY,                 linearRealArithmeticSimplifier,
+										DISEQUALITY,              linearRealArithmeticSimplifier,
+										LESS_THAN,                linearRealArithmeticSimplifier,
+										LESS_THAN_OR_EQUAL_TO,    linearRealArithmeticSimplifier,
+										GREATER_THAN,             linearRealArithmeticSimplifier,
+										GREATER_THAN_OR_EQUAL_TO, linearRealArithmeticSimplifier
+								)
+						)
+				);
 	}
 
 	@Override

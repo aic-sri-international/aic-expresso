@@ -83,21 +83,11 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 */
 	public AbstractNumericTheory(
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			TopRewriter extraTopRewriter) {
+			boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				propagateAllLiteralsWhenVariableIsBound,
-				makeTopRewriter(extraTopRewriter));
-	}
-
-	/**
-	 * Sets the extra simplifier (besides the mandatory ones).
-	 * @param extraTopRewriter
-	 */
-	protected void setExtraTopRewriter(TopRewriter extraTopRewriter) {
-		setTopRewriter(makeTopRewriter(extraTopRewriter));
+				propagateAllLiteralsWhenVariableIsBound);
 	}
 
 	/**
@@ -105,16 +95,17 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * @param extraSimplifier
 	 * @return
 	 */
-	private static TopRewriter makeTopRewriter(TopRewriter extraSimplifier) {
+	@Override
+	public TopRewriter makeTopRewriter() {
 		return merge(
+				super.makeTopRewriter(),
 				// basic simplification of involved interpreted functions in this theory:
 				new BindingTopSimplifier(),
 				new EqualitySimplifier(),
 				new InequalitySimplifier(),
 				new BooleanSimplifier(),
 				new NumericSimplifier(),
-				new CardinalityOfSetConstantSimplifier(),
-				extraSimplifier);
+				new CardinalityOfSetConstantSimplifier());
 	}
 	
 	private static final Map<String, String> negationFunctor =

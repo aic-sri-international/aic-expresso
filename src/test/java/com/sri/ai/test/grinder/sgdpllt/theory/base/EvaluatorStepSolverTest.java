@@ -264,6 +264,11 @@ public class EvaluatorStepSolverTest {
 		expressionString = "for all I in 1..10 : (I != 4 or I = 4) and P";
 		expected = parse("P");
 		runTest(expressionString, expected, context);	
+
+		// the following example tests that quantified expressions that are function arguments get evaluated properly, as there once was a bug preventing it
+		expressionString = "not(for all I in 1..10 : (I != 4 or I = 4))";
+		expected = parse("false");
+		runTest(expressionString, expected, context);	
 	
 		expressionString = "for all I in 1..10 : for all J in 1..2 : I != 4";
 		expected = parse("false");

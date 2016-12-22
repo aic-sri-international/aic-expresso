@@ -56,6 +56,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.equality.ModelCountingOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
@@ -75,12 +76,16 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				propagateAllLiteralsWhenVariableIsBound,
-// TODO - need to be able to rewrite quantifiers with tuple types.
-// TODO - do we need to include the BooleanSimplifier?				
-				merge(new TupleEqualityTopRewriter(), new BooleanSimplifier()));
+				propagateAllLiteralsWhenVariableIsBound);
 	}
 	
+	@Override
+	public TopRewriter makeTopRewriter() {
+		// TODO - need to be able to rewrite quantifiers with tuple types.
+		// TODO - do we need to include the BooleanSimplifier?				
+		return merge(super.makeTopRewriter(), new TupleEqualityTopRewriter(), new BooleanSimplifier());
+	}
+
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
 		boolean result = isTupleType(type);

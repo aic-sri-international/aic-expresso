@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.constraint;
 
+import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 import static com.sri.ai.util.Util.camelCaseToSpacedString;
 import static com.sri.ai.util.Util.list;
 
@@ -49,10 +50,25 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.EvaluatorStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
+import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
+import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
+import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
+import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 @Beta
@@ -61,7 +77,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  */
 abstract public class AbstractTheory implements Theory {
 
-	protected TopRewriter rewriter;
+	protected TopRewriter topRewriter;
 	
 	/**
 	 * Initializes types for testing to be the collection of a single type,
@@ -71,42 +87,97 @@ abstract public class AbstractTheory implements Theory {
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
 	 * @param topRewriter a source of elementary simplifiers for this theory
 	 */
-	public AbstractTheory(TopRewriter topRewriter) {
+	public AbstractTheory() {
 		super();
-		setTopRewriter(topRewriter);
 	}
 
-	private Rewriter cachedRecursiveExhaustiveRewriter;
+	private Rewriter cachedRecursiveExhaustiveTopRewriter;
 	
 	/**
 	 * Sets the theory's rewriter.
 	 * @param topRewriter
 	 */
 	protected void setTopRewriter(TopRewriter topRewriter) {
-		this.rewriter = topRewriter;
-		this.cachedRecursiveExhaustiveRewriter = new Recursive(new Exhaustive(topRewriter));
+		this.topRewriter = topRewriter;
+		this.cachedRecursiveExhaustiveTopRewriter = new Recursive(new Exhaustive(topRewriter));
 	}
 	
 	@Override
+	public TopRewriter getTopRewriter() {
+		if (topRewriter == null) {
+			setTopRewriter(makeTopRewriter());
+		}
+		return topRewriter;
+	}
+
+	@Override
+	public Rewriter getRewriter() {
+		if (topRewriter == null) {
+			setTopRewriter(makeTopRewriter());
+		}
+		return cachedRecursiveExhaustiveTopRewriter;
+	}
+
+	public TopRewriter makeTopRewriter() {
+		return merge(
+				// basic simplifications
+				new BindingTopSimplifier(),
+				new EqualitySimplifier(),
+				new InequalitySimplifier(),
+				new BooleanSimplifier(),
+				new NumericSimplifier(),
+				new CardinalityOfSetConstantSimplifier(),
+				makeQuantifierEliminatorRewriters());
+	}
+	
+	protected TopRewriter makeQuantifierEliminatorRewriters() {
+		return 
+				TopRewriter.merge(list(
+				
+				new SummationRewriter(new SGVET())
+				,
+				new ProductRewriter(new SGDPLLT())
+				,
+				new MaxRewriter(new SGDPLLT())
+				,
+				new CardinalityTopRewriter(new SGDPLLT())
+				,
+				new ForAllRewriter(new SGDPLLT())
+				,
+				new ThereExistsRewriter(new SGDPLLT())
+				));
+	}
+
+	@Override
 	public Expression simplify(Expression expression, Context context) {
-		Expression result = cachedRecursiveExhaustiveRewriter.apply(expression, context);
+		Expression result = getRewriter().apply(expression, context);
 		return result;
 	}
 	
+//	@Override
+//	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
+//		EvaluatorStepSolver result = new EvaluatorStepSolver(expression);
+//		return result;
+//	}
+
 	@Override
 	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
-		EvaluatorStepSolver result = new EvaluatorStepSolver(expression);
+
+		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
+
+		ExpressionLiteralSplitterStepSolver result =
+				new Recursive(new Exhaustive(
+						new FirstOf(
+								getTopRewriter(), 
+								literalExternalizer)))
+				.makeStepSolver(expression);
+		
 		return result;
 	}
 
 	@Override
 	public Collection<Type> getNativeTypes() {
 		return list();
-	}
-	
-	@Override
-	public TopRewriter getTopRewriter() {
-		return rewriter;
 	}
 	
 	@Override

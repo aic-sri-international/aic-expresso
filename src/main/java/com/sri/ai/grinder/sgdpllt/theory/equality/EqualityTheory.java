@@ -57,6 +57,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhich
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 
@@ -81,10 +82,14 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				propagateAllLiteralsWhenVariableIsBound,
-				merge(new EqualitySimplifier(), new BooleanSimplifier()));
+				propagateAllLiteralsWhenVariableIsBound);
 	}
 	
+	@Override
+	public TopRewriter makeTopRewriter() {
+		return merge(super.makeTopRewriter(), new EqualitySimplifier(), new BooleanSimplifier());
+	}
+
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
 		boolean result = isNonBooleanCategoricalType(type);

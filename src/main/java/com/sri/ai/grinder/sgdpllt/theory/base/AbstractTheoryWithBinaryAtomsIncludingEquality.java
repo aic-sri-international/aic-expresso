@@ -41,7 +41,6 @@ import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 
 /** 
@@ -59,10 +58,9 @@ abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends Abs
 	public AbstractTheoryWithBinaryAtomsIncludingEquality(
 			Collection<String> theoryFunctors,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			boolean propagateAllLiteralsWhenVariableIsBound,
-			TopRewriter topRewriter) {
+			boolean propagateAllLiteralsWhenVariableIsBound) {
 
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, topRewriter);
+		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
 	}
 

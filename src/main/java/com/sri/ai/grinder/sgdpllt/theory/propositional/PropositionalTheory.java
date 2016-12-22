@@ -59,6 +59,7 @@ import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 @Beta
 /** 
@@ -67,7 +68,12 @@ import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 public class PropositionalTheory extends AbstractTheory {
 
 	public PropositionalTheory() {
-		super(new BooleanSimplifier());
+		super();
+	}
+
+	@Override
+	public TopRewriter makeTopRewriter() {
+		return TopRewriter.merge(super.makeTopRewriter(), new BooleanSimplifier());
 	}
 
 	@Override
