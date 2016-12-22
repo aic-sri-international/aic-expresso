@@ -72,7 +72,7 @@ import com.sri.ai.util.base.Pair;
  * <pre>
  * Quantifier on t in TupleType : Constraint Body
  * ---->
- * Quantifier var_1 in TupleType[1] ... Quantifiere var_n in TupleType[n[
+ * Quantifier var_1 in TupleType[1] ... Quantifier var_n in TupleType[n[
  *    : Body[t/(var_1,...,var_n)]
  *    
  * For example:

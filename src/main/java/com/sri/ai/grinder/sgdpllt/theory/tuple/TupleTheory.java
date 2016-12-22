@@ -42,25 +42,28 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 import static com.sri.ai.util.Util.set;
 
+import java.util.Arrays;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.DefaultCountingFormula;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.TupleType;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
-import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsIncludingEquality;
-import com.sri.ai.grinder.sgdpllt.theory.equality.ModelCountingOfSingleVariableEqualityConstraintStepSolver;
-import com.sri.ai.grinder.sgdpllt.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.equality.SingleVariableEqualityConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSetTopRewriter;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifier;
 
 /**
  * A {@link Theory) for Tuples.
@@ -71,6 +74,8 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter
 @Beta
 public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality {
 	
+	private TupleQuantifierSimplifier tupleQuantifierSimplifier = new TupleQuantifierSimplifier();
+	
 	public TupleTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				set(EQUALITY, DISEQUALITY),
@@ -80,12 +85,7 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	
 	@Override
 	public TopRewriter makeDefaultTopRewriter() {
-		// TODO - need to be able to rewrite quantifiers with tuple types.
-		// A: That will be done by the getSingleVariableConstraintQuantifierEliminatorStepSolver etc methods
-		
-		// TODO - do we need to include the BooleanSimplifier?
-		// A: No, AbstractTheory introduces that by default
-		return merge(super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new BooleanSimplifier());
+		return merge(super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
 	}
 
 	@Override
@@ -106,48 +106,49 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	}
 
 	@Override
-	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-// TODO - in the case of tuples should we always return false?		
-		// A: we return always 'true' (because, if all other theories present are complete, then this one will, too)
+	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {	
+		// We return always 'true' (because, if all other theories present are complete, then this one will, too)
 		return true;
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-// TODO - can we use SatisfiabilityOfSingleVariableEqualityConstraintStepSolver here or do we need our Tuple specific version?
-		// A: we need our tuple-specific version.
-		// This tuple-specific version will do the following:
+		// The tuple-specific version will do the following:
 		// - create a E = 'there exists X : C' expression equivalent to the satisfiability of the constraint given here.
+		Expression exprE = ThereExists.make(Expressions.apply(FunctorConstants.IN, constraint.getVariable(), GrinderUtil.getType(constraint.getVariable(), context)), constraint);
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
-		// - return context.getTheory().getRewriter().makeStepSolver(E', context)
-		ExpressionLiteralSplitterStepSolver result  = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
+		Expression exprEPrime = tupleQuantifierSimplifier.apply(exprE, context);
+		// - return context.getTheory().getRewriter().makeStepSolver(E')		
+		ExpressionLiteralSplitterStepSolver result  = context.getTheory().getRewriter().makeStepSolver(exprEPrime);		
+		
 		return result;
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-// TODO - can we use ModelCountingOfSingleVariableEqualityConstraintStepSolver here or do we need our own Tuple specific version?		
-		// A: we need our tuple-specific version.
-		// This tuple-specific version will do the following:
-		// - create a E = 'sum( {{ on X) 1 : C' }}) expression equivalent to model counting of the constraint given here.
+		// The tuple-specific version will do the following:
+		// - create a E = | X in ... : X | expression equivalent to model counting of the constraint given here.
+		Expression exprE = new DefaultCountingFormula(Arrays.asList(Expressions.apply(FunctorConstants.IN, constraint.getVariable(), GrinderUtil.getType(constraint.getVariable(), context))), constraint);
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
-		// - return context.getTheory().getRewriter().makeStepSolver(E', context)
-		ExpressionLiteralSplitterStepSolver result = new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
+		Expression exprEPrime = tupleQuantifierSimplifier.apply(exprE, context);
+		// - return context.getTheory().getRewriter().makeStepSolver(E')
+		ExpressionLiteralSplitterStepSolver result  = context.getTheory().getRewriter().makeStepSolver(exprEPrime);
+		
 		return result;
 	}
 
 	@Override
 	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
-// TODO - can we use QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver here or do we need our own Tuple specific version		
-		// A: we need our tuple-specific version.
-		// This tuple-specific version will do the following:
+		// The tuple-specific version will do the following:
 		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
 		//            to create E
+		Expression exprE = group.makeProblemExpression(constraint.getVariable(), GrinderUtil.getType(constraint.getVariable(), context), constraint, currentBody);
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
-		// - return context.getTheory().getRewriter().makeStepSolver(E', context)
-		ExpressionStepSolver formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(group, constraint, currentBody);
-		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
+		Expression exprEPrime = tupleQuantifierSimplifier.apply(exprE, context);
+		// - return context.getTheory().getRewriter().makeStepSolver(E')
+		ExpressionLiteralSplitterStepSolver result  = context.getTheory().getRewriter().makeStepSolver(exprEPrime);
+		
 		return result;
 	}
 	

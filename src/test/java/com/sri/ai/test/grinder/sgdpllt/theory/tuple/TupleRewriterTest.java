@@ -12,6 +12,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleDisequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSetSimplifier;
@@ -226,5 +227,18 @@ public class TupleRewriterTest {
 	@Test(expected = ArithmeticException.class)
 	public void testTupleSetBadIndex3() {
 		System.out.println(""+new TupleSetSimplifier().apply(parse("set((a,b,c),1.1,e)"), context));
+	}
+	
+	@Test
+	public void testTupleGetSetTopRewriter() {
+		TopRewriter tupleGetSetTopRewriter = new TupleGetSetTopRewriter();
+		
+		Assert.assertEquals(
+				parse("if I = 1 then a else if I = 2 then b else c"),
+				tupleGetSetTopRewriter.apply(parse("get((a,b,c),I)"), context));
+		
+		Assert.assertEquals(
+				parse("if I = 1 then (e,b,c) else if I = 2 then (a,e,c) else (a,b,e)"),
+				tupleGetSetTopRewriter.apply(parse("set((a,b,c),I,e)"), context));	
 	}
 }
