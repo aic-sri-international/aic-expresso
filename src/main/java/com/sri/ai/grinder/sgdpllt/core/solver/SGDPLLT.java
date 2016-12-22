@@ -61,22 +61,10 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class SGDPLLT extends AbstractMultiIndexQuantifierEliminator {
 
-	private AssociativeCommutativeGroup group;
-	
 	public SGDPLLT() {
 		super();
-		this.group = null;
 	}
 
-	public SGDPLLT(AssociativeCommutativeGroup group) {
-		super();
-		this.group = group;
-	}
-
-	public AssociativeCommutativeGroup getGroup() {
-		return group;
-	}
-	
 	/**
 	 * @param group
 	 * @param indices

@@ -393,7 +393,6 @@ public class EvaluatorStepSolverTest {
 	private void runTest(String expressionString, Expression expected, Context context) {
 		Expression expression = parse(expressionString);
 		ExpressionLiteralSplitterStepSolver stepSolver = context.getTheory().makeEvaluatorStepSolver(expression);
-//		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression);
 		System.out.println("Evaluating " + expression);
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
 		System.out.println(expression + " -----> " + solution + "\n");

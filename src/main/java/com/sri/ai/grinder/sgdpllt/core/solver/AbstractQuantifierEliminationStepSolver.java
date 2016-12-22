@@ -182,7 +182,6 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
 			= theory.makeEvaluatorStepSolver(body);
-//			= new EvaluatorStepSolver(body);
 		}
 		return initialBodyEvaluationStepSolver;
 	}
@@ -235,7 +234,6 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// Check (**) in this file to see where this happens
 			if ( ! bodyStep.itDepends()) {
 				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
-//				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(bodyStep.getValue());
 				bodyStep = evaluatorStepSolver.step(context);
 			}
 			

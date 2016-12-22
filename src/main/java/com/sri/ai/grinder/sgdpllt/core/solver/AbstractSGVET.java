@@ -109,10 +109,6 @@ public class AbstractSGVET extends AbstractMultiIndexQuantifierEliminator {
 		return context.getTheory().isVariable(expression, context);
 	}
 
-	public AssociativeCommutativeGroup getGroup() {
-		return subSolver.getGroup();
-	}
-	
 	@Override
 	public void interrupt() {
 		super.interrupt();

@@ -74,7 +74,7 @@ public class Compilation {
 		AssociativeCommutativeGroup group = new Max(); // the group actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		MultiIndexQuantifierEliminator solver = new SGDPLLT(group);
+		MultiIndexQuantifierEliminator solver = new SGDPLLT();
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}

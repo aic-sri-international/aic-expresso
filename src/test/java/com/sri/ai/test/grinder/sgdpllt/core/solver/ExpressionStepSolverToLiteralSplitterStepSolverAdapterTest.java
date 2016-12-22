@@ -233,7 +233,6 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 			for (int i = stepSolutionConjuncts.size(); i < problemConjuncts.size(); i++) {
 				Expression conjunct = problemConjuncts.get(i);
 				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(conjunct);
-//				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(conjunct);
 				Expression conjunctResult = evaluatorStepSolver.solve(context);
 				if (Expressions.TRUE.equals(conjunctResult)) {
 					stepSolutionConjuncts.add(conjunct);

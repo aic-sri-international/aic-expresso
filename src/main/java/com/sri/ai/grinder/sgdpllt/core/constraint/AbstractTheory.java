@@ -105,7 +105,7 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public TopRewriter getTopRewriter() {
 		if (topRewriter == null) {
-			setTopRewriter(makeTopRewriter());
+			setTopRewriter(makeDefaultTopRewriter());
 		}
 		return topRewriter;
 	}
@@ -113,64 +113,67 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public Rewriter getRewriter() {
 		if (topRewriter == null) {
-			setTopRewriter(makeTopRewriter());
+			setTopRewriter(makeDefaultTopRewriter());
 		}
 		return cachedRecursiveExhaustiveTopRewriter;
 	}
 
-	public TopRewriter makeTopRewriter() {
-		return merge(
-				// basic simplifications
-				new BindingTopSimplifier(),
-				new EqualitySimplifier(),
-				new InequalitySimplifier(),
-				new BooleanSimplifier(),
-				new NumericSimplifier(),
-				new CardinalityOfSetConstantSimplifier(),
-				makeQuantifierEliminatorRewriters());
+	/**
+	 * We keep a static cached version of the default top rewriter
+	 * so that all theories share the same instances of top rewriters.
+	 * This way, if they are all merged, their shared instances
+	 * will be recognized as the same by {@link TopRewriter#merge}
+	 * and be used only once.
+	 */
+	private static TopRewriter staticCachedDefaultTopRewriter = null;
+
+	public TopRewriter makeDefaultTopRewriter() {
+		if (staticCachedDefaultTopRewriter == null) {
+			staticCachedDefaultTopRewriter = 
+					merge(
+							// basic simplifications
+							new BindingTopSimplifier(),
+							new EqualitySimplifier(),
+							new InequalitySimplifier(),
+							new BooleanSimplifier(),
+							new NumericSimplifier(),
+							new CardinalityOfSetConstantSimplifier(),
+
+							new SummationRewriter(new SGVET())
+							,
+							new ProductRewriter(new SGDPLLT())
+							,
+							new MaxRewriter(new SGDPLLT())
+							,
+							new CardinalityTopRewriter(new SGDPLLT())
+							,
+							new ForAllRewriter(new SGDPLLT())
+							,
+							new ThereExistsRewriter(new SGDPLLT()));
+		}
+		return staticCachedDefaultTopRewriter;
 	}
 	
-	protected TopRewriter makeQuantifierEliminatorRewriters() {
-		return 
-				TopRewriter.merge(list(
-				
-				new SummationRewriter(new SGVET())
-				,
-				new ProductRewriter(new SGDPLLT())
-				,
-				new MaxRewriter(new SGDPLLT())
-				,
-				new CardinalityTopRewriter(new SGDPLLT())
-				,
-				new ForAllRewriter(new SGDPLLT())
-				,
-				new ThereExistsRewriter(new SGDPLLT())
-				));
-	}
-
 	@Override
 	public Expression simplify(Expression expression, Context context) {
 		Expression result = getRewriter().apply(expression, context);
 		return result;
 	}
 	
-//	@Override
-//	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
-//		EvaluatorStepSolver result = new EvaluatorStepSolver(expression);
-//		return result;
-//	}
-
 	@Override
 	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
 
 		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
 
-		ExpressionLiteralSplitterStepSolver result =
-				new Recursive(new Exhaustive(
+		Recursive completeEvaluator = new Recursive(
+				new Exhaustive(
 						new FirstOf(
 								getTopRewriter(), 
-								literalExternalizer)))
-				.makeStepSolver(expression);
+								literalExternalizer)));
+		// it is a good idea to leave the literal externalizer at the end,
+		// since it is expensive due to duplicating the entire problem at every split
+		
+		ExpressionLiteralSplitterStepSolver result = completeEvaluator.makeStepSolver(expression);
 		
 		return result;
 	}

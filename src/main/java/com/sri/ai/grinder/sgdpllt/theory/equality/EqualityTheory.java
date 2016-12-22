@@ -86,8 +86,8 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	}
 	
 	@Override
-	public TopRewriter makeTopRewriter() {
-		return merge(super.makeTopRewriter(), new EqualitySimplifier(), new BooleanSimplifier());
+	public TopRewriter makeDefaultTopRewriter() {
+		return merge(super.makeDefaultTopRewriter(), new EqualitySimplifier(), new BooleanSimplifier());
 	}
 
 	@Override

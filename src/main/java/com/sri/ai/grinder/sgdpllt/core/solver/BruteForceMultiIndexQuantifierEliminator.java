@@ -85,12 +85,6 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndex
 	}
 	
 	@Override
-	public AssociativeCommutativeGroup getGroup() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Expression solve(
 			AssociativeCommutativeGroup group, 
 			ExtensionalIndexExpressionsSet indexExpressions, 

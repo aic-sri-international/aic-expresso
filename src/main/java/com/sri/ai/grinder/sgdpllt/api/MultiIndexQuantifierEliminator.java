@@ -6,14 +6,12 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.SGDPLLTUtil;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.util.base.Pair;
 
 /**
  * Interface to classes able to eliminate quantification (for a fixed group) over given indices, constraint and body.
@@ -36,8 +34,6 @@ public interface MultiIndexQuantifierEliminator {
 		return quantifierFreeExpression;
 	}
 	
-	public AssociativeCommutativeGroup getGroup();
-	
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
@@ -46,33 +42,11 @@ public interface MultiIndexQuantifierEliminator {
 	/**
 	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Expression, Expression, Collection, Context)}
 	 * assuming a true constraint.
-	 * @param group TODO
 	 */
 	default Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression body, Context context) {
 		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
 		Expression result = solve(group, indices, trueConstraint, body, context);
 		return result;
-	}
-
-	/**
-	 * Solves a problem encoded in an expression according to
-	 * the way this quantifier eliminator's group encodes it.
-	 * @param problem
-	 * @param context
-	 * @return
-	 */
-	default Expression solve(Expression problem, Context context) {
-		Pair<Expression, IndexExpressionsSet> bodyAndIndexExpressionSet
-		= getGroup().getExpressionAndIndexExpressionsFromProblemExpression(problem, context);
-
-		Expression body = bodyAndIndexExpressionSet.first;
-		IndexExpressionsSet indexExpressions = bodyAndIndexExpressionSet.second;
-
-		context = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);
-
-		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-		Expression quantifierFreeExpression = solve(getGroup(), indices, body, context);
-		return quantifierFreeExpression;
 	}
 
 	void interrupt();

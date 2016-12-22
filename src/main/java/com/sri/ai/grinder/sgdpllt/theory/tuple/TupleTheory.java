@@ -80,10 +80,10 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	}
 	
 	@Override
-	public TopRewriter makeTopRewriter() {
+	public TopRewriter makeDefaultTopRewriter() {
 		// TODO - need to be able to rewrite quantifiers with tuple types.
 		// TODO - do we need to include the BooleanSimplifier?				
-		return merge(super.makeTopRewriter(), new TupleEqualityTopRewriter(), new BooleanSimplifier());
+		return merge(super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new BooleanSimplifier());
 	}
 
 	@Override

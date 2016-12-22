@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing;
 
 /**
  * A {@link AbstractSGVET} using {@link SGDPLLT} as the eliminator for single quantifiers.
@@ -46,10 +45,6 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing;
  *
  */
 public class SGVET extends AbstractSGVET {
-
-	public SGVET(AssociativeCommutativeSemiRing semiRing) {
-		super(new SGDPLLT(semiRing));
-	}
 
 	public SGVET() {
 		super(new SGDPLLT());

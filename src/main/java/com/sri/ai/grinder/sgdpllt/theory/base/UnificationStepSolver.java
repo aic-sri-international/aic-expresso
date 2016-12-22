@@ -111,7 +111,6 @@ public class UnificationStepSolver implements StepSolver<Boolean> {
 			for (Integer unknownSolutionIndex : stepUnknownSolutionIndexesForUnificationEqualities) {
 				Expression equality = unificationEqualitiesToTest.get(unknownSolutionIndex);
 				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(equality);
-//				EvaluatorStepSolver evaluatorStepSolver = new EvaluatorStepSolver(equality);
 				Expression equalityResult = evaluatorStepSolver.solve(context);
 				if (equalityResult.equals(TRUE)) {
 					stepFoundSolutions.add(unknownSolutionIndex);
