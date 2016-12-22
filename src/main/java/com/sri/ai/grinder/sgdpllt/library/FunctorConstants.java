@@ -54,7 +54,9 @@ import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
  */
 @Beta
 public class FunctorConstants {
+	public final static String GET = "get";
 	public final static String PRODUCT = "product";
+	public final static String SET = "set";
 	public final static String SUM = "sum";
 	public final static String MAX = "max";
 	public static final String IF_THEN_ELSE = "if . then . else .";

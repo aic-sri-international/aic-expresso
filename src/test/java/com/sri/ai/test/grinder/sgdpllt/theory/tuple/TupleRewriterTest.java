@@ -12,7 +12,9 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleDisequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifier;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSetSimplifier;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
@@ -130,5 +132,99 @@ public class TupleRewriterTest {
 		Assert.assertEquals(
 				parse("lambda X_1 in Boolean, X_2 in Integer, Y, Z : (X_1, X_2) = (true, 1) and Y = Z"),
 				tupleQuantifierSimplifier.apply(parse("lambda X in tuple_type(Boolean, Integer), Y, Z : X = (true, 1) and Y = Z"), context));	
+	}
+	
+	@Test
+	public void testTupleGetSimplification() {
+		Simplifier tupleGetSimplifier = new TupleGetSimplifier();
+		
+		Assert.assertEquals(
+				parse("a"),
+				tupleGetSimplifier.apply(parse("get((a,b,c),1)"), context));
+
+		Assert.assertEquals(
+				parse("b"),
+				tupleGetSimplifier.apply(parse("get((a,b,c),2)"), context));
+		
+		Assert.assertEquals(
+				parse("c"),
+				tupleGetSimplifier.apply(parse("get((a,b,c),3)"), context));
+		
+		Assert.assertEquals(
+				parse("a"),
+				tupleGetSimplifier.apply(parse("get(tuple(a),I)"), context));
+		
+		Assert.assertEquals(
+				parse("if I = 1 then a else b"),
+				tupleGetSimplifier.apply(parse("get((a,b),I)"), context));
+		
+		Assert.assertEquals(
+				parse("if I = 1 then a else if I = 2 then b else c"),
+				tupleGetSimplifier.apply(parse("get((a,b,c),I)"), context));		
+		
+		Expression expr = parse("get(I, (a,b,c))");
+		Assert.assertTrue(expr == tupleGetSimplifier.apply(expr, context));
+	}
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testTupleGetBadIndex1() {
+		System.out.println(""+new TupleGetSimplifier().apply(parse("get((a,b,c),0)"), context));
+	}
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testTupleGetBadIndex2() {
+		System.out.println(""+new TupleGetSimplifier().apply(parse("get((a,b,c),4)"), context));
+	}
+	
+	@Test(expected = ArithmeticException.class)
+	public void testTupleGetBadIndex3() {
+		System.out.println(""+new TupleGetSimplifier().apply(parse("get((a,b,c),1.1)"), context));
+	}
+	
+	@Test
+	public void testTupleSetSimplification() {
+		Simplifier tupleSetSimplifier = new TupleSetSimplifier();
+		
+		Assert.assertEquals(
+				parse("(e,b,c)"),
+				tupleSetSimplifier.apply(parse("set((a,b,c),1,e)"), context));
+
+		Assert.assertEquals(
+				parse("(a,e,c)"),
+				tupleSetSimplifier.apply(parse("set((a,b,c),2,e)"), context));
+		
+		Assert.assertEquals(
+				parse("(a,b,e)"),
+				tupleSetSimplifier.apply(parse("set((a,b,c),3,e)"), context));
+		
+		Assert.assertEquals(
+				parse("tuple(e)"),
+				tupleSetSimplifier.apply(parse("set(tuple(a),I,e)"), context));
+		
+		Assert.assertEquals(
+				parse("if I = 1 then (e,b) else (a,e)"),
+				tupleSetSimplifier.apply(parse("set((a,b),I,e)"), context));
+		
+		Assert.assertEquals(
+				parse("if I = 1 then (e,b,c) else if I = 2 then (a,e,c) else (a,b,e)"),
+				tupleSetSimplifier.apply(parse("set((a,b,c),I,e)"), context));		
+		
+		Expression expr = parse("set(I, (a,b,c), e)");
+		Assert.assertTrue(expr == tupleSetSimplifier.apply(expr, context));
+	}
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testTupleSetBadIndex1() {
+		System.out.println(""+new TupleSetSimplifier().apply(parse("set((a,b,c),0,e)"), context));
+	}
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testTupleSetBadIndex2() {
+		System.out.println(""+new TupleSetSimplifier().apply(parse("set((a,b,c),4,e)"), context));
+	}
+	
+	@Test(expected = ArithmeticException.class)
+	public void testTupleSetBadIndex3() {
+		System.out.println(""+new TupleSetSimplifier().apply(parse("set((a,b,c),1.1,e)"), context));
 	}
 }
