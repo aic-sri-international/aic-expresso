@@ -122,6 +122,9 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 		return negationFunctor.get(functor);
 	}
 
+	/**
+	 * Overrides super method due to knowledge about specific relational operators <code>>, <, <=, >=</code>
+	 */
 	@Override
 	protected Expression getNonTrivialAtomNegation(Expression atom) {
 		String functorString = atom.getFunctor().toString();

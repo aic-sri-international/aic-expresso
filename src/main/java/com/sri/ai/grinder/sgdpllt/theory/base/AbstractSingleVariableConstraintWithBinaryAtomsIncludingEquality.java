@@ -83,7 +83,6 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 	public AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, Theory theory) {
 		super(variable, theory);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
-		
 	}
 
 	public AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality(

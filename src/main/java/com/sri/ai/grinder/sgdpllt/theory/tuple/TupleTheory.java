@@ -45,7 +45,6 @@ import static com.sri.ai.util.Util.set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -82,7 +81,10 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	@Override
 	public TopRewriter makeDefaultTopRewriter() {
 		// TODO - need to be able to rewrite quantifiers with tuple types.
-		// TODO - do we need to include the BooleanSimplifier?				
+		// A: That will be done by the getSingleVariableConstraintQuantifierEliminatorStepSolver etc methods
+		
+		// TODO - do we need to include the BooleanSimplifier?
+		// A: No, AbstractTheory introduces that by default
 		return merge(super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new BooleanSimplifier());
 	}
 
@@ -99,21 +101,6 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	}
 	
 	@Override
-	protected Expression getNonTrivialAtomNegation(Expression atom) {
-		Expression result;
-		if (atom.hasFunctor(EQUALITY)) {
-			result = Expressions.apply(DISEQUALITY, atom.get(0), atom.get(1));
-		}
-		else if (atom.hasFunctor(DISEQUALITY)) {
-			result = Expressions.apply(EQUALITY, atom.get(0), atom.get(1));
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
 		return new SingleVariableEqualityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), theory);
 	}
@@ -121,12 +108,18 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
 // TODO - in the case of tuples should we always return false?		
-		return !getPropagateAllLiteralsWhenVariableIsBound();
+		// A: we return always 'true' (because, if all other theories present are complete, then this one will, too)
+		return true;
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-// TODO - can we use SatisfiabilityOfSingleVariableEqualityConstraintStepSolver here or do we need our Tuple specific version?		
+// TODO - can we use SatisfiabilityOfSingleVariableEqualityConstraintStepSolver here or do we need our Tuple specific version?
+		// A: we need our tuple-specific version.
+		// This tuple-specific version will do the following:
+		// - create a E = 'there exists X : C' expression equivalent to the satisfiability of the constraint given here.
+		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
+		// - return context.getTheory().getRewriter().makeStepSolver(E', context)
 		ExpressionLiteralSplitterStepSolver result  = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
 		return result;
 	}
@@ -134,6 +127,11 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
 // TODO - can we use ModelCountingOfSingleVariableEqualityConstraintStepSolver here or do we need our own Tuple specific version?		
+		// A: we need our tuple-specific version.
+		// This tuple-specific version will do the following:
+		// - create a E = 'sum( {{ on X) 1 : C' }}) expression equivalent to model counting of the constraint given here.
+		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
+		// - return context.getTheory().getRewriter().makeStepSolver(E', context)
 		ExpressionLiteralSplitterStepSolver result = new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
 		return result;
 	}
@@ -141,6 +139,13 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	@Override
 	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
 // TODO - can we use QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver here or do we need our own Tuple specific version		
+		// A: we need our tuple-specific version.
+		// This tuple-specific version will do the following:
+		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
+		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
+		//            to create E
+		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
+		// - return context.getTheory().getRewriter().makeStepSolver(E', context)
 		ExpressionStepSolver formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(group, constraint, currentBody);
 		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
 		return result;

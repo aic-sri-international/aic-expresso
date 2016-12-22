@@ -37,9 +37,15 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.sgdpllt.library.boole.Not.not;
+
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 
@@ -67,5 +73,23 @@ abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends Abs
 	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
 		return propagateAllLiteralsWhenVariableIsBound;
 	}
-	
+
+	/**
+	 * Inverts <code>=</code> to <code>!=</code> and vice-versa,
+	 * and adds <code>not</code> to other atoms.
+	 */
+	@Override
+	protected Expression getNonTrivialAtomNegation(Expression atom) {
+		Expression result;
+		if (atom.hasFunctor(EQUALITY)) {
+			result = Expressions.apply(DISEQUALITY, atom.get(0), atom.get(1));
+		}
+		else if (atom.hasFunctor(DISEQUALITY)) {
+			result = Expressions.apply(EQUALITY, atom.get(0), atom.get(1));
+		}
+		else {
+			result = not(atom);
+		}
+		return result;
+	}
 }

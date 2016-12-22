@@ -45,7 +45,6 @@ import static com.sri.ai.util.Util.set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -104,21 +103,6 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	
 	private boolean isNonBooleanCategoricalType(Type type) {
 		boolean result = !type.getName().equals("Boolean") && type instanceof Categorical;
-		return result;
-	}
-
-	@Override
-	protected Expression getNonTrivialAtomNegation(Expression atom) {
-		Expression result;
-		if (atom.hasFunctor(EQUALITY)) {
-			result = Expressions.apply(DISEQUALITY, atom.get(0), atom.get(1));
-		}
-		else if (atom.hasFunctor(DISEQUALITY)) {
-			result = Expressions.apply(EQUALITY, atom.get(0), atom.get(1));
-		}
-		else {
-			result = null;
-		}
 		return result;
 	}
 
