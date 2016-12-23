@@ -282,11 +282,11 @@ public interface Theory extends Cloneable {
 	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
 	 * @param group
 	 * @param constraint
-	 * @param currentBody
+	 * @param body
 	 * @param context
 	 * @return
 	 */
-	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
+	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
 
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,

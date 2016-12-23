@@ -35,59 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.tuple;
+package com.sri.ai.grinder.sgdpllt.theory.function;
 
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.TupleType;
+import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceInterpreter;
+import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTranslationBasedTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSetTopRewriter;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifier;
+import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
 
 /**
- * A {@link Theory) for Tuples.
+ * A {@link Theory) for functions based on brute-force enumeration.
  * 
  * @author oreilly
  *
  */
 @Beta
-public class TupleTheory extends AbstractTranslationBasedTheory {
+public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	
-	private TupleQuantifierSimplifier tupleQuantifierSimplifier = new TupleQuantifierSimplifier();
-
 	@Override
 	public TopRewriter makeDefaultTopRewriter() {
-		return merge(super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
+		return merge(super.makeDefaultTopRewriter(), new LambdaBetaReductionSimplifier());
 	}
 
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = type instanceof TupleType;
+		boolean result = type instanceof FunctionType;
 		return result;
 	}
 	
 	@Override
 	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
-		// The tuple-specific version will do the following:
-		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
-		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
-		//            to create E
-		Expression exprE = group.makeProblemExpression(constraint.getVariable(), GrinderUtil.getType(constraint.getVariable(), context), constraint, body);
-		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
-		Expression exprEPrime = tupleQuantifierSimplifier.apply(exprE, context);
-		// - return context.getTheory().getRewriter().makeStepSolver(E')
-		ExpressionLiteralSplitterStepSolver result  = context.getTheory().getRewriter().makeStepSolver(exprEPrime);
-		
-		return result;
+		Expression variable = constraint.getVariable();
+		Expression type = GrinderUtil.getType(variable, context);
+		Expression expression = group.makeProblemExpression(variable, type, constraint, body);
+		BruteForceInterpreter interpreter = new BruteForceInterpreter(context.getTheory().getTopRewriter());
+		Expression result = interpreter.apply(expression, context);
+		return new ConstantExpressionStepSolver(result);
 	}
 }

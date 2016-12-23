@@ -35,84 +35,65 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.function;
+package com.sri.ai.grinder.sgdpllt.theory.base;
 
-import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.group.Disjunction;
+import com.sri.ai.grinder.sgdpllt.group.Sum;
 
 /**
- * A {@link Theory) for functions.
+ * An abstract implementation of {@link Theory) for theories that rely on
+ * translating its core problems to another theory's.
+ * It therefore has no atoms or interpreted symbols.
+ * It may add top rewriters to the default top rewriter.
  * 
  * @author oreilly
  *
  */
 @Beta
-public class FunctionTheory extends AbstractTheory {
+public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 	
-	@Override
-	public TopRewriter makeDefaultTopRewriter() {
-		return merge(super.makeDefaultTopRewriter());
-	}
-
-	@Override
-	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = type instanceof FunctionType;
-		return result;
-	}
-	
-	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
-		return null;
-		//return new SingleVariableFunctionConstraint(variable, theory);
-	}
-
-	@Override
-	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {	
-		// We return always 'true' (because, if all other theories present are complete, then this one will be, too)
-		return true;
-	}
-
-	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return null;
-	}
-
-	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return null;
-	}
-
-	@Override
-	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
-		return null;
-	}
-
 	@Override
 	public boolean isAtom(Expression expression, Context context) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public Expression getAtomNegation(Expression atom, Context context) {
-		// TODO Auto-generated method stub
-		return null;
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
+		return new SingleVariableConstraintForTheoryWithoutAtoms(variable, theory);
 	}
+
+	@Override
+	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {	
+		// We return always 'true' (because if all other theories present are complete, then this one will be, too)
+		return true;
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		return getSingleVariableConstraintQuantifierEliminatorStepSolver(new Disjunction(), constraint, TRUE, context);
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		return getSingleVariableConstraintQuantifierEliminatorStepSolver(new Sum(), constraint, ONE, context);
+	}
+
+	@Override
+	public abstract	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
 }

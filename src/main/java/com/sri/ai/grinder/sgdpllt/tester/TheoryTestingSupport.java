@@ -66,6 +66,8 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.function.BruteForceFunctionTheory;
+import com.sri.ai.grinder.sgdpllt.theory.function.BruteForceFunctionTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
@@ -389,6 +391,9 @@ public interface TheoryTestingSupport {
 		}
 		else if (theory instanceof PropositionalTheory) {
 			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, random, generalizedVariableSupportEnabled);
+		}
+		else if (theory instanceof BruteForceFunctionTheory) {
+			result = new BruteForceFunctionTheoryTestingSupport((BruteForceFunctionTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else {
 			throw new UnsupportedOperationException(""+theory.getClass().getSimpleName()+" currently does not have testing support in place.");

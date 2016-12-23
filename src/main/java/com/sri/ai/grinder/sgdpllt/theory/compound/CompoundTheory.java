@@ -175,9 +175,9 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, currentBody, context);
+		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, body, context);
 		return result;
 	}
 

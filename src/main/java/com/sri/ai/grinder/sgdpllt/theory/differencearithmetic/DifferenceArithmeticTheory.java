@@ -175,14 +175,14 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context) {
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		ExpressionStepSolver formulaSplitterStepSolver;		
 		if (group instanceof Sum) {
-			formulaSplitterStepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, currentBody);
+			formulaSplitterStepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, body);
 		}
 		else {
 			formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
-					(group, constraint, currentBody);
+					(group, constraint, body);
 		}
 		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);;
 		return result;

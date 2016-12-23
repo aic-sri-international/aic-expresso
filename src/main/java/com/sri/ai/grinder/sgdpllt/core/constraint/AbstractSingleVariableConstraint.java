@@ -118,7 +118,9 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	}
 	
 	@Override
-	abstract public AbstractSingleVariableConstraint clone();
+	public AbstractSingleVariableConstraint clone() {
+		return (AbstractSingleVariableConstraint) super.clone();
+	}
 	
 	/**
 	 * Creates a simplification of this constraint out of the

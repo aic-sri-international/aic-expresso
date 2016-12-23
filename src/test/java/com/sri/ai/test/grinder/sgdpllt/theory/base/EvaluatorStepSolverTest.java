@@ -56,6 +56,7 @@ import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.function.BruteForceFunctionTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 
 @Beta
@@ -297,8 +298,13 @@ public class EvaluatorStepSolverTest {
 	@Test
 	public void testEvaluationOfQuantifiersOverFunctions() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport
-				.make(new CompoundTheory(new EqualityTheory(false, true), new DifferenceArithmeticTheory(false, true),
-						new PropositionalTheory()));
+				.make(
+						new CompoundTheory(
+								new EqualityTheory(false, true), 
+								new DifferenceArithmeticTheory(false, true),
+								new PropositionalTheory(),
+								new BruteForceFunctionTheory()
+								));
 
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(
 				theoryTestingSupport.getVariableNamesAndTypesForTesting());
