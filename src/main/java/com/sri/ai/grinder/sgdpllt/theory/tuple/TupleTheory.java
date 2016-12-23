@@ -39,6 +39,8 @@ package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GET;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SET;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 import static com.sri.ai.util.Util.set;
 
@@ -78,7 +80,7 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 	
 	public TupleTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
-				set(EQUALITY, DISEQUALITY),
+				set(EQUALITY, DISEQUALITY, GET, SET),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 				propagateAllLiteralsWhenVariableIsBound);
 	}
