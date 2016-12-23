@@ -46,6 +46,7 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 
@@ -79,7 +80,7 @@ abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends Abs
 	 * and adds <code>not</code> to other atoms.
 	 */
 	@Override
-	protected Expression getNonTrivialAtomNegation(Expression atom) {
+	public Expression getNonConstantAtomNegation(Expression atom, Context context) {
 		Expression result;
 		if (atom.hasFunctor(EQUALITY)) {
 			result = Expressions.apply(DISEQUALITY, atom.get(0), atom.get(1));

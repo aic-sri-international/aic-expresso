@@ -126,8 +126,8 @@ public class CompoundTheory extends AbstractTheory {
 	}
 	
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, Context context) {
-		boolean result = thereExists(getSubTheories(), t -> t.isNonTrivialAtom(expression, context));
+	public boolean isNonConstantAtom(Expression expression, Context context) {
+		boolean result = thereExists(getSubTheories(), t -> t.isNonConstantAtom(expression, context));
 		return result;
 	}
 
@@ -182,13 +182,13 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression getLiteralNegation(Expression literal, Context context) {
+	public Expression getNonConstantAtomNegation(Expression atom, Context context) {
 		Theory theory =
-				getFirstSatisfyingPredicateOrNull(getSubTheories(), t -> t.isLiteral(literal, context));
+				getFirstSatisfyingPredicateOrNull(getSubTheories(), t -> t.isLiteral(atom, context));
 		if (theory == null) {
-			throw new Error("The expression '" + literal + "' has not been recognized as a literal in any of the registered theories: " + join(",", getSubTheories()));
+			throw new Error("The expression '" + atom + "' has not been recognized as a literal in any of the registered theories: " + join(",", getSubTheories()));
 		}
-		Expression result = theory.getLiteralNegation(literal, context);
+		Expression result = theory.getNonConstantAtomNegation(atom, context);
 		return result;
 	}
 
@@ -196,4 +196,5 @@ public class CompoundTheory extends AbstractTheory {
 	public String toString() {
 		return "Compound theory (" + join(getSubTheories()) + ")";
 	}
+
 }

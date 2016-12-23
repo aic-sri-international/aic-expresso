@@ -184,7 +184,7 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	 * add an instance of {@link RealExpressoType} to testing types as well.
 	 * This is needed because arithmetic expressions such as J + 5 are determined to be of
 	 * type name "Real" by {@link GrinderUtil#getType(Expression expression, Registry registry)},
-	 * so a type with this name is needed by the default implementation of {@link #isNonTrivialAtom(Expression, Context)}
+	 * so a type with this name is needed by the default implementation of {@link #isNonConstantAtom(Expression, Context)}
 	 * if the flag for analyzing the types of arguments to equalities is true.
 	 */
 	@Override

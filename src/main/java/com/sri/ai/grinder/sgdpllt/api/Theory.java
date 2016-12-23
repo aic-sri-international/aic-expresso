@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.sgdpllt.library.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.sgdpllt.library.boole.And.getConjuncts;
+import static com.sri.ai.grinder.sgdpllt.library.boole.Not.not;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.thereExists;
@@ -160,7 +161,7 @@ public interface Theory extends Cloneable {
 		if (expression.equals(TRUE) || expression.equals(FALSE)) {
 			return true;
 		}
-		return isNonTrivialLiteral(expression, context);
+		return isNonConstantLiteral(expression, context);
 	}
 	
 	default boolean isConjunctiveClause(Expression formula, Context context) {
@@ -174,23 +175,23 @@ public interface Theory extends Cloneable {
 	 * @param context
 	 * @return
 	 */
-	boolean isNonTrivialAtom(Expression expression, Context context);
+	boolean isNonConstantAtom(Expression expression, Context context);
 	
 	/**
 	 * Indicates whether an expression is a non-trivial literal in this theory.
-	 * This is defined as its being either a non-trivial atom, or a non-trivial negative literals,
-	 * which in turn is the negation of a non-trivial atom.
+	 * This is defined as its being either a non-constant atom, or a non-constant negative literal,
+	 * which in turn is the negation of a non-constant atom.
 	 * @param expression
 	 * @param context
 	 * @return
 	 */
-	default boolean isNonTrivialLiteral(Expression expression, Context context) {
-		boolean result = isNonTrivialAtom(expression, context) || isNonTrivialNegativeLiteral(expression, context);
+	default boolean isNonConstantLiteral(Expression expression, Context context) {
+		boolean result = isNonConstantAtom(expression, context) || isNonConstantNegativeLiteral(expression, context);
 		return result;
 	}
 
-	default boolean isNonTrivialNegativeLiteral(Expression expression, Context context) {
-		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), context);
+	default boolean isNonConstantNegativeLiteral(Expression expression, Context context) {
+		boolean result = expression.hasFunctor(NOT) && isNonConstantAtom(expression.get(0), context);
 		return result;
 	}
 	
@@ -252,17 +253,41 @@ public interface Theory extends Cloneable {
 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression currentBody, Context context);
 
 	/**
-	 * Returns the negation of a literal.
-	 * While one could simply add or remove a <code>not</code> in the original literal,
-	 * this methods provides a way of generating theory-specific representations at the generic level of the {@link Theory} interface.
-	 * For example, for equality
-	 * we may prefer the negation of <code>X = a</code> to be represented as <code>X != a</code> instead of <code> not X = a</code>.
-	 * @param literal the literal
-	 * @param context TODO
-	 * @return the negation of literal
+	 * Returns the negation of a literal
+	 * by removing 'not' of negated literals, flipping true and false, and
+	 * resorting {@link getNonConstantAtomNegation(Expression, Context)}.
 	 */
-	Expression getLiteralNegation(Expression literal, Context context);
-	
+	default Expression getLiteralNegation(Expression literal, Context context) {
+		Expression result;
+		
+		if (literal.hasFunctor(NOT) && isNonConstantAtom(literal.get(0), context)) {
+			result = literal.get(0);
+		}
+		else if (literal.equals(TRUE)) {
+			result = FALSE;
+		} 
+		else if (literal.equals(FALSE)) {
+			result = TRUE;
+		} 
+		else {
+			result = getNonConstantAtomNegation(literal, context);
+		}
+		
+		return result;
+	}
+
+	/**
+	 * Returns the negation of a non-constant atom.
+	 * Default implementation applies 'not' to it,
+	 * but some theories may want to be more specific, such as replacing equality by disequality.
+	 * @param atom
+	 * @param context
+	 * @return
+	 */
+	default Expression getNonConstantAtomNegation(Expression atom, Context context) {
+		return not(atom);
+	}
+
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
 	 * where a generalized variable is an expression that is not a boolean connective or an interpreted element in this theory

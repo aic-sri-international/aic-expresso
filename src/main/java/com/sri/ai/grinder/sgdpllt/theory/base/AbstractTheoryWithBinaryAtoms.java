@@ -1,8 +1,5 @@
 package com.sri.ai.grinder.sgdpllt.theory.base;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 
@@ -58,13 +55,6 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	protected abstract boolean isValidArgument(Expression expression, Type type, Context context);
 
 	/**
-	 * Must take a non-trivial atom in the theory and return its negation.
-	 * @param atom
-	 * @return
-	 */
-	protected abstract Expression getNonTrivialAtomNegation(Expression atom);
-
-	/**
 	 * Indicates whether an expression is a function application of one of the theory functors.
 	 * @param expression
 	 * @return
@@ -87,7 +77,7 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	 * whether its arguments are valid according to {@link #isValidArgument(Expression, Type, Context)}.
 	 */
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, Context context) {
+	public boolean isNonConstantAtom(Expression expression, Context context) {
 		boolean result;
 	
 		boolean hasTheoryFunctor = isApplicationOfTheoryFunctor(expression);
@@ -107,33 +97,6 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 								Type eType = context.getType(typeName);
 								return isValidArgument(e, eType, context);
 							});
-		}
-		
-		return result;
-	}
-
-	/**
-	 * Default implementation taking care of negations (simply returning the negation's argument)
-	 * and <code>true</code> and <code>false</code> constants,
-	 * referring to {@link #getNonTrivialAtomNegation(Expression atom, Context context)}
-	 * for all remaining cases.
-	 * Throws an error if none of these cases applies.
-	 */
-	@Override
-	public Expression getLiteralNegation(Expression literal, Context context) {
-		Expression result;
-		
-		if (literal.hasFunctor(NOT) && isApplicationOfTheoryFunctor(literal.get(0))) {
-			result = literal.get(0);
-		}
-		else if (literal.equals(TRUE)) {
-			result = FALSE;
-		} 
-		else if (literal.equals(FALSE)) {
-			result = TRUE;
-		} 
-		else {
-			result = getNonTrivialAtomNegation(literal);
 		}
 		
 		return result;

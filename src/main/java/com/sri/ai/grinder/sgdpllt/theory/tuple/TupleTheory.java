@@ -109,7 +109,7 @@ public class TupleTheory extends AbstractTheoryWithBinaryAtomsIncludingEquality 
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {	
-		// We return always 'true' (because, if all other theories present are complete, then this one will, too)
+		// We return always 'true' (because, if all other theories present are complete, then this one will be, too)
 		return true;
 	}
 

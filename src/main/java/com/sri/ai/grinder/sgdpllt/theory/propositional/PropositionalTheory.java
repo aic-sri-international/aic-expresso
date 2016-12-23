@@ -87,7 +87,7 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 	
 	@Override
-	public boolean isNonTrivialAtom(Expression expression, Context context) {
+	public boolean isNonConstantAtom(Expression expression, Context context) {
 		Object syntacticFormType = expression.getSyntacticFormType();
 		boolean result = 
 				(syntacticFormType.equals(Symbol.SYNTACTIC_FORM_TYPE) || syntacticFormType.equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) &&
@@ -132,6 +132,9 @@ public class PropositionalTheory extends AbstractTheory {
 		return true;
 	}
 
+	/**
+	 * An overriding more efficient implementation.
+	 */
 	@Override
 	public Expression getLiteralNegation(Expression literal, Context context) {
 		Expression result;

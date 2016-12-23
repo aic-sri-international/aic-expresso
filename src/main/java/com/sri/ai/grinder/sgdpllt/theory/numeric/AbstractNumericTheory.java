@@ -52,6 +52,7 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
@@ -126,7 +127,7 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * Overrides super method due to knowledge about specific relational operators <code>>, <, <=, >=</code>
 	 */
 	@Override
-	protected Expression getNonTrivialAtomNegation(Expression atom) {
+	public Expression getNonConstantAtomNegation(Expression atom, Context context) {
 		String functorString = atom.getFunctor().toString();
 		String negatedFunctor = negationFunctor.get(functorString);
 		Expression result = apply(negatedFunctor, atom.get(0), atom.get(1));
