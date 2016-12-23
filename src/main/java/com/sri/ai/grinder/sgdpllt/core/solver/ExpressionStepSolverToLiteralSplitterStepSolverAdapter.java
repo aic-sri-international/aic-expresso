@@ -95,7 +95,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 			else {
 				// The currentFormulaSplitterStepSolverStep may return a literal splitter, in that case there is no need 
 				// to introduce the overhead of using an Evaluator to work through the splitter formula one literal at a time.
-				if (context.getTheory().isLiteral(currentFormulaSplitterStepSolverStep.getSplitter(), context)) {		
+				if (context.getTheory().isLiteralOrBooleanConstant(currentFormulaSplitterStepSolverStep.getSplitter(), context)) {		
 					// We need to wrap the ItDepends result sub-solvers in adapters as well.
 					result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(currentFormulaSplitterStepSolverStep.getSplitter(),
 							currentFormulaSplitterStepSolverStep.getContextSplittingWhenSplitterIsLiteral(),

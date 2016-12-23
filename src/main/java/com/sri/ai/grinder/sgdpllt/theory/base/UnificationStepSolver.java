@@ -152,7 +152,7 @@ public class UnificationStepSolver implements StepSolver<Boolean> {
 					ContextSplitting contextSplitting = null;
 					// If the splitter is a literal then we want to include the context splitting
 					// information for the literal.
-					if (context.getTheory().isLiteral(unknownUnificationEqualityToSplitOn, context)) {
+					if (context.getTheory().isLiteralOrBooleanConstant(unknownUnificationEqualityToSplitOn, context)) {
 						contextSplitting = new ContextSplitting(unknownUnificationEqualityToSplitOn, context);
 					}
 					result = new StepSolver.ItDependsOn<>(unknownUnificationEqualityToSplitOn, 

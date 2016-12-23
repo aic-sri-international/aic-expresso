@@ -71,13 +71,13 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	}
 
 	/**
-	 * Implements decision of whether an expression is a non-trivial atom by checking
+	 * Implements decision of whether an expression is an atom by checking
 	 * if it is a function application of one of the theory functors and,
 	 * if {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true,
 	 * whether its arguments are valid according to {@link #isValidArgument(Expression, Type, Context)}.
 	 */
 	@Override
-	public boolean isNonConstantAtom(Expression expression, Context context) {
+	public boolean isAtom(Expression expression, Context context) {
 		boolean result;
 	
 		boolean hasTheoryFunctor = isApplicationOfTheoryFunctor(expression);

@@ -97,7 +97,7 @@ public class DifferenceArithmeticUtil {
 	 * @return
 	 */
 	public static Expression simplify(Expression expression, DifferenceArithmeticTheory theory, Context context) {
-		if (! theory.isLiteral(expression, context)) {
+		if (! theory.isLiteralOrBooleanConstant(expression, context)) {
 			return expression;
 		}
 		DAParts parts = makeDifferenceArithmeticTriple(expression);

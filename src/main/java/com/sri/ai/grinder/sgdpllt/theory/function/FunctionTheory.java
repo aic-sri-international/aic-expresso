@@ -99,7 +99,7 @@ public class FunctionTheory extends AbstractTheory {
 	}
 
 	@Override
-	public boolean isNonConstantAtom(Expression expression, Context context) {
+	public boolean isAtom(Expression expression, Context context) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -111,7 +111,7 @@ public class FunctionTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression getNonConstantAtomNegation(Expression atom, Context context) {
+	public Expression getAtomNegation(Expression atom, Context context) {
 		// TODO Auto-generated method stub
 		return null;
 	}

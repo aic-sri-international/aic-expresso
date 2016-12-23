@@ -80,7 +80,7 @@ abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends Abs
 	 * and adds <code>not</code> to other atoms.
 	 */
 	@Override
-	public Expression getNonConstantAtomNegation(Expression atom, Context context) {
+	public Expression getAtomNegation(Expression atom, Context context) {
 		Expression result;
 		if (atom.hasFunctor(EQUALITY)) {
 			result = Expressions.apply(DISEQUALITY, atom.get(0), atom.get(1));

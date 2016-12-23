@@ -103,7 +103,7 @@ public interface Context extends Registry, Constraint {
 	 * @return
 	 */
 	default boolean isLiteral(Expression expression) {
-		boolean result = getTheory().isLiteral(expression, this);
+		boolean result = getTheory().isLiteralOrBooleanConstant(expression, this);
 		return result;
 	}
 }

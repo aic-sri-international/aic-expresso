@@ -252,7 +252,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 					ContextSplitting contextSplitting = null;
 					// If the splitter is a literal then we want to include the context splitting
 					// information for the literal.
-					if (context.getTheory().isLiteral(conjunct, context)) {
+					if (context.getTheory().isLiteralOrBooleanConstant(conjunct, context)) {
 						contextSplitting = new ContextSplitting(conjunct, context);
 					}
 					

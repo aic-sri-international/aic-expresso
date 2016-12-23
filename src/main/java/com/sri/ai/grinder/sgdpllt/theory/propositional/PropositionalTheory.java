@@ -87,7 +87,7 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 	
 	@Override
-	public boolean isNonConstantAtom(Expression expression, Context context) {
+	public boolean isAtom(Expression expression, Context context) {
 		Object syntacticFormType = expression.getSyntacticFormType();
 		boolean result = 
 				(syntacticFormType.equals(Symbol.SYNTACTIC_FORM_TYPE) || syntacticFormType.equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) &&
