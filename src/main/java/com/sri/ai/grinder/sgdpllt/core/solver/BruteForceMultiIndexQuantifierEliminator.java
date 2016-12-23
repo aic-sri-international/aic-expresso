@@ -41,7 +41,6 @@ import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpre
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +125,7 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndex
 	 * @author braz
 	 *
 	 */
-	public static class TopRewriterWithAssignment implements TopRewriter {
+	public static abstract class TopRewriterWithAssignment implements TopRewriter {
 	
 		/** The assignment to use to replace values for symbols. */
 		private Map<Expression, Expression> assignment;
@@ -163,20 +162,17 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndex
 			// This is crucial because we extend this rewriter with new assignments at inner loops, so it needs to be fast.
 		}
 		
-		/**
-		 * Creates a copy of this class, with the assignment extended by given more assignments.
-		 * @param moreAssignments
-		 * @return
-		 */
-		public TopRewriterWithAssignment extendWith(Map<Expression, Expression> moreAssignments) {
+		public TopRewriterWithAssignment extendWith(Map<Expression, Expression> moreAssignments)  {
 			StackedHashMap<Expression, Expression> extendedAssignment = new StackedHashMap<>(moreAssignments, assignment);
-			TopRewriterWithAssignment result = null;
-			try {
-				result = getClass().getConstructor(Map.class).newInstance(extendedAssignment);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				throw new Error("Something wrong with using " + getClass() + " constructor taking a new assignment.");
-			}
+			TopRewriterWithAssignment result = makeCopyWith(extendedAssignment);
 			return result;
 		}
+
+		/**
+		 * Creates a copy of this class with the given assignment.
+		 * @param newAssignment
+		 * @return
+		 */
+		public abstract TopRewriterWithAssignment makeCopyWith(Map<Expression, Expression> newAssignment);
 	}
 }

@@ -198,7 +198,7 @@ public interface Theory extends Cloneable {
 	/**
 	 * Returns the negation of a literal
 	 * by removing 'not' of negated literals, flipping true and false, and
-	 * resorting {@link #getAtomNegation(Expression, Context)}.
+	 * resorting to {@link #getAtomNegation(Expression, Context)} otherwise.
 	 */
 	default Expression getLiteralNegation(Expression literal, Context context) {
 		Expression result;
