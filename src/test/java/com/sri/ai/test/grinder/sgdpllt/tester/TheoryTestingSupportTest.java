@@ -52,6 +52,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
@@ -60,6 +61,7 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 import org.junit.Assert;
 
@@ -70,8 +72,9 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 public class TheoryTestingSupportTest {
 	public static final IntegerInterval TESTING_INTEGER_INTERVAL_TYPE = new IntegerInterval("0..2");
 	public static final Categorical TESTING_CATEGORICAL_TYPE = new Categorical("SomeType", 3, mapIntoArrayList(list("a", "b"), s -> makeSymbol(s)));
+	public static final TupleType TESTING_TUPLE_TYPE = new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE);
 
-	private Random seededRandom = new Random(1);
+	private Random seededRandom = new Random(2);
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInterpretedPropositionalLogicFunctorOnStandaloneTheory() {
@@ -107,9 +110,10 @@ public class TheoryTestingSupportTest {
 
 		theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true,
 				new CompoundTheory(new PropositionalTheory(), new EqualityTheory(true, true),
-						new DifferenceArithmeticTheory(true, true), new LinearRealArithmeticTheory(true, true)));
+						new DifferenceArithmeticTheory(true, true), new LinearRealArithmeticTheory(true, true),
+						new TupleTheory()));
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(
-				map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE, "test_diff/4", INTEGER_TYPE));
+				map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE, "L", TESTING_TUPLE_TYPE, "test_diff/4", INTEGER_TYPE));
 		testFunctionType(theoryTestingSupport.getVariableNamesAndTypesForTesting().get("test_diff"));
 	}
 

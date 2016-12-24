@@ -46,17 +46,20 @@ import static com.sri.ai.util.Util.randomPick;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
+import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -107,9 +110,9 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	@Override
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
 		this.variableNamesAndTypesForTesting = new LinkedHashMap<>();
-		
-		List<TestingFunctionType> testingFunctionTypesToBeUpdated = new ArrayList<>();
-		
+
+		Map<Type, TestingCompoundType> testingCompoundTypesToBeUpdated = new HashMap<>();
+		Set<Type> allTestingTypes = new LinkedHashSet<>();
 		for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
 			String variableSignature = variableNameAndType.getKey();
 			Type   variableType      = variableNameAndType.getValue();
@@ -117,25 +120,45 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 			Pair<String, Integer> nameAndArityInfo = extractNameAndArityInfo(variableSignature);
 			String name = nameAndArityInfo.first;
 			int   arity = nameAndArityInfo.second;
-			if (arity == CONSTANT_ARITY) {
+			if (testingCompoundTypesToBeUpdated.containsKey(variableType)) {
+				// In this case we have already seen the compound type, and we therefore,
+				// want to keep it consistently changed across the set of possible variables.
+				this.variableNamesAndTypesForTesting.put(name, testingCompoundTypesToBeUpdated.get(variableType));
+			} else if (arity == CONSTANT_ARITY) {
+				if (variableType instanceof TupleType) {
+					// If we are in a compound theory, we will be pulling types across theories
+					// in this case we will re-assign the element types to take into account
+					// the set of types across all theories, so we need to track these for 
+					// updating as well.
+					TupleType variableTupleType = (TupleType) variableType;
+					TestingTupleType testingTupleType = new TestingTupleType(new Type[variableTupleType.getArity()]);
+					for (Type elementType : variableTupleType.getElementTypes()) {
+						getNestedTypes(elementType, allTestingTypes, 0);
+					}
+					testingCompoundTypesToBeUpdated.put(variableType, testingTupleType);
+					
+					variableType = testingTupleType;
+				}
 				this.variableNamesAndTypesForTesting.put(name, variableType);
+				allTestingTypes.add(variableType);
 			}
 			else {
 				if (isGeneralizedVariableSupportEnabled()) {
 					if (variableType instanceof FunctionType) {
+						FunctionType functionVariableType = (FunctionType) variableType;
 						// An explicit function type has been defined, we will use
-						// but ensure its arity matches with that of the variable signature
-						int functionTypeArity = ((FunctionType)variableType).getArity();
-						if (arity != functionTypeArity) {
-							throw new IllegalArgumentException("Arity specified on variable signature of "+arity+" does not match that of provided function type, which is "+functionTypeArity);
+						// but ensure its arity matches with that of the variable signature					
+						if (arity != functionVariableType.getArity()) {
+							throw new IllegalArgumentException("Arity specified on variable signature of "+arity+" does not match that of provided function type, which is "+functionVariableType.getArity());
 						}
-						this.variableNamesAndTypesForTesting.put(name, variableType);
+						this.variableNamesAndTypesForTesting.put(name, functionVariableType);
+						getNestedTypes(functionVariableType, allTestingTypes, 0);
 						// If we are in a compound theory, we will be pulling types across theories
 						// in this case we will re-assign the argument types to take into account
 						// the set of types across all theories, so we need to track these for 
 						// updating as well.
 						if (variableType instanceof TestingFunctionType) {
-							testingFunctionTypesToBeUpdated.add((TestingFunctionType)variableType);
+							testingCompoundTypesToBeUpdated.put(variableType, (TestingFunctionType)variableType);
 						}
 					}
 					else {												
@@ -145,8 +168,10 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 						}
 						// In this instance the variableType represents the codomain
 						TestingFunctionType testingFunctionType = new TestingFunctionType(variableType, new Type[arity]);
-						testingFunctionTypesToBeUpdated.add(testingFunctionType);						
+						testingCompoundTypesToBeUpdated.put(variableType, testingFunctionType);						
 						this.variableNamesAndTypesForTesting.put(name, testingFunctionType);
+						allTestingTypes.add(variableType);
+						allTestingTypes.add(testingFunctionType);
 					}
 				}
 				else {
@@ -154,43 +179,44 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 				}
 			}
 		}
-		this.variableNamesAndTypesForTesting = Collections.unmodifiableMap(this.variableNamesAndTypesForTesting);
-		
+		this.variableNamesAndTypesForTesting = Collections.unmodifiableMap(this.variableNamesAndTypesForTesting);	
 		// ensure cached values are cleared as will need to be recomputed.
 		this.cachedTypesForTesting = null;
 		this.cachedVariableNamesForTesting = null;
 		
 		// Now we update the testing function types, to have argument types
 		// selected at random that are dependent on the theory being used.
-		List<Type> allTestingTypes = new ArrayList<>(getTypesForTesting());
-		List<Pair<TestingFunctionType, List<Type>>> updatesToReApply = new ArrayList<>();
-		for (TestingFunctionType testingFunctionTypeToUpdate : testingFunctionTypesToBeUpdated) {
-			List<Type> updatedArgTypes    = new ArrayList<>();
-			List<Type> allExceptThisTypes = new ArrayList<>(allTestingTypes);
-			// Ensure we do not allow recursive function type declarations.
-			// by first excluding the types of args to be updated form the list
-			// types to choose from.
-			allExceptThisTypes.remove(testingFunctionTypeToUpdate);
-			for (int i = 0; i < testingFunctionTypeToUpdate.getArity(); i++) {
-				// We also need to ensure that one of the arg types isn't a function type
-				// that refers to the function type whose args are being updated (as this
+		List<Pair<TestingCompoundType, List<Type>>> updatesToReApply = new ArrayList<>();
+		for (TestingCompoundType testingCompoundTypeToUpdate : testingCompoundTypesToBeUpdated.values()) {
+			List<Type> updatedCompoundTypes = new ArrayList<>();
+			List<Type> allExceptThisTypes   = new ArrayList<>(allTestingTypes);			
+			// Ensure we do not allow recursive type declarations.
+			allExceptThisTypes.remove(testingCompoundTypeToUpdate);
+			for (int i = 0; i < testingCompoundTypeToUpdate.getArity(); i++) {
+				// We also need to ensure that one of the arg types isn't a compound type
+				// that refers to the compound type whose args are being updated (as this
 				// would cause recursive calls as well).
-				Type updatedArgType;
+				Type updatedCompoundType;
 				do {
-					updatedArgType = randomPick(getRandom(), allExceptThisTypes);
-				} while (isTypeContainedIn(testingFunctionTypeToUpdate, updatedArgType));
-				updatedArgTypes.add(updatedArgType);				
+					updatedCompoundType = randomPick(getRandom(), allExceptThisTypes);			
+				} while (isTypeContainedIn(testingCompoundTypeToUpdate, updatedCompoundType));
+				updatedCompoundTypes.add(updatedCompoundType);				
 			}
-			testingFunctionTypeToUpdate.updateTestArgumentTypes(updatedArgTypes);
-			updatesToReApply.add(new Pair<>(testingFunctionTypeToUpdate, updatedArgTypes));
+			testingCompoundTypeToUpdate.updateCompoundTypes(updatedCompoundTypes);			
+			updatesToReApply.add(new Pair<>(testingCompoundTypeToUpdate, updatedCompoundTypes));
 		}
 		// NOTE: Due to Type's using getName() during equality checking (see AbstracType) 
 		// we need to ensure we re-update all the compound types together so that
 		// their string representations are updated correctly as well as this 
 		// affects their identity (i.e. equality and hashCode checks).
-		for (Pair<TestingFunctionType, List<Type>> updateToReApply : updatesToReApply) {
-			updateToReApply.first.updateTestArgumentTypes(updateToReApply.second);
-		}
+		for (Pair<TestingCompoundType, List<Type>> updateToReApply : updatesToReApply) {
+			updateToReApply.first.updateCompoundTypes(updateToReApply.second);
+		}	
+	}
+	
+	@Override
+	public void setVariableNamesAndTypesAsIsForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
+		this.variableNamesAndTypesForTesting = new LinkedHashMap<>(variableNamesAndTypesForTesting);
 	}
 	
 	@Override
@@ -216,6 +242,11 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		if (cachedTypesForTesting == null) {
 			cachedTypesForTesting = new LinkedHashSet<Type>(variableNamesAndTypesForTesting.values());
 			cachedTypesForTesting.addAll(getTheory().getNativeTypes());
+			// Ensure we get nested types as well from any compound types (e.g. tuples or function types)
+			List<Type> typesSoFar = new ArrayList<>(cachedTypesForTesting);
+			for (Type type : typesSoFar) {
+				getNestedTypes(type, cachedTypesForTesting, 0);
+			}
 			cachedTypesForTesting = Collections.unmodifiableCollection(cachedTypesForTesting);
 		}
 		return cachedTypesForTesting;
@@ -265,15 +296,34 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		return result;
 	}
 	
-	private static class TestingFunctionType extends FunctionType {
+	private static interface TestingCompoundType extends Type {
+		int getArity();
+		void updateCompoundTypes(List<Type> compoundTypes);
+	}
+	
+	private static class TestingFunctionType extends FunctionType implements TestingCompoundType {
 		private static final long serialVersionUID = 1L;
 		
 		public TestingFunctionType(Type codomain, Type... argumentTypes) {
 			super(codomain, argumentTypes);
 		}
 		
-		public void updateTestArgumentTypes(List<Type> updatedArgumentTypes) {
+		@Override
+		public void updateCompoundTypes(List<Type> updatedArgumentTypes) {
 			super.updateTestArgumentTypes(updatedArgumentTypes);
+		}
+	}
+	
+	private static class TestingTupleType extends TupleType implements TestingCompoundType {
+		private static final long serialVersionUID = 1L;
+		
+		public TestingTupleType(Type... tupleTypes) {
+			super(tupleTypes);
+		}
+		
+		@Override
+		public void updateCompoundTypes(List<Type> updatedTupleTypes) {
+			super.updateTestElementTypes(updatedTupleTypes);
 		}
 	}
 	
@@ -292,7 +342,35 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 				}
 			}
 		}
+		else if (containedInType instanceof TupleType) {
+			TupleType containedInTupleType = (TupleType) containedInType;
+			for (int i = 0; i < containedInTupleType.getArity(); i++) {
+				if (isTypeContainedIn(type, containedInTupleType.getElementTypes().get(i))) {
+					result = true;
+					break;
+				}
+			}
+		}
 		
 		return result;
+	}
+	
+	private void getNestedTypes(Type type, Collection<Type> typesSoFar, int level) {
+		if (level == 0 || !typesSoFar.contains(type)) {
+			typesSoFar.add(type);
+			if (type instanceof FunctionType) {
+				FunctionType functionType = (FunctionType) type;
+				getNestedTypes(functionType.getCodomain(), typesSoFar, level+1);
+				for (Type argType : functionType.getArgumentTypes()) {
+					getNestedTypes(argType, typesSoFar, level+1);
+				}
+			}
+			else if (type instanceof TupleType) {
+				TupleType tupleType = (TupleType) type;
+				for (Type elementType : tupleType.getElementTypes()) {
+					getNestedTypes(elementType, typesSoFar, level+1);
+				}
+			}
+		}
 	}
 }

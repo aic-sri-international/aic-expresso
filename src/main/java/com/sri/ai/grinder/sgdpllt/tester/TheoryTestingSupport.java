@@ -56,6 +56,7 @@ import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
+import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -72,6 +73,8 @@ import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmet
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheoryTestingSupport;
 import com.sri.ai.util.Util;
 
 @Beta
@@ -106,6 +109,12 @@ public interface TheoryTestingSupport {
 
 	/** Sets variables to be used in randomly generated literals. */
 	void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesForTesting);
+	
+	/** 
+	 * Sets variables as is (no changes to be made internally) to be used in randomly generated literals.
+	 * Intended to be called from compound theories. 
+	 */
+	void setVariableNamesAndTypesAsIsForTesting(Map<String, Type> variableNamesForTesting);
 
 	/** Gets variables to be used in randomly generated literals. */
 	Map<String, Type> getVariableNamesAndTypesForTesting();
@@ -177,10 +186,11 @@ public interface TheoryTestingSupport {
 		if (variableNamesThatAreSubTypes.size() == 0 
 				||
 				// if we should generate a constant, under the conditions that the argument type is not a function type 
-				// or real expresso type or integer/real intervals with non constant bounds.
+				// or tuple type or real expresso type or integer/real intervals with non constant bounds.
 				// None of which support sampling uniquely named constants.
 				(getRandom().nextBoolean() && 
 						!(argumentType instanceof FunctionType) && 
+						!(argumentType instanceof TupleType) &&
 						!(argumentType instanceof RealExpressoType) && 
 						!(argumentType instanceof RealInterval && !((RealInterval)argumentType).boundsAreConstants()) &&
 						!(argumentType instanceof IntegerInterval && !((IntegerInterval)argumentType).boundsAreConstants())
@@ -395,63 +405,13 @@ public interface TheoryTestingSupport {
 		else if (theory instanceof BruteForceFunctionTheory) {
 			result = new BruteForceFunctionTheoryTestingSupport((BruteForceFunctionTheory) theory, random, generalizedVariableSupportEnabled);
 		}
+		else if (theory instanceof TupleTheory) {
+			result = new TupleTheoryTestingSupport((TupleTheory) theory, random, generalizedVariableSupportEnabled);
+		}
 		else {
 			throw new UnsupportedOperationException(""+theory.getClass().getSimpleName()+" currently does not have testing support in place.");
 		}
 		
 		return result;
 	}
-
-	// /** Samples a uniquely named constant of given appropriate for testing
-	// this theory. */
-	// Expression sampleUniquelyNamedConstantsForTesting(Type type);
-	//
-	/// **
-	// * Sets an iterable of uniquely named constants for given type appropriate
-	// for testing this theory.
-	// * Note that all types must have testing uniquely named constants
-	// associated with them.
-	// * If you want a type to simply use {@link Type#sampleConstant(Random)},
-	// * use methods {@link #setUseTypeUniquelyNamedConstantSampling(Type,
-	// boolean)}
-	// * or {@link
-	// #setUseTypeUniquelyNamedConstantSamplingForAllTypes(boolean)}.
-	// */
-	// void setUniquelyNamedConstantsForTesting(Type type, Iterable<Expression>
-	// newUniquelyNamedConstantsForTesting);
-	//
-	/// **
-	// * Indicates whether the sampling of a type's uniquely named constant for
-	// testing must
-	// * use the types {@link Type#sampleConstant(Random)}.
-	// * @return
-	// */
-	// boolean getUseTypeUniquelyNamedConstantSampling(Type type);
-	//
-	/// **
-	// * Sets the flag indicating whether the sampling of a type's uniquely
-	// named constant for testing must
-	// * use the types {@link Type#sampleConstant(Random)}.
-	// * @return
-	// */
-	// void setUseTypeUniquelyNamedConstantSampling(Type type, boolean
-	// newValue);
-	//
-	/// **
-	// * Indicates whether the sampling of <i>all</i> types uniquely named
-	// constant for testing must
-	// * use the types {@link Type#sampleConstant(Random)}.
-	// * @return
-	// */
-	// boolean getUseTypeUniquelyNamedConstantSamplingForAllTypes();
-	//
-	/// **
-	// * Sets the flag indicating whether the sampling of <i>all</i> types
-	// uniquely named constant for testing must
-	// * use the types {@link Type#sampleConstant(Random)}.
-	// * @return
-	// */
-	// void setUseTypeUniquelyNamedConstantSamplingForAllTypes(boolean
-	// newValue);
-	//
 }
