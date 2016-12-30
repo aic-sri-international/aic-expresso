@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.expresso.api.Tuple.EMPTY_TUPLE;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
@@ -47,6 +48,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EXPONENTIATION;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.INTEGER_INTERVAL;
@@ -61,8 +63,12 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.ifAllTheSameOrNull;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.thereExists;
+import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
@@ -82,6 +88,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Tuple;
@@ -90,6 +97,7 @@ import com.sri.ai.expresso.core.AbstractExtensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
@@ -395,17 +403,42 @@ public class GrinderUtil {
 			result = makeSymbol("Integer");
 		}
 		else if (isNumericFunctionApplication(expression)) {
-			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, registry), "Number"))) {
-				result = makeSymbol("Number");
+			
+			List<Expression> argumentTypes = mapIntoList(expression.getArguments(), e -> getType(e, registry));
+			
+			/**
+			 * commonDomain is the co-domain shared by all argument function types, or empty tuple for arguments that are not function-typed.
+			 * Therefore, if no argument is function-typed, it will be equal to the empty tuple.
+			 */
+			Expression commonDomain = getCommonDomainIncludingConversionOfNonFunctionTypesToNullaryFunctions(argumentTypes, registry);
+			
+			if (commonDomain == null) {
+				throw new Error("Operator " + expression.getFunctor() + " applied to arguments of non-compatible types: " + expression + ", types of arguments are " + argumentTypes);
 			}
-			else if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, registry), "Real"))) {
-				result = makeSymbol("Real");
+			
+			boolean noArgumentIsFunctionTyped = 
+					commonDomain.equals(EMPTY_TUPLE) &&
+					! thereExists(argumentTypes, t -> t.hasFunctor(FunctorConstants.FUNCTION_TYPE));
+			
+			Expression resultCoDomain;
+			if (thereExists(argumentTypes, t -> Util.equals(getCoDomainOrItself(t), "Number"))) {
+				resultCoDomain = makeSymbol("Number");
 			}
-			else if (Util.thereExists(expression.getArguments(), e -> isRealInterval(getType(e, registry)))) {
-				result = makeSymbol("Real");
+			else if (thereExists(argumentTypes, t -> Util.equals(getCoDomainOrItself(t), "Real"))) {
+				resultCoDomain = makeSymbol("Real");
+			}
+			else if (thereExists(argumentTypes, t -> isRealInterval(getCoDomainOrItself(t)))) {
+				resultCoDomain = makeSymbol("Real");
 			}
 			else {
-				result = makeSymbol("Integer");
+				resultCoDomain = makeSymbol("Integer");
+			}
+			
+			if (noArgumentIsFunctionTyped) {
+				result = resultCoDomain;
+			}
+			else {
+				result = apply(FUNCTION_TYPE, commonDomain, resultCoDomain);
 			}
 		}
 		else if (
@@ -493,12 +526,60 @@ public class GrinderUtil {
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may
 			// declare new types (i.e. function types).
 			Registry quantifiedExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(quantifiedExpressionWithABody.getIndexExpressions(), registry);
-			return getType(quantifiedExpressionWithABody.getBody(), quantifiedExpressionWithABodyRegistry);
+			result = getType(quantifiedExpressionWithABody.getBody(), quantifiedExpressionWithABodyRegistry);
+		}
+		else if (expression instanceof LambdaExpression) {
+			LambdaExpression lambdaExpression = (LambdaExpression) expression;
+			Collection<Expression> domain = IndexExpressions.getIndexDomainsOfQuantifiedExpression(lambdaExpression);
+
+			IndexExpressionsSet indexExpressions = lambdaExpression.getIndexExpressions();
+			Registry lambdaExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, registry);
+			Expression coDomain = getType(lambdaExpression.getBody(), lambdaExpressionWithABodyRegistry);
+			
+			result = Expressions.apply(FUNCTION_TYPE, domain, coDomain);
+		}
+		else if (expression instanceof AbstractExpressionWrapper) {
+			Expression innerExpression = ((AbstractExpressionWrapper) expression).getInnerExpression();
+			result = getType(innerExpression, registry);
 		}
 		else {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
+		} 
+		return result;
+	}
+
+	/**
+	 * Given a type, returns the type's co-domain if it is a function type,
+	 * or the type itself.
+	 * @param type
+	 * @return
+	 */
+	public static Expression getCoDomainOrItself(Expression type) {
+		Expression result;
+		if (type.hasFunctor(FUNCTION_TYPE)) {
+			result = type.get(type.numberOfArguments() - 1);
+		}
+		else {
+			result = type;
 		}
 		return result;
+	}
+	
+	private static Expression getCommonDomainIncludingConversionOfNonFunctionTypesToNullaryFunctions(Collection<Expression> types, Registry registry) {
+		Expression result = 
+				ifAllTheSameOrNull(
+						functionIterator(
+								types, 
+								t -> getDomainIncludingConversionOfNonFunctionTypesToNullaryFunctions(t, registry)
+								));
+		return result;
+	}
+	
+	private static Expression getDomainIncludingConversionOfNonFunctionTypesToNullaryFunctions(Expression type, Registry registry) {
+		if (type.hasFunctor(FunctorConstants.FUNCTION_TYPE)) {
+			return type.get(0);
+		}
+		return EMPTY_TUPLE;
 	}
 
 	/**

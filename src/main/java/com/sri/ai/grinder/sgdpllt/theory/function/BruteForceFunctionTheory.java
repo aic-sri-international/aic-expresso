@@ -42,13 +42,16 @@ import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceInterpreter;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTranslationBasedTheory;
@@ -76,11 +79,17 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	
 	@Override
 	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
+		
 		Expression variable = constraint.getVariable();
 		Expression type = GrinderUtil.getType(variable, context);
-		Expression expression = group.makeProblemExpression(variable, type, constraint, body);
-		BruteForceInterpreter interpreter = new BruteForceInterpreter(context.getTheory().getTopRewriter());
-		Expression result = interpreter.apply(expression, context);
-		return new ConstantExpressionStepSolver(result);
+		Expression indexExpression = IndexExpressions.makeIndexExpression(variable, type);
+		ExtensionalIndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression);
+		
+		MultiIndexQuantifierEliminator quantifierEliminator =
+				new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
+		
+		Expression solution = quantifierEliminator.solve(group, indexExpressionsSet, constraint, body, context);
+		
+		return new ConstantExpressionStepSolver(solution);
 	}
 }

@@ -29,7 +29,6 @@ public class UnificationStepSolverTest {
 
 	private Random seededRandom = new Random(1);
 	
-	@Ignore // until we have functions again
 	@Test
 	public void propositionalTest() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new PropositionalTheory());
@@ -71,15 +70,16 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("P = unary_prop(Q)"), step.getSplitter());
-		
-		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("not P and Q and not unary_prop(Q) and unary_prop(P)"), rootContext);
-		step = unificationStepSolver.step(localTestContext);
-		Assert.assertEquals(false,  step.itDepends());
-		Assert.assertEquals(true, step.getValue());
-		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("P and Q and not unary_prop(Q) and unary_prop(P)"), rootContext);
-		step = unificationStepSolver.step(localTestContext);
-		Assert.assertEquals(false,  step.itDepends());
-		Assert.assertEquals(false, step.getValue());
+
+		// Ignore: PropositionalTheory will only deal with symbol variables for now
+//		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("not P and Q and not unary_prop(Q) and unary_prop(P)"), rootContext);
+//		step = unificationStepSolver.step(localTestContext);
+//		Assert.assertEquals(false,  step.itDepends());
+//		Assert.assertEquals(true, step.getValue());
+//		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("P and Q and not unary_prop(Q) and unary_prop(P)"), rootContext);
+//		step = unificationStepSolver.step(localTestContext);
+//		Assert.assertEquals(false,  step.itDepends());
+//		Assert.assertEquals(false, step.getValue());
 		
 		
 		// Now test out individual branches
@@ -100,26 +100,29 @@ public class UnificationStepSolverTest {
 		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
-		localTestContext = localTestContext.conjoin(parse("unary_prop(Q)"), localTestContext);
-		step = trueItDependsSolver.step(localTestContext);
-		Assert.assertEquals(true,  step.itDepends());
-		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
+		// Ignore: PropositionalTheory will only deal with symbol variables for now
+//		localTestContext = localTestContext.conjoin(parse("unary_prop(Q)"), localTestContext);
+//		step = trueItDependsSolver.step(localTestContext);
+//		Assert.assertEquals(true,  step.itDepends());
+//		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
 		
 		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
-		localTestContext = localTestContext.conjoin(parse("unary_prop(P)"), localTestContext);
-		step = trueItDependsSolver.step(localTestContext);
-		Assert.assertEquals(true,  step.itDepends());
-		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
+		// Ignore: PropositionalTheory will only deal with symbol variables for now
+//		localTestContext = localTestContext.conjoin(parse("unary_prop(P)"), localTestContext);
+//		step = trueItDependsSolver.step(localTestContext);
+//		Assert.assertEquals(true,  step.itDepends());
+//		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
 		
 		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
-		localTestContext = localTestContext.conjoin(parse("Q"), localTestContext);
-		step = trueItDependsSolver.step(localTestContext);
-		Assert.assertEquals(false,  step.itDepends());
-		Assert.assertEquals(true, step.getValue());
+		// Ignore: PropositionalTheory will only deal with symbol variables for now
+//		localTestContext = localTestContext.conjoin(parse("Q"), localTestContext);
+//		step = trueItDependsSolver.step(localTestContext);
+//		Assert.assertEquals(false,  step.itDepends());
+//		Assert.assertEquals(true, step.getValue());
 	}
 	
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")

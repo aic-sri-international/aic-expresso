@@ -45,8 +45,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceMultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceMultiIndexQuantifierEliminator.TopRewriterWithAssignment;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
 import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
@@ -83,7 +81,7 @@ public class BruteForceInterpreter implements Rewriter {
 
 	public BruteForceInterpreter(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
 		this.baseTopRewriter = baseTopRewriter;
-		this.actualRewriter = new Recursive(new Exhaustive(new BruteForceTopRewriter(baseTopRewriter, assignment)));
+		this.actualRewriter = new Recursive(new Exhaustive(new BruteForceTopRewriterWithAssignment(baseTopRewriter, assignment)));
 		this.assignment = assignment;
 	}
 
@@ -96,18 +94,18 @@ public class BruteForceInterpreter implements Rewriter {
 		return new BruteForceInterpreter(baseTopRewriter, new StackedHashMap<>(moreAssignments, assignment));
 	}
 
-	private static class BruteForceTopRewriter extends BruteForceMultiIndexQuantifierEliminator.TopRewriterWithAssignment {
+	private class BruteForceTopRewriterWithAssignment extends TopRewriterWithAssignment {
 
-		private TopRewriter baseBaseTopRewriter;
-		
-		public BruteForceTopRewriter(TopRewriter baseBaseTopRewriter, Map<Expression, Expression> assignment) {
+		private TopRewriter baseTopRewriter;
+
+		public BruteForceTopRewriterWithAssignment(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
 			super(assignment);
-			this.baseBaseTopRewriter = baseBaseTopRewriter;
+			this.baseTopRewriter = baseTopRewriter;
 			BruteForceMultiIndexQuantifierEliminator bruteForceQuantifierEliminator = 
 					new BruteForceMultiIndexQuantifierEliminator(this);
 			setBaseTopRewriter(
 					TopRewriter.merge(
-							baseBaseTopRewriter,
+							baseTopRewriter,
 
 							new SummationRewriter(bruteForceQuantifierEliminator),
 							new ProductRewriter(bruteForceQuantifierEliminator),
@@ -122,7 +120,7 @@ public class BruteForceInterpreter implements Rewriter {
 
 		@Override
 		public TopRewriterWithAssignment makeCopyWith(Map<Expression, Expression> newAssignment)  {
-			TopRewriterWithAssignment result = new BruteForceTopRewriter(baseBaseTopRewriter, newAssignment);
+			TopRewriterWithAssignment result = new BruteForceTopRewriterWithAssignment(baseTopRewriter, newAssignment);
 			return result;
 		}
 	}

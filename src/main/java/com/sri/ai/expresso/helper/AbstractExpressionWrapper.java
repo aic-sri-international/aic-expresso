@@ -94,7 +94,7 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	
 	protected abstract Expression computeInnerExpression();
 	
-	protected Expression getInnerExpression() {
+	public Expression getInnerExpression() {
 		if (cachedInnerExpression == null) {
 			cachedInnerExpression = computeInnerExpression();
 		}

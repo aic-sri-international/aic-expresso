@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.core;
 
 import static com.sri.ai.util.Util.castOrThrowError;
+import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -68,6 +69,10 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 	private ArrayList<Expression>      arguments;
 	private SyntaxTree                 syntaxTree;
 	private List<ExpressionAndSyntacticContext> expressionAndSyntacticContexts;
+	
+	public DefaultTuple() {
+		this(list());
+	}
 	
 	public DefaultTuple(List<Expression> arguments) {
 		super();

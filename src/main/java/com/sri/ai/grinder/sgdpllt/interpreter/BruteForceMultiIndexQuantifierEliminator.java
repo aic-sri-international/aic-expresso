@@ -35,33 +35,27 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
+package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpressions;
 import static com.sri.ai.util.Util.in;
-import static com.sri.ai.util.Util.map;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * An extension of {@link AbstractMultiIndexQuantifierEliminator}
@@ -78,6 +72,10 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndex
 
 	protected TopRewriterWithAssignment topRewriterWithBaseAssignment;
 
+	public BruteForceMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
+		this(new DefaultTopRewriterWithAssignment(topRewriter));
+	}
+	
 	public BruteForceMultiIndexQuantifierEliminator(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
 		super();
 		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
@@ -111,68 +109,5 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndex
 			value = group.add(value, bodyEvaluation, context);
 		}
 		return value;
-	}
-	
-	/**
-	 * {@link BruteForceMultiIndexQuantifierEliminator} needs a rewriter to evaluate bodies of expressions.
-	 * It needs this rewriter to consider the current assignment
-	 * and replace symbols by their values according to it.
-	 * It also takes a base top rewriter that includes any other desired operations,
-	 * and to be extensible with a new assignment;
-	 * {@link BruteForceMultiIndexQuantifierEliminator} will do this at every iteration with a new assignment..
-	 * {@link TopRewriterWithAssignment} serves as a super class for rewriters of this type.
-	 * 
-	 * @author braz
-	 *
-	 */
-	public static abstract class TopRewriterWithAssignment implements TopRewriter {
-	
-		/** The assignment to use to replace values for symbols. */
-		private Map<Expression, Expression> assignment;
-		
-		private TopRewriter baseTopRewriter;
-		
-		private Switch<Object> valueReplacer;
-	
-		protected TopRewriterWithAssignment(Map<Expression, Expression> assignment) {
-			this.baseTopRewriter = null; // delayed setting of baseTopRewriter by extending class
-			this.assignment = assignment;
-			this.valueReplacer = new Switch<Object>(
-					Switch.SYNTACTIC_FORM_TYPE,
-					map(
-							Symbol.SYNTACTIC_FORM_TYPE,
-							(Simplifier) (e, c) -> {
-								Expression result = this.assignment.get(e);
-								if (result == null) {
-									result = e;
-								}
-								return result;
-							}));
-		}
-		
-		/** Updates the base top rewriters used. */
-		public void setBaseTopRewriter(TopRewriter baseTopRewriter) {
-			this.baseTopRewriter = baseTopRewriter;
-		}
-		
-		@Override
-		public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-			return new FirstOf(valueReplacer, baseTopRewriter).makeStepSolver(expression);
-			// we use {@link FirstOf} because it is much cheaper than merging all rewriters every time with {@link DefaultTopRewriter}
-			// This is crucial because we extend this rewriter with new assignments at inner loops, so it needs to be fast.
-		}
-		
-		public TopRewriterWithAssignment extendWith(Map<Expression, Expression> moreAssignments)  {
-			StackedHashMap<Expression, Expression> extendedAssignment = new StackedHashMap<>(moreAssignments, assignment);
-			TopRewriterWithAssignment result = makeCopyWith(extendedAssignment);
-			return result;
-		}
-
-		/**
-		 * Creates a copy of this class with the given assignment.
-		 * @param newAssignment
-		 * @return
-		 */
-		public abstract TopRewriterWithAssignment makeCopyWith(Map<Expression, Expression> newAssignment);
 	}
 }

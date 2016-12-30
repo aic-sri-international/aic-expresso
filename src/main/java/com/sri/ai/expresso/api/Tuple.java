@@ -40,6 +40,7 @@ package com.sri.ai.expresso.api;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.core.DefaultTuple;
 
 /**
  * An {@link Expression} that represents a tuple of sub-expressions.
@@ -52,6 +53,7 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface Tuple extends Expression {
 	String TUPLE_LABEL = "( . )";
+	public final static Tuple EMPTY_TUPLE = new DefaultTuple();
 	
 	/**
 	 * Returns the arguments of a function application expression if this is one.

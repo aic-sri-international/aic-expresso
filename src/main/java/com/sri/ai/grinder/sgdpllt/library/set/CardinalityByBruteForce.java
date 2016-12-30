@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.library.set;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.BruteForceMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**

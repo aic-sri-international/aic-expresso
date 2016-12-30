@@ -311,7 +311,7 @@ public class IndexExpressions {
 		return getIndexToTypeMapWithDefaultNull(indexExpressions);
 	}
 
-	public static Collection<Expression> getIndexDomains(Expression quantifiedExpression) {
+	public static Collection<Expression> getIndexDomainsOfQuantifiedExpression(Expression quantifiedExpression) {
 		return getIndexToTypeMapWithDefaultTypeOfIndex(quantifiedExpression).values();
 	}
 }
