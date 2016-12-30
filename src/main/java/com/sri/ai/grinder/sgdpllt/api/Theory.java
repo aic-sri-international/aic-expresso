@@ -140,6 +140,16 @@ public interface Theory extends Cloneable {
 	 */
 	Rewriter getRewriter();
 	
+	/**
+	 * Provides an evaluator step solver that must be based on a recursive exhaustive
+	 * application of {@link #getTopRewriter()} and also externalize literals
+	 * (this ensures completeness in the sense that, if the resulting value
+	 * is the same under all contexts, which will be detected and that single value will be returned,
+	 * because <code>if <Context1> then Value else if <Context2> then Value else Value</code> gets
+	 * simplified to <code>Value</code>).
+	 * @param expression
+	 * @return
+	 */
 	ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression);
 	
 	default Expression evaluate(Expression expression, Context context) {
