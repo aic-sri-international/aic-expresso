@@ -110,7 +110,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 
 		for (Map.Entry<Theory, TheoryTestingSupport> entry : getTheoryToTestingSupport().entrySet()) {
 			Map<String, Type> forThisSubTheory = mapForSubTheory.get(entry.getKey());
-			entry.getValue().setVariableNamesAndTypesForTesting(forThisSubTheory);
+			entry.getValue().setVariableNamesAndTypesAsIsForTesting(forThisSubTheory);
 		}
 	}
 	
