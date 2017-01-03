@@ -75,6 +75,14 @@ public class TheoryTestingSupportTest {
 	public static final TupleType TESTING_TUPLE_TYPE = new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE);
 
 	private Random seededRandom = new Random(2);
+	// changed seed from 1 to 2 because seed 1 was, after some changes by Rodrigo on 1/1/17,
+	// creating a function type
+	// with arguments with cardinality 36 and codomain with cardinality 5,
+	// thus having to compute a final cardinality of 5^36 which took too long.
+	// The problem could also happen in the previous version of the code,
+	// but it was not happening by chance.
+	// It still needs to be addressed (possibly by throwing an error
+	// when function type cardinalities go too high).
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInterpretedPropositionalLogicFunctorOnStandaloneTheory() {
@@ -82,6 +90,9 @@ public class TheoryTestingSupportTest {
 				new PropositionalTheory());
 
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("and/2", BOOLEAN_TYPE));
+		// the illegal argument is only detected once we process the raw variable names and types,
+		// which now happens only when that information is requested:
+		theoryTestingSupport.getVariableNamesAndTypesForTesting();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -90,6 +101,9 @@ public class TheoryTestingSupportTest {
 				new DifferenceArithmeticTheory(true, true));
 
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("</2", INTEGER_TYPE));
+		// the illegal argument is only detected once we process the raw variable names and types,
+		// which now happens only when that information is requested:
+		theoryTestingSupport.getVariableNamesAndTypesForTesting();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

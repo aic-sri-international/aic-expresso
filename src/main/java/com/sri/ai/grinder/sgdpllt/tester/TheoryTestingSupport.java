@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -152,7 +153,11 @@ public interface TheoryTestingSupport {
 	}
 	
 	default String pickTestingVariableAtRandom(TheoryTestingSupport globalTheoryTestingSupport) {
-		String variableName = Util.pickUniformly(globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().keySet(), getRandom());
+		Set<String> variableNames = globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().keySet();
+		if (variableNames.isEmpty()) {
+			throw new Error("There are no testing variables to select from (perhaps the ones provided are all generalized variables and generalized variables are disabled?). Theory testing support is " + globalTheoryTestingSupport);
+		}
+		String variableName = Util.pickUniformly(variableNames, getRandom());
 		Type type = globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().get(variableName);	
 		String result;
 		if (type instanceof FunctionType) {
@@ -178,7 +183,7 @@ public interface TheoryTestingSupport {
 	
 	default String pickGeneralizedTestingVariableArgumentAtRandom(Type argumentType, Predicate<String> variableNameFilter, TheoryTestingSupport globalTheoryTestingSupport) {
 		String result;
-		List<String> variableNamesThatAreSubTypes = globalTheoryTestingSupport.getVariableNamesThatAreSubtypesOf(argumentType)
+		List<String> variableNamesThatAreSubTypes = globalTheoryTestingSupport.getVariableNamesWhoseTypesAreSubtypesOf(argumentType)
 				.stream()
 				.filter(variableNameFilter)
 				.collect(Collectors.toList());
@@ -188,6 +193,7 @@ public interface TheoryTestingSupport {
 				// if we should generate a constant, under the conditions that the argument type is not a function type 
 				// or tuple type or real expresso type or integer/real intervals with non constant bounds.
 				// None of which support sampling uniquely named constants.
+				// TODO: have Type have a method indicating the ability to sample uniquely named constants.
 				(getRandom().nextBoolean() && 
 						!(argumentType instanceof FunctionType) && 
 						!(argumentType instanceof TupleType) &&
@@ -249,14 +255,14 @@ public interface TheoryTestingSupport {
 	}
 	
 	/**
-	 * Get variable names that are subtypes of a given type.
+	 * Get variable names whose types are subtypes of a given type.
 	 * 
 	 * @param type
 	 *            the type to be checked.
 	 * @return a list of variable names whose types are subtypes of the given
 	 *         type.
 	 */
-	default List<String> getVariableNamesThatAreSubtypesOf(Type type) {
+	default List<String> getVariableNamesWhoseTypesAreSubtypesOf(Type type) {
 		List<String> result =
 				getVariableNamesAndTypesForTesting().entrySet().stream()
 					.filter(entry -> {
@@ -403,7 +409,7 @@ public interface TheoryTestingSupport {
 			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, random, generalizedVariableSupportEnabled);
 		}
 		else if (theory instanceof BruteForceFunctionTheory) {
-			result = new BruteForceFunctionTheoryTestingSupport((BruteForceFunctionTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new BruteForceFunctionTheoryTestingSupport((BruteForceFunctionTheory) theory, random);
 		}
 		else if (theory instanceof TupleTheory) {
 			result = new TupleTheoryTestingSupport((TupleTheory) theory, random, generalizedVariableSupportEnabled);

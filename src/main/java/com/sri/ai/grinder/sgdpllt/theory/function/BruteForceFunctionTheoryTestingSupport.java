@@ -45,16 +45,17 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestingSupport {
-	public BruteForceFunctionTheoryTestingSupport(BruteForceFunctionTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
-		super(theory, random, generalizedVariableSupportEnabled);
+	public BruteForceFunctionTheoryTestingSupport(BruteForceFunctionTheory theory, Random random) {
+		super(theory, random, false /* generalizedVariableSupportEnabled */);
 		setVariableNamesAndTypesForTesting(
-				map("F/1", BOOLEAN_TYPE, "G/2", BOOLEAN_TYPE));
+				map("F/1", BOOLEAN_TYPE, "G/2", BOOLEAN_TYPE, "H", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE)));
 	}
 	
 	@Override

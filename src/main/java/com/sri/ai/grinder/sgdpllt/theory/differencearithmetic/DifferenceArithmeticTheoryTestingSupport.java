@@ -77,7 +77,7 @@ public class DifferenceArithmeticTheoryTestingSupport extends AbstractTheoryWith
 		String mainVariableName = globalTheoryTestingSupport.getVariableName(mainVariable);
 		Type mainType = globalTheoryTestingSupport.getTestingVariableType(mainVariable);
 		
-		List<String> variableNamesThatAreSubtypesOf = globalTheoryTestingSupport.getVariableNamesThatAreSubtypesOf(mainType);
+		List<String> variableNamesThatAreSubtypesOf = globalTheoryTestingSupport.getVariableNamesWhoseTypesAreSubtypesOf(mainType);
 
 		int maxNumberOfOtherVariablesInAtom = Math.min(variableNamesThatAreSubtypesOf.size(), 2);
 		// used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead 
