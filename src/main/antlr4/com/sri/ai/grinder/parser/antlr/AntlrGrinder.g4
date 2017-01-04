@@ -44,7 +44,7 @@ expr :
        // set union, {a, b, c} union {b, d}
      | leftop=expr UNION rightop=expr #union
        // cartesian product
-     | firstarg=expr (X additionalargs+=expr)+ #cartesianProduct
+     | '(' firstarg=expr X additionalargs+=expr (X additionalargs+=expr)* ')' #cartesianProduct
        // function type
      | domaintypes+=expr (X domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType     
        // set membership, x in {x, y, z}

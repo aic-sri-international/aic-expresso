@@ -124,7 +124,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			arguments[i+1] = visit(ctx.additionalargs.get(i));
 		}
 		Expression result = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, arguments);
-		result = possiblyFlatten(result);
 		return result;
 	}
 	
@@ -132,13 +131,8 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitFunctionType(AntlrGrinderParser.FunctionTypeContext ctx) { 
 		Object[] arguments  = new Object[2];
 		if (ctx.domaintypes.size() == 1) {
-			Expression domain = visit(ctx.domaintypes.get(0));		
-			if (domain.hasFunctor(FunctorConstants.CARTESIAN_PRODUCT) && domain.numberOfArguments() == 1) {
-				arguments[0] = replaceCartesianProductWithTupleType(domain).get(0);
-			}
-			else {
-				arguments[0] = domain;
-			}
+			Expression domain = visit(ctx.domaintypes.get(0));					
+			arguments[0] = replaceCartesianProductWithTupleType(Expressions.makeTuple(domain)).get(0);
 		}
 		else {
 			Object[] domainArgs = new Object[ctx.domaintypes.size()];
@@ -146,7 +140,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 				domainArgs[i] = visit(ctx.domaintypes.get(i));
 			}
 			Expression cartesianProduct = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, domainArgs);
-			cartesianProduct = possiblyFlatten(cartesianProduct);
 			arguments[0] = cartesianProduct;
 		}
 		arguments[1] = visit(ctx.rangetype);
@@ -497,8 +490,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			    functor.equals(FunctorConstants.UNION) || 
 			    functor.equals(FunctorConstants.EQUAL) ||
 			    functor.equals(FunctorConstants.AND) || 
-			    functor.equals(FunctorConstants.OR) ||
-			    functor.equals(FunctorConstants.CARTESIAN_PRODUCT)) {
+			    functor.equals(FunctorConstants.OR)) {
 				List<Expression> args = new ArrayList<Expression>();
 				for (Expression arg : expression.getArguments()) {
 					if (arg.getFunctor() != null && functor.equals(arg.getFunctor()) && !parenthesizedExpressions.containsKey(arg)) {
