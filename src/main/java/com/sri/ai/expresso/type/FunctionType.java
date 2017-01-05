@@ -183,6 +183,11 @@ public class FunctionType extends AbstractType {
 		// Function types do not contain uniquely named constants.
 		return false;
 	}
+	
+	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return false;
+	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
@@ -347,15 +352,5 @@ public class FunctionType extends AbstractType {
 		Util.myAssert(expression.numberOfArguments() == 1 || expression.numberOfArguments() == 2,
 				() -> "Function type has illegal number of arguments (should be 1 or 2), has "
 						+ expression.numberOfArguments() + " for " + expression);
-	}
-
-	// NOTE: Only to be used under testing conditions.
-	protected void updateTestArgumentTypes(List<Type> updatedArgumentTypes) {
-		if (updatedArgumentTypes.size() != getArity()) {
-			throw new IllegalArgumentException("Update arguments #= " + updatedArgumentTypes.size()
-					+ " does not match function types arity of " + getArity());
-		}
-		this.argumentTypes = Collections.unmodifiableList(new ArrayList<>(updatedArgumentTypes));
-		this.cachedString = null; // re-calculate just in case.
 	}
 }

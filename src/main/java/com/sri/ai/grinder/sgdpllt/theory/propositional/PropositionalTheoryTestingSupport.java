@@ -47,18 +47,16 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 public class PropositionalTheoryTestingSupport extends AbstractTheoryTestingSupport {
-	public PropositionalTheoryTestingSupport(PropositionalTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
-		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE,
-				"unary_prop/1", BOOLEAN_TYPE, "binary_prop/2", BOOLEAN_TYPE));
+	public PropositionalTheoryTestingSupport(PropositionalTheory theory, Random random) {
+		super(theory, random);
+		setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE));
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 		return parse(variable);
 	}
 }

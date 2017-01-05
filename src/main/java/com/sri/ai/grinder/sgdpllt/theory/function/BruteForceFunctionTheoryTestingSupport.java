@@ -48,18 +48,20 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	public BruteForceFunctionTheoryTestingSupport(BruteForceFunctionTheory theory, Random random) {
-		super(theory, random, false /* generalizedVariableSupportEnabled */);
-		setVariableNamesAndTypesForTesting(
-				map("F/1", BOOLEAN_TYPE, "G/2", BOOLEAN_TYPE, "H", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE)));
+		super(theory, random);
+		setVariableNamesAndTypesForTesting(				
+				map("F", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), 
+					"G", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, BOOLEAN_TYPE), 
+					"H", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE)));
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
+// TODO - implement.		
 		return Expressions.TRUE;
 	}
 }

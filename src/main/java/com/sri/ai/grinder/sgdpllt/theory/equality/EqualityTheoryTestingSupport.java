@@ -49,9 +49,8 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTheoryWithBinaryAtomsTesti
 public class EqualityTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
 	public static final Categorical TESTING_CATEGORICAL_TYPE = getDefaultTestingType();
 	
-	public EqualityTheoryTestingSupport(EqualityTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
-		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, 
-				"unary_eq/1", TESTING_CATEGORICAL_TYPE, "binary_eq/2", TESTING_CATEGORICAL_TYPE));
+	public EqualityTheoryTestingSupport(EqualityTheory theory, Random random) {
+		super(theory, random);
+		setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE));
 	}
 }

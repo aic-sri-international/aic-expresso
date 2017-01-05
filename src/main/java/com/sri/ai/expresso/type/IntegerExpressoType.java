@@ -80,6 +80,11 @@ public class IntegerExpressoType extends AbstractType {
 				&& ((Rational) uniquelyNamedConstant.getValue()).isInteger();
 		return result;
 	}
+	
+	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return true;
+	}
 
 	/**
 	 * Samples random with {@link Random#nextLong()} and returns that value.

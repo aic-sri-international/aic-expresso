@@ -31,7 +31,7 @@ public class UnificationStepSolverTest {
 	
 	@Test
 	public void propositionalTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new PropositionalTheory());
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new PropositionalTheory());
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE,
 				"unary_prop/1", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), "binary_prop/2", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, BOOLEAN_TYPE)));
@@ -128,7 +128,7 @@ public class UnificationStepSolverTest {
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
 	@Test
 	public void advancedPropositionalTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new PropositionalTheory());
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new PropositionalTheory());
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE,
 				"unary_prop/1", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), "binary_prop/2", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, BOOLEAN_TYPE)));
@@ -143,11 +143,11 @@ public class UnificationStepSolverTest {
 	
 	@Test
 	public void equalityTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new EqualityTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new EqualityTheory(true, true));
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, 
-				"unary_eq/1", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
-				"binary_eq/2", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE)));
+				"unary_eq", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
+				"binary_eq", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE)));
 		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		UnificationStepSolver unificationStepSolver = new UnificationStepSolver(parse("unary_eq(X)"), parse("unary_eq(X)"));
@@ -189,7 +189,7 @@ public class UnificationStepSolverTest {
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
 	@Test
 	public void advancedEqualityTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new EqualityTheory(false, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new EqualityTheory(false, true));
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_CATEGORICAL_TYPE, "Y", TESTING_CATEGORICAL_TYPE, "Z", TESTING_CATEGORICAL_TYPE, 
 				"unary_eq/1", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
@@ -214,11 +214,11 @@ public class UnificationStepSolverTest {
 	
 	@Test
 	public void differenceArithmeticTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new DifferenceArithmeticTheory(true, true));
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE, 
-				"unary_dar/1", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE), 
-				"binary_dar/2", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE)));
+				"unary_dar", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE), 
+				"binary_dar", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE)));
 		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		UnificationStepSolver unificationStepSolver = new UnificationStepSolver(parse("unary_dar(I)"), parse("unary_dar(I)"));
@@ -259,7 +259,7 @@ public class UnificationStepSolverTest {
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
 	@Test
 	public void advancedDifferenceArithmeticTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new DifferenceArithmeticTheory(true, true));
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE, 
 				"unary_dar/1", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE), 
@@ -285,11 +285,11 @@ public class UnificationStepSolverTest {
 	
 	@Test
 	public void linearRealArithmeticTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new LinearRealArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new LinearRealArithmeticTheory(true, true));
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE, 
-				"unary_lra/1", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE), 
-				"binary_lra/2", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE)));
+				"unary_lra", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE), 
+				"binary_lra", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE)));
 		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		UnificationStepSolver unificationStepSolver = new UnificationStepSolver(parse("unary_lra(X)"), parse("unary_lra(X)"));
@@ -330,7 +330,7 @@ public class UnificationStepSolverTest {
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
 	@Test
 	public void advancedLinearRealArithmeticTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, new LinearRealArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, new LinearRealArithmeticTheory(true, true));
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map("X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE, 
 				"unary_lra/1", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE), 
@@ -356,7 +356,7 @@ public class UnificationStepSolverTest {
 	
 	@Test
 	public void compundTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, 
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, 
 														new CompoundTheory(
 															new EqualityTheory(false, true),
 															new DifferenceArithmeticTheory(false, true),
@@ -365,17 +365,17 @@ public class UnificationStepSolverTest {
 		// NOTE: passing explicit FunctionTypes will prevent the general variables' argument types being randomly changed.
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(map(
 				"P", BOOLEAN_TYPE, "Q", BOOLEAN_TYPE, "R", BOOLEAN_TYPE,
-				"unary_prop/1", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), 
-				"binary_prop/2", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, BOOLEAN_TYPE),
+				"unary_prop", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), 
+				"binary_prop", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, BOOLEAN_TYPE),
 				"S", TESTING_CATEGORICAL_TYPE, "T", TESTING_CATEGORICAL_TYPE, "U", TESTING_CATEGORICAL_TYPE, 
-				"unary_eq/1", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
-				"binary_eq/2", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE),
+				"unary_eq", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE), 
+				"binary_eq", new FunctionType(TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE, TESTING_CATEGORICAL_TYPE),
 				"I", TESTING_INTEGER_INTERVAL_TYPE, "J", TESTING_INTEGER_INTERVAL_TYPE, "K", TESTING_INTEGER_INTERVAL_TYPE, 
-				"unary_dar/1", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE), 
-				"binary_dar/2", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE),
+				"unary_dar", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE), 
+				"binary_dar", new FunctionType(TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE, TESTING_INTEGER_INTERVAL_TYPE),
 				"X", TESTING_REAL_INTERVAL_TYPE, "Y", TESTING_REAL_INTERVAL_TYPE, "Z", TESTING_REAL_INTERVAL_TYPE, 
-				"unary_lra/1", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE), 
-				"binary_lra/2", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE)
+				"unary_lra", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE), 
+				"binary_lra", new FunctionType(TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE, TESTING_REAL_INTERVAL_TYPE)
 				));
 		Context rootContext = theoryTestingSupport.makeContextWithTestingInformation();
 		
@@ -526,7 +526,7 @@ public class UnificationStepSolverTest {
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
 	@Test
 	public void advancedCompositeTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, true, 
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, 
 				new CompoundTheory(
 					new EqualityTheory(false, true),
 					new DifferenceArithmeticTheory(false, true),

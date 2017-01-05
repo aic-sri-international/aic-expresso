@@ -45,19 +45,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
-import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.expresso.type.RealExpressoType;
-import com.sri.ai.expresso.type.RealInterval;
-import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -79,9 +73,7 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheoryTestingSupport;
 import com.sri.ai.util.Util;
 
 @Beta
-public interface TheoryTestingSupport {
-	boolean GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT = false;
-	
+public interface TheoryTestingSupport {	
 	/**
 	 * 
 	 * @return the theory testing support is being provided for.
@@ -101,21 +93,9 @@ public interface TheoryTestingSupport {
 	 *            the random to use.
 	 */
 	void setRandom(Random random);
-	
-	/**
-	 * 
-	 * @return true is generalized variables are to be supported, false otherwise.
-	 */
-	boolean isGeneralizedVariableSupportEnabled();
 
 	/** Sets variables to be used in randomly generated literals. */
 	void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesForTesting);
-	
-	/** 
-	 * Sets variables as is (no changes to be made internally) to be used in randomly generated literals.
-	 * Intended to be called from compound theories. 
-	 */
-	void setVariableNamesAndTypesAsIsForTesting(Map<String, Type> variableNamesForTesting);
 
 	/** Gets variables to be used in randomly generated literals. */
 	Map<String, Type> getVariableNamesAndTypesForTesting();
@@ -148,109 +128,29 @@ public interface TheoryTestingSupport {
 	 * @return
 	 */
 	default String pickTestingVariableAtRandom() {
-		String result = pickTestingVariableAtRandom(this);
+		String result = pickTestingVariableAtRandom((variable) -> true);
 		return result;
 	}
-	
-	default String pickTestingVariableAtRandom(TheoryTestingSupport globalTheoryTestingSupport) {
-		Set<String> variableNames = globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().keySet();
+		
+	default String pickTestingVariableAtRandom(Predicate<String> variableNameFilter) {
+		List<String> variableNames = getVariableNamesAndTypesForTesting().keySet().stream().filter(variableNameFilter).collect(Collectors.toList());
 		if (variableNames.isEmpty()) {
-			throw new Error("There are no testing variables to select from (perhaps the ones provided are all generalized variables and generalized variables are disabled?). Theory testing support is " + globalTheoryTestingSupport);
+			throw new Error("There are no testing variables to select from. Theory testing support is :"+this);
 		}
-		String variableName = Util.pickUniformly(variableNames, getRandom());
-		Type type = globalTheoryTestingSupport.getVariableNamesAndTypesForTesting().get(variableName);	
-		String result;
-		if (type instanceof FunctionType) {
-			// In this case we want to generate a function application.
-			FunctionType functionType = (FunctionType) type;			
-			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, functionType.getCodomain(), globalTheoryTestingSupport);
-		}
-		else {
-			result = makeGeneralizedVariableArgumentAtRandom(variableName, type, type, globalTheoryTestingSupport);
-		}
-		
+		String result = Util.pickUniformly(variableNames, getRandom());
+				
 		return result;
 	}
 	
-	default List<String> pickGeneralizedTestingVariableArgumentsAtRandom(List<Type> argumentTypes, TheoryTestingSupport globalTheoryTestingSupport) {
-		List<String> result = new ArrayList<>();
-		for (int i = 0; i < argumentTypes.size(); i++) {
-			Type argType = argumentTypes.get(i);
-			result.add(pickGeneralizedTestingVariableArgumentAtRandom(argType, variableName -> true, globalTheoryTestingSupport));
-		}
-		return result;
-	}
-	
-	default String pickGeneralizedTestingVariableArgumentAtRandom(Type argumentType, Predicate<String> variableNameFilter, TheoryTestingSupport globalTheoryTestingSupport) {
-		String result;
-		List<String> variableNamesThatAreSubTypes = globalTheoryTestingSupport.getVariableNamesWhoseTypesAreSubtypesOf(argumentType)
-				.stream()
-				.filter(variableNameFilter)
-				.collect(Collectors.toList());
+	default String pickTestingVariableAtRandom(Type expectedType, Predicate<String> variableNameFilter) {
+		List<String> compatibleVariableNames = getVariableNamesWhoseTypesAreSubtypesOf(expectedType);
 		
-		if (variableNamesThatAreSubTypes.size() == 0 
-				||
-				// if we should generate a constant, under the conditions that the argument type is not a function type 
-				// or tuple type or real expresso type or integer/real intervals with non constant bounds.
-				// None of which support sampling uniquely named constants.
-				// TODO: have Type have a method indicating the ability to sample uniquely named constants.
-				(getRandom().nextBoolean() && 
-						!(argumentType instanceof FunctionType) && 
-						!(argumentType instanceof TupleType) &&
-						!(argumentType instanceof RealExpressoType) && 
-						!(argumentType instanceof RealInterval && !((RealInterval)argumentType).boundsAreConstants()) &&
-						!(argumentType instanceof IntegerInterval && !((IntegerInterval)argumentType).boundsAreConstants())
-						)) {
-			// We will use a constant in this instance
-			result = argumentType.sampleUniquelyNamedConstant(getRandom()).toString();			
+		List<String> variableNames = compatibleVariableNames.stream().filter(variableNameFilter).collect(Collectors.toList());
+		if (variableNames.isEmpty()) {
+			throw new Error("There are no testing variables of Type="+expectedType+" to select from. Theory testing support is :"+this);
 		}
-		else {
-			String variableName = Util.pickUniformly(variableNamesThatAreSubTypes, getRandom());
-			result = makeGeneralizedVariableArgumentAtRandom(variableName, getVariableNamesAndTypesForTesting().get(variableName), argumentType, globalTheoryTestingSupport);
-		}
-		return result;
-	}
-	
-	default String makeGeneralizedVariableArgumentAtRandom(String variableName, Type variableType, Type targetType, TheoryTestingSupport globalTheoryTestingSupport) {
-		String result = variableName;
-		// If the type of the variable is a function type and its codomain is a subtype of the target
-		// type then we want to generate a function application of the variable name's type.
-		if (variableType instanceof FunctionType) {
-			FunctionType functionType = (FunctionType) variableType;
-			if (GrinderUtil.isTypeSubtypeOf(functionType.getCodomain(), targetType)) {
-				List<String> args = pickGeneralizedTestingVariableArgumentsAtRandom(functionType.getArgumentTypes(), globalTheoryTestingSupport);
-				List<Expression> expArgs = args.stream().map(strArg -> Expressions.parse(strArg)).collect(Collectors.toList());
-				result = Expressions.apply(result, expArgs).toString();
-			}
-		}
-		
-		// Restrict extending the generalized variable to simple variables and function applications
-		// as it does not make sense to try to extend a functor argument.
-		if (!(targetType instanceof FunctionType)) {
-			result = extendGeneralizedVariableArgument(result, globalTheoryTestingSupport);
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * A hook method for extending the types of generalized (non-functor) variable arguments
-	 * that can be generated. For example, if the function application 'f(y)'
-	 * returned a real, the LinearRealAritmeticTheoryTestingSupport could extend
-	 * this into a general formula something like:<br>
-	 * 
-	 * <pre>
-	 * 2 * x + 3 * f(y) + 1
-	 * </pre>
-	 * 
-	 * @param variable
-	 *            the variable to be optionally extended.
-	 * @param globalTheoryTestingSupport
-	 *            the global theory in which the extension is to occur.
-	 * @return a possibly extended representation of the input variable.
-	 */
-	default String extendGeneralizedVariableArgument(String variable, TheoryTestingSupport globalTheoryTestingSupport) {
-		String result = variable; // by default we don't extend
+		String result = Util.pickUniformly(variableNames, getRandom());
+				
 		return result;
 	}
 	
@@ -331,12 +231,7 @@ public interface TheoryTestingSupport {
 	 * @param variable the name of the variable to make the random atom on.
 	 * @param context a context
 	 */
-	default Expression makeRandomAtomOn(String variable, Context context) {
-		Expression result = makeRandomAtomOn(variable, context, this);
-		return result;
-	}
-	
-	Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport);
+	Expression makeRandomAtomOn(String variable, Context context);
 
 	/**
 	 * @param variable
@@ -370,49 +265,39 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
-	static TheoryTestingSupport make(Random random, Theory theory) {
-		TheoryTestingSupport result = make(random, GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theory);
-		return result;
-	}
-	
 	static TheoryTestingSupport make(TheoryTestingSupport... theoryTestingSupports) {
 		TheoryTestingSupport result = make(new Random(), theoryTestingSupports);
 		return result;
 	}
 	
 	static TheoryTestingSupport make(Random random, TheoryTestingSupport... theoryTestingSupports) {
-		TheoryTestingSupport result = make(random, GENERALIZED_VARIABLES_SUPPORTED_BY_DEFAULT, theoryTestingSupports);
+		TheoryTestingSupport result = new CompoundTheoryTestingSupport(random, theoryTestingSupports);
 		return result;
 	}
 	
-	static TheoryTestingSupport make(Random random, boolean generalizedVariableSupportEnabled, TheoryTestingSupport... theoryTestingSupports) {
-		TheoryTestingSupport result = new CompoundTheoryTestingSupport(random, generalizedVariableSupportEnabled, theoryTestingSupports);
-		return result;
-	}
-	
-	static TheoryTestingSupport make(Random random, boolean generalizedVariableSupportEnabled, Theory theory) {
+	static TheoryTestingSupport make(Random random, Theory theory) {
 		TheoryTestingSupport result;
 		
 		if (theory instanceof CompoundTheory) {
-			result = new CompoundTheoryTestingSupport((CompoundTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new CompoundTheoryTestingSupport((CompoundTheory) theory, random);
 		}
 		else if (theory instanceof DifferenceArithmeticTheory) {
-			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new DifferenceArithmeticTheoryTestingSupport((DifferenceArithmeticTheory) theory, random);
 		}
 		else if (theory instanceof EqualityTheory) {
-			result = new EqualityTheoryTestingSupport((EqualityTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new EqualityTheoryTestingSupport((EqualityTheory) theory, random);
 		}
 		else if (theory instanceof LinearRealArithmeticTheory) {
-			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new LinearRealArithmeticTheoryTestingSupport((LinearRealArithmeticTheory) theory, random);
 		}
 		else if (theory instanceof PropositionalTheory) {
-			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new PropositionalTheoryTestingSupport((PropositionalTheory) theory, random);
 		}
 		else if (theory instanceof BruteForceFunctionTheory) {
 			result = new BruteForceFunctionTheoryTestingSupport((BruteForceFunctionTheory) theory, random);
 		}
 		else if (theory instanceof TupleTheory) {
-			result = new TupleTheoryTestingSupport((TupleTheory) theory, random, generalizedVariableSupportEnabled);
+			result = new TupleTheoryTestingSupport((TupleTheory) theory, random);
 		}
 		else {
 			throw new UnsupportedOperationException(""+theory.getClass().getSimpleName()+" currently does not have testing support in place.");

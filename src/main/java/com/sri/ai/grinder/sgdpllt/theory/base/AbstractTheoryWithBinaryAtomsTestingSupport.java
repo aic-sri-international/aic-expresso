@@ -49,13 +49,12 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 @Beta
 abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends AbstractTheoryTestingSupport {
 
-	public AbstractTheoryWithBinaryAtomsTestingSupport(AbstractTheoryWithBinaryAtoms theory, Random random, boolean generalizedVariableSupportEnabled) {
-		super(theory, random, generalizedVariableSupportEnabled);
+	public AbstractTheoryWithBinaryAtomsTestingSupport(AbstractTheoryWithBinaryAtoms theory, Random random) {
+		super(theory, random);
 	}
 	
 	@Override
@@ -67,11 +66,11 @@ abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends Abstra
 	 * Makes a random atom by uniformly picking among the theory functors and testing variables.
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String mainVariable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
-		String mainVariableName = globalTheoryTestingSupport.getVariableName(mainVariable);
-		Type mainType = globalTheoryTestingSupport.getTestingVariableType(mainVariable);
+	public Expression makeRandomAtomOn(String mainVariable, Context context) {
+		String mainVariableName = getVariableName(mainVariable);
+		Type mainType = getTestingVariableType(mainVariable);
 				
-		Expression otherTerm = parse(globalTheoryTestingSupport.pickGeneralizedTestingVariableArgumentAtRandom(mainType, otherName -> !otherName.equals(mainVariableName), globalTheoryTestingSupport));
+		Expression otherTerm = parse(pickTestingVariableAtRandom(mainType, otherName -> !otherName.equals(mainVariableName)));
 		
 		String functor = pickUniformly(getTheoryFunctors(), getRandom());
 

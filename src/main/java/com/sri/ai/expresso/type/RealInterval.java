@@ -206,6 +206,11 @@ public class RealInterval extends AbstractType {
 	private final int SAMPLING_RESOLUTION = 1000000;
 	
 	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return boundsAreConstants();
+	}
+	
+	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
 		myAssert( () -> boundsAreConstants(), () -> "Cannot sample uniquely named constant from real interval that is infinite and/or defined by variables: " + getName());
 		

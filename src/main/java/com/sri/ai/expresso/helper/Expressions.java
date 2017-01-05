@@ -127,6 +127,7 @@ public class Expressions {
 	public static final Expression X               = Expressions.makeSymbol("X");
 	public static final Expression Y               = Expressions.makeSymbol("Y");
 	public static final Expression Z               = Expressions.makeSymbol("Z");
+	public static final Expression UNKNOWN         = Expressions.makeSymbol("Unknown");
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	

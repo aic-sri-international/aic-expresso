@@ -69,6 +69,12 @@ public interface Type {
 	boolean contains(Expression uniquelyNamedConstant);
 	
 	/**
+	 * 
+	 * @return true if the type can support sampling of uniquely named constants.
+	 */
+	boolean isSampleUniquelyNamedConstantSupported();
+	
+	/**
 	 * Samples one of the type's uniquely named constants.
 	 * This is useful for generating synthetic problems.
 	 * @return

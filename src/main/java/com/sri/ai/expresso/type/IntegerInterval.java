@@ -195,6 +195,11 @@ public class IntegerInterval extends AbstractType {
 		
 		return result;
 	}
+	
+	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return boundsAreConstants();
+	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {

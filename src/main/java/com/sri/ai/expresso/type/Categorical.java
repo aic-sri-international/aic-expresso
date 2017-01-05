@@ -84,7 +84,15 @@ public class Categorical extends AbstractType {
 		this.name = name;
 		this.lowerCaseName = name.toLowerCase();
 		this.cardinality = cardinality;
-		this.cardinalityExpression = makeSymbol(cardinality);
+		if (cardinality == -1) {
+			this.cardinalityExpression = Expressions.UNKNOWN;
+		}
+		else if (cardinality == -2) {
+			this.cardinalityExpression = Expressions.INFINITY;
+		}
+		else {
+			this.cardinalityExpression = makeSymbol(cardinality);
+		}
 		this.knownConstants = knownConstants;
 	}
 
@@ -155,11 +163,15 @@ public class Categorical extends AbstractType {
 		int result = Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue();
 		return result;
 	}
+	
+	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return !(cardinality().equals(Expressions.UNKNOWN) || cardinality().equals(Expressions.INFINITY));
+	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
-		myAssert(
-				() -> ! cardinality().equals("unknown") && ! cardinality().equals(Expressions.INFINITY),
+		myAssert(this::isSampleUniquelyNamedConstantSupported,
 				() -> "Sampling of constant not implemented for " + Categorical.class + " with unknown or infinity cardinality");
 		
 		Expression result;

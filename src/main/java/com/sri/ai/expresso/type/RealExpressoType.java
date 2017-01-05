@@ -72,6 +72,11 @@ public class RealExpressoType extends AbstractType {
 		boolean result = uniquelyNamedConstant.getValue() instanceof Rational;
 		return result;
 	}
+	
+	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return false;
+	}
 
 	/**
 	 * Throws an error because we cannot sample from the set of reals in constant time without somehow restricting ourselves to a bounded subset.

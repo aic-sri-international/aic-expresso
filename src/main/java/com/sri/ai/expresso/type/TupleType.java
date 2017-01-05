@@ -147,6 +147,11 @@ public class TupleType extends AbstractType {
 		// Tuple types do not contain uniquely named constants.
 		return false;
 	}
+	
+	@Override
+	public boolean isSampleUniquelyNamedConstantSupported() {
+		return false;
+	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
@@ -212,15 +217,5 @@ public class TupleType extends AbstractType {
 	public static boolean isTupleType(Expression expression) {
 		boolean result = expression.hasFunctor(FunctorConstants.TUPLE_TYPE);
 		return result;		
-	}
-	
-	// NOTE: Only to be used under testing conditions.
-	protected void updateTestElementTypes(List<Type> updatedElementTypes) {
-		if (updatedElementTypes.size() != getArity()) {
-			throw new IllegalArgumentException("Update elements #= " + updatedElementTypes.size()
-					+ " does not match tuple types arity of " + getArity());
-		}
-		this.elementTypes = Collections.unmodifiableList(new ArrayList<>(updatedElementTypes));
-		this.cachedString = null; // re-calculate just in case.
 	}
 }

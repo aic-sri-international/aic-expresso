@@ -48,21 +48,18 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-
 @Beta
 public class TupleTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	
 	public static final TupleType TUPLE_TYPE = new TupleType(BOOLEAN_TYPE, BOOLEAN_TYPE);
 	
-	public TupleTheoryTestingSupport(TupleTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
-		super(theory, random, generalizedVariableSupportEnabled);
-		setVariableNamesAndTypesForTesting(map("L", TUPLE_TYPE, "M", TUPLE_TYPE, "N", TUPLE_TYPE,
-				"unary_tup/1", TUPLE_TYPE, "binary_tup/2", TUPLE_TYPE));
+	public TupleTheoryTestingSupport(TupleTheory theory, Random random) {
+		super(theory, random);
+		setVariableNamesAndTypesForTesting(map("L", TUPLE_TYPE, "M", TUPLE_TYPE, "N", TUPLE_TYPE));
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 // TODO - add support for '=', '!=', 'get', 'set'		
 		return parse(variable);
 	}

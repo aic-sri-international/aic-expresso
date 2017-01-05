@@ -62,13 +62,13 @@ import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	private Map<Theory, TheoryTestingSupport> theoryToTestingSupport;
 	
-	public CompoundTheoryTestingSupport(CompoundTheory theory, Random random, boolean generalizedVariableSupportEnabled) {
-		super(theory, random, generalizedVariableSupportEnabled);
+	public CompoundTheoryTestingSupport(CompoundTheory theory, Random random) {
+		super(theory, random);
 		aggregateTestingInformation();
 	}
 	
-	public CompoundTheoryTestingSupport(Random random, boolean generalizedVariableSupportEnabled, TheoryTestingSupport... subTheoryTestingSupports) {
-		super(newCompoundTheory(subTheoryTestingSupports), random, generalizedVariableSupportEnabled);
+	public CompoundTheoryTestingSupport(Random random, TheoryTestingSupport... subTheoryTestingSupports) {
+		super(newCompoundTheory(subTheoryTestingSupports), random);
 		theoryToTestingSupport = new LinkedHashMap<>();
 		for (TheoryTestingSupport subTheoryTestingSupport : subTheoryTestingSupports) {
 			theoryToTestingSupport.put(subTheoryTestingSupport.getTheory(), subTheoryTestingSupport);
@@ -110,21 +110,14 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 
 		for (Map.Entry<Theory, TheoryTestingSupport> entry : getTheoryToTestingSupport().entrySet()) {
 			Map<String, Type> forThisSubTheory = mapForSubTheory.get(entry.getKey());
-			entry.getValue().setVariableNamesAndTypesAsIsForTesting(forThisSubTheory);
+			entry.getValue().setVariableNamesAndTypesForTesting(forThisSubTheory);
 		}
 	}
 	
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context, TheoryTestingSupport globalTheoryTestingSupport) {
+	public Expression makeRandomAtomOn(String variable, Context context) {
 		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable);
-		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, context, globalTheoryTestingSupport);
-		return result;
-	}
-	
-	@Override
-	public String extendGeneralizedVariableArgument(String variable, TheoryTestingSupport globalTheoryTestingSupport) {
-		TheoryTestingSupport theoryTestingSupport = getTheoryTestingSupport(variable);
-		String result = theoryTestingSupport.extendGeneralizedVariableArgument(variable, globalTheoryTestingSupport);
+		Expression result = theoryTestingSupport.makeRandomAtomOn(variable, context);
 		return result;
 	}
 	
