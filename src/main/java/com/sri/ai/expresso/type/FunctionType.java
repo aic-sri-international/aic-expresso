@@ -197,6 +197,7 @@ public class FunctionType extends AbstractType {
 	@Override
 	public Expression cardinality() {
 		if (isFinite()) {		
+			// cardinality of a finite function is = |co-domain|^|domain|
 			Rational cardinality = codomain.cardinality()
 					.rationalValue()
 					.pow(argumentTypes.stream()
