@@ -148,7 +148,7 @@ public interface TheoryTestingSupport {
 	}
 	
 	default String pickTestingVariableAtRandom(Map<String, Type> nameToTypes, Type expectedType, Predicate<String> variableNameFilter) {
-		List<String> compatibleVariableNames = getVariableNamesWhoseTypesAreSubtypesOf(expectedType);
+		List<String> compatibleVariableNames = getVariableNamesWhoseTypesAreSubtypesOf(nameToTypes, expectedType);
 		
 		List<String> variableNames = compatibleVariableNames.stream().filter(variableNameFilter).collect(Collectors.toList());
 		if (variableNames.isEmpty()) {
