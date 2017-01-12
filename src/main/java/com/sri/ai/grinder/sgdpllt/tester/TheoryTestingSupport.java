@@ -143,6 +143,11 @@ public interface TheoryTestingSupport {
 	}
 	
 	default String pickTestingVariableAtRandom(Type expectedType, Predicate<String> variableNameFilter) {
+		String result = pickTestingVariableAtRandom(getVariableNamesAndTypesForTesting(), expectedType, variableNameFilter);
+		return result;
+	}
+	
+	default String pickTestingVariableAtRandom(Map<String, Type> nameToTypes, Type expectedType, Predicate<String> variableNameFilter) {
 		List<String> compatibleVariableNames = getVariableNamesWhoseTypesAreSubtypesOf(expectedType);
 		
 		List<String> variableNames = compatibleVariableNames.stream().filter(variableNameFilter).collect(Collectors.toList());
@@ -163,8 +168,13 @@ public interface TheoryTestingSupport {
 	 *         type.
 	 */
 	default List<String> getVariableNamesWhoseTypesAreSubtypesOf(Type type) {
+		List<String> result = getVariableNamesWhoseTypesAreSubtypesOf(getVariableNamesAndTypesForTesting(), type);
+		return result;
+	}
+		
+	default List<String> getVariableNamesWhoseTypesAreSubtypesOf(Map<String, Type> nameToTypes, Type type) {		
 		List<String> result =
-				getVariableNamesAndTypesForTesting().entrySet().stream()
+				nameToTypes.entrySet().stream()
 					.filter(entry -> {
 						boolean include;
 						// When the type is a non-function type but the entry's type is a FunctionType

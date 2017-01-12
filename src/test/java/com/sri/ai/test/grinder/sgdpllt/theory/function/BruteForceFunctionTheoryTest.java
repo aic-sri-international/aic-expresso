@@ -72,6 +72,7 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 		return true;
 	}
 
+	@Ignore
 	@Test
 	public void testSingleVariableConstraints() {
 		SGDPLLTTester.testSingleVariableConstraints(
@@ -82,6 +83,7 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 
+	@Ignore
 	@Test
 	public void testMultiVariableConstraints() {
 		SGDPLLTTester.testMultiVariableConstraints(
@@ -92,6 +94,7 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 
+	@Ignore
 	@Test
 	public void testCompleteMultiVariableConstraints() {
 		SGDPLLTTester.testCompleteMultiVariableConstraints(
@@ -102,6 +105,7 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 
+	@Ignore
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
 		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
