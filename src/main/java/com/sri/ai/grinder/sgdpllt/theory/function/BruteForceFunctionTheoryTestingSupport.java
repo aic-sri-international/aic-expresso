@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.function;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.map;
 
@@ -129,7 +130,7 @@ public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestin
 		// Generate arguments for the application
 		List<Expression> args = new ArrayList<>();
 		for (Type argType : functionType.getArgumentTypes()) {
-			// If constants supported use at random
+			// If constants supported, use at random
 			if (argType.isSampleUniquelyNamedConstantSupported() && getRandom().nextBoolean()) {
 				args.add(argType.sampleUniquelyNamedConstant(getRandom()));
 			}
@@ -143,7 +144,7 @@ public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestin
 				}
 				else {
 					// Otherwise just assign the variable for the term.
-					args.add(Expressions.parse(termVariable));
+					args.add(parse(termVariable));
 				}
 			}
 		}
