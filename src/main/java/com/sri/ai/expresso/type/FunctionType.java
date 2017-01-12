@@ -48,9 +48,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -234,6 +236,14 @@ public class FunctionType extends AbstractType {
 			}
 		}
 		return cachedString;
+	}
+	
+	@Override
+	public Set<Type> getEmbeddedTypes() {
+		Set<Type> result = new LinkedHashSet<>();
+		result.addAll(codomain.getEmbeddedTypes());
+		argumentTypes.forEach(argType -> result.addAll(argType.getEmbeddedTypes()));
+		return result;
 	}
 
 	/**

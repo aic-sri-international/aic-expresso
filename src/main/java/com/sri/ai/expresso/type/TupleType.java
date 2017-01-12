@@ -47,9 +47,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import com.google.common.annotations.Beta;
@@ -178,6 +180,13 @@ public class TupleType extends AbstractType {
 	@Override
 	public boolean isFinite() {
 		return getElementTypes().stream().allMatch(Type::isFinite);
+	}
+	
+	@Override
+	public Set<Type> getEmbeddedTypes() {
+		Set<Type> result = new LinkedHashSet<>();
+		elementTypes.forEach(elementType -> result.addAll(elementType.getEmbeddedTypes()));
+		return result;
 	}
 
 	@Override

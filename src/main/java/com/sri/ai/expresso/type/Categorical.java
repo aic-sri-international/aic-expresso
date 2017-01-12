@@ -44,11 +44,14 @@ import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.IntegerIterator;
@@ -208,5 +211,10 @@ public class Categorical extends AbstractType {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public Set<Type> getEmbeddedTypes() {
+		return Collections.emptySet();
 	}
 }

@@ -39,6 +39,7 @@ package com.sri.ai.expresso.api;
 
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.helper.Expressions;
@@ -116,4 +117,10 @@ public interface Type {
 	default boolean isInfinite() {
 		return !isFinite();
 	}
+	
+	/**
+	 * 
+	 * @return a set of types that may be embedded in this type (e.g. from a function type).
+	 */
+	Set<Type> getEmbeddedTypes();
 }

@@ -53,12 +53,15 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.REAL_INTERVAL_OPEN_OPEN;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
 import com.sri.ai.util.math.Rational;
@@ -337,5 +340,10 @@ public class RealInterval extends AbstractType {
 //			}
 		}
 		return cachedString;
+	}
+	
+	@Override
+	public Set<Type> getEmbeddedTypes() {
+		return Collections.emptySet();
 	}
 }

@@ -49,12 +49,15 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
 import com.sri.ai.util.collect.BreadthFirstIterator;
 import com.sri.ai.util.collect.IntegerIterator;
@@ -263,5 +266,10 @@ public class IntegerInterval extends AbstractType {
 			cachedString = apply(INTEGER_INTERVAL, nonStrictLowerBound, nonStrictUpperBound).toString();
 		}
 		return cachedString;
+	}
+	
+	@Override
+	public Set<Type> getEmbeddedTypes() {
+		return Collections.emptySet();
 	}
 }

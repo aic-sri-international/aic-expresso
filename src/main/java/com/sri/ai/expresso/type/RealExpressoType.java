@@ -37,11 +37,14 @@
  */
 package com.sri.ai.expresso.type;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.math.Rational;
 
@@ -104,5 +107,10 @@ public class RealExpressoType extends AbstractType {
 	@Override
 	public String toString() {
 		return "Real";
+	}
+	
+	@Override
+	public Set<Type> getEmbeddedTypes() {
+		return Collections.emptySet();
 	}
 }

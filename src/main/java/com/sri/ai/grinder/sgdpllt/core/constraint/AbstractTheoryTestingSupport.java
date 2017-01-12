@@ -49,6 +49,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -114,9 +115,15 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 	@Override
 	public Collection<Type> getTypesForTesting() {
 		if (cachedTypesForTesting == null) {
-			cachedTypesForTesting = new LinkedHashSet<Type>(getVariableNamesAndTypesForTesting().values());
-			cachedTypesForTesting.addAll(getTheory().getNativeTypes());
-			cachedTypesForTesting = Collections.unmodifiableCollection(cachedTypesForTesting);
+			Set<Type> topTypesForTesting = new LinkedHashSet<>(getVariableNamesAndTypesForTesting().values());
+			topTypesForTesting.addAll(getTheory().getNativeTypes());
+			// Ensure we include embedded types (e.g. in a function or tuple type) as well
+			Set<Type> embeddedTypes = new LinkedHashSet<>();
+			for (Type topType : topTypesForTesting) {
+				embeddedTypes.addAll(topType.getEmbeddedTypes());
+			}
+			topTypesForTesting.addAll(embeddedTypes);
+			cachedTypesForTesting = Collections.unmodifiableCollection(topTypesForTesting);
 		}
 		return cachedTypesForTesting;
 	}
