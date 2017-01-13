@@ -48,7 +48,10 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTranslationBasedTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSetTopRewriter;
@@ -63,7 +66,7 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifie
 @Beta
 public class TupleTheory extends AbstractTranslationBasedTheory {
 	
-	private TupleQuantifierSimplifier tupleQuantifierSimplifier = new TupleQuantifierSimplifier();
+	private Rewriter tupleQuantifierSimplifier = new Recursive(new Exhaustive(new TupleQuantifierSimplifier()));
 
 	@Override
 	public TopRewriter makeDefaultTopRewriter() {
@@ -84,7 +87,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 		//            to create E
 		Expression exprE = group.makeProblemExpression(constraint.getVariable(), GrinderUtil.getType(constraint.getVariable(), context), constraint, body);
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
-		Expression exprEPrime = tupleQuantifierSimplifier.apply(exprE, context);
+		Expression exprEPrime      = tupleQuantifierSimplifier.apply(exprE, context);
 		// - return context.getTheory().getRewriter().makeStepSolver(E')
 		ExpressionLiteralSplitterStepSolver result  = context.getTheory().getRewriter().makeStepSolver(exprEPrime);
 		
