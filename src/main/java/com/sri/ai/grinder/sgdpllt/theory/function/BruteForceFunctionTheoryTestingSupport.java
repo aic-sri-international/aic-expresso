@@ -37,9 +37,12 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.function;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +54,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
@@ -64,15 +68,23 @@ public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestin
 	public BruteForceFunctionTheoryTestingSupport(BruteForceFunctionTheory theory, Random random) {
 		super(theory, random);
 		setVariableNamesAndTypesForTesting(				
-				map("f", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE), 
-					"g", new FunctionType(getDefaultTestingType(), BOOLEAN_TYPE, getDefaultTestingType()), 
-					"h", new FunctionType(getDefaultTestingType(), getDefaultTestingType()),
-					"i", new FunctionType(BOOLEAN_TYPE)));
+				map(
+					"F", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, getSmallCategoricalTestingType())
+					));
 		setTermVariableNamesAndTypesForTesting(
 				map("X", BOOLEAN_TYPE,
-					"Y", getDefaultTestingType(),
-					"Z", getDefaultTestingType()));
+					"Y", getSmallCategoricalTestingType()));
 		
+	}
+	
+	private static Categorical _someType;
+
+	static public Categorical getSmallCategoricalTestingType() {
+		if (_someType == null) {
+			ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c"), s -> makeSymbol(s));
+			_someType = new Categorical("SmallSomeType", 3, knownConstants);
+		}
+		return _someType;
 	}
 	
 	public void setTermVariableNamesAndTypesForTesting(Map<String, Type> termVariableNamesAndTypesForTesting) {

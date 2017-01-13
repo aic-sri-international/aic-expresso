@@ -231,15 +231,25 @@ public class SGDPLLTTester {
 				Expression literal = makeRandomLiteralGivenConstraint.apply(constraint);
 				constraint = addLiteralToConstraintAndTest(tester, literal, constraint, literals, testAgainstBruteForce, theoryTestingSupport, context);
 			}
-			
-			if (outputCount && i % NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE == 0) {
-				if (testAgainstBruteForce) {
-					System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theoryTestingSupport);
-				}
-				else {
-					System.out.println("Computed (without comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theoryTestingSupport);
-				}
-			}	
+			indicateCompletionOfTest(outputCount, problemName, i, testAgainstBruteForce, theoryTestingSupport);	
+		}
+	}
+
+	/**
+	 * @param outputCount
+	 * @param problemName
+	 * @param i
+	 * @param testAgainstBruteForce
+	 * @param theoryTestingSupport
+	 */
+	public static void indicateCompletionOfTest(boolean outputCount, String problemName, int i, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport) {
+		if (outputCount && i % NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE == 0) {
+			if (testAgainstBruteForce) {
+				System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theoryTestingSupport);
+			}
+			else {
+				System.out.println("Computed (without comparing against brute-force solution) " + i + " examples of " + problemName + " for " + theoryTestingSupport);
+			}
 		}
 	}
 
@@ -627,8 +637,9 @@ public class SGDPLLTTester {
 				theoryTestingSupport.getTheory()
 				.makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
 		
-		for (int i = 0; i != numberOfTests; i++) {
+		for (int i = 1; i != numberOfTests + 1; i++) {
 			tester.runOneTest(list(), emptyConstraint, testAgainstBruteForce, theoryTestingSupport, context);
+			indicateCompletionOfTest(outputCount, problemName, i, testAgainstBruteForce, theoryTestingSupport);	
 		}
 	}
 

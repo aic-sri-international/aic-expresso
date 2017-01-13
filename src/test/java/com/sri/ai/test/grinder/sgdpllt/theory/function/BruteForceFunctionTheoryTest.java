@@ -72,27 +72,26 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 		return true;
 	}
 
-	@Ignore
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
-				10 /* number of tests */,
-				3, /* body depth */
+				5 /* number of tests */,
+				2, /* body depth */
 				true /* output count */);
 	}
 
-	@Ignore
+	@Ignore("Need to include max operator in the basic simplifiers")
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),
-				10 /* number of tests */,
-				3, /* body depth */
+				5 /* number of tests */,
+				2, /* body depth */
 				true /* output count */);
 	}
 }
