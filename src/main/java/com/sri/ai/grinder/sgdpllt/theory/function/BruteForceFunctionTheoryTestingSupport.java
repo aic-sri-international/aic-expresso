@@ -69,7 +69,7 @@ public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestin
 					"h", new FunctionType(getDefaultTestingType(), getDefaultTestingType()),
 					"i", new FunctionType(BOOLEAN_TYPE)));
 		setTermVariableNamesAndTypesForTesting(
-				map("X", getDefaultTestingType(),
+				map("X", BOOLEAN_TYPE,
 					"Y", getDefaultTestingType(),
 					"Z", getDefaultTestingType()));
 		

@@ -62,7 +62,7 @@ public class TypeTest {
 				"lambda A1 in Car : if A1 = car1 then 2 else 2"
 				);
 		
-		// i.e. (2*2)^2
+		// i.e. 2^(2*2)
 		fType = new FunctionType(new IntegerInterval(1, 2), new Categorical("Car", 2), new Categorical("Bike", 2));
 		checkTypeIteration(fType, 
 				"lambda A1 in Car, A2 in Bike : if (A1 = car1) and (A2 = bike1) then 1 else if (A1 = car2) and (A2 = bike1) then 1 else if (A1 = car1) and (A2 = bike2) then 1 else 1",
