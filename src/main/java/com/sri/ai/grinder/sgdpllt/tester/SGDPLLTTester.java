@@ -139,7 +139,7 @@ public class SGDPLLTTester {
 		
 		String problemName = (isComplete? "complete" : "incomplete") + " satisfiability for single-variable constraints";
 		
-		runTesterGivenConjunctionsOfLiterals(problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenOnSuccessiveConjunctionsOfLiterals(problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class SGDPLLTTester {
 
 		TestRunner tester = SGDPLLTTester::testIncompleteSatisfiability; // DefaultMultiVariableConstraint is incomplete
 		
-		runTesterGivenConjunctionsOfLiterals("incomplete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenOnSuccessiveConjunctionsOfLiterals("incomplete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class SGDPLLTTester {
 
 		TestRunner tester = SGDPLLTTester::testCompleteSatisfiability; // CompleteMultiVariableContext is complete
 		
-		runTesterGivenConjunctionsOfLiterals("complete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenOnSuccessiveConjunctionsOfLiterals("complete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	private static interface TestRunner {
@@ -210,7 +210,7 @@ public class SGDPLLTTester {
 	 * @param context a context
 	 * @throws Error
 	 */
-	public static void runTesterGivenConjunctionsOfLiterals(
+	public static void runTesterGivenOnSuccessiveConjunctionsOfLiterals(
 			String problemName,
 			TestRunner tester,
 			long numberOfTests,
@@ -387,7 +387,7 @@ public class SGDPLLTTester {
 
 		TestRunner tester = (ls, c, tB, cT, p) -> runModelCountingTestForSingleVariableConstraint(variable, ls, c, tB, cT.getTheory(), p);
 		
-		runTesterGivenConjunctionsOfLiterals("model counting", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
+		runTesterGivenOnSuccessiveConjunctionsOfLiterals("model counting", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	private static void runModelCountingTestForSingleVariableConstraint(
@@ -483,7 +483,30 @@ public class SGDPLLTTester {
 		
 		String problemName = "quantification of " + group.getClass().getSimpleName() + " with single index";
 		TestRunner tester = (ls, c, tB, cT, p) -> runGroupProblemSolvingTestForSingleVariableConstraint(c, group, tB, cT, ls, bodyDepth, p);
-		runGroupProblemSolvingTest(problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, outputCount);
+		runGroupProblemSolvingTesterForSuccessiveConstraints(problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, outputCount);
+	}
+
+	/**
+	 * Same as {@link #testGroupProblemSolvingForSingleVariableConstraints(boolean, AssociativeCommutativeGroup, TheoryTestingSupport, long, int, int, boolean)},
+	 * but for theories without constraint literals (usually translation-based theories).
+	 * @param testAgainstBruteForce
+	 * @param group
+	 * @param theoryTestingSupport
+	 * @param numberOfTests
+	 * @param bodyDepth
+	 * @param outputCount
+	 */
+	public static void testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
+			boolean testAgainstBruteForce,
+			AssociativeCommutativeGroup group,
+			TheoryTestingSupport theoryTestingSupport,
+			long numberOfTests,
+			int bodyDepth,
+			boolean outputCount) {
+		
+		String problemName = "quantification of " + group.getClass().getSimpleName() + " with single index";
+		TestRunner tester = (ls, c, tB, cT, p) -> runGroupProblemSolvingTestForSingleVariableConstraint(c, group, tB, cT, ls, bodyDepth, p);
+		runGroupProblemSolvingTesterOnEmptyConstraint(problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, outputCount);
 	}
 
 	private static void runGroupProblemSolvingTestForSingleVariableConstraint(
@@ -497,7 +520,7 @@ public class SGDPLLTTester {
 		
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Expression index = singleVariableConstraint.getVariable();
-		runGroupProblemSolvingTest(list(index), constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
+		runGroupProblemSolvingTestGivenConstraint(list(index), constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
 	}
 
 	/**
@@ -524,11 +547,36 @@ public class SGDPLLTTester {
 			boolean outputCount) {
 		
 		String problemName = "quantification of " + group.getClass().getSimpleName() + " with " + numberOfIndices + " indices";
-		TestRunner tester = (ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndices(numberOfIndices, c, group, tB, cT, ls, bodyDepth, p);
-		runGroupProblemSolvingTest(problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, outputCount);
+		TestRunner tester = (ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndicesGivenConstraint(numberOfIndices, c, group, tB, cT, ls, bodyDepth, p);
+		runGroupProblemSolvingTesterForSuccessiveConstraints(problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, maxNumberOfLiterals, outputCount);
 	}
 
-	private static void runGroupProblemSolvingTestForMultipleIndices(
+	/**
+	 * Same as {@link #testGroupProblemSolvingForMultipleIndices(int, boolean, AssociativeCommutativeGroup, TheoryTestingSupport, long, int, int, boolean)},
+	 * but for theories without constraint literals (usually translation-based theories).
+	 * @param numberOfIndices
+	 * @param testAgainstBruteForce
+	 * @param group
+	 * @param theoryTestingSupport
+	 * @param numberOfTests
+	 * @param bodyDepth
+	 * @param outputCount
+	 */
+	public static void testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
+			int numberOfIndices,
+			boolean testAgainstBruteForce,
+			AssociativeCommutativeGroup group,
+			TheoryTestingSupport theoryTestingSupport,
+			long numberOfTests,
+			int bodyDepth,
+			boolean outputCount) {
+		
+		String problemName = "quantification of " + group.getClass().getSimpleName() + " with " + numberOfIndices + " indices";
+		TestRunner tester = (ls, c, tB, cT, p) -> runGroupProblemSolvingTestForMultipleIndicesGivenConstraint(numberOfIndices, c, group, tB, cT, ls, bodyDepth, p);
+		runGroupProblemSolvingTesterOnEmptyConstraint(problemName, tester, testAgainstBruteForce, group, theoryTestingSupport, numberOfTests, outputCount);
+	}
+
+	private static void runGroupProblemSolvingTestForMultipleIndicesGivenConstraint(
 			int numberOfIndices,
 			Constraint constraint,
 			AssociativeCommutativeGroup group,
@@ -547,45 +595,48 @@ public class SGDPLLTTester {
 						theoryTestingSupport.getVariablesForTesting(),
 						numberOfIndices,
 						theoryTestingSupport.getRandom());
-		runGroupProblemSolvingTest(indices, constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
+		runGroupProblemSolvingTestGivenConstraint(indices, constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
 	}
 
-	private static void runGroupProblemSolvingTest(String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
+	private static void runGroupProblemSolvingTesterForSuccessiveConstraints(String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), context);
 		
-		runTesterGivenConjunctionsOfLiterals(problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
-	}
-
-	private static void runGroupProblemSolvingTest(Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) throws Error {
-		
-		Expression body = makeBody(group, theoryTestingSupport, bodyDepth, context);
-		Expression problem = makeProblem(indices, constraint, body, group, context);
-		
-		runGroupProblemSolvingTestOnProblem(problem, indices, constraint, body, testAgainstBruteForce, theoryTestingSupport.getTheory(), context);
+		runTesterGivenOnSuccessiveConjunctionsOfLiterals(problemName, tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
 
 	/**
-	 * @param problem
-	 * @param indices
-	 * @param constraint
-	 * @param body
+	 * Same as {@link #runGroupProblemSolvingTesterForSuccessiveConstraints(String, TestRunner, boolean, AssociativeCommutativeGroup, TheoryTestingSupport, long, int, boolean)},
+	 * but running the tester on a single, empty constraint.
+	 * @param problemName
+	 * @param tester
 	 * @param testAgainstBruteForce
-	 * @param theory
-	 * @param context
+	 * @param group
+	 * @param theoryTestingSupport
+	 * @param numberOfTests
+	 * @param outputCount
 	 * @throws Error
 	 */
-	public static void runGroupProblemSolvingTestOnProblem(
-			Expression problem, 
-			Collection<Expression> indices, 
-			Constraint constraint, 
-			Expression body, 
-			boolean testAgainstBruteForce, 
-			Theory theory, 
-			Context context) {
+	private static void runGroupProblemSolvingTesterOnEmptyConstraint(String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, boolean outputCount) throws Error {
+		Context context = theoryTestingSupport.makeContextWithTestingInformation();
+		
+		SingleVariableConstraint emptyConstraint = 
+				theoryTestingSupport.getTheory()
+				.makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
+		
+		for (int i = 0; i != numberOfTests; i++) {
+			tester.runOneTest(list(), emptyConstraint, testAgainstBruteForce, theoryTestingSupport, context);
+		}
+	}
+
+	private static void runGroupProblemSolvingTestGivenConstraint(Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) throws Error {
+		
+		Expression body = makeBody(group, theoryTestingSupport, bodyDepth, context);
+		Expression problem = makeProblem(indices, constraint, body, group, context);
+		Theory theory = theoryTestingSupport.getTheory();
 		
 		Collection<Expression> freeVariables = getFreeVariableMinusIndices(indices, constraint, body, context);
 		
@@ -602,7 +653,7 @@ public class SGDPLLTTester {
 		if (Util.thereExists(new SubExpressionsDepthFirstIterator(symbolicSolution), e -> e instanceof QuantifiedExpression || Sets.isIntensionalSet(e))) {
 			throw new Error("Symbolic solution is not quantifier-free: " + symbolicSolution);
 		}
-
+		
 		output("Symbolic solution: " + symbolicSolution);
 		output("Computed in " + time + " ms");
 		

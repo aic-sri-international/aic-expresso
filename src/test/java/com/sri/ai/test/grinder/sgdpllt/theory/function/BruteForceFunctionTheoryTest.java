@@ -74,57 +74,12 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 
 	@Ignore
 	@Test
-	public void testSingleVariableConstraints() {
-		SGDPLLTTester.testSingleVariableConstraints(
-				getTestAgainstBruteForce(),
-				makeTheoryTestingSupport(),
-				100 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
-
-	@Ignore
-	@Test
-	public void testMultiVariableConstraints() {
-		SGDPLLTTester.testMultiVariableConstraints(
-				getTestAgainstBruteForce(),
-				makeTheoryTestingSupport(),
-				1 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
-
-	@Ignore
-	@Test
-	public void testCompleteMultiVariableConstraints() {
-		SGDPLLTTester.testCompleteMultiVariableConstraints(
-				getTestAgainstBruteForce(),
-				makeTheoryTestingSupport(),
-				20 /* number of tests */,
-				50 /* number of literals per test */,
-				true /* output count */);
-	}
-
-	@Ignore
-	@Test
-	public void testModelCountingForSingleVariableConstraints() {
-		SGDPLLTTester.testModelCountingForSingleVariableConstraints(
-				getTestAgainstBruteForce(),
-				makeTheoryTestingSupport(),
-				200 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
-
-	@Ignore
-	@Test
 	public void testSumForSingleVariableConstraints() {
-		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeTheoryTestingSupport(),
 				10 /* number of tests */,
-				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
 	}
@@ -132,12 +87,11 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 	@Ignore
 	@Test
 	public void testMaxForSingleVariableConstraints() {
-		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraints(
+		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),
 				10 /* number of tests */,
-				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
 	}
