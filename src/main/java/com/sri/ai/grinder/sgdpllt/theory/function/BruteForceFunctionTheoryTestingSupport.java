@@ -84,6 +84,11 @@ public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestin
 	}
 	
 	@Override
+	public Map<String, Type> getExtendedVariableNamesAndTypesForTesting() {
+		return getTermVariableNamesAndTypesForTesting();
+	}
+	
+	@Override
 	public Expression makeRandomAtomOn(String mainVariable, Context context) {
 		Expression result;
 		

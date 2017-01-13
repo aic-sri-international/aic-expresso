@@ -185,7 +185,10 @@ public class TupleType extends AbstractType {
 	@Override
 	public Set<Type> getEmbeddedTypes() {
 		Set<Type> result = new LinkedHashSet<>();
-		elementTypes.forEach(elementType -> result.addAll(elementType.getEmbeddedTypes()));
+		elementTypes.forEach(elementType -> {
+			result.add(elementType);
+			result.addAll(elementType.getEmbeddedTypes());
+		});
 		return result;
 	}
 

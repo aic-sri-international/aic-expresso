@@ -84,6 +84,11 @@ public class TupleTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	}
 	
 	@Override
+	public Map<String, Type> getExtendedVariableNamesAndTypesForTesting() {
+		return getElementVariableNamesAndTypesForTesting();
+	}
+	
+	@Override
 	public Expression makeRandomAtomOn(String mainVariable, Context context) {
 		Expression result;
 		

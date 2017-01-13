@@ -241,8 +241,12 @@ public class FunctionType extends AbstractType {
 	@Override
 	public Set<Type> getEmbeddedTypes() {
 		Set<Type> result = new LinkedHashSet<>();
+		result.add(codomain);
 		result.addAll(codomain.getEmbeddedTypes());
-		argumentTypes.forEach(argType -> result.addAll(argType.getEmbeddedTypes()));
+		argumentTypes.forEach(argType -> {
+			result.add(argType);
+			result.addAll(argType.getEmbeddedTypes());
+		});
 		return result;
 	}
 

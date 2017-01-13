@@ -135,9 +135,21 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		for (Map.Entry<String, Type> symbolAndType : getVariableNamesAndTypesForTesting().entrySet()) {
 			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
 		}
+		for (Map.Entry<String, Type> symbolAndType : getExtendedVariableNamesAndTypesForTesting().entrySet()) {
+			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
+		}
 		
 		Context result = (Context) GrinderUtil.extendRegistryWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), context);
 		return result;
+	}
+	
+	/**
+	 * Override this method if additional variable names and types should be included.
+	 * 
+	 * @return an extended set of variable names and types for testing.
+	 */
+	public Map<String, Type> getExtendedVariableNamesAndTypesForTesting() {
+		return Collections.emptyMap();
 	}
 	
 	/**

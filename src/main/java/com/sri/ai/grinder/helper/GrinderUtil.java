@@ -510,8 +510,13 @@ public class GrinderUtil {
 			if (expression.getArguments().size() != argumentsTypesList.size()) {
 				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but has incorrect number of arguments = "+ expression.getArguments());
 			}
-			if (IntStream.range(0, expression.getArguments().size()).anyMatch(idx -> !isSubtypeOf(expression.get(idx), registry.getType(argumentsTypesList.get(idx)), registry))) {
-				throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but has arguments that are not legal subtypes = "+ expression.getArguments());
+			for (int idx = 0; idx < expression.getArguments().size(); idx++) {
+				Expression arg         = expression.get(idx);
+				Expression argExprType = argumentsTypesList.get(idx);
+				Type       argType     = registry.getType(argExprType);
+				if (!isSubtypeOf(arg, argType, registry)) {
+					throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but has arguments that are not legal subtypes [#"+idx+"] = "+ expression.getArguments());
+				}
 			}
 
 			result = coDomain;
