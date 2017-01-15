@@ -67,6 +67,7 @@ public class NumericSimplifier extends Switch<String> {
 	
 	private static Simplifier plus = new Plus();
 	private static Simplifier times = new Times();
+	private static Simplifier max = new Max();
 
 	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
 		return map(
@@ -78,6 +79,9 @@ public class NumericSimplifier extends Switch<String> {
 
 				FunctorConstants.PLUS,            (Simplifier) (f, context) ->
 				plus.apply(f, context),
+
+				FunctorConstants.MAX,            (Simplifier) (f, context) ->
+				max.apply(f, context),
 
 				FunctorConstants.MINUS,           (Simplifier) (f, context) ->
 				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),

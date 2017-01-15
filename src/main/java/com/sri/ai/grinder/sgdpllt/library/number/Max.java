@@ -37,20 +37,19 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.number;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociative;
-import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeOnNumbers;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeWithOperationOnJavaConstantsOnly;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
@@ -60,38 +59,64 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class Times extends CommutativeAssociativeWithOperationOnJavaConstantsOnly implements Simplifier {
+public class Max extends CommutativeAssociativeWithOperationOnJavaConstantsOnly implements Simplifier {
 
-	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
+	// While we extend CommutativeAssociativeWithOperationOnJavaConstantsOnly,
+	// we will still to deal with non-Java constants INFINITY and MINUS_INFINITY,
+	// so we override a couple of their methods.
+	
+	private final static Predicate<Expression> isOperableArgumentPredicate =
+			o -> 
+	o.equals(Expressions.INFINITY) ||
+	o.equals(Expressions.MINUS_INFINITY) ||
+	(o instanceof Expression &&
+			((Expression)o).getSyntacticFormType().equals("Symbol") && 
+			((Expression)o).getValue() instanceof Number);
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
-		// takes care of infinity arguments before deferring to super method
-		if ( ! expression.hasFunctor(getFunctor())) {
-			return expression;
+		// We need to override this method because INFINITY and MINUS_INFINITY
+		// are not Java constants.
+		Expression result;
+		if ( ! isExtensional(expression)) {
+			result = expression;
 		}
-		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, context, (e, p) -> super.apply(e, p));
+		else {
+			// takes care of infinity arguments before deferring to super method
+			if (expression.getArguments().contains(INFINITY)) {
+				result = INFINITY;
+			}
+			else {
+				// remove MINUS_INFINITY if any and defer to super method
+				List<Expression> argumentsWithoutMinusInfinity =
+						Util.removeNonDestructively(expression.getArguments(), MINUS_INFINITY);
+				Expression expressionWithoutMinusInfinity =
+						expression.getArguments() == argumentsWithoutMinusInfinity?
+								expression : Expressions.apply(expression.getFunctor(), argumentsWithoutMinusInfinity);
+				result = super.apply(expressionWithoutMinusInfinity, context);
+			}
+		}
 		return result;
 	}
 
 	@Override
 	public Object getFunctor() {
-		return "*";
+		return MAX;
 	}
 	
 	@Override
 	protected Expression getNeutralElement() {
-		return ONE;
+		return MINUS_INFINITY;
 	}
 	
 	@Override
 	protected Expression getAbsorbingElement() {
-		return ZERO;
+		return INFINITY;
 	}
 	
 	@Override
 	protected boolean isIdempotent() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -99,55 +124,29 @@ public class Times extends CommutativeAssociativeWithOperationOnJavaConstantsOnl
 		return isOperableArgumentPredicate;
 	}
 
+	/**
+	 * Overridden method to deal with special case of an empty set of arguments.
+	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	protected Object operationOnOperableValues(List listOfConstants) {
-		return Util.productArbitraryPrecision(listOfConstants);
+	public Expression operationOnOperableArguments(LinkedList<Expression> operableArguments) {
+		// We need to override this method because MINUS_INFINITY
+		// is not a Java constant.
+		if (operableArguments.isEmpty()) {
+			return MINUS_INFINITY;
+		}
+		return super.operationOnOperableArguments(operableArguments);
 	}
 	
-	/**
-	 * Makes a product, automatically accounting for neutral element occurrences.
-	 */
-	public static Expression make(Expression... arguments) {
-		return CommutativeAssociative.make("*", Arrays.asList(arguments), ZERO, ONE, false);
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Object operationOnOperableValues(List listOfConstants) {
+		return Util.maxArbitraryPrecision(listOfConstants);
 	}
 
 	/**
-	 * Makes a product, automatically accounting for neutral element occurrences.
+	 * Makes a max expression, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("*", arguments, ZERO, ONE, false);
-	}
-
-	/**
-	 * Same as {@link CommutativeAssociative#make(Iterator<Expression>, Object, Object, Object)},
-	 * but not requiring the parameters already determined for times applications.
-	 */
-	public static Expression make(Iterator<Expression> argumentsIterator) {
-		return CommutativeAssociative.make("*", argumentsIterator, ZERO, ONE, false);
-	}
-
-	/**
-	 * Returns the list of multiplicands in a product expression,
-	 * including a singleton list with the expression itself if it is not a product
-	 * (since then it can be considered the only multiplicand in a "unary product").
-	 */
-	public static List<Expression> getMultiplicands(Expression expression) {
-		if (expression.hasFunctor("*")) {
-			return expression.getArguments();
-		}
-		return Util.list(expression);
-	}
-
-	/**
-	 * Returns the list of multiplicands in a product expression,
-	 * including a singleton list with the expression itself if it is not a product
-	 * (since then it can be considered the only multiplicand in a "unary product").
-	 */
-	public static List<Expression> getMultiplicands(Expression expression, Context context) {
-		if (expression.hasFunctor("*")) {
-			return expression.getArguments();
-		}
-		return Util.list(expression);
+		return CommutativeAssociative.make(MAX, arguments, MINUS_INFINITY, true);
 	}
 }

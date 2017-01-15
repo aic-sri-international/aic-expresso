@@ -62,7 +62,8 @@ public class CommutativeAssociativeOnNumbers {
 	/**
 	 * If arguments of expression contain {@link Expressions#INFINITY} but not {@link Expressions#MINUS_INFINITY}, returns INFINITY;
 	 * if they contain {@link Expressions#MINUS_INFINITY} but not {@link Expressions#INFINITY}, returns MINUS_INFINITY;
-	 * if they contain both or none, returns the result provided by fallback function
+	 * if they contain both, throw an error
+	 * if tye contain none, returns the result provided by provided fallback function
 	 * @param expression
 	 * @param context
 	 * @param fallback
@@ -75,7 +76,7 @@ public class CommutativeAssociativeOnNumbers {
 		boolean containsMinusInfinity = thereExists(expression.getArguments(), EQUALS_MINUS_INFINITY);
 		if (containsInfinity) {
 			if (containsMinusInfinity) {
-				result = fallback.apply(expression, context);
+				throw new Error(expression.getFunctor() + " undefined for application to both positive and negative infinity: " + expression);
 			}
 			else {
 				result = INFINITY;

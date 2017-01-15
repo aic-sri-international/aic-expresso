@@ -93,7 +93,7 @@ public class Max extends AbstractFunctionBasedGroup {
 			result = value1;
 		}
 		else {
-			result = Expressions.apply(getFunctionString(), value1, value2);
+			result = Expressions.apply(MAX, value1, value2);
 		}
 		return result;
 	}

@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociative;
-import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeWithOperationOnConstantsOnly;
+import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeWithOperationOnJavaConstantsOnly;
 import com.sri.ai.util.Util;
 
 /**
@@ -51,7 +51,7 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
+public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnJavaConstantsOnly {
 
 	@Override
 	public Expression apply(Expression expression, Context context) {

@@ -37,7 +37,6 @@
  */
 package com.sri.ai.test.grinder.sgdpllt.theory.function;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -83,7 +82,6 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 
-	@Ignore("Need to include max operator in the basic simplifiers")
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(

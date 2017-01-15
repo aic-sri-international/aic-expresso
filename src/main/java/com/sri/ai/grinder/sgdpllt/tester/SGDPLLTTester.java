@@ -661,12 +661,12 @@ public class SGDPLLTTester {
 		Expression symbolicSolution = symbolicInterpreter.apply(problem, context);
 		long time = System.currentTimeMillis() - start;
 		
+		output("Symbolic solution: " + symbolicSolution);
+		output("Computed in " + time + " ms");
+		
 		if (Util.thereExists(new SubExpressionsDepthFirstIterator(symbolicSolution), e -> e instanceof QuantifiedExpression || Sets.isIntensionalSet(e))) {
 			throw new Error("Symbolic solution is not quantifier-free: " + symbolicSolution);
 		}
-		
-		output("Symbolic solution: " + symbolicSolution);
-		output("Computed in " + time + " ms");
 		
 		if (testAgainstBruteForce) {
 			Function<BruteForceCommonInterpreter, Expression> 

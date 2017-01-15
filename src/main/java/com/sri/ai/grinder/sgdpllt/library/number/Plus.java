@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.arrayList;
@@ -52,7 +53,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociative;
 import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeOnNumbers;
-import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeWithOperationOnConstantsOnly;
+import com.sri.ai.grinder.sgdpllt.library.CommutativeAssociativeWithOperationOnJavaConstantsOnly;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 
@@ -61,9 +62,7 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly implements Simplifier {
-
-	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
+public class Plus extends CommutativeAssociativeWithOperationOnJavaConstantsOnly implements Simplifier {
 
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
@@ -88,7 +87,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly imp
 	
 	@Override
 	protected Expression getNeutralElement() {
-		return neutralElement;
+		return ZERO;
 	}
 	
 	@Override
@@ -116,7 +115,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly imp
 	 * Makes an addition, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("+", arguments, Expressions.ZERO, false);
+		return CommutativeAssociative.make(PLUS, arguments, ZERO, false);
 	}
 
 	/**

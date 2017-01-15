@@ -51,6 +51,7 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -61,7 +62,9 @@ import com.sri.ai.util.base.Equals;
  * actual implementations providing the functor of the operation, its neutral
  * element, a predicate identifying arguments that can be operated on (for
  * example, addition operates on constants, but not variables), and a method
- * applying the operation on these operable arguments. It works by either
+ * applying the operation on these operable arguments. 
+ * <p>
+ * It works by either
  * returning the result of the operation on all arguments, if all arguments are
  * operable (for addition, e.g., 1 + 2 + 3 returns 6), or returning an
  * application of the operation on the result on operable arguments together
@@ -98,6 +101,10 @@ public abstract class CommutativeAssociative implements Simplifier {
 	public Expression apply(Expression expression, Context context) {
 
 		if ( ! expression.hasFunctor(getFunctor())) {
+			return expression;
+		}
+		
+		if ( ! isExtensional(expression)) {
 			return expression;
 		}
 		
@@ -164,6 +171,18 @@ public abstract class CommutativeAssociative implements Simplifier {
 		return result;
 	}
 	
+	/**
+	 * Tests whether this is extensional version of the function, that is, it is NOT applied to an intensional set
+	 * (commutative associative functions usually have both an extensional and intensional
+	 * version, and this class is only about the extensional).
+	 * @param expression
+	 * @return
+	 */
+	public boolean isExtensional(Expression expression) {
+		boolean result = expression.hasFunctor(getFunctor()) && !(expression.numberOfArguments() == 1 && Sets.isIntensionalSet(expression.get(0)));
+		return result;
+	}
+
 	/**
 	 * An instance method version of {@link CommutativeAssociative#make(Object, List, Object, boolean)}
 	 * that uses the current object for obtaining the functor and neutral element.

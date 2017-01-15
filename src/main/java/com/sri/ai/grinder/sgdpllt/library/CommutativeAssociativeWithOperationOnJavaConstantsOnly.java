@@ -47,12 +47,15 @@ import com.sri.ai.expresso.helper.GetValue;
 import com.sri.ai.util.Util;
 
 /**
+ * Specializes {@link CommutativeAssociative}
+ * to situations in which all arguments are constants,
+ * reducing the whole expression to a constant itself.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class CommutativeAssociativeWithOperationOnConstantsOnly extends CommutativeAssociative {
+public abstract class CommutativeAssociativeWithOperationOnJavaConstantsOnly extends CommutativeAssociative {
 
 	protected abstract Object operationOnOperableValues(List<? extends Object> listOfOperableArguments);
 
