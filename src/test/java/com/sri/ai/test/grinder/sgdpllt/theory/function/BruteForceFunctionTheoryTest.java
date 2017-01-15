@@ -92,4 +92,28 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 				2, /* body depth */
 				true /* output count */);
 	}
+
+	@Test
+	public void testSumForMultiVariableConstraints() {
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
+				2,
+				getTestAgainstBruteForce(),
+				new Sum(),
+				makeTheoryTestingSupport(),
+				3 /* number of tests */,
+				2, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMaxForMultiVariableConstraints() {
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
+				3,
+				getTestAgainstBruteForce(),
+				new Max(),
+				makeTheoryTestingSupport(),
+				5 /* number of tests */,
+				2, /* body depth */
+				true /* output count */);
+	}
 }

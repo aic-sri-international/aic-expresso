@@ -69,7 +69,9 @@ public class BruteForceFunctionTheoryTestingSupport extends AbstractTheoryTestin
 		super(theory, random);
 		setVariableNamesAndTypesForTesting(				
 				map(
-					"F", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, getSmallCategoricalTestingType())
+						"F", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE, getSmallCategoricalTestingType()),
+						"G", new FunctionType(BOOLEAN_TYPE, BOOLEAN_TYPE),
+						"H", new FunctionType(BOOLEAN_TYPE)
 					));
 		setTermVariableNamesAndTypesForTesting(
 				map("X", BOOLEAN_TYPE,
