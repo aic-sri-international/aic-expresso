@@ -38,8 +38,10 @@
 package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
 import static com.sri.ai.util.Util.addAllToArrayList;
+import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
@@ -65,7 +67,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
  * We currently only have a basic version.
  * 
  * While the idea is to allow recursive application to any type of expression,
- * currently only sub-expressions of function applications (that is, its functor and arguments) are recursed into
+ * currently only sub-expressions of function applications (that is, its functor and arguments) and tuples are recursed into
  * (other expressions simply have the base rewriter applied to them).
  * This is due to the fact that sub-expressions in more complex expressions
  * are under a new context. For example, in order to recurse into  the body of <code>for all X in Integer : f(X)</code>,
@@ -86,10 +88,13 @@ public class Recursive implements Rewriter {
 		this.baseRewriter = baseRewriter;
 	}
 
+	private final static List<String> syntacticFormTypesToRecurse = list("Function application", "Tuple");
+	
 	@Override
 	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 		ExpressionLiteralSplitterStepSolver result;
-		if (expression.getSyntacticFormType().equals("Function application")) {
+		Object syntacticFormType = expression.getSyntacticFormType();
+		if (syntacticFormTypesToRecurse.contains(syntacticFormType)) {
 			result = new RecursiveStepSolver(baseRewriter, expression);
 		}
 		else {
@@ -188,10 +193,11 @@ public class Recursive implements Rewriter {
 		public Step step(Context context) {
 			Step result;
 			
-			if ( ! (currentExpression.getSyntacticFormType().equals("Function application") || currentExpression.getSyntacticFormType().equals("Symbol"))) {
-				// For expressions other than function applications and symbols, this step solver behaves like the step solver of its base rewriter.
+			if ( ! (syntacticFormTypesToRecurse.contains(currentExpression.getSyntacticFormType())
+					|| currentExpression.getSyntacticFormType().equals("Symbol"))) {
+				// For expressions other than function applications, tuples, and symbols, this step solver behaves like the step solver of its base rewriter.
 				// Note that here we assume that topExpressionIsNextForUsToTakeAStepOn must be true, as it would not make sense for it for be false
-				// for non-function applications.
+				// for non-function applications and non-tuples.
 				return baseRewriter.step(currentExpression, context);
 			}
 

@@ -70,6 +70,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
 
 @Beta
 /** 
@@ -135,6 +136,7 @@ abstract public class AbstractTheory implements Theory {
 							new BindingTopSimplifier(),
 							new EqualitySimplifier(),
 							new InequalitySimplifier(),
+							new TupleEqualityTopRewriter(),
 							new BooleanSimplifier(),
 							new NumericSimplifier(),
 							new CardinalityOfSetConstantSimplifier(),

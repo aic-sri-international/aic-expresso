@@ -43,6 +43,8 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static org.junit.Assert.fail;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -60,9 +62,16 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SummationOnDiffere
 @Beta
 public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Test
 	public void simpleBodyTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = 
+				TheoryTestingSupport.make(
+						makeRandom(), 
+						new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -100,7 +109,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -138,7 +147,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 	
 	@Test
 	public void polynomialBodyWithADifferentVariableTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -176,7 +185,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	@Test
 	public void polynomialBodyAndConstraintWithADifferentVariableTest() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;

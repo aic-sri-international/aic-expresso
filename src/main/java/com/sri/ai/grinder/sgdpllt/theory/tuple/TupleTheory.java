@@ -66,7 +66,7 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifie
 @Beta
 public class TupleTheory extends AbstractTranslationBasedTheory {
 	
-	private Rewriter tupleQuantifierSimplifier = new Recursive(new Exhaustive(new TupleQuantifierSimplifier()));
+	private Rewriter tupleQuantifierSimplifier = new Recursive( new Exhaustive(new TupleQuantifierSimplifier()));
 
 	@Override
 	public TopRewriter makeDefaultTopRewriter() {
@@ -85,7 +85,13 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
 		//            to create E
-		Expression exprE = group.makeProblemExpression(constraint.getVariable(), GrinderUtil.getType(constraint.getVariable(), context), constraint, body);
+		Expression variable = constraint.getVariable();
+		Expression typeExpression = GrinderUtil.getType(variable, context);
+		Type type = context.getType(typeExpression);
+		if (!isSuitableFor(variable, type)) {
+			throw new Error("Theory " + this + " asked to eliminate quantifier indexed by " + variable + " in " + typeExpression + ", but this theory is not suitable for this type.");
+		}
+		Expression exprE = group.makeProblemExpression(variable, typeExpression, constraint, body);
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
 		Expression exprEPrime      = tupleQuantifierSimplifier.apply(exprE, context);
 		// - return context.getTheory().getRewriter().makeStepSolver(E')

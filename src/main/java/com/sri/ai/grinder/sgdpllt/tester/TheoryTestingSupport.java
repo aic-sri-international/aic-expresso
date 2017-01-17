@@ -270,16 +270,6 @@ public interface TheoryTestingSupport {
 		return extendWithTestingInformation(new TrueContext(getTheory()));
 	}
 	
-	static TheoryTestingSupport make(Theory theory) {
-		TheoryTestingSupport result = make(new Random(), theory);
-		return result;
-	}
-	
-	static TheoryTestingSupport make(TheoryTestingSupport... theoryTestingSupports) {
-		TheoryTestingSupport result = make(new Random(), theoryTestingSupports);
-		return result;
-	}
-	
 	static TheoryTestingSupport make(Random random, TheoryTestingSupport... theoryTestingSupports) {
 		TheoryTestingSupport result = new CompoundTheoryTestingSupport(random, theoryTestingSupports);
 		return result;

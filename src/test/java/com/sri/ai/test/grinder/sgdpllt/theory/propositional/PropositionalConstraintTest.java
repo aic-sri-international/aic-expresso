@@ -52,7 +52,7 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 
 	@Override
 	public TheoryTestingSupport makeTheoryTestingSupport() {
-		return TheoryTestingSupport.make(new PropositionalTheory());
+		return TheoryTestingSupport.make(makeRandom(), new PropositionalTheory());
 	}
 
 	@Test

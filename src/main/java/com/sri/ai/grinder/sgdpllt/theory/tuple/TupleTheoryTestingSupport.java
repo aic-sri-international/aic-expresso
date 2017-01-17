@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 
@@ -93,9 +94,15 @@ public class TupleTheoryTestingSupport extends AbstractTheoryTestingSupport {
 		Expression result;
 		
 		// Construct an instance of the main tuple
-		Type       mainType      = getTestingVariableType(mainVariable);
-		TupleType  mainTupleType = ensureTupleType(mainType);
-		Expression mainTuple     = makeTuple(mainTupleType); 
+		Expression mainTuple;
+		Type mainType = getTestingVariableType(mainVariable);
+		if (mainType instanceof TupleType) {
+			mainTuple = makeSymbol(mainVariable);
+		}
+		else {
+			TupleType mainTupleType = ensureTupleType(mainType);
+			mainTuple = makeTuple(mainTupleType);
+		}
 		
 		// Pick another (or the same) variable having a compatible tuple type
 		String otherVariable = pickTestingVariableAtRandom(mainType, variableName -> true);

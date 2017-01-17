@@ -70,7 +70,7 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		TheoryTestingSupport result = TheoryTestingSupport.make(new CompoundTheory(
+		TheoryTestingSupport result = TheoryTestingSupport.make(makeRandom(), new CompoundTheory(
 				new EqualityTheory(true, true),
 				new PropositionalTheory()));
 		return result;
@@ -198,9 +198,9 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
-		TheoryTestingSupport equalityTheoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, true));
+		TheoryTestingSupport equalityTheoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new EqualityTheory(true, true));
 		equalityTheoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(equalityTheoryTestingSupport, TheoryTestingSupport.make(new PropositionalTheory()));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), equalityTheoryTestingSupport, TheoryTestingSupport.make(makeRandom(), new PropositionalTheory()));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

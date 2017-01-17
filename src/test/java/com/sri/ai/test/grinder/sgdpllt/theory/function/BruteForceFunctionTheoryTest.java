@@ -48,8 +48,6 @@ import com.sri.ai.grinder.sgdpllt.theory.function.BruteForceFunctionTheory;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryTest;
 
 /**
- * Test of compound theory of equalities, difference arithmetic and propositional theories.
- * Still quite slow (as of January 2016), hence the small number of test problems.
  * @author braz
  *
  */
@@ -58,7 +56,7 @@ public class BruteForceFunctionTheoryTest extends AbstractTheoryTest {
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		TheoryTestingSupport result = TheoryTestingSupport.make(new BruteForceFunctionTheory());
+		TheoryTestingSupport result = TheoryTestingSupport.make(makeRandom(), new BruteForceFunctionTheory());
 		return result;
 	}
 	

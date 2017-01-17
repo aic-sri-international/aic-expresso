@@ -42,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -61,13 +62,19 @@ import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 @Beta
 public class EvaluationTest {
 
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Test
 	public void testEvaluationOfFunctionApplications() {
 		TheoryTestingSupport theoryTestingSupport
-		= TheoryTestingSupport.make(new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, true),
-				new PropositionalTheory()));
+		= TheoryTestingSupport.make(
+				makeRandom(), 
+				new CompoundTheory(
+						new EqualityTheory(false, true),
+						new DifferenceArithmeticTheory(false, true),
+						new PropositionalTheory()));
 
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type booleanType = variablesAndTypes.get("P");
@@ -121,7 +128,7 @@ public class EvaluationTest {
 	@Test
 	public void testEvaluationOfGroupOperationsOnSets() {
 		TheoryTestingSupport theoryTestingSupport
-		= TheoryTestingSupport.make(new CompoundTheory(
+		= TheoryTestingSupport.make(makeRandom(), new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory()));
@@ -183,7 +190,7 @@ public class EvaluationTest {
 	@Test
 	public void testEvaluationOfCardinalityExpressions() {
 		TheoryTestingSupport theoryTestingSupport
-		= TheoryTestingSupport.make(new CompoundTheory(
+		= TheoryTestingSupport.make(makeRandom(), new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory()));
@@ -244,7 +251,7 @@ public class EvaluationTest {
 	@Test
 	public void testEvaluationOfQuantifiedExpressions() {
 		TheoryTestingSupport theoryTestingSupport
-		= TheoryTestingSupport.make(new CompoundTheory(
+		= TheoryTestingSupport.make(makeRandom(), new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory()));
@@ -297,7 +304,7 @@ public class EvaluationTest {
 	public void testEvaluationOfQuantifiersOverFunctions() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport
 				.make(
-						new CompoundTheory(
+						makeRandom(), new CompoundTheory(
 								new EqualityTheory(false, true), 
 								new DifferenceArithmeticTheory(false, true),
 								new PropositionalTheory(),

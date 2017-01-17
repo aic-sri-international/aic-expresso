@@ -59,6 +59,7 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.util.Util;
 
@@ -185,10 +186,14 @@ public class CompoundTheory extends AbstractTheory {
 	public Expression getAtomNegation(Expression atom, Context context) {
 		Theory theory =
 				getFirstSatisfyingPredicateOrNull(getSubTheories(), t -> t.isLiteralOrBooleanConstant(atom, context));
+		Expression result;
 		if (theory == null) {
-			throw new Error("The expression '" + atom + "' has not been recognized as a literal in any of the registered theories: " + join(",", getSubTheories()));
+			// this covers cases in which the theory has testing literals, but not constraint literals
+			result = Not.make(atom);
 		}
-		Expression result = theory.getAtomNegation(atom, context);
+		else {
+			result = theory.getAtomNegation(atom, context);
+		}
 		return result;
 	}
 

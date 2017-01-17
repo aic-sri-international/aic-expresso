@@ -45,6 +45,7 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -62,9 +63,16 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 @Beta
 public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Test
 	public void test() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = 
+				TheoryTestingSupport.make(
+						makeRandom(), 
+						new DifferenceArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		List<String> expressionStrings;

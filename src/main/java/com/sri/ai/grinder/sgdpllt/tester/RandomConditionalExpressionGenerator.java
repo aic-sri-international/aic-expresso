@@ -109,7 +109,10 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	
 	public static void main(String[] args) {
 		Random random = new Random();
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = 
+				TheoryTestingSupport.make(
+						new Random(), 
+						new DifferenceArithmeticTheory(true, true));
 		for (int numberOfVariables = 3; numberOfVariables != 5; numberOfVariables++) {
 			Map<String, Type> variableNamesAndTypes = map();
 			Type integerInterval = new IntegerInterval(0, 100);

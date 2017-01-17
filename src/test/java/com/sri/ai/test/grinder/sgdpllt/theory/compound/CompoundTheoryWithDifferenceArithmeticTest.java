@@ -79,7 +79,7 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		TheoryTestingSupport result = TheoryTestingSupport.make(new CompoundTheory(
+		TheoryTestingSupport result = TheoryTestingSupport.make(makeRandom(), new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory()));
@@ -118,7 +118,7 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void basicTests() {
 		
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new CompoundTheory(
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, true),
 				new PropositionalTheory()));
@@ -231,9 +231,9 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
-		TheoryTestingSupport equalityTheoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, true));
+		TheoryTestingSupport equalityTheoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new EqualityTheory(true, true));
 		equalityTheoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(equalityTheoryTestingSupport, TheoryTestingSupport.make(new PropositionalTheory()));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), equalityTheoryTestingSupport, TheoryTestingSupport.make(makeRandom(), new PropositionalTheory()));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

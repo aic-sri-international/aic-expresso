@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.sgdpllt.theory.tuple;
 
+import java.util.Random;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -45,6 +47,8 @@ import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryTest;
 
@@ -57,7 +61,11 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 
 	@Override
 	protected TheoryTestingSupport makeTheoryTestingSupport() {
-		TheoryTestingSupport result = TheoryTestingSupport.make(new TupleTheory());
+		TheoryTestingSupport result = 
+				TheoryTestingSupport.make(
+						makeRandom(), new CompoundTheory(
+								new TupleTheory(),
+								new EqualityTheory(false, true)));
 		return result;
 	}
 	
@@ -70,6 +78,11 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 		return true;
 	}
 
+	@Override
+	public Random makeRandom() {
+		return new Random(1);
+	}
+	
 	@Ignore
 	@Test
 	public void testSumForSingleVariableConstraints() {
@@ -78,7 +91,7 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 				new Sum(),
 				makeTheoryTestingSupport(),
 				10 /* number of tests */,
-				3, /* body depth */
+				1, /* body depth */
 				true /* output count */);
 	}
 

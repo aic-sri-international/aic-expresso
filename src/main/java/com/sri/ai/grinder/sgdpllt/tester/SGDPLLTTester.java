@@ -90,7 +90,7 @@ public class SGDPLLTTester {
 	private static final int NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE = 1;
 
 	private static void output(String message) {
-		//System.out.println(message); // uncomment out if detailed output is desired.
+		System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**
@@ -530,7 +530,7 @@ public class SGDPLLTTester {
 		
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Expression index = singleVariableConstraint.getVariable();
-		runGroupProblemSolvingTestGivenConstraint(list(index), constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
+		runGroupProblemSolvingTestGivenConstraintOnRandomProblem(list(index), constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
 	}
 
 	/**
@@ -605,7 +605,7 @@ public class SGDPLLTTester {
 						theoryTestingSupport.getVariablesForTesting(),
 						numberOfIndices,
 						theoryTestingSupport.getRandom());
-		runGroupProblemSolvingTestGivenConstraint(indices, constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
+		runGroupProblemSolvingTestGivenConstraintOnRandomProblem(indices, constraint, group, testAgainstBruteForce, theoryTestingSupport, bodyDepth, context);
 	}
 
 	private static void runGroupProblemSolvingTesterForSuccessiveConstraints(String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
@@ -643,10 +643,27 @@ public class SGDPLLTTester {
 		}
 	}
 
-	private static void runGroupProblemSolvingTestGivenConstraint(Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) throws Error {
+	private static void runGroupProblemSolvingTestGivenConstraintOnRandomProblem(Collection<Expression> indices, Constraint constraint, AssociativeCommutativeGroup group, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) throws Error {
 		
 		Expression body = makeBody(group, theoryTestingSupport, bodyDepth, context);
 		Expression problem = makeProblem(indices, constraint, body, group, context);
+
+		// Separate random problem generation from the rest so that, during debugging, we can use "Drop to frame" without re-generating a new problem.
+		
+		runGroupProblemSolvingTestGivenConstraintAndProblem(problem, indices, constraint, body, testAgainstBruteForce, theoryTestingSupport, context);
+	}
+
+	/**
+	 * @param problem
+	 * @param indices
+	 * @param constraint
+	 * @param body
+	 * @param testAgainstBruteForce
+	 * @param theoryTestingSupport
+	 * @param context
+	 * @throws Error
+	 */
+	public static void runGroupProblemSolvingTestGivenConstraintAndProblem(Expression problem, Collection<Expression> indices, Constraint constraint, Expression body, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, Context context) throws Error {
 		Theory theory = theoryTestingSupport.getTheory();
 		
 		Collection<Expression> freeVariables = getFreeVariableMinusIndices(indices, constraint, body, context);
@@ -655,7 +672,6 @@ public class SGDPLLTTester {
 		output(problemDescription);
 		
 		Simplifier symbolicInterpreter = (e, c) -> theory.evaluate(e,c);
-				//new Evaluator(theory);
 				
 		long start = System.currentTimeMillis();
 		Expression symbolicSolution = symbolicInterpreter.apply(problem, context);

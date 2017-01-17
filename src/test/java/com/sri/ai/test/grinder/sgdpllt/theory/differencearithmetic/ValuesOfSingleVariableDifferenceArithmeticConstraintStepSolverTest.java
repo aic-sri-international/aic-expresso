@@ -41,6 +41,8 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -57,9 +59,16 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.ValuesOfSingleVari
 @Beta
 public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest {
 
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Test
 	public void test() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new DifferenceArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = 
+				TheoryTestingSupport.make(
+						makeRandom(), 
+						new DifferenceArithmeticTheory(true, true));
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(
 				map(
 						"I", new IntegerInterval(0,4),

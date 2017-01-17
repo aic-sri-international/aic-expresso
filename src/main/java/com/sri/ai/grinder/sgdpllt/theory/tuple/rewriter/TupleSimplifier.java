@@ -35,47 +35,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library;
+package com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSimplifier;
 
 /**
  * A {@link TopRewriter} aggregating:
  * 
  * <ul>
- * <li> {@link BindingTopSimplifier}: replaces symbols by their values(<code>=, !=</code>)
- * <li> {@link BooleanSimplifier}: boolean connectives (<code>and, or, not, <=>, =></code>) and if then else
- * <li> {@link NumericSimplifier}: arithmetic (<code>+, -, *, /</code>) and inequalities (<code><, <=, >=, ></code>)
- * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
- * <li> {@link InequalitySimplifier}: inequality (<code><, <=, >, >=</code>)
- * <li> {@link CardinalityOfSetConstantSimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
- * <li> {@link LambdaBetaReductionSimplifier}: replaces <code>(lambda X : f(X))(E)</code> by <code>f(E)</code>.
+ * <li> {@link TupleEqualityTopRewriter}
+ * <li> {@link TupleGetSetTopRewriter}
  * </ul>
  * 
  * @author braz
  *
  */
 @Beta
-public class CommonSimplifier extends DefaultTopRewriter {
+public class TupleSimplifier extends DefaultTopRewriter {
 	
-	public CommonSimplifier() {
+	public TupleSimplifier() {
 		super(
-				new BindingTopSimplifier(),
-				new BooleanSimplifier(),
-				new NumericSimplifier(),
-				new EqualitySimplifier(),
-				new InequalitySimplifier(),
-				new CardinalityOfSetConstantSimplifier(),
-				new LambdaBetaReductionSimplifier(),
-				new TupleSimplifier());
+				new TupleEqualityTopRewriter(),
+				new TupleGetSetTopRewriter()
+				);
 	}
 }

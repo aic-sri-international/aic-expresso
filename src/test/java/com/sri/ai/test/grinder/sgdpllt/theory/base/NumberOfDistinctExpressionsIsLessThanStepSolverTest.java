@@ -46,6 +46,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -60,10 +61,17 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.NumberOfDistinctExpressionsIsL
 
 public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 	
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Test
 	public void test() {
 		
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new EqualityTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = 
+				TheoryTestingSupport.make(
+						makeRandom(), 
+						new EqualityTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		String contextString = "X != Y and X != a and X != b and Y != b";

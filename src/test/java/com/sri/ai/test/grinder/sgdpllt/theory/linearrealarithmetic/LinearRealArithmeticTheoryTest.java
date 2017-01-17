@@ -40,6 +40,8 @@ package com.sri.ai.test.grinder.sgdpllt.theory.linearrealarithmetic;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -61,9 +63,16 @@ import com.sri.ai.util.base.BinaryFunction;
 @Beta
 public class LinearRealArithmeticTheoryTest {
 
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Test
 	public void testMeasureEquivalentInterval() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = 
+				TheoryTestingSupport.make(
+						makeRandom(), 
+						new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -246,7 +255,7 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testSatisfiability() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 
 		Expression variable;
@@ -472,7 +481,7 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testMeasure() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
 		Expression variable;
@@ -698,7 +707,7 @@ public class LinearRealArithmeticTheoryTest {
 
 	@Test
 	public void testSummation() {
-		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(new LinearRealArithmeticTheory(true, true));
+		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new LinearRealArithmeticTheory(true, true));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		Simplifier simplifier = (e,c) -> theoryTestingSupport.getTheory().simplify(e, c);
 		
