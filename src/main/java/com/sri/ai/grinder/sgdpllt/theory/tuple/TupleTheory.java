@@ -56,6 +56,7 @@ import com.sri.ai.grinder.sgdpllt.theory.base.AbstractTranslationBasedTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifier;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleValuedFreeVariablesTopRewriter;
 
 /**
  * A {@link Theory) for Tuples.
@@ -70,7 +71,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 
 	@Override
 	public TopRewriter makeDefaultTopRewriter() {
-		return merge(super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
+		return merge(new TupleValuedFreeVariablesTopRewriter(), super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
 	}
 
 	@Override

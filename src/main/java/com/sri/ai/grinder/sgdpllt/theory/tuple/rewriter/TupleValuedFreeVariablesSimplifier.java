@@ -91,7 +91,7 @@ public class TupleValuedFreeVariablesSimplifier implements Simplifier {
 			// Retrieve those that are tuples
 			Map<Expression, TupleType> freeVariablesOfTupleType = 
 					freeVariablesAndTypes.entrySet().stream()
-						.filter(entry -> TupleType.isTupleType(entry.getValue()))
+						.filter(entry -> entry.getValue() != null && TupleType.isTupleType(entry.getValue()))
 						.collect(Collectors.toMap(e -> e.getKey(), e -> (TupleType) GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(e.getValue(), context)));			
 			if (freeVariablesOfTupleType.size() > 0) {
 				final Map<Expression, List<Pair<Expression, Integer>>> freeVariableComponentsMap = constructComponentMap(freeVariablesOfTupleType, expression, context);
