@@ -1,14 +1,21 @@
 package com.sri.ai.test.grinder.sgdpllt.theory.tuple;
 
+import static com.sri.ai.util.Util.map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.TupleType;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleDisequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
@@ -16,12 +23,28 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleGetSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleQuantifierSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSetSimplifier;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleValuedFreeVariablesSimplifier;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+
+import java.util.Arrays;
 
 public class TupleRewriterTest {
 	
 	private Context context = new TrueContext();
+	
+	@Test
+	public void testTupleValuedFreeVariablesSimplifier() {
+		Context tupleTheoryContext = new TrueContext(new CompoundTheory(new DifferenceArithmeticTheory(false, false), new TupleTheory()));
+		TupleType nTupleType = new TupleType(new IntegerInterval(1, 10), new IntegerInterval(1, 10));
+		tupleTheoryContext = (Context) GrinderUtil.extendRegistryWith(map("N", nTupleType.toString()), Arrays.asList(nTupleType), tupleTheoryContext);
+		
+		TupleValuedFreeVariablesSimplifier simplifier = new TupleValuedFreeVariablesSimplifier();
+				
+		Expression expression = parse("sum( {{ (on X in 1..10) if N = (2, X) then 2 else 3 }} )");
+		Expression simplified = simplifier.apply(expression, tupleTheoryContext);
+		Assert.assertEquals(parse("if get(N, 1) = 2 then 29 else 30"), simplified);
+	}
 
 	@Test
 	public void testTupleEqualitySimplification() {
@@ -164,6 +187,9 @@ public class TupleRewriterTest {
 				tupleGetSimplifier.apply(parse("get((a,b,c),I)"), context));		
 		
 		Expression expr = parse("get(I, (a,b,c))");
+		Assert.assertTrue(expr == tupleGetSimplifier.apply(expr, context));
+		
+		expr = parse("get(N, 1)");
 		Assert.assertTrue(expr == tupleGetSimplifier.apply(expr, context));
 	}
 	
