@@ -78,9 +78,20 @@ import com.sri.ai.util.base.Pair;
  * @author oreilly
  */
 public class TupleValuedFreeVariablesSimplifier implements Simplifier {
+	
+	private Expression lastSimplifiedExpression;
+	
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
-		return simplify(expression, context);
+		Expression result = expression;
+		if (expression != lastSimplifiedExpression  
+			&& !(lastSimplifiedExpression != null && Expressions.isSubExpressionOf(expression, lastSimplifiedExpression))) {
+			result = simplify(expression, context);
+			if (result != expression) {
+				lastSimplifiedExpression = result;				
+			}			
+		}
+		return result;
 	}
 	
 	public static Expression simplify(Expression expression, Context context) {
@@ -93,7 +104,7 @@ public class TupleValuedFreeVariablesSimplifier implements Simplifier {
 					freeVariablesAndTypes.entrySet().stream()
 						.filter(entry -> entry.getValue() != null && TupleType.isTupleType(entry.getValue()))
 						.collect(Collectors.toMap(e -> e.getKey(), e -> (TupleType) GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(e.getValue(), context)));			
-			if (freeVariablesOfTupleType.size() > 0) {
+			if (freeVariablesOfTupleType.size() > 0) {				
 				final Map<Expression, List<Pair<Expression, Integer>>> freeVariableComponentsMap = constructComponentMap(freeVariablesOfTupleType, expression, context);
 
 				// Replace the free tuple variables with their componentised forms

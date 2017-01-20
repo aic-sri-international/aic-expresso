@@ -516,6 +516,9 @@ public class GrinderUtil {
 				throw new Error("get type from tuple for '" + expression + "' currently not supported.");
 			}
 		}
+		else if (expression.hasFunctor(FunctorConstants.TUPLE_TYPE)) {
+			result = expression; // Is a type expression already.
+		}
 		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			Expression functionType = getType(expression.getFunctor(), registry);
 			if (functionType == null) {

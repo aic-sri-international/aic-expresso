@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpllt.theory.tuple;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.grinder.sgdpllt.theory.function.BruteForceFunctionTheoryTestingSupport.getSmallCategoricalTestingType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +60,7 @@ import com.sri.ai.grinder.sgdpllt.library.Equality;
 @Beta
 public class TupleTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	//
-	public static final TupleType TUPLE_TYPE = new TupleType(getDefaultTestingType(), getDefaultTestingType());
+	public static final TupleType TUPLE_TYPE = new TupleType(getSmallCategoricalTestingType(), getSmallCategoricalTestingType());
 	
 	//
 	private Map<String, Type> elementVariableNamesAndTypesForTesting;
@@ -71,9 +72,9 @@ public class TupleTheoryTestingSupport extends AbstractTheoryTestingSupport {
 					"M", TUPLE_TYPE, 
 					"N", TUPLE_TYPE));
 		setElementVariableNamesAndTypesForTesting(
-				map("X", getDefaultTestingType(),
-					"Y", getDefaultTestingType(),
-					"Z", getDefaultTestingType()));
+				map("X", getSmallCategoricalTestingType(),
+					"Y", getSmallCategoricalTestingType(),
+					"Z", getSmallCategoricalTestingType()));
 	}
 	
 	public void setElementVariableNamesAndTypesForTesting(Map<String, Type> elementVariableNamesAndTypesForTesting) {

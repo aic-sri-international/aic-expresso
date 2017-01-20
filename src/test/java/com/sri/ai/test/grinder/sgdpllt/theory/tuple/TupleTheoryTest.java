@@ -102,8 +102,34 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeTheoryTestingSupport(),
-				10 /* number of tests */,
-				3, /* body depth */
+				5  /* number of tests */,
+				2, /* body depth */
+				true /* output count */);
+	}
+	
+	@Ignore
+	@Test
+	public void testSumForMultiVariableConstraints() {
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
+				2,
+				getTestAgainstBruteForce(),
+				new Sum(),
+				makeTheoryTestingSupport(),
+				3 /* number of tests */,
+				2, /* body depth */
+				true /* output count */);
+	}
+
+	@Ignore
+	@Test
+	public void testMaxForMultiVariableConstraints() {
+		SGDPLLTTester.testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
+				3,
+				getTestAgainstBruteForce(),
+				new Max(),
+				makeTheoryTestingSupport(),
+				5 /* number of tests */,
+				2, /* body depth */
 				true /* output count */);
 	}
 }
