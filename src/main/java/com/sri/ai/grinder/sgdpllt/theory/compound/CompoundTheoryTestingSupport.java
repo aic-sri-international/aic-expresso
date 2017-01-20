@@ -81,6 +81,15 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 		return (CompoundTheory) super.getTheory();
 	}
 	
+	@Override
+	public Map<String, Type> getExtendedVariableNamesAndTypesForTesting() {
+		Map<String, Type> result = new LinkedHashMap<>();
+		for (TheoryTestingSupport subTheoryTestingSupport : theoryToTestingSupport.values()) {
+			result.putAll(((AbstractTheoryTestingSupport)subTheoryTestingSupport).getExtendedVariableNamesAndTypesForTesting());
+		}
+		return result;
+	}
+	
 	/**
 	 * This is overridden so that given variables and types for testing are distributed to their
 	 * respective theories according to {@link #isSuitableFor(Expression, Type)}.

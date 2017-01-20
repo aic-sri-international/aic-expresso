@@ -72,9 +72,9 @@ public class TupleTheoryTestingSupport extends AbstractTheoryTestingSupport {
 					"M", TUPLE_TYPE, 
 					"N", TUPLE_TYPE));
 		setElementVariableNamesAndTypesForTesting(
-				map("X", getSmallCategoricalTestingType(),
-					"Y", getSmallCategoricalTestingType(),
-					"Z", getSmallCategoricalTestingType()));
+				map("XT", getSmallCategoricalTestingType(),
+					"YT", getSmallCategoricalTestingType(),
+					"ZT", getSmallCategoricalTestingType()));
 	}
 	
 	public void setElementVariableNamesAndTypesForTesting(Map<String, Type> elementVariableNamesAndTypesForTesting) {

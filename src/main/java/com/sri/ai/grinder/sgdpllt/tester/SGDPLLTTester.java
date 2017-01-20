@@ -770,6 +770,7 @@ public class SGDPLLTTester {
 							+ "Under assignment to free variables: " + assignment + "\n"
 							+ "Value of symbolic solution      : " + symbolicResultUnderAssignment + "\n"
 							+ "Value of brute force computation: " + bruteForceResultUnderAssignment + "\n"
+							+ "Context                         : " + context + "\n"
 					);
 		}
 	}

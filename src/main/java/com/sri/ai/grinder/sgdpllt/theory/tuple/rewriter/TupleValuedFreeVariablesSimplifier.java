@@ -84,6 +84,7 @@ public class TupleValuedFreeVariablesSimplifier implements Simplifier {
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
 		Expression result = expression;
+// TODO - come up with a better way to prevent stack overflow from recursive calls when called from TupleTheory.		
 		if (expression != lastSimplifiedExpression  
 			&& !(lastSimplifiedExpression != null && Expressions.isSubExpressionOf(expression, lastSimplifiedExpression))) {
 			result = simplify(expression, context);

@@ -39,7 +39,6 @@ package com.sri.ai.test.grinder.sgdpllt.theory.tuple;
 
 import java.util.Random;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -83,7 +82,6 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 		return new Random(1);
 	}
 	
-	@Ignore
 	@Test
 	public void testSumForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
@@ -95,7 +93,6 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 
-	@Ignore
 	@Test
 	public void testMaxForSingleVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForSingleVariableConstraintsForTheoriesWithoutConstraintLiterals(
@@ -107,7 +104,6 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 	
-	@Ignore
 	@Test
 	public void testSumForMultiVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
@@ -120,7 +116,6 @@ public class TupleTheoryTest extends AbstractTheoryTest {
 				true /* output count */);
 	}
 
-	@Ignore
 	@Test
 	public void testMaxForMultiVariableConstraints() {
 		SGDPLLTTester.testGroupProblemSolvingForMultipleIndicesForTheoriesWithoutConstraintLiterals(
