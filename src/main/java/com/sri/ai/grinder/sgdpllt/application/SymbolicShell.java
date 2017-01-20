@@ -66,6 +66,7 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
@@ -87,6 +88,7 @@ public class SymbolicShell {
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, false),
 				new LinearRealArithmeticTheory(false, false),
+				new TupleTheory(),
 				new PropositionalTheory());
 		
 		Context context = new TrueContext(theory);
@@ -112,6 +114,8 @@ public class SymbolicShell {
 		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("Y"), makeSymbol("Real")));
 		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("Z"), makeSymbol("Real")));
 		
+		context = context.registerAdditionalSymbolsAndTypes(map(makeSymbol("T"), parse("(1..5 x 1..5)")));
+
 		ConsoleIterator consoleIterator = getConsole(args);
 		
 		help(consoleIterator);
@@ -153,6 +157,11 @@ public class SymbolicShell {
 				, "for all X in [0;10] : X > 0"
 				, "| X in 1..10 : X < 4 or X > 8 |"
 				, "| X in 1..10, Y in 3..5 : (X < 4 or X > 8) and Y != 5 |"
+				
+				, "sum( {{ (on T in (1..4 x 1..4)) 10 }})"
+				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (2, 3) }})"
+				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (I, J) }})"
+				, "sum( {{ (on T in (1..4 x 1..4)) 10 : get(T, 1) != 2 }})"
 				);
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
@@ -269,6 +278,8 @@ public class SymbolicShell {
 				"- Real intervals can be used in integrals: sum({{(on X in [0;100]) X}});",
 				"- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran',",
 				"                                       pre-defined variables C, D, E",
+				"- tuples (for example, (Integer x Integer), (1..2 x Boolean x Real) etc -- parentheses around tuples are required",
+				"  There is a pre-defined variable T in (1..5 x 1..5)",
 				"",
 				"Capitalized symbols (other than types) are considered variables",
 				"",
