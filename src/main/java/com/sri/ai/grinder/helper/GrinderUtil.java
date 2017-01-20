@@ -506,6 +506,16 @@ public class GrinderUtil {
 				}
 			}
 		}
+		else if (expression.hasFunctor(FunctorConstants.GET) && expression.numberOfArguments() == 2 && Expressions.isNumber(expression.get(1))) {
+			Expression argType = getType(expression.get(0), registry);
+			if (TupleType.isTupleType(argType)) {
+				TupleType tupleType = (TupleType) GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(argType, registry);
+				result = parse(tupleType.getElementTypes().get(expression.get(1).intValue()-1).toString());			
+			}
+			else {
+				throw new Error("get type from tuple for '" + expression + "' currently not supported.");
+			}
+		}
 		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			Expression functionType = getType(expression.getFunctor(), registry);
 			if (functionType == null) {

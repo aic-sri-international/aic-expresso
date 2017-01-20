@@ -139,14 +139,16 @@ public class TupleValuedFreeVariablesSimplifier implements Simplifier {
 		 Map<Expression, List<Pair<Expression, Integer>>> result = new LinkedHashMap<>();
 		 
 		 for (Map.Entry<Expression, TupleType> freeVariableOfTupleType : freeVariablesOfTupleType.entrySet()) {
+			 Expression freeVariable          = freeVariableOfTupleType.getKey();
+			 TupleType  freeVariableTupleType = freeVariableOfTupleType.getValue();
 			 List<Pair<Expression, Integer>> components = new ArrayList<>();
-			 int tupleArity = freeVariableOfTupleType.getValue().getArity();
+			 int tupleArity = freeVariableTupleType.getArity();
 			 for (int i = 1; i <= tupleArity; i++) {
-				 String proposedComponentVariableName = freeVariableOfTupleType.toString()+i;
+				 String proposedComponentVariableName = freeVariable.toString()+i;
 				 Expression componentVariable = Expressions.makeUniqueVariable(proposedComponentVariableName, expression, context);
 				 components.add(new Pair<>(componentVariable, i));
 			 }
-			 result.put(freeVariableOfTupleType.getKey(), components);
+			 result.put(freeVariable, components);
 		 }
 		 
 		 return result;
