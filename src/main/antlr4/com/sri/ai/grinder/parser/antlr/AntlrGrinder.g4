@@ -43,10 +43,10 @@ expr :
      | leftop=expr INTERSECTION rightop=expr #intersection
        // set union, {a, b, c} union {b, d}
      | leftop=expr UNION rightop=expr #union
-       // cartesian product
-     | '(' firstarg=expr X additionalargs+=expr (X additionalargs+=expr)* ')' #cartesianProduct
+       // tuple type
+     | '(' firstarg=expr TUPLE_TYPE additionalargs+=expr (TUPLE_TYPE additionalargs+=expr)* ')' #tupleType
        // function type
-     | domaintypes+=expr (X domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType     
+     | domaintypes+=expr (TUPLE_TYPE domaintypes+=expr)* FUNCTION_TYPE rangetype=expr #functionType     
        // set membership, x in {x, y, z}
      | leftop=expr IN rightop=expr #in
        // comparison operators, e.g.: X = Y, 2 < 3
@@ -101,7 +101,7 @@ expr_constant_name
     | LAMBDA | IF | THEN | ELSE
     | INTERSECTION | UNION
     | ON | IN
-    | X | TUPLE_TYPE
+    | TUPLE_TYPE
     ;
     
 expr_constant_number
@@ -139,8 +139,7 @@ UNION                   : 'union' ;
 ON                      : 'on' ;
 IN                      : 'in' ;
 // Special Functions
-X                       : 'x' ; // Used for Cartesian Product
-TUPLE_TYPE              : 'tuple_type' ;
+TUPLE_TYPE              : 'x' ;
 FUNCTION_TYPE           : '->' ;
 // Logic Operators
 IMPLICATION             : '=>' ;

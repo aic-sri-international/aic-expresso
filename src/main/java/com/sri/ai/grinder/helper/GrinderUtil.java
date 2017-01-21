@@ -459,10 +459,6 @@ public class GrinderUtil {
 			// very vague type for now
 			result = apply(FUNCTION_TYPE, makeSymbol("Set"), makeSymbol("Set"));
 		}
-		else if (expression.hasFunctor(FunctorConstants.CARTESIAN_PRODUCT)) {
-			// very vague type for now
-			result = apply(FUNCTION_TYPE, makeSymbol("Set"), makeSymbol("Set"));
-		}
 		else if (Sets.isIntensionalMultiSet(expression)) {
 			IntensionalSet set = (IntensionalSet) expression;
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may

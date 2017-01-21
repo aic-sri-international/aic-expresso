@@ -6,7 +6,7 @@ import org.junit.Test;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TUPLE_TYPE;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -273,8 +273,8 @@ public class TypeTest {
 	public void testThreeFormsOfFunctionType() {
 		Assert.assertEquals(apply(FUNCTION_TYPE, parse("Boolean")), parse("'->'(Boolean)"));
 		Assert.assertEquals(apply(FUNCTION_TYPE, parse("Boolean"), parse("Boolean")), parse("'->'(Boolean, Boolean)"));
-		Assert.assertEquals(apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, parse("Boolean")), parse("Boolean")), parse("'->'(x(Boolean), Boolean)"));
-		Assert.assertEquals(apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, parse("Boolean"), parse("Boolean")), parse("Boolean")), parse("'->'(x(Boolean, Boolean), Boolean)"));
+		Assert.assertEquals(apply(FUNCTION_TYPE, apply(TUPLE_TYPE, parse("Boolean")), parse("Boolean")), parse("'->'(x(Boolean), Boolean)"));
+		Assert.assertEquals(apply(FUNCTION_TYPE, apply(TUPLE_TYPE, parse("Boolean"), parse("Boolean")), parse("Boolean")), parse("'->'(x(Boolean, Boolean), Boolean)"));
 		
 		Assert.assertEquals(0, FunctionType.getArgumentList(parse("'->'(Boolean)")).size());
 		Assert.assertEquals(1, FunctionType.getArgumentList(parse("'->'(Boolean, Boolean)")).size());

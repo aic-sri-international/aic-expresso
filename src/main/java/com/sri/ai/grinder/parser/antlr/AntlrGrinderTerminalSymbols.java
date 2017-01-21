@@ -68,7 +68,6 @@ public class AntlrGrinderTerminalSymbols {
 		terminalSymbols.add("in");
 		// Special Functions
 		terminalSymbols.add("x");
-		terminalSymbols.add("tuple_type");
 		terminalSymbols.add("->");
 		// Logic Operators
 		terminalSymbols.add("=>");

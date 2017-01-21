@@ -115,47 +115,47 @@ public class TupleRewriterTest {
 		
 		Assert.assertEquals(
 				parse("for all X_1 in Boolean : for all X_2 in Integer : (X_1, X_2) = (true, 1)"),
-				tupleQuantifierSimplifier.apply(parse("for all X in tuple_type(Boolean, Integer) : X = (true, 1)"), context));
+				tupleQuantifierSimplifier.apply(parse("for all X in (Boolean x Integer) : X = (true, 1)"), context));
 		
 		Assert.assertEquals(
 				parse("there exists X_1 in Boolean : there exists X_2 in Integer : (X_1, X_2) = (true, 1)"),
-				tupleQuantifierSimplifier.apply(parse("there exists X in tuple_type(Boolean, Integer) : X = (true, 1)"), context));
+				tupleQuantifierSimplifier.apply(parse("there exists X in (Boolean x Integer) : X = (true, 1)"), context));
 		
 		Assert.assertEquals(
 				parse("| X_1 in Boolean, X_2 in Integer : (X_1, X_2) = (true, 1) |"),
-				tupleQuantifierSimplifier.apply(parse("| X in tuple_type(Boolean, Integer) : X = (true, 1) |"), context));
+				tupleQuantifierSimplifier.apply(parse("| X in (Boolean x Integer) : X = (true, 1) |"), context));
 		
 		Assert.assertEquals(
 				parse("lambda X_1 in Boolean, X_2 in Integer : (X_1, X_2) = (true, 1)"),
-				tupleQuantifierSimplifier.apply(parse("lambda X in tuple_type(Boolean, Integer) : X = (true, 1)"), context));
+				tupleQuantifierSimplifier.apply(parse("lambda X in (Boolean x Integer) : X = (true, 1)"), context));
 		
 		Assert.assertEquals(
 				parse("{ (on X_1 in Boolean, X_2 in Integer) (X_1, X_2) }"),
-				tupleQuantifierSimplifier.apply(parse("{ (on X in tuple_type(Boolean, Integer)) X }"), context));
+				tupleQuantifierSimplifier.apply(parse("{ (on X in (Boolean x Integer)) X }"), context));
 		
 		Assert.assertEquals(
 				parse("{ (on X_1 in Boolean, X_2 in Integer) (X_1, X_2) : (X_1, X_2) != (true, 1) }"),				
-				tupleQuantifierSimplifier.apply(parse("{ (on X in tuple_type(Boolean, Integer)) X : X != (true, 1) }"), context));
+				tupleQuantifierSimplifier.apply(parse("{ (on X in (Boolean x Integer)) X : X != (true, 1) }"), context));
 		
 		Assert.assertEquals(
 				parse("{{ (on X_1 in Boolean, X_2 in Integer) (X_1, X_2) }}"),
-				tupleQuantifierSimplifier.apply(parse("{{ (on X in tuple_type(Boolean, Integer)) X }}"), context));
+				tupleQuantifierSimplifier.apply(parse("{{ (on X in (Boolean x Integer)) X }}"), context));
 		
 		Assert.assertEquals(
 				parse("{{ (on X_1 in Boolean, X_2 in Integer) (X_1, X_2) : (X_1, X_2) != (true, 1) }}"),				
-				tupleQuantifierSimplifier.apply(parse("{{ (on X in tuple_type(Boolean, Integer)) X : X != (true, 1) }}"), context));
+				tupleQuantifierSimplifier.apply(parse("{{ (on X in (Boolean x Integer)) X : X != (true, 1) }}"), context));
 		
 		//
 		// Ensure Introduced Variables are Unique
 		Assert.assertEquals(
 				parse("lambda X_1' in Boolean, X_2' in Integer, X_1 in Boolean, X_2 in Boolean : (X_1', X_2') = (true, 1) and X_1 = X_2"),
-				tupleQuantifierSimplifier.apply(parse("lambda X in tuple_type(Boolean, Integer), X_1 in Boolean, X_2 in Boolean : X = (true, 1) and X_1 = X_2"), context));
+				tupleQuantifierSimplifier.apply(parse("lambda X in (Boolean x Integer), X_1 in Boolean, X_2 in Boolean : X = (true, 1) and X_1 = X_2"), context));
 		
 		//
 		// Ensure we don't introduce undeclared types
 		Assert.assertEquals(
 				parse("lambda X_1 in Boolean, X_2 in Integer, Y, Z : (X_1, X_2) = (true, 1) and Y = Z"),
-				tupleQuantifierSimplifier.apply(parse("lambda X in tuple_type(Boolean, Integer), Y, Z : X = (true, 1) and Y = Z"), context));	
+				tupleQuantifierSimplifier.apply(parse("lambda X in (Boolean x Integer), Y, Z : X = (true, 1) and Y = Z"), context));	
 	}
 	
 	@Test

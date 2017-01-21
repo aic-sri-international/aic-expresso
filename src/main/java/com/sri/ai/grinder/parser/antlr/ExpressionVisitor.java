@@ -47,7 +47,6 @@ import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.Token;
 
@@ -117,13 +116,13 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	}
 	
 	@Override 
-	public Expression visitCartesianProduct(AntlrGrinderParser.CartesianProductContext ctx) { 
+	public Expression visitTupleType(AntlrGrinderParser.TupleTypeContext ctx) { 
 		Object[] arguments = new Object[1+ctx.additionalargs.size()];
 		arguments[0] = visit(ctx.firstarg);
 		for (int i = 0; i < ctx.additionalargs.size(); i++) {
 			arguments[i+1] = visit(ctx.additionalargs.get(i));
 		}
-		Expression result = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, arguments);
+		Expression result = Expressions.apply(FunctorConstants.TUPLE_TYPE, arguments);
 		return result;
 	}
 	
@@ -132,19 +131,18 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		Object[] arguments  = new Object[2];
 		if (ctx.domaintypes.size() == 1) {
 			Expression domain = visit(ctx.domaintypes.get(0));					
-			arguments[0] = replaceCartesianProductWithTupleType(Expressions.makeTuple(domain)).get(0);
+			arguments[0] = domain;
 		}
 		else {
 			Object[] domainArgs = new Object[ctx.domaintypes.size()];
 			for (int i = 0; i < ctx.domaintypes.size(); i++) {
 				domainArgs[i] = visit(ctx.domaintypes.get(i));
 			}
-			Expression cartesianProduct = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, domainArgs);
-			arguments[0] = cartesianProduct;
+			Expression tupleType = Expressions.apply(FunctorConstants.TUPLE_TYPE, domainArgs);
+			arguments[0] = tupleType;
 		}
 		arguments[1] = visit(ctx.rangetype);
 		Expression result = Expressions.apply(FunctorConstants.FUNCTION_TYPE, arguments);
-		result = replaceCartesianProductWithTupleType(result);
 		return result;
 	}
 	
@@ -160,8 +158,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	//  '|' ( indexes+=expr (',' indexes+=expr)* )? ':' body=expr '|' #countingFormula
 	@Override 
 	public Expression visitCountingFormula(AntlrGrinderParser.CountingFormulaContext ctx) { 
-		Expression result = new DefaultCountingFormula(cartesianProductsToTupleType(expressionsList(ctx.indexes)), 
-										visit(ctx.body));
+		Expression result = new DefaultCountingFormula(expressionsList(ctx.indexes), visit(ctx.body));
 		return result;
 	}
 	
@@ -366,7 +363,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitLamda(
 			AntlrGrinderParser.LamdaContext ctx) {
-		Expression result = new DefaultLambdaExpression(cartesianProductsToTupleType(expressionsList(ctx.parameters)), visit(ctx.body));
+		Expression result = new DefaultLambdaExpression(expressionsList(ctx.parameters), visit(ctx.body));
 		return result;
 	}
 	
@@ -374,7 +371,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// FOR ALL index=expr ':' body=expr #forAll
 	@Override
 	public Expression visitForAll(AntlrGrinderParser.ForAllContext ctx) {
-		Expression result = ForAll.make(cartesianProductToTupleType(visit(ctx.index)), visit(ctx.body));
+		Expression result = ForAll.make(visit(ctx.index), visit(ctx.body));
 		return result;
 	}
 
@@ -382,7 +379,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// THERE EXISTS index=expr ':' body=expr #thereExists
 	@Override
 	public Expression visitThereExists(AntlrGrinderParser.ThereExistsContext ctx) {
-		Expression result = ThereExists.make(cartesianProductToTupleType(visit(ctx.index)), visit(ctx.body));
+		Expression result = ThereExists.make(visit(ctx.index), visit(ctx.body));
 		return result;
 	}
 	
@@ -404,7 +401,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
 		List<Expression> indexExpressionsList = Util.list();
 		if (scope != null) {
-			indexExpressionsList = cartesianProductsToTupleType(expressionsList(scopeargs));
+			indexExpressionsList = expressionsList(scopeargs);
 		}
 		Expression headExpression      = visit(head);
 		Expression conditionExpression = null;
@@ -444,39 +441,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			indexExpressionsList.add(visit(exprContext));
 		}
 		return indexExpressionsList;
-	}
-	
-	protected List<Expression> cartesianProductsToTupleType(List<Expression> indexExpressions) {
-		List<Expression> result = indexExpressions.stream()
-				.map(ExpressionVisitor.this::cartesianProductToTupleType)
-				.collect(Collectors.toList());
-		
-		return result;
-	}
-	
-	protected Expression cartesianProductToTupleType(Expression indexExpression) {
-		Expression result = indexExpression;
-		
-		if (indexExpression.hasFunctor(FunctorConstants.IN)) {
-			result = replaceCartesianProductWithTupleType(indexExpression);
-		}
-		
-		return result;
-	}
-	
-	protected Expression replaceCartesianProductWithTupleType(Expression expression) {
-		Expression result = Expressions.replaceImmediateSubexpressions(expression, e -> {
-			if (e.hasFunctor(FunctorConstants.CARTESIAN_PRODUCT) && 
-				// Ensure its not the cartesian product argument to a function type.
-				!(expression.hasFunctor(FunctorConstants.FUNCTION_TYPE) && e == expression.get(0) && expression.numberOfArguments() == 2)) {					
-				return Expressions.apply(FunctorConstants.TUPLE_TYPE, 
-						replaceCartesianProductWithTupleType(e).getArguments());
-			}
-			else {
-				return replaceCartesianProductWithTupleType(e);
-			}
-		});
-		return result;
 	}
 	
 	protected Expression possiblyFlatten(Expression expression) {

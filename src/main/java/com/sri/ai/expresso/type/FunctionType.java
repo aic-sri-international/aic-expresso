@@ -40,7 +40,7 @@ package com.sri.ai.expresso.type;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.CARTESIAN_PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TUPLE_TYPE;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
 
 import java.util.ArrayList;
@@ -231,7 +231,7 @@ public class FunctionType extends AbstractType {
 			} else if (getArgumentTypes().size() == 1) {
 				cachedString = apply(FUNCTION_TYPE, getArgumentTypes().get(0), getCodomain()).toString();
 			} else {
-				cachedString = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, getArgumentTypes()), getCodomain())
+				cachedString = apply(FUNCTION_TYPE, apply(TUPLE_TYPE, getArgumentTypes()), getCodomain())
 						.toString();
 			}
 		}
@@ -280,7 +280,7 @@ public class FunctionType extends AbstractType {
 		} else if (argumentTypes.size() == 1) {
 			result = apply(FUNCTION_TYPE, argumentTypes.get(0), codomainType);
 		} else {
-			result = apply(FUNCTION_TYPE, apply(CARTESIAN_PRODUCT, argumentTypes), codomainType);
+			result = apply(FUNCTION_TYPE, apply(TUPLE_TYPE, argumentTypes), codomainType);
 		}
 
 		return result;
@@ -322,7 +322,7 @@ public class FunctionType extends AbstractType {
 
 		// If arity is 2 then we have argument types defined
 		if (functionTypeExpression.numberOfArguments() == 2) {
-			if (functionTypeExpression.get(0).hasFunctor(CARTESIAN_PRODUCT)) {
+			if (functionTypeExpression.get(0).hasFunctor(TUPLE_TYPE)) {
 				result.addAll(functionTypeExpression.get(0).getArguments());
 			}
 			else {
