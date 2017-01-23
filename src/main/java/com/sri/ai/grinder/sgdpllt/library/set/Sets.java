@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.util.Util;
@@ -269,6 +270,36 @@ public class Sets {
 		else {
 			Expression functor = functionApplicationOnIntensionalSet.getFunctor();
 			result = expandApplicationOfAssociativeCommutativeFunctionToIntensionalSetWithMultipleIndexExpressionsFrom(0, functor, intensionalSet, indexExpressions);
+		}
+		return result;
+	}
+	
+	public static Expression makeUnion(Expression... sets) {
+		if (sets.length == 0) {
+			throw new IllegalArgumentException("No set arguments passed to construct union with.");
+		}
+		
+		Expression result;
+		if (sets.length == 1 && Sets.isExtensionalSet(sets[0])) {
+			result = sets[0];			
+		}
+		else {
+			result = Expressions.apply(FunctorConstants.UNION, sets);
+		}
+		return result;
+	}
+	
+	public static Expression makeIntersection(Expression... sets) {
+		if (sets.length == 0) {
+			throw new IllegalArgumentException("No set arguments passed to construct intersection with.");
+		}
+		
+		Expression result;
+		if (sets.length == 1 && Sets.isExtensionalSet(sets[0])) {
+			result = sets[0];			
+		}
+		else {
+			result = Expressions.apply(FunctorConstants.INTERSECTION, sets);
 		}
 		return result;
 	}

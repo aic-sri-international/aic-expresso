@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
@@ -50,61 +48,44 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
  * <pre>
- * We will have intensional unions, which we need to convert to unions
- * of intensional sets of the base type (in the paper, tuples): 
- *
- * Base case: union( {{ (on I)   { T } : C }} )  --->   {{ (on I) T : C }} 
- * 
- * Recursion: union( {{ (on I)   Set1 union ... union Set_m : C }} ) 
- *         = 
- *         recurse(union( {{ (on I) Set1 : C }} )) 
- *         union ... union 
- *         recurse(union( {{ (on I) Set_m : C }} )) 
+ * {} union Set 
+ * ---> 
+ * Set
  * </pre>
- * 
+ * - Order of arguments does not matter.
+ * - Appplies equally to unisets, so do not restrict to multi-sets.
+ *  
  * @author oreilly
  *
  */
-public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseType implements Simplifier {
+public class UnionEmptySetSimplifier implements Simplifier {
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
 		return simplify(expression, context);
 	}
-	
+
 	public static Expression simplify(Expression expression, Context context) {
 		Expression result = expression;
-// TODO - intensional multisets only?		
-		if (expression.hasFunctor(FunctorConstants.UNION) 
-				&& expression.numberOfArguments() == 1 
-				&& Sets.isIntensionalMultiSet(expression.get(0))) {
-			IntensionalSet intensionalMultiSet = (IntensionalSet) expression.get(0);
-			Expression     intensionalHead     = intensionalMultiSet.getHead();
-			// Determine if base case:
-			// union( {{ (on I)   { T } : C }} )  
-			// --->   
-			// {{ (on I) T : C }} 
-// TODO - base case set is an extensional uniset?			
-			if (Sets.isExtensionalSet(intensionalHead) && intensionalHead.numberOfArguments() == 1) {
-				Expression baseTypeHead = intensionalHead.get(0);
-				result = IntensionalSet.intensionalMultiSet(intensionalMultiSet.getIndexExpressions(), baseTypeHead, intensionalMultiSet.getCondition());
-			}
-			// Determine if recursive case
-			else if (intensionalHead.hasFunctor(FunctorConstants.UNION)) { 
-				// union( {{ (on I)   Set1 union ... union Set_m : C }} )
-				// --->
-				// recurse(union( {{ (on I) Set1 : C }} )) 
-				//         union ... union 
-				// recurse(union( {{ (on I) Set_m : C }} ))
-				List<Expression> recursedUnionArgs = new ArrayList<>();
-				for (Expression setI : intensionalHead.getArguments()) {
-					Expression setIUnionArg      = IntensionalSet.intensionalMultiSet(intensionalMultiSet.getIndexExpressions(), setI, intensionalMultiSet.getCondition());
-					Expression setIUnion         = Expressions.apply(FunctorConstants.UNION, setIUnionArg);					
-					Expression setIRecurseResult = simplify(setIUnion, context);					
-					recursedUnionArgs.add(setIRecurseResult);
+		
+		if (expression.hasFunctor(FunctorConstants.UNION)) {
+			List<Expression> nonEmptySetArgs = new ArrayList<>();
+			for (Expression unionArg : expression.getArguments()) {
+				if (!Sets.isEmptySet(unionArg)) {
+					nonEmptySetArgs.add(unionArg);
 				}
-				result = Sets.makeUnion(recursedUnionArgs.toArray(new Expression[recursedUnionArgs.size()]));
+			}
+			// If we had empty sets.
+			if (nonEmptySetArgs.size() < expression.numberOfArguments()) {
+				if (nonEmptySetArgs.size() == 0) {
+					// NOTE: should not happen if the unary extensional set exclusion is enforced correctly.
+					result = Sets.EMPTY_SET; 
+				}
+				else {
+					result = Sets.makeUnion(nonEmptySetArgs.toArray(new Expression[nonEmptySetArgs.size()]));
+				}
 			}
 		}
+		
 		return result;
 	}
 }
