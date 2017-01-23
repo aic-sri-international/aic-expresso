@@ -45,6 +45,23 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
+/**
+ * 
+ * <pre>
+ * {{ (on Indices in Types) Head | Condition }}    
+ * --->
+ * C = evaluate(there exists Indices in Types : Condition)
+ * return IfThenElse.make(C, {{ (on Indices in Types) Head | Condition }}, {}, true) 
+ * </pre>
+ * 
+ * @author oreilly
+ *
+ */
+
+// TODO - consider doing an ad hoc caching due to this rewriter requiring 
+// the repeated evaluation of there exists Indices in Types : Condition.
+// NOTE: this could be tricky as will need to take context into account 
+// (in particular with respect to free variables).
 public class IntensionalSetToConditionalSimplifier implements Simplifier {
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
@@ -55,8 +72,8 @@ public class IntensionalSetToConditionalSimplifier implements Simplifier {
 		Expression result = expression;
 		if (Sets.isIntensionalSet(expression)) {
 			IntensionalSet intensionalSet = (IntensionalSet) expression;
-			Expression thereExistsCondition = ThereExists.make(intensionalSet.getIndexExpressions(), intensionalSet.getCondition());
-			Expression condition  = context.getTheory().evaluate(thereExistsCondition, context);
+			Expression thereExistsCondition = ThereExists.make(intensionalSet.getIndexExpressions(), intensionalSet.getCondition());		
+			Expression condition  = context.getTheory().evaluate(thereExistsCondition, context);			
 			Expression thenBranch = expression;
 			Expression elseBranch = Sets.EMPTY_SET;
 			result = IfThenElse.make(condition, thenBranch, elseBranch, true);
