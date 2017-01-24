@@ -6,13 +6,13 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.set.invsupport.IntensionalUnionToUnionsOfIntensionalSetsOfBaseType;
+import com.sri.ai.grinder.sgdpllt.library.set.invsupport.IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
-public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTest {
+public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifierTest {
 
-	private IntensionalUnionToUnionsOfIntensionalSetsOfBaseType simplifier = new IntensionalUnionToUnionsOfIntensionalSetsOfBaseType();
+	private IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier simplifier = new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier();
 	private Context context = new TrueContext();
 	
 	@Test

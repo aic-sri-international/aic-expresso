@@ -65,7 +65,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
  * @author oreilly
  *
  */
-public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseType implements Simplifier {
+public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier implements Simplifier {
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
 		return simplify(expression, context);
