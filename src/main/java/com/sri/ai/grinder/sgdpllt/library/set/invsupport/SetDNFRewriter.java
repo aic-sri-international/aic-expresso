@@ -42,6 +42,12 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 public class SetDNFRewriter extends DefaultTopRewriter {
 
 	public SetDNFRewriter() {
-		super(); // TODO - top rewriters.
+		super(  new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
+				new UnionEmptySetTopRewriter(),
+				new IntersectionEmptySetTopRewriter(),
+				new IntensionalSetToConditionalTopRewriter(),
+				new IntersectionIntensionalSetsTopRewriter(),
+				new IntersectionExtensionalSetTopRewriter(),
+				new DistributeIntersectionOverUnionTopRewriter());
 	}
 }
