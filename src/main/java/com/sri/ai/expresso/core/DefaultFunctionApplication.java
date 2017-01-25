@@ -254,6 +254,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			}
 			else {
 				String functorString = getFunctor().toString();
+				String functorRepresentation = getFunctor() instanceof Symbol? functorString : "(" + getFunctor() + ")";
 				if (_infixFunctionsStrings.contains(functorString)) {
 					List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
 					if (hasFunctor(INTEGER_INTERVAL) && numberOfArguments() == 2) {
@@ -261,11 +262,18 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 						result = subExpressionsStrings.get(0) + ".." + subExpressionsStrings.get(1);
 					}
 					else {
-						result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+						if (numberOfArguments() == 0) {
+							result = functorRepresentation+"()";
+						}
+						else if (numberOfArguments() == 1) {
+							result = functorRepresentation+"("+subExpressionsStrings.get(0)+")";
+						}
+						else {
+							result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+						}
 					}
 				}
-				else {
-					String functorRepresentation = getFunctor() instanceof Symbol? functorString : "(" + getFunctor() + ")";
+				else {					
 					String argumentsRepresentation = Util.join(", ", getArguments());
 					result = functorRepresentation + "(" + argumentsRepresentation + ")";
 				}

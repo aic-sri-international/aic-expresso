@@ -98,7 +98,7 @@ public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier imple
 				List<Expression> recursedUnionArgs = new ArrayList<>();
 				for (Expression setI : intensionalHead.getArguments()) {
 					Expression setIUnionArg      = IntensionalSet.intensionalMultiSet(intensionalMultiSet.getIndexExpressions(), setI, intensionalMultiSet.getCondition());
-					Expression setIUnion         = Expressions.apply(FunctorConstants.UNION, setIUnionArg);					
+					Expression setIUnion         = Sets.makeUnion(setIUnionArg);					
 					Expression setIRecurseResult = simplify(setIUnion, context);					
 					recursedUnionArgs.add(setIRecurseResult);
 				}

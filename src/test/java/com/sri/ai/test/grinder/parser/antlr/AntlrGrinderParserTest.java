@@ -671,6 +671,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testAssocUnion() throws IOException {
 		String string;
+		string = "union()";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union"));
+		
+		string = "union(1)";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", "1"));
+		
 		string = "1 union 2";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", "1", "2"));
 

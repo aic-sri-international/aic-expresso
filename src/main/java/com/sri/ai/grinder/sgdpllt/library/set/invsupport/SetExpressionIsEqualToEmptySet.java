@@ -37,6 +37,67 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 
-public class SetExpressionIsEqualToEmptySet {
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
+/**
+ * Has the following pseudo-code: 
+ * <pre>
+ * if expression is SetExpression = {}
+ *     setDNF = setDNFRewriter.apply(expression) // setDNFRewriter defined below
+ *     return result <- replace leaves of setDNF equal to {} by "true", and other leaves by "false" 
+ *
+ * </pre>
+ * 
+ * @author oreilly
+ *
+ */
+public class SetExpressionIsEqualToEmptySet implements Simplifier {
+	@Override
+	public Expression applySimplifier(Expression expression, Context context) {
+		return simplify(expression, context);
+	}
+
+	public static Expression simplify(Expression expression, Context context) {
+		Expression result = expression;
+		
+		if (expression.hasFunctor(FunctorConstants.EQUALITY) && expression.numberOfArguments() == 2) {
+			Expression setExpression = null;
+			Expression emptySet      = null;
+			for (Expression equalityArg : expression.getArguments()) {				
+				if (Sets.isEmptySet(equalityArg)) {
+					emptySet = equalityArg;
+				}
+				else if (isSetExpression(equalityArg)) {
+					setExpression = equalityArg;
+				}
+			}
+			if (setExpression != null && emptySet != null) {
+				SetDNFRewriter setDNFRewriter = new SetDNFRewriter();
+				Expression setDNF = setDNFRewriter.apply(setExpression, context);
+				result = replaceLeaves(setDNF, context);
+			}
+		}
+		
+		return result;
+	}
+	
+	public static boolean isSetExpression(Expression expression) {
+		boolean result = 
+				Sets.isSet(expression)
+				|| expression.hasFunctor(FunctorConstants.INTERSECTION)
+				|| expression.hasFunctor(FunctorConstants.UNION)
+				;
+		return result;
+	}
+	
+	private static Expression replaceLeaves(Expression setDNF, Context context) {
+		Expression result = setDNF;
+// TODO - replace leaves of setDNF equal to {} by "true", and other leaves by "false" 
+		
+		return result;
+	}
 }

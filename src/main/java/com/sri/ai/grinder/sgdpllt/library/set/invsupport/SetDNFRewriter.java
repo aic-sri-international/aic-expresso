@@ -37,17 +37,51 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
-public class SetDNFRewriter extends DefaultTopRewriter {
+public class SetDNFRewriter implements Simplifier {
+	
+	private TopRewriter topRewriter = null;
+	
+	public TopRewriter getTopRewriter() {
+		if (topRewriter == null) {
+			topRewriter = new DefaultTopRewriter(  
+					new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
+					new UnionEmptySetTopRewriter(),
+					new IntersectionEmptySetTopRewriter(),
+					new IntensionalSetToConditionalTopRewriter(),
+					new IntersectionIntensionalSetsTopRewriter(),
+					new IntersectionExtensionalSetTopRewriter(),
+					new DistributeIntersectionOverUnionTopRewriter());
+		}
+		return topRewriter;
+	}
+	
+	
+	
+	@Override
+	public Expression applySimplifier(Expression expression, Context context) {
+		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
 
-	public SetDNFRewriter() {
-		super(  new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
-				new UnionEmptySetTopRewriter(),
-				new IntersectionEmptySetTopRewriter(),
-				new IntensionalSetToConditionalTopRewriter(),
-				new IntersectionIntensionalSetsTopRewriter(),
-				new IntersectionExtensionalSetTopRewriter(),
-				new DistributeIntersectionOverUnionTopRewriter());
+		Recursive completeEvaluator = new Recursive(
+				new Exhaustive(
+						new FirstOf(
+								getTopRewriter(), 
+								literalExternalizer)));
+		
+		Expression thisResult = completeEvaluator.apply(expression, context);
+		
+		Expression result = context.getTheory().evaluate(thisResult, context);
+		
+		return result;
 	}
 }

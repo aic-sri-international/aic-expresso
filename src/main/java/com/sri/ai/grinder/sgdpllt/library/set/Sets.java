@@ -284,7 +284,7 @@ public class Sets {
 			result = sets[0];			
 		}
 		else {
-			result = Expressions.apply(FunctorConstants.UNION, sets);
+			result = Expressions.apply(FunctorConstants.UNION, sets);			
 		}
 		return result;
 	}
