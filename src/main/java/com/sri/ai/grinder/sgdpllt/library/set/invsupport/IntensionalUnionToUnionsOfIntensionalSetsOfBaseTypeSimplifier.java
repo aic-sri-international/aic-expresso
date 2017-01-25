@@ -53,13 +53,13 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
  * We will have intensional unions, which we need to convert to unions
  * of intensional sets of the base type (in the paper, tuples): 
  *
- * Base case: union( {{ (on I)   { T } : C }} )  --->   {{ (on I) T : C }} 
+ * Base case: Union( {{ (on I)   { T } : C }} )  --->   {{ (on I) T : C }} 
  * 
- * Recursion: union( {{ (on I)   Set1 union ... union Set_m : C }} ) 
+ * Recursion: Union( {{ (on I)   Set1 union ... union Set_m : C }} ) 
  *         = 
- *         recurse(union( {{ (on I) Set1 : C }} )) 
+ *         recurse(Union( {{ (on I) Set1 : C }} )) 
  *         union ... union 
- *         recurse(union( {{ (on I) Set_m : C }} )) 
+ *         recurse(Union( {{ (on I) Set_m : C }} )) 
  * </pre>
  * 
  * @author oreilly
@@ -74,13 +74,13 @@ public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier imple
 	public static Expression simplify(Expression expression, Context context) {
 		Expression result = expression;
 // TODO - intensional multisets only?		
-		if (expression.hasFunctor(FunctorConstants.UNION) 
+		if (expression.hasFunctor(FunctorConstants.INTENSIONAL_UNION) 
 				&& expression.numberOfArguments() == 1 
 				&& Sets.isIntensionalMultiSet(expression.get(0))) {
 			IntensionalSet intensionalMultiSet = (IntensionalSet) expression.get(0);
 			Expression     intensionalHead     = intensionalMultiSet.getHead();
 			// Determine if base case:
-			// union( {{ (on I)   { T } : C }} )  
+			// Union( {{ (on I)   { T } : C }} )  
 			// --->   
 			// {{ (on I) T : C }} 
 // TODO - base case set is an extensional uniset?			
@@ -90,15 +90,15 @@ public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier imple
 			}
 			// Determine if recursive case
 			else if (intensionalHead.hasFunctor(FunctorConstants.UNION)) { 
-				// union( {{ (on I)   Set1 union ... union Set_m : C }} )
+				// Union( {{ (on I)   Set1 union ... union Set_m : C }} )
 				// --->
-				// recurse(union( {{ (on I) Set1 : C }} )) 
+				// recurse(Union( {{ (on I) Set1 : C }} )) 
 				//         union ... union 
-				// recurse(union( {{ (on I) Set_m : C }} ))
+				// recurse(Union( {{ (on I) Set_m : C }} ))
 				List<Expression> recursedUnionArgs = new ArrayList<>();
 				for (Expression setI : intensionalHead.getArguments()) {
 					Expression setIUnionArg      = IntensionalSet.intensionalMultiSet(intensionalMultiSet.getIndexExpressions(), setI, intensionalMultiSet.getCondition());
-					Expression setIUnion         = Sets.makeUnion(setIUnionArg);					
+					Expression setIUnion         = Expressions.apply(FunctorConstants.INTENSIONAL_UNION, setIUnionArg);					
 					Expression setIRecurseResult = simplify(setIUnion, context);					
 					recursedUnionArgs.add(setIRecurseResult);
 				}

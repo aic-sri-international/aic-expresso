@@ -280,7 +280,7 @@ public class Sets {
 		}
 		
 		Expression result;
-		if (sets.length == 1 && Sets.isExtensionalSet(sets[0])) {
+		if (sets.length == 1) {
 			result = sets[0];			
 		}
 		else {
@@ -295,7 +295,7 @@ public class Sets {
 		}
 		
 		Expression result;
-		if (sets.length == 1 && Sets.isExtensionalSet(sets[0])) {
+		if (sets.length == 1) {
 			result = sets[0];			
 		}
 		else {

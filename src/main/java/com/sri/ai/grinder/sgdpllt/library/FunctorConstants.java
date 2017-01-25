@@ -80,6 +80,7 @@ public class FunctorConstants {
 	//public final static String MULTISET  = "{{ . . . }}";
 	public final static String IN = "in";
 	public final static String UNION = "union";
+	public final static String INTENSIONAL_UNION = "Union";
 	public final static String PARTITION = "partition";
 	public final static String SET_DIFFERENCE = "\\";
 	public final static String INTERSECTION = "intersection";

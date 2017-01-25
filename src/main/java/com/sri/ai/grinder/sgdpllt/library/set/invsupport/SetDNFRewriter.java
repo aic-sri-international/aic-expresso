@@ -48,6 +48,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
+// TODO - this class should extend Recursive
 public class SetDNFRewriter implements Simplifier {
 	
 	private TopRewriter topRewriter = null;

@@ -42,20 +42,18 @@ public class SetDNFRewriterTest {
 	@Test
 	public void testBasicCases() {
 		Expression intersection = parse("{(2,2)} intersection ({(2,2)} union {(3,2)} union {(4,2)})");
-//		Assert.assertEquals(
-//				parse("{(2,2)}"),
-//				rewriter.apply(intersection, context));
-//		
-//		intersection = parse("{(2,2)} intersection ({(3,2)} union {(4,2)})");
-//		Assert.assertEquals(
-//				parse("{}"),
-//				rewriter.apply(intersection, context));
+		Assert.assertEquals(
+				parse("{(2,2)}"),
+				rewriter.apply(intersection, context));
+		
+		intersection = parse("{(2,2)} intersection ({(3,2)} union {(4,2)})");
+		Assert.assertEquals(
+				parse("{}"),
+				rewriter.apply(intersection, context));
 		
 		intersection = parse("{(2,2)} intersection {(N,2)}");
-		Expression r = rewriter.apply(intersection, context);
-		Assert.assertEquals(
-// TODO - union(single extensional set) is not meant to be allowed,				
-				parse("if 2 = N then union({ (2, 2) }) else union({  })"),
+		Assert.assertEquals(			
+				parse("if 2 = N then { (2, 2) } else {  }"),
 				rewriter.apply(intersection, context));
 	}
 }
