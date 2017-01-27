@@ -37,51 +37,33 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
-// TODO - this class should extend Recursive
-public class SetDNFRewriter implements Simplifier {
-	
-	private TopRewriter topRewriter = null;
-	
-	public TopRewriter getTopRewriter() {
-		if (topRewriter == null) {
-			topRewriter = new DefaultTopRewriter(  
-					new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
-					new UnionEmptySetTopRewriter(),
-					new IntersectionEmptySetTopRewriter(),
-					new IntensionalSetToConditionalTopRewriter(),
-					new IntersectionIntensionalSetsTopRewriter(),
-					new IntersectionExtensionalSetTopRewriter(),
-					new DistributeIntersectionOverUnionTopRewriter());
-		}
-		return topRewriter;
+public class SetDNFRewriter extends Recursive {
+	public SetDNFRewriter() {
+		super(createBaseRewriter());
 	}
 	
-	
-	
-	@Override
-	public Expression applySimplifier(Expression expression, Context context) {
-		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
-
-		Recursive completeEvaluator = new Recursive(
-				new Exhaustive(
-						new FirstOf(
-								getTopRewriter(), 
-								literalExternalizer)));
+	private static Rewriter createBaseRewriter() {
+		TopRewriter topRewriter = new DefaultTopRewriter(  
+				new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
+				new BooleanSimplifier(), // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
+				new UnionEmptySetTopRewriter(),
+				new IntersectionEmptySetTopRewriter(),
+				new IntensionalSetToConditionalTopRewriter(),
+				new IntersectionIntensionalSetsTopRewriter(),
+				new IntersectionExtensionalSetTopRewriter(),
+				new DistributeIntersectionOverUnionTopRewriter());
 		
-		Expression thisResult = completeEvaluator.apply(expression, context);
-		
-		Expression result = context.getTheory().evaluate(thisResult, context);
+		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(topRewriter)));
+		Rewriter result = new Exhaustive(new FirstOf(topRewriter, literalExternalizer));
 		
 		return result;
 	}
