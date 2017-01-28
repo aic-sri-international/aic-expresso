@@ -467,6 +467,14 @@ public class GrinderUtil {
 			Expression headType = getType(set.getHead(), headRegistry);
 			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
+		else if (Sets.isExtensionalSet(expression)) {
+			// very vague type for now
+			result = apply(FUNCTION_TYPE, makeSymbol("Set"));
+		}
+		else if (expression.hasFunctor(FunctorConstants.INTERSECTION) || expression.hasFunctor(FunctorConstants.UNION) || expression.hasFunctor(FunctorConstants.INTENSIONAL_UNION)) {
+			// very vague type for now
+			result = apply(FUNCTION_TYPE, makeSymbol("Set"));
+		}
 		else if (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
 			if (expression.getValue() instanceof Integer) {
 				result = makeSymbol("Integer");

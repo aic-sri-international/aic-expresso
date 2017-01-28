@@ -38,8 +38,10 @@
 package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
@@ -77,8 +79,8 @@ public class SetExpressionIsEqualToEmptySet implements Simplifier {
 			}
 			if (setExpression != null && emptySet != null) {
 				SetDNFRewriter setDNFRewriter = new SetDNFRewriter();
-				Expression setDNF = setDNFRewriter.apply(setExpression, context);
-				result = replaceLeaves(setDNF, context);
+				Expression setDNF = setDNFRewriter.apply(expression, context);				
+				result = replaceLeaves(setDNF);
 			}
 		}
 		
@@ -94,9 +96,38 @@ public class SetExpressionIsEqualToEmptySet implements Simplifier {
 		return result;
 	}
 	
-	private static Expression replaceLeaves(Expression setDNF, Context context) {
+	private static Expression replaceLeaves(Expression setDNF) {
 		Expression result = setDNF;
-// TODO - replace leaves of setDNF equal to {} by "true", and other leaves by "false" 
+		if (IfThenElse.isIfThenElse(setDNF)) {			
+			Expression thenBranch = IfThenElse.thenBranch(setDNF);							
+			Expression elseBranch = IfThenElse.elseBranch(setDNF);
+			
+			Expression updatedThenBranch = replaceLeaves(thenBranch);
+			Expression updatedElseBranch = replaceLeaves(elseBranch);
+			
+			if (updatedThenBranch != thenBranch || updatedElseBranch != elseBranch) {
+				result = IfThenElse.make(IfThenElse.condition(setDNF), updatedThenBranch, updatedElseBranch);
+			}
+		}
+		else {
+			result = updatePossibleLeaf(setDNF);
+		}
+		
+		return result;
+	}
+	
+	private static Expression updatePossibleLeaf(Expression possibleLeaf) {
+		Expression result = possibleLeaf;
+		if (!IfThenElse.isIfThenElse(possibleLeaf) 
+				&& !Expressions.TRUE.equals(possibleLeaf) 
+				&& !Expressions.FALSE.equals(possibleLeaf)) {
+			if (Sets.isEmptySet(possibleLeaf)) {
+				result = Expressions.TRUE;
+			}
+			else {
+				result = Expressions.FALSE;
+			}
+		}
 		
 		return result;
 	}
