@@ -50,6 +50,6 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter extends Switch<String> {
 	public IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter() {
 		super(Switch.FUNCTOR,
-				map(FunctorConstants.UNION, new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier()));
+				map(FunctorConstants.INTENSIONAL_UNION, new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier()));
 	}
 }

@@ -40,7 +40,7 @@ public class SetDNFRewriterTest {
 	}
 	
 	@Test
-	public void testBasicCases() {
+	public void testBasicIntersectionCases() {
 		Expression intersection = parse("{(2,2)} intersection ({(2,2)} union {(3,2)} union {(4,2)})");
 		Assert.assertEquals(
 				parse("{(2,2)}"),
@@ -55,5 +55,23 @@ public class SetDNFRewriterTest {
 		Assert.assertEquals(			
 				parse("if 2 = N then { (2, 2) } else {  }"),
 				rewriter.apply(intersection, context));
+		
+		intersection = parse("{(1, 2)} intersection Union({{(on I in 1..10) {(I, 2)} : I != 5}})");
+		Assert.assertEquals(			
+				parse("{(1, 2)}"),
+				rewriter.apply(intersection, context));
+	}
+	
+	@Test
+	public void testBasicUnionCases() {
+		Expression union = parse("Union({{(on I in 1..10) {(I, 2)} : I != 5}})");
+		Assert.assertEquals(
+				parse("{{(on I in 1..10) (I, 2) : I != 5}}"), 
+				rewriter.apply(union, context));
+		
+		union = parse("{(1, 2)} union Union({{(on I in 1..10) {(I, 2)} : I != 5}})");
+		Assert.assertEquals(
+				parse("{(1, 2)} union {{(on I in 1..10) (I, 2) : I != 5}}"), 
+				rewriter.apply(union, context));
 	}
 }
