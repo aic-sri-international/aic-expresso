@@ -92,6 +92,7 @@ public class SetExpressionIsEqualToEmptySet implements Simplifier {
 				Sets.isSet(expression)
 				|| expression.hasFunctor(FunctorConstants.INTERSECTION)
 				|| expression.hasFunctor(FunctorConstants.UNION)
+				|| expression.hasFunctor(FunctorConstants.INTENSIONAL_UNION)
 				;
 		return result;
 	}

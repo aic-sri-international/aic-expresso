@@ -40,7 +40,7 @@ public class SetExpressionIsEqualToEmptySetTest {
 	}
 	
 	@Test
-	public void testBasicCases() {
+	public void testExtensionalSetBasicCases() {
 		Expression setEqualToEmptySet = parse("{} = {}");
 		Assert.assertEquals(
 				parse("true"),
@@ -48,6 +48,70 @@ public class SetExpressionIsEqualToEmptySetTest {
 		
 		setEqualToEmptySet = parse("{(2,2)} = {}");
 		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("{(N,2)} = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));
+	}
+	
+	@Test
+	public void testExtensionalUnionBasicCases() {
+		Expression setEqualToEmptySet = parse("{} union {} = {}");
+		Assert.assertEquals(
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("{(2,2)} union {} = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));	
+		
+		setEqualToEmptySet = parse("{(2,2)} union {(2,3)} = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));	
+		
+		setEqualToEmptySet = parse("{(2,N)} union {(2,3)} = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("{(2,2)} union Union({{(on I in 1..10) {(I, 2)} : I != 5}}) = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));
+	}
+	
+	@Test
+	public void testIntensionalUnionSetBasicCases() {
+		Expression setEqualToEmptySet = parse("Union({{(on I in 1..10) {(I, 2)} : I > 10}}) = {}");
+		Assert.assertEquals(
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("Union({{(on I in 1..10) {(I, 2)} : I != 5}}) = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("Union({{(on I in 1..10) {(I, 2)} : I != N}}) = {}");
+		Assert.assertEquals(
+				parse("false"),
+				rewriter.apply(setEqualToEmptySet, context));
+	}
+	
+	@Test
+	public void testExtensionalIntersectionBasicCases() {
+		Expression setEqualToEmptySet = parse("{(2,2)} intersection {(3,2)} = {}");
+		Assert.assertEquals(			
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("{(2,2)} intersection {(2,2)} = {}");
+		Assert.assertEquals(			
 				parse("false"),
 				rewriter.apply(setEqualToEmptySet, context));
 		
