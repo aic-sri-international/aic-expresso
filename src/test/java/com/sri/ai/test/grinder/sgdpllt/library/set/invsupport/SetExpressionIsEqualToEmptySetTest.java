@@ -41,7 +41,12 @@ public class SetExpressionIsEqualToEmptySetTest {
 	
 	@Test
 	public void testBasicCases() {
-		Expression setEqualToEmptySet = parse("{(2,2)} = {}");
+		Expression setEqualToEmptySet = parse("{} = {}");
+		Assert.assertEquals(
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("{(2,2)} = {}");
 		Assert.assertEquals(
 				parse("false"),
 				rewriter.apply(setEqualToEmptySet, context));

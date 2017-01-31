@@ -70,10 +70,10 @@ public class SetExpressionIsEqualToEmptySet implements Simplifier {
 			Expression setExpression = null;
 			Expression emptySet      = null;
 			for (Expression equalityArg : expression.getArguments()) {				
-				if (Sets.isEmptySet(equalityArg)) {
+				if (emptySet == null && Sets.isEmptySet(equalityArg)) {
 					emptySet = equalityArg;
 				}
-				else if (isSetExpression(equalityArg)) {
+				else if (setExpression == null && isSetExpression(equalityArg)) {
 					setExpression = equalityArg;
 				}
 			}
