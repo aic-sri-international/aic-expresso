@@ -91,4 +91,12 @@ public class IntersectionExtensionalSetSimplifierTest {
 				parse("(if (M != 2) and (N != 4) then { (2, 2) } else {  }) union (if (M != 2) and (N != 4) then { (3, 2) } else {  })"),
 				simplifier.apply(intersection, context));
 	}
+	
+	@Test
+	public void testExtensionalInInteresectionWithConditionals() {
+		Expression intersection = parse("{(2,2),(3,2),(4,2)} intersection {{(on J in 1..10) (J, 2) : J != 4}} intersection (if N != 4 then {(4,2)} else {})");
+		Assert.assertEquals(
+				parse("({(2,2)} union {(3,2)}) intersection (if N != 4 then {(4,2)} else {})"),
+				simplifier.apply(intersection, context));
+	}
 }

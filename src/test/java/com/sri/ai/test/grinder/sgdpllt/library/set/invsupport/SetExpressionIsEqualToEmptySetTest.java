@@ -119,5 +119,15 @@ public class SetExpressionIsEqualToEmptySetTest {
 		Assert.assertEquals(			
 				parse("if 2 = N then false else true"),
 				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("({(2,2)} union {(3,2)}) intersection (if N != 4 then {(4,2)} else {}) = {}");
+		Assert.assertEquals(			
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
+		
+		setEqualToEmptySet = parse("{(2,2),(3,2),(4,2)} intersection {{(on J in 1..10) (J, 2) : J != 4}} intersection (if N != 4 then {(4,2)} else {}) = {}");
+		Assert.assertEquals(			
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
 	}
 }

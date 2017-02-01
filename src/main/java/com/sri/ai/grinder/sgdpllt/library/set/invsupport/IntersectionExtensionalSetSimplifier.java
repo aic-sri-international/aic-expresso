@@ -116,7 +116,7 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 			}
 			if (emptySetArg) {
 				result = Sets.EMPTY_SET;
-			} else if (firstExtensionalSet != null && notSets.size() == 0) {
+			} else if (firstExtensionalSet != null && otherSets.size() > 0) {
 				List<Expression> unionArgs = new ArrayList<>();
 				for (Expression e : ExtensionalSet.getElements(firstExtensionalSet)) {
 					List<Expression> conjuncts = new ArrayList<>();
@@ -146,10 +146,22 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 					}
 				}
 				if (unionArgs.size() == 0) {
-					result = Sets.EMPTY_SET;
+					// Holds even in there are non-set (i.e. conditional) terms in the original intersection
+					result = Sets.EMPTY_SET; 
 				}
 				else {
-					result = Sets.makeUnion(unionArgs.toArray(new Expression[unionArgs.size()]));
+					Expression union = Sets.makeUnion(unionArgs.toArray(new Expression[unionArgs.size()]));
+					if (notSets.size() == 0) {
+						result = union;
+					} 
+					else{
+						Expression[] intersectionArgs = new Expression[notSets.size()+1];
+						intersectionArgs[0] = union;
+						for (int i = 0; i < notSets.size(); i++) {
+							intersectionArgs[i+1] = notSets.get(i);
+						}
+						result = Sets.makeIntersection(intersectionArgs);
+					}
 				}
 			}
 		}
