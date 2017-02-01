@@ -43,12 +43,15 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
@@ -86,11 +89,10 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 				boolean resultIsEmptySet = false;
 				IntensionalSet intersectedMultiSet = (IntensionalSet) intensionalMultiSetArgs.get(0);
 				for (int i = 1; i < intensionalMultiSetArgs.size() && !resultIsEmptySet; i++) {
-					IntensionalSet otherMultiSet = (IntensionalSet) intensionalMultiSetArgs.get(i);
+					IntensionalSet otherMultiSet = standardizeApartIntensionalSets((IntensionalSet) intensionalMultiSetArgs.get(i), intersectedMultiSet, context);
 					// {{ (on I1) H1 : C1 }} intersection {{ (on I2) H2 : C2 }}
 					// ---->
-					// {{ (on I1) H1 : C1 and evaluate(there exists I2 : C2 and H2 = H1) }}
-// TODO - need to handle name clashes across intensional sets, i.e. standardize apart.					
+					// {{ (on I1) H1 : C1 and evaluate(there exists I2 : C2 and H2 = H1) }}				
 					IndexExpressionsSet i1 = intersectedMultiSet.getIndexExpressions();
 					IndexExpressionsSet i2 = otherMultiSet.getIndexExpressions();
 					Expression h1 = intersectedMultiSet.getHead();
@@ -99,8 +101,8 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 					Expression c2 = otherMultiSet.getCondition();
 					
 					Expression thereExists          = ThereExists.make(i2, And.make(c2, Equality.make(h2, h1)));
-					Context    thereExistsContext   = (Context) GrinderUtil.extendRegistryWithIndexExpressions(i1, context);
-					Expression thereExistsEvaluated = context.getTheory().evaluate(thereExists, thereExistsContext);
+					Context    i1ExtendedContext    = (Context) GrinderUtil.extendRegistryWithIndexExpressions(i1, context);
+					Expression thereExistsEvaluated = context.getTheory().evaluate(thereExists, i1ExtendedContext);
 					if (thereExistsEvaluated.equals(false)) {
 						// They don't intersect, which means you have an empty
 						// set in the intersection, which means the whole thing
@@ -111,7 +113,7 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 						// If we have a condition, other than false and true
 						// we will want to extend the current result by the condition
 						Expression extendedCondition = And.make(c1, thereExistsEvaluated);
-						intersectedMultiSet = (IntensionalSet) IntensionalSet.intensionalMultiSet(i1, h1, extendedCondition);
+						intersectedMultiSet = (IntensionalSet) IntensionalSet.intensionalMultiSet(i1, h1, extendedCondition);					
 					}
 				}
 				if (resultIsEmptySet) {
@@ -129,6 +131,39 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 			}
 		}
 		
+		return result;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static IntensionalSet standardizeApartIntensionalSets(IntensionalSet intensionalSet, IntensionalSet fromOtherIntensionalSet, Context context) {
+		IntensionalSet result = intensionalSet;
+		
+		IndexExpressionsSet intensionalSetIndexes     = intensionalSet.getIndexExpressions();
+		IndexExpressionsSet fromOtherIntensionalSetIn = fromOtherIntensionalSet.getIndexExpressions();
+		List<Expression> overlappingIndexNames = new ArrayList<>();
+		for (Expression intensionalSetIndex : IndexExpressions.getIndices(intensionalSetIndexes)) {
+			if (IndexExpressions.indexExpressionsContainIndex(fromOtherIntensionalSetIn, intensionalSetIndex)) {
+				overlappingIndexNames.add(intensionalSetIndex);
+			}
+		}
+		if (overlappingIndexNames.size() > 0) {
+			Expression combinedExpression = And.make(intensionalSet, fromOtherIntensionalSet);
+			List<Expression> newIndexNames = new ArrayList<>();
+			for (Expression overlappingIndex : overlappingIndexNames) {
+				Expression newIndexName = Expressions.makeUniqueVariable(overlappingIndex.toString(), combinedExpression, context);
+				newIndexNames.add(newIndexName);
+			}
+			SyntaxTree resultSyntaxTree = result.getSyntaxTree();
+			for (int i = 0; i < newIndexNames.size(); i++) {
+				Expression replaced    = overlappingIndexNames.get(i);
+				Expression replacement = newIndexNames.get(i); 
+				
+				resultSyntaxTree = resultSyntaxTree.replaceSubTreesAllOccurrences(replaced.getSyntaxTree(), replacement.getSyntaxTree());
+			}
+			
+			result = (IntensionalSet) Expressions.makeFromSyntaxTree(resultSyntaxTree);
+		}
+				
 		return result;
 	}
 }

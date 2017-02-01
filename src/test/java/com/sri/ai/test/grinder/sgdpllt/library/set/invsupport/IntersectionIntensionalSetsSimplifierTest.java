@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -42,7 +43,7 @@ public class IntersectionIntensionalSetsSimplifierTest {
 		Expression intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on J in 1..10) (J, 2) : J != 4}}");
 		Assert.assertEquals(
 				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4}}"),
-				simplifier.apply(intersection, context));
+				simplifier.apply(intersection, context));		
 		
 		intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on J in 1..10) (J, 3) : J != 4}}");
 		Assert.assertEquals(
@@ -52,6 +53,43 @@ public class IntersectionIntensionalSetsSimplifierTest {
 		intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on J in 1..10) (J, 2) : J != 4}} intersection {{(10, 2)}}");
 		Assert.assertEquals(
 				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4}} intersection {{(10,2)}}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on J in 1..10) (J, 2) : J != 4}} intersection {{(on K in 1..10) (K, 2) : K != 3}}");
+		Assert.assertEquals(
+				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4 and I != 3}}"),
+				simplifier.apply(intersection, context));
+	}
+	
+	@Ignore("TODO - waiting for new simplification logic on stuff like 'I = 5 and I != 5' in an intensional sets condition to be supported")
+	@Test
+	public void testCombinedConditionFalse() {
+		Expression intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on J in 1..10) (J, 2) : J = 5}}");
+		Assert.assertEquals(
+				parse("{}"),
+				simplifier.apply(intersection, context));
+	}
+	
+	@Test
+	public void testStandardizeApart() {
+		Expression intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on I in 1..10) (I, 2) : I != 4}}");
+		Assert.assertEquals(
+				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4}}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on I in 1..10) (I, 3) : I != 4}}");
+		Assert.assertEquals(
+				parse("{}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on I in 1..10) (I, 2) : I != 4}} intersection {{(10, 2)}}");
+		Assert.assertEquals(
+				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4}} intersection {{(10,2)}}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on I in 1..10) (I, 2) : I != 4}} intersection {{(on I in 1..10) (I, 2) : I != 3}}");
+		Assert.assertEquals(
+				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4 and I != 3}}"),
 				simplifier.apply(intersection, context));
 	}
 }
