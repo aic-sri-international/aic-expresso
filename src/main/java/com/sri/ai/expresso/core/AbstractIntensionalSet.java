@@ -223,7 +223,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	public String makeToString() {
 		String result;
 		result = getOpeningBrackets() + " ( on " + getIndexExpressions().getSubExpressionString() + " ) " + getHead()
-				+ (getCondition().equals(Expressions.TRUE)? "" : " | " + getCondition() ) + " " + getClosingBrackets(); 
+				+ (getCondition().equals(Expressions.TRUE)? "" : " : " + getCondition() ) + " " + getClosingBrackets(); 
 		return result;
 	}
 
