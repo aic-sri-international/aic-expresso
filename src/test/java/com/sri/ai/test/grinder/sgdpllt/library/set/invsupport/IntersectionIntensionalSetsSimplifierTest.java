@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -61,7 +60,6 @@ public class IntersectionIntensionalSetsSimplifierTest {
 				simplifier.apply(intersection, context));
 	}
 	
-	@Ignore("TODO - waiting for new simplification logic on stuff like 'I = 5 and I != 5' in an intensional sets condition to be supported")
 	@Test
 	public void testCombinedConditionFalse() {
 		Expression intersection = parse("{{(on I in 1..10) (I, 2) : I != 5}} intersection {{(on J in 1..10) (J, 2) : J = 5}}");

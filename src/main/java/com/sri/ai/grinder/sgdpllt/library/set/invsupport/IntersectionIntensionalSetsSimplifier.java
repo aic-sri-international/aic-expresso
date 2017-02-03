@@ -114,6 +114,11 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 						// we will want to extend the current result by the condition
 						Expression extendedCondition = And.make(c1, thereExistsEvaluated);
 						intersectedMultiSet = (IntensionalSet) IntensionalSet.intensionalMultiSet(i1, h1, extendedCondition);					
+						// Ensure we don't have a false condition.
+						Expression simplifiedIntersectedMultiSet = context.getTheory().evaluate(intersectedMultiSet, context);
+						if (Sets.isEmptySet(simplifiedIntersectedMultiSet)) {
+							resultIsEmptySet = true;
+						}
 					}
 				}
 				if (resultIsEmptySet) {

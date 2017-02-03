@@ -1,0 +1,62 @@
+package com.sri.ai.test.grinder.sgdpllt.library.set;
+
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Arrays;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetFalseConditionToEmptySetSimplifier;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+
+public class IntensionalSetFalseConditionToEmptySetSimplifierTest {
+	private Context context;
+	private IntensionalSetFalseConditionToEmptySetSimplifier simplifier;
+	
+	@Before
+	public void setUp() {
+		context = new TrueContext(
+				new CompoundTheory(
+						new DifferenceArithmeticTheory(false, false), 
+						new TupleTheory()));
+		IntegerInterval nType = new IntegerInterval(1, 10);
+		context = (Context) GrinderUtil.extendRegistryWith(
+				map("N", nType.toString()), 
+				Arrays.asList(nType), context);
+		
+		simplifier = new IntensionalSetFalseConditionToEmptySetSimplifier();
+	}
+	
+	@Test
+	public void testBasicCases() {
+		Expression iSet = parse("{(on I in 1..10) (I, 2) : I != 5}");
+		Assert.assertEquals(
+				parse("{(on I in 1..10) (I, 2) : I != 5}"),
+				simplifier.apply(iSet, context));
+		
+		iSet = parse("{{(on I in 1..10) (I, 2) : I != 5}}");
+		Assert.assertEquals(
+				parse("{{(on I in 1..10) (I, 2) : I != 5}}"),
+				simplifier.apply(iSet, context));	
+
+		iSet = parse("{(on I in 1..10) (I, 2) : false}");
+		Assert.assertEquals(
+				parse("{}"),
+				simplifier.apply(iSet, context));
+		
+		iSet = parse("{{(on I in 1..10) (I, 2) : false}}");
+		Assert.assertEquals(
+				parse("{}"),
+				simplifier.apply(iSet, context));
+	}
+}
