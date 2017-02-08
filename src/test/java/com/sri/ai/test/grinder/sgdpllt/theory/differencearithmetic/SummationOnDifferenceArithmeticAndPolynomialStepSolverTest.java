@@ -226,7 +226,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 		expected = simplify(expected, context);
 		
 		System.out.println(
-				"sum({{ (on " + variable + " in " + GrinderUtil.getType(variable, context) + ") " + 
+				"sum({{ (on " + variable + " in " + GrinderUtil.getTypeExpression(variable, context) + ") " + 
 						body + " : " + constraintString + " }} = " + actual + "\n");
 		
 		if (!expected.equals(actual)) {

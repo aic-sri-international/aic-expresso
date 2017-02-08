@@ -107,6 +107,7 @@ import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.Disequality;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
@@ -314,7 +315,7 @@ public class GrinderUtil {
 	/**
 	 * Returns the type of given expression according to registry.
 	 */
-	public static Expression getType(Expression expression, Registry registry) {
+	public static Expression getTypeExpression(Expression expression, Registry registry) {
 		Expression result;
 		
 		// TODO: this method is horribly hard-coded to a specific language; need to clean this up
@@ -331,7 +332,7 @@ public class GrinderUtil {
 				// NOTE: Need to extend the registry as the index expressions in the quantifier may
 				// declare new types (i.e. function types).
 				Registry headRegistry = GrinderUtil.extendRegistryWithIndexExpressions(intensionalSetArgument.getIndexExpressions(), registry);
-				result = getType(head, headRegistry);
+				result = getTypeExpression(head, headRegistry);
 			}
 			else if (argument.getSyntacticFormType().equals(ExtensionalSet.SYNTACTIC_FORM_TYPE)) {
 				List<Expression> arguments = ((AbstractExtensionalSet)argument).getElementsDefinitions();
@@ -356,8 +357,8 @@ public class GrinderUtil {
 			result = FunctionType.make(parse("Set"), parse("Number"), parse("Number"));
 		}
 		else if (IfThenElse.isIfThenElse(expression)) {
-			Expression thenType = getType(IfThenElse.thenBranch(expression), registry);
-			Expression elseType = getType(IfThenElse.elseBranch(expression), registry);
+			Expression thenType = getTypeExpression(IfThenElse.thenBranch(expression), registry);
+			Expression elseType = getTypeExpression(IfThenElse.elseBranch(expression), registry);
 			if (thenType != null && elseType != null && (thenType.equals("Number") && isIntegerOrReal(elseType) || isIntegerOrReal(thenType) && elseType.equals("Number"))) {
 				result = makeSymbol("Number");
 			}
@@ -406,7 +407,7 @@ public class GrinderUtil {
 		}
 		else if (isNumericFunctionApplication(expression)) {
 			
-			List<Expression> argumentTypes = mapIntoList(expression.getArguments(), e -> getType(e, registry));
+			List<Expression> argumentTypes = mapIntoList(expression.getArguments(), e -> getTypeExpression(e, registry));
 			
 			/**
 			 * commonDomain is the co-domain shared by all argument function types, or empty tuple for arguments that are not function-typed.
@@ -464,7 +465,7 @@ public class GrinderUtil {
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may
 			// declare new types (i.e. function types).
 			Registry headRegistry = GrinderUtil.extendRegistryWithIndexExpressions(set.getIndexExpressions(), registry);
-			Expression headType = getType(set.getHead(), headRegistry);
+			Expression headType = getTypeExpression(set.getHead(), headRegistry);
 			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
 		else if (Sets.isExtensionalSet(expression)) {
@@ -511,7 +512,7 @@ public class GrinderUtil {
 			}
 		}
 		else if (expression.hasFunctor(FunctorConstants.GET) && expression.numberOfArguments() == 2 && Expressions.isNumber(expression.get(1))) {
-			Expression argType = getType(expression.get(0), registry);
+			Expression argType = getTypeExpression(expression.get(0), registry);
 			if (TupleType.isTupleType(argType)) {
 				TupleType tupleType = (TupleType) GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning(argType, registry);
 				result = parse(tupleType.getElementTypes().get(expression.get(1).intValue()-1).toString());			
@@ -524,7 +525,7 @@ public class GrinderUtil {
 			result = expression; // Is a type expression already.
 		}
 		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			Expression functionType = getType(expression.getFunctor(), registry);
+			Expression functionType = getTypeExpression(expression.getFunctor(), registry);
 			if (functionType == null) {
 				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to registry.");
 			}
@@ -549,7 +550,7 @@ public class GrinderUtil {
 		else if (Tuple.isTuple(expression)) {
 			List<Expression> elementTypes =
 					expression.getArguments().stream()
-						.map(element -> getType(element, registry))
+						.map(element -> getTypeExpression(element, registry))
 						.collect(Collectors.toList());
 			result = TupleType.make(elementTypes);
 		}
@@ -558,7 +559,7 @@ public class GrinderUtil {
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may
 			// declare new types (i.e. function types).
 			Registry quantifiedExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(quantifiedExpressionWithABody.getIndexExpressions(), registry);
-			result = getType(quantifiedExpressionWithABody.getBody(), quantifiedExpressionWithABodyRegistry);
+			result = getTypeExpression(quantifiedExpressionWithABody.getBody(), quantifiedExpressionWithABodyRegistry);
 		}
 		else if (expression instanceof LambdaExpression) {
 			LambdaExpression lambdaExpression = (LambdaExpression) expression;
@@ -566,13 +567,13 @@ public class GrinderUtil {
 
 			IndexExpressionsSet indexExpressions = lambdaExpression.getIndexExpressions();
 			Registry lambdaExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, registry);
-			Expression coDomain = getType(lambdaExpression.getBody(), lambdaExpressionWithABodyRegistry);
+			Expression coDomain = getTypeExpression(lambdaExpression.getBody(), lambdaExpressionWithABodyRegistry);
 			
 			result = Expressions.apply(FUNCTION_TYPE, domain, coDomain);
 		}
 		else if (expression instanceof AbstractExpressionWrapper) {
 			Expression innerExpression = ((AbstractExpressionWrapper) expression).getInnerExpression();
-			result = getType(innerExpression, registry);
+			result = getTypeExpression(innerExpression, registry);
 		}
 		else {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
@@ -657,7 +658,7 @@ public class GrinderUtil {
 			result = makeSymbol("Integer");
 		}
 		else {
-			result = getType(first, registry);
+			result = getTypeExpression(first, registry);
 		}
 		return result;
 	}
@@ -738,7 +739,7 @@ public class GrinderUtil {
 	 * @return
 	 */
 	public static boolean isBooleanTyped(Expression expression, Registry registry) {
-		Expression type = getType(expression, registry);
+		Expression type = getTypeExpression(expression, registry);
 		boolean result =
 				type != null &&
 				(
@@ -909,9 +910,20 @@ public class GrinderUtil {
 			result = true;
 		}
 		else {
-			result = isTypeSubtypeOf(registry.getType(getType(expression, registry)), ofType);
+			result = isTypeSubtypeOf(registry.getType(getTypeExpression(expression, registry)), ofType);
 		}
 		
 		return result;
+	}
+
+	/**
+	 * @param variable
+	 * @param context
+	 * @return
+	 */
+	public static Type getType(Expression variable, Context context) {
+		String typeName = getTypeExpression(variable, context).toString();
+		Type type = context.getType(typeName);
+		return type;
 	}
 }

@@ -71,6 +71,9 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 		@Override
 		public ExpressionLiteralSplitterStepSolver apply(SingleVariableConstraint constraint, Context context) {
 			ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+			if (result == null) {
+				throw new Error("No solver present for solving satisfiability of " + constraint.getVariable());
+			}
 			return result;
 		}
 	}

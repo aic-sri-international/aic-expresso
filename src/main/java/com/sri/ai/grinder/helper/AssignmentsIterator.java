@@ -74,7 +74,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Registry registry) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
-			Expression typeDescription = GrinderUtil.getType(variable, registry);
+			Expression typeDescription = GrinderUtil.getTypeExpression(variable, registry);
 			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, registry);
 		}
 		return fromVariableToIteratorMaker;
@@ -94,7 +94,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 			Expression variable = IndexExpressions.getIndex(indexExpression);
 			Expression typeDescription = IndexExpressions.getType(indexExpression);
 			if (typeDescription == null) {
-				typeDescription = GrinderUtil.getType(variable, registry);
+				typeDescription = GrinderUtil.getTypeExpression(variable, registry);
 			}
 			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, registry);
 		}

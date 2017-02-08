@@ -192,7 +192,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	 * This is overridden to
 	 * add an instance of {@link IntegerExpressoType} to testing types as well.
 	 * This is needed because arithmetic expressions such as J + 5 are determined to be of
-	 * type name "Integer" by {@link GrinderUtil#getType(Expression expression, Registry registry)},
+	 * type name "Integer" by {@link GrinderUtil#getTypeExpression(Expression expression, Registry registry)},
 	 * so a type with this name is needed by the default implementation of {@link #isAtom(Expression, Context)}
 	 * if the flag for analyzing the types of arguments to equalities is true.
 	 */

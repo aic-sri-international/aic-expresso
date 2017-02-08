@@ -80,7 +80,7 @@ public class GrinderUtilTest {
 	
 	@Test
 	public void testGetTypeForTupleType() {
-		Assert.assertEquals(parse("(People x Pets)"), GrinderUtil.getType(parse("(X, Y)"), registry));		
+		Assert.assertEquals(parse("(People x Pets)"), GrinderUtil.getTypeExpression(parse("(X, Y)"), registry));		
 	}
 	
 	@Test

@@ -246,7 +246,7 @@ public interface Theory extends Cloneable {
 	 * @param variable 
 	 * @param theory the theory of the application (not necessarily <code>this</code> because <code>this</code> may be a sub-theory in a compound one
 	 * @param context
-	 * @return
+	 * @return the constraint, or null if there is no theory for the variable.
 	 */
 	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context);
 	
@@ -276,7 +276,7 @@ public interface Theory extends Cloneable {
 	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ExpressionLiteralSplitterStepSolver} deciding its satisfiability.
 	 * @param context TODO
-	 * @return a {@link ExpressionLiteralSplitterStepSolver} deciding a constraint's satisfiability.
+	 * @return a {@link ExpressionLiteralSplitterStepSolver} deciding a constraint's satisfiability, or null if there is no appropriate theory.
 	 */
 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context);
 	
@@ -284,12 +284,12 @@ public interface Theory extends Cloneable {
 	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ExpressionLiteralSplitterStepSolver} computing its model count.
 	 * @param context TODO
-	 * @return a {@link ExpressionLiteralSplitterStepSolver} computing a constraint's model count.
+	 * @return a {@link ExpressionLiteralSplitterStepSolver} computing a constraint's model count, or null if there is no appropriate theory.
 	 */
 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
 
 	/**
-	 * Provides a quantifier eliminator for use with given single-variable constraint and body.
+	 * Provides a quantifier eliminator for use with given single-variable constraint and body, or null if there is no appropriate theory.
 	 * @param group
 	 * @param constraint
 	 * @param body
@@ -344,7 +344,7 @@ public interface Theory extends Cloneable {
 				&& !(expression instanceof QuantifiedExpression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
-				&& (typeExpression = GrinderUtil.getType(expression, context)) != null
+				&& (typeExpression = GrinderUtil.getTypeExpression(expression, context)) != null
 				&& (type = context.getType(typeExpression)) != null
 				&& isSuitableFor(expression, type)
 				&& !thereExists(context.getTypes(), t -> t.contains(expression));		

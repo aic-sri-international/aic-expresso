@@ -103,11 +103,17 @@ public class SGDPLLT extends AbstractMultiIndexQuantifierEliminator {
 						i == numberOfIndices - 1?
 								lastIndexConstraint
 								: theory.makeSingleVariableConstraint(index, theory, context);
-				currentBody =
-						theory
-						.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-								group, constraintForThisIndex, currentBody, context)
-						.solve(context);
+				ExpressionLiteralSplitterStepSolver quantifierEliminatorStepSolver = 
+						theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
+								group, constraintForThisIndex, currentBody, context);
+				if (quantifierEliminatorStepSolver != null) {
+					currentBody = quantifierEliminatorStepSolver.solve(context);
+				}
+				else {
+					// cannot eliminate this level, so reconstruct original expression up to this index
+					throw new Error("Reconstruction of quantifier not yet eliminable not yet implemented.");
+					// once implemented, must return  
+				}
 			}
 		}
 		else {

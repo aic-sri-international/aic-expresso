@@ -195,7 +195,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 				ArrayList<Expression> variableDisequals = getVariableDisequals(context);
 				Set<Expression> uniquelyNamedConstantDisequals = getUniquelyNamedConstantDisequals(context);
 		
-				Expression typeExpression = GrinderUtil.getType(getConstraint().getVariable(), context);
+				Expression typeExpression = GrinderUtil.getTypeExpression(getConstraint().getVariable(), context);
 				Type type = context.getType(typeExpression);
 				ArrayList<Expression> remainingUniquelyNamedConstants =
 						arrayListFrom(new PredicateIterator<>(type.iterator(), c -> ! uniquelyNamedConstantDisequals.contains(c)));

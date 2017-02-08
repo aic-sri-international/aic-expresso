@@ -102,6 +102,9 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 		Theory theory = getConstraint().getTheory();
 		ExpressionStepSolver satisfiability =
 				theory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), context);
+		if (satisfiability == null) {
+			throw new Error("No solver present for solving satisfiability of " + getConstraint().getVariable());
+		}
 		AbstractExpressionWithPropagatedLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {
 			satisfiabilityWithPropagatedLiterals =

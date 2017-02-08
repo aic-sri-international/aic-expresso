@@ -127,18 +127,26 @@ public interface SingleVariableConstraint extends Constraint {
 	}
 	
 	/**
-	 * Returns the satisfiability of this single-variable constraint under a context and context.
+	 * Returns the satisfiability of this single-variable constraint under a context and context,
+	 * or null if there is no appropriate solver.
 	 * @param context
 	 * @return
 	 */
 	default Expression satisfiability(Context context) {
 		ExpressionLiteralSplitterStepSolver satisfiabilityStepSolver = getTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, context);
-		Expression satisfiability = satisfiabilityStepSolver.solve(context);
+		Expression satisfiability;
+		if (satisfiabilityStepSolver != null) {
+			satisfiability = satisfiabilityStepSolver.solve(context);
+		}
+		else {
+			satisfiability = null;
+		}
 		return satisfiability;
 	}
 	
 	/**
-	 * Returns the model count of this single-variable constraint under a context and context.
+	 * Returns the model count of this single-variable constraint under a context and context
+	 * or null if there is no appropriate solver.
 	 * @param context
 	 * @return
 	 */
@@ -146,7 +154,13 @@ public interface SingleVariableConstraint extends Constraint {
 		ExpressionLiteralSplitterStepSolver modelCountingStepSolver = 
 				getTheory()
 				.getSingleVariableConstraintModelCountingStepSolver(this, context);
-		Expression modelCount = modelCountingStepSolver.solve(context);
+		Expression modelCount;
+		if (modelCountingStepSolver == null) {
+			modelCount = null;
+		}
+		else {
+			modelCount = modelCountingStepSolver.solve(context);
+		}
 		return modelCount;
 	}
 	

@@ -39,14 +39,15 @@ package com.sri.ai.grinder.sgdpllt.theory.compound;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.expresso.helper.Expressions.primedUntilUnique;
+import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -167,8 +168,9 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	
 	private TheoryTestingSupport getTheoryTestingSupport(String variable) {
 		Type variableType = getTestingVariableType(variable);
-		Theory subconstraintTheory = getTheory().getTheory(parse(variable), variableType);
-		TheoryTestingSupport result = getTheoryToTestingSupport().get(subconstraintTheory);
+		Theory subConstraintTheory = getTheory().getTheory(parse(variable), variableType);
+		check(() -> subConstraintTheory != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
+		TheoryTestingSupport result = getTheoryToTestingSupport().get(subConstraintTheory);
 		return result;
 	}
 	

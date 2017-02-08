@@ -93,6 +93,9 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 		Expression result;
 		if (getGroup().isIdempotent()) {
 			Expression conditionForSatisfiability = indexConstraint.satisfiability(context);
+			if (conditionForSatisfiability == null) {
+				throw new Error("No satisfiability solver present for " + indexConstraint.getVariable() + ". Need to implement re-construction of original expression");
+			}
 			result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
 		}
 		else {

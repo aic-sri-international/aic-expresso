@@ -91,7 +91,7 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 					&&
 					forAll(expression.getArguments(),
 							e -> {
-								Expression typeExpression = GrinderUtil.getType(e, context);
+								Expression typeExpression = GrinderUtil.getTypeExpression(e, context);
 								check(() -> typeExpression != null, () -> e + " has undefined type");
 								String typeName = typeExpression.toString();
 								Type eType = context.getType(typeName);

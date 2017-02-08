@@ -300,7 +300,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 */
 	public Expression getVariableTypeExpression(Context context) {
 		if (cachedVariableType == null) {
-			cachedVariableType = GrinderUtil.getType(getVariable(), context);
+			cachedVariableType = GrinderUtil.getTypeExpression(getVariable(), context);
 //			cachedVariableType = context.getContextualSymbolType(getVariable());
 //			if (cachedVariableType == null) {
 //				cachedVariableType = new DefaultSyntacticFunctionApplication(TYPE, getVariable());

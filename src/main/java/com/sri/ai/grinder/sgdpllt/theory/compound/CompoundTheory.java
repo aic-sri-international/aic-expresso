@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.compound;
 
-import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.join;
@@ -105,12 +104,11 @@ public class CompoundTheory extends AbstractTheory {
 
 	// NOTE: package protected so TestingSupport can utilize.
 	Theory getTheory(Expression variable, Context context) {
-		String typeName = GrinderUtil.getType(variable, context).toString();
-		Type type = context.getType(typeName);
+		Type type = GrinderUtil.getType(variable, context);
 		Theory result = getTheory(variable, type);
 		return result;
 	}
-		
+
 	Theory getTheory(Expression variable, Type variableType) {		
 		if (variableType == null) {
 			throw new Error("Cannot decide which theory to use for variable " + variable + " because it does not have a registered type.");
@@ -121,7 +119,15 @@ public class CompoundTheory extends AbstractTheory {
 						getSubTheories(),
 						t -> t.isSuitableFor(variable, variableType));
 
-		check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
+		// Used to enforce presence of theory here,
+		// but we are now more flexible,
+		// allowing to have quantifiers indexed by variables
+		// for which we have no theory,
+		// and leaving them alone in that case.
+		// When the theory is used for more essential tasks,
+		// such as checking the context's satisfiability,
+		// an error will be thrown at that point.
+		//check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
 		
 		return result;
 	}
@@ -135,7 +141,13 @@ public class CompoundTheory extends AbstractTheory {
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
 		Theory theoryForVariable = getTheory(variable, context);
-		SingleVariableConstraint result = theoryForVariable.makeSingleVariableConstraint(variable, theory, context);
+		SingleVariableConstraint result;
+		if (theoryForVariable != null) {
+			result = theoryForVariable.makeSingleVariableConstraint(variable, theory, context);
+		}
+		else {
+			result = null;
+		}
 		return result;
 	}
 
@@ -164,21 +176,39 @@ public class CompoundTheory extends AbstractTheory {
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+		ExpressionLiteralSplitterStepSolver result;
+		if (theory != null) {
+			result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+		}
+		else {
+			result = null;
+		}
 		return result;
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
+		ExpressionLiteralSplitterStepSolver result;
+		if (theory != null) {
+			result = theory.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
+		}
+		else {
+			result = null;
+		}
 		return result;
 	}
 
 	@Override
 	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, body, context);
+		ExpressionLiteralSplitterStepSolver result;
+		if (theory != null) {
+			result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, body, context);
+		}
+		else {
+			result = null;
+		}
 		return result;
 	}
 

@@ -81,7 +81,7 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		
 		Expression variable = constraint.getVariable();
-		Expression type = GrinderUtil.getType(variable, context);
+		Expression type = GrinderUtil.getTypeExpression(variable, context);
 		Expression indexExpression = IndexExpressions.makeIndexExpression(variable, type);
 		ExtensionalIndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression);
 		
