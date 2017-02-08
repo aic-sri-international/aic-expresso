@@ -63,6 +63,11 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  * <p>
  * Additionally, it takes an assignment to symbols as a constructing parameter,
  * and throws an error when a symbol with unassigned value is found.
+ * <p>
+ * The reason this quantifier eliminator uses an assignment to keep a binding to variables,
+ * as opposed to using equalities in the context, is that
+ * the context can only deal with variables for which we have a satisfiability solver,
+ * whereas an assignment can be used for any variables.
  *
  * @author braz
  *
