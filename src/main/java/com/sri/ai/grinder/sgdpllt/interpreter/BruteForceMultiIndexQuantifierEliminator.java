@@ -37,25 +37,18 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpressions;
-import static com.sri.ai.util.Util.in;
-
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 /**
  * An extension of {@link AbstractMultiIndexQuantifierEliminator}
@@ -73,46 +66,23 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  *
  */
 @Beta
-public class BruteForceMultiIndexQuantifierEliminator extends AbstractMultiIndexQuantifierEliminator {
-
-	protected TopRewriterWithAssignment topRewriterWithBaseAssignment;
+public class BruteForceMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierElimination {
 
 	public BruteForceMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
-		this(new DefaultTopRewriterWithAssignment(topRewriter));
+		super(topRewriter);
 	}
 	
 	public BruteForceMultiIndexQuantifierEliminator(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
-		super();
-		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
+		super(topRewriterWithBaseAssignment);
 	}
 	
 	@Override
-	public Expression solve(
-			AssociativeCommutativeGroup group, 
-			ExtensionalIndexExpressionsSet indexExpressions, 
-			Expression indicesCondition, 
-			Expression body, 
-			Context context) throws Error {
-		
-		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
-		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-		return solve(group, indices, indicesCondition, body, context);
+	public Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
+		return new AssignmentsIterator(indices, context);
 	}
 
-	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		Expression additiveIdentityValue = group.additiveIdentityElement();
-		Expression value = additiveIdentityValue;
-		Expression bodyWithCondition = IfThenElse.make(indicesCondition, body, additiveIdentityValue);
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(indices, context);
-		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
-			TopRewriterWithAssignment extended = topRewriterWithBaseAssignment.extendWith(values);
-			Rewriter rewriter = new Recursive(new Exhaustive(extended));
-			Expression bodyEvaluation = rewriter.apply(bodyWithCondition, context);
-			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
-				return bodyEvaluation;
-			}
-			value = group.add(value, bodyEvaluation, context);
-		}
-		return value;
+	@Override
+	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
+		return IfThenElse.make(indicesCondition, body, group.additiveIdentityElement());
 	}
 }

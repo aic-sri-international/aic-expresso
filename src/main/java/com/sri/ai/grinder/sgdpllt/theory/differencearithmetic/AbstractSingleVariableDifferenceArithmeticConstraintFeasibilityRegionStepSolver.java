@@ -69,7 +69,7 @@ import com.sri.ai.util.base.Pair;
 
 /**
  * A {@link AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver}
- * for a {@link SingleVariableLinearRealArithmeticConstraint}.
+ * for a {@link SingleVariableDifferenceArithmeticConstraint}.
  * In particular, its implementation of method
  * {@link #getSolutionStepAfterBoundsAreCheckedForFeasibility(
  * Expression maximumLowerBound, 

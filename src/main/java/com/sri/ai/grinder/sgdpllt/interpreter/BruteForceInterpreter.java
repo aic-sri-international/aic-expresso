@@ -44,84 +44,31 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityByBruteForce;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An extension of {@link Rewriter}
- * that solves quantified and aggregate expressions by brute force
- * (besides using a {@link TopRewriter} given at construction).
- * <p>
- * Additionally, it takes an assignment to symbols as a constructing parameter,
- * and throws an error when a symbol with unassigned value is found.
+ * An implementation of {@link AbstractInterpreter} using {@link BruteForceMultiIndexQuantifierEliminator}.
  *
  * @author braz
  *
  */
 @Beta
-public class BruteForceInterpreter implements Rewriter {
-	
-	private TopRewriter baseTopRewriter;
-	private Rewriter actualRewriter;
-	private Map<Expression, Expression> assignment;
+public class BruteForceInterpreter extends AbstractInterpreter {
 	
 	public BruteForceInterpreter(TopRewriter baseTopRewriter) {
 		this(baseTopRewriter, map());
 	}
 
 	public BruteForceInterpreter(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
-		this.baseTopRewriter = baseTopRewriter;
-		this.actualRewriter = new Recursive(new Exhaustive(new BruteForceTopRewriterWithAssignment(baseTopRewriter, assignment)));
-		this.assignment = assignment;
+		super(baseTopRewriter, assignment);
 	}
 
-	@Override
-	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-		return actualRewriter.makeStepSolver(expression);
+	public BruteForceInterpreter makeCopyWith(Map<Expression, Expression> newAssignments, Context context) {
+		return new BruteForceInterpreter(getBaseTopRewriter(), newAssignments);
 	}
 
-	public BruteForceInterpreter extendWith(Map<Expression, Expression> moreAssignments, Context context) {
-		return new BruteForceInterpreter(baseTopRewriter, new StackedHashMap<>(moreAssignments, assignment));
-	}
-
-	private class BruteForceTopRewriterWithAssignment extends TopRewriterWithAssignment {
-
-		private TopRewriter baseTopRewriter;
-
-		public BruteForceTopRewriterWithAssignment(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
-			super(assignment);
-			this.baseTopRewriter = baseTopRewriter;
-			BruteForceMultiIndexQuantifierEliminator bruteForceQuantifierEliminator = 
-					new BruteForceMultiIndexQuantifierEliminator(this);
-			setBaseTopRewriter(
-					TopRewriter.merge(
-							baseTopRewriter,
-
-							new SummationRewriter(bruteForceQuantifierEliminator),
-							new ProductRewriter(bruteForceQuantifierEliminator),
-							new MaxRewriter(bruteForceQuantifierEliminator),
-
-							new ThereExistsRewriter(bruteForceQuantifierEliminator),
-							new ForAllRewriter(bruteForceQuantifierEliminator),
-
-							new CardinalityByBruteForce(bruteForceQuantifierEliminator)
-							));
-		}
-
-		@Override
-		public TopRewriterWithAssignment makeCopyWith(Map<Expression, Expression> newAssignment)  {
-			TopRewriterWithAssignment result = new BruteForceTopRewriterWithAssignment(baseTopRewriter, newAssignment);
-			return result;
-		}
+	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterWithAssignment topRewriterWithAssignment) {
+		return new BruteForceMultiIndexQuantifierEliminator(topRewriterWithAssignment);
 	}
 }
