@@ -3,6 +3,8 @@ package com.sri.ai.test.grinder.sgdpllt.interpreter;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 
+import java.util.LinkedHashMap;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,13 +12,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 
 public class BruteForceCommonInterpreterTest {
 	@Test
 	public void test() {
-		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(map(parse("Two"), Expressions.TWO));
+		LinkedHashMap<Expression, Expression> assignment = map(parse("Two"), Expressions.TWO);
+		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
 		Context context = new TrueContext();
+		context = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
 		
 		String expression;
 		String expected;

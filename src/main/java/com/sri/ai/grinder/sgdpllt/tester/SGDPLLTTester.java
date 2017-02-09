@@ -68,6 +68,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
@@ -76,6 +77,7 @@ import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
@@ -90,7 +92,7 @@ public class SGDPLLTTester {
 	private static final int NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE = 1;
 
 	private static void output(String message) {
-		// System.out.println(message); // uncomment out if detailed output is desired.
+		//System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**
@@ -432,10 +434,10 @@ public class SGDPLLTTester {
 				Expression testingVariable = singleVariableConstraint.getVariable();
 				Set<Expression> allVariables = getVariableReferences(singleVariableConstraint, context);
 				Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
-				Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution =
-						interpreterWithAssignmentToOtherVariables
+				BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution =
+						(interpreterWithAssignmentToOtherVariables, c)
 						-> bruteForceModelCounterForVariableGivenInterpreterWithAssignmentToOtherVariables(
-								variable, literalsConjunction, interpreterWithAssignmentToOtherVariables, theory, context);
+								variable, literalsConjunction, interpreterWithAssignmentToOtherVariables, theory, c);
 						testSymbolicVsBruteForceComputationForEachAssignment(theory, problemDescription, otherVariables, symbolicSolution, fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution, context);
 			}
 		}
@@ -459,7 +461,8 @@ public class SGDPLLTTester {
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), context);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
 			Rewriter completeInterpreter = interpreter.extendWith(testingVariableAssignment, context);
-			Expression value = completeInterpreter.apply(conjunction, context);
+			Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(testingVariableAssignment, context);
+			Expression value = completeInterpreter.apply(conjunction, extendedContext);
 			if (value.equals(TRUE)) {
 				modelCount++;
 			}
@@ -685,8 +688,8 @@ public class SGDPLLTTester {
 		}
 		
 		if (testAgainstBruteForce) {
-			Function<BruteForceCommonInterpreter, Expression> 
-			bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = i -> i.apply(problem, context);
+			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> 
+			bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = (i, c) -> i.apply(problem, c);
 			testSymbolicVsBruteForceComputationForEachAssignment(
 					theory, 
 					problemDescription, 
@@ -747,7 +750,7 @@ public class SGDPLLTTester {
 			String problemDescription,
 			Collection<Expression> freeVariables,
 			Expression symbolicSolution,
-			Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution,
+			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterWithAssignmentToBruteForceSolution,
 			Context context) throws Error {
 		
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, context);
@@ -756,10 +759,11 @@ public class SGDPLLTTester {
 		}
 	}
 
-	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, Theory theory, String problemDescription, Expression symbolicSolution, Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, Context context) throws Error {
+	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, Theory theory, String problemDescription, Expression symbolicSolution, BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterWithAssignmentToBruteForceSolution, Context context) throws Error {
 		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
-		Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter);
-		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, context);
+		Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
+		Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter, extendedContext);
+		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, extendedContext);
 		output("Under free variables assignment " + assignment);
 		output("Symbolic    result becomes " + symbolicResultUnderAssignment);
 		output("Brute force result becomes " + bruteForceResultUnderAssignment + "\n");
@@ -770,7 +774,7 @@ public class SGDPLLTTester {
 							+ "Under assignment to free variables: " + assignment + "\n"
 							+ "Value of symbolic solution      : " + symbolicResultUnderAssignment + "\n"
 							+ "Value of brute force computation: " + bruteForceResultUnderAssignment + "\n"
-							+ "Context                         : " + context + "\n"
+							+ "Context                         : " + extendedContext + "\n"
 					);
 		}
 	}

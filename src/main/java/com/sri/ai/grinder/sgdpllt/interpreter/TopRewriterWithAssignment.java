@@ -43,6 +43,7 @@ public abstract class TopRewriterWithAssignment implements TopRewriter {
 						Symbol.SYNTACTIC_FORM_TYPE,
 						(Simplifier) (e, c) -> {
 							Expression result = this.assignment.get(e);
+							result = AbstractIterativeMultiIndexQuantifierElimination.getAssignedValue(e, c);
 							if (result == null) {
 								result = e;
 							}

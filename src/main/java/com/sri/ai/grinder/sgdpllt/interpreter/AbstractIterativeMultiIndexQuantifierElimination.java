@@ -17,6 +17,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.util.collect.StackedHashMap;
 
 public abstract class AbstractIterativeMultiIndexQuantifierElimination extends AbstractMultiIndexQuantifierEliminator {
 
@@ -52,9 +53,29 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
 	}
 
+	public TopRewriterWithAssignment getTopRewriterWithBaseAssignment() {
+		return topRewriterWithBaseAssignment;
+	}
+	
+	public Expression evaluateWithBaseAssignment(Expression expression, Context context) {
+		Expression result = evaluate(expression, getTopRewriterWithBaseAssignment(), context);
+		return result;
+	}
+
+	public Expression evaluateWithMoreAssignments(Expression expression, Map<Expression, Expression> moreAssignments, Context context) {
+		TopRewriterWithAssignment topRewriterWithAssignment = getTopRewriterWithBaseAssignment().extendWith(moreAssignments);
+		Expression result = evaluate(expression, topRewriterWithAssignment, context);
+		return result;
+	}
+
+	private Expression evaluate(Expression expression, TopRewriterWithAssignment topRewriterWithAssignment, Context context) {
+		Rewriter rewriter = new Recursive(new Exhaustive(topRewriterWithAssignment));
+		Expression result = rewriter.apply(expression, context);
+		return result;
+	}
+	
 	@Override
 	public Expression solve(AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
-		
 		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		return solve(group, indices, indicesCondition, body, context);
@@ -65,14 +86,50 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 		Expression summand = makeSummand(group, indices, indicesCondition, body, context);
 		Iterator<Map<Expression, Expression>> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
 		for (Map<Expression, Expression> indicesValues : in(assignmentsIterator)) {
-			TopRewriterWithAssignment extended = topRewriterWithBaseAssignment.extendWith(indicesValues);
+			TopRewriterWithAssignment extended = getTopRewriterWithBaseAssignment().extendWith(indicesValues);
+			Context extendedContext = extendAssignments(indicesValues, context);
 			Rewriter rewriter = new Recursive(new Exhaustive(extended));
-			Expression bodyEvaluation = rewriter.apply(summand, context);
+			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;
 			}
-			result = group.add(result, bodyEvaluation, context);
+			result = group.add(result, bodyEvaluation, extendedContext);
 		}
+		return result;
+	}
+	
+	private static final String ASSIGNMENTS_GLOBAL_OBJECTS_KEY = "ASSIGNMENTS_GLOBAL_OBJECTS_KEY";
+	
+	/**
+	 * Obtains the value assignment to a given expression in the binding mechanism stored in the context.
+	 * @param expression
+	 * @param context
+	 * @return
+	 */
+	public static Expression getAssignedValue(Expression expression, Context context) {
+		@SuppressWarnings("unchecked")
+		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
+		Expression result = assignments == null? null : assignments.get(expression);
+		return result;
+	}
+	
+	/**
+	 * Sets the value assignment to a given expression in the binding mechanism stored in the context.
+	 * @param newAssignment
+	 * @param context
+	 * @return
+	 */
+	public static Context extendAssignments(Map<Expression, Expression> newAssignments, Context context) {
+		@SuppressWarnings("unchecked")
+		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
+		Map<Expression, Expression> extendedAssignments;
+		if (assignments == null) {
+			extendedAssignments = newAssignments;
+		}
+		else {
+			extendedAssignments = new StackedHashMap<>(newAssignments, assignments);
+		}
+		Context result = context.putGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
 		return result;
 	}
 }
