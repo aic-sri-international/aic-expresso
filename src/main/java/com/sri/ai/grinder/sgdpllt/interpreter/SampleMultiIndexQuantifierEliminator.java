@@ -46,7 +46,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
@@ -81,6 +80,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 	
 	@Override
 	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		return IfThenElse.make(indicesCondition, body, group.additiveIdentityElement());
+		// NOTE: the AssignmentsSamplingIterator takes the indicesCondition into account so no need to take it into account.
+		return body;
 	}
 }
