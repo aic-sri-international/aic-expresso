@@ -21,7 +21,7 @@ import com.sri.ai.util.collect.StackedHashMap;
 
 public abstract class AbstractIterativeMultiIndexQuantifierElimination extends AbstractMultiIndexQuantifierEliminator {
 
-	protected TopRewriterWithAssignment topRewriterWithBaseAssignment;
+	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
 
 	/**
 	 * Make the term to be summed for all assignments provided by assignments iterator.
@@ -45,33 +45,16 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 	public abstract Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context);
 
 	public AbstractIterativeMultiIndexQuantifierElimination(TopRewriter topRewriter) {
-		this(new DefaultTopRewriterWithAssignment(topRewriter));
+		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
 	}
 
-	public AbstractIterativeMultiIndexQuantifierElimination(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
+	public AbstractIterativeMultiIndexQuantifierElimination(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
 		super();
-		this.topRewriterWithBaseAssignment = topRewriterWithBaseAssignment;
+		this.topRewriterUsingContextAssignments = topRewriterUsingContextAssignments;
 	}
 
-	public TopRewriterWithAssignment getTopRewriterWithBaseAssignment() {
-		return topRewriterWithBaseAssignment;
-	}
-	
-	public Expression evaluateWithBaseAssignment(Expression expression, Context context) {
-		Expression result = evaluate(expression, getTopRewriterWithBaseAssignment(), context);
-		return result;
-	}
-
-	public Expression evaluateWithMoreAssignments(Expression expression, Map<Expression, Expression> moreAssignments, Context context) {
-		TopRewriterWithAssignment topRewriterWithAssignment = getTopRewriterWithBaseAssignment().extendWith(moreAssignments);
-		Expression result = evaluate(expression, topRewriterWithAssignment, context);
-		return result;
-	}
-
-	private Expression evaluate(Expression expression, TopRewriterWithAssignment topRewriterWithAssignment, Context context) {
-		Rewriter rewriter = new Recursive(new Exhaustive(topRewriterWithAssignment));
-		Expression result = rewriter.apply(expression, context);
-		return result;
+	public TopRewriterUsingContextAssignments getTopRewriterUsingContextAssignments() {
+		return topRewriterUsingContextAssignments;
 	}
 	
 	@Override
@@ -86,9 +69,8 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 		Expression summand = makeSummand(group, indices, indicesCondition, body, context);
 		Iterator<Map<Expression, Expression>> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
 		for (Map<Expression, Expression> indicesValues : in(assignmentsIterator)) {
-			TopRewriterWithAssignment extended = getTopRewriterWithBaseAssignment().extendWith(indicesValues);
 			Context extendedContext = extendAssignments(indicesValues, context);
-			Rewriter rewriter = new Recursive(new Exhaustive(extended));
+			Rewriter rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
 			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;

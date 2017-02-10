@@ -72,7 +72,7 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractIterativeM
 		super(topRewriter);
 	}
 	
-	public BruteForceMultiIndexQuantifierEliminator(TopRewriterWithAssignment topRewriterWithBaseAssignment) {
+	public BruteForceMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment) {
 		super(topRewriterWithBaseAssignment);
 	}
 	

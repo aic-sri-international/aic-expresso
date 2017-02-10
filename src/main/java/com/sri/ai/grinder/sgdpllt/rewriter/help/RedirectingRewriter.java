@@ -35,27 +35,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.interpreter;
+package com.sri.ai.grinder.sgdpllt.rewriter.help;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 
 /**
- * An implementation of {@link AbstractInterpreter} using {@link BruteForceMultiIndexQuantifierEliminator}.
- *
+ * A rewriter that redirects its calls to another, base rewriter.
+ * 
+ * This is useful if you want to define a rewriter that extends some class SomeRewriter,
+ * and the arguments to <code>super( <non-static> )</code> involves a non-static method (typically, an abstract method).
+ * Then you can instead extend {@link RedirectingRewriter} and provide 
+ * <code>new SomeRewriter( <non-static> )</code> to {@link #setBaseRewriter(Rewriter)}.
+ * 
  * @author braz
  *
  */
-@Beta
-public class BruteForceInterpreter extends AbstractInterpreter {
+public class RedirectingRewriter implements Rewriter {
 	
-	public BruteForceInterpreter(TopRewriter baseTopRewriter) {
-		super(baseTopRewriter);
+	private Rewriter baseRewriter;
+	
+	public void setBaseRewriter(Rewriter baseRewriter) {
+		this.baseRewriter = baseRewriter;
 	}
 
 	@Override
-	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new BruteForceMultiIndexQuantifierEliminator(topRewriterWithAssignment);
+	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+		return baseRewriter.makeStepSolver(expression);
 	}
 }

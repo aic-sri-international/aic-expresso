@@ -19,7 +19,7 @@ public class BruteForceCommonInterpreterTest {
 	@Test
 	public void test() {
 		LinkedHashMap<Expression, Expression> assignment = map(parse("Two"), Expressions.TWO);
-		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
+		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter();
 		Context context = new TrueContext();
 		context = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
 		

@@ -37,12 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.util.Util.map;
-
-import java.util.Map;
-
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 
 /**
@@ -56,10 +51,6 @@ import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 public class BruteForceCommonInterpreter extends BruteForceInterpreter {
 
 	public BruteForceCommonInterpreter() {
-		this(map());
-	}
-
-	public BruteForceCommonInterpreter(Map<Expression, Expression> assignment) {
-		super(new CommonSimplifier(), assignment);
+		super(new CommonSimplifier());
 	}
 }

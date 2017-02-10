@@ -37,14 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.util.Util.map;
-
-import java.util.Map;
-
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
@@ -56,84 +49,36 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.util.collect.StackedHashMap;
+import com.sri.ai.grinder.sgdpllt.rewriter.help.RedirectingRewriter;
 
 /**
- * An abstract extension of {@link Rewriter}
- * that solves quantified and aggregate expressions with a {@link MultiIndexQuantifierEliminator}
- * provided by the implementation of an abstract method
- * (besides using a {@link TopRewriter} given at construction).
- * <p>
- * Additionally, it takes an assignment to symbols as a constructing parameter,
- * and throws an error when a symbol with unassigned value is found.
+ * A {@link Rewriter} based on a {@link TopRewriter},
+ * adding the functionality of solving quantified and aggregate expressions with a {@link MultiIndexQuantifierEliminator}
+ * provided by the implementation of an abstract method.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractInterpreter implements Rewriter {
-	
-	private TopRewriter baseTopRewriter;
-	private Rewriter actualRewriter;
-	private Map<Expression, Expression> assignment;
+public abstract class AbstractInterpreter extends RedirectingRewriter {
 	
 	/**
-	 * Must return a copy of this {@link AbstractInterpreter} but for its assignments being the new ones.
-	 * @param newAssignments
-	 * @param context
+	 * Must provide a {@link MultiIndexQuantifierEliminator} based on given {@link TopRewriterUsingContextAssignments}.
+	 * @param topRewriterUsingContextAssignments
 	 * @return
 	 */
-	abstract public AbstractInterpreter makeCopyWith(Map<Expression, Expression> newAssignments, Context context);
-
-	/**
-	 * Must provide a {@link MultiIndexQuantifierEliminator} based on given {@link TopRewriterWithAssignment}.
-	 * @param topRewriterWithAssignment
-	 * @return
-	 */
-	abstract protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterWithAssignment topRewriterWithAssignment);
+	abstract protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments);
 	
 	public AbstractInterpreter(TopRewriter baseTopRewriter) {
-		this(baseTopRewriter, map());
+		setBaseRewriter(new Recursive(new Exhaustive(new TopRewriterUsingQuantifierEliminatorAndContextAssignments(baseTopRewriter))));
 	}
 
-	public AbstractInterpreter(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
-		this.baseTopRewriter = baseTopRewriter;
-		this.actualRewriter = new Recursive(new Exhaustive(new InterpreterTopRewriterWithAssignment(baseTopRewriter, assignment)));
-		this.assignment = assignment;
-	}
-	
-	public TopRewriter getBaseTopRewriter() {
-		return baseTopRewriter;
-	}
-	
-	public Map<Expression, Expression> getAssignment() {
-		return assignment;
-	}
-	
-	/**
-	 * Return a copy of this {@link AbstractInterpreter} but for its assignments being expanded with given extra ones.
-	 * @param moreAssignments
-	 * @param context
-	 * @return
-	 */
-	public AbstractInterpreter extendWith(Map<Expression, Expression> moreAssignments, Context context) {
-		return makeCopyWith(new StackedHashMap<>(moreAssignments, getAssignment()), context);
-	}
+	protected class TopRewriterUsingQuantifierEliminatorAndContextAssignments extends TopRewriterUsingContextAssignments {
 
-	@Override
-	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-		return actualRewriter.makeStepSolver(expression);
-	}
-
-	protected class InterpreterTopRewriterWithAssignment extends TopRewriterWithAssignment {
-
-		private TopRewriter baseTopRewriter;
-
-		public InterpreterTopRewriterWithAssignment(TopRewriter baseTopRewriter, Map<Expression, Expression> assignment) {
-			super(assignment);
-			this.baseTopRewriter = baseTopRewriter;
+		public TopRewriterUsingQuantifierEliminatorAndContextAssignments(TopRewriter baseTopRewriter) {
+			super();
 			MultiIndexQuantifierEliminator quantifierEliminator = makeQuantifierEliminator(this);
-			setBaseTopRewriter(
+			setBaseRewriter(
 					TopRewriter.merge(
 							baseTopRewriter,
 
@@ -146,12 +91,6 @@ public abstract class AbstractInterpreter implements Rewriter {
 
 							new CardinalityByBruteForce(quantifierEliminator)
 							));
-		}
-
-		@Override
-		public TopRewriterWithAssignment makeCopyWith(Map<Expression, Expression> newAssignment)  {
-			TopRewriterWithAssignment result = new InterpreterTopRewriterWithAssignment(baseTopRewriter, newAssignment);
-			return result;
 		}
 	}
 }

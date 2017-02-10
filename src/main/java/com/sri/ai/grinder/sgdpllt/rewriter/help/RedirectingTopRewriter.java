@@ -35,27 +35,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.interpreter;
+package com.sri.ai.grinder.sgdpllt.rewriter.help;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * An implementation of {@link AbstractInterpreter} using {@link BruteForceMultiIndexQuantifierEliminator}.
- *
+ * Analogous to {@link RedirectingRewriter}, but for a {@link TopRewriter}.
+ * 
  * @author braz
  *
  */
-@Beta
-public class BruteForceInterpreter extends AbstractInterpreter {
+public class RedirectingTopRewriter implements TopRewriter {
 	
-	public BruteForceInterpreter(TopRewriter baseTopRewriter) {
-		super(baseTopRewriter);
+	private Rewriter baseTopRewriter;
+	
+	public void setBaseTopRewriter(TopRewriter baseTopRewriter) {
+		this.baseTopRewriter = baseTopRewriter;
 	}
 
 	@Override
-	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new BruteForceMultiIndexQuantifierEliminator(topRewriterWithAssignment);
+	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
+		return baseTopRewriter.makeStepSolver(expression);
 	}
 }

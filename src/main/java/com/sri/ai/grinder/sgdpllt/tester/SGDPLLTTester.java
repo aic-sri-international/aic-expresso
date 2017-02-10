@@ -74,7 +74,6 @@ import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -434,11 +433,11 @@ public class SGDPLLTTester {
 				Expression testingVariable = singleVariableConstraint.getVariable();
 				Set<Expression> allVariables = getVariableReferences(singleVariableConstraint, context);
 				Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
-				BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution =
-						(interpreterWithAssignmentToOtherVariables, c)
-						-> bruteForceModelCounterForVariableGivenInterpreterWithAssignmentToOtherVariables(
-								variable, literalsConjunction, interpreterWithAssignmentToOtherVariables, theory, c);
-						testSymbolicVsBruteForceComputationForEachAssignment(theory, problemDescription, otherVariables, symbolicSolution, fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution, context);
+				BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToOtherVariablesToBruteForceSolution =
+						(interpreter, contextWithAssignmentToOtherVariables)
+						-> bruteForceModelCounterForVariableGivenInterpreterAndAssignmentToOtherVariables(
+								variable, literalsConjunction, interpreter, theory, contextWithAssignmentToOtherVariables);
+						testSymbolicVsBruteForceComputationForEachAssignment(theory, problemDescription, otherVariables, symbolicSolution, fromInterpreterAndContextWithAssignmentToOtherVariablesToBruteForceSolution, context);
 			}
 		}
 		else {
@@ -454,15 +453,14 @@ public class SGDPLLTTester {
 		return symbolicSolution;
 	}
 
-	private static Expression bruteForceModelCounterForVariableGivenInterpreterWithAssignmentToOtherVariables(Expression variable, Expression conjunction, BruteForceCommonInterpreter interpreter, Theory theory, Context context) {
+	private static Expression bruteForceModelCounterForVariableGivenInterpreterAndAssignmentToOtherVariables(Expression variable, Expression conjunction, BruteForceCommonInterpreter interpreter, Theory theory, Context context) {
 		output("Computing model count by brute force of: " + conjunction);
 		int modelCount = 0;
 		Expression testingVariable = variable;
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), context);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			Rewriter completeInterpreter = interpreter.extendWith(testingVariableAssignment, context);
 			Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(testingVariableAssignment, context);
-			Expression value = completeInterpreter.apply(conjunction, extendedContext);
+			Expression value = interpreter.apply(conjunction, extendedContext);
 			if (value.equals(TRUE)) {
 				modelCount++;
 			}
@@ -689,13 +687,13 @@ public class SGDPLLTTester {
 		
 		if (testAgainstBruteForce) {
 			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> 
-			bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = (i, c) -> i.apply(problem, c);
+			bruteForceSolutionGivenInterpreterAndContextWithAssignmentToOtherVariables = (i, c) -> i.apply(problem, c);
 			testSymbolicVsBruteForceComputationForEachAssignment(
 					theory, 
 					problemDescription, 
 					freeVariables, 
 					symbolicSolution, 
-					bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables, 
+					bruteForceSolutionGivenInterpreterAndContextWithAssignmentToOtherVariables, 
 					context);
 			// A more elegant approach would be to create a "for all free variables : symbolic = problem" expression
 			// and solve it by brute force instead of using testSymbolicVsBruteForceComputation
@@ -741,7 +739,7 @@ public class SGDPLLTTester {
 	 * @param problemDescription
 	 * @param freeVariables
 	 * @param symbolicSolution
-	 * @param fromInterpreterWithAssignmentToBruteForceSolution
+	 * @param fromInterpreterAndContextWithAssignmentToBruteForceSolution
 	 * @param context
 	 * @throws Error
 	 */
@@ -750,19 +748,19 @@ public class SGDPLLTTester {
 			String problemDescription,
 			Collection<Expression> freeVariables,
 			Expression symbolicSolution,
-			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterWithAssignmentToBruteForceSolution,
+			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToBruteForceSolution,
 			Context context) throws Error {
 		
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, context);
 		for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
-			testSymbolicVsBruteForceComputationForAssignment(assignment, theory, problemDescription, symbolicSolution, fromInterpreterWithAssignmentToBruteForceSolution, context);
+			testSymbolicVsBruteForceComputationForAssignment(assignment, theory, problemDescription, symbolicSolution, fromInterpreterAndContextWithAssignmentToBruteForceSolution, context);
 		}
 	}
 
-	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, Theory theory, String problemDescription, Expression symbolicSolution, BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterWithAssignmentToBruteForceSolution, Context context) throws Error {
-		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
+	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, Theory theory, String problemDescription, Expression symbolicSolution, BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToBruteForceSolution, Context context) throws Error {
+		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter();
 		Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
-		Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter, extendedContext);
+		Expression bruteForceResultUnderAssignment = fromInterpreterAndContextWithAssignmentToBruteForceSolution.apply(interpreter, extendedContext);
 		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, extendedContext);
 		output("Under free variables assignment " + assignment);
 		output("Symbolic    result becomes " + symbolicResultUnderAssignment);
