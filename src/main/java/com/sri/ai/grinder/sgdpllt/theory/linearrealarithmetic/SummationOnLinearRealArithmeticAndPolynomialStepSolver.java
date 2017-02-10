@@ -76,12 +76,12 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	// (the changes will probably need to be reflected there as well,
 	// so it's better to unify first).
 	
-	private MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
+	private IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
 	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
 		super(new Sum(), indexConstraint, body);
 		valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
-				new MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(
+				new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) indexConstraint);
 	}
 
@@ -112,11 +112,11 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 		if (step.itDepends()) {
 			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifTrue = clone();
 			ifTrue.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
-					(MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver)
+					(IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenSplitterIsTrue();
 			SummationOnLinearRealArithmeticAndPolynomialStepSolver ifFalse = clone();
 			ifFalse.valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
-					(MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver)
+					(IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver)
 					step.getStepSolverForWhenSplitterIsFalse();
 			return new ItDependsOn(step.getSplitterLiteral(), step.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 		}

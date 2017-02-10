@@ -61,37 +61,24 @@ import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractSingleVariableNumericCo
  *
  */
 @Beta
-public class MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver {
+public class IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver extends AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver {
 
-	public MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
+	public IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver(SingleVariableLinearRealArithmeticConstraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
-	public MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
-		return (MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
+	public IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver clone() {
+		return (IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver) super.clone();
 	}
 
 	@Override
 	protected Step getSolutionStepAfterBoundsAreCheckedForFeasibility(Expression lowerBound, Expression upperBound, AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBase, Context context) {
-//		Expression variable = getConstraint().getVariable();
-//		Expression indexExpression = apply(IN, variable, makeSymbol("Real"));
-//
+
 		boolean lowerBoundIsStrict = getMapFromLowerBoundsToStrictness(context).get(lowerBound);
-//		String lowerBoundOperator = lowerBoundIsStrict? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
-//		
+
 		boolean upperBoundIsStrict = getMapFromUpperBoundsToStrictness(context).get(upperBound);
-//		String upperBoundOperator = upperBoundIsStrict? LESS_THAN : LESS_THAN_OR_EQUAL_TO;
-		
-//		Expression lowerBoundCondition = apply(lowerBoundOperator, lowerBound, variable);
-//		Expression upperBoundCondition = apply(upperBoundOperator, variable, upperBound);
-//		
-//		Expression condition = And.make(lowerBoundCondition, upperBoundCondition);
-//		
-//		Expression result = new DefaultIntensionalUniSet(list(indexExpression), variable, condition);
-//		
-//		return new Solution(result);
-//
+
 		Expression solutionExpression;
 		
 		if (lowerBoundIsStrict && upperBoundIsStrict) {

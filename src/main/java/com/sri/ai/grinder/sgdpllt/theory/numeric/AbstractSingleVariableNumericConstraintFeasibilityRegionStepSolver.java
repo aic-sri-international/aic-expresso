@@ -104,14 +104,14 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 * 
 	 * A subtle bug that came up points to the need for care using the context in these step solvers.
 	 * 
-	 * A step solver is supposed to be reuseable for multiple contexts.
+	 * A step solver is supposed to be reusable for multiple contexts.
 	 * At the same time, it is very advantageous to cache intermediary information such as propagated CNF and lower and upper bounds,
 	 * which remain the same across multiple contexts and are expensive to compute.
 	 * 
 	 * Cached information, however, must be independent of the context; otherwise, its reuse under a different context will cause trouble.
 	 * This is a little tricky because sometimes we must simplify the cached expressions, and simplification usually depends on the context.
 	 * For example, if the index of a summation is I and the constraint is I = J and I < J + 1,
-	 * one of the propagated literals is J < J + 1, which can be simplified regardless of the context to true.
+	 * one of the propagated literals is J < J + 1, which can be simplified, regardless of the context, to true.
 	 * To uncover that, however, we must use simplification, which depends on the context.
 	 * In the above example, the result is always true regardless of the context, so simplifying it with the context does not cause any problems.
 	 * However, if the constraint were I = J and I < 4, then the propagated literal would be J < 4, which
@@ -126,24 +126,23 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 	 */
 
 	/**
-	 * Given the maximum lower bound and minimum upper bound for the constraint's variable,
-	 * this method must provide s {@link Step} towards determining the final solution
-	 * of whatever problem the extension is trying to solve.
+	 * This method is invoked after the bounds are checked for the constraint's feasibility.
+	 * It must then do whatever work needs to be done to reach the solution to the problem being
+	 * solved (the specific problem, and they way to solve it, are left to the extensions to define and know about).
+	 *
 	 * <p>
 	 * Bounds may be strict (<code><, ></code>) or non-strict (<code><=, >=</code>).
 	 * Whether a bound is strict can be checked with {@link #getMapFromLowerBoundsToStrictness(Context)}
 	 * and {@link #getMapFromUpperBoundsToStrictness(Context)}.
 	 * <p>
-	 * This method also receives a "sequel base", which should be used as follows.
-	 * If the step being returned in a conditional one ({@link StepSolver#ItDepends}),
-	 * its sequel step solvers (provided at its construction)
-	 * should be provided by method {@link #makeSequelStepSolver(AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver)}
-	 * with the given sequel base as its argument.
-	 * This will ensure that the sequel step solver contain information needed not to repeat previous computations unnecessarily.
-	 * Typically, this method will be used twice to construct two sequel step solvers,
+	 * This method also receives a "sequel base", which 
+	 * keeps cached information computed so far by the step solver.
+	 * It can (and should, for efficiency and re-use of already computed information)
+	 * be used as a base for sequel step solvers if this method is to return a ItDepends step.
+	 * Typically, this base will be cloned twice to construct two sequel step solvers,
 	 * one for the case in which the splitter literal is true, and another for when its false,
-	 * and some sub-step solver field inside each of them will be set according to these two cases.
-	 * Please refer to the code in  {@link AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver#getSolutionStepAfterBoundsAreCheckedForFeasibility(
+	 * and some sub-step solver field inside each of them will be set according to which side of the split the sequel will be.
+	 * Please refer to the code in {@link AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver#getSolutionStepAfterBoundsAreCheckedForFeasibility(
 			Expression maximumLowerBound,
 			Expression minimumUpperBound,
 			AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver sequelBaseNumeric,
@@ -685,7 +684,8 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 		// for the sequel step solvers.
 		// The reason we keep this clone, that is itself cloned later,
 		// as opposed to updating and cloning "this" every time,
-		// is that step solvers must not be modified by their method "step".
+		// is that step solvers must not be modified by their method "step",
+		// unless they are caching context-independent information.
 		// sequelBase serves as a blackboard for all the updates learned while executing this method,
 		// which then don't need to be kept by "this".
 		// These updates are then cloned into the sequel step solvers.

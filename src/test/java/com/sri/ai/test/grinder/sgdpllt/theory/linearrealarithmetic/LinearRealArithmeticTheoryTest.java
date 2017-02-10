@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
@@ -248,7 +248,7 @@ public class LinearRealArithmeticTheoryTest {
 				constraintString, 
 				expected, 
 				"measure-equivalent interval", 
-				c -> new MeasureEquivalentIntervalOfSingleVariableLinearRealArithmeticConstraintStepSolver(
+				c -> new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver(
 						(SingleVariableLinearRealArithmeticConstraint) c),
 				context);
 	}
