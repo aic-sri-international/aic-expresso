@@ -39,6 +39,8 @@ package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.util.Util.map;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
@@ -58,7 +60,7 @@ import com.sri.ai.util.collect.EZIterator;
  * @author oreilly
  *
  */
-public class AssignmentsSamplingIterator extends EZIterator<Expression> {
+public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expression>> {
 	private Expression index;
 	private int  sampleSizeN;
 	private int  currentN;
@@ -68,8 +70,11 @@ public class AssignmentsSamplingIterator extends EZIterator<Expression> {
 	private Random random;
 	private Context context;
 	
-	public AssignmentsSamplingIterator(Expression index, int sampleSizeN, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
-		this.index             = index;
+	public AssignmentsSamplingIterator(List<Expression> indices, int sampleSizeN, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
+		if (indices.size() != 1) {
+			throw new UnsupportedOperationException("Assignment sampling iterator only supports a single index currently, received: "+indices);
+		}
+		this.index             = indices.get(0);
 		this.sampleSizeN       = sampleSizeN;
 		this.currentN          = 0;
 		this.typeToSampleFrom  = getTypeToSampleFrom(index, condition, context);
@@ -80,8 +85,8 @@ public class AssignmentsSamplingIterator extends EZIterator<Expression> {
 	}
 	
 	@Override
-	protected Expression calculateNext() {
-		Expression result = null;
+	protected Map<Expression, Expression> calculateNext() {
+		Map<Expression, Expression> result = null;
 		
 		if (currentN < sampleSizeN) {
 			currentN++;
@@ -90,7 +95,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Expression> {
 				Context contextWithAssignment = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(map(index, assignment), context);
 				Expression conditionValue     = conditionRewriter.apply(condition, contextWithAssignment);
 				if (conditionValue.equals(Expressions.TRUE)) {
-					result = assignment;
+					result = map(index, assignment);
 				}				
 			} while (result == null);
 		}

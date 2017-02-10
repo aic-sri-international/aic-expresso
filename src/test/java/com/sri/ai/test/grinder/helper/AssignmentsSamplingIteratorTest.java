@@ -2,6 +2,7 @@ package com.sri.ai.test.grinder.helper;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 
 import org.junit.Assert;
@@ -54,16 +55,16 @@ public class AssignmentsSamplingIteratorTest {
 				new Categorical("People", 5, parse("p1"), parse("p2"), parse("p3"), parse("p4"), parse("p5")));		
 		
 		
-		Assert.assertEquals("p1:p3:p5", join(":", newSamplingIterator("N", 3, "N != p4")));
-		Assert.assertEquals("p5:p5:p2:p4", join(":", newSamplingIterator("N", 4, "N != p1")));
+		Assert.assertEquals("{N=p1}:{N=p3}:{N=p5}", join(":", newSamplingIterator("N", 3, "N != p4")));
+		Assert.assertEquals("{N=p5}:{N=p5}:{N=p2}:{N=p4}", join(":", newSamplingIterator("N", 4, "N != p1")));
 	}
 	
 	private void updateContextWithIndexAndType(String index, Type type) {
 		context = (Context) GrinderUtil.extendRegistryWith(map("N", type.toString()), Arrays.asList(type), context);
 	}
 	
-	private Iterator<Expression> newSamplingIterator(String index, int sampleSize, String condition) {
-		Iterator<Expression> result = new AssignmentsSamplingIterator(parse(index), sampleSize, parse(condition), conditionRewriter, random, context);
+	private Iterator<Map<Expression, Expression>> newSamplingIterator(String index, int sampleSize, String condition) {
+		Iterator<Map<Expression, Expression>> result = new AssignmentsSamplingIterator(Arrays.asList(parse(index)), sampleSize, parse(condition), conditionRewriter, random, context);
 		return result;
 	}
 }
