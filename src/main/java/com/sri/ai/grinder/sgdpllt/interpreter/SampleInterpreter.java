@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2017, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -35,37 +35,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.rewriter.help;
+package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import java.util.Random;
+
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * A rewriter that redirects its calls to another, base rewriter.
+ * This interpreter will evaluate expressions, but will sample quantifiers instead of using brute force.
  * 
- * This is useful if you want to define a rewriter that extends some class SomeRewriter,
- * and the arguments to <code>super( <non-static> )</code> involves a non-static method (typically, an abstract method).
- * Then you can instead extend {@link RedirectingRewriter} and provide 
- * <code>new SomeRewriter( <non-static> )</code> to {@link #setBaseRewriter(Rewriter)}.
- * 
- * @author braz
+ * @author oreilly
  *
  */
-public class RedirectingRewriter implements Rewriter {
+public class SampleInterpreter extends AbstractInterpreter {
 	
-	private Rewriter baseRewriter;
-	
-	public Rewriter getBaseRewriter() {
-		return baseRewriter;
-	}
-	
-	public void setBaseRewriter(Rewriter baseRewriter) {
-		this.baseRewriter = baseRewriter;
-	}
+	private int sampleSizeN;
+	private Random random;
 
+	public SampleInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, Random random) {
+		super(baseTopRewriter);
+		this.sampleSizeN = sampleSizeN;
+		this.random = random;
+	}
+	
 	@Override
-	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-		return getBaseRewriter().makeStepSolver(expression);
+	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
+		return new SampleMultiIndexQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, this, random);
 	}
 }

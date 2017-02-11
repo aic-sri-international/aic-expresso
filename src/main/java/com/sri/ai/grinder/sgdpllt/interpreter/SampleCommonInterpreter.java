@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2017, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -35,37 +35,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.rewriter.help;
+package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import java.util.Random;
+
+import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 
 /**
- * A rewriter that redirects its calls to another, base rewriter.
- * 
- * This is useful if you want to define a rewriter that extends some class SomeRewriter,
- * and the arguments to <code>super( <non-static> )</code> involves a non-static method (typically, an abstract method).
- * Then you can instead extend {@link RedirectingRewriter} and provide 
- * <code>new SomeRewriter( <non-static> )</code> to {@link #setBaseRewriter(Rewriter)}.
- * 
- * @author braz
+ * An extension of {@link SampleInterpreter}
+ * using {@link CommonSimplifier}.
+ *
+ * @author oreilly
  *
  */
-public class RedirectingRewriter implements Rewriter {
-	
-	private Rewriter baseRewriter;
-	
-	public Rewriter getBaseRewriter() {
-		return baseRewriter;
-	}
-	
-	public void setBaseRewriter(Rewriter baseRewriter) {
-		this.baseRewriter = baseRewriter;
-	}
-
-	@Override
-	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-		return getBaseRewriter().makeStepSolver(expression);
+public class SampleCommonInterpreter extends SampleInterpreter {
+	public SampleCommonInterpreter(int sampleSizeN, Random random) {
+		super(new CommonSimplifier(), sampleSizeN, random);
 	}
 }
