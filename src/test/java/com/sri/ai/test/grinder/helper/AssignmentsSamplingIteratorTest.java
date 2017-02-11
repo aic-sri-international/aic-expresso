@@ -1,5 +1,9 @@
 package com.sri.ai.test.grinder.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.join;
+import static com.sri.ai.util.Util.map;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,6 +16,7 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -25,10 +30,6 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-
-import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.join;
 
 public class AssignmentsSamplingIteratorTest {
 
@@ -59,8 +60,18 @@ public class AssignmentsSamplingIteratorTest {
 		Assert.assertEquals("{N=p5}:{N=p5}:{N=p2}:{N=p4}", join(":", newSamplingIterator("N", 4, "N != p1")));
 	}
 	
+	@Test
+	public void testSampleOverIntegerInterval() {
+		updateContextWithIndexAndType("I", new IntegerInterval(1,10));		
+		
+		
+		Assert.assertEquals("{I=6}:{I=4}:{I=5}", join(":", newSamplingIterator("I", 3, "I > 2 and I < 8")));
+		Assert.assertEquals("{I=2}:{I=2}:{I=2}", join(":", newSamplingIterator("I", 3, "I = 2")));
+		Assert.assertEquals("{I=9}:{I=2}:{I=9}", join(":", newSamplingIterator("I", 3, "I = 2 or I = 9")));
+	}
+	
 	private void updateContextWithIndexAndType(String index, Type type) {
-		context = (Context) GrinderUtil.extendRegistryWith(map("N", type.toString()), Arrays.asList(type), context);
+		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}
 	
 	private Iterator<Map<Expression, Expression>> newSamplingIterator(String index, int sampleSize, String condition) {
