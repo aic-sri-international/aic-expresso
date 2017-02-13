@@ -49,10 +49,9 @@ public class SampleCommonInterpreterTest {
 		runTest(2, "sum({{(on N in People) 2}})", "10");
 		// NOTE: keep this order of calls as the fixed Random will pick p3 and p4
 		runTest(2, "sum({{(on N in People) if N = p3 then 4 else 2}})", "15");
-		
-// TODO - uncomment, measure of intensional sets with a condition is currently not implemented.		
+			
 		// NOTE: picks p5 and p5
-		// runTest(2, "sum({{(on N in People) 2 : N != p2}})", "8");
+		runTest(2, "sum({{(on N in People) 2 : N != p2}})", "8");
 	}
 	
 	public void runTest(int sampleSizeN, String expression, String expected) {

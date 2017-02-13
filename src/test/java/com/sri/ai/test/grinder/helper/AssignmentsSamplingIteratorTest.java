@@ -70,6 +70,8 @@ public class AssignmentsSamplingIteratorTest {
 		Assert.assertEquals("{I=9}:{I=2}:{I=9}", join(":", newSamplingIterator("I", 3, "I = 2 or I = 9")));
 	}
 	
+	// TODO - Test sum({{ (on x in Real) 3 : x > 4 and x < 7 }})
+	
 	private void updateContextWithIndexAndType(String index, Type type) {
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}

@@ -44,6 +44,9 @@ import java.util.Map;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
@@ -51,7 +54,9 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.Division;
+import com.sri.ai.grinder.sgdpllt.library.set.Measure;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -142,8 +147,13 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 	
 	private Rational computeMeasure(Expression index, Expression indexCondition, Context context) {
 		Rational result;
-// TODO - compute the measure of SetOfI correctly		
-		result = GrinderUtil.getType(index, context).cardinality().rationalValue();
+		
+		Expression indexType = GrinderUtil.getTypeExpression(index, context);
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
+		
+		Expression intensionalSet = IntensionalSet.intensionalMultiSet(indexExpressionsSet, Expressions.ONE, indexCondition);
+		
+		result = Measure.get(intensionalSet, context);
 		
 		return result;
 	}
