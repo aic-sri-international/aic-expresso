@@ -151,7 +151,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		Expression indexType = GrinderUtil.getTypeExpression(index, context);
 		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
 		
-		Expression intensionalSet = IntensionalSet.intensionalMultiSet(indexExpressionsSet, Expressions.ONE, indexCondition);
+		Expression intensionalSet = IntensionalSet.intensionalMultiSet(indexExpressionsSet, index, indexCondition);
 		
 		result = Measure.get(intensionalSet, context);
 		

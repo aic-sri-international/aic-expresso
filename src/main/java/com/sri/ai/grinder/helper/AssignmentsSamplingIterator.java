@@ -46,9 +46,20 @@ import java.util.Random;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.IntegerExpressoType;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.RangeAndExceptionsSet;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.util.collect.EZIterator;
 
 /**
@@ -78,6 +89,10 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 		this.sampleSizeN       = sampleSizeN;
 		this.currentN          = 0;
 		this.typeToSampleFrom  = getTypeToSampleFrom(index, condition, context);
+		if (this.typeToSampleFrom == null) {
+			// Means we have an empty set
+			currentN = sampleSizeN;
+		}
 		this.condition         = condition;
 		this.conditionRewriter = conditionRewriter;
 		this.random            = random;
@@ -104,9 +119,41 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 	}
 	
 	public static Type getTypeToSampleFrom(Expression variable, Expression condition, Context context) {
-		Type result = GrinderUtil.getType(variable, context);		
-		if (!result.isSampleUniquelyNamedConstantSupported()) {
-// TODO - see if we can take the condition into account to come up with a refined type based on the condition that can be sampled from (see Rodrigo's email).
+		Type result = GrinderUtil.getType(variable, context);
+		if (result instanceof RealExpressoType || result instanceof RealInterval) {		
+			IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver solver = 
+					new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) condition);
+			
+			Expression realInterval = solver.solve(context);
+			if (Sets.isEmptySet(realInterval)) {
+				result = null; // used to indicate an empty set.
+			}
+			else if (ExtensionalSet.isExtensionalSet(realInterval) && ExtensionalSet.isSingleton(realInterval)) {
+				String singletonValue = realInterval.get(0).toString();
+				result = new RealInterval("["+singletonValue+";"+singletonValue+"]");				
+			}
+			else {
+				result = new RealInterval(realInterval.toString());
+			}
+		}
+		else if (result instanceof IntegerExpressoType || result instanceof IntegerInterval) {
+			ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver solver = new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint)condition);
+			
+			// NOTE: the exceptions set returned here is implicit in the condition so no need to use it here.
+			RangeAndExceptionsSet rangeAndExceptionsSet = (RangeAndExceptionsSet) solver.solve(context);
+			
+			if (rangeAndExceptionsSet.isEmpty()) {
+				result = null; // used to indicate an empty set.
+			}
+			else if (rangeAndExceptionsSet.isSingleton()) {
+				result = new IntegerInterval(rangeAndExceptionsSet.getSingleValue().intValueExact(), rangeAndExceptionsSet.getSingleValue().intValueExact());
+			}
+			else {
+				result = new IntegerInterval(rangeAndExceptionsSet.getStrictLowerBound().intValueExact()+1, rangeAndExceptionsSet.getNonStrictUpperBound().intValueExact());
+			}
+		}
+		
+		if (result != null && !result.isSampleUniquelyNamedConstantSupported()) {
 			throw new IllegalArgumentException("Unable to sample "+variable+" from "+result);
 		}
 		
