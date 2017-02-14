@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -28,6 +29,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.math.Rational;
 
 public class MeasureTest {
@@ -39,7 +41,8 @@ private Context context;
 				new CompoundTheory(
 						new DifferenceArithmeticTheory(true, false),
 						new LinearRealArithmeticTheory(true, false),
-						new EqualityTheory(true, false),
+						new EqualityTheory(true, false),					
+						new TupleTheory(),
 						new PropositionalTheory()));
 	}
 	
@@ -73,6 +76,21 @@ private Context context;
 	public void testRealIntervalTypeDomain() {
 		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : true }}"));
 		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : X != 5 }}"));
+	}
+	
+	// (element_1, ..., element_n) = measure(element_1) * ... * measure(element_n)
+	@Ignore("TODO - currently passes due to defect in cardinaliy computation logic but underlying logic does not support properly yet")
+	@Test
+	public void testTupleTypeDomain() {
+		Assert.assertEquals(new Rational(6), measure("{{ (on T in (0..2 x Boolean)) T : true }}"));
+		Assert.assertEquals(new Rational(12), measure("{{ (on T in (0..2 x [3;7])) T : true }}"));
+	}
+	
+	// |measure(co-domain)|^|measure(domain)|
+	@Ignore("TODO - implement support for")
+	@Test
+	public void testFunctionTypeDomain() {
+		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : true }}"));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
