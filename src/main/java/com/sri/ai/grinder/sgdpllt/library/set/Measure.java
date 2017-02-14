@@ -42,24 +42,36 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultCountingFormula;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.util.math.Rational;
 
 /**
  * Measure of an intensional set:<br>
  * <pre>
+ * Given: 
+ * 
  * {{ (on I in Domain) Head | Condition }}
  * 
- * is:
+ * if Domain is a discrete the measure will be:
  * 
  * | {{ (on I in Domain) I : Condition }} |
  * 
  * or in the more compact counting formula representation:
  * 
  * | I in Domain : Condition |
+ * 
+ * and if it is a continuous set of real numbers (i.e. [a;b]) it will be:
+ * 
+ * b - a
  * 
  * </pre>
  *  
@@ -75,15 +87,27 @@ public class Measure {
 			IndexExpressionsSet indexExpressionsSet = intensionalSet.getIndexExpressions();
 			List<Expression> indices = IndexExpressions.getIndices(indexExpressionsSet);
 			if (indices.size() == 1) {
-				Expression countingFormula = new DefaultCountingFormula(indexExpressionsSet, intensionalSet.getCondition());
-				Expression evaluatedResult = context.getTheory().evaluate(countingFormula, context);
+				Expression evaluatedResult;
+				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+				Type indexType = GrinderUtil.getType(indices.get(0), intensionalSetContext);
+// TODO - still need to handle Function and Tuple Types				
+				if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {
+					// NOTE : For Reals can always assume the condition is of this type.				
+					SingleVariableLinearRealArithmeticConstraint svConstraint = (SingleVariableLinearRealArithmeticConstraint) intensionalSet.getCondition();
+					MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver realSolver = new MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver(svConstraint);
+					evaluatedResult = realSolver.solve(intensionalSetContext);
+				}
+				else {
+					Expression countingFormula = new DefaultCountingFormula(indexExpressionsSet, intensionalSet.getCondition());
+					evaluatedResult = context.getTheory().evaluate(countingFormula, context);
+				}
 				
 				if (Expressions.isNumber(evaluatedResult)) {
 					result = evaluatedResult.rationalValue();
 				}
 				else {
 					throw new UnsupportedOperationException("Unable to compute a finite measure for: "+intensionalSet+", got : "+evaluatedResult);					
-				}
+				}				
 			}
 			else {
 				throw new UnsupportedOperationException("Currently only support the measure of single indexed intensional sets: "+intensionalSet);

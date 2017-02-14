@@ -4,21 +4,29 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Measure;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.util.math.Rational;
 
@@ -58,7 +66,7 @@ private Context context;
 	
 	@Test
 	public void testRealTypeDomain() {
-		Assert.assertEquals(new Rational(3), measure("{{ (on x in Real) 3 : x > 4 and x < 7 }}"));
+		Assert.assertEquals(new Rational(3), measure("{{ (on X in Real) 3 : X > 4 and X < 7 }}"));
 	}
 	
 	@Test
@@ -89,8 +97,30 @@ private Context context;
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}
 	
-	private Rational measure(String intensionalSet) {
-		Rational result = Measure.get(parse(intensionalSet), context);
+	private Rational measure(String testIntensionalSetString) {		
+		Expression testIntensionalSetExpression = parse(testIntensionalSetString);
+		Expression properlyConditionedIntensionalSetExpression = testIntensionalSetExpression;
+		
+		if (Sets.isIntensionalSet(testIntensionalSetExpression)) {
+			IntensionalSet intensionalSet = (IntensionalSet) testIntensionalSetExpression;
+			List<Expression> indices = IndexExpressions.getIndices(intensionalSet.getIndexExpressions());
+
+			if (indices.size() == 1) {
+				Expression index = indices.get(0);
+				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(intensionalSet.getIndexExpressions(), context);
+				Type type = GrinderUtil.getType(index, intensionalSetContext);
+				if (type instanceof RealExpressoType || type instanceof RealInterval) {
+					SingleVariableLinearRealArithmeticConstraint svlraConstraint = new SingleVariableLinearRealArithmeticConstraint(index, true, context.getTheory());
+					
+					svlraConstraint = (SingleVariableLinearRealArithmeticConstraint) svlraConstraint.conjoin(intensionalSet.getCondition(), intensionalSetContext);
+			
+					properlyConditionedIntensionalSetExpression = IntensionalSet.make(Sets.isMultiSet(intensionalSet) ? IntensionalSet.MULTI_SET_LABEL : IntensionalSet.UNI_SET_LABEL,
+						intensionalSet.getIndexExpressions(), intensionalSet.getHead(), svlraConstraint);
+				}
+			}
+		}
+		
+		Rational result = Measure.get(properlyConditionedIntensionalSetExpression, context);
 		return result;
 	}
 }
