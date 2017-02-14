@@ -59,6 +59,8 @@ private Context context;
 	@Test
 	public void testRealTypeDomain() {
 		Assert.assertEquals(new Rational(3), measure("{{ (on x in Real) 3 : x > 4 and x < 7 }}"));
+		Assert.assertEquals(new Rational(2), measure("{{ (on x in Real) 3 : x > 4 and x > 5 and x < 7 }}"));
+		Assert.assertEquals(new Rational(0), measure("{{ (on x in Real) 3 : x > 4 and x > 5 and x < 7 and x < 3 }}"));
 	}
 	
 	@Test
