@@ -121,7 +121,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		if (indices.size() == 1) {						
 			
 			// SetOfI = {{ (on I in Domain) I : Condition }}
-			Rational measureSetOfI = computeMeasure(indices.get(0), indicesCondition, context);
+			Rational measureSetOfI = computeMeasure(indices.get(0), indicesCondition, group.additiveIdentityElement(), context);
 			
 			if (measureSetOfI.compareTo(sampleSizeN) > 0) {
 				// Quantifier({{ (on I in Samples) Head }} )
@@ -145,7 +145,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		return result;
 	}
 	
-	private Rational computeMeasure(Expression index, Expression indexCondition, Context context) {
+	private Rational computeMeasure(Expression index, Expression indexCondition, Expression additiveIdentityElement, Context context) {
 		Rational result;
 		
 		Expression indexType = GrinderUtil.getTypeExpression(index, context);

@@ -4,22 +4,31 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.RealExpressoType;
+import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Measure;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.math.Rational;
 
 public class MeasureTest {
@@ -31,7 +40,8 @@ private Context context;
 				new CompoundTheory(
 						new DifferenceArithmeticTheory(true, false),
 						new LinearRealArithmeticTheory(true, false),
-						new EqualityTheory(true, false),
+						new EqualityTheory(true, false),					
+						new TupleTheory(),
 						new PropositionalTheory()));
 	}
 	
@@ -69,6 +79,23 @@ private Context context;
 		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : X != 5 }}"));
 	}
 	
+	// (element_1, ..., element_n) = measure(element_1) * ... * measure(element_n)
+	@Test
+	public void testTupleTypeDomain() {
+		Assert.assertEquals(new Rational(6), measure("{{ (on T in (0..2 x Boolean)) T : true }}"));
+		Assert.assertEquals(new Rational(12), measure("{{ (on T in (0..2 x [3;7])) T : true }}"));
+	}
+	
+	// measure(co-domain)^measure(domain)
+	@Test
+	public void testFunctionTypeDomain() {
+		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : true }}"));
+		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f(0) : true }}"));
+		
+		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : f(1) or f(2) }}"));
+		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f(0) : f(1) > 4 and f(1) < 6 }}"));
+	}
+	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNotIntensionalSetIllegalArgumentException() {
 		measure("1");
@@ -91,8 +118,30 @@ private Context context;
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}
 	
-	private Rational measure(String intensionalSet) {
-		Rational result = Measure.get(parse(intensionalSet), context);
+	private Rational measure(String testIntensionalSetString) {		
+		Expression testIntensionalSetExpression = parse(testIntensionalSetString);
+		Expression properlyConditionedIntensionalSetExpression = testIntensionalSetExpression;
+		
+		if (Sets.isIntensionalSet(testIntensionalSetExpression)) {
+			IntensionalSet intensionalSet = (IntensionalSet) testIntensionalSetExpression;
+			List<Expression> indices = IndexExpressions.getIndices(intensionalSet.getIndexExpressions());
+
+			if (indices.size() == 1) {
+				Expression index = indices.get(0);
+				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(intensionalSet.getIndexExpressions(), context);
+				Type type = GrinderUtil.getType(index, intensionalSetContext);
+				if (type instanceof RealExpressoType || type instanceof RealInterval) {
+					SingleVariableLinearRealArithmeticConstraint singleVariableConstraint = new SingleVariableLinearRealArithmeticConstraint(index, true, context.getTheory());
+					
+					singleVariableConstraint = (SingleVariableLinearRealArithmeticConstraint) singleVariableConstraint.conjoin(intensionalSet.getCondition(), intensionalSetContext);
+			
+					properlyConditionedIntensionalSetExpression = IntensionalSet.make(Sets.isMultiSet(intensionalSet) ? IntensionalSet.MULTI_SET_LABEL : IntensionalSet.UNI_SET_LABEL,
+						intensionalSet.getIndexExpressions(), intensionalSet.getHead(), singleVariableConstraint);
+				}
+			}
+		}
+		
+		Rational result = Measure.get(properlyConditionedIntensionalSetExpression, context);
 		return result;
 	}
 }
