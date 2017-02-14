@@ -1,5 +1,6 @@
 package com.sri.ai.test.grinder.sgdpllt.library.set;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
 
@@ -8,7 +9,6 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -51,51 +51,53 @@ private Context context;
 		updateContextWithIndexAndType("N", 
 				new Categorical("People", 5, parse("p1"), parse("p2"), parse("p3"), parse("p4"), parse("p5")));
 		
-		Assert.assertEquals(new Rational(5), measure("{{(on I in People) I : true}}"));
-		Assert.assertEquals(new Rational(4), measure("{{(on I in People) I : I != p1}}"));
-		Assert.assertEquals(new Rational(3), measure("{{(on I in People) I : I != p1 and I != p5}}"));
+		Assert.assertEquals(new Rational(5), measure("{{(on I in People) I : true}}", ZERO));
+		Assert.assertEquals(new Rational(4), measure("{{(on I in People) I : I != p1}}", ZERO));
+		Assert.assertEquals(new Rational(3), measure("{{(on I in People) I : I != p1 and I != p5}}", ZERO));
 	}
 	
 	@Test
 	public void testIntegerTypeDomain() {
-		Assert.assertEquals(new Rational(2), measure("{{ (on X in Integer) 3 : X > 4 and X < 7 }}"));
+		Assert.assertEquals(new Rational(2), measure("{{ (on X in Integer) 3 : X > 4 and X < 7 }}", ZERO));
 	}
 	
 	@Test
 	public void testIntegerIntervalTypeDomain() {
-		Assert.assertEquals(new Rational(5), measure("{{ (on X in 3..7) 3 : true }}"));
-		Assert.assertEquals(new Rational(4), measure("{{ (on X in 3..7) 3 : X != 5 }}"));
+		Assert.assertEquals(new Rational(5), measure("{{ (on X in 3..7) 3 : true }}", ZERO));
+		Assert.assertEquals(new Rational(4), measure("{{ (on X in 3..7) 3 : X != 5 }}", ZERO));
 	}
 	
 	@Test
 	public void testRealTypeDomain() {
-		Assert.assertEquals(new Rational(3), measure("{{ (on X in Real) 3 : X > 4 and X < 7 }}"));
+		Assert.assertEquals(new Rational(3), measure("{{ (on X in Real) 3 : X > 4 and X < 7 }}", ZERO));
 	}
 	
 	@Test
 	public void testRealIntervalTypeDomain() {
-		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : true }}"));
-		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : X != 5 }}"));
+		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : true }}", ZERO));
+		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : X != 5 }}", ZERO));
 	}
 	
 	// (element_1, ..., element_n) = measure(element_1) * ... * measure(element_n)
-	@Ignore("TODO - currently passes due to defect in cardinaliy computation logic but underlying logic does not support properly yet")
 	@Test
 	public void testTupleTypeDomain() {
-		Assert.assertEquals(new Rational(6), measure("{{ (on T in (0..2 x Boolean)) T : true }}"));
-		Assert.assertEquals(new Rational(12), measure("{{ (on T in (0..2 x [3;7])) T : true }}"));
+		Assert.assertEquals(new Rational(6), measure("{{ (on T in (0..2 x Boolean)) T : true }}", ZERO));
+		Assert.assertEquals(new Rational(12), measure("{{ (on T in (0..2 x [3;7])) T : true }}", ZERO));
 	}
 	
-	// |measure(co-domain)|^|measure(domain)|
-	@Ignore("TODO - implement support for")
+	// measure(co-domain)^measure(domain)
 	@Test
 	public void testFunctionTypeDomain() {
-		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : true }}"));
+		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : true }}", ZERO));
+		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f(0) : true }}", ZERO));
+		
+		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : f(1) or f(2) }}", ZERO));
+		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f(0) : f(1) > 4 and f(1) < 6 }}", ZERO));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNotIntensionalSetIllegalArgumentException() {
-		measure("1");
+		measure("1", ZERO);
 	}
 	
 	@Test(expected=UnsupportedOperationException.class)
@@ -103,19 +105,19 @@ private Context context;
 		updateContextWithIndexAndType("N", 
 				new Categorical("People", 5, parse("p1"), parse("p2"), parse("p3"), parse("p4"), parse("p5")));
 		
-		measure("{{(on I in People, J in People) (I, J) : true}}");
+		measure("{{(on I in People, J in People) (I, J) : true}}", ZERO);
 	}
 	
 	@Test(expected=UnsupportedOperationException.class)
 	public void testUnableToCompute() {
-		measure("{{(on I in Integer) I : true}}");
+		measure("{{(on I in Integer) I : true}}", ZERO);
 	}
 	
 	private void updateContextWithIndexAndType(String index, Type type) {
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}
 	
-	private Rational measure(String testIntensionalSetString) {		
+	private Rational measure(String testIntensionalSetString, Expression additiveNeutralElement) {		
 		Expression testIntensionalSetExpression = parse(testIntensionalSetString);
 		Expression properlyConditionedIntensionalSetExpression = testIntensionalSetExpression;
 		
@@ -138,7 +140,7 @@ private Context context;
 			}
 		}
 		
-		Rational result = Measure.get(properlyConditionedIntensionalSetExpression, context);
+		Rational result = Measure.get(properlyConditionedIntensionalSetExpression, additiveNeutralElement, context);
 		return result;
 	}
 }
