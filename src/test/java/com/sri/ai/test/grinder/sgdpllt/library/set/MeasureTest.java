@@ -56,27 +56,32 @@ private Context context;
 	}
 	
 	@Test
+	public void testEmptySet() {
+		Assert.assertEquals(new Rational(0), measure("{{ (on X in 3..7) X : false }}"));
+	}
+	
+	@Test
 	public void testIntegerTypeDomain() {
-		Assert.assertEquals(new Rational(2), measure("{{ (on X in Integer) 3 : X > 4 and X < 7 }}"));
+		Assert.assertEquals(new Rational(2), measure("{{ (on X in Integer) X : X > 4 and X < 7 }}"));
 	}
 	
 	@Test
 	public void testIntegerIntervalTypeDomain() {
-		Assert.assertEquals(new Rational(5), measure("{{ (on X in 3..7) 3 : true }}"));
-		Assert.assertEquals(new Rational(4), measure("{{ (on X in 3..7) 3 : X != 5 }}"));
+		Assert.assertEquals(new Rational(5), measure("{{ (on X in 3..7) X : true }}"));
+		Assert.assertEquals(new Rational(4), measure("{{ (on X in 3..7) X : X != 5 }}"));
 	}
 	
 	@Test
 	public void testRealTypeDomain() {
-		Assert.assertEquals(new Rational(3), measure("{{ (on x in Real) 3 : x > 4 and x < 7 }}"));
-		Assert.assertEquals(new Rational(2), measure("{{ (on x in Real) 3 : x > 4 and x > 5 and x < 7 }}"));
-		Assert.assertEquals(new Rational(0), measure("{{ (on x in Real) 3 : x > 4 and x > 5 and x < 7 and x < 3 }}"));
+		Assert.assertEquals(new Rational(3), measure("{{ (on X in Real) X : X > 4 and X < 7 }}"));
+		Assert.assertEquals(new Rational(2), measure("{{ (on X in Real) X : X > 4 and X > 5 and X < 7 }}"));
+		Assert.assertEquals(new Rational(0), measure("{{ (on X in Real) X : X > 4 and X > 5 and X < 7 and X < 3 }}"));
 	}
 	
 	@Test
 	public void testRealIntervalTypeDomain() {
-		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : true }}"));
-		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) 3 : X != 5 }}"));
+		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) X : true }}"));
+		Assert.assertEquals(new Rational(4), measure("{{ (on X in [3;7]) X : X != 5 }}"));
 	}
 	
 	// (element_1, ..., element_n) = measure(element_1) * ... * measure(element_n)
@@ -89,11 +94,8 @@ private Context context;
 	// measure(co-domain)^measure(domain)
 	@Test
 	public void testFunctionTypeDomain() {
-		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : true }}"));
-		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f(0) : true }}"));
-		
-		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f(0) : f(1) or f(2) }}"));
-		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f(0) : f(1) > 4 and f(1) < 6 }}"));
+		Assert.assertEquals(new Rational(8), measure("{{ (on f in 0..2 -> Boolean) f : true }}"));
+		Assert.assertEquals(new Rational(64), measure("{{ (on f in 0..2 -> [3;7]) f : true }}"));		
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -112,6 +114,21 @@ private Context context;
 	@Test(expected=UnsupportedOperationException.class)
 	public void testUnableToCompute() {
 		measure("{{(on I in Integer) I : true}}");
+	}
+	
+	@Test(expected=UnsupportedOperationException.class)
+	public void testHeadAndIndexMustMatch() {
+		Assert.assertEquals(new Rational(2), measure("{{ (on X in Integer) 1 : X > 4 and X < 7 }}"));
+	}
+	
+	@Test(expected=UnsupportedOperationException.class)
+	public void testConditionsNotSupportedOnFunctionTypeIndexes() {
+		measure("{{ (on f in 0..2 -> [3;7]) f : f(1) > 4 and f(1) < 6 }}");
+	}
+	
+	@Test(expected=UnsupportedOperationException.class)
+	public void testConditionNotSupportedOnTupleTypeIndexes() {		
+		measure("{{ (on T in (0..2 x Boolean)) T : T != (0, false) }}");
 	}
 	
 	private void updateContextWithIndexAndType(String index, Type type) {

@@ -64,21 +64,23 @@ import com.sri.ai.util.math.Rational;
 /**
  * Measure of an intensional set:<br>
  * <pre>
- * Given: 
+ * measure(SetOfI) is
  * 
- * {{ (on I in Domain) Head | Condition }}
+ * - measure(co-domain)^measure(domain) if SetOfI is a function type
  * 
- * if Domain is a discrete the measure will be:
+ * - prod_i measure(component i) if SetOfI is a tuple type
  * 
- * | {{ (on I in Domain) I : Condition }} |
+ * - 0 if SetOfI is an intensional set with Condition equal to "false"
  * 
- * or in the more compact counting formula representation:
+ * - measure(Domain) if SetOfI is an intensional set {{ (on I Domain) I }}
  * 
- * | I in Domain : Condition |
+ * - | SetOfI | if SetOfI is a discrete type, or an intensional set indexed by a discrete 
+ *   type with Condition instance of SingleVariableConstraint
  * 
- * and if it is a continuous set of real numbers (i.e. [a;b]) it will be:
- * 
- * b - a
+ * - b -  a, if SetOfI is a type [a;b] (Real is to be considered [-infinity;infinity]), 
+ *   or if SetOfI is an intensional set indexed by a real-valued index and an interval [a;b] is returned by 
+ *   IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver
+ *   (a and b could be infinite values, in which case the measure will be infinite) 
  * 
  * </pre>
  *  
@@ -90,20 +92,35 @@ public class Measure {
 	public static Rational get(Expression intensionalSetExpression, Context context) {
 		Rational result;
 		if (Sets.isIntensionalSet(intensionalSetExpression)) {
-			IntensionalSet intensionalSet = (IntensionalSet) intensionalSetExpression;
+			IntensionalSet intensionalSet           = (IntensionalSet) intensionalSetExpression;
 			IndexExpressionsSet indexExpressionsSet = intensionalSet.getIndexExpressions();
-			List<Expression> indices = IndexExpressions.getIndices(indexExpressionsSet);
+			List<Expression> indices                = IndexExpressions.getIndices(indexExpressionsSet);
 			if (indices.size() == 1) {
 				Expression evaluatedResult;
-				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
-				Type indexType = GrinderUtil.getType(indices.get(0), intensionalSetContext);			
-				if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {
+				Expression intensionalSetIndex     = indices.get(0);
+				Expression intensionalSetHead      = intensionalSet.getHead();
+				if (!intensionalSetHead.equals(intensionalSetIndex)) {
+					throw new UnsupportedOperationException("Index and Head must be the same to calculate the meaure of an Intensional : "+intensionalSet);
+				}
+				Expression intensionalSetCondition = intensionalSet.getCondition();
+				Context intensionalSetContext      = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+				Type indexType                     = GrinderUtil.getType(intensionalSetIndex, intensionalSetContext);
+				
+				if (intensionalSetCondition.equals(false)) {
+					evaluatedResult = Expressions.ZERO; // short circuit known empty sets up front.
+				}
+				else if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {
 					// NOTE : For Reals can always assume the condition is of this type.				
-					SingleVariableLinearRealArithmeticConstraint svConstraint = (SingleVariableLinearRealArithmeticConstraint) intensionalSet.getCondition();
+					SingleVariableLinearRealArithmeticConstraint svConstraint = (SingleVariableLinearRealArithmeticConstraint) intensionalSetCondition;
 					MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver realSolver = new MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver(svConstraint);
 					evaluatedResult = realSolver.solve(intensionalSetContext);
 				}
 				else if (indexType instanceof FunctionType) {
+					
+					if (!intensionalSetCondition.equals(true)) {
+						throw new UnsupportedOperationException("Measure of intensional set with a function type domain currently do not support conditions: "+intensionalSet);
+					}
+					
 					// measure(co-domain)^measure(domain)
 					FunctionType indexFunctionType = (FunctionType) indexType;
 					
@@ -119,6 +136,11 @@ public class Measure {
 					evaluatedResult = Expressions.makeSymbol(codomainMeasure.pow(domainMeasure.intValueExact()));
 				} 
 				else if (indexType instanceof TupleType) {
+					
+					if (!intensionalSetCondition.equals(true)) {
+						throw new UnsupportedOperationException("Measure of intensional set with a tuple type domain currently do not support conditions: "+intensionalSet);
+					}
+					
 					// (element_1, ..., element_n) = measure(element_1) * ... * measure(element_n)
 					TupleType indexTupleType = (TupleType) indexType;
 					Rational elementMeasuresProduct = Rational.ONE;
@@ -165,7 +187,7 @@ public class Measure {
 		
 		Expression result = IntensionalSet.make(Sets.isMultiSet(intensionalSet) ? IntensionalSet.MULTI_SET_LABEL : IntensionalSet.UNI_SET_LABEL,
 								new ExtensionalIndexExpressionsSet(Arrays.asList(indexExpression)), 								
-								conditionedBody, 
+								componentIndex, 
 								intensionalCondition);
 		return result;
 	}

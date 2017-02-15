@@ -128,7 +128,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 				
 				// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
 				// in makeAssignmentsInterator() and makeSummand().
-				Expression sampleSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), Expressions.TRUE,  body, context);			
+				Expression sampleSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), indicesCondition,  body, context);			
 				
 				// Average = Quantifier( {{ (on I in Samples) Head }}) / n
 				Expression average = group.addNTimes(sampleSum, Division.make(Expressions.ONE, Expressions.makeSymbol(sampleSizeN)), context);
