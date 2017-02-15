@@ -107,16 +107,16 @@ public class AssignmentsSamplingIteratorTest {
 		Assert.assertEquals("{R=5.53348}:{R=9.146728}:{R=3.1411}", join(":", newSamplingIterator("R", 3, "R >= 1 and R != 3 and R !=4 and R != 5 and R != 6 and R !=7 and R != 8 and R <= 10"))); // Broken Interval		
 	}
 	
+	@Test
+	public void testSampleOverFunction() {
+		updateContextWithIndexAndType("f", new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval(1,10)));
+		Assert.assertEquals("{f='->'(1..10, Boolean)}:{f='->'(1..10, Boolean)}:{f='->'(1..10, Boolean)}", join(":", newSamplingIterator("f", 3, "true")));
+	}
+	
 	@Test(expected=IllegalArgumentException.class)
 	public void testSampleOverTuple() {
 		updateContextWithIndexAndType("T", new TupleType(new IntegerInterval(1,10), GrinderUtil.BOOLEAN_TYPE));
 		newSamplingIterator("T", 3, "true");
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testSampleOverFunction() {
-		updateContextWithIndexAndType("f", new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval(1,10)));
-		newSamplingIterator("f", 3, "true");
 	}
 	
 	private void updateContextWithIndexAndType(String index, Type type) {

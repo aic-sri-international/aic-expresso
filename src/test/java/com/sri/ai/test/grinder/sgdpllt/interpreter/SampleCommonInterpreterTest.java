@@ -100,6 +100,29 @@ public class SampleCommonInterpreterTest {
 		runTest(3, "sum({{(on R in [1;5]) R : true }})", "11.37256");
 	}
 	
+	@Test
+	public void testSumOverFunctionV1() {		
+		runTest(2, "sum({{(on f in Boolean -> 0..3) 2 : true }})", "32");
+	}
+	
+	@Test
+	public void testSumOverFunctionV2() {		
+		//  NOTE: picks f_1(true)=1, f_2(true)=2 (i.e. two different lazy sampled functors)
+		runTest(2, "sum({{(on f in Boolean -> 0..3) f(true) : true }})", "24");
+	}
+	
+	@Test
+	public void testSumOverFunctionV3() {		
+		//  NOTE: picks f_1(true)=1, f_1(false)=1, f_2(true)=2, f_2(false)=3
+		runTest(2, "sum({{(on f in Boolean -> 0..3) sum({{(on X in Boolean) f(X) : true }}) : true }})", "56");
+	}
+	
+	@Test
+	public void testSumOverFunctionV4() {		
+		//  NOTE: picks f_1(true)=1, f_1(false)=1, f_2(true)=2, f_2(false)=3
+		runTest(2, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(X) : true }}) : true }})", "56");
+	}
+	
 	public void runTest(int sampleSizeN, String expressionString, String expectedString) {
 		SampleCommonInterpreter interpreter = new SampleCommonInterpreter(sampleSizeN, random);
 		

@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import java.util.Random;
 
+import com.sri.ai.grinder.helper.LazySampledFunctorApplicationTopRewriter;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
@@ -54,7 +55,7 @@ public class SampleInterpreter extends AbstractInterpreter {
 	private Random random;
 
 	public SampleInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, Random random) {
-		super(baseTopRewriter);
+		super(TopRewriter.merge(new LazySampledFunctorApplicationTopRewriter(), baseTopRewriter));
 		this.sampleSizeN = sampleSizeN;
 		this.random = random;
 	}

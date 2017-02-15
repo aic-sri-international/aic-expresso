@@ -46,6 +46,7 @@ import java.util.Random;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
@@ -151,6 +152,10 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 			else {
 				result = new IntegerInterval(rangeAndExceptionsSet.getStrictLowerBound().intValueExact()+1, rangeAndExceptionsSet.getNonStrictUpperBound().intValueExact());
 			}
+		}
+		else if (result instanceof FunctionType) {
+			FunctionType functionType = (FunctionType) result;
+			result = new LazySampledFunctorType(functionType.getCodomain(), functionType.getArgumentTypes().toArray(new Type[functionType.getArity()]));
 		}
 		
 		if (result != null && !result.isSampleUniquelyNamedConstantSupported()) {
