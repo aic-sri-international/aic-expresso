@@ -61,7 +61,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.help.RedirectingRewriter;
  */
 @Beta
 public abstract class AbstractInterpreter extends RedirectingRewriter {
-	private TopRewriter baseTopRewriter;
+
 	/**
 	 * Must provide a {@link MultiIndexQuantifierEliminator} based on given {@link TopRewriterUsingContextAssignments}.
 	 * @param topRewriterUsingContextAssignments
@@ -69,21 +69,14 @@ public abstract class AbstractInterpreter extends RedirectingRewriter {
 	 */
 	abstract protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments);
 	
-	public AbstractInterpreter(TopRewriter baseTopRewriter) {
-		this.baseTopRewriter = baseTopRewriter;		
+	public AbstractInterpreter() {
 	}
 	
-	@Override
-	public Rewriter getBaseRewriter() {
-		// Lazy init so that sub-classes can initialize themselves properly at constructor time.
-		Rewriter result = super.getBaseRewriter();
-		if (result == null) {
-			result = new Recursive(new Exhaustive(new TopRewriterUsingQuantifierEliminatorAndContextAssignments(baseTopRewriter)));
-			setBaseRewriter(result);
-		}
-		return result;
+	public void setBaseTopRewriter(TopRewriter baseTopRewriter) {
+		Rewriter result = new Recursive(new Exhaustive(new TopRewriterUsingQuantifierEliminatorAndContextAssignments(baseTopRewriter)));
+		setBaseRewriter(result);
 	}
-
+	
 	protected class TopRewriterUsingQuantifierEliminatorAndContextAssignments extends TopRewriterUsingContextAssignments {
 
 		public TopRewriterUsingQuantifierEliminatorAndContextAssignments(TopRewriter baseTopRewriter) {

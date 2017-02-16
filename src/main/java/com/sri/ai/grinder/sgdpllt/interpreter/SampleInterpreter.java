@@ -55,9 +55,13 @@ public class SampleInterpreter extends AbstractInterpreter {
 	private Random random;
 
 	public SampleInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, Random random) {
-		super(TopRewriter.merge(new LazySampledFunctionApplicationTopRewriter(), baseTopRewriter));
+		super();
 		this.sampleSizeN = sampleSizeN;
 		this.random = random;
+		// it is important that the properties above are settled before invoking the method below
+		// The reason is that setting the base top rewriter invokes {@link #makeQuantifierEliminator(TopRewriterUsingContextAssignments)},
+		// which needs these properties.
+		setBaseTopRewriter(TopRewriter.merge(new LazySampledFunctionApplicationTopRewriter(), baseTopRewriter));
 	}
 	
 	@Override

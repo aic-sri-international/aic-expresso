@@ -51,7 +51,8 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 public class BruteForceInterpreter extends AbstractInterpreter {
 	
 	public BruteForceInterpreter(TopRewriter baseTopRewriter) {
-		super(baseTopRewriter);
+		super();
+		setBaseTopRewriter(baseTopRewriter);
 	}
 
 	@Override
