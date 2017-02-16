@@ -56,6 +56,7 @@ import java.util.StringJoiner;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Tuple;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Registry;
@@ -147,18 +148,36 @@ public class TupleType extends AbstractType {
 
 	@Override
 	public boolean contains(Expression uniquelyNamedConstant) {
-		// Tuple types do not contain uniquely named constants.
-		return false;
+		boolean result = false;
+		
+		if (Tuple.isTuple(uniquelyNamedConstant)) {
+			if (uniquelyNamedConstant.numberOfArguments() == getArity()) {
+				result = true; // Assume does contain unless find out otherwise
+				for (int i = 0; i < getArity(); i++) {
+					if (!getElementTypes().get(i).contains(uniquelyNamedConstant.get(i))) {
+						result = false;
+						break;
+					}
+				}				
+			}
+		}
+		
+		return result;
 	}
 	
 	@Override
 	public boolean isSampleUniquelyNamedConstantSupported() {
-		return false;
+		return getElementTypes().stream().allMatch(et -> et.isSampleUniquelyNamedConstantSupported());
 	}
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
-		throw new Error("Cannot sample uniquely named constant from element type that is infinite and/or defined by other types: " + getName());
+		List<Expression> elements = new ArrayList<>();
+		for (Type elementType : getElementTypes()) {
+			elements.add(elementType.sampleUniquelyNamedConstant(random));
+		}
+		Expression result = Expressions.makeTuple(elements);
+		return result;
 	}
 
 	@Override

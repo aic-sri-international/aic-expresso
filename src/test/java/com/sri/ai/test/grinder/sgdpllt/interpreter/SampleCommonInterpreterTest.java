@@ -123,6 +123,11 @@ public class SampleCommonInterpreterTest {
 		runTest(2, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(X) : true }}) : true }})", "56");
 	}
 	
+	@Test
+	public void testSumOverTupleV1() {		
+		runTest(2, "sum({{(on T in (Boolean x 0..3)) 2 : true }})", "16");
+	}
+	
 	public void runTest(int sampleSizeN, String expressionString, String expectedString) {
 		SampleCommonInterpreter interpreter = new SampleCommonInterpreter(sampleSizeN, random);
 		
