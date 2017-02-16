@@ -113,10 +113,10 @@ public class AssignmentsSamplingIteratorTest {
 		Assert.assertEquals("{f='->'(1..10, Boolean)}:{f='->'(1..10, Boolean)}:{f='->'(1..10, Boolean)}", join(":", newSamplingIterator("f", 3, "true")));
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testSampleOverTuple() {
 		updateContextWithIndexAndType("T", new TupleType(new IntegerInterval(1,10), GrinderUtil.BOOLEAN_TYPE));
-		newSamplingIterator("T", 3, "true");
+		Assert.assertEquals("{T=(6, true)}:{T=(8, true)}:{T=(5, true)}", join(":", newSamplingIterator("T", 3, "true")));
 	}
 	
 	private void updateContextWithIndexAndType(String index, Type type) {
