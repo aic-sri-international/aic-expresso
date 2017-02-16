@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
@@ -21,6 +22,7 @@ import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.interpreter.SampleCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
@@ -128,34 +130,29 @@ public class SampleCommonInterpreterTest {
 		
 		Expression expression = parse(expressionString);
 		if (expression.numberOfArguments() == 1 && Sets.isIntensionalSet(expression.get(0))) {
-			IntensionalSet intensionalSetArg = (IntensionalSet) expression.get(0);
-			List<Expression> indices = IndexExpressions.getIndices(intensionalSetArg.getIndexExpressions());
+			IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
+			IndexExpressionsSet indexExpressions = intensionalSet.getIndexExpressions();
+			List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 
 			if (indices.size() == 1) {
 				Expression index = indices.get(0);
-				Context intensionalSetArgContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(intensionalSetArg.getIndexExpressions(), context);			
+				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);			
 				// Ensure condition of correct type is created
-				Expression condition = intensionalSetArg.getCondition();
-				Type indexType = GrinderUtil.getType(index, intensionalSetArgContext);
+				Expression condition = intensionalSet.getCondition();
+				Type indexType = GrinderUtil.getType(index, intensionalSetContext);
+				
+				SingleVariableConstraint singleVariableConstraint = null;
 				if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {
-					SingleVariableLinearRealArithmeticConstraint svlraConstraint = new SingleVariableLinearRealArithmeticConstraint(index, true, intensionalSetArgContext.getTheory());
-					
-					svlraConstraint = (SingleVariableLinearRealArithmeticConstraint) svlraConstraint.conjoin(condition, intensionalSetArgContext);
-					
-					condition = svlraConstraint;
+					singleVariableConstraint = new SingleVariableLinearRealArithmeticConstraint(index, true, intensionalSetContext.getTheory());
 				}
 				else if (indexType instanceof IntegerExpressoType || indexType instanceof IntegerInterval) {
-					SingleVariableDifferenceArithmeticConstraint svdaConstraint = new SingleVariableDifferenceArithmeticConstraint(index, true, intensionalSetArgContext.getTheory());
-					
-					svdaConstraint = (SingleVariableDifferenceArithmeticConstraint) svdaConstraint.conjoin(condition, intensionalSetArgContext);
-					
-					condition = svdaConstraint;
+					singleVariableConstraint = new SingleVariableDifferenceArithmeticConstraint(index, true, intensionalSetContext.getTheory());
 				}
 				
-				if (condition != intensionalSetArg.getCondition()) {
-					Expression updatedIntensionalSetArg = IntensionalSet.make(Sets.isMultiSet(intensionalSetArg) ? IntensionalSet.MULTI_SET_LABEL : IntensionalSet.UNI_SET_LABEL,
-																intensionalSetArg.getIndexExpressions(), intensionalSetArg.getHead(), condition);	
-					expression = expression.set(0, updatedIntensionalSetArg);
+				if (singleVariableConstraint != null) {
+					singleVariableConstraint = singleVariableConstraint.conjoin(condition, intensionalSetContext);
+					intensionalSet = intensionalSet.setCondition(singleVariableConstraint);	
+					expression = expression.set(0, intensionalSet);
 				}
 			}
 		}
@@ -163,7 +160,8 @@ public class SampleCommonInterpreterTest {
 		Expression result = interpreter.apply(expression, context);
 		Assert.assertEquals(parse(expectedString), result);
 	}
-	
+
+
 	private void updateContextWithIndexAndType(String index, Type type) {
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}

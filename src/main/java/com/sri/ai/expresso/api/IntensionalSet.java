@@ -40,6 +40,7 @@ package com.sri.ai.expresso.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 
 /**
  * An {@link Expression} that represents an intensionally defined set.
@@ -90,7 +91,7 @@ public interface IntensionalSet extends QuantifiedExpression {
 	/**
 	 * Returns a new instance with the condition replaced by given new one.
 	 */
-	Expression setCondition(Expression newCondition);
+	IntensionalSet setCondition(Expression newCondition);
 
 	/**
 	 * Returns a new instance with the head and condition replaced by given new ones.
@@ -100,6 +101,18 @@ public interface IntensionalSet extends QuantifiedExpression {
 	@Override
 	IntensionalSet setIndexExpressions(IndexExpressionsSet newIndexExpressions);
 	
+	/**
+	 * Make another intensional set of the same kind (uni/multi) as a given intensional set.
+	 * @param intensionalSet
+	 * @param indexExpressions
+	 * @param head
+	 * @param condition
+	 * @return
+	 */
+	public static Expression intensionalSetOfSameKindAs(IntensionalSet intensionalSet, IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
+		return make(Sets.isMultiSet(intensionalSet) ? MULTI_SET_LABEL : UNI_SET_LABEL, indexExpressions, head, condition);
+	}
+
 	/**
 	 * Makes an intensional multi-set.
 	 * @param indexExpressions
@@ -121,7 +134,7 @@ public interface IntensionalSet extends QuantifiedExpression {
 	public static Expression intensionalUniSet(IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		return make(UNI_SET_LABEL, indexExpressions, head, condition);
 	}
-
+	
 	public static Expression make(Object label, IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		Expression result;
 		if (label.equals(UNI_SET_LABEL)) {

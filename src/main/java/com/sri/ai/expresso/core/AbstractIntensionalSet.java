@@ -137,7 +137,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public Expression setCondition(Expression newCondition) {
+	public IntensionalSet setCondition(Expression newCondition) {
 		IntensionalSet result = this;
 		if (newCondition != getCondition()) {
 			result = make(getIndexExpressions(), getHead(), newCondition);
