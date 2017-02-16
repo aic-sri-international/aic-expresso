@@ -143,7 +143,6 @@ public class SampleCommonInterpreterTest {
 				Expression index = indices.get(0);
 				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);			
 				// Ensure condition of correct type is created
-				Expression condition = intensionalSet.getCondition();
 				Type indexType = GrinderUtil.getType(index, intensionalSetContext);
 				
 				SingleVariableConstraint singleVariableConstraint = null;
@@ -155,7 +154,7 @@ public class SampleCommonInterpreterTest {
 				}
 				
 				if (singleVariableConstraint != null) {
-					singleVariableConstraint = singleVariableConstraint.conjoin(condition, intensionalSetContext);
+					singleVariableConstraint = singleVariableConstraint.conjoin(intensionalSet.getCondition(), intensionalSetContext);
 					intensionalSet = intensionalSet.setCondition(singleVariableConstraint);	
 					expression = expression.set(0, intensionalSet);
 				}

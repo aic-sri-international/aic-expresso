@@ -72,10 +72,10 @@ public class LazySampledFunction extends AbstractExpressionWrapper {
 	
 	public Expression sampleApplication(List<Expression> applicationArguments, Context context) {
 		List<Expression> applicationArgumentAssignments = new ArrayList<>();
-		for (Expression arg : applicationArguments) {
-			Expression assignedValue = AbstractIterativeMultiIndexQuantifierElimination.getAssignedValue(arg, context);
+		for (Expression argument : applicationArguments) {
+			Expression assignedValue = AbstractIterativeMultiIndexQuantifierElimination.getAssignedValue(argument, context);
 			if (assignedValue == null) {
-				applicationArgumentAssignments.add(arg);
+				applicationArgumentAssignments.add(argument);
 			}
 			else {
 				applicationArgumentAssignments.add(assignedValue);
