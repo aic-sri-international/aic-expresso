@@ -155,7 +155,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 		}
 		else if (result instanceof FunctionType) {
 			FunctionType functionType = (FunctionType) result;
-			result = new LazySampledFunctorType(functionType.getCodomain(), functionType.getArgumentTypes().toArray(new Type[functionType.getArity()]));
+			result = new LazySampledFunctionType(functionType.getCodomain(), functionType.getArgumentTypes().toArray(new Type[functionType.getArity()]));
 		}
 		
 		if (result != null && !result.isSampleUniquelyNamedConstantSupported()) {

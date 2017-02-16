@@ -11,10 +11,10 @@ import com.sri.ai.expresso.type.FunctionType;
  * @author oreilly
  *
  */
-public class LazySampledFunctorType extends FunctionType {
+public class LazySampledFunctionType extends FunctionType {
 	private static final long serialVersionUID = 1L;
 
-	public LazySampledFunctorType(Type codomain, Type... argumentTypes) {
+	public LazySampledFunctionType(Type codomain, Type... argumentTypes) {
 		super(codomain, argumentTypes);
 	}
 	
@@ -25,6 +25,6 @@ public class LazySampledFunctorType extends FunctionType {
 
 	@Override
 	public Expression sampleUniquelyNamedConstant(Random random) {
-		return new LazySampledFunctor(this, new Random(random.nextInt()));
+		return new LazySampledFunction(this, new Random(random.nextInt()));
 	}
 }

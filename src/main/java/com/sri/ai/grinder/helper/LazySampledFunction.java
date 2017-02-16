@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantif
  * @author oreilly
  *
  */
-public class LazySampledFunctor extends AbstractExpressionWrapper {
+public class LazySampledFunction extends AbstractExpressionWrapper {
 	private static final long serialVersionUID = 1L;
 	
 	private Expression innerExpression;
@@ -63,7 +63,7 @@ public class LazySampledFunctor extends AbstractExpressionWrapper {
 	private Random random;
 	private Map<List<Expression>, Expression> applications = new HashMap<>();
 
-	public LazySampledFunctor(FunctionType functionType, Random random) {
+	public LazySampledFunction(FunctionType functionType, Random random) {
 		this.functionType = functionType;
 		this.random       = random;
 		

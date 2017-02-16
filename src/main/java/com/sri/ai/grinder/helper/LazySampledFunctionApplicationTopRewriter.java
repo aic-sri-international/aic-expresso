@@ -7,16 +7,16 @@ import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
-public class LazySampledFunctorApplicationTopRewriter extends Switch<Object> {
-	public LazySampledFunctorApplicationTopRewriter() {
+public class LazySampledFunctionApplicationTopRewriter extends Switch<Object> {
+	public LazySampledFunctionApplicationTopRewriter() {
 		super(
 				Switch.SYNTACTIC_FORM_TYPE,
 				map(
 						FunctionApplication.SYNTACTIC_FORM_TYPE,
 						(Simplifier) (e, c) -> {			
 							Expression result = e;
-							if (e.getFunctor() instanceof LazySampledFunctor) {	
-								LazySampledFunctor lazySampledFunctor = (LazySampledFunctor) e.getFunctor();
+							if (e.getFunctor() instanceof LazySampledFunction) {	
+								LazySampledFunction lazySampledFunctor = (LazySampledFunction) e.getFunctor();
 								result = lazySampledFunctor.sampleApplication(e.getArguments(), c);								
 							}							
 							return result;
