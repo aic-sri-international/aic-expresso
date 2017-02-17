@@ -61,7 +61,7 @@ public class SampleInterpreter extends AbstractInterpreter {
 		// it is important that the properties above are settled before invoking the method below
 		// The reason is that setting the base top rewriter invokes {@link #makeQuantifierEliminator(TopRewriterUsingContextAssignments)},
 		// which needs these properties.
-		setBaseTopRewriter(TopRewriter.merge(new LazySampledFunctionApplicationTopRewriter(), baseTopRewriter));
+		setBaseTopRewriter(new LazySampledFunctionApplicationTopRewriter(this, baseTopRewriter));
 	}
 	
 	@Override

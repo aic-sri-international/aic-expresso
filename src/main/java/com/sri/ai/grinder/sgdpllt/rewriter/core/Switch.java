@@ -96,7 +96,7 @@ public class Switch<T> implements TopRewriter {
 	 */
 	public final static Function<Expression, Object> SYNTACTIC_FORM_TYPE = e -> e.getSyntacticFormType();
 	
-	public Switch(Function <Expression, T> keyMaker, Map<T, ? extends Rewriter> fromKeyToRewriter) {
+	public Switch(Function<Expression, T> keyMaker, Map<T, ? extends Rewriter> fromKeyToRewriter) {
 		super();
 		this.keyMaker = keyMaker;
 		this.fromKeyToRewriter = fromKeyToRewriter;

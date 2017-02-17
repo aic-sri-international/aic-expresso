@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpllt.theory.base.FunctionExpressionStepSolver;
  *
  */
 @FunctionalInterface
-public interface Simplifier extends Rewriter {
+public interface Simplifier extends TopRewriter {
 	
 	/**
 	 * We define this method to make this a functional interface again,

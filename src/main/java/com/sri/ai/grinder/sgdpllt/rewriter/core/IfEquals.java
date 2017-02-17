@@ -52,21 +52,21 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
  * @author braz
  *
  */
-public class If<T> extends Switch<T> {
+public class IfEquals<T> extends Switch<T> {
 
-	public If(Function<Expression, T> keyMaker, T value, Rewriter baseRewriter) {
+	public IfEquals(Function<Expression, T> keyMaker, T value, Rewriter baseRewriter) {
 		super(keyMaker, map(value, baseRewriter));
 	}
 
-	public If(Function<Expression, T> keyMaker, T value, RewriterFromStepMaker baseRewriter) {
+	public IfEquals(Function<Expression, T> keyMaker, T value, RewriterFromStepMaker baseRewriter) {
 		super(keyMaker, map(value, baseRewriter));
 	}
 	
-	public static <T> If<T> ifEquals(Function<Expression, T> keyMaker, T value, Rewriter baseRewriter) {
-		return new If<T>(keyMaker, value, baseRewriter);
+	public static <T> IfEquals<T> ifEquals(Function<Expression, T> keyMaker, T value, Rewriter baseRewriter) {
+		return new IfEquals<T>(keyMaker, value, baseRewriter);
 	}
 	
-	public static <T> If<T> ifEquals(Function<Expression, T> keyMaker, T value, RewriterFromStepMaker baseRewriter) {
-		return new If<T>(keyMaker, value, baseRewriter);
+	public static <T> IfEquals<T> ifEquals(Function<Expression, T> keyMaker, T value, RewriterFromStepMaker baseRewriter) {
+		return new IfEquals<T>(keyMaker, value, baseRewriter);
 	}
 }

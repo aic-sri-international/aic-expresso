@@ -126,6 +126,12 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
+	public void testSumOverFunctionEvaluatingArguments() {		
+		//  NOTE: picks f_1(true)=1, f_2(true)=2; never samples f(false) because argument is always true
+		runTest(2, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(not X or X) : true }}) : true }})", "40");
+	}
+	
+	@Test
 	public void testSumOverTupleV1() {		
 		runTest(2, "sum({{(on T in (Boolean x 0..3)) 2 : true }})", "16");
 	}
@@ -162,6 +168,7 @@ public class SampleCommonInterpreterTest {
 		}
 		
 		Expression result = interpreter.apply(expression, context);
+		System.out.println("Evaluation with " + sampleSizeN + " samples of " + expressionString + " = " + result);
 		Assert.assertEquals(parse(expectedString), result);
 	}
 

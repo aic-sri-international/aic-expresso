@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.helper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +46,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
 
 /**
  * 
@@ -70,26 +67,15 @@ public class LazySampledFunction extends AbstractExpressionWrapper {
 		this.innerExpression = Expressions.parse(functionType.toString());
 	}
 	
-	public Expression sampleApplication(List<Expression> applicationArguments, Context context) {
-		List<Expression> applicationArgumentAssignments = new ArrayList<>();
-		for (Expression argument : applicationArguments) {
-			Expression assignedValue = AbstractIterativeMultiIndexQuantifierElimination.getAssignedValue(argument, context);
-			if (assignedValue == null) {
-				applicationArgumentAssignments.add(argument);
-			}
-			else {
-				applicationArgumentAssignments.add(assignedValue);
-			}
-		}
-		
-		Expression result = applications.get(applicationArgumentAssignments);
+	public Expression sampleApplication(List<Expression> argumentValues) {
+		Expression result = applications.get(argumentValues);
 		
 		if (result == null) {
 			result = functionType.getCodomain().sampleUniquelyNamedConstant(random);
-			applications.put(applicationArgumentAssignments, result);
+			applications.put(argumentValues, result);
 		}
 		
-		// System.out.println("sampled application="+result+" for "+random+" with "+applicationArguments+" = " + applicationArgumentAssignments+ " in "+context);		
+		// System.out.println("lazy sampled function(" + join(argumentValues) + ") = " + result + " for Random " + random);		
 		
 		return result;
 	}
