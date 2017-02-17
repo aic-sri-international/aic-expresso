@@ -90,4 +90,35 @@ public class IntersectionIntensionalSetsSimplifierTest {
 				parse("{{(on I in 1..10) (I, 2) : I != 5 and I != 4 and I != 3}}"),
 				simplifier.apply(intersection, context));
 	}
+	
+	@Test
+	public void testSingleDomainIntersections() {
+		Expression intersection = parse("{{ (on I in 0..10) I : I > 3 }} intersection {{ (on I in 5..20) I : I > 2 }}");
+		Assert.assertEquals(
+				parse("{{ ( on I in 0..10 ) I : (I > 3) and (I > 4) }}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{ (on I in 0..10) I : I > 3 }} intersection {{ (on I in 5..8) I : I > 2 }}");
+		Assert.assertEquals(
+				parse("{{ ( on I in 0..10 ) I : (I > 3) and (if I > 4 then I <= 8 else false) }}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{ (on I in Integer) I : I > 3 }} intersection {{ (on I in 5..20) I : I > 2 }}");
+		Assert.assertEquals(
+				parse("{{ ( on I in Integer ) I : (I > 3) and (if I > 4 then I <= 20 else false) }}"),
+				simplifier.apply(intersection, context));
+	}
+	
+	@Test
+	public void testMultiDomainIntersections() {
+		Expression intersection = parse("{{ (on I in 0..10, J in 4..12) J : I > 3 and J > 6}} intersection {{ (on L in 5..20, M in 6..20) M : L >  2 and M > 7 }}");
+		Assert.assertEquals(
+				parse("{{ ( on I in 0..10, J in 4..12 ) J : (I > 3) and (J > 6) and (J > 7) }}"),
+				simplifier.apply(intersection, context));
+		
+		intersection = parse("{{ (on I in 0..10, J in 4..12) J : I > 3 and J > 6}} intersection {{ (on L in 5..8, M in 6..11) M : L >  2 and M > 7 }}");
+		Assert.assertEquals(
+				parse("{{ ( on I in 0..10, J in 4..12 ) J : (I > 3) and (J > 6) and (if J > 7 then J <= 11 else false) }}"),
+				simplifier.apply(intersection, context));
+	}
 }
