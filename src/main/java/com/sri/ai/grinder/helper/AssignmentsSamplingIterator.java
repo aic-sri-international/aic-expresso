@@ -66,9 +66,6 @@ import com.sri.ai.util.collect.EZIterator;
 /**
  * An assignments iterator that samples over a single variables domain.
  * 
- * NOTE: Do not call this class if the size of the domain being sampled from
- * is smaller than the the number of samples to be iterated over.
- * 
  * @author oreilly
  *
  */

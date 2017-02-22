@@ -49,7 +49,7 @@ import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
  *
  */
 public class SampleCommonInterpreter extends SampleInterpreter {
-	public SampleCommonInterpreter(int sampleSizeN, Random random) {
-		super(new CommonSimplifier(), sampleSizeN, random);
+	public SampleCommonInterpreter(int sampleSizeN, boolean alwaysSample, Random random) {
+		super(new CommonSimplifier(), sampleSizeN, alwaysSample, random);
 	}
 }

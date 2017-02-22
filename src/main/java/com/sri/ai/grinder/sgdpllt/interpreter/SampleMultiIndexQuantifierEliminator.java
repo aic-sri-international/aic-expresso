@@ -46,6 +46,7 @@ import java.util.Random;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
@@ -61,6 +62,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -70,19 +72,22 @@ import com.sri.ai.util.math.Rational;
  */
 public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierElimination {
 	private int sampleSizeN;
+	private boolean alwaysSample;
 	private Rewriter indicesConditionRewriter;
 	private Random random;
 	
-	public SampleMultiIndexQuantifierEliminator(TopRewriter topRewriter, int sampleSizeN, Rewriter indicesConditionRewriter, Random random) {
+	public SampleMultiIndexQuantifierEliminator(TopRewriter topRewriter, int sampleSizeN, boolean alwaysSample, Rewriter indicesConditionRewriter, Random random) {
 		super(topRewriter);
 		this.sampleSizeN = sampleSizeN;
+		this.alwaysSample = alwaysSample;
 		this.indicesConditionRewriter = new Recursive(new Exhaustive(indicesConditionRewriter));
 		this.random = random;
 	}
 	
-	public SampleMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, int sampleSizeN, Rewriter indicesConditionRewriter, Random random) {
+	public SampleMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, int sampleSizeN, boolean alwaysSample, Rewriter indicesConditionRewriter, Random random) {
 		super(topRewriterWithBaseAssignment);
 		this.sampleSizeN = sampleSizeN;
+		this.alwaysSample = alwaysSample;
 		this.indicesConditionRewriter = new Recursive(new Exhaustive(indicesConditionRewriter));
 		this.random = random;
 	}
@@ -121,9 +126,11 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		if (indices.size() == 1) {						
 			
 			// SetOfI = {{ (on I in Domain) I : Condition }}
-			Rational measureSetOfI = computeMeasure(indices.get(0), indicesCondition, group.additiveIdentityElement(), context);
+			Pair<Rational, Boolean> measureSetOfIAndSample = computeMeasureAndDetermineIfShouldSample(indices.get(0), indicesCondition, group.additiveIdentityElement(), context);
+			Rational measureSetOfI = measureSetOfIAndSample.first;
+			Boolean  sample        = measureSetOfIAndSample.second;
 			
-			if (measureSetOfI.compareTo(sampleSizeN) > 0) {
+			if (sample) {
 				// Quantifier({{ (on I in Samples) Head }} )
 				
 				// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
@@ -145,15 +152,30 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		return result;
 	}
 	
-	private Rational computeMeasure(Expression index, Expression indexCondition, Expression additiveIdentityElement, Context context) {
-		Rational result;
+	private Pair<Rational, Boolean> computeMeasureAndDetermineIfShouldSample(Expression index, Expression indexCondition, Expression additiveIdentityElement, Context context) {
+		Pair<Rational, Boolean> result;
 		
 		Expression indexType = GrinderUtil.getTypeExpression(index, context);
 		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
 		
 		Expression intensionalSet = IntensionalSet.intensionalMultiSet(indexExpressionsSet, index, indexCondition);
 		
-		result = Measure.get(intensionalSet, context);
+		Rational measureSetOfI = Measure.get(intensionalSet, context);
+		
+		boolean sample = true;
+		if (!alwaysSample) {			
+			Type type = GrinderUtil.getType(index, context);
+			// NOTE: We always sample from continuous domains
+			if (type != null && type.isDiscrete()) {
+				if (measureSetOfI.compareTo(sampleSizeN) <= 0) {
+					// Domain is discrete and sample size is >= the size of the domain
+					// so we don't want to sample in this instance
+					sample = false;
+				}
+			}			
+		}
+		
+		result = new Pair<>(measureSetOfI, sample);
 		
 		return result;
 	}

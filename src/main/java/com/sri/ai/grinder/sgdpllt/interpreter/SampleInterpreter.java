@@ -52,11 +52,13 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 public class SampleInterpreter extends AbstractInterpreter {
 	
 	private int sampleSizeN;
+	private boolean alwaysSample;
 	private Random random;
 
-	public SampleInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, Random random) {
+	public SampleInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, boolean alwaysSample, Random random) {
 		super();
 		this.sampleSizeN = sampleSizeN;
+		this.alwaysSample = alwaysSample;
 		this.random = random;
 		// it is important that the properties above are settled before invoking the method below
 		// The reason is that setting the base top rewriter invokes {@link #makeQuantifierEliminator(TopRewriterUsingContextAssignments)},
@@ -66,6 +68,6 @@ public class SampleInterpreter extends AbstractInterpreter {
 	
 	@Override
 	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new SampleMultiIndexQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, this, random);
+		return new SampleMultiIndexQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
 	}
 }

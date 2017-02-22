@@ -58,86 +58,106 @@ public class SampleCommonInterpreterTest {
 				new Categorical("People", 5, parse("p1"), parse("p2"), parse("p3"), parse("p4"), parse("p5")));	
 		
 		// NOTE: random picks p1 and p2
-		runTest(2, "sum({{(on N in People) 2}})", "10");
+		runTest(2, true, "sum({{(on N in People) 2}})", "10");
 		// NOTE: keep this order of calls as the fixed Random will pick p3 and p4
-		runTest(2, "sum({{(on N in People) if N = p3 then 4 else 2}})", "15");
+		runTest(2, true, "sum({{(on N in People) if N = p3 then 4 else 2}})", "15");
 			
 		// NOTE: picks p5 and p5
-		runTest(2, "sum({{(on N in People) 2 : N != p2}})", "8");
+		runTest(2, true, "sum({{(on N in People) 2 : N != p2}})", "8");
 	}
 	
 	@Test
 	public void testSumOverIntegerDomain() {		
-		runTest(2, "sum({{(on I in Integer) 2 : I >= 1 and I <= 5 }})", "10");
-		runTest(2, "sum({{(on I in Integer) 2 : I >= 1 and I != 3 and I <= 5 }})", "8");
+		runTest(2, true, "sum({{(on I in Integer) 2 : I >= 1 and I <= 5 }})", "10");
+		runTest(2, true, "sum({{(on I in Integer) 2 : I >= 1 and I != 3 and I <= 5 }})", "8");
 		
 		// NOTE: picks 5,5,2
-		runTest(3, "sum({{(on I in Integer) I : I >= 1 and I <= 5 }})", "20");
+		runTest(3, true, "sum({{(on I in Integer) I : I >= 1 and I <= 5 }})", "20");
 	}
 	
 	@Test
 	public void testSumOverIntegerIntervalDomain() {		
-		runTest(2, "sum({{(on I in 1..5) 2 : true }})", "10");
-		runTest(2, "sum({{(on I in 1..5) 2 : I != 3}})", "8");
+		runTest(2, true, "sum({{(on I in 1..5) 2 : true }})", "10");
+		runTest(2, true, "sum({{(on I in 1..5) 2 : I != 3}})", "8");
 		
 		// NOTE: picks 5,5,2
-		runTest(3, "sum({{(on I in 1..5) I : true }})", "20");
+		runTest(3, true, "sum({{(on I in 1..5) I : true }})", "20");
 	}
 	
 	@Test
-	public void testSumOverRealDomain() {		
-		runTest(2, "sum({{(on R in Real) 2 : R >= 1 and R <= 5 }})", "8");
-		runTest(2, "sum({{(on R in Real) 2 : R >= 1 and R != 3 and R <= 5 }})", "8");
+	public void testSumOverRealDomainAlwaysSample() {		
+		runTest(2, true, "sum({{(on R in Real) 2 : R >= 1 and R <= 5 }})", "8");
+		runTest(2, true, "sum({{(on R in Real) 2 : R >= 1 and R != 3 and R <= 5 }})", "8");
 		
 		// NOTE: picks 1.255232, 4.259308, 3.01488
-		runTest(3, "sum({{(on R in Real) R : R >= 1 and R <= 5 }})", "11.37256");
+		runTest(3, true, "sum({{(on R in Real) R : R >= 1 and R <= 5 }})", "11.37256");
+	}
+	
+	// NOTE: these tests should mirror those in ^^^ testSumOverRealDomainAlwaysSample()
+	@Test
+	public void testSumOverRealDomainBecauseDomainContinuous() {		
+		runTest(2, false, "sum({{(on R in Real) 2 : R >= 1 and R <= 5 }})", "8");
+		runTest(2, false, "sum({{(on R in Real) 2 : R >= 1 and R != 3 and R <= 5 }})", "8");
+		
+		// NOTE: picks 1.255232, 4.259308, 3.01488
+		runTest(3, false, "sum({{(on R in Real) R : R >= 1 and R <= 5 }})", "11.37256");
 	}
 	
 	@Test
-	public void testSumOverRealIntervalsDomain() {		
-		runTest(2, "sum({{(on R in [1;5]) 2 : true }})", "8");
-		runTest(2, "sum({{(on R in [1;5]) 2 : R != 3}})", "8");
+	public void testSumOverRealIntervalsDomainExplicitlyAlwaysSample() {		
+		runTest(2, true, "sum({{(on R in [1;5]) 2 : true }})", "8");
+		runTest(2, true, "sum({{(on R in [1;5]) 2 : R != 3}})", "8");
 		
 		// NOTE: picks 1.255232, 4.259308, 3.01488
-		runTest(3, "sum({{(on R in [1;5]) R : true }})", "11.37256");
+		runTest(3, true, "sum({{(on R in [1;5]) R : true }})", "11.37256");
+	}
+	
+	// NOTE: these tests should mirror those in ^^^ testSumOverRealIntervalsDomainExplicitlyAlwaysSample()
+	@Test
+	public void testSumOverRealIntervalsDomainSampleBecauseDomainContinuous() {		
+		runTest(2, false, "sum({{(on R in [1;5]) 2 : true }})", "8");
+		runTest(2, false, "sum({{(on R in [1;5]) 2 : R != 3}})", "8");
+		
+		// NOTE: picks 1.255232, 4.259308, 3.01488
+		runTest(3, false, "sum({{(on R in [1;5]) R : true }})", "11.37256");
 	}
 	
 	@Test
 	public void testSumOverFunctionV1() {		
-		runTest(2, "sum({{(on f in Boolean -> 0..3) 2 : true }})", "32");
+		runTest(2, true, "sum({{(on f in Boolean -> 0..3) 2 : true }})", "32");
 	}
 	
 	@Test
 	public void testSumOverFunctionV2() {		
 		//  NOTE: picks f_1(true)=1, f_2(true)=2 (i.e. two different lazy sampled functors)
-		runTest(2, "sum({{(on f in Boolean -> 0..3) f(true) : true }})", "24");
+		runTest(2, true, "sum({{(on f in Boolean -> 0..3) f(true) : true }})", "24");
 	}
 	
 	@Test
 	public void testSumOverFunctionV3() {		
 		//  NOTE: picks f_1(true)=1, f_1(false)=1, f_2(true)=2, f_2(false)=3
-		runTest(2, "sum({{(on f in Boolean -> 0..3) sum({{(on X in Boolean) f(X) : true }}) : true }})", "56");
+		runTest(2, false, "sum({{(on f in Boolean -> 0..3) sum({{(on X in Boolean) f(X) : true }}) : true }})", "56");
 	}
 	
 	@Test
 	public void testSumOverFunctionV4() {		
 		//  NOTE: picks f_1(true)=1, f_1(false)=1, f_2(true)=2, f_2(false)=3
-		runTest(2, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(X) : true }}) : true }})", "56");
+		runTest(2, false, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(X) : true }}) : true }})", "56");
 	}
 	
 	@Test
 	public void testSumOverFunctionEvaluatingArguments() {		
 		//  NOTE: picks f_1(true)=1, f_2(true)=2; never samples f(false) because argument is always true
-		runTest(2, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(not X or X) : true }}) : true }})", "40");
+		runTest(2, false, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(not X or X) : true }}) : true }})", "40");
 	}
 	
 	@Test
 	public void testSumOverTupleV1() {		
-		runTest(2, "sum({{(on T in (Boolean x 0..3)) 2 : true }})", "16");
+		runTest(2, true, "sum({{(on T in (Boolean x 0..3)) 2 : true }})", "16");
 	}
 	
-	public void runTest(int sampleSizeN, String expressionString, String expectedString) {
-		SampleCommonInterpreter interpreter = new SampleCommonInterpreter(sampleSizeN, random);
+	public void runTest(int sampleSizeN, boolean alwaysSample, String expressionString, String expectedString) {
+		SampleCommonInterpreter interpreter = new SampleCommonInterpreter(sampleSizeN, alwaysSample, random);
 		
 		Expression expression = parse(expressionString);
 		if (expression.numberOfArguments() == 1 && Sets.isIntensionalSet(expression.get(0))) {
