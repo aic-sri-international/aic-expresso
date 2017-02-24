@@ -39,8 +39,10 @@ package com.sri.ai.grinder.sgdpllt.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.math.Rational;
@@ -69,6 +71,37 @@ public class Exponentiation implements Simplifier {
 		System.out.println("min value="+minValue);
 		System.out.println("max exp  ="+maxExp);
 		System.out.println("min exp  ="+minExp);
+		
+		Rational nonZeroMinAbsValue = new Rational(1).divide(new Rational(10).pow(324));
+		
+		System.out.println("nonZeroMinAbsValue="+nonZeroMinAbsValue);
+		
+		evaluationTest(DefaultSymbol.createSymbol(new Rational(10).pow(1022)), "10^1022");
+		evaluationTest(DefaultSymbol.createSymbol(Double.MAX_VALUE), "10^1023");
+		evaluationTest(DefaultSymbol.createSymbol(Double.MAX_VALUE), "10^1024");
+		evaluationTest(DefaultSymbol.createSymbol(new Rational(10).pow(-324)), "0.1^324");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "0.1^325");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "0.1^1022");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "0.1^1023");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "0.1^2000");
+		evaluationTest(DefaultSymbol.createSymbol(new Rational(10).pow(-324)), "10^(-324)");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "10^(-325)");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "10^(-1022)");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "10^(-1023)");
+		evaluationTest(DefaultSymbol.createSymbol(nonZeroMinAbsValue), "10^(-2000)");
+		
+		// (3^1000)^(1/1000) = 2.0355 instead of 3 due to 3^1000 > Double.MAX_VALUE.
+		evaluationTest(DefaultSymbol.createSymbol(new Rational(1144786509939353L, 562949953421312L)), "1322070819480806636890455259752144365965422032752148167664920368226828597346704899540778313850608061963909777696872582355950954582100618911865342725257953674027620225198320803878014774228964841274390400117588618041128947815623094438061566173054086674490506178125480344405547054397038895817465368254916136220830268563778582290228416398307887896918556404084898937609373242171846359938695516765018940588109060426089671438864102814350385648747165832010614366132173102768902855220001^0.001");
+	}
+	
+	private static void evaluationTest(Expression expected, String expressionString) {
+		Expression actual = simplify(Expressions.parse(expressionString), new TrueContext());
+		if (!expected.equals(actual)) {
+			System.err.println("---------");
+			System.err.println("Given   ="+expressionString);
+			System.err.println("Expected="+expected);			
+			System.err.println("Actual  ="+actual);
+		}
 	}
 	
 	/**
@@ -146,7 +179,14 @@ public class Exponentiation implements Simplifier {
 				if (losePrecision) {
 					double exponentDoubleValue = exponent.doubleValue();
 					double baseDoubleValue     = base.doubleValue();
-					double newValue            = Math.pow(baseDoubleValue, exponentDoubleValue);
+					if (baseDoubleValue == Double.POSITIVE_INFINITY) {
+						baseDoubleValue = Double.MAX_VALUE;
+					}
+					else if (baseDoubleValue == Double.NEGATIVE_INFINITY) {
+						baseDoubleValue = -Double.MAX_VALUE;
+					}
+					
+					double newValue = Math.pow(baseDoubleValue, exponentDoubleValue);
 					
 					if (newValue == 0 && !baseValue.isZero()) {
 						result = nonZeroMinPosSymbol;
@@ -155,7 +195,7 @@ public class Exponentiation implements Simplifier {
 						result = Expressions.makeSymbol(Double.MAX_VALUE);
 					}
 					else if (newValue == Double.NEGATIVE_INFINITY) {
-						result = Expressions.makeSymbol(Double.MAX_VALUE * -1);
+						result = Expressions.makeSymbol(-Double.MAX_VALUE);
 					}
 					else {
 						result = boundPrecision(new Rational(newValue));
