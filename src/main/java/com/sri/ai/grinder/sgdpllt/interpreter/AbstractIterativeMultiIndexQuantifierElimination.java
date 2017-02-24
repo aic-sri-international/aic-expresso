@@ -65,12 +65,12 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 	}
 
 	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		Expression result = group.additiveIdentityElement();
-		Expression summand = makeSummand(group, indices, indicesCondition, body, context);
+		Expression result   = group.additiveIdentityElement();		
+		Expression summand  = makeSummand(group, indices, indicesCondition, body, context);
+		Rewriter   rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
 		Iterator<Map<Expression, Expression>> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
 		for (Map<Expression, Expression> indicesValues : in(assignmentsIterator)) {
-			Context extendedContext = extendAssignments(indicesValues, context);
-			Rewriter rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
+			Context extendedContext = extendAssignments(indicesValues, context);			
 			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;

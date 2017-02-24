@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -143,6 +144,13 @@ public class SampleCommonInterpreterTest {
 	public void testSumOverFunctionV4() {		
 		//  NOTE: picks f_1(true)=1, f_1(false)=1, f_2(true)=2, f_2(false)=3
 		runTest(2, false, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(X) : true }}) : true }})", "56");
+	}
+	
+	@Ignore("TODO - working on")
+	@Test
+	public void testProductWithLotsOfSamples() {		
+		//  NOTE: 
+		runTest(100000, true, "product({{(on f in Boolean -> 1..3) f(true) + f(false) : true }})", "56");
 	}
 	
 	@Test
