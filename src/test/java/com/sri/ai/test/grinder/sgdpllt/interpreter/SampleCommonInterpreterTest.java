@@ -9,7 +9,6 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -146,11 +145,43 @@ public class SampleCommonInterpreterTest {
 		runTest(2, false, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(X) : true }}) : true }})", "56");
 	}
 	
-	@Ignore("TODO - working on")
 	@Test
-	public void testProductWithLotsOfSamples() {		
-		//  NOTE: 
-		runTest(100000, true, "product({{(on f in Boolean -> 1..3) f(true) + f(false) : true }})", "56");
+	public void testProductWithLotsOfSamplesV1() {		
+		// NOTE: 
+		// measure =        9 : 3^2
+		// min     =      512 : (1+1)^9
+		// max     = 10077696 : (3+3)^9
+		runBoundedTest(10000, true, "product({{(on f in Boolean -> 1..3) f(true) + f(false) : true }})", "512", "10077696");
+	}
+	
+	@Test
+	public void testProductWithLotsOfSamplesV2() {	
+		// NOTE: 
+		// measure = 9 : 3^2
+// TODO - 5000 samples will cause a value < lower bound to be computed.		
+		runBoundedTest(4000, true, "product({{(on f in Boolean -> 999999997..999999999) f(true) + f(false) : true }})", "(999999997+999999999)^9", "(999999999+999999999)^9");
+	}
+	
+	@Test
+	public void testProductWithLotsOfSamplesV3() {		
+		// NOTE: 
+		// measure = 100 : 10^2
+		runBoundedTest(10000, true, "product({{(on f in Boolean -> 1..10) f(true) + f(false) : true }})", "(1+1)^100", "(10+10)^100");
+	}
+	
+	@Test
+	public void testProductWithLotsOfSamplesV4() {		
+		// NOTE: 
+		// measure = 400 : 20^2
+		runBoundedTest(10000, true, "product({{(on f in Boolean -> 1..20) f(true) + f(false) : true }})", "(1+1)^400", "(20+20)^400");
+	}
+	
+	@Test
+	public void testProductWithLotsOfSamplesV5() {		
+		// NOTE: 
+		// measure = 10000 : 100^2
+// TODO - everything computes = Double.MAX_VALUE (i.e. 1.7976931348623157E308) as the exponent limit in Exponentiation is > 1023.		
+		runBoundedTest(10000, true, "product({{(on f in Boolean -> 1..100) f(true) + f(false) : true }})", "(1+1)^10000", "(100+100)^10000");
 	}
 	
 	@Test
@@ -165,6 +196,23 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	public void runTest(int sampleSizeN, boolean alwaysSample, String expressionString, String expectedString) {
+		Expression expected = parse(expectedString);
+		Expression actual   = run(sampleSizeN, alwaysSample, expressionString);	
+		Assert.assertEquals(expected, actual);
+	}
+	
+	public void runBoundedTest(int sampleSizeN, boolean alwaysSample, String expressionString, String lowerBoundInclusiveString, String upperBoundInclusiveString) {
+		Expression lowerBoundInclusive = context.getTheory().evaluate(parse(lowerBoundInclusiveString), context);
+		Expression upperBoundInclusive = context.getTheory().evaluate(parse(upperBoundInclusiveString), context);
+		Expression actual = run(sampleSizeN, alwaysSample, expressionString);
+		System.out.println("upper bound  = "+upperBoundInclusive.doubleValue()+" (as rational="+upperBoundInclusive+")");
+		System.out.println("      actual = "+actual.doubleValue()+" (as rational="+actual+")");
+		System.out.println("lower bound  = "+lowerBoundInclusive.doubleValue()+" (as rational="+lowerBoundInclusive+")");
+		Assert.assertTrue("actual ("+actual+") is not >= lower bound ("+lowerBoundInclusive+")", actual.compareTo(lowerBoundInclusive) >= 0);
+		Assert.assertTrue("actual ("+actual+") is not <= upper bound ("+upperBoundInclusive+")", actual.compareTo(upperBoundInclusive) <= 0);
+	}
+	
+	private Expression run(int sampleSizeN, boolean alwaysSample, String expressionString) {
 		SampleCommonInterpreter interpreter = new SampleCommonInterpreter(sampleSizeN, alwaysSample, random);
 		
 		Expression expression = parse(expressionString);
@@ -196,10 +244,10 @@ public class SampleCommonInterpreterTest {
 		}
 		
 		Expression result = interpreter.apply(expression, context);
-		System.out.println("Evaluation with " + sampleSizeN + " samples of " + expressionString + " = " + result);
-		Assert.assertEquals(parse(expectedString), result);
+		System.out.println("Evaluation with " + sampleSizeN + " samples of " + expressionString + " = " + result.doubleValue() + " (as rational="+result+")");
+		
+		return result;
 	}
-
 
 	private void updateContextWithIndexAndType(String index, Type type) {
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
