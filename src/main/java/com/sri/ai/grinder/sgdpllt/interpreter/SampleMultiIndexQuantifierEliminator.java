@@ -134,10 +134,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 			Boolean  sample        = measureSetOfIAndSample.second;
 			
 			if (sample) {
-				// Quantifier({{ (on I in Samples) Head }} )
-				
-				Expression average;
-				
+				// Quantifier({{ (on I in Samples) Head }} )							
 				if (group instanceof Product) {
 					// In the case of the 'product' group we are computing a geometic mean: 
 					// https://en.wikipedia.org/wiki/Geometric_mean
@@ -145,7 +142,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 					// compute the log-average:
 					// https://en.wikipedia.org/wiki/Geometric_mean#Relationship_with_logarithms
 					// in order to attempt to address these issues directly
-					average = computeLogAverage((Product) group, indices.get(0), indicesCondition, body, context);
+					result = computeUsingLogAverage((Product) group, indices.get(0), indicesCondition, body, context, measureSetOfI);
 				}
 				else {
 					// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
@@ -153,11 +150,11 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 					Expression sampleGroupSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), indicesCondition,  body, context);			
 				
 					// Average = Quantifier( {{ (on I in Samples) Head }}) / n
-					average = group.addNTimes(sampleGroupSum, Division.make(Expressions.ONE, Expressions.makeSymbol(sampleSizeN)), context);
-				}
-				
-				// return Average * | SetOfI |
-				result = group.addNTimes(average, Expressions.makeSymbol(measureSetOfI), context);
+					Expression average = group.addNTimes(sampleGroupSum, Division.make(Expressions.ONE, Expressions.makeSymbol(sampleSizeN)), context);
+					
+					// return Average * | SetOfI |
+					result = group.addNTimes(average, Expressions.makeSymbol(measureSetOfI), context);
+				}								
 			}
 		}
 				
@@ -169,7 +166,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 	}
 	
 	// https://en.wikipedia.org/wiki/Geometric_mean#Relationship_with_logarithms
-	private Expression computeLogAverage(Product group, Expression index, Expression condition, Expression body, Context context) {		
+	private Expression computeUsingLogAverage(Product group, Expression index, Expression condition, Expression body, Context context, Rational measureSetOfI) {		
 		Expression summand = body;
 		
 		double logSum = 0.0;
@@ -182,24 +179,32 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 				return bodyEvaluation;
 			}
 			
-			double bodyValue = getDoubleValue(bodyEvaluation);
+			double bodyValue = getBoundedDoubleValue(bodyEvaluation);
 			if (bodyValue < 0) {
 				throw new UnsupportedOperationException("Currently do not support negative terms when computing log-average : "+bodyEvaluation);
 			}
 			logSum += Math.log(bodyValue);
 		}
 		
-		double quotient = logSum / sampleSizeN;
-		double dResult  = Math.exp(quotient);
-		
+		double quotient   = logSum / sampleSizeN;
+		double dResult    = getBoundedDoubleValue(Math.exp(quotient * getBoundedDoubleValue(measureSetOfI)));
 		Expression result = Expressions.makeSymbol(dResult);
 		
 		return result;		
 	}
 	
-	private double getDoubleValue(Expression numberExpression) {
+	private double getBoundedDoubleValue(Expression numberExpression) {
 		Rational rational = numberExpression.rationalValue();
-		double   result   = rational.doubleValue();
+		double   result   = getBoundedDoubleValue(rational);
+		return result;
+	}
+	
+	private double getBoundedDoubleValue(Rational rational) {		
+		double result = getBoundedDoubleValue(rational.doubleValue());
+		return result;
+	}
+	
+	private double getBoundedDoubleValue(double result) {
 		// Handle cases where result is too large
 		if (result == Double.POSITIVE_INFINITY) {		
 			result = Double.MAX_VALUE;
