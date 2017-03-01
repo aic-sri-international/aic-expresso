@@ -157,9 +157,8 @@ public class SampleCommonInterpreterTest {
 	@Test
 	public void testProductWithLotsOfSamplesV2() {	
 		// NOTE: 
-		// measure = 9 : 3^2
-// TODO - 5000 samples will cause a value < lower bound to be computed.		
-		runBoundedTest(4000, true, "product({{(on f in Boolean -> 999999997..999999999) f(true) + f(false) : true }})", "(999999997+999999999)^9", "(999999999+999999999)^9");
+		// measure = 9 : 3^2		
+		runBoundedTest(10000, true, "product({{(on f in Boolean -> 999999997..999999999) f(true) + f(false) : true }})", "(999999997+999999997)^9", "(999999999+999999999)^9");
 	}
 	
 	@Test
