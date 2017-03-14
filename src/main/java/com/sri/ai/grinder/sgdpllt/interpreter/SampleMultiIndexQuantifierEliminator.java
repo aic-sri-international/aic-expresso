@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.util.Util.in;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -56,7 +54,6 @@ import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.group.Product;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.Division;
@@ -135,26 +132,16 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 			
 			if (sample) {
 				// Quantifier({{ (on I in Samples) Head }} )							
-				if (group instanceof Product) {
-					// In the case of the 'product' group we are computing a geometic mean: 
-					// https://en.wikipedia.org/wiki/Geometric_mean
-					// which suffers from arithmetic overflow and underflow, we will therefore directly
-					// compute the log-average:
-					// https://en.wikipedia.org/wiki/Geometric_mean#Relationship_with_logarithms
-					// in order to attempt to address these issues directly
-					result = computeUsingLogAverage((Product) group, indices.get(0), indicesCondition, body, context, measureSetOfI);
-				}
-				else {
-					// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
-					// in makeAssignmentsInterator() and makeSummand().
-					Expression sampleGroupSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), indicesCondition,  body, context);			
+
+				// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
+				// in makeAssignmentsInterator() and makeSummand().
+				Expression sampleGroupSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), indicesCondition,  body, context);			
+			
+				// Average = Quantifier( {{ (on I in Samples) Head }}) / n
+				Expression average = group.addNTimes(sampleGroupSum, Division.make(Expressions.ONE, Expressions.makeSymbol(sampleSizeN)), context);
 				
-					// Average = Quantifier( {{ (on I in Samples) Head }}) / n
-					Expression average = group.addNTimes(sampleGroupSum, Division.make(Expressions.ONE, Expressions.makeSymbol(sampleSizeN)), context);
-					
-					// return Average * | SetOfI |
-					result = group.addNTimes(average, Expressions.makeSymbol(measureSetOfI), context);
-				}								
+				// return Average * | SetOfI |
+				result = group.addNTimes(average, Expressions.makeSymbol(measureSetOfI), context);								
 			}
 		}
 				
@@ -162,56 +149,6 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 			result = super.solve(group, indices, indicesCondition,  body, context);
 		}
 		
-		return result;
-	}
-	
-	// https://en.wikipedia.org/wiki/Geometric_mean#Relationship_with_logarithms
-	private Expression computeUsingLogAverage(Product group, Expression index, Expression condition, Expression body, Context context, Rational measureSetOfI) {		
-		Expression summand = body;
-		
-		double logSum = 0.0;
-		Rewriter rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
-		Iterator<Map<Expression, Expression>> assignmentsIterator = new AssignmentsSamplingIterator(Arrays.asList(index), sampleSizeN, condition, indicesConditionRewriter, random, context);
-		for (Map<Expression, Expression> indicesValues : in(assignmentsIterator)) {
-			Context extendedContext = extendAssignments(indicesValues, context);			
-			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
-			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
-				return bodyEvaluation;
-			}
-			
-			double bodyValue = getBoundedDoubleValue(bodyEvaluation);
-			if (bodyValue < 0) {
-				throw new UnsupportedOperationException("Currently do not support negative terms when computing log-average : "+bodyEvaluation);
-			}
-			logSum += Math.log(bodyValue);
-		}
-		
-		double quotient   = logSum / sampleSizeN;
-		double dResult    = getBoundedDoubleValue(Math.exp(quotient * getBoundedDoubleValue(measureSetOfI)));
-		Expression result = Expressions.makeSymbol(dResult);
-		
-		return result;		
-	}
-	
-	private double getBoundedDoubleValue(Expression numberExpression) {
-		Rational rational = numberExpression.rationalValue();
-		double   result   = getBoundedDoubleValue(rational);
-		return result;
-	}
-	
-	private double getBoundedDoubleValue(Rational rational) {		
-		double result = getBoundedDoubleValue(rational.doubleValue());
-		return result;
-	}
-	
-	private double getBoundedDoubleValue(double result) {
-		// Handle cases where result is too large
-		if (result == Double.POSITIVE_INFINITY) {		
-			result = Double.MAX_VALUE;
-		}
-		else if (result == Double.NEGATIVE_INFINITY) {
-			result = -Double.MAX_VALUE;
-		}
 		return result;
 	}
 	

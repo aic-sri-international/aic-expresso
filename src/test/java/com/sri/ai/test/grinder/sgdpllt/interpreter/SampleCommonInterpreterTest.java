@@ -34,6 +34,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.util.math.Rational;
 
 public class SampleCommonInterpreterTest {
 	private Random random;
@@ -178,8 +179,7 @@ public class SampleCommonInterpreterTest {
 	@Test
 	public void testProductWithLotsOfSamplesV5() {		
 		// NOTE: 
-		// measure = 10000 : 100^2
-// TODO - everything computes = Double.MAX_VALUE (i.e. 1.7976931348623157E308) as the exponent limit in Exponentiation is > 1023.		
+		// measure = 10000 : 100^2		
 		runBoundedTest(10000, true, "product({{(on f in Boolean -> 1..100) f(true) + f(false) : true }})", "(1+1)^10000", "(100+100)^10000");
 	}
 	
@@ -204,11 +204,11 @@ public class SampleCommonInterpreterTest {
 		Expression lowerBoundInclusive = context.getTheory().evaluate(parse(lowerBoundInclusiveString), context);
 		Expression upperBoundInclusive = context.getTheory().evaluate(parse(upperBoundInclusiveString), context);
 		Expression actual = run(sampleSizeN, alwaysSample, expressionString);
-		System.out.println("upper bound  = "+upperBoundInclusive.doubleValue()+" (as rational="+upperBoundInclusive+")");
-		System.out.println("      actual = "+actual.doubleValue()+" (as rational="+actual+")");
-		System.out.println("lower bound  = "+lowerBoundInclusive.doubleValue()+" (as rational="+lowerBoundInclusive+")");
-		Assert.assertTrue("actual ("+actual+") is not >= lower bound ("+lowerBoundInclusive+")", actual.compareTo(lowerBoundInclusive) >= 0);
-		Assert.assertTrue("actual ("+actual+") is not <= upper bound ("+upperBoundInclusive+")", actual.compareTo(upperBoundInclusive) <= 0);
+		System.out.println("upper bound  = "+upperBoundInclusive.doubleValue()+" (as rational="+toString(upperBoundInclusive)+")");
+		System.out.println("      actual = "+actual.doubleValue()+" (as rational="+toString(actual)+")");
+		System.out.println("lower bound  = "+lowerBoundInclusive.doubleValue()+" (as rational="+toString(lowerBoundInclusive)+")");
+		Assert.assertTrue("actual ("+toString(actual)+") is not >= lower bound ("+toString(lowerBoundInclusive)+")", actual.compareTo(lowerBoundInclusive) >= 0);
+		Assert.assertTrue("actual ("+toString(actual)+") is not <= upper bound ("+toString(upperBoundInclusive)+")", actual.compareTo(upperBoundInclusive) <= 0);
 	}
 	
 	private Expression run(int sampleSizeN, boolean alwaysSample, String expressionString) {
@@ -243,7 +243,22 @@ public class SampleCommonInterpreterTest {
 		}
 		
 		Expression result = interpreter.apply(expression, context);
-		System.out.println("Evaluation with " + sampleSizeN + " samples of " + expressionString + " = " + result.doubleValue() + " (as rational="+result+")");
+		System.out.println("Evaluation with " + sampleSizeN + " samples of " + expressionString + " = " + result.doubleValue() + " (as rational="+toString(result)+")");
+		
+		return result;
+	}
+	
+	private String toString(Expression rationalExpr) {
+		String result;
+		
+		Rational rational = rationalExpr.rationalValue();
+		
+		if (rational.isInteger()) {
+			result = rational.getNumerator().toString();
+		}
+		else {
+			result = rational.getNumerator().toString()+"/"+rational.getDenominator().toString();
+		}
 		
 		return result;
 	}
