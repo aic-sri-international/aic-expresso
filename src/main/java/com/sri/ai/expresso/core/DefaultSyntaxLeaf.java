@@ -463,14 +463,15 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 				Rational absValue       = rLabel.abs();
 				Rational integerPart    = absValue.round(Rational.ROUND_FLOOR);
 				
+				// We don't want to loose any precision in the integer part.
+				String formattedIntegerPart = integerPart.toString();
+				
 				// NOTE: if we are to display numerics exactly we will want to format the abs result 
 				// twice. The second one with a display precision 1 >, so if its final length
 				// is longer we know we are loosing precision (without having to do complex math).
 				String[] formattedAbsResult   = new String[_displayNumericsExactly ? 2 : 1];
 				int[] displayNumericPrecision = new int[formattedAbsResult.length];
-				for (int i = 0; i < formattedAbsResult.length; i++) {
-					// We don't want to loose any precision in the integer part.
-					String formattedIntegerPart = integerPart.toString();
+				for (int i = 0; i < formattedAbsResult.length; i++) {					
 					displayNumericPrecision[i] = i +  Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
 				
 					formattedAbsResult[i] = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision[i]));
