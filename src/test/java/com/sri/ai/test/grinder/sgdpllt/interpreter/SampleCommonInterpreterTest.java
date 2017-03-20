@@ -200,6 +200,39 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
+	public void testIntegerIntervalEg2() {
+		String intensionalSet = "{{(on I in 1..1000000) I^2 - I + 10 : I > 20 and I < 40 }}";
+		
+		String[][] functionNamesAndExactValues = new String[][] {
+			// 38sec exact, 1364ms approx
+			{"sum", "17290"},   
+			// 39sec exact,  723ms approx
+			{"max", "1492"},    
+			// 39sec exact,  619ms approx
+			{"product", "45909468078488688718259880191530770000000000000000000000"} 
+		};
+		
+		runSampleCompareToExact(10000, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
+	public void testIntegerIntervalEg3() {
+		String intensionalSet = "{{(on I in 1..1000000) I^2 - I + 10  }}";
+		
+		String[][] functionNamesAndExactValues = new String[][] {
+			// 33sec exact, 1147ms approx
+			{"sum", "333333333343000000"},   
+			// 32sec exact,  639ms approx
+			{"max", "999999000010"}
+			// Skip as its hard to get a product sample within an order
+			// of magnitude of the exaxt
+			// {"product", null}
+		};
+		
+		runSampleCompareToExact(10000, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
 	public void testRealIntervalEg1() {
 		String intensionalSet = "{{(on I in [1;100]) I^2 - I + 10 : I > 20 and I < 40 }}";
 // TODO - compute these using WolframAlpha as can't use brute force interpreter on real intervals.		
@@ -226,6 +259,25 @@ public class SampleCommonInterpreterTest {
 		};
 		
 		runSampleCompareToExact(100, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
+	public void testCategoricalEg2() {
+		updateContextWithIndexAndType("N", 
+				new Categorical("Person", 1000000));
+		
+		String intensionalSet = "{{(on I in Person) if I != person1 then 20 else 30 : I != person2 }}";
+		
+		String[][] functionNamesAndExactValues = new String[][] {
+			// 42sec exact, 1186ms approx
+			{"sum", "19999990"},
+			// 26sec exact,  762ms approx
+			{"max", "30"}, 
+			// 25sec exact,  703ms approx
+			{"product", "7.425492171971923688023442712229336E+1301028"}
+		};
+		
+		runSampleCompareToExact(10000, true, intensionalSet, functionNamesAndExactValues);		
 	}
 	
 	@Test
@@ -265,14 +317,18 @@ public class SampleCommonInterpreterTest {
 
 			Expression exactValue;
 			if (exactValueStr == null) {
+				long start = System.currentTimeMillis();
 				exactValue = bruteForceResult(functionApplicationToIntensionalSet);
+				long end = System.currentTimeMillis();
+				System.out.println("Brute force computed exact value = "+toString(exactValue)+", took "+(end-start)+"ms. to compute");
 			}
 			else {
 				exactValue = Expressions.parse(exactValueStr);
 			}			
-			
+			long start = System.currentTimeMillis();
 			Expression sampleValue = run(sampleSizeN, alwaysSample, functionApplicationToIntensionalSet);
-			System.out.println("Exact Value = "+exactValue);
+			long end = System.currentTimeMillis();
+			System.out.println("Sampled value = "+toString(sampleValue)+", took "+(end-start)+"ms. to compute");
 			
 			// We'll test if the sample value is within an order of magnitude of the exact value
 			Expression upper = Expressions.makeSymbol(exactValue.rationalValue().multiply(10));
