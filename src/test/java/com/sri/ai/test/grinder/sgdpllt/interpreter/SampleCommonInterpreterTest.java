@@ -15,6 +15,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
@@ -24,6 +25,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.interpreter.SampleCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
@@ -184,6 +186,49 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
+	public void testIntegerIntervalEg1() {
+		String intensionalSet = "{{(on I in 1..100) I^2 - I + 10 : I > 20 and I < 40 }}";
+		
+		String[][] functionNamesAndExactValues = new String[][] {
+			{"sum", "17290"}, 
+			{"max", "1492"}, 
+			// Product[10 - k + k^2, {k, 21, 39}]
+			{"product", "45909468078488688718259880191530770000000000000000000000"}
+		};
+		
+		runSampleCompareToExact(100, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
+	public void testRealIntervalEg1() {
+		String intensionalSet = "{{(on I in [1;100]) I^2 - I + 10 : I > 20 and I < 40 }}";
+// TODO - compute these using WolframAlpha as can't use brute force interpreter on real intervals.		
+		String[][] functionNamesAndExactValues = new String[][] {
+			{"sum", "17290"}, 
+			{"max", "1492"}, 			
+			{"product", "4590946807848868871825988019153077000000000000000000000000"}
+		};
+		
+		runSampleCompareToExact(10, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
+	public void testCategoricalEg1() {
+		updateContextWithIndexAndType("N", 
+				new Categorical("Person", 100));
+		
+		String intensionalSet = "{{(on I in Person) if I != person1 then 20 else 30 : I != person2 }}";
+		
+		String[][] functionNamesAndExactValues = new String[][] {
+			{"sum", "1990"}, 
+			{"max", "30"}, 
+			{"product", "950737950171172051122527404032000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}
+		};
+		
+		runSampleCompareToExact(100, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
 	public void testSumOverFunctionEvaluatingArguments() {		
 		//  NOTE: picks f_1(true)=1, f_2(true)=2; never samples f(false) because argument is always true
 		runTest(2, false, "sum({{(on f in Boolean -> 0..3) product({{(on X in Boolean) f(not X or X) : true }}) : true }})", "40");
@@ -209,6 +254,36 @@ public class SampleCommonInterpreterTest {
 		System.out.println("lower bound  = "+lowerBoundInclusive.doubleValue()+" (as rational="+toString(lowerBoundInclusive)+")");
 		Assert.assertTrue("actual ("+toString(actual)+") is not >= lower bound ("+toString(lowerBoundInclusive)+")", actual.compareTo(lowerBoundInclusive) >= 0);
 		Assert.assertTrue("actual ("+toString(actual)+") is not <= upper bound ("+toString(upperBoundInclusive)+")", actual.compareTo(upperBoundInclusive) <= 0);
+	}
+	
+	public void runSampleCompareToExact(int sampleSizeN, boolean alwaysSample, String intensionalSet, String[][] functionNamesAndExactValues) {
+		for (int i = 0; i < functionNamesAndExactValues.length; i++) {
+			String functionName  = functionNamesAndExactValues[i][0];
+			String exactValueStr  = functionNamesAndExactValues[i][1];
+					
+			String functionApplicationToIntensionalSet = functionName+"("+intensionalSet+")";
+
+			Expression exactValue;
+			if (exactValueStr == null) {
+				exactValue = bruteForceResult(functionApplicationToIntensionalSet);
+			}
+			else {
+				exactValue = Expressions.parse(exactValueStr);
+			}			
+			
+			Expression sampleValue = run(sampleSizeN, alwaysSample, functionApplicationToIntensionalSet);
+			System.out.println("Exact Value = "+exactValue);
+			
+			// We'll test if the sample value is within an order of magnitude of the exact value
+			Expression upper = Expressions.makeSymbol(exactValue.rationalValue().multiply(10));
+			Expression lower = Expressions.makeSymbol(exactValue.rationalValue().divide(10));
+			
+			
+			Assert.assertTrue("sample ("+toString(sampleValue)+") is not >= lower magnitude bound ("+toString(lower)+") for exact value ("+toString(exactValue)+")", 
+					sampleValue.compareTo(lower) >= 0);
+			Assert.assertTrue("sample ("+toString(sampleValue)+") is not <= upper magnitude bound ("+toString(lower)+") for exact value ("+toString(exactValue)+")", 
+					sampleValue.compareTo(upper) <= 0);			
+		}
 	}
 	
 	private Expression run(int sampleSizeN, boolean alwaysSample, String expressionString) {
@@ -260,6 +335,12 @@ public class SampleCommonInterpreterTest {
 			result = rational.getNumerator().toString()+"/"+rational.getDenominator().toString();
 		}
 		
+		return result;
+	}
+	
+	private Expression bruteForceResult(String expression) {
+		BruteForceCommonInterpreter bruteForceInterpreter = new BruteForceCommonInterpreter();
+		Expression result = bruteForceInterpreter.apply(Expressions.parse(expression), context);
 		return result;
 	}
 
