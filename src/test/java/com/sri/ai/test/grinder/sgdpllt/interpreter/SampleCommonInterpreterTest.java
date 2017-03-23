@@ -204,11 +204,11 @@ public class SampleCommonInterpreterTest {
 		String intensionalSet = "{{(on I in 1..1000000) I^2 - I + 10 : I > 20 and I < 40 }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
-			// 38sec exact, 1364ms approx
+			// 38sec brute, 1364ms sample
 			{"sum", "17290"},   
-			// 39sec exact,  723ms approx
+			// 39sec brute,  723ms sample
 			{"max", "1492"},    
-			// 39sec exact,  619ms approx
+			// 39sec brute,  619ms sample
 			{"product", "45909468078488688718259880191530770000000000000000000000"} 
 		};
 		
@@ -220,12 +220,12 @@ public class SampleCommonInterpreterTest {
 		String intensionalSet = "{{(on I in 1..1000000) I^2 - I + 10  }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
-			// 33sec exact, 1147ms approx
+			// 33sec brute, 1147ms sample
 			{"sum", "333333333343000000"},   
-			// 32sec exact,  639ms approx
+			// 32sec brute,  639ms sample
 			{"max", "999999000010"}
 			// Skip as its hard to get a product sample within an order
-			// of magnitude of the exaxt
+			// of magnitude of the exact value
 			// {"product", null}
 		};
 		
@@ -269,12 +269,30 @@ public class SampleCommonInterpreterTest {
 		String intensionalSet = "{{(on I in Person) if I != person1 then 20 else 30 : I != person2 }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
-			// 42sec exact, 1186ms approx
+			// 42sec brute, 1186ms sample
 			{"sum", "19999990"},
-			// 26sec exact,  762ms approx
+			// 26sec brute,  762ms sample
 			{"max", "30"}, 
-			// 25sec exact,  703ms approx
+			// 25sec brute,  703ms sample
 			{"product", "7.425492171971923688023442712229336E+1301028"}
+		};
+		
+		runSampleCompareToExact(10000, true, intensionalSet, functionNamesAndExactValues);		
+	}
+	
+	@Test
+	public void testFuncitonEg1() {
+		// measure =  1000000 : 10^6
+		String intensionalSet = "{{(on f in 1..6 -> 1..10) f(1) + f(2) + f(3) + f(4) + f(5) + f(6) }}";
+		
+		String[][] functionNamesAndExactValues = new String[][] {
+			// 485sec brute, 3033ms sample
+			{"sum", "33000000" }, 
+			// 478sec brute, 2314ms sample
+			{"max", "60"}
+			// Skip as its hard to get a product sample within an order
+			// of magnitude of the exact value
+			// {"product", null}
 		};
 		
 		runSampleCompareToExact(10000, true, intensionalSet, functionNamesAndExactValues);		
@@ -314,7 +332,6 @@ public class SampleCommonInterpreterTest {
 			String exactValueStr  = functionNamesAndExactValues[i][1];
 					
 			String functionApplicationToIntensionalSet = functionName+"("+intensionalSet+")";
-
 			Expression exactValue;
 			if (exactValueStr == null) {
 				long start = System.currentTimeMillis();
