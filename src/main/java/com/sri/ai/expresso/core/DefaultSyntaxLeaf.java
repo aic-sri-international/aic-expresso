@@ -462,7 +462,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		else if (valueOrRootSyntaxTree instanceof Number && _displayNumericPrecision != 0) {
 			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
 			if (rLabel.isInteger()) {
-				result = rLabel.toString();
+				result = rLabel.getNumerator().toString();
 			} 
 			else {	
 				Rational absValue       = rLabel.abs();
@@ -482,8 +482,8 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 					formattedAbsResult[i] = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision[i]));
 				}
 				
-				if (_displayNumericsExactly && formattedAbsResult[1].length() > formattedAbsResult[0].length()) {
-					result = rLabel.toString(); // This will output it as an exact ratio
+				if (_displayNumericsExactly && formattedAbsResult[1].length() > formattedAbsResult[0].length()) {				
+					result = rLabel.getNumerator().toString()+"/"+rLabel.getDenominator().toString(); // Output it as an exact ratio
 				}
 				else {
 					// Once we have precision taken care of, now determine if we should instead

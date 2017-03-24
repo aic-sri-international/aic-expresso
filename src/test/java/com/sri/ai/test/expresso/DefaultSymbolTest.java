@@ -2,6 +2,8 @@ package com.sri.ai.test.expresso;
 
 
 
+import java.math.MathContext;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,6 +25,8 @@ public class DefaultSymbolTest {
 		oldDisplayExact      = SyntaxTrees.setDisplayNumericsExactly(false);
 		oldScientificGreater = SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(6);
 		oldScientificAfter   = SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(4); 
+		// Ensure we are in approximation mode (i.e. the default) for these tests
+		Rational.resetApproximationConfiguration(true, MathContext.DECIMAL128.getPrecision(), MathContext.DECIMAL128.getRoundingMode());
 	}
 	
 	@After
@@ -31,6 +35,7 @@ public class DefaultSymbolTest {
 		SyntaxTrees.setDisplayNumericsExactly(oldDisplayExact);
 		SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(oldScientificGreater);
 		SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(oldScientificAfter);
+		Rational.resetApproximationConfigurationFromAICUtilConfiguration();
 	}
 	
 	@Test
@@ -41,6 +46,17 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("1/3", Expressions.makeSymbol(new Rational(1, 3)).toString());
 		Assert.assertEquals("1/7", Expressions.makeSymbol(new Rational(1, 7)).toString());
 		Assert.assertEquals("7076430434013521/18014398509481984", Expressions.makeSymbol(0.3928208).toString());
+	}
+	
+	@Test
+	public void testDisplayLargeExact() {
+		// NOTE: the tearDown method will set us back to the correct default.
+		SyntaxTrees.setDisplayNumericsExactly(true);
+		Rational largeRational = new Rational(3).pow(100000);
+		Assert.assertEquals("1.334971414230401469458914390489782E+47712", Expressions.makeSymbol(largeRational).toString());
+		
+		largeRational = new Rational(3).pow(100000).divide(new Rational(7).pow(100));
+		Assert.assertEquals("4.127318316450768693328416550734344E47627", Expressions.makeSymbol(largeRational).toString());
 	}
 	
 	@Test
