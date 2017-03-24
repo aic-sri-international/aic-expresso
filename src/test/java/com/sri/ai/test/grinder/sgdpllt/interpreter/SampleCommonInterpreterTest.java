@@ -234,12 +234,12 @@ public class SampleCommonInterpreterTest {
 	
 	@Test
 	public void testRealIntervalEg1() {
-		String intensionalSet = "{{(on I in [1;100]) I^2 - I + 10 : I > 20 and I < 40 }}";
-// TODO - compute these using WolframAlpha as can't use brute force interpreter on real intervals.		
+		String intensionalSet = "{{(on I in [1;100]) I^2 - I + 10 : I > 20 and I < 40 }}";	
 		String[][] functionNamesAndExactValues = new String[][] {
-			{"sum", "17290"}, 
-			{"max", "1492"}, 			
-			{"product", "4590946807848868871825988019153077000000000000000000000000"}
+			{"sum", "16326"}, // Integrate[i^2 - i + 10, {i, 21, 39}] = integral_21^39 (i^2 - i + 10) di = 16326
+			{"max", "1570"},  // Maximize[{i^2 - i + 10, 20 < i < 40}, {i}] = {{1570., {i -> 40.}}}
+			// Skip, not sure how to compute using WolframAlpha and brute force method currently can't handle real intervals.
+			// {"product", null}
 		};
 		
 		runSampleCompareToExact(10, true, intensionalSet, functionNamesAndExactValues);		

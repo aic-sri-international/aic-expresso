@@ -94,6 +94,7 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf  {
+	private static final long serialVersionUID = 1L;
 	
 	// ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9] | '_')* ('\'')*
 	public static Pattern UNQUOTED_SYMBOLIC_NAME = Pattern.compile("[[a-z][A-Z][0-9]_]+[']*");
@@ -116,6 +117,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN_OR_EQUAL_TO);
 		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
 	}
+	private static int     _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	private static boolean _displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
+	private static int     _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	private static int     _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	
 	public static final CharSequenceTranslator UNESCAPE_STRING_VALUE = 
 		        new AggregateTranslator(
@@ -582,11 +587,6 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		
 		return result;
 	}
-	
-	private static int     _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	private static boolean _displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
-	private static int     _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	private static int     _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
