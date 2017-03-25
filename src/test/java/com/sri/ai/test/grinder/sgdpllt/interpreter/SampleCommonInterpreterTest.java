@@ -36,7 +36,6 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.util.math.Rational;
 
 public class SampleCommonInterpreterTest {
 	private Random random;
@@ -396,17 +395,8 @@ public class SampleCommonInterpreterTest {
 		return result;
 	}
 	
-	private String toString(Expression rationalExpr) {
-		String result;
-		
-		Rational rational = rationalExpr.rationalValue();
-		
-		if (rational.isInteger()) {
-			result = rational.getNumerator().toString();
-		}
-		else {
-			result = rational.getNumerator().toString()+"/"+rational.getDenominator().toString();
-		}
+	private String toString(Expression rationalExpr) {		
+		String result = rationalExpr.toString();	
 		
 		return result;
 	}

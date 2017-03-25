@@ -461,42 +461,54 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 		else if (valueOrRootSyntaxTree instanceof Number && _displayNumericPrecision != 0) {
 			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
-			if (rLabel.isInteger()) {
-				result = rLabel.getNumerator().toString();
-			} 
-			else {	
-				Rational absValue       = rLabel.abs();
-				Rational integerPart    = absValue.round(Rational.ROUND_FLOOR);
-				
-				// We don't want to loose any precision in the integer part.
-				String formattedIntegerPart = integerPart.toString();
-				
-				// NOTE: if we are to display numerics exactly we will want to format the abs result 
-				// twice. The second one with a display precision 1 >, so if its final length
-				// is longer we know we are loosing precision (without having to do complex math).
-				String[] formattedAbsResult   = new String[_displayNumericsExactly ? 2 : 1];
-				int[] displayNumericPrecision = new int[formattedAbsResult.length];
-				for (int i = 0; i < formattedAbsResult.length; i++) {					
-					displayNumericPrecision[i] = i +  Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
-				
-					formattedAbsResult[i] = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision[i]));
-				}
-				
-				if (_displayNumericsExactly && formattedAbsResult[1].length() > formattedAbsResult[0].length()) {				
-					result = rLabel.getNumerator().toString()+"/"+rLabel.getDenominator().toString(); // Output it as an exact ratio
+	
+			Rational   absValue                 = rLabel.abs();
+			Rational[] integerAndFractionalPart = absValue.integerAndFractionalPart();
+			Rational integerPart                = integerAndFractionalPart[0];
+			Rational fractionalPart             = integerAndFractionalPart[1];
+			
+			// Determine if we lose precision
+			boolean  losePrecision           = false;
+			Rational reducedIntegerPart      = integerPart;
+			Rational increasedFractionalPart = fractionalPart;
+			for (int i = 0; i < _displayNumericPrecision; i++) {					
+				if (reducedIntegerPart.compareTo(1) < 0) {
+					increasedFractionalPart = increasedFractionalPart.multiply(10);
+					if (increasedFractionalPart.isInteger()) {							
+						break; // this means we won't lose precision
+					}
 				}
 				else {
-					// Once we have precision taken care of, now determine if we should instead
-					// output the result in scientific notation.
-					int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult[0]);
-					if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||
-						integerAndFractionalPartSizes[1] > _displayScientificAfterNDecimalPlaces     ) {
-						result = rLabel.toStringExponent(displayNumericPrecision[0]);
-					}
-					else {
-						result = (rLabel.isNegative() ? "-" : "") + formattedAbsResult[0];
-					}
+					reducedIntegerPart = reducedIntegerPart.divide(10);						
 				}
+			}
+			
+			if (!(reducedIntegerPart.compareTo(1) < 0 && increasedFractionalPart.isInteger())) {
+				losePrecision = true;
+			}
+			
+			if (_displayNumericsExactly && losePrecision) {		
+				if (rLabel.isInteger()) {
+					result = rLabel.getNumerator().toString();
+				}
+				else {
+					// Output as an exact ratio
+					result = rLabel.getNumerator().toString()+"/"+rLabel.getDenominator().toString(); 
+				}
+			}
+			else {		
+				int approxPrecision = _displayNumericPrecision;
+				if (!(reducedIntegerPart.compareTo(1) < 0)) { // Means we'll lose integer part precision
+					// Increase the precision to the max before scientific.
+					approxPrecision = _displayScientificGreaterNIntegerPlaces;
+				}
+				if (isTooLargeRequiresScientificFormat(integerPart, fractionalPart)) {					
+					result = rLabel.toStringExponent(approxPrecision);
+				}
+				else {
+					result = rLabel.toStringDotRelative(approxPrecision);
+				}
+				result = removeTrailingZerosToRight(result);
 			}
 		}
 		else {
@@ -572,18 +584,36 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 	
-	private static int[] getIntegerAndFractionalPartSizes(String absValue) {
-		int[] result = new int[] {0, 0};
+	private static boolean isTooLargeRequiresScientificFormat(Rational integerPart, Rational fractionalPart) {
+		boolean isDisplayIntegerPartScientific = false;
+		boolean isDisplayFractPartScientific   = false;
 		
-		int dot = absValue.indexOf('.');
-		// No Fractional part
-		if (dot == -1) {
-			result[0] = absValue.length();
+		Rational reducedIntegerPart = integerPart;
+		for (int i = 0; i < _displayScientificGreaterNIntegerPlaces; i++) {
+			if (reducedIntegerPart.compareTo(1) < 0) {
+				break; // We don't need to display the integer part with scientific notation
+			}
+			reducedIntegerPart = reducedIntegerPart.divide(10);
 		}
-		else {
-			result[0] = dot;
-			result[1] = absValue.length() - dot - 1; // exclude the dot as well
+		if (!(reducedIntegerPart.compareTo(1) < 0)) {
+			isDisplayIntegerPartScientific = true;
 		}
+		if (!isDisplayIntegerPartScientific) {
+			// The integer part does not need to be displayed as scientific
+			// test the decimal part.
+			Rational increasedFractionalPart = fractionalPart;
+			for (int i = 0; i < _displayScientificAfterNDecimalPlaces; i++) {						
+				if (increasedFractionalPart.isInteger()) {							
+					break; // We don't need to display the fractional part with scientific notation
+				}
+				increasedFractionalPart = increasedFractionalPart.multiply(10);
+			}
+			if (!increasedFractionalPart.isInteger()) {
+				isDisplayFractPartScientific = true;
+			}
+		}
+		
+		boolean result = isDisplayIntegerPartScientific || isDisplayFractPartScientific;
 		
 		return result;
 	}
