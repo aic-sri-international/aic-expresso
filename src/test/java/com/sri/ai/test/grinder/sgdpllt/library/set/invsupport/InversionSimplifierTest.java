@@ -4,13 +4,9 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.set.invsupport.InversionSimplifier;
@@ -31,23 +27,31 @@ public class InversionSimplifierTest {
 		simplifier = new InversionSimplifier();
 	}
 	
-	@Ignore
 	@Test
 	public void testCase1() {
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) : true }}) : true}})");
-	    Expression product  = parse("product({{(on X in 1..10) sum({{(on f in 1..10 -> 1..5) f(X) }}) : true}})");
+	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in {X} -> 1..5) f(X) }}) : true}})");
 		
-	    IntensionalSet intensionalSet = (IntensionalSet) product.get(0);
-	    Context intensionalSetContext  = (Context) GrinderUtil.extendRegistryWithIndexExpressions(intensionalSet.getIndexExpressions(), context);
-	    Expression sum = intensionalSet.getHead();
-	    intensionalSet = (IntensionalSet) sum.get(0);
-	    intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(intensionalSet.getIndexExpressions(), intensionalSetContext);
-	    
-	    Type typeX = GrinderUtil.getType(parse("f"), intensionalSetContext);
-System.out.println("typeX="+typeX);	    
-
-Expression res = context.getTheory().evaluate(product, context);
-System.out.println("res="+res);
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
+	@Test
+	public void testCase2() {
+		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + 7 : true }}) : true}})");
+	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in {X} -> 1..5) f(X) + 7 }}) : true}})");
+		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
+	@Test
+	public void testCase3() {
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{(on X in 1..10) product({{(on Y in 1..10) sum({{(on f in {X} x {Y} -> 1..5) f(X, Y): true }}) : true }}) : true}})");
+		
 	    Assert.assertEquals(
 				product, 
 				simplifier.apply(summation, context));
