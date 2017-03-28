@@ -56,6 +56,7 @@ import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.util.base.Pair;
 
 public class InversionSimplifier implements Simplifier {
 	// TODO - 1. Add support for summations and products with more than 1 index.
@@ -69,55 +70,60 @@ public class InversionSimplifier implements Simplifier {
 		Expression result = expression;
 		
 		if (isSummationIndexedByFunctionOfProducts(expression, context)) {
-			if (isInversionPossible(expression, context)) {
-				result = applyInversion(expression, context);
+			// NOTE: at this point we know we have a summation indexed by a function
+			Expression summationIndexedByFunction = expression;
+			
+			Pair<Expression, FunctionType> indexAndFunctionType = getIndexAndFunctionType(summationIndexedByFunction, context);
+			Expression summationIndex                           = indexAndFunctionType.first;
+			FunctionType summationIndexFunctionType             = indexAndFunctionType.second;
+			
+			List<Expression> products = new ArrayList<>();
+			collectProducts(getHead(summationIndexedByFunction), products);
+			if (isInversionPossible(summationIndex, summationIndexFunctionType, products, context)) {				
+				result = applyInversion(summationIndexedByFunction, summationIndex, summationIndexFunctionType, products, context);
 			}
 		}
 		
 		return result;
 	}
 	
-	private static Expression applyInversion(Expression summation, Context context) {
+	private static boolean isInversionPossible(Expression functionName, FunctionType functionType, List<Expression> products, Context context) {
+		boolean result = true;		
+// TODO		
+		return result;
+	}
+	
+	private static Expression applyInversion(Expression summationIndexedByFunction, Expression summationFunctionIndex, FunctionType summationFunctionType, List<Expression> products, Context context) {
 		Expression result; 
-		
-		// NOTE: at this point we know we have a summation indexed by a function 
-		Expression summationArg = summation.get(0);
-		IntensionalSet summationIntensionalSet  = (IntensionalSet) summationArg;
-		IndexExpressionsSet indexExpressionsSet = summationIntensionalSet.getIndexExpressions();
-		Expression functionIndex                = IndexExpressions.getIndices(indexExpressionsSet).get(0);
-		Context intensionalSetContext           = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
-		FunctionType functionType               = (FunctionType) GrinderUtil.getType(functionIndex, intensionalSetContext);
-
-		List<Expression> products = new ArrayList<>();
-		collectProducts(summationIntensionalSet.getHead(), products, context);
 		
 		List<Expression> summationIndexArgs = new ArrayList<>();
 		for (Expression product : products) {
-			Expression index = IndexExpressions.getIndices(((IntensionalSet) product.get(0)).getIndexExpressions()).get(0);
+			Expression index = getIndexAndType(product).first;
 			summationIndexArgs.add(ExtensionalSet.makeSingleton(index));
 		}
 		
 		Expression summationIndexType;
 		if (summationIndexArgs.size() == 1) {
-			summationIndexType =  Expressions.apply(FunctorConstants.FUNCTION_TYPE, summationIndexArgs.get(0), parse(functionType.getCodomain().getName()));
+			summationIndexType =  Expressions.apply(FunctorConstants.FUNCTION_TYPE, summationIndexArgs.get(0), parse(summationFunctionType.getCodomain().getName()));
 		}
 		else {
 			Expression domainTypes = Expressions.apply(FunctorConstants.TUPLE_TYPE, summationIndexArgs.toArray(new Object[summationIndexArgs.size()]));
-			summationIndexType =  Expressions.apply(FunctorConstants.FUNCTION_TYPE, domainTypes, parse(functionType.getCodomain().getName()));
+			summationIndexType =  Expressions.apply(FunctorConstants.FUNCTION_TYPE, domainTypes, parse(summationFunctionType.getCodomain().getName()));
 		}
-		Expression summationIndex = IndexExpressions.makeIndexExpression(functionIndex, summationIndexType);
+		Expression summationIndex = IndexExpressions.makeIndexExpression(summationFunctionIndex, summationIndexType);
 		
-		IntensionalSet lastProductIntensionalSet = (IntensionalSet) products.get(products.size()-1).get(0);
+		Expression lastProduct = products.get(products.size()-1);
 		
-		Expression innerSummation = IntensionalSet.intensionalMultiSet(new ExtensionalIndexExpressionsSet(summationIndex), 
-				lastProductIntensionalSet.getHead(), summationIntensionalSet.getCondition());
+		Expression innerSummation = IntensionalSet.intensionalMultiSet(
+				new ExtensionalIndexExpressionsSet(summationIndex), 
+				getHead(lastProduct), getCondition(summationIndexedByFunction));
 		
 		result = Expressions.apply(FunctorConstants.SUM, innerSummation);
 		
 		for (int i = products.size() -1; i >= 0; i--) {
-			lastProductIntensionalSet = (IntensionalSet) products.get(i).get(0);
-			Expression product = IntensionalSet.intensionalMultiSet(lastProductIntensionalSet.getIndexExpressions(), 
-					result, lastProductIntensionalSet.getCondition());
+			lastProduct = products.get(i);
+			Expression product = IntensionalSet.intensionalMultiSet(
+					getIndexExpressions(lastProduct), result, getCondition(lastProduct));
 			
 			result = Expressions.apply(FunctorConstants.PRODUCT, product);
 		}
@@ -125,42 +131,30 @@ public class InversionSimplifier implements Simplifier {
 		return result;
 	}
 	
-	private static void collectProducts(Expression expression, List<Expression> products, Context context) {
-		if (isProductOf(expression, context)) {
+	private static void collectProducts(Expression expression, List<Expression> products) {
+		if (isFunctionOnIntensionalSetWithSingleIndex(FunctorConstants.PRODUCT, expression)) {
 			products.add(expression);
-			Expression possibleInnerProduct = ((IntensionalSet)expression.get(0)).getHead();
-			collectProducts(possibleInnerProduct, products, context);
+			collectProducts(getHead(expression), products);
 		}
 	}
 	
 	private static boolean isSummationIndexedByFunctionOfProducts(Expression expression, Context context) {
 		boolean result = false;
 		
-		if (expression.hasFunctor(FunctorConstants.SUM) && expression.numberOfArguments() == 1) {
-			Expression summationArg = expression.get(0);
-			if (Sets.isIntensionalSet(summationArg)) {
-				IntensionalSet intensionalSet           = (IntensionalSet) summationArg;
-				IndexExpressionsSet indexExpressionsSet = intensionalSet.getIndexExpressions();
-				List<Expression> indices                = IndexExpressions.getIndices(indexExpressionsSet);			
-				if (indices.size() == 1) {
-					Expression intensionalSetIndex = indices.get(0);
-					Context intensionalSetContext  = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
-					Type indexType                 = GrinderUtil.getType(intensionalSetIndex, intensionalSetContext);
-					if (indexType instanceof FunctionType) {
-						// A summation indexed by a function of at least 1 product
-						result = isProductOf(intensionalSet.getHead(), intensionalSetContext);
-					}
-				}				
-			}
-			
+		if (isFunctionOnIntensionalSetWithSingleIndex(FunctorConstants.SUM, expression)) {
+			Pair<Expression, Expression> indexAndType = getIndexAndType(expression);
+			if (indexAndType.second != null && indexAndType.second.hasFunctor(FunctorConstants.FUNCTION_TYPE)) {
+				// A summation indexed by a function of at least 1 product
+				result = isFunctionOnIntensionalSetWithSingleIndex(FunctorConstants.PRODUCT, getHead(expression));
+			}					
 		}
 		
 		return result;
 	}
 	
-	private static boolean isProductOf(Expression expression, Context intensionalSetConext) {
+	private static boolean isFunctionOnIntensionalSetWithSingleIndex(Object functor, Expression expression) {
 		boolean result = false;
-		if (expression.hasFunctor(FunctorConstants.PRODUCT) && expression.numberOfArguments() == 1) {
+		if (expression.hasFunctor(functor) && expression.numberOfArguments() == 1) {
 			Expression productArg = expression.get(0);
 			if (Sets.isIntensionalSet(productArg)) {
 				IntensionalSet intensionalSet           = (IntensionalSet) productArg;
@@ -174,9 +168,52 @@ public class InversionSimplifier implements Simplifier {
 		return result;
 	}
 	
-	private static boolean isInversionPossible(Expression expression, Context context) {
-		boolean result = true;
-// TODO - actually determine if we can perform inversion.		
+	private static IntensionalSet getIntensionalSet(Expression functionOnIntensionalSet) {
+		IntensionalSet result = (IntensionalSet) functionOnIntensionalSet.get(0);
+		return result;
+	}
+	
+	private static IndexExpressionsSet getIndexExpressions(Expression functionOnIntensionalSet) {
+		IndexExpressionsSet result = getIntensionalSet(functionOnIntensionalSet).getIndexExpressions();
+		return result;
+	}	
+	
+	private static Expression getHead(Expression functionOnIntensionalSet) {
+		Expression result = getIntensionalSet(functionOnIntensionalSet).getHead();
+		return result;
+	}
+	
+	private static Expression getCondition(Expression functionOnIntensionalSet) {
+		Expression result = getIntensionalSet(functionOnIntensionalSet).getCondition();
+		return result;
+	}
+	
+	private static Pair<Expression, Expression> getIndexAndType(Expression functionOnIntensionalSet) {
+		IndexExpressionsSet indexExpressionsSet   = getIndexExpressions(functionOnIntensionalSet);		
+		List<Expression> indexExpressionsWithType = IndexExpressions.getIndexExpressionsWithType(indexExpressionsSet);
+		if (indexExpressionsWithType.size() != 1) {
+			throw new UnsupportedOperationException("Currently only support singular indices");
+		}	
+		Pair<Expression, Expression> result = IndexExpressions.getIndexAndDomain(indexExpressionsWithType.get(0));
+		return result;
+	}
+	
+	private static Pair<Expression, FunctionType> getIndexAndFunctionType(Expression functionOnIntensionalSet, Context context) {
+		IndexExpressionsSet indexExpressionsSet = getIndexExpressions(functionOnIntensionalSet);		
+		List<Expression> indices                = IndexExpressions.getIndices(indexExpressionsSet);
+		if (indices.size() != 1) {
+			throw new UnsupportedOperationException("Currently only support singular indices");
+		}
+		Expression index              = indices.get(0);
+		Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+		Type type                     = GrinderUtil.getType(index, intensionalSetContext);
+		
+		FunctionType functionType = null;
+		if (type instanceof FunctionType) {
+			functionType = (FunctionType) type;
+		}
+		
+		Pair<Expression, FunctionType> result = new Pair<>(index, functionType);
 		return result;
 	}
 }
