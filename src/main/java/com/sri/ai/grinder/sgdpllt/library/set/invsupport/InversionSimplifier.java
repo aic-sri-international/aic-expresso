@@ -88,8 +88,13 @@ public class InversionSimplifier implements Simplifier {
 	}
 	
 	private static boolean isInversionPossible(Expression functionName, FunctionType functionType, List<Expression> products, Context context) {
-		boolean result = true;		
-// TODO		
+		boolean result = false;
+		
+		if (functionType.getArity() == products.size()) {
+// TODO - more checks.			
+			result = true;			
+		}
+		
 		return result;
 	}
 	
@@ -102,21 +107,23 @@ public class InversionSimplifier implements Simplifier {
 			summationIndexArgs.add(ExtensionalSet.makeSingleton(index));
 		}
 		
-		Expression summationIndexType;
-		if (summationIndexArgs.size() == 1) {
-			summationIndexType =  Expressions.apply(FunctorConstants.FUNCTION_TYPE, summationIndexArgs.get(0), parse(summationFunctionType.getCodomain().getName()));
-		}
-		else {
-			Expression domainTypes = Expressions.apply(FunctorConstants.TUPLE_TYPE, summationIndexArgs.toArray(new Object[summationIndexArgs.size()]));
-			summationIndexType =  Expressions.apply(FunctorConstants.FUNCTION_TYPE, domainTypes, parse(summationFunctionType.getCodomain().getName()));
-		}
-		Expression summationIndex = IndexExpressions.makeIndexExpression(summationFunctionIndex, summationIndexType);
+		// TODO - remove temporary hack which collapses the function's domain so that onlyt its co-domain is used
+		// due to all the domain arguments being treated as constants.
+		Expression summationIndex = IndexExpressions.makeIndexExpression(summationFunctionIndex, parse(summationFunctionType.getCodomain().getName()));
 		
 		Expression lastProduct = products.get(products.size()-1);
 		
+		Expression phi = getHead(lastProduct).replaceAllOccurrences(e -> {
+			Expression r = e;
+			if (e.hasFunctor(summationFunctionIndex)) {
+				r = summationFunctionIndex;
+			}
+			return r;
+		}, context);
+		
 		Expression innerSummation = IntensionalSet.intensionalMultiSet(
 				new ExtensionalIndexExpressionsSet(summationIndex), 
-				getHead(lastProduct), getCondition(summationIndexedByFunction));
+				phi, getCondition(summationIndexedByFunction));
 		
 		result = Expressions.apply(FunctorConstants.SUM, innerSummation);
 		
