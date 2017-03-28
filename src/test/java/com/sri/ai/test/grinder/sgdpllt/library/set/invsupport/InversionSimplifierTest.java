@@ -57,4 +57,24 @@ public class InversionSimplifierTest {
 				product, 
 				simplifier.apply(summation, context));
 	}
+	
+	@Test
+	public void testCase4() {
+		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + 3 : X != 5 }}) : true}})");
+	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f + 3 }}) : X != 5}})");
+		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
+	@Test
+	public void testCase5() {
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + 11 : Y != 7 }}) : X != 3 }}) : true }})");
+	    Expression product   = parse("product({{(on X in 1..10) product({{(on Y in 1..10) sum({{(on f in 1..5) f + 11 : true }}) : Y != 7 }}) : X != 3 }})");
+		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
 }
