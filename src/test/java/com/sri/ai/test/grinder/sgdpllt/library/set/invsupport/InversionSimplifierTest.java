@@ -24,6 +24,7 @@ public class InversionSimplifierTest {
 				new CompoundTheory(
 						new DifferenceArithmeticTheory(false, false), 
 						new TupleTheory()));
+		
 		simplifier = new InversionSimplifier();
 	}
 	

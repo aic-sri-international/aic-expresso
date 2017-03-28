@@ -51,7 +51,12 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.library.Disequality;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.boole.And;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
+import com.sri.ai.grinder.sgdpllt.library.boole.Implication;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
@@ -91,8 +96,96 @@ public class InversionSimplifier implements Simplifier {
 		boolean result = false;
 		
 		if (functionType.getArity() == products.size()) {
-// TODO - more checks.			
-			result = true;			
+			Expression lastProduct = products.get(products.size()-1);
+			Expression ocfE        = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(functionName, functionType, getHead(lastProduct));
+		
+			// Create the two set of replacement product indices
+			// to ensure we have disjoint applications.
+			List<Expression> productIndices = new ArrayList<>();			
+			for (Expression product : products) {
+				productIndices.add(getIndexAndType(product).first);
+			}
+			List<Expression> allIndices = new ArrayList<>(productIndices);
+			
+			List<Expression> productIndicesPrime  = new ArrayList<>();
+			List<Expression> productIndices2Prime = new ArrayList<>();
+			for (int i = 0; i < productIndices.size(); i++) {
+				Expression productIndex = productIndices.get(i);
+				
+				Expression allIndicesTuple   = Expressions.makeTuple(allIndices);
+				Expression productIndexPrime = Expressions.primedUntilUnique(productIndex, allIndicesTuple, context);				
+				productIndicesPrime.add(productIndexPrime);
+				allIndices.add(productIndexPrime);
+				
+				allIndicesTuple = Expressions.makeTuple(allIndices);
+				Expression productIndex2Prime = Expressions.primedUntilUnique(productIndex, allIndicesTuple, context);				
+				productIndices2Prime.add(productIndex2Prime);
+				allIndices.add(productIndex2Prime);
+			}
+
+			// Create Condition
+			List<Expression> conjunctsPrime  = new ArrayList<>();
+			List<Expression> conjuncts2Prime = new ArrayList<>();
+			for (int i = 0; i < products.size(); i++) {
+				Expression product   = products.get(i);
+				Expression condition = getCondition(product);
+				
+				Expression conjunctPrime = replaceAll(condition, productIndices, productIndicesPrime, context);
+				conjunctsPrime.add(conjunctPrime);
+				
+				Expression conjunct2Prime = replaceAll(condition, productIndices, productIndices2Prime, context);
+				conjuncts2Prime.add(conjunct2Prime);
+			}
+			Expression primesNotEqual = Disequality.make(
+					Expressions.makeTuple(productIndicesPrime),
+					Expressions.makeTuple(productIndices2Prime));
+			
+			List<Expression> allConjuncts = new ArrayList<>();
+			allConjuncts.addAll(conjunctsPrime);
+			allConjuncts.addAll(conjuncts2Prime);
+			allConjuncts.add(primesNotEqual);
+			
+			Expression conjunct = And.make(allConjuncts);
+			
+			Expression ocfEPrime  = replaceAll(ocfE, productIndices, productIndicesPrime, context);
+			Expression ocfE2Prime = replaceAll(ocfE, productIndices, productIndices2Prime, context);
+			
+			Expression intersection = Sets.makeIntersection(ocfEPrime, ocfE2Prime);
+			
+			Expression equality = Equality.make(intersection, Sets.EMPTY_SET);
+			
+			Expression implication = Implication.make(conjunct, equality);
+
+			List<Expression> productIndexExpressionSetsPrime  = new ArrayList<>();
+			List<Expression> productIndexExpressionSets2Prime = new ArrayList<>();
+			for (int i = 0; i < products.size(); i++) {
+				Expression product = products.get(i);
+				Expression productIndexType = getIndexAndType(product).second;
+				
+				Expression indexExpressionPrime = IndexExpressions.makeIndexExpression(productIndicesPrime.get(i), productIndexType);
+				productIndexExpressionSetsPrime.add(indexExpressionPrime);
+				
+				Expression indexExpression2Prime = IndexExpressions.makeIndexExpression(productIndices2Prime.get(i), productIndexType);
+				productIndexExpressionSets2Prime.add(indexExpression2Prime);
+			}
+		
+			List<Expression> forAllIndexExpressionSets = new ArrayList<>();
+			forAllIndexExpressionSets.addAll(productIndexExpressionSetsPrime);
+			forAllIndexExpressionSets.addAll(productIndexExpressionSets2Prime);
+			
+			Expression forAll = implication;
+			for (int i = forAllIndexExpressionSets.size()-1; i >= 0; i--) {
+				Expression forAllIndexExpressionSet = forAllIndexExpressionSets.get(i);
+				forAll = ForAll.make(forAllIndexExpressionSet, forAll);
+			}
+// TODO - remove			
+//System.out.println("condition(2) forAll="+forAll);	
+
+			Expression forAllEval = context.getTheory().evaluate(forAll, context);
+
+			if (Expressions.TRUE.equals(forAllEval)) {
+				result = true;
+			}
 		}
 		
 		return result;
@@ -221,6 +314,19 @@ public class InversionSimplifier implements Simplifier {
 		}
 		
 		Pair<Expression, FunctionType> result = new Pair<>(index, functionType);
+		return result;
+	}
+	
+	private static Expression replaceAll(Expression expression, List<Expression> targetVariables, List<Expression> replacementVariables, Context context) {
+		Expression result = expression.replaceAllOccurrences(e -> {
+			Expression r = e;
+			int idx = targetVariables.indexOf(e);
+			if (idx >= 0) {
+				r = replacementVariables.get(idx);
+			}
+			return r;
+		}, context);
+		
 		return result;
 	}
 }

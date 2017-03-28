@@ -67,6 +67,7 @@ import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
 import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetConditionTopRewriter;
 import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetFalseConditionToEmptySetTopRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetExpressionIsEqualToEmptySetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -145,7 +146,9 @@ abstract public class AbstractTheory implements Theory {
 							,							
 							new IntensionalSetConditionTopRewriter(),
 							new IntensionalSetFalseConditionToEmptySetTopRewriter()
-							,							
+							,		
+							new SetExpressionIsEqualToEmptySetTopRewriter()
+							,
 							new SummationRewriter(new SGVET())
 							,
 							new ProductRewriter(new SGDPLLT())
