@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso;
 
+import java.math.MathContext;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.cache.CacheMap;
@@ -50,7 +52,7 @@ import com.sri.ai.util.cache.CacheMap;
 @Beta
 public class ExpressoConfiguration extends Configuration {
 	public static final String  KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS                     = "expresso.display.numeric.precision.for.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS           = new Integer(9);
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS           = new Integer(MathContext.DECIMAL128.getPrecision());
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS                      = "expresso.display.numerics.exactly.for.symbols";
 	public static final boolean DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS            = true;
