@@ -121,10 +121,22 @@ public class InversionSimplifierTest {
 				simplifier.apply(summation, context));
 	}
 	
-	@Ignore
 	@Test
 	public void testNoInversionDueToNotFullyImplementedCase1() {
-		// NOTE: currently inversion won't be applied as this is conditional
+		// NOTE: currently inversion won't be applied as this restricts the inversion to just some of the products, i.e. goal is to get to:
+		// product({{(on X in 1..10) sum({{(on f in {X} x 1..10 -> 1..5) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }})
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+	    Expression product   = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
+	@Ignore
+	@Test
+	public void testNoInversionDueToNotFullyImplementedCase2() {
+		// NOTE: currently inversion won't be applied as this is a conditional case
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(g(X)) : true }}) : true}})");
 	    Expression product   = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(g(X)) : true }}) : true}})");
 		
