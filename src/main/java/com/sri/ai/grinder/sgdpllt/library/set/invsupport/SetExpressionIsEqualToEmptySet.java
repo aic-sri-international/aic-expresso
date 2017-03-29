@@ -73,7 +73,7 @@ public class SetExpressionIsEqualToEmptySet implements Simplifier {
 				if (emptySet == null && Sets.isEmptySet(equalityArg)) {
 					emptySet = equalityArg;
 				}
-				else if (setExpression == null && isSetExpression(equalityArg)) {
+				else if (setExpression == null && Sets.isSetLikeExpression(equalityArg)) {
 					setExpression = equalityArg;
 				}
 			}
@@ -84,16 +84,6 @@ public class SetExpressionIsEqualToEmptySet implements Simplifier {
 			}
 		}
 		
-		return result;
-	}
-	
-	public static boolean isSetExpression(Expression expression) {
-		boolean result = 
-				Sets.isSet(expression)
-				|| expression.hasFunctor(FunctorConstants.INTERSECTION)
-				|| expression.hasFunctor(FunctorConstants.UNION)
-				|| expression.hasFunctor(FunctorConstants.INTENSIONAL_UNION)
-				;
 		return result;
 	}
 	

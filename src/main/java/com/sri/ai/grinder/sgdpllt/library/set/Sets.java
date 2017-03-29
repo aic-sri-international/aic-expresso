@@ -214,6 +214,22 @@ public class Sets {
 //		
 		return result;
 	}
+	
+	/**
+	 * 
+	 * @param expression 
+	 *        the expression to test
+	 * @return true if is an extensional, intensional set or an intersection, union, or intensional union.
+	 */
+	public static boolean isSetLikeExpression(Expression expression) {
+		boolean result = 
+				isSet(expression)
+				|| expression.hasFunctor(FunctorConstants.INTERSECTION)
+				|| expression.hasFunctor(FunctorConstants.UNION)
+				|| expression.hasFunctor(FunctorConstants.INTENSIONAL_UNION)
+				;
+		return result;
+	}
 
 	public static class IndexExpressionIsValueOfSomethingOrSymbolOrFunctionApplication implements Predicate {
 		@Override

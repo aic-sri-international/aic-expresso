@@ -80,12 +80,12 @@ public class DistributeIntersectionOverUnionSimplifier implements Simplifier {
 				if (Sets.isEmptySet(intersectionArg)) {
 					emptySetArg = true; // short-circuit
 					break;
-				}
-				if (setArg == null && Sets.isSet(intersectionArg)) {
-					setArg = intersectionArg;
-				}
-				else if (unionArg == null && intersectionArg.hasFunctor(FunctorConstants.UNION)) {
+				}				
+				if (unionArg == null && intersectionArg.hasFunctor(FunctorConstants.UNION)) {
 					unionArg = intersectionArg;
+				}
+				else if (setArg == null && Sets.isSetLikeExpression(intersectionArg)) {
+					setArg = intersectionArg;
 				}
 				else {
 					otherArgs.add(intersectionArg);

@@ -33,7 +33,10 @@ public class SetExpressionIsEqualToEmptySetTest {
 		IntegerInterval intType = new IntegerInterval(1, 10);
 		context = (Context) GrinderUtil.extendRegistryWith(
 				map("M", intType.toString(), 
-					"N", intType.toString()), 
+					"N", intType.toString(),
+				    "X'", intType.toString(),
+				    "X''", intType.toString(),
+				    "Y", intType.toString()),				  
 				Arrays.asList(intType), context);
 		
 		rewriter = new SetExpressionIsEqualToEmptySet();
@@ -126,6 +129,15 @@ public class SetExpressionIsEqualToEmptySetTest {
 				rewriter.apply(setEqualToEmptySet, context));
 		
 		setEqualToEmptySet = parse("{(2,2),(3,2),(4,2)} intersection {{(on J in 1..10) (J, 2) : J != 4}} intersection (if N != 4 then {(4,2)} else {}) = {}");
+		Assert.assertEquals(			
+				parse("true"),
+				rewriter.apply(setEqualToEmptySet, context));
+	}
+	
+	@Test
+	public void testIntersectionsOfUnionsOfExtensionalSetsBasicCases() {		
+		context = context.conjoin(parse("X' != X''"), context);
+		Expression setEqualToEmptySet = parse("({ (X', Y) } union { (X', 3) }) intersection ({ (X'', Y) } union { (X'', 3) }) = {  }");
 		Assert.assertEquals(			
 				parse("true"),
 				rewriter.apply(setEqualToEmptySet, context));

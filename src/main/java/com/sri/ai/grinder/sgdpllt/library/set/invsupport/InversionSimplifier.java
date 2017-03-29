@@ -132,6 +132,11 @@ public class InversionSimplifier implements Simplifier {
 			result = true;
 		}
 		
+// TODO - remove to proceed with partial cases.
+if (productsThatCanBeInverted.size() != originalQuantifierOrder.size()-1) {
+	result = false;
+}
+		
 		return result;
 	}
 	
@@ -252,7 +257,7 @@ public class InversionSimplifier implements Simplifier {
 		
 		Expression forAllEvaluated = ocfEContext.getTheory().evaluate(forAll, ocfEContext);
 
-		if (Expressions.TRUE.equals(forAllEvaluated)) {
+		if (Expressions.TRUE.equals(forAllEvaluated)) {		
 			result = true;
 		}
 		
