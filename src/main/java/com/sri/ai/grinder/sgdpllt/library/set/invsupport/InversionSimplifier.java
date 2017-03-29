@@ -59,7 +59,6 @@ import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.Implication;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.base.Pair;
 
@@ -74,158 +73,167 @@ public class InversionSimplifier implements Simplifier {
 	public static Expression simplify(Expression expression, Context context) {
 		Expression result = expression;
 		
-		if (isSummationIndexedByFunctionOfProducts(expression, context)) {
+		if (isSummationIndexedByFunctionOfQuantifiers(expression, context)) {
 			// NOTE: at this point we know we have a summation indexed by a function
 			Expression summationIndexedByFunction = expression;
 			
 			Pair<Expression, FunctionType> indexAndFunctionType = getIndexAndFunctionType(summationIndexedByFunction, context);
-			Expression summationIndex                           = indexAndFunctionType.first;
+			Expression summationIndexFunctionName               = indexAndFunctionType.first;
 			FunctionType summationIndexFunctionType             = indexAndFunctionType.second;
 			
-			List<Expression> products = new ArrayList<>();
-			collectProducts(getHead(summationIndexedByFunction), products);
-			if (isInversionPossible(summationIndex, summationIndexFunctionType, products, context)) {				
-				result = applyInversion(summationIndexedByFunction, summationIndex, summationIndexFunctionType, products, context);
+			List<Expression> originalQuantifierOrder  = new ArrayList<>();
+			collectQuantifiers(summationIndexedByFunction, originalQuantifierOrder);
+			List<Expression> inversionQuantifierOrder = new ArrayList<>();
+			if (isInversionPossible(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context)) {				
+				result = applyInversion(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context);
 			}
 		}
 		
 		return result;
 	}
 	
-	private static boolean isInversionPossible(Expression functionName, FunctionType functionType, List<Expression> products, Context context) {
+	private static boolean isInversionPossible(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {
 		boolean result = false;
 		
-		if (functionType.getArity() == products.size()) {
-			Expression lastProduct = products.get(products.size()-1);
-			Expression ocfE        = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(functionName, functionType, getHead(lastProduct));
+		Expression lastQuantifierHead         = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
+		Expression ocfE                       = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(summationIndexFunctionName, summationIndexFunctionType, lastQuantifierHead);
 		
-			// Create the two sets of replacement product indices
-			// to ensure we have disjoint applications.
-			List<Expression> productIndices = new ArrayList<>();			
-			for (Expression product : products) {
-				productIndices.add(getIndexAndType(product).first);
-			}
-			List<Expression> allIndices = new ArrayList<>(productIndices);
-			
-			List<Expression> productIndicesPrime  = new ArrayList<>();
-			List<Expression> productIndices2Prime = new ArrayList<>();
-			for (int i = 0; i < productIndices.size(); i++) {
-				Expression productIndex = productIndices.get(i);
-				
-				Expression allIndicesTuple   = Expressions.makeTuple(allIndices);
-				Expression productIndexPrime = Expressions.primedUntilUnique(productIndex, allIndicesTuple, context);				
-				productIndicesPrime.add(productIndexPrime);
-				allIndices.add(productIndexPrime);
-				
-				allIndicesTuple = Expressions.makeTuple(allIndices);
-				Expression productIndex2Prime = Expressions.primedUntilUnique(productIndex, allIndicesTuple, context);				
-				productIndices2Prime.add(productIndex2Prime);
-				allIndices.add(productIndex2Prime);
-			}
-
-			// Create the antecendant part of implication for condition testing inversion
-			// i.e.
-			//     C_1[x_1/x'_1] and ... C_k[x_k/x'_k]
-			// and C_1[x_1/x''_1] and ... C_k[x_k/x''_k]
-			// and (x'_1,...,x'_k) != (x''_1,...,x''_k)
-			List<Expression> conjunctsPrime  = new ArrayList<>();
-			List<Expression> conjuncts2Prime = new ArrayList<>();
-			for (int i = 0; i < products.size(); i++) {
-				Expression product   = products.get(i);
-				Expression condition = getCondition(product);
-				
-				// C_n[x_n/x'_n]
-				Expression conjunctPrime = replaceAll(condition, productIndices, productIndicesPrime, context);
-				conjunctsPrime.add(conjunctPrime);
-				
-				// C_n[x_n/x''_n]
-				Expression conjunct2Prime = replaceAll(condition, productIndices, productIndices2Prime, context);
-				conjuncts2Prime.add(conjunct2Prime);
-			}
+// TODO - support trying different orderingss in a sensible way
+// For the moment just support the the original ordering
+		inversionQuantifierOrder.clear();
+		inversionQuantifierOrder.addAll(originalQuantifierOrder.subList(1, originalQuantifierOrder.size()));
+		inversionQuantifierOrder.add(originalQuantifierOrder.get(0)); // i.e. summation innermost quantifier
+	
+		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);
 		
-			// (x'_1,...,x'_k) != (x''_1,...,x''_k)
-			Expression primesNotEqual = Disequality.make(
-					Expressions.makeTuple(productIndicesPrime),
-					Expressions.makeTuple(productIndices2Prime));
-			
-			List<Expression> allConjuncts = new ArrayList<>();
-			allConjuncts.addAll(conjunctsPrime);
-			allConjuncts.addAll(conjuncts2Prime);
-			allConjuncts.add(primesNotEqual);
-			
-			Expression conjunct = And.make(allConjuncts);
-			
-			// Create the consequent part of implication for condition testing inversion
-			// i.e.:
-			// (oc_f[E][x_1/x'_1,....,x_k/x'_k]
-			//       intersection
-			//  oc_f[E][x_1/x''_1,....,x_k/x''_k])
-			// = {}
-			Expression ocfEPrime  = replaceAll(ocfE, productIndices, productIndicesPrime, context);
-			Expression ocfE2Prime = replaceAll(ocfE, productIndices, productIndices2Prime, context);
-			
-			Expression intersection = Sets.makeIntersection(ocfEPrime, ocfE2Prime);
-			
-			Expression equality = Equality.make(intersection, Sets.EMPTY_SET);
-			
-			Expression implication = Implication.make(conjunct, equality);
-
-			// Collect the index expressions for the universal quantifiers:
-			// i.e.
-			// for all x'_1 el. T_1 ... for all x'_k el. T_k for all x''_1 el. T_1 ... for all x''_k el. T_k
-			List<Expression> productIndexExpressionSetsPrime  = new ArrayList<>();
-			List<Expression> productIndexExpressionSets2Prime = new ArrayList<>();
-			for (int i = 0; i < products.size(); i++) {
-				Expression product = products.get(i);
-				Expression productIndexType = getIndexAndType(product).second;
-				
-				Expression indexExpressionPrime = IndexExpressions.makeIndexExpression(productIndicesPrime.get(i), productIndexType);
-				productIndexExpressionSetsPrime.add(indexExpressionPrime);
-				
-				Expression indexExpression2Prime = IndexExpressions.makeIndexExpression(productIndices2Prime.get(i), productIndexType);
-				productIndexExpressionSets2Prime.add(indexExpression2Prime);
-			}
+		// NOTE: only products will bubble up before the summation.
+		List<Expression> productsBefore = inversionQuantifierOrder.subList(0, indexOfSummationIndexedByFunction);
+		// Create the two sets of replacement quantifiers before summation indexed by function indices
+		// to ensure we have disjoint applications.
+		List<Expression> productsBeforeIndices = new ArrayList<>();
+		for (Expression productBefore : productsBefore) {
+			productsBeforeIndices.add(getIndexAndType(productBefore).first);
+		}
+		List<Expression> allBeforeIndices = new ArrayList<>(productsBeforeIndices);
 		
-			List<Expression> forAllIndexExpressionSets = new ArrayList<>();
-			forAllIndexExpressionSets.addAll(productIndexExpressionSetsPrime);
-			forAllIndexExpressionSets.addAll(productIndexExpressionSets2Prime);
+		List<Expression> productsBeforeIndicesPrime  = new ArrayList<>();
+		List<Expression> productsBeforeIndices2Prime = new ArrayList<>();
+		for (int i = 0; i < productsBeforeIndices.size(); i++) {
+			Expression productBeforeIndex = productsBeforeIndices.get(i);
 			
-			// Construct the nested for all statement.
-			Expression forAll = implication;
-			for (int i = forAllIndexExpressionSets.size()-1; i >= 0; i--) {
-				Expression forAllIndexExpressionSet = forAllIndexExpressionSets.get(i);
-				forAll = ForAll.make(forAllIndexExpressionSet, forAll);
-			}	
+			Expression allIndicesTuple            = Expressions.makeTuple(allBeforeIndices);
+			Expression productBeforeIndexPrime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, context);				
+			productsBeforeIndicesPrime.add(productBeforeIndexPrime);
+			allBeforeIndices.add(productBeforeIndexPrime);
+			
+			allIndicesTuple = Expressions.makeTuple(allBeforeIndices);
+			Expression productBeforeIndex2Prime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, context);				
+			productsBeforeIndices2Prime.add(productBeforeIndex2Prime);
+			allBeforeIndices.add(productBeforeIndex2Prime);
+		}
 
-			Expression forAllEvaluated = context.getTheory().evaluate(forAll, context);
+		// Create the antecendant part of implication for condition testing inversion
+		// i.e.
+		//     C_1[x_1/x'_1] and ... C_k[x_k/x'_k]
+		// and C_1[x_1/x''_1] and ... C_k[x_k/x''_k]
+		// and (x'_1,...,x'_k) != (x''_1,...,x''_k)
+		List<Expression> conjunctsPrime  = new ArrayList<>();
+		List<Expression> conjuncts2Prime = new ArrayList<>();
+		for (int i = 0; i < productsBefore.size(); i++) {
+			Expression quantifierBefore = productsBefore.get(i);
+			Expression condition        = getCondition(quantifierBefore);
+			
+			// C_n[x_n/x'_n]
+			Expression conjunctPrime = replaceAll(condition, productsBeforeIndices, productsBeforeIndicesPrime, context);
+			conjunctsPrime.add(conjunctPrime);
+			
+			// C_n[x_n/x''_n]
+			Expression conjunct2Prime = replaceAll(condition, productsBeforeIndices, productsBeforeIndices2Prime, context);
+			conjuncts2Prime.add(conjunct2Prime);
+		}
+	
+		// (x'_1,...,x'_k) != (x''_1,...,x''_k)
+		Expression primesNotEqual = Disequality.make(
+				Expressions.makeTuple(productsBeforeIndicesPrime),
+				Expressions.makeTuple(productsBeforeIndices2Prime));
+		
+		List<Expression> allConjuncts = new ArrayList<>();
+		allConjuncts.addAll(conjunctsPrime);
+		allConjuncts.addAll(conjuncts2Prime);
+		allConjuncts.add(primesNotEqual);
+		
+		Expression conjunct = And.make(allConjuncts);
+		
+		// Create the consequent part of implication for condition testing inversion
+		// i.e.:
+		// (oc_f[E][x_1/x'_1,....,x_k/x'_k]
+		//       intersection
+		//  oc_f[E][x_1/x''_1,....,x_k/x''_k])
+		// = {}
+		Expression ocfEPrime  = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndicesPrime, context);
+		Expression ocfE2Prime = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndices2Prime, context);
+		
+		Expression intersection = Sets.makeIntersection(ocfEPrime, ocfE2Prime);
+		
+		Expression equality = Equality.make(intersection, Sets.EMPTY_SET);
+		
+		Expression implication = Implication.make(conjunct, equality);
 
-			if (Expressions.TRUE.equals(forAllEvaluated)) {
-				result = true;
-			}
+		// Collect the index expressions for the universal quantifiers:
+		// i.e.
+		// for all x'_1 el. T_1 ... for all x'_k el. T_k for all x''_1 el. T_1 ... for all x''_k el. T_k
+		List<Expression> productsBeforeIndexExpressionSetsPrime  = new ArrayList<>();
+		List<Expression> productsBeforeIndexExpressionSets2Prime = new ArrayList<>();
+		for (int i = 0; i < productsBefore.size(); i++) {
+			Expression productBefore          = productsBefore.get(i);
+			Expression productBeforeIndexType = getIndexAndType(productBefore).second;
+			
+			Expression indexExpressionPrime = IndexExpressions.makeIndexExpression(productsBeforeIndicesPrime.get(i), productBeforeIndexType);
+			productsBeforeIndexExpressionSetsPrime.add(indexExpressionPrime);
+			
+			Expression indexExpression2Prime = IndexExpressions.makeIndexExpression(productsBeforeIndices2Prime.get(i), productBeforeIndexType);
+			productsBeforeIndexExpressionSets2Prime.add(indexExpression2Prime);
+		}
+	
+		List<Expression> forAllIndexExpressionSets = new ArrayList<>();
+		forAllIndexExpressionSets.addAll(productsBeforeIndexExpressionSetsPrime);
+		forAllIndexExpressionSets.addAll(productsBeforeIndexExpressionSets2Prime);
+		
+		// Construct the nested for all statement.
+		Expression forAll = implication;
+		for (int i = forAllIndexExpressionSets.size()-1; i >= 0; i--) {
+			Expression forAllIndexExpressionSet = forAllIndexExpressionSets.get(i);
+			forAll = ForAll.make(forAllIndexExpressionSet, forAll);
+		}	
+
+		Expression forAllEvaluated = context.getTheory().evaluate(forAll, context);
+
+		if (Expressions.TRUE.equals(forAllEvaluated)) {
+			result = true;
 		}
 		
 		return result;
 	}
 	
-	private static Expression applyInversion(Expression summationIndexedByFunction, Expression summationFunctionIndex, FunctionType summationFunctionType, List<Expression> products, Context context) {
-		Expression result; 
+	private static Expression applyInversion(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {
+		Expression result;
 		
-		List<Expression> summationIndexArgs = new ArrayList<>();
-		for (Expression product : products) {
-			Expression index = getIndexAndType(product).first;
-			summationIndexArgs.add(ExtensionalSet.makeSingleton(index));
-		}
+		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);	
+		// NOTE: only products will bubble up before the summation.
+		List<Expression> productsBefore = inversionQuantifierOrder.subList(0, indexOfSummationIndexedByFunction);
 		
 // TODO - remove temporary hack which collapses the function's domain so that only its co-domain is used
 // due to all the domain arguments being treated as constants.
-		Expression summationIndex = IndexExpressions.makeIndexExpression(summationFunctionIndex, parse(summationFunctionType.getCodomain().getName()));
+		Expression summationIndex = IndexExpressions.makeIndexExpression(summationIndexFunctionName, parse(summationIndexFunctionType.getCodomain().getName()));
 		
-		Expression lastProduct = products.get(products.size()-1);
+		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
 		
-		Expression phi = getHead(lastProduct).replaceAllOccurrences(e -> {
+		Expression phi = lastQuantifierHead.replaceAllOccurrences(e -> {
 			Expression r = e;
-			if (e.hasFunctor(summationFunctionIndex)) {
-				r = summationFunctionIndex;
+			if (e.hasFunctor(summationIndexFunctionName)) {
+				r = summationIndexFunctionName;
 			}
 			return r;
 		}, context);
@@ -236,10 +244,10 @@ public class InversionSimplifier implements Simplifier {
 		
 		result = Expressions.apply(FunctorConstants.SUM, innerSummation);
 		
-		for (int i = products.size() -1; i >= 0; i--) {
-			lastProduct = products.get(i);
-			Expression product = IntensionalSet.intensionalMultiSet(
-					getIndexExpressions(lastProduct), result, getCondition(lastProduct));
+		for (int i = productsBefore.size() -1; i >= 0; i--) {
+			Expression product = productsBefore.get(i);
+			product = IntensionalSet.intensionalMultiSet(
+					getIndexExpressions(product), result, getCondition(product));
 			
 			result = Expressions.apply(FunctorConstants.PRODUCT, product);
 		}
@@ -247,20 +255,21 @@ public class InversionSimplifier implements Simplifier {
 		return result;
 	}
 	
-	private static void collectProducts(Expression expression, List<Expression> products) {
-		if (isFunctionOnIntensionalSetWithSingleIndex(FunctorConstants.PRODUCT, expression)) {
-			products.add(expression);
-			collectProducts(getHead(expression), products);
+	private static void collectQuantifiers(Expression expression, List<Expression> quantifiers) {
+		if (isFunctionOnIntensionalSetWithSingleIndex(null, expression)) {
+			quantifiers.add(expression);
+			collectQuantifiers(getHead(expression), quantifiers);
 		}
 	}
 	
-	private static boolean isSummationIndexedByFunctionOfProducts(Expression expression, Context context) {
+	private static boolean isSummationIndexedByFunctionOfQuantifiers(Expression expression, Context context) {
 		boolean result = false;
 		
 		if (isFunctionOnIntensionalSetWithSingleIndex(FunctorConstants.SUM, expression)) {
 			Pair<Expression, Expression> indexAndType = getIndexAndType(expression);
 			if (indexAndType.second != null && indexAndType.second.hasFunctor(FunctorConstants.FUNCTION_TYPE)) {
-				// A summation indexed by a function of at least 1 product
+				// A summation indexed by a function of at least 1 nested quantifier, the first must be a product
+				// in order to possibly move it before the summation.
 				result = isFunctionOnIntensionalSetWithSingleIndex(FunctorConstants.PRODUCT, getHead(expression));
 			}					
 		}
@@ -270,10 +279,11 @@ public class InversionSimplifier implements Simplifier {
 	
 	private static boolean isFunctionOnIntensionalSetWithSingleIndex(Object functor, Expression expression) {
 		boolean result = false;
-		if (expression.hasFunctor(functor) && expression.numberOfArguments() == 1) {
-			Expression productArg = expression.get(0);
-			if (Sets.isIntensionalSet(productArg)) {
-				IntensionalSet intensionalSet           = (IntensionalSet) productArg;
+		if (((functor == null && Expressions.isFunctionApplicationWithArguments(expression)) || expression.hasFunctor(functor)) 
+				&& expression.numberOfArguments() == 1) {
+			Expression expressionArg1 = expression.get(0);
+			if (Sets.isIntensionalSet(expressionArg1)) {
+				IntensionalSet intensionalSet           = (IntensionalSet) expressionArg1;
 				IndexExpressionsSet indexExpressionsSet = intensionalSet.getIndexExpressions();
 				List<Expression> indices                = IndexExpressions.getIndices(indexExpressionsSet);			
 				if (indices.size() == 1) {
