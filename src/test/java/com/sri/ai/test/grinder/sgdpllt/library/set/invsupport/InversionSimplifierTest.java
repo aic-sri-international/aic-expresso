@@ -109,6 +109,28 @@ public class InversionSimplifierTest {
 				product, 
 				simplifier.apply(summation, context));
 	}
+		
+	@Ignore // TODO - add support for
+	@Test
+	public void testPartialInversionCase1() {
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
+	@Ignore // TODO - add support for
+	@Test 
+	public void testPartialInversionCase2() {
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(3, Y) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{(on Y in 1..10) sum({{(on f in 1..5) product({{(on X in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
 	
 	@Test
 	public void testNoInversionCase1() {

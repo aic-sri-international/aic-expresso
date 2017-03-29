@@ -93,18 +93,61 @@ public class InversionSimplifier implements Simplifier {
 	}
 	
 	private static boolean isInversionPossible(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
-			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {		
 		boolean result = false;
 		
-		Expression lastQuantifierHead         = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
-		Expression ocfE                       = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(summationIndexFunctionName, summationIndexFunctionType, lastQuantifierHead);
+		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
+		Expression ocfE               = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(summationIndexFunctionName, summationIndexFunctionType, lastQuantifierHead);
 		
-// TODO - support trying different orderingss in a sensible way
-// For the moment just support the the original ordering
-		inversionQuantifierOrder.clear();
-		inversionQuantifierOrder.addAll(originalQuantifierOrder.subList(1, originalQuantifierOrder.size()));
-		inversionQuantifierOrder.add(originalQuantifierOrder.get(0)); // i.e. summation innermost quantifier
+		// Create a context for performing is isInvertible tests
+		Context ocfEContext = context;
+		for (Expression quantifier : originalQuantifierOrder) {
+			ocfEContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), ocfEContext);
+		}
+		
+		List<Expression> productCandidatesToInvert = new ArrayList<>();
+		int i = 1; // Start at 1 as 0 is the quantifier.
+		// The only candidates considered are directly nested products underneath the summation
+		// any other type of quantier (e.g an inner summation) is not considered (as can be 
+		// handled by an exhaustive recursive rewriter using this simplifier).
+		while (i < originalQuantifierOrder.size() && originalQuantifierOrder.get(i).hasFunctor(FunctorConstants.PRODUCT)) {
+			productCandidatesToInvert.add(originalQuantifierOrder.get(i));
+			i++;
+		}			
+		
+		// Incrementally build up a list of products that can be moved before the summation
+		List<Expression> productsThatCanBeInverted = new ArrayList<>();
+		for (Expression productCandidate : productCandidatesToInvert) {
+			List<Expression> productsBeforeToTest = new ArrayList<>(productsThatCanBeInverted);
+			productsBeforeToTest.add(productCandidate);
+			updateInversionOrder(originalQuantifierOrder, productsBeforeToTest, inversionQuantifierOrder);
+			
+			if (isInvertible(summationIndexedByFunction, ocfE, inversionQuantifierOrder, ocfEContext)) {
+				productsThatCanBeInverted.add(productCandidate);
+			}
+		}
+		
+		if (productsThatCanBeInverted.size() > 0) {
+			updateInversionOrder(originalQuantifierOrder, productsThatCanBeInverted, inversionQuantifierOrder);
+			result = true;
+		}
+		
+		return result;
+	}
 	
+	private static void updateInversionOrder(List<Expression> originalQuantifierOrder, List<Expression> productsBefore, List<Expression> inversionQuantifierOrder) {
+		inversionQuantifierOrder.clear();
+		inversionQuantifierOrder.addAll(productsBefore);
+		for (Expression quantifier : originalQuantifierOrder) {
+			if (!productsBefore.contains(quantifier)) {
+				inversionQuantifierOrder.add(quantifier);
+			}
+		}
+	}
+	
+	private static boolean isInvertible(Expression summationIndexedByFunction, Expression ocfE, List<Expression> inversionQuantifierOrder, Context ocfEContext) {
+		boolean result = false;
+		
 		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);
 		
 		// NOTE: only products will bubble up before the summation.
@@ -123,12 +166,12 @@ public class InversionSimplifier implements Simplifier {
 			Expression productBeforeIndex = productsBeforeIndices.get(i);
 			
 			Expression allIndicesTuple            = Expressions.makeTuple(allBeforeIndices);
-			Expression productBeforeIndexPrime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, context);				
+			Expression productBeforeIndexPrime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, ocfEContext);				
 			productsBeforeIndicesPrime.add(productBeforeIndexPrime);
 			allBeforeIndices.add(productBeforeIndexPrime);
 			
 			allIndicesTuple = Expressions.makeTuple(allBeforeIndices);
-			Expression productBeforeIndex2Prime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, context);				
+			Expression productBeforeIndex2Prime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, ocfEContext);				
 			productsBeforeIndices2Prime.add(productBeforeIndex2Prime);
 			allBeforeIndices.add(productBeforeIndex2Prime);
 		}
@@ -145,11 +188,11 @@ public class InversionSimplifier implements Simplifier {
 			Expression condition        = getCondition(quantifierBefore);
 			
 			// C_n[x_n/x'_n]
-			Expression conjunctPrime = replaceAll(condition, productsBeforeIndices, productsBeforeIndicesPrime, context);
+			Expression conjunctPrime = replaceAll(condition, productsBeforeIndices, productsBeforeIndicesPrime, ocfEContext);
 			conjunctsPrime.add(conjunctPrime);
 			
 			// C_n[x_n/x''_n]
-			Expression conjunct2Prime = replaceAll(condition, productsBeforeIndices, productsBeforeIndices2Prime, context);
+			Expression conjunct2Prime = replaceAll(condition, productsBeforeIndices, productsBeforeIndices2Prime, ocfEContext);
 			conjuncts2Prime.add(conjunct2Prime);
 		}
 	
@@ -171,8 +214,8 @@ public class InversionSimplifier implements Simplifier {
 		//       intersection
 		//  oc_f[E][x_1/x''_1,....,x_k/x''_k])
 		// = {}
-		Expression ocfEPrime  = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndicesPrime, context);
-		Expression ocfE2Prime = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndices2Prime, context);
+		Expression ocfEPrime  = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndicesPrime, ocfEContext);
+		Expression ocfE2Prime = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndices2Prime, ocfEContext);
 		
 		Expression intersection = Sets.makeIntersection(ocfEPrime, ocfE2Prime);
 		
@@ -205,9 +248,9 @@ public class InversionSimplifier implements Simplifier {
 		for (int i = forAllIndexExpressionSets.size()-1; i >= 0; i--) {
 			Expression forAllIndexExpressionSet = forAllIndexExpressionSets.get(i);
 			forAll = ForAll.make(forAllIndexExpressionSet, forAll);
-		}	
-
-		Expression forAllEvaluated = context.getTheory().evaluate(forAll, context);
+		}
+		
+		Expression forAllEvaluated = ocfEContext.getTheory().evaluate(forAll, ocfEContext);
 
 		if (Expressions.TRUE.equals(forAllEvaluated)) {
 			result = true;
