@@ -99,7 +99,7 @@ public class InversionSimplifier implements Simplifier {
 			Expression lastProduct = products.get(products.size()-1);
 			Expression ocfE        = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(functionName, functionType, getHead(lastProduct));
 		
-			// Create the two set of replacement product indices
+			// Create the two sets of replacement product indices
 			// to ensure we have disjoint applications.
 			List<Expression> productIndices = new ArrayList<>();			
 			for (Expression product : products) {
@@ -123,19 +123,27 @@ public class InversionSimplifier implements Simplifier {
 				allIndices.add(productIndex2Prime);
 			}
 
-			// Create Condition
+			// Create the antecendant part of implication for condition testing inversion
+			// i.e.
+			//     C_1[x_1/x'_1] and ... C_k[x_k/x'_k]
+			// and C_1[x_1/x''_1] and ... C_k[x_k/x''_k]
+			// and (x'_1,...,x'_k) != (x''_1,...,x''_k)
 			List<Expression> conjunctsPrime  = new ArrayList<>();
 			List<Expression> conjuncts2Prime = new ArrayList<>();
 			for (int i = 0; i < products.size(); i++) {
 				Expression product   = products.get(i);
 				Expression condition = getCondition(product);
 				
+				// C_n[x_n/x'_n]
 				Expression conjunctPrime = replaceAll(condition, productIndices, productIndicesPrime, context);
 				conjunctsPrime.add(conjunctPrime);
 				
+				// C_n[x_n/x''_n]
 				Expression conjunct2Prime = replaceAll(condition, productIndices, productIndices2Prime, context);
 				conjuncts2Prime.add(conjunct2Prime);
 			}
+		
+			// (x'_1,...,x'_k) != (x''_1,...,x''_k)
 			Expression primesNotEqual = Disequality.make(
 					Expressions.makeTuple(productIndicesPrime),
 					Expressions.makeTuple(productIndices2Prime));
@@ -147,6 +155,12 @@ public class InversionSimplifier implements Simplifier {
 			
 			Expression conjunct = And.make(allConjuncts);
 			
+			// Create the consequent part of implication for condition testing inversion
+			// i.e.:
+			// (oc_f[E][x_1/x'_1,....,x_k/x'_k]
+			//       intersection
+			//  oc_f[E][x_1/x''_1,....,x_k/x''_k])
+			// = {}
 			Expression ocfEPrime  = replaceAll(ocfE, productIndices, productIndicesPrime, context);
 			Expression ocfE2Prime = replaceAll(ocfE, productIndices, productIndices2Prime, context);
 			
@@ -156,6 +170,9 @@ public class InversionSimplifier implements Simplifier {
 			
 			Expression implication = Implication.make(conjunct, equality);
 
+			// Collect the index expressions for the universal quantifiers:
+			// i.e.
+			// for all x'_1 el. T_1 ... for all x'_k el. T_k for all x''_1 el. T_1 ... for all x''_k el. T_k
 			List<Expression> productIndexExpressionSetsPrime  = new ArrayList<>();
 			List<Expression> productIndexExpressionSets2Prime = new ArrayList<>();
 			for (int i = 0; i < products.size(); i++) {
@@ -173,6 +190,7 @@ public class InversionSimplifier implements Simplifier {
 			forAllIndexExpressionSets.addAll(productIndexExpressionSetsPrime);
 			forAllIndexExpressionSets.addAll(productIndexExpressionSets2Prime);
 			
+			// Construct the nested for all statement.
 			Expression forAll = implication;
 			for (int i = forAllIndexExpressionSets.size()-1; i >= 0; i--) {
 				Expression forAllIndexExpressionSet = forAllIndexExpressionSets.get(i);
@@ -181,9 +199,9 @@ public class InversionSimplifier implements Simplifier {
 // TODO - remove			
 //System.out.println("condition(2) forAll="+forAll);	
 
-			Expression forAllEval = context.getTheory().evaluate(forAll, context);
+			Expression forAllEvaluated = context.getTheory().evaluate(forAll, context);
 
-			if (Expressions.TRUE.equals(forAllEval)) {
+			if (Expressions.TRUE.equals(forAllEvaluated)) {
 				result = true;
 			}
 		}
