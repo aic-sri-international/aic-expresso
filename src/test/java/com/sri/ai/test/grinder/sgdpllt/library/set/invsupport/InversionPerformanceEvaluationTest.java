@@ -29,13 +29,24 @@ public class InversionPerformanceEvaluationTest {
 	private SampleCommonInterpreter samplingInterpreter1000;
 	private SampleCommonInterpreter samplingInterpreter10000;
 	
-	private Expression[] sumProducts = new Expression[] {
+	private Expression[] sumProducts = new Expression[] {			
+			//
 			parse("sum({{(on f in 1..2 -> 1..5) product({{(on X in 1..2) f(X) : true }}) : true}})"),
 			parse("sum({{(on f in 1..3 -> 1..5) product({{(on X in 1..3) f(X) : true }}) : true}})"),
 			parse("sum({{(on f in 1..4 -> 1..5) product({{(on X in 1..4) f(X) : true }}) : true}})"),
 			parse("sum({{(on f in 1..5 -> 1..5) product({{(on X in 1..5) f(X) : true }}) : true}})"),
 			parse("sum({{(on f in 1..6 -> 1..5) product({{(on X in 1..6) f(X) : true }}) : true}})"),
-			parse("sum({{(on f in 1..7 -> 1..5) product({{(on X in 1..7) f(X) : true }}) : true}})")
+			parse("sum({{(on f in 1..7 -> 1..5) product({{(on X in 1..7) f(X) : true }}) : true}})"),
+			//
+			parse("sum({{(on f in 1..2 -> 1..5) product({{(on X in 1..2) f(X) + 3 : true }}) : true}})"),
+			parse("sum({{(on f in 1..3 -> 1..5) product({{(on X in 1..3) f(X) + 3 : true }}) : true}})"),
+			parse("sum({{(on f in 1..4 -> 1..5) product({{(on X in 1..4) f(X) + 3 : true }}) : true}})"),
+			parse("sum({{(on f in 1..5 -> 1..5) product({{(on X in 1..5) f(X) + 3 : true }}) : true}})"),
+			parse("sum({{(on f in 1..6 -> 1..5) product({{(on X in 1..6) f(X) + 3 : true }}) : true}})"),
+			parse("sum({{(on f in 1..7 -> 1..5) product({{(on X in 1..7) f(X) + 3 : true }}) : true}})"),
+			//
+			parse("sum({{(on f in 1..2 x 1..2 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..2) f(X, Y) : true }}) : true }}) : true}})"),
+			parse("sum({{(on f in 1..2 x 1..3 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})")
 	};
 	
 	@Before

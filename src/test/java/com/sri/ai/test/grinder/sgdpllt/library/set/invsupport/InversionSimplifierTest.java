@@ -40,7 +40,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase1() {
+	public void testInversionCase1() {
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) : true }}) : true}})");
 	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f }}) : true}})");
 		
@@ -50,7 +50,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase2() {
+	public void testInversionCase2() {
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + 7 : true }}) : true}})");
 	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f + 7 }}) : true}})");
 		
@@ -60,7 +60,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase3() {
+	public void testInversionCase3() {
 		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) : true }}) : true }}) : true }})");
 	    Expression product   = parse("product({{(on X in 1..10) product({{(on Y in 1..10) sum({{(on f in 1..5) f : true }}) : true }}) : true}})");
 		
@@ -70,7 +70,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase4() {
+	public void testInversionCase4() {
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + 3 : X != 5 }}) : true}})");
 	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f + 3 }}) : X != 5}})");
 		
@@ -80,7 +80,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase5() {
+	public void testInversionCase5() {
 		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + 11 : Y != 7 }}) : X != 3 }}) : true }})");
 	    Expression product   = parse("product({{(on X in 1..10) product({{(on Y in 1..10) sum({{(on f in 1..5) f + 11 : true }}) : Y != 7 }}) : X != 3 }})");
 		
@@ -90,7 +90,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase6() {
+	public void testInversionCase6() {
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + X : true }}) : true}})");
 	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f + X }}) : true}})");
 		
@@ -100,7 +100,7 @@ public class InversionSimplifierTest {
 	}
 	
 	@Test
-	public void testCase7() {
+	public void testInversionCase7() {
 		// NOTE: currently inversion won't be applied as this is conditional
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + g(X) : true }}) : true}})");
 	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f + g(X) }}) : true}})");
@@ -110,9 +110,20 @@ public class InversionSimplifierTest {
 				simplifier.apply(summation, context));
 	}
 	
+	@Test
+	public void testNoInversionCase1() {
+		// NOTE: won't invert due to shared dependency 'f(X, Y) + f(Y, X)'
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
+	    Expression product   = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
+		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
 	@Ignore
 	@Test
-	public void testCase8() {
+	public void testNoInversionDueToNotFullyImplementedCase1() {
 		// NOTE: currently inversion won't be applied as this is conditional
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(g(X)) : true }}) : true}})");
 	    Expression product   = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(g(X)) : true }}) : true}})");

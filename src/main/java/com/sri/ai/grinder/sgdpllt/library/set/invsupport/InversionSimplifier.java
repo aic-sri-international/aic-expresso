@@ -64,7 +64,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.util.base.Pair;
 
 public class InversionSimplifier implements Simplifier {
-	// TODO - 1. Add support for summations and products with more than 1 index.
+// TODO - 1. Add support for summations and products with more than 1 index.
 	
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
@@ -195,9 +195,7 @@ public class InversionSimplifier implements Simplifier {
 			for (int i = forAllIndexExpressionSets.size()-1; i >= 0; i--) {
 				Expression forAllIndexExpressionSet = forAllIndexExpressionSets.get(i);
 				forAll = ForAll.make(forAllIndexExpressionSet, forAll);
-			}
-// TODO - remove			
-//System.out.println("condition(2) forAll="+forAll);	
+			}	
 
 			Expression forAllEvaluated = context.getTheory().evaluate(forAll, context);
 
@@ -218,8 +216,8 @@ public class InversionSimplifier implements Simplifier {
 			summationIndexArgs.add(ExtensionalSet.makeSingleton(index));
 		}
 		
-		// TODO - remove temporary hack which collapses the function's domain so that onlyt its co-domain is used
-		// due to all the domain arguments being treated as constants.
+// TODO - remove temporary hack which collapses the function's domain so that only its co-domain is used
+// due to all the domain arguments being treated as constants.
 		Expression summationIndex = IndexExpressions.makeIndexExpression(summationFunctionIndex, parse(summationFunctionType.getCodomain().getName()));
 		
 		Expression lastProduct = products.get(products.size()-1);
