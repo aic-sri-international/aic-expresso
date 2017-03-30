@@ -110,54 +110,42 @@ public class InversionSimplifierTest {
 				simplifier.apply(summation, context));
 	}
 		
-	@Ignore // TODO - add support for
+	
 	@Test
 	public void testPartialInversionCase1() {
-		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
-	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+		Expression summation = parse("sum({{(on f in 1..10 x 11..20 -> 1..5) product({{(on X in 1..10) product({{(on Y in 11..20) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 11..20 -> 1..5) product({{(on Y in 11..20) f(Y) + f(3) : true }}) : true }}) : true }})");
 
 	    Assert.assertEquals(
 				product, 
 				simplifier.apply(summation, context));
 	}
 	
-	@Ignore // TODO - add support for
 	@Test 
 	public void testPartialInversionCase2() {
-		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(3, Y) : true }}) : true }}) : true }})");
-	    Expression product   = parse("product({{(on Y in 1..10) sum({{(on f in 1..5) product({{(on X in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
+		Expression summation = parse("sum({{(on f in 1..10 x 11..20 -> 1..5) product({{(on X in 1..10) product({{(on Y in 11..20) f(X, Y) + f(3, Y) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{(on Y in 11..20) sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + f(3) : true }}) : true }}) : true }})");
 
 	    Assert.assertEquals(
 				product, 
 				simplifier.apply(summation, context));
 	}
 	
+	@Ignore // Does not work correctly due to not properly support set expression types.
 	@Test
-	public void testNoInversionCase1() {
-		// NOTE: won't invert due to shared dependency 'f(X, Y) + f(Y, X)'
-		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
-	    Expression product   = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
+	public void testPartialInversionCase3() {
+		// NOTE: partially inverts due to shared dependency 'f(X, Y) + f(Y, X)'
+		Expression summation = parse("sum({{(on f in 1..10 x 11..20 -> 1..5) product({{(on X in 1..10) product({{(on Y in 11..20) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{ ( on X in 1..10 ) sum({{ ( on f in {X} x 11..20 -> 1..5 ) product({{ ( on Y in 11..20 ) f(X, Y) + f(Y, X) }}) }}) }})");
 		
 	    Assert.assertEquals(
 				product, 
 				simplifier.apply(summation, context));
 	}
 	
+	@Ignore // TODO - fix issue with DifferenceArithmeticTheory handling of g(X).
 	@Test
 	public void testNoInversionDueToNotFullyImplementedCase1() {
-		// NOTE: currently inversion won't be applied as this restricts the inversion to just some of the products, i.e. goal is to get to:
-		// product({{(on X in 1..10) sum({{(on f in {X} x 1..10 -> 1..5) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }})
-		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
-	    Expression product   = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(X, 3) : true }}) : true }}) : true }})");
-		
-	    Assert.assertEquals(
-				product, 
-				simplifier.apply(summation, context));
-	}
-	
-	@Ignore
-	@Test
-	public void testNoInversionDueToNotFullyImplementedCase2() {
 		// NOTE: currently inversion won't be applied as this is a conditional case
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(g(X)) : true }}) : true}})");
 	    Expression product   = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(g(X)) : true }}) : true}})");

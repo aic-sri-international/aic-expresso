@@ -40,7 +40,9 @@ package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -48,6 +50,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -133,9 +136,9 @@ public class InversionSimplifier implements Simplifier {
 		}
 		
 // TODO - remove to proceed with partial cases.
-if (productsThatCanBeInverted.size() != originalQuantifierOrder.size()-1) {
-	result = false;
-}
+//if (productsThatCanBeInverted.size() != originalQuantifierOrder.size()-1) {
+//	result = false;
+//}
 		
 		return result;
 	}
@@ -272,23 +275,80 @@ if (productsThatCanBeInverted.size() != originalQuantifierOrder.size()-1) {
 		// NOTE: only products will bubble up before the summation.
 		List<Expression> productsBefore = inversionQuantifierOrder.subList(0, indexOfSummationIndexedByFunction);
 		
-// TODO - remove temporary hack which collapses the function's domain so that only its co-domain is used
-// due to all the domain arguments being treated as constants.
-		Expression summationIndex = IndexExpressions.makeIndexExpression(summationIndexFunctionName, parse(summationIndexFunctionType.getCodomain().getName()));
+		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));		
+		// Determine which domain arguments from the summation function can be collapsed
+		List<Expression> productsBeforeIndices = new ArrayList<>();
+		for (Expression productBefore : productsBefore) {
+			productsBeforeIndices.add(getIndexAndType(productBefore).first);
+		}
+		Set<Integer> domainArgsToRemove = new HashSet<>(); 
+		new SubExpressionsDepthFirstIterator(lastQuantifierHead).forEachRemaining(e -> {
+			if (e.hasFunctor(summationIndexFunctionName)) {
+				for (int i = 0; i < e.numberOfArguments(); i++) {
+					if (productsBeforeIndices.contains(e.get(i))) {
+						domainArgsToRemove.add(i);
+					}
+				}
+			}
+		});
+				
+		List<Expression> argTypes = new ArrayList<>();
+		for (int i = 0; i < summationIndexFunctionType.getArity(); i++) {
+			if (!domainArgsToRemove.contains(i)) {
+				argTypes.add(parse(summationIndexFunctionType.getArgumentTypes().get(i).getName()));
+			}
+		}
 		
-		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
+// TODO - remove temporary hack which collapses the function's argument domains
+// due to all the domain arguments being treated as constants. Instead should be using
+// set expression types on singletons.		
+		Expression codomainType = parse(summationIndexFunctionType.getCodomain().getName());
+		Expression summationIndexReducedType;
+		if (argTypes.size() == 0) {
+			summationIndexReducedType = codomainType;
+		}
+		else {
+			if (argTypes.size() == 1) {
+				summationIndexReducedType = Expressions.apply(FunctorConstants.FUNCTION_TYPE, argTypes.get(0), codomainType);
+			}
+			else {
+				summationIndexReducedType = Expressions.apply(FunctorConstants.FUNCTION_TYPE, Expressions.makeTuple(argTypes), codomainType);
+			}
+		}
+		
+		Expression summationIndex = IndexExpressions.makeIndexExpression(summationIndexFunctionName, summationIndexReducedType);		
 		
 		Expression phi = lastQuantifierHead.replaceAllOccurrences(e -> {
 			Expression r = e;
 			if (e.hasFunctor(summationIndexFunctionName)) {
-				r = summationIndexFunctionName;
+				List<Expression> argsToKeep = new ArrayList<>();
+				for (int i = 0; i < e.numberOfArguments(); i++) {
+					if (!domainArgsToRemove.contains(i)) {
+						argsToKeep.add(e.get(i));
+					}
+				}
+				if (argsToKeep.size() > 0) {
+					r = Expressions.apply(summationIndexFunctionName, argsToKeep);
+				}
+				else {
+					r = summationIndexFunctionName;
+				}
 			}
 			return r;
 		}, context);
 		
+		Expression summationHead = phi;
+		for (int i = indexOfSummationIndexedByFunction+1; i < inversionQuantifierOrder.size(); i++) {
+			Expression quantifier               = inversionQuantifierOrder.get(i);
+			Expression quantifierIntensionalSet = IntensionalSet.intensionalMultiSet(
+					getIndexExpressions(quantifier), summationHead, getCondition(quantifier));
+			
+			summationHead = Expressions.apply(quantifier.getFunctor(), quantifierIntensionalSet);
+		}
+		
 		Expression innerSummation = IntensionalSet.intensionalMultiSet(
 				new ExtensionalIndexExpressionsSet(summationIndex), 
-				phi, getCondition(summationIndexedByFunction));
+				summationHead, getCondition(summationIndexedByFunction));
 		
 		result = Expressions.apply(FunctorConstants.SUM, innerSummation);
 		
