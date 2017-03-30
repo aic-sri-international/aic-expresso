@@ -2,32 +2,42 @@ package com.sri.ai.test.grinder.sgdpllt.library.set.invsupport;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.interpreter.SampleCommonInterpreter;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.invsupport.InversionSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.math.Rational;
 
 public class InversionPerformanceEvaluationTest {
 	private Context context;
-	private InversionSimplifier inversionSimplifier;
-	private BruteForceCommonInterpreter bruteForceInterpreter;
-	private SampleCommonInterpreter samplingInterpreter10;
-	private SampleCommonInterpreter samplingInterpreter100;
-	private SampleCommonInterpreter samplingInterpreter1000;
-	private SampleCommonInterpreter samplingInterpreter10000;
+	
+	interface SumProductInterpreter extends BiFunction<Expression, Context, Expression> {
+		String getName();
+	}
+	
+	private Expression warmUpSumProduct = parse("sum({{(on f in 1..2 -> 1..2) product({{(on X in 1..2) f(X) : true }}) : true}})");
 	
 	private Expression[] sumProducts = new Expression[] {			
 			//
@@ -38,15 +48,20 @@ public class InversionPerformanceEvaluationTest {
 			parse("sum({{(on f in 1..6 -> 1..5) product({{(on X in 1..6) f(X) : true }}) : true}})"),
 			parse("sum({{(on f in 1..7 -> 1..5) product({{(on X in 1..7) f(X) : true }}) : true}})"),
 			//
-			parse("sum({{(on f in 1..2 -> 1..5) product({{(on X in 1..2) f(X) + 3 : true }}) : true}})"),
-			parse("sum({{(on f in 1..3 -> 1..5) product({{(on X in 1..3) f(X) + 3 : true }}) : true}})"),
-			parse("sum({{(on f in 1..4 -> 1..5) product({{(on X in 1..4) f(X) + 3 : true }}) : true}})"),
-			parse("sum({{(on f in 1..5 -> 1..5) product({{(on X in 1..5) f(X) + 3 : true }}) : true}})"),
-			parse("sum({{(on f in 1..6 -> 1..5) product({{(on X in 1..6) f(X) + 3 : true }}) : true}})"),
-			parse("sum({{(on f in 1..7 -> 1..5) product({{(on X in 1..7) f(X) + 3 : true }}) : true}})"),
-			//
 			parse("sum({{(on f in 1..2 x 1..2 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..2) f(X, Y) : true }}) : true }}) : true}})"),
-			parse("sum({{(on f in 1..2 x 1..3 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})")
+			parse("sum({{(on f in 1..2 x 1..3 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})"),
+			parse("sum({{(on f in 1..3 x 1..3 -> 1..3) product({{(on X in 1..3) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})"),
+			parse("sum({{(on f in 1..3 x 1..3 -> 1..4) product({{(on X in 1..3) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})")
+	};
+	
+	private SumProductInterpreter[] interpreters = new SumProductInterpreter[] {
+			new BruteForceSumProductInterpreter(),
+			new InversionSumProductInterpreter(),
+			new SamplingSumProductInterpreter(10),
+			new SamplingSumProductInterpreter(100),
+			new SamplingSumProductInterpreter(1000),
+			new SamplingSumProductInterpreter(10000),
+			new SamplingSumProductInterpreter(100000),
 	};
 	
 	@Before
@@ -55,76 +70,171 @@ public class InversionPerformanceEvaluationTest {
 				new CompoundTheory(
 						new DifferenceArithmeticTheory(false, false), 
 						new TupleTheory()));
-		
-		inversionSimplifier      = new InversionSimplifier();
-		bruteForceInterpreter    = new BruteForceCommonInterpreter();
-		samplingInterpreter10    = new SampleCommonInterpreter(10, false, new Random(1));
-		samplingInterpreter100   = new SampleCommonInterpreter(100, false, new Random(1));
-		samplingInterpreter1000  = new SampleCommonInterpreter(1000, false, new Random(1));
-		samplingInterpreter10000 = new SampleCommonInterpreter(10000, false, new Random(1));
 	}
 	
 	// Comment out when you want to run evaluation.
 	@Ignore
 	@Test
 	public void evaluatePerformance() {
+		// Compute sizes
+		Rational[] sizes = new Rational[sumProducts.length];
 		for (int i = 0; i < sumProducts.length; i++) {
-			evaluatePerformance(sumProducts[i]);
+			sizes[i] = computeSize(sumProducts[i]);			
+		}
+		
+		// Warm up interpreters
+		for (int i = 0; i < interpreters.length; i++) {
+			evaluate(warmUpSumProduct, interpreters[i]);
+		}	
+		
+		List<List<Pair<Long, Expression>>> results = new ArrayList<>();
+		for (int i = 0; i < sumProducts.length; i++) {
+			List<Pair<Long, Expression>> sumProductResults = new ArrayList<>();
+			for (int j = 0; j < interpreters.length; j++) {
+				Pair<Long, Expression> sumProductResult = evaluate(sumProducts[i], interpreters[j]);
+				sumProductResults.add(sumProductResult);
+			}
+			results.add(sumProductResults);
+		}
+		
+		//
+		// Output Headers
+		System.out.print("Size\t");
+		for (int i = 0; i < interpreters.length; i++) {
+			System.out.print(interpreters[i].getName());
+			System.out.print("\t\t");
+		}
+		System.out.println("Sum Product");
+		System.out.print("\t");
+		for (int i = 0; i < interpreters.length; i++) {
+			System.out.print("Duration(ms)\t");
+			System.out.print("Computed\t");
+		}
+		System.out.println();
+		//
+		// Output Details
+		for (int i = 0; i < sumProducts.length; i++) {
+			System.out.print(Expressions.makeSymbol(sizes[i]));
+			System.out.print("\t");
+			
+			for (int j = 0; j < interpreters.length; j++) {
+				System.out.print(results.get(i).get(j).first);
+				System.out.print("\t");
+				System.out.print(results.get(i).get(j).second);
+				System.out.print("\t");				
+			}
+						
+			System.out.println(sumProducts[i]);
+		}
+		
+		// 
+		// Output details per sum-product
+		for (int i = 0; i < sumProducts.length; i++) {
+			System.out.println();
+			System.out.print(sumProducts[i]);
+			System.out.print("\tSize = \t");
+			System.out.println(Expressions.makeSymbol(sizes[i]));
+			System.out.println("Method\tDuration(ms)\tComputed");
+			for (int j = 0; j < interpreters.length; j++) {
+				System.out.print(interpreters[j].getName());
+				System.out.print("\t");
+				System.out.print(results.get(i).get(j).first);
+				System.out.print("\t");
+				System.out.print(results.get(i).get(j).second);
+				System.out.println();				
+			}
 		}
 	}
 	
-	private void evaluatePerformance(Expression sumProduct) {
-		Pair<Expression, Long> bruteForceResultAndDuration = evaluate(sumProduct, sp -> {
-			Expression r = bruteForceInterpreter.apply(sp, context);
-			return r;
-		});
-		Pair<Expression, Long> inversionResultAndDuration = evaluate(sumProduct, sp -> {
-			Expression possiblyInverted = inversionSimplifier.apply(sp, context);
-			Expression r = context.getTheory().evaluate(possiblyInverted, context);
-			return r;
-		});
-		Pair<Expression, Long> sampling10ResultAndDuration = evaluate(sumProduct, sp -> {
-			Expression r = samplingInterpreter10.apply(sp, context);
-			return r;
-		});
-		Pair<Expression, Long> sampling100ResultAndDuration = evaluate(sumProduct, sp -> {
-			Expression r = samplingInterpreter100.apply(sp, context);
-			return r;
-		});
-		Pair<Expression, Long> sampling1000ResultAndDuration = evaluate(sumProduct, sp -> {
-			Expression r = samplingInterpreter1000.apply(sp, context);
-			return r;
-		});
-		Pair<Expression, Long> sampling10000ResultAndDuration = evaluate(sumProduct, sp -> {
-			Expression r = samplingInterpreter10000.apply(sp, context);
-			return r;
-		});
-		
-		System.out.println("RESULTS FOR : "+sumProduct);
-		System.out.println("Brute Force Result    = "+bruteForceResultAndDuration.first);
-		System.out.println("Inversion Result      = "+inversionResultAndDuration.first);
-		System.out.println("Sampling:10 Result    = "+sampling10ResultAndDuration.first);
-		System.out.println("Sampling:100 Result   = "+sampling100ResultAndDuration.first);
-		System.out.println("Sampling:1000 Result  = "+sampling1000ResultAndDuration.first);
-		System.out.println("Sampling:10000 Result = "+sampling10000ResultAndDuration.first);
-		System.out.println("Brute Force Took      = "+bruteForceResultAndDuration.second+"ms.");
-		System.out.println("Inversion Took        = "+inversionResultAndDuration.second+"ms.");
-		System.out.println("Sampling:10 Took      = "+sampling10ResultAndDuration.second+"ms.");
-		System.out.println("Sampling:100 Took     = "+sampling100ResultAndDuration.second+"ms.");
-		System.out.println("Sampling:1000 Took    = "+sampling1000ResultAndDuration.second+"ms.");
-		System.out.println("Sampling:10000 Took   = "+sampling10000ResultAndDuration.second+"ms.");
-		System.out.println("----");
-	}
-	
-	private Pair<Expression, Long> evaluate(Expression sumProduct, Function<Expression, Expression> evaluatorFunction) {
+	private Pair<Long, Expression> evaluate(Expression sumProduct, SumProductInterpreter sumProductInterpreter) {
 		long start = System.currentTimeMillis();
 		
-		Expression evalResult = evaluatorFunction.apply(sumProduct);
+		Expression evalResult = sumProductInterpreter.apply(sumProduct, context);
 		
 		long duration = System.currentTimeMillis() - start;
 		
-		Pair<Expression, Long> result = new Pair<>(evalResult, duration);
+		Pair<Long, Expression> result = new Pair<>(duration, evalResult);
 		
 		return result;
+	}
+	
+	private Rational computeSize(Expression functionOnIntensionalSet) {
+		Rational result = new Rational(1);
+		
+		result = computeSize(functionOnIntensionalSet, result, context);
+		
+		return result;
+	}
+	
+	private Rational computeSize(Expression functionOnIntensionalSet, Rational resultSoFar, Context context) {
+		IntensionalSet      intensionalSet      = (IntensionalSet)functionOnIntensionalSet.get(0);
+		IndexExpressionsSet indexExpressionsSet = intensionalSet.getIndexExpressions();		
+		List<Expression> indices                = IndexExpressions.getIndices(indexExpressionsSet);
+		if (indices.size() != 1) {
+			throw new UnsupportedOperationException("Currently only support singular indices");
+		}
+		Expression index              = indices.get(0);
+		Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+		Type type                     = GrinderUtil.getType(index, intensionalSetContext);
+		
+		Rational result = resultSoFar.multiply(type.cardinality().rationalValue());
+		
+		Expression head = intensionalSet.getHead();
+		if (Expressions.isFunctionApplicationWithArguments(head) && Sets.isIntensionalSet(head.get(0))) {
+			result = computeSize(head, result, intensionalSetContext);
+		}
+		return result;
+	}
+	
+	private class BruteForceSumProductInterpreter implements SumProductInterpreter {
+		private BruteForceCommonInterpreter bruteForceInterpreter = new BruteForceCommonInterpreter();
+		
+		@Override
+		public String getName() {
+			return "Brute Force";
+		}
+		
+		@Override
+		public Expression apply(Expression sumProduct, Context context) {
+			Expression result = bruteForceInterpreter.apply(sumProduct, context);
+			return result;
+		}
+	}
+	
+	private class InversionSumProductInterpreter implements SumProductInterpreter {
+		private InversionSimplifier inversionSimplifier = new InversionSimplifier();
+		
+		@Override
+		public String getName() {
+			return "Inversion";
+		}
+		
+		@Override
+		public Expression apply(Expression sumProduct, Context context) {
+			Expression possiblyInverted = inversionSimplifier.apply(sumProduct, context);
+			Expression result           = context.getTheory().evaluate(possiblyInverted, context);
+			return result;
+		}
+	}
+	
+	private class SamplingSumProductInterpreter implements SumProductInterpreter {
+		private SampleCommonInterpreter samplingInterpreter;
+		private int n;
+		
+		public SamplingSumProductInterpreter(int n) {
+			this.n = n;
+			samplingInterpreter = new SampleCommonInterpreter(n, false, new Random(1));
+		}
+		
+		@Override
+		public String getName() {
+			return "Sampling[N="+n+"]";
+		}
+		
+		@Override
+		public Expression apply(Expression sumProduct, Context context) {
+			Expression result = samplingInterpreter.apply(sumProduct, context);
+			return result;
+		}
 	}
 }
