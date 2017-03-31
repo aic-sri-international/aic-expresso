@@ -86,10 +86,14 @@ public class InversionSimplifier implements Simplifier {
 			FunctionType summationIndexFunctionType             = indexAndFunctionType.second;
 			
 			List<Expression> originalQuantifierOrder  = new ArrayList<>();
-			collectQuantifiers(summationIndexedByFunction, originalQuantifierOrder);
+			collectQuantifiers(summationIndexedByFunction, originalQuantifierOrder);			
+			Context lastQuantifierHeadContext = context;
+			for (Expression quantifier : originalQuantifierOrder) {
+				lastQuantifierHeadContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), lastQuantifierHeadContext);
+			}
 			List<Expression> inversionQuantifierOrder = new ArrayList<>();
-			if (isInversionPossible(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context)) {				
-				result = applyInversion(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context);
+			if (isInversionPossible(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, lastQuantifierHeadContext)) {				
+				result = applyInversion(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, lastQuantifierHeadContext);
 			}
 		}
 		
@@ -97,17 +101,14 @@ public class InversionSimplifier implements Simplifier {
 	}
 	
 	private static boolean isInversionPossible(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
-			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {		
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context lastQuantifierHeadContext) {		
 		boolean result = false;
 		
 		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
 		Expression ocfE               = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(summationIndexFunctionName, summationIndexFunctionType, lastQuantifierHead);
 		
 		// Create a context for performing is isInvertible tests
-		Context ocfEContext = context;
-		for (Expression quantifier : originalQuantifierOrder) {
-			ocfEContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), ocfEContext);
-		}
+		Context ocfEContext = lastQuantifierHeadContext;		
 		
 		List<Expression> productCandidatesToInvert = new ArrayList<>();
 		int i = 1; // Start at 1 as 0 is the quantifier.
@@ -135,11 +136,6 @@ public class InversionSimplifier implements Simplifier {
 			updateInversionOrder(originalQuantifierOrder, productsThatCanBeInverted, inversionQuantifierOrder);
 			result = true;
 		}
-		
-// TODO - remove to proceed with partial cases.
-//if (productsThatCanBeInverted.size() != originalQuantifierOrder.size()-1) {
-//	result = false;
-//}
 		
 		return result;
 	}
@@ -269,7 +265,7 @@ public class InversionSimplifier implements Simplifier {
 	}
 	
 	private static Expression applyInversion(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
-			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context lastQuantifierHeadContext) {
 		Expression result;
 		
 		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);	
@@ -277,22 +273,38 @@ public class InversionSimplifier implements Simplifier {
 		List<Expression> productsBefore = inversionQuantifierOrder.subList(0, indexOfSummationIndexedByFunction);
 		
 		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));		
+		
+// TODO - remove temporary hack which collapses the function's argument domains
+// due to all the domain arguments being treated as constants. Instead should be using
+// set expression types on singletons.				
 		// Determine which domain arguments from the summation function can be collapsed
 		List<Expression> productsBeforeIndices = new ArrayList<>();
 		for (Expression productBefore : productsBefore) {
 			productsBeforeIndices.add(getIndexAndType(productBefore).first);
 		}
 		Set<Integer> domainArgsToRemove = new HashSet<>(); 
+		Set<Integer> domainArgsHaveVar  = new HashSet<>();
 		new SubExpressionsDepthFirstIterator(lastQuantifierHead).forEachRemaining(e -> {
 			if (e.hasFunctor(summationIndexFunctionName)) {
-				for (int i = 0; i < e.numberOfArguments(); i++) {
+				for (int i = 0; i < e.numberOfArguments(); i++) {				
+					if (lastQuantifierHeadContext.getTheory().isVariable(e.get(0), lastQuantifierHeadContext)) {
+						domainArgsHaveVar.add(i);
+					}
 					if (productsBeforeIndices.contains(e.get(i)) || Util.thereExists(new SubExpressionsDepthFirstIterator(e.get(i)), es -> productsBeforeIndices.contains(es))) {
 						domainArgsToRemove.add(i);
 					}
 				}
 			}
 		});
-				
+		
+		// Remove arg positions that were not populated by a variable.
+		for (int i = 0; i < summationIndexFunctionType.getArity(); i++) {
+			if (!domainArgsHaveVar.contains(i)) {
+				domainArgsToRemove.add(i);
+			}
+		}
+
+		
 		List<Expression> argTypes = new ArrayList<>();
 		for (int i = 0; i < summationIndexFunctionType.getArity(); i++) {
 			if (!domainArgsToRemove.contains(i)) {
@@ -300,9 +312,6 @@ public class InversionSimplifier implements Simplifier {
 			}
 		}
 		
-// TODO - remove temporary hack which collapses the function's argument domains
-// due to all the domain arguments being treated as constants. Instead should be using
-// set expression types on singletons.		
 		Expression codomainType = parse(summationIndexFunctionType.getCodomain().getName());
 		Expression summationIndexReducedType;
 		if (argTypes.size() == 0) {
@@ -331,7 +340,7 @@ public class InversionSimplifier implements Simplifier {
 				}
 			}
 			return r;
-		}, context);
+		}, lastQuantifierHeadContext);
 		
 		Expression summationHead = phi;
 		for (int i = indexOfSummationIndexedByFunction+1; i < inversionQuantifierOrder.size(); i++) {
