@@ -409,6 +409,11 @@ public class GrinderUtil {
 			
 			List<Expression> argumentTypes = mapIntoList(expression.getArguments(), e -> getTypeExpression(e, registry));
 			
+			int firstNullArgumentTypeIndexIfAny = Util.getIndexOfFirstSatisfyingPredicateOrMinusOne(argumentTypes, t -> t == null);
+			if (firstNullArgumentTypeIndexIfAny != -1) {
+				throw new Error("Cannot determine type of " + expression.getArguments().get(firstNullArgumentTypeIndexIfAny) + ", which is needed for determining type of " + expression);
+			}
+			
 			/**
 			 * commonDomain is the co-domain shared by all argument function types, or empty tuple for arguments that are not function-typed.
 			 * Therefore, if no argument is function-typed, it will be equal to the empty tuple.

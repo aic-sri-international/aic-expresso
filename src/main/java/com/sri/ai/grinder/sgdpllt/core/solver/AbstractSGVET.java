@@ -120,6 +120,9 @@ public class AbstractSGVET extends AbstractMultiIndexQuantifierEliminator {
 			
 		checkInterrupted();
 		
+		// Make sure body is simplified and quantifier-free.
+		body = context.getTheory().evaluate(body, context);
+		
 		Expression result;
 		if (getDebug()) {
 			System.out.println("SGVE(T) input: " + body);	

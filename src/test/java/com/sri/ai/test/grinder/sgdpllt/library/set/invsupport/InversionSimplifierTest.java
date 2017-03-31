@@ -114,6 +114,8 @@ public class InversionSimplifierTest {
 		Expression summation = parse("sum({{(on f in 0..9 x 1..9 x 3..3-> 1..5) product({{(on X in 1..10) product({{(on Y in 1..9) sum({{(on Z in 1..10) f(X-1, Y, 3)*Z }}) }}) }}) }})");
 	    Expression product   = parse("product({{(on X in 1..10) product({{(on Y in 1..9) sum({{(on f in 3..3 -> 1..5) sum({{(on Z in 1..10) f(3) * Z }}) }}) }}) }})");
 	    
+//	    context.getTheory().evaluate(product, context);
+	    
 	    Assert.assertEquals(
 				product, 
 				simplifier.apply(summation, context));

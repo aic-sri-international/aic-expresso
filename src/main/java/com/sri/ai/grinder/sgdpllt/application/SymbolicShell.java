@@ -190,7 +190,7 @@ public class SymbolicShell {
 			}
 		}
 		
-		consoleIterator.getOutputWriter().println("\nGood bye.");	
+		consoleIterator.getOutputWriter().println("\nGoodbye.");	
 	}
 
 	/**
