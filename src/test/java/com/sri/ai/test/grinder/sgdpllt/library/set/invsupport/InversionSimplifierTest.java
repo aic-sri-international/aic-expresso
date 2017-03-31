@@ -101,10 +101,19 @@ public class InversionSimplifierTest {
 	
 	@Test
 	public void testInversionCase7() {
-		// NOTE: currently inversion won't be applied as this is conditional
 		Expression summation = parse("sum({{(on f in 1..10 -> 1..5) product({{(on X in 1..10) f(X) + g(X) : true }}) : true}})");
 	    Expression product   = parse("product({{(on X in 1..10) sum({{(on f in 1..5) f + g(X) }}) : true}})");
 		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
+	
+	@Test
+	public void testInversionCase8() {
+		Expression summation = parse("sum({{(on f in 0..9 x 1..9 x 3..3-> 1..5) product({{(on X in 1..10) product({{(on Y in 1..9) sum({{(on Z in 1..10) f(X-1, Y, 3)+Z }}) }}) }}) }})");
+	    Expression product   = parse("product({{(on X in 1..10) product({{(on Y in 1..9) sum({{(on f in 3..3 -> 1..5) sum({{(on Z in 1..10) f(3) + Z }}) }}) }}) }})");
+	    
 	    Assert.assertEquals(
 				product, 
 				simplifier.apply(summation, context));

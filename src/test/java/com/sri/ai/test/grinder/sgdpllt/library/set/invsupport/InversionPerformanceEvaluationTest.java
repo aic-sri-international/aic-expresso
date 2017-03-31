@@ -1,11 +1,14 @@
 package com.sri.ai.test.grinder.sgdpllt.library.set.invsupport;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.map;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -26,6 +29,8 @@ import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.invsupport.InversionSimplifier;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
@@ -39,7 +44,7 @@ public class InversionPerformanceEvaluationTest {
 	
 	private Expression warmUpSumProduct = parse("sum({{(on f in 1..2 -> 1..2) product({{(on X in 1..2) f(X) : true }}) : true}})");
 	
-	private Expression[] sumProducts = new Expression[] {			
+	private Expression[] sumProducts = new Expression[] {
 			//
 			parse("sum({{(on f in 1..2 -> 1..5) product({{(on X in 1..2) f(X) : true }}) : true}})"),
 			parse("sum({{(on f in 1..3 -> 1..5) product({{(on X in 1..3) f(X) : true }}) : true}})"),
@@ -51,17 +56,21 @@ public class InversionPerformanceEvaluationTest {
 			parse("sum({{(on f in 1..2 x 1..2 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..2) f(X, Y) : true }}) : true }}) : true}})"),
 			parse("sum({{(on f in 1..2 x 1..3 -> 1..5) product({{(on X in 1..2) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})"),
 			parse("sum({{(on f in 1..3 x 1..3 -> 1..3) product({{(on X in 1..3) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})"),
-			parse("sum({{(on f in 1..3 x 1..3 -> 1..4) product({{(on X in 1..3) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})")
+			parse("sum({{(on f in 1..3 x 1..3 -> 1..4) product({{(on X in 1..3) product({{(on Y in 1..3) f(X, Y) : true }}) : true }}) : true}})"),
+			//
+//			parse("sum({{(on f in 0..3 x 1..3 x 3..3-> 1..3) product({{(on X in 1..4) product({{(on Y in 1..3) sum({{(on Z in 1..10) f(X-1, Y, 3)*Z }}) }}) }}) }})"),
 	};
 	
 	private SumProductInterpreter[] interpreters = new SumProductInterpreter[] {
 			new BruteForceSumProductInterpreter(),
 			new InversionSumProductInterpreter(),
-			new SamplingSumProductInterpreter(10),
-			new SamplingSumProductInterpreter(100),
-			new SamplingSumProductInterpreter(1000),
-			new SamplingSumProductInterpreter(10000),
-			new SamplingSumProductInterpreter(100000),
+			new SamplingSumProductInterpreter(10, false),
+			new SamplingSumProductInterpreter(100, false),
+			new SamplingSumProductInterpreter(1000, false),
+			new SamplingSumProductInterpreter(10000, false),
+			new SamplingSumProductInterpreter(100000, false),
+			new SamplingSumProductInterpreter(10, true),
+			new SamplingSumProductInterpreter(100, true),
 	};
 	
 	@Before
@@ -69,7 +78,11 @@ public class InversionPerformanceEvaluationTest {
 		context = new TrueContext(
 				new CompoundTheory(
 						new DifferenceArithmeticTheory(false, false), 
+						new EqualityTheory(false, false),
+						new PropositionalTheory(),
 						new TupleTheory()));
+		updateContextWithIndexAndType("R", GrinderUtil.INTEGER_TYPE);
+		context.conjoin(parse("R = 1"), context);
 	}
 	
 	// Comment out when you want to run evaluation.
@@ -87,45 +100,24 @@ public class InversionPerformanceEvaluationTest {
 			evaluate(warmUpSumProduct, interpreters[i]);
 		}	
 		
+		// Compute results
 		List<List<Pair<Long, Expression>>> results = new ArrayList<>();
 		for (int i = 0; i < sumProducts.length; i++) {
+			System.out.println("Evaluting:"+sumProducts[i]);
+			System.out.println("Size     :"+Expressions.makeSymbol(sizes[i]));
 			List<Pair<Long, Expression>> sumProductResults = new ArrayList<>();
 			for (int j = 0; j < interpreters.length; j++) {
+				System.out.println("With:"+interpreters[j].getName());
 				Pair<Long, Expression> sumProductResult = evaluate(sumProducts[i], interpreters[j]);
 				sumProductResults.add(sumProductResult);
 			}
 			results.add(sumProductResults);
 		}
 		
-		//
-		// Output Headers
-		System.out.print("Size\t");
-		for (int i = 0; i < interpreters.length; i++) {
-			System.out.print(interpreters[i].getName());
-			System.out.print("\t\t");
-		}
-		System.out.println("Sum Product");
-		System.out.print("\t");
-		for (int i = 0; i < interpreters.length; i++) {
-			System.out.print("Duration(ms)\t");
-			System.out.print("Computed\t");
-		}
+		System.out.println("------- TSV OUTPUT -------");
+		outputTable(sizes, results, "Duration(ms)", pair -> pair.first.toString());
 		System.out.println();
-		//
-		// Output Details
-		for (int i = 0; i < sumProducts.length; i++) {
-			System.out.print(Expressions.makeSymbol(sizes[i]));
-			System.out.print("\t");
-			
-			for (int j = 0; j < interpreters.length; j++) {
-				System.out.print(results.get(i).get(j).first);
-				System.out.print("\t");
-				System.out.print(results.get(i).get(j).second);
-				System.out.print("\t");				
-			}
-						
-			System.out.println(sumProducts[i]);
-		}
+		outputTable(sizes, results, "Computed", pair -> outputRational(pair.second));
 		
 		// 
 		// Output details per sum-product
@@ -140,9 +132,39 @@ public class InversionPerformanceEvaluationTest {
 				System.out.print("\t");
 				System.out.print(results.get(i).get(j).first);
 				System.out.print("\t");
-				System.out.print(results.get(i).get(j).second);
+				System.out.print(outputRational(results.get(i).get(j).second));
 				System.out.println();				
 			}
+		}
+	}
+	
+	private void outputTable(Rational[] sizes, List<List<Pair<Long, Expression>>> results, String interpreterColumn, Function<Pair<Long, Expression>, String> interpreterResultFn) {
+		//
+		// Output Headers
+		System.out.print("Size\t");
+		for (int i = 0; i < interpreters.length; i++) {
+			System.out.print(interpreters[i].getName());
+			System.out.print("\t");
+		}
+		System.out.println("Sum Product");
+		System.out.print("\t");
+		for (int i = 0; i < interpreters.length; i++) {
+			System.out.print(interpreterColumn);
+			System.out.print("\t");
+		}
+		System.out.println();
+		//
+		// Output Details
+		for (int i = 0; i < sumProducts.length; i++) {
+			System.out.print(Expressions.makeSymbol(sizes[i]));
+			System.out.print("\t");
+			
+			for (int j = 0; j < interpreters.length; j++) {
+				System.out.print(interpreterResultFn.apply(results.get(i).get(j)));
+				System.out.print("\t");				
+			}
+						
+			System.out.println(sumProducts[i]);
 		}
 	}
 	
@@ -220,15 +242,17 @@ public class InversionPerformanceEvaluationTest {
 	private class SamplingSumProductInterpreter implements SumProductInterpreter {
 		private SampleCommonInterpreter samplingInterpreter;
 		private int n;
+		private boolean alwaysSample;
 		
-		public SamplingSumProductInterpreter(int n) {
+		public SamplingSumProductInterpreter(int n, boolean alwaysSample) {
 			this.n = n;
-			samplingInterpreter = new SampleCommonInterpreter(n, false, new Random(1));
+			this.alwaysSample = alwaysSample;
+			samplingInterpreter = new SampleCommonInterpreter(n, alwaysSample, new Random(1));
 		}
 		
 		@Override
 		public String getName() {
-			return "Sampling[N="+n+"]";
+			return "Sampling[N="+n+", AlwaysSample="+alwaysSample+"]";
 		}
 		
 		@Override
@@ -236,5 +260,20 @@ public class InversionPerformanceEvaluationTest {
 			Expression result = samplingInterpreter.apply(sumProduct, context);
 			return result;
 		}
+	}
+	
+	private void updateContextWithIndexAndType(String index, Type type) {
+		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
+	}
+	
+	private String outputRational(Expression rationalExpression) {
+		String result;
+		if (rationalExpression.rationalValue().isInteger()) {
+			result = rationalExpression.toString();
+		}
+		else {
+			result = rationalExpression.rationalValue().toStringDot(3);
+		}
+		return result;
 	}
 }

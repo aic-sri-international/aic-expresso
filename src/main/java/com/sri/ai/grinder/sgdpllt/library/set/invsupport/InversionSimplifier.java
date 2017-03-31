@@ -63,6 +63,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.Implication;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 public class InversionSimplifier implements Simplifier {
@@ -285,7 +286,7 @@ public class InversionSimplifier implements Simplifier {
 		new SubExpressionsDepthFirstIterator(lastQuantifierHead).forEachRemaining(e -> {
 			if (e.hasFunctor(summationIndexFunctionName)) {
 				for (int i = 0; i < e.numberOfArguments(); i++) {
-					if (productsBeforeIndices.contains(e.get(i))) {
+					if (productsBeforeIndices.contains(e.get(i)) || Util.thereExists(new SubExpressionsDepthFirstIterator(e.get(i)), es -> productsBeforeIndices.contains(es))) {
 						domainArgsToRemove.add(i);
 					}
 				}
@@ -308,12 +309,7 @@ public class InversionSimplifier implements Simplifier {
 			summationIndexReducedType = codomainType;
 		}
 		else {
-			if (argTypes.size() == 1) {
-				summationIndexReducedType = Expressions.apply(FunctorConstants.FUNCTION_TYPE, argTypes.get(0), codomainType);
-			}
-			else {
-				summationIndexReducedType = Expressions.apply(FunctorConstants.FUNCTION_TYPE, Expressions.makeTuple(argTypes), codomainType);
-			}
+			summationIndexReducedType = FunctionType.make(codomainType, argTypes);
 		}
 		
 		Expression summationIndex = IndexExpressions.makeIndexExpression(summationIndexFunctionName, summationIndexReducedType);		
