@@ -118,41 +118,50 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 	
 	public static Type getTypeToSampleFrom(Expression variable, Expression condition, Context context) {
 		Type result = GrinderUtil.getType(variable, context);
-		if (result instanceof RealExpressoType || result instanceof RealInterval) {		
-			IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver solver = 
-					new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) condition);
-			
-			Expression realInterval = solver.solve(context);
-			if (Sets.isEmptySet(realInterval)) {
-				result = null; // used to indicate an empty set.
-			}
-			else if (ExtensionalSet.isExtensionalSet(realInterval) && ExtensionalSet.isSingleton(realInterval)) {
-				String singletonValue = realInterval.get(0).toString();
-				result = new RealInterval("["+singletonValue+";"+singletonValue+"]");				
-			}
-			else {
-				result = new RealInterval(realInterval.toString());
-			}
-		}
-		else if (result instanceof IntegerExpressoType || result instanceof IntegerInterval) {
-			ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver solver = new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint)condition);
-			
-			// NOTE: the exceptions set returned here is implicit in the condition so no need to use it here.
-			RangeAndExceptionsSet rangeAndExceptionsSet = (RangeAndExceptionsSet) solver.solve(context);
-			
-			if (rangeAndExceptionsSet.isEmpty()) {
-				result = null; // used to indicate an empty set.
-			}
-			else if (rangeAndExceptionsSet.isSingleton()) {
-				result = new IntegerInterval(rangeAndExceptionsSet.getSingleValue().intValueExact(), rangeAndExceptionsSet.getSingleValue().intValueExact());
-			}
-			else {
-				result = new IntegerInterval(rangeAndExceptionsSet.getStrictLowerBound().intValueExact()+1, rangeAndExceptionsSet.getNonStrictUpperBound().intValueExact());
-			}
-		}
-		else if (result instanceof FunctionType) {
+		
+		if (result instanceof FunctionType) {
 			FunctionType functionType = (FunctionType) result;
 			result = new LazySampledFunctionType(functionType.getCodomain(), functionType.getArgumentTypes().toArray(new Type[functionType.getArity()]));
+		}
+		else {
+			if (condition.equals(false)) {
+				result = null;
+			}
+			else if (condition.equals(true)) {
+				// we leave as is.
+			}
+			else if (result instanceof RealExpressoType || result instanceof RealInterval) {		
+				IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver solver = 
+						new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) condition);
+				
+				Expression realInterval = solver.solve(context);
+				if (Sets.isEmptySet(realInterval)) {
+					result = null; // used to indicate an empty set.
+				}
+				else if (ExtensionalSet.isExtensionalSet(realInterval) && ExtensionalSet.isSingleton(realInterval)) {
+					String singletonValue = realInterval.get(0).toString();
+					result = new RealInterval("["+singletonValue+";"+singletonValue+"]");				
+				}
+				else {
+					result = new RealInterval(realInterval.toString());
+				}
+			}
+			else if (result instanceof IntegerExpressoType || result instanceof IntegerInterval) {
+				ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver solver = new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint)condition);
+				
+				// NOTE: the exceptions set returned here is implicit in the condition so no need to use it here.
+				RangeAndExceptionsSet rangeAndExceptionsSet = (RangeAndExceptionsSet) solver.solve(context);
+				
+				if (rangeAndExceptionsSet.isEmpty()) {
+					result = null; // used to indicate an empty set.
+				}
+				else if (rangeAndExceptionsSet.isSingleton()) {
+					result = new IntegerInterval(rangeAndExceptionsSet.getSingleValue().intValueExact(), rangeAndExceptionsSet.getSingleValue().intValueExact());
+				}
+				else {
+					result = new IntegerInterval(rangeAndExceptionsSet.getStrictLowerBound().intValueExact()+1, rangeAndExceptionsSet.getNonStrictUpperBound().intValueExact());
+				}
+			}
 		}
 		
 		if (result != null && !result.isSampleUniquelyNamedConstantSupported()) {
