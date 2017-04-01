@@ -71,7 +71,7 @@ public class InversionPerformanceEvaluationTest {
 			new SamplingSumProductInterpreter(750, false),
 			new SamplingSumProductInterpreter(1000, false),
 			new SamplingSumProductInterpreter(10000, false),
-			new SamplingSumProductInterpreter(100000, false),
+//			new SamplingSumProductInterpreter(100000, false),
 			new SamplingSumProductInterpreter(10, true),
 			new SamplingSumProductInterpreter(100, true),
 	};
