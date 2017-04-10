@@ -118,6 +118,18 @@ public class InversionSimplifierTest {
 				product, 
 				simplifier.apply(summation, context));
 	}
+	
+	@Test
+	public void testInversionCase9() {
+		// NOTE: while this looks similar to the does not invert example from the paper
+		// the domains of the arguments do not overlap so it is invertible.
+		Expression summation = parse("sum({{(on f in 1..10 x 11..20 -> 1..5) product({{(on X in 1..10) product({{(on Y in 11..20) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
+	    Expression product   = parse("product({{ ( on X in 1..10 ) product({{ ( on Y in 11..20 ) sum({{ ( on f in 1..5 ) f + f }}) }}) }})");
+		
+	    Assert.assertEquals(
+				product, 
+				simplifier.apply(summation, context));
+	}
 		
 	
 	@Test
@@ -140,12 +152,14 @@ public class InversionSimplifierTest {
 				simplifier.apply(summation, context));
 	}
 	
-	@Ignore // Does not work correctly due to not properly support set expression types.
+// TODO - fix, is currently considered partially invertible, which it is not.	
+// Does not work correctly due to not consutructing oc_f[E] E's expression correctly in partial case.
+	@Ignore
 	@Test
-	public void testPartialInversionCase3() {
-		// NOTE: partially inverts due to shared dependency 'f(X, Y) + f(Y, X)'
-		Expression summation = parse("sum({{(on f in 1..10 x 11..20 -> 1..5) product({{(on X in 1..10) product({{(on Y in 11..20) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
-	    Expression product   = parse("product({{ ( on X in 1..10 ) sum({{ ( on f in {X} x 11..20 -> 1..5 ) product({{ ( on Y in 11..20 ) f(X, Y) + f(Y, X) }}) }}) }})");
+	public void testNoInversionCase1() {
+		// NOTE: example of no inversion from paper
+		Expression summation = parse("sum({{(on f in 1..10 x 1..10 -> 1..5) product({{(on X in 1..10) product({{(on Y in 1..10) f(X, Y) + f(Y, X) : true }}) : true }}) : true }})");
+	    Expression product   = summation;
 		
 	    Assert.assertEquals(
 				product, 
