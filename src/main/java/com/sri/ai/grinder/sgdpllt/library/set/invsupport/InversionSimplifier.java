@@ -86,14 +86,10 @@ public class InversionSimplifier implements Simplifier {
 			FunctionType summationIndexFunctionType             = indexAndFunctionType.second;
 			
 			List<Expression> originalQuantifierOrder  = new ArrayList<>();
-			collectQuantifiers(summationIndexedByFunction, originalQuantifierOrder);			
-			Context lastQuantifierHeadContext = context;
-			for (Expression quantifier : originalQuantifierOrder) {
-				lastQuantifierHeadContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), lastQuantifierHeadContext);
-			}
+			collectQuantifiers(summationIndexedByFunction, originalQuantifierOrder);
 			List<Expression> inversionQuantifierOrder = new ArrayList<>();
-			if (isInversionPossible(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, lastQuantifierHeadContext)) {				
-				result = applyInversion(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, lastQuantifierHeadContext);
+			if (isInversionPossible(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context)) {				
+				result = applyInversion(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context);
 			}
 		}
 		
@@ -101,15 +97,9 @@ public class InversionSimplifier implements Simplifier {
 	}
 	
 	private static boolean isInversionPossible(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
-			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context lastQuantifierHeadContext) {		
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {		
 		boolean result = false;
-		
-		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));
-		Expression ocfE               = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(summationIndexFunctionName, summationIndexFunctionType, lastQuantifierHead);
-		
-		// Create a context for performing is isInvertible tests
-		Context ocfEContext = lastQuantifierHeadContext;		
-		
+				
 		List<Expression> productCandidatesToInvert = new ArrayList<>();
 		int i = 1; // Start at 1 as 0 is the quantifier.
 		// The only candidates considered are directly nested products underneath the summation
@@ -127,7 +117,7 @@ public class InversionSimplifier implements Simplifier {
 			productsBeforeToTest.add(productCandidate);
 			updateInversionOrder(originalQuantifierOrder, productsBeforeToTest, inversionQuantifierOrder);
 			
-			if (isInvertible(summationIndexedByFunction, ocfE, inversionQuantifierOrder, ocfEContext)) {
+			if (isInvertible(summationIndexedByFunction, summationIndexFunctionName, summationIndexFunctionType, originalQuantifierOrder, inversionQuantifierOrder, context)) {
 				productsThatCanBeInverted.add(productCandidate);
 			}
 		}
@@ -150,10 +140,31 @@ public class InversionSimplifier implements Simplifier {
 		}
 	}
 	
-	private static boolean isInvertible(Expression summationIndexedByFunction, Expression ocfE, List<Expression> inversionQuantifierOrder, Context ocfEContext) {
+	private static boolean isInvertible(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {
 		boolean result = false;
 		
-		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);
+		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);	
+	
+		// NOTE: we will use the full nested context in order to derive primedUntilUnique variables to ensure
+		// we have globally unique variables in the expressions (simplifies reading/understanding).
+		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));	
+		Context lastQuantifierHeadContext = context;
+		for (Expression quantifier : originalQuantifierOrder) {
+			lastQuantifierHeadContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), lastQuantifierHeadContext);
+		}
+		
+		
+
+		// Construct E correctly based on quantifiers after summation.
+		Expression E = lastQuantifierHead;
+		List<Expression> quantifiersAfter = inversionQuantifierOrder.subList(indexOfSummationIndexedByFunction+1, inversionQuantifierOrder.size());
+		for (int i = quantifiersAfter.size()-1; i >= 0; i--) {
+			E = quantifyE(E, quantifiersAfter.get(i));			
+		}
+
+		// Now compute ocfE
+		Expression ocfE = SetOfArgumentTuplesForFunctionOccurringInExpression.compute(summationIndexFunctionName, summationIndexFunctionType, E);
 		
 		// NOTE: only products will bubble up before the summation.
 		List<Expression> productsBefore = inversionQuantifierOrder.subList(0, indexOfSummationIndexedByFunction);
@@ -170,13 +181,13 @@ public class InversionSimplifier implements Simplifier {
 		for (int i = 0; i < productsBeforeIndices.size(); i++) {
 			Expression productBeforeIndex = productsBeforeIndices.get(i);
 			
-			Expression allIndicesTuple            = Expressions.makeTuple(allBeforeIndices);
-			Expression productBeforeIndexPrime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, ocfEContext);				
+			Expression allIndicesTuple = Expressions.makeTuple(allBeforeIndices);
+			Expression productBeforeIndexPrime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, lastQuantifierHeadContext);				
 			productsBeforeIndicesPrime.add(productBeforeIndexPrime);
 			allBeforeIndices.add(productBeforeIndexPrime);
 			
 			allIndicesTuple = Expressions.makeTuple(allBeforeIndices);
-			Expression productBeforeIndex2Prime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, ocfEContext);				
+			Expression productBeforeIndex2Prime = Expressions.primedUntilUnique(productBeforeIndex, allIndicesTuple, lastQuantifierHeadContext);				
 			productsBeforeIndices2Prime.add(productBeforeIndex2Prime);
 			allBeforeIndices.add(productBeforeIndex2Prime);
 		}
@@ -193,11 +204,11 @@ public class InversionSimplifier implements Simplifier {
 			Expression condition        = getCondition(quantifierBefore);
 			
 			// C_n[x_n/x'_n]
-			Expression conjunctPrime = replaceAll(condition, productsBeforeIndices, productsBeforeIndicesPrime, ocfEContext);
+			Expression conjunctPrime = replaceAll(condition, productsBeforeIndices, productsBeforeIndicesPrime, lastQuantifierHeadContext);
 			conjunctsPrime.add(conjunctPrime);
 			
 			// C_n[x_n/x''_n]
-			Expression conjunct2Prime = replaceAll(condition, productsBeforeIndices, productsBeforeIndices2Prime, ocfEContext);
+			Expression conjunct2Prime = replaceAll(condition, productsBeforeIndices, productsBeforeIndices2Prime, lastQuantifierHeadContext);
 			conjuncts2Prime.add(conjunct2Prime);
 		}
 	
@@ -219,8 +230,8 @@ public class InversionSimplifier implements Simplifier {
 		//       intersection
 		//  oc_f[E][x_1/x''_1,....,x_k/x''_k])
 		// = {}
-		Expression ocfEPrime  = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndicesPrime, ocfEContext);
-		Expression ocfE2Prime = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndices2Prime, ocfEContext);
+		Expression ocfEPrime  = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndicesPrime, lastQuantifierHeadContext);
+		Expression ocfE2Prime = replaceAll(ocfE, productsBeforeIndices, productsBeforeIndices2Prime, lastQuantifierHeadContext);
 		
 		Expression intersection = Sets.makeIntersection(ocfEPrime, ocfE2Prime);
 		
@@ -255,8 +266,8 @@ public class InversionSimplifier implements Simplifier {
 			forAll = ForAll.make(forAllIndexExpressionSet, forAll);
 		}
 		
-		Expression forAllEvaluated = ocfEContext.getTheory().evaluate(forAll, ocfEContext);
-
+		Expression forAllEvaluated = context.getTheory().evaluate(forAll, context);
+		
 		if (Expressions.TRUE.equals(forAllEvaluated)) {		
 			result = true;
 		}
@@ -264,8 +275,15 @@ public class InversionSimplifier implements Simplifier {
 		return result;
 	}
 	
+	private static Expression quantifyE(Expression E, Expression quantifier) {
+		Expression result = Expressions.apply(quantifier.getFunctor(), 
+				getIntensionalSet(quantifier).setHead(E));
+		
+		return result;
+	}
+	
 	private static Expression applyInversion(Expression summationIndexedByFunction, Expression summationIndexFunctionName, FunctionType summationIndexFunctionType, 
-			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context lastQuantifierHeadContext) {
+			List<Expression> originalQuantifierOrder, List<Expression> inversionQuantifierOrder, Context context) {
 		Expression result;
 		
 		int indexOfSummationIndexedByFunction = inversionQuantifierOrder.indexOf(summationIndexedByFunction);	
@@ -273,6 +291,11 @@ public class InversionSimplifier implements Simplifier {
 		List<Expression> productsBefore = inversionQuantifierOrder.subList(0, indexOfSummationIndexedByFunction);
 		
 		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));		
+		Context innerContext = context;
+		for (Expression quantifier : originalQuantifierOrder) {
+			innerContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), innerContext);
+		}
+		Context lastQuantifierHeadContext = innerContext;
 		
 // TODO - remove temporary hack which collapses the function's argument domains
 // due to all the domain arguments being treated as constants. Instead should be using
