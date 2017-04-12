@@ -189,7 +189,7 @@ public class SetOfArgumentTuplesForFunctionOccurringInExpression {
 			Expression ocfOfEPrime = makeUnion(ePrimeUnionArgs);
 			
 			Expression intensionalMultiSet = IntensionalSet.intensionalMultiSet(x, ocfOfEPrime, c);
-			Expression intensionalUnion = Expressions.apply(FunctorConstants.INTENSIONAL_UNION, intensionalMultiSet);
+			Expression intensionalUnion    = Expressions.apply(FunctorConstants.INTENSIONAL_UNION, intensionalMultiSet);
 			
 			unionArgs.add(intensionalUnion);			
 		}

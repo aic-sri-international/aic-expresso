@@ -72,11 +72,8 @@ public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier imple
 	}
 	
 	public static Expression simplify(Expression expression, Context context) {
-		Expression result = expression;
-// TODO - intensional multisets only?		
-		if (expression.hasFunctor(FunctorConstants.INTENSIONAL_UNION) 
-				&& expression.numberOfArguments() == 1 
-				&& Sets.isIntensionalMultiSet(expression.get(0))) {
+		Expression result = expression;	
+		if (Sets.isIntensionalUnion(expression)) {
 			IntensionalSet intensionalMultiSet = (IntensionalSet) expression.get(0);
 			Expression     intensionalHead     = intensionalMultiSet.getHead();
 			// Determine if base case:

@@ -30,7 +30,7 @@ public class ElementOfIntensionalUnionSimplifier implements Simplifier {
 		if (Expressions.hasFunctor(expression, FunctorConstants.IN) && expression.numberOfArguments() == 2) {
 			Expression t   = expression.get(0);
 			Expression set = expression.get(1);
-			if (Expressions.hasFunctor(set, FunctorConstants.INTENSIONAL_UNION) && set.numberOfArguments() == 1 && Sets.isIntensionalMultiSet(set.get(0))) {
+			if (Sets.isIntensionalUnion(set)) {
 				IntensionalSet intensionalSet = (IntensionalSet) set.get(0);
 				Expression tElementOfPhi      = Expressions.apply(FunctorConstants.IN, t, intensionalSet.getHead());
 				Expression existsBody         = And.make(intensionalSet.getCondition(), tElementOfPhi);

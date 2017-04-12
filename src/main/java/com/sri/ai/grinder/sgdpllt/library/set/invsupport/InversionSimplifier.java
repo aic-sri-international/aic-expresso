@@ -153,8 +153,6 @@ public class InversionSimplifier implements Simplifier {
 		for (Expression quantifier : originalQuantifierOrder) {
 			lastQuantifierHeadContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), lastQuantifierHeadContext);
 		}
-		
-		
 
 		// Construct E correctly based on quantifiers after summation.
 		Expression E = lastQuantifierHead;
@@ -326,7 +324,6 @@ public class InversionSimplifier implements Simplifier {
 				domainArgsToRemove.add(i);
 			}
 		}
-
 		
 		List<Expression> argTypes = new ArrayList<>();
 		for (int i = 0; i < summationIndexFunctionType.getArity(); i++) {

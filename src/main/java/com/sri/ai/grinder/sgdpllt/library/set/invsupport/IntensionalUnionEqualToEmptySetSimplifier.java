@@ -2,10 +2,8 @@ package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
@@ -35,7 +33,7 @@ public class IntensionalUnionEqualToEmptySetSimplifier implements Simplifier {
 			Expression intensionalUnion = null;
 			Expression emptySet         = null;
 			for (Expression arg : expression.getArguments()) {
-				if (Expressions.hasFunctor(arg, FunctorConstants.INTENSIONAL_UNION) && arg.numberOfArguments() == 1 && Sets.isIntensionalMultiSet(arg.get(0))) {
+				if (Sets.isIntensionalUnion(arg)) {
 					intensionalUnion = arg;
 				}
 				else if (Sets.isEmptySet(arg)) {

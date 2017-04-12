@@ -230,6 +230,14 @@ public class Sets {
 				;
 		return result;
 	}
+	
+	public static boolean isIntensionalUnion(Expression expression) {
+		boolean result = 
+				Expressions.hasFunctor(expression, FunctorConstants.INTENSIONAL_UNION) 
+				&& expression.numberOfArguments() == 1 
+				&& isIntensionalMultiSet(expression.get(0));
+		return result;
+	}
 
 	public static class IndexExpressionIsValueOfSomethingOrSymbolOrFunctionApplication implements Predicate {
 		@Override
