@@ -65,7 +65,7 @@ public class SetDNFRewriter extends Recursive {
 		
 //		// Rewriters based on UAI 2017 Paper
 //		TopRewriter topRewriter = new DefaultTopRewriter(
-//			// NOTE: Rule 1 handled by Tuple Theory			
+//			new TupleEqualityTopRewriter(),                               // Rule 1		
 //			new ElementOfExtensionalSetTopRewriter(),                     // Rule 2
 //			new ElementOfIntensionalUnionTopRewriter(),                   // Rule 3
 //			new IntensionalUnionEqualToEmptySetTopRewriter(),             // Rule 4
@@ -75,7 +75,7 @@ public class SetDNFRewriter extends Recursive {
 //			new IntensionalUnionIntersectionEqualToEmptySetTopRewriter(), // Rule 8
 //			new DistributeIntersectionOverUnionTopRewriter(),             // Rule 9
 //			new UnionOfSetsEqualEmptySetTopRewriter(),                    // Rule 10
-//			// NOTE: Rule 11 standard equality check
+//			new ExtensionalSetEqualEmptySetTopRewriter(),                 // Rule 11
 //			new BooleanSimplifier() // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
 //			);		
 		
