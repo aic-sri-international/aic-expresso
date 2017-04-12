@@ -52,6 +52,7 @@ public class SetDNFRewriter extends Recursive {
 	}
 	
 	private static Rewriter createBaseRewriter() {
+		// Original Rewriters		
 		TopRewriter topRewriter = new DefaultTopRewriter(  
 				new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
 				new BooleanSimplifier(), // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
@@ -61,6 +62,22 @@ public class SetDNFRewriter extends Recursive {
 				new IntersectionIntensionalSetsTopRewriter(),
 				new IntersectionExtensionalSetTopRewriter(),
 				new DistributeIntersectionOverUnionTopRewriter());
+		
+//		// Rewriters based on UAI 2017 Paper
+//		TopRewriter topRewriter = new DefaultTopRewriter(
+//			// NOTE: Rule 1 handled by Tuple Theory			
+//			new ElementOfExtensionalSetTopRewriter(),                     // Rule 2
+//			new ElementOfIntensionalUnionTopRewriter(),                   // Rule 3
+//			new IntensionalUnionEqualToEmptySetTopRewriter(),             // Rule 4
+//			new IntersectionEmptySetTopRewriter(),                        // Rule 5			
+//			new UnionEmptySetTopRewriter(),                               // Rule 6			
+//			new SetIntersectExtensionalSetEqualToEmptySetTopRewriter(),   // Rule 7
+//			new IntensionalUnionIntersectionEqualToEmptySetTopRewriter(), // Rule 8
+//			new DistributeIntersectionOverUnionTopRewriter(),             // Rule 9
+//			new UnionOfSetsEqualEmptySetTopRewriter(),                    // Rule 10
+//			// NOTE: Rule 11 standard equality check
+//			new BooleanSimplifier() // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
+//			);		
 		
 		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(topRewriter)));
 		Rewriter result = new Exhaustive(new FirstOf(topRewriter, literalExternalizer));

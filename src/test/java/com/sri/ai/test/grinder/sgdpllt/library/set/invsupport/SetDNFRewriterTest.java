@@ -41,37 +41,37 @@ public class SetDNFRewriterTest {
 	
 	@Test
 	public void testBasicIntersectionCases() {
-		Expression intersection = parse("{(2,2)} intersection ({(2,2)} union {(3,2)} union {(4,2)})");
+		Expression intersection = parse("{(2,2)} intersection ({(2,2)} union {(3,2)} union {(4,2)}) = {}");
 		Assert.assertEquals(
-				parse("{(2,2)}"),
+				parse("{(2,2)} = {}"),
 				rewriter.apply(intersection, context));
 		
-		intersection = parse("{(2,2)} intersection ({(3,2)} union {(4,2)})");
+		intersection = parse("{(2,2)} intersection ({(3,2)} union {(4,2)}) = {}");
 		Assert.assertEquals(
-				parse("{}"),
+				parse("true"),
 				rewriter.apply(intersection, context));
 		
-		intersection = parse("{(2,2)} intersection {(N,2)}");
+		intersection = parse("{(2,2)} intersection {(N,2)} = {}");
 		Assert.assertEquals(			
-				parse("if 2 = N then { (2, 2) } else {  }"),
+				parse("if 2 = N then { (2, 2) } = {} else true"),
 				rewriter.apply(intersection, context));
 		
-		intersection = parse("{(1, 2)} intersection Union({{(on I in 1..10) {(I, 2)} : I != 5}})");
+		intersection = parse("{(1, 2)} intersection Union({{(on I in 1..10) {(I, 2)} : I != 5}}) = {}");
 		Assert.assertEquals(			
-				parse("{(1, 2)}"),
+				parse("{(1, 2)} = {}"),
 				rewriter.apply(intersection, context));
 	}
 	
 	@Test
 	public void testBasicUnionCases() {
-		Expression union = parse("Union({{(on I in 1..10) {(I, 2)} : I != 5}})");
+		Expression union = parse("Union({{(on I in 1..10) {(I, 2)} : I != 5}}) = {}");
 		Assert.assertEquals(
-				parse("{{(on I in 1..10) (I, 2) : I != 5}}"), 
+				parse("{{(on I in 1..10) (I, 2) : I != 5}} = {}"), 
 				rewriter.apply(union, context));
 		
-		union = parse("{(1, 2)} union Union({{(on I in 1..10) {(I, 2)} : I != 5}})");
+		union = parse("{(1, 2)} union Union({{(on I in 1..10) {(I, 2)} : I != 5}}) = {}");
 		Assert.assertEquals(
-				parse("{(1, 2)} union {{(on I in 1..10) (I, 2) : I != 5}}"), 
+				parse("{(1, 2)} union {{(on I in 1..10) (I, 2) : I != 5}} = {}"), 
 				rewriter.apply(union, context));
 	}
 }
