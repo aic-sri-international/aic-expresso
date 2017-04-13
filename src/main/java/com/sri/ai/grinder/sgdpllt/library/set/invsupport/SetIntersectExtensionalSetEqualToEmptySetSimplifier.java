@@ -44,52 +44,45 @@ public class SetIntersectExtensionalSetEqualToEmptySetSimplifier implements Simp
 					emptySet = arg;
 				}
 			}
-			if (intersection != null && emptySet != null) {
-				Expression       extensionalSet = null;
-				List<Expression> otherSetArgs   = new ArrayList<>();
+			if (intersection != null && intersection.numberOfArguments() == 2 && emptySet != null) {
+				Expression extensionalSet = null;
+				Expression otherExtensionalOrIntensionalUnionSet = null;
 				for (Expression arg : intersection.getArguments()) {
 					if (extensionalSet == null && Sets.isExtensionalSet(arg)) {
 						extensionalSet = arg;
 					}
-					else {
-						otherSetArgs.add(arg);
+					else if (Sets.isExtensionalSet(arg) || Sets.isIntensionalUnion(arg)) {
+						otherExtensionalOrIntensionalUnionSet = arg;
 					}
 				}
 				// S &cap; {t<sub>1</sub>,&hellip;,t<sub>n</sub>} = &empty;
-				if (extensionalSet != null && otherSetArgs.size() > 0) {					
+				if (extensionalSet != null && otherExtensionalOrIntensionalUnionSet != null) {					
 					if (extensionalSet.numberOfArguments() == 0) {
 						result = Expressions.FALSE;
 					}
 					else {
-						Expression t1 = extensionalSet.get(0);											
+						Expression t1 = extensionalSet.get(0);
+						Expression S  = otherExtensionalOrIntensionalUnionSet;
 						List<Expression> conjuncts = new ArrayList<>();
-						for (Expression S : otherSetArgs) {
-							// (t<sub>1</sub> &notin; S)
-							Expression t1ElementOfS    = Expressions.apply(FunctorConstants.IN, t1, S);
-							Expression notT1ElementOfS = Not.make(t1ElementOfS);
-							
-							conjuncts.add(notT1ElementOfS);
-						}
+
+						// (t<sub>1</sub> &notin; S)
+						Expression t1ElementOfS    = Expressions.apply(FunctorConstants.IN, t1, S);
+						Expression notT1ElementOfS = Not.make(t1ElementOfS);
 						
-						List<Expression> intersectionReducedByT1Args = new ArrayList<>(otherSetArgs);
+						conjuncts.add(notT1ElementOfS);
+					
 						//  (S = &empty;)
 						if (extensionalSet.numberOfArguments() > 1) {											
 							// (S &cap; {t<sub>2</sub>,&hellip;,t<sub>n</sub>} = &empty;)
 							Expression extensionalSetReducedByT1 = ExtensionalSet.makeOfSameTypeAs(extensionalSet, extensionalSet.getArguments().subList(1, extensionalSet.numberOfArguments()));
-							intersectionReducedByT1Args.add(extensionalSetReducedByT1);
+	
+							Expression intersectionReducedByT1 = Expressions.apply(FunctorConstants.INTERSECTION, otherExtensionalOrIntensionalUnionSet, extensionalSetReducedByT1);
+
+							Expression intersectionReducedByT1EqualEmptySet = Equality.make(intersectionReducedByT1, emptySet);
+							// (t<sub>1</sub> &notin; S) &and; (S &cap; {t<sub>2</sub>,&hellip;,t<sub>n</sub>} = &empty;)
+							conjuncts.add(intersectionReducedByT1EqualEmptySet);
 						}
-						Expression intersectionReducedByT1;
-						if (intersectionReducedByT1Args.size() > 1) {
-							intersectionReducedByT1 = Expressions.apply(FunctorConstants.INTERSECTION, intersectionReducedByT1Args);
-						}
-						else {
-							intersectionReducedByT1 = intersectionReducedByT1Args.get(0);
-						}
-						Expression intersectionReducedByT1EqualEmptySet = Equality.make(intersectionReducedByT1, emptySet);
-						
-						// (t<sub>1</sub> &notin; S) &and; (S &cap; {t<sub>2</sub>,&hellip;,t<sub>n</sub>} = &empty;)
-						conjuncts.add(intersectionReducedByT1EqualEmptySet);
-						
+												
 						result = And.make(conjuncts);
 					}
 				}

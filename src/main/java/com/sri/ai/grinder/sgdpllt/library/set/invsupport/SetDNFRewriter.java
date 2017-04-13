@@ -45,6 +45,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
 
 public class SetDNFRewriter extends Recursive {
 	public SetDNFRewriter() {
@@ -63,7 +64,7 @@ public class SetDNFRewriter extends Recursive {
 				new IntersectionExtensionalSetTopRewriter(),
 				new DistributeIntersectionOverUnionTopRewriter());
 		
-//		// Rewriters based on UAI 2017 Paper
+		// Rewriters based on UAI 2017 Paper
 //		TopRewriter topRewriter = new DefaultTopRewriter(
 //			new TupleEqualityTopRewriter(),                               // Rule 1		
 //			new ElementOfExtensionalSetTopRewriter(),                     // Rule 2
