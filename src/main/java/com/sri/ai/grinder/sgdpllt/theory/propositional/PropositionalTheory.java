@@ -71,8 +71,8 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public TopRewriter makeDefaultTopRewriter() {
-		return TopRewriter.merge(super.makeDefaultTopRewriter(), new BooleanSimplifier());
+	public TopRewriter getDefaultTopRewriter() {
+		return TopRewriter.merge(super.getDefaultTopRewriter(), new BooleanSimplifier());
 	}
 
 	@Override

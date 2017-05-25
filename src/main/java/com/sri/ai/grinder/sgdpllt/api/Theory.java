@@ -67,13 +67,21 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
- * An interface for theories to be plugged into quantifier problems.
+ * An interface for theories.
  * <p>
- * One of its tasks is to select and manipulate <i>splitters</i>.
- * A splitter is a literal on which DPLL splits the possible interpretations of an expression.
- * The theoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
- * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
- * A solution is an if-then-else expression in which all conditions are splitters.
+ * Theories have a few distinct roles:
+ * <ul>
+ * 
+ * <li> Recognize literals in the theory and create single-variable constraints.
+ * <li> Provide symbolic quantifier eliminator step solvers for different groups when available.
+ * <li> Evaluates expressions using a set of simplifiers and quantifier eliminators for its language.
+ * This last function should be phased out because some quantifier eliminators may be completely
+ * unrelated to the quantifier eliminator step solvers currently provided.
+ * The step solvers are symbolic but quantifier eliminators could be based on brute force, or sampling,
+ * so putting them all together in the same theory could create creating potential confusion.
+ * Besides, quantifier eliminators don't need to be inside a theory (although they may use the theory provided in the context).
+ *
+ * </ul>
  * 
  * @author braz
  *
@@ -289,7 +297,7 @@ public interface Theory extends Cloneable {
 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context);
 
 	/**
-	 * Provides a quantifier eliminator for use with given single-variable constraint and body, or null if there is no appropriate theory.
+	 * Provides a quantifier eliminator step solver for use with given single-variable constraint and body, or null if there is no appropriate theory.
 	 * @param group
 	 * @param constraint
 	 * @param body

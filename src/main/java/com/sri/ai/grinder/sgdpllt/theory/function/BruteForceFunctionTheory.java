@@ -67,8 +67,8 @@ import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
 public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	
 	@Override
-	public TopRewriter makeDefaultTopRewriter() {
-		return merge(super.makeDefaultTopRewriter(), new LambdaBetaReductionSimplifier());
+	public TopRewriter getDefaultTopRewriter() {
+		return merge(super.getDefaultTopRewriter(), new LambdaBetaReductionSimplifier());
 	}
 
 	@Override

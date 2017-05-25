@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage{syntax}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{fancyvrb,color,lipsum}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{subfigure}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{chngpage}
+\usepackage{algpseudocode}
+\usepackage{graphicx,subfigure}
+\usepackage{epstopdf}
+\usepackage{fullpage}
+\newcommand{\ind}{\hspace*{1em}}
+\newcommand{\andl}{\wedge}
+\newcommand{\orl}{\vee}
+\newcommand{\impl}{\Rightarrow}
+\newcommand{\eqvl}{\Leftrightarrow}
+\newcommand{\CNF}{\mbox{\rm CNF}}
+\newcommand{\SAT}{\mbox{\rm SAT}}
+\newcommand{\WCNF}{\mbox{\rm WCNF}}
+\newcommand{\WMC}{\mbox{\rm WMC}}
+\newcommand{\LWMC}{\mbox{\rm LWMC}}
+\newcommand{\qed}{\hfill \ensuremath{\Box}}
+\newcounter{theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newcommand{\MCWMC}{\mbox{\rm MC-WMC}}
+\newcommand{\MCLWMC}{\mbox{\rm MC-LWMC}}
+
+\usepackage{xcolor}
+\definecolor{dark-red}{rgb}{0.4,0.15,0.15}
+\definecolor{dark-blue}{rgb}{0.15,0.15,0.4}
+\definecolor{medium-blue}{rgb}{0,0,0.75}
+\usepackage[colorlinks, anchorcolor=blue, linkcolor={medium-blue}, citecolor={medium-blue}, urlcolor={medium-blue}]{hyperref}
+
+\title{Expresso User Guide}
+\author{
+        Rodrigo de Salvo Braz \\
+        Artificial Intelligence Center\\
+        SRI International
+}
+
+\date{\today}
+
+\newcommand{\ex}{Expresso\xspace}
+\newcommand{\pr}{PRAiSE\xspace}
+\newcommand{\e}[1]{\textcolor{purple}{\texttt{#1}}} % for expressions
+\newcommand{\m}[1]{\textcolor{black}{\ensuremath{#1}}} % for meta-expressions
+\newcommand{\I}{\ensuremath{\mathcal{I}}\xspace}
+\newcommand{\domain}{\ensuremath{\mathcal{D}}\xspace}
+\newcommand{\define}[1]{\textbf{#1}\marginpar{\tiny{#1}}}
+\newcommand{\ifte}[3]{\mathrm{if}\,#1\,\mathrm{then}\,#2\mathrm{\ else}\,#3}
+\shortverb{\@}
+\newenvironment{hogm} % not working, not sure why
+{ \begin{verbatim} }
+{ \end{verbatim} }
+\DefineVerbatimEnvironment{blockcode}
+  {Verbatim}
+  {fontsize=\small,formatcom=\color{blue}}
+\newcommand{\eat}[1]{}
+
+\begin{document}
+
+\maketitle
+
+\break
+
+\tableofcontents
+
+\break
+
+\section{Introduction}
+
+\ex is a Java library supporting the representation and manipulation of symbolic expressions.
+
+This document describes the main operations available.
+
+
+
+\bibliographystyle{alpha}
+%\bibliography{../../../Bibliography/bib}
+\bibliography{bib}
+
+\end{document}

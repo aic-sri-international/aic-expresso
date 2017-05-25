@@ -70,8 +70,8 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 	private Rewriter tupleQuantifierSimplifier = new Recursive( new Exhaustive(new TupleQuantifierSimplifier()));
 
 	@Override
-	public TopRewriter makeDefaultTopRewriter() {
-		return merge(new TupleValuedFreeVariablesTopRewriter(), super.makeDefaultTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
+	public TopRewriter getDefaultTopRewriter() {
+		return merge(new TupleValuedFreeVariablesTopRewriter(), super.getDefaultTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
 	}
 
 	@Override

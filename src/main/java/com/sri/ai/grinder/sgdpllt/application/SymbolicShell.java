@@ -163,9 +163,10 @@ public class SymbolicShell {
 				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (I, J) }})"
 				, "sum( {{ (on T in (1..4 x 1..4)) 10 : get(T, 1) != 2 }})"
 				);
+		
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
-			evaluate(consoleIterator, theory, example, context);
+			interpretedInputParsedAsExpression(consoleIterator, theory, example, context);
 			consoleIterator.getOutputWriter().println("\n");
 		}
 
@@ -186,7 +187,7 @@ public class SymbolicShell {
 				help(consoleIterator);
 			}
 			else {
-				context = evaluate(consoleIterator, theory, input, context);
+				context = interpretedInputParsedAsExpression(consoleIterator, theory, input, context);
 			}
 		}
 		
@@ -199,7 +200,7 @@ public class SymbolicShell {
 	 * @param context
 	 * @return 
 	 */
-	private static Context evaluate(ConsoleIterator consoleIterator, Theory theory, String inputString, Context context) {
+	private static Context interpretedInputParsedAsExpression(ConsoleIterator consoleIterator, Theory theory, String inputString, Context context) {
 		
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});

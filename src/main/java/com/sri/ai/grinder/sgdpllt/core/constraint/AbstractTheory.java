@@ -52,28 +52,19 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
 import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
-import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
-import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
-import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
 import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetConditionTopRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetFalseConditionToEmptySetTopRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetExpressionIsEqualToEmptySetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
 
 @Beta
 /** 
@@ -82,6 +73,7 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter
 abstract public class AbstractTheory implements Theory {
 
 	protected TopRewriter topRewriter;
+	protected TopRewriter quantifierEliminationTopRewriter;
 	
 	/**
 	 * Initializes types for testing to be the collection of a single type,
@@ -109,7 +101,7 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public TopRewriter getTopRewriter() {
 		if (topRewriter == null) {
-			setTopRewriter(makeDefaultTopRewriter());
+			setTopRewriter(getDefaultTopRewriter());
 		}
 		return topRewriter;
 	}
@@ -117,7 +109,7 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public Rewriter getRewriter() {
 		if (topRewriter == null) {
-			setTopRewriter(makeDefaultTopRewriter());
+			setTopRewriter(getDefaultTopRewriter());
 		}
 		return cachedRecursiveExhaustiveTopRewriter;
 	}
@@ -128,40 +120,50 @@ abstract public class AbstractTheory implements Theory {
 	 * This way, if they are all merged, their shared instances
 	 * will be recognized as the same by {@link TopRewriter#merge}
 	 * and be used only once.
+	 * This may become obsolete once Rewriter.equals can recognize
+	 * equal rewriters that are not the same instance (May 2017).
 	 */
 	private static TopRewriter staticCachedDefaultTopRewriter = null;
 
-	public TopRewriter makeDefaultTopRewriter() {
+	/**
+	 * Get (possibly cached) default top rewriter.
+	 * @return
+	 */
+	public TopRewriter getDefaultTopRewriter() {
 		if (staticCachedDefaultTopRewriter == null) {
-			staticCachedDefaultTopRewriter = 
-					merge(
-							// basic simplifications
-							new BindingTopSimplifier(),
-							new EqualitySimplifier(),
-							new InequalitySimplifier(),
-							new TupleEqualityTopRewriter(),
-							new BooleanSimplifier(),
-							new NumericSimplifier(),
-							new CardinalityOfSetConstantSimplifier()
-							,							
-							new IntensionalSetConditionTopRewriter(),
-							new IntensionalSetFalseConditionToEmptySetTopRewriter()
-							,		
-							new SetExpressionIsEqualToEmptySetTopRewriter()
-							,
-							new SummationRewriter(new SGVET())
-							,
-							new ProductRewriter(new SGDPLLT())
-							,
-							new MaxRewriter(new SGDPLLT())
-							,
-							new CardinalityTopRewriter(new SGDPLLT())
-							,
-							new ForAllRewriter(new SGDPLLT())
-							,
-							new ThereExistsRewriter(new SGDPLLT()));
+			staticCachedDefaultTopRewriter = makeDefaultTopRewriter();
 		}
 		return staticCachedDefaultTopRewriter;
+	}
+
+	/**
+	 * A {@link TopRewriter} combining basic simplifications and quantifier elimination rewriters.
+	 * @return
+	 */
+	public TopRewriter makeDefaultTopRewriter() {
+		return merge(
+				// basic simplifications
+				new CommonSimplifier(),
+											
+				makeSymbolicQuantifierEliminationRewriters());
+	}
+
+	/**
+	 * @return
+	 */
+	public TopRewriter makeSymbolicQuantifierEliminationRewriters() {
+		return merge(
+		new SummationRewriter(new SGVET())
+		,
+		new ProductRewriter(new SGDPLLT())
+		,
+		new MaxRewriter(new SGDPLLT())
+		,
+		new CardinalityTopRewriter(new SGDPLLT())
+		,
+		new ForAllRewriter(new SGDPLLT())
+		,
+		new ThereExistsRewriter(new SGDPLLT()));
 	}
 	
 	@Override
@@ -175,11 +177,12 @@ abstract public class AbstractTheory implements Theory {
 
 		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
 
-		Recursive completeEvaluator = new Recursive(
-				new Exhaustive(
-						new FirstOf(
-								getTopRewriter(), 
-								literalExternalizer)));
+		Recursive completeEvaluator = 
+				new Recursive(
+						new Exhaustive(
+								new FirstOf(
+										getTopRewriter(), 
+										literalExternalizer)));
 		// it is a good idea to leave the literal externalizer at the end,
 		// since it is expensive due to duplicating the entire problem at every split
 		

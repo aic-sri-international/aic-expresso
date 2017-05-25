@@ -101,14 +101,14 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 	
 	@Override
-	public TopRewriter makeDefaultTopRewriter() {
+	public TopRewriter getDefaultTopRewriter() {
 		// It's important to include the difference arithmetic simplifier to avoid leaving DA literals that could be picked up as splitters,
 		// but actually contain variables that cancel out (for example, X - X = 0),
 		// with the result of the literal becoming a boolean constant unfit to be splitter.
 		Simplifier linearRealArithmeticSimplifier = new LinearRealArithmeticSimplifier(this);
 		return 
 				TopRewriter.merge(
-						super.makeDefaultTopRewriter(),
+						super.getDefaultTopRewriter(),
 						new Switch<>(
 								FUNCTOR,
 								map(

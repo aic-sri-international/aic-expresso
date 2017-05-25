@@ -44,6 +44,9 @@ import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.set.CardinalityOfSetConstantSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetConditionTopRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetFalseConditionToEmptySetTopRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetExpressionIsEqualToEmptySetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSimplifier;
@@ -59,6 +62,9 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSimplifier;
  * <li> {@link InequalitySimplifier}: inequality (<code><, <=, >, >=</code>)
  * <li> {@link CardinalityOfSetConstantSimplifier}: cardinalities (must be registered in context's global objects as a function application of <code>| . |</code>).
  * <li> {@link LambdaBetaReductionSimplifier}: replaces <code>(lambda X : f(X))(E)</code> by <code>f(E)</code>.
+ * <li> {@link IntensionalSetConditionTopRewriter}: evaluates intensional set conditions.
+ * <li> {@link IntensionalSetFalseConditionToEmptySetTopRewriter}: reduces intensional set with false condition to empty set.
+ * <li> {@link SetExpressionIsEqualToEmptySetTopRewriter}: solves equalities between set expressions in a certain language and empty set.
  * </ul>
  * 
  * @author braz
@@ -76,6 +82,12 @@ public class CommonSimplifier extends DefaultTopRewriter {
 				new InequalitySimplifier(),
 				new CardinalityOfSetConstantSimplifier(),
 				new LambdaBetaReductionSimplifier(),
-				new TupleSimplifier());
+				new TupleSimplifier(),
+				
+				// sets
+				new IntensionalSetConditionTopRewriter(),
+				new IntensionalSetFalseConditionToEmptySetTopRewriter(),
+				new SetExpressionIsEqualToEmptySetTopRewriter()
+				);
 	}
 }
