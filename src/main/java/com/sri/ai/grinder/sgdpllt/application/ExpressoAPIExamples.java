@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
@@ -55,8 +56,8 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 
 /**
@@ -226,15 +227,43 @@ public class ExpressoAPIExamples {
 		println(extensionalUniSet);
 		println(extensionalMultiSet);
 		
+		// Creating an intensionally defined set programmatically (as opposed to parsing a string description of it)
+		// is a bit of work (this will be shown below).
+		// Here's an example of parsing one:
+		Expression intensionalUniSet = parse("{ ( on P in People, F in Foods ) eats(P, F) : not (P = Rodrigo and F = shrimp) }");
+		println(intensionalUniSet);
+		
+		// Here's how to do it from scratch, but see next the way we typically actually do it.
 		Expression p = makeSymbol("P");
 		Expression people = makeSymbol("People");
 		Expression f = makeSymbol("F");
 		Expression foods = makeSymbol("Foods");
-		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(FunctorConstants.IN, p, people), parse("F in Foods"));
-		//Expression intensionalUniset = IntensionalSet.make(UNI_SET, indices, 
+		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, p, people), apply(IN, f, foods));
+		intensionalUniSet = 
+				IntensionalSet.make(
+						IntensionalSet.UNI_SET_LABEL, 
+						indices, 
+						apply("eats", p, f), 
+						apply(FunctorConstants.NOT, 
+								apply(FunctorConstants.AND, Equality.make(p, "Rodrigo"), Equality.make(f, "shrimp")))); 
+		println(intensionalUniSet);
 		
+		// When writing code on sets, we typically are modifying an existing set expression, so we can re-use its parts,
+		// by using special part-replacement methods.
+		// This requires the variable to implement the IntensionalSet interface, though.
+		// IMPORTANT: expressions are IMMUTABLE, so setCondition returns a NEW expression,
+		// although the parts not replaced are re-used.
+		IntensionalSet intensionalSetCast = (IntensionalSet) intensionalUniSet;
+		Expression noCondition = intensionalSetCast.setCondition(makeSymbol(true));
+		println("Set with no condition: " + noCondition);
 		
+		Expression headSaysLoveInsteadOfEats = intensionalSetCast.setHead(apply("loves", p, f));
+		println("Set with new head: " + headSaysLoveInsteadOfEats);
 		
-		
+		Expression withNewIndices = 
+				intensionalSetCast.setIndexExpressions(
+						new ExtensionalIndexExpressionsSet(
+								apply(IN, p, people), apply(IN, f, foods), apply(IN, "D", "Days")));
+		println("Set with new indices: " + withNewIndices);
 	}
 }

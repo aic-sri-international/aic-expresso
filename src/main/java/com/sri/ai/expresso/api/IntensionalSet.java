@@ -135,8 +135,8 @@ public interface IntensionalSet extends QuantifiedExpression {
 		return make(UNI_SET_LABEL, indexExpressions, head, condition);
 	}
 	
-	public static Expression make(Object label, IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
-		Expression result;
+	public static IntensionalSet make(Object label, IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
+		IntensionalSet result;
 		if (label.equals(UNI_SET_LABEL)) {
 			result = new DefaultIntensionalUniSet(indexExpressions, head, condition);
 		}
