@@ -92,6 +92,10 @@ public class ExtensionalSet {
 		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(MULTI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
+	public static Expression makeMultiSet(Expression... elements) {
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(MULTI_SET_LABEL, Expressions.makeKleeneListIfNeeded(Arrays.asList(elements)));
+	}
+	
 	public static Expression makeEmptySet() {
 		return makeUniSet(new ArrayList<Expression>());
 	}

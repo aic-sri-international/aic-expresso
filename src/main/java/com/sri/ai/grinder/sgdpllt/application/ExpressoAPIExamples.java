@@ -40,15 +40,24 @@ package com.sri.ai.grinder.sgdpllt.application;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
 
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 
 /**
  * A collection of examples on how to use the Expresso API.
@@ -86,6 +95,7 @@ public class ExpressoAPIExamples {
 		// We definitely recommend studying it carefully!
 		// To easily write just "println" and have it work, write "println" and use Ctrl-1 to be offered the option
 		// of statically import Util.println.
+		// You can statically import an identifier in Eclipse with Shift-Ctrl-M in Windows.
 		println("a        : " + a);
 		println("ten      : " + ten);
 		println("trueValue: " + trueValue);
@@ -151,8 +161,12 @@ public class ExpressoAPIExamples {
 		// In the future, we may decide to change the string associated to an operator
 		// and have that string used in many places would make that hard to effect.
 		// FunctorConstants is a class with lots of static fields for operator strings:
-		arithmetic1 = apply(FunctorConstants.TIMES, 2, apply(FunctorConstants.PLUS, 2, 3));
-		logic1 = apply(FunctorConstants.AND, "p", apply(FunctorConstants.OR, "q", "r"));
+		arithmetic1 = apply(FunctorConstants.TIMES, 2,  apply(FunctorConstants.PLUS, 2, 3));
+		logic1      = apply(FunctorConstants.AND,  "p", apply(FunctorConstants.OR, "q", "r"));
+
+		// Functor constants can also be statically imported:
+		arithmetic1 = apply(TIMES, 2,  apply(PLUS, 2, 3));
+		logic1      = apply(AND,  "p", apply(OR, "q", "r"));
 		
 		// We can access the functor and arguments of a function application:
 		println("The functor of " + gFATen + " is " + gFATen.getFunctor());
@@ -185,5 +199,42 @@ public class ExpressoAPIExamples {
 	@Test
 	public void sets() {
 		// Another important type of expression is sets.
+		// There are two dimensions for sets: they can be uni- or multi-sets, and they can be extensionally or intensionally defined.
+		//
+		// A uni-set has at most one instance of each element in it. This is the typical mathematical set.
+		// A multi-set may have multiple instances of the same element in it.
+		// For example, the multi-set {1,2,2,3} is distinct from multi-set {1,2,2,2,3}.
+		// In Expresso, we use double-brackets for denoting multi-sets:  {{ 1, 2, 2, 3 }}.
+		// {{ }} denotes the empty multi-set.
+		// The singleton uni-set with an empty set in it is denoted { {} }.
+		// You need a space between the brackets to avoid them being parsed as a double bracket.
+		//
+		// An extensionally defined set is an explicit enumeration of its elements: {1, 2, 3}, {{1, 2, 2, 3}}, {}, {{ }}.
+		// An intensionally defined set is defined by a condition: { (on I in Integer)  I^2 : I > 3 and I <= 100 }, for example,
+		// which is equal to { 16, 25, 36, ..., 10000 }.
+		// The general form of an intensionally defined set (or, less precisely but more succinctly, an intensional set) is
+		// { (on Index1 in Index1Domain, Index2 in Index2Domain, ..., Index_n in Index_nDomain)   Head   :  Condition }
+		// We can also have intensionally defined multi-sets using double brackets.
+		
+		// Here are some ways of constructing sets:
+		Expression a = makeSymbol("a");
+		Expression b = makeSymbol("b");
+		Expression c = makeSymbol("c");
+		Expression d = makeSymbol("d");
+		Expression extensionalUniSet = ExtensionalSet.makeUniSet(a, b, c, d);
+		Expression extensionalMultiSet = ExtensionalSet.makeMultiSet(a, b, c, d);
+		println(extensionalUniSet);
+		println(extensionalMultiSet);
+		
+		Expression p = makeSymbol("P");
+		Expression people = makeSymbol("People");
+		Expression f = makeSymbol("F");
+		Expression foods = makeSymbol("Foods");
+		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(FunctorConstants.IN, p, people), parse("F in Foods"));
+		//Expression intensionalUniset = IntensionalSet.make(UNI_SET, indices, 
+		
+		
+		
+		
 	}
 }
