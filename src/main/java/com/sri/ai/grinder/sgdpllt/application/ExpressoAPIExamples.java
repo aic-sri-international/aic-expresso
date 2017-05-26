@@ -44,11 +44,11 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
-
-import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -82,8 +82,7 @@ public class ExpressoAPIExamples {
 		}
 	}
 	
-	@Test
-	public  void makeExpressions() {
+	public static void main(String[] args) {
 		// Symbols are expressions representing Java values, such as a string,
 		// a number, a boolean, and even any other objects (Expressions themselves will throw an error, though, to prevent common mistakes)
 		Expression a = DefaultSymbol.createSymbol("a");
@@ -195,10 +194,6 @@ public class ExpressoAPIExamples {
 		println(arithmetic1);
 		println(arithmetic2);
 
-	}
-	
-	@Test
-	public void sets() {
 		// Another important type of expression is sets.
 		// There are two dimensions for sets: they can be uni- or multi-sets, and they can be extensionally or intensionally defined.
 		//
@@ -218,7 +213,7 @@ public class ExpressoAPIExamples {
 		// We can also have intensionally defined multi-sets using double brackets.
 		
 		// Here are some ways of constructing sets:
-		Expression a = makeSymbol("a");
+		a = makeSymbol("a");
 		Expression b = makeSymbol("b");
 		Expression c = makeSymbol("c");
 		Expression d = makeSymbol("d");
@@ -236,12 +231,11 @@ public class ExpressoAPIExamples {
 		// Here's how to do it from scratch, but see next the way we typically actually do it.
 		Expression p = makeSymbol("P");
 		Expression people = makeSymbol("People");
-		Expression f = makeSymbol("F");
+		f = makeSymbol("F");
 		Expression foods = makeSymbol("Foods");
 		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, p, people), apply(IN, f, foods));
 		intensionalUniSet = 
-				IntensionalSet.make(
-						IntensionalSet.UNI_SET_LABEL, 
+				IntensionalSet.makeUniSet( // intensionalUniSet also works
 						indices, 
 						apply("eats", p, f), 
 						apply(FunctorConstants.NOT, 
@@ -265,5 +259,13 @@ public class ExpressoAPIExamples {
 						new ExtensionalIndexExpressionsSet(
 								apply(IN, p, people), apply(IN, f, foods), apply(IN, "D", "Days")));
 		println("Set with new indices: " + withNewIndices);
+		
+		// summations and products are just function applications of FunctorConstants.SUM and FunctorConstants.PRODUCT on intensional multi-sets.
+		// sum( {{ (on Indices)  Head  : Condition }} ) represents the summation (in Latex notation) sum_{Indices : Condition} Head
+		Expression summation = apply(SUM, intensionalSetCast);
+		println(summation);
+		
+		Expression product = apply(PRODUCT, intensionalSetCast);
+		println(product);
 	}
 }
