@@ -106,4 +106,28 @@ public interface Context extends Registry, Constraint {
 		boolean result = getTheory().isLiteralOrBooleanConstant(expression, this);
 		return result;
 	}
+
+	/**
+	 * Extends with pairs of symbols and their respective types represented as strings.
+	 * @param symbolsAndTypes
+	 * @return
+	 */
+	@Override
+	default Context extendWithSymbols(Expression... symbolsAndTypes) {
+		return (Context) Registry.super.extendWithSymbols(symbolsAndTypes);
+	}
+	
+	/**
+	 * Extends with pairs of symbols and their respective types represented as strings.
+	 * @param symbolsAndTypes
+	 * @return
+	 */
+	@Override
+	default Context extendWithSymbols(String... symbolsAndTypes) {
+		return (Context) Registry.super.extendWithSymbols(symbolsAndTypes);
+	}
+	
+	default Context conjoin(Expression formula) {
+		return conjoin(formula, this);
+	}
 }

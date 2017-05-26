@@ -37,7 +37,12 @@
  */
 package com.sri.ai.grinder.api;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.list;
+
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,6 +50,10 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.util.Util;
 
 /**
  * An object containing information about global symbols and their types,
@@ -152,4 +161,34 @@ public interface Registry extends Cloneable {
 	Type getType(Expression typeExpression);
 	
 	Collection<Type> getTypes();
+	
+	/**
+	 * Extends with pairs of symbols and their respective types represented as strings.
+	 * @param symbolsAndTypes
+	 * @return
+	 */
+	default Registry extendWithSymbols(Expression... symbolsAndTypes) {
+		Util.myAssert(symbolsAndTypes.length % 2 == 0, () -> "Need to extend registry with a sequence of symbols and their types");
+		List<Expression> indexExpressions = list();
+		for (int i = 0; i != symbolsAndTypes.length/2; i++) {
+			Expression indexExpression = apply(FunctorConstants.IN, symbolsAndTypes[2*i], symbolsAndTypes[2*i + 1]);
+			indexExpressions.add(indexExpression);
+		}
+		Registry result = GrinderUtil.extendRegistryWithIndexExpressions(new ExtensionalIndexExpressionsSet(indexExpressions), this);
+		return result;
+	}
+	
+	/**
+	 * Extends with pairs of symbols and their respective types represented as strings.
+	 * @param symbolsAndTypes
+	 * @return
+	 */
+	default Registry extendWithSymbols(String... symbolsAndTypes) {
+		Expression expressions[] = new Expression[symbolsAndTypes.length];
+		for (int i = 0; i != symbolsAndTypes.length; i++) {
+			expressions[i] = parse(symbolsAndTypes[i]);
+		}
+		Registry result = extendWithSymbols(expressions);
+		return result;
+	}
 }

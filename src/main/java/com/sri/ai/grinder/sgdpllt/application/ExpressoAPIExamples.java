@@ -56,9 +56,18 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 /**
  * A collection of examples on how to use the Expresso API.
@@ -173,6 +182,13 @@ public class ExpressoAPIExamples {
 		println("The second argument of " + fATen + " is " + fATen.get(1));
 		println("All arguments of " + fATen + " are " + fATen.getArguments()); // returns a List<Expression>
 		
+		// We can also set new functors or arguments.
+		// IMPORTANT: expressions are IMMUTABLE, so this creates a new expression,
+		// although it does re-use the unchanged parts.
+		Expression newArgument = gFATen.set(0, a);
+		println("Changed first argument of " + gFATen + " to " + a + " and obtained " + newArgument);
+		println("Original expression continues the same, since they are immutable: " + gFATen);
+		
 		// getFunctor returns a symbol, so to check if it is, for example, "f", we need
 		// to write expression.getFunctor().equals(makeSymbol("f"))
 		// which is too long.
@@ -267,5 +283,80 @@ public class ExpressoAPIExamples {
 		
 		Expression product = apply(PRODUCT, intensionalSetCast);
 		println(product);
+		
+		
+		///// Evaluating expressions
+		
+		// The above code shows how to deal with the syntax of expressions.
+		// Evaluating expressions requires knowing about the semantics, that is, to what functions each operator corresponds to ("+" to addition, etc).
+		// This is provided by a theory, which for now it suffices to know is a collection of methods for evaluating expressions
+		// according to an interpretation to some symbols.
+		
+		Theory theory = new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, false),
+				new LinearRealArithmeticTheory(false, false),
+				new TupleTheory(),
+				new PropositionalTheory());
+		
+		// Because this evaluation is symbolic, evaluated expressions may involve free variables.
+		// In this case, the result of the evaluation will be a simplified expression that
+		// is equivalent to the original expression for all possible assignments to the free variables.
+		// For example, X + 0*Y is evaluate to X because, for any assignment to (X,Y), X + 0*Y = X.
+
+		Context context = new TrueContext(theory); // true context: all assignments to free variables are of interest
+		// We will later see how we can use contexts that restrict the free variable assignments of interest.
+		
+		// Now that we have a theory and a context, we can evaluate expressions:
+		evaluate(new String[] {
+				"1 + 1", "2",
+				"X + 1 + 1", "X + 2",
+				"sum({{ (on I in 1..10) I }})", "55",
+				"product({{ (on I in 1..5) 2 : I != 3 and I != 5 }})", "8",
+				// see many more examples in SymbolicShell.java
+		}, theory, context);
+		
+		// now let us assume we have a free variable J which is an integer
+		context = context.extendWithSymbols("J", "Integer");
+		evaluate(new String[] {
+				"X + 1 + 1 + J", "X + 2 + J",
+				"sum({{ (on I in 1..10) I : I != J }})", "if J > 0 then if J <= 10 then -1 * J + 55 else 55 else 55",
+				// see many more examples in SymbolicShell.java
+		}, theory, context);
+
+		// now let us assume we have a free variable J which is an integer
+		// The context is also a boolean formula (a constraint)
+		// Current, it's value is "true", but we can conjoin it with a literal J < 0
+		context = context.conjoin(parse("J < 0"));
+		evaluate(new String[] {
+				"J < 1", "true",
+				"sum({{ (on I in 1..10) I : I != J }})", "55", // J is irrelevant because it is out of the range of I
+				// see many more examples in SymbolicShell.java
+		}, theory, context);
+
+		// we now add another symbol and constraint
+		context = context.extendWithSymbols("K", "Integer");
+		context = context.conjoin(parse("K > 0"));
+		evaluate(new String[] {
+				"J < K", "true",
+				// see many more examples in SymbolicShell.java
+		}, theory, context);
+	}
+
+	/**
+	 * @param inputsAndOutputs
+	 * @param theory
+	 * @param context
+	 */
+	public static void evaluate(String[] inputsAndOutputs, Theory theory, Context context) {
+		for (int i = 0; i != inputsAndOutputs.length/2; i++) {
+			String input = inputsAndOutputs[2*i];
+			String expected = inputsAndOutputs[2*i + 1];
+			Expression output = theory.evaluate(parse(input), context);
+			println(input + "  =  " + output);
+			if ( ! output.equals(parse(expected))) {
+				println("Error: " + input + " should have been evaluated to " + expected + ", but was evaluated to " + output);
+			}
+		}
 	}
 }
