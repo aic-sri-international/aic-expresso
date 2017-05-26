@@ -325,7 +325,13 @@ public class ExpressoAPIExamples {
 		}, theory, context);
 		
 		// now let us assume we have a free variable J which is an integer
-		context = context.extendWithSymbols("J", "Integer");
+		// Contexts are, like expressions, also IMMUTABLE:
+		Context context2 = context.extendWithSymbols("J", "Integer");
+		// However, here we just want to use the same variable 'context' all along, so we keep the updated context in it:
+		context = context2;
+		// Because we store the reference to the modified context in the same variable, we lose the reference to the original one,
+		// but, if we wanted, we could keep contexts in a stack, for example,
+		// so that we could always easily revert back to a previous context if needed.
 		evaluate(new String[] {
 				"X + 1 + 1 + J", "X + 2 + J",
 				"sum({{ (on I in 1..10) I : I != J }})", "if J > 0 then if J <= 10 then -1 * J + 55 else 55 else 55",
