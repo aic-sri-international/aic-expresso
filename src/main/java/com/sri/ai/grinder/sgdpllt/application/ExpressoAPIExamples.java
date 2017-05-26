@@ -48,14 +48,18 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -257,7 +261,7 @@ public class ExpressoAPIExamples {
 				IntensionalSet.makeUniSet( // IntensionalSet.intensionalUniSet, or simply intensionalUniSet, also works
 						indices, 
 						apply("eats", p, f), 
-						apply(NOT, 
+						apply(NOT, arrayList(), 
 								apply(AND, Equality.make(p, "Rodrigo"), Equality.make(f, "shrimp")))); 
 		// Note that Equality.make(p, "Rodrigo") is the same as apply(FunctorConstants.EQUAL, p, "Rodrigo").
 		// We often have 'make' methods for many operators: And.make, Or.make and so on.
@@ -290,6 +294,15 @@ public class ExpressoAPIExamples {
 		Expression product = apply(PRODUCT, intensionalSetCast);
 		println(product);
 		
+		// Universal and existential quantification can be created as follows:
+		Expression formula = parse("friends(X,Y) and happy(X) and happy(Y)");
+		Expression x = makeSymbol("X");
+		Expression y = makeSymbol("Y");
+		indices = new ExtensionalIndexExpressionsSet(apply(IN, x, people), apply(IN, y, people));
+		Expression universallyQuantifiedFormula = new DefaultUniversallyQuantifiedFormula(indices, formula);
+		println("Universally quantified formula: " + universallyQuantifiedFormula);
+		Expression existentiallyQuantifiedFormula = new DefaultExistentiallyQuantifiedFormula(indices, formula);
+		println("Existentially quantified formula: " + existentiallyQuantifiedFormula);
 		
 		///// Evaluating expressions
 		
@@ -310,11 +323,11 @@ public class ExpressoAPIExamples {
 		// is equivalent to the original expression for all possible assignments to the free variables.
 		// For example, X + 0*Y is evaluate to X because, for any assignment to (X,Y), X + 0*Y = X.
 
-		Context context = new TrueContext(theory); // true context: all assignments to free variables are of interest
+		Context trueContext = new TrueContext(theory); // true context: all assignments to free variables are of interest
 		// We will later see how we can use contexts that restrict the free variable assignments of interest.
 		
 		// Now that we have a theory and a context, we can evaluate expressions:
-		println("1 + 0*X + 1  =  " + theory.evaluate(parse("1 + 1"), context));
+		println("1 + 0*X + 1  =  " + theory.evaluate(parse("1 + 1"), trueContext));
 		
 		evaluate(new String[] {
 				"1 + 1", "2",
@@ -322,16 +335,11 @@ public class ExpressoAPIExamples {
 				"sum({{ (on I in 1..10) I }})", "55",
 				"product({{ (on I in 1..5) 2 : I != 3 and I != 5 }})", "8",
 				// see many more examples in SymbolicShell.java
-		}, theory, context);
+		}, theory, trueContext);
 		
 		// now let us assume we have a free variable J which is an integer
-		// Contexts are, like expressions, also IMMUTABLE:
-		Context context2 = context.extendWithSymbols("J", "Integer");
-		// However, here we just want to use the same variable 'context' all along, so we keep the updated context in it:
-		context = context2;
-		// Because we store the reference to the modified context in the same variable, we lose the reference to the original one,
-		// but, if we wanted, we could keep contexts in a stack, for example,
-		// so that we could always easily revert back to a previous context if needed.
+		// Contexts are, like expressions, also IMMUTABLE; operations on them make a new context and leaves the original one unchanged.
+		Context context = trueContext.extendWithSymbols("J", "Integer");
 		evaluate(new String[] {
 				"X + 1 + 1 + J", "X + 2 + J",
 				"sum({{ (on I in 1..10) I : I != J }})", "if J > 0 then if J <= 10 then -1 * J + 55 else 55 else 55",
@@ -355,6 +363,18 @@ public class ExpressoAPIExamples {
 				"J < K", "true",
 				// see many more examples in SymbolicShell.java
 		}, theory, context);
+
+		// BUG: need to debug
+//		// Here's how to decide if a point is in the convex hull of other two points:
+//		Context convexityContext = trueContext.extendWithSymbols("p", "Real", "p1", "Real", "p2", "Real");
+//		convexityContext = convexityContext.conjoin(parse("p  = 4"));
+//		convexityContext = convexityContext.conjoin(parse("p1 = 3"));
+//		convexityContext = convexityContext.conjoin(parse("p2 = 5"));
+//		Expression isInConvexHull = 
+//				parse("there exists c1 in Real : there exists c2 in Real : "
+//						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and p = c1*p1 and c2*p2");
+//		Expression result = theory.evaluate(isInConvexHull, convexityContext);
+//		println("4 is in the convex hull of 3 and 5: " + result);
 	}
 
 	/**
