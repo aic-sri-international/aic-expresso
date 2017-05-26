@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
@@ -110,7 +111,7 @@ public class ExpressoAPIExamples {
 		println("trueValue: " + trueValue);
 		println("object   : " + object);
 		
-		// It is easier to remember to make symbols using Expression.makeSymbol:
+		// It is easier to remember to make symbols using Expressions.makeSymbol:
 		// 'Expressions' is a class with lots of useful static methods for working with expressions.
 		// This of it as the counterpart of 'Util', but for expressions.
 		// Having many useful expression classes in a single place makes it easier to remember them and access them through code completion.
@@ -250,12 +251,16 @@ public class ExpressoAPIExamples {
 		f = makeSymbol("F");
 		Expression foods = makeSymbol("Foods");
 		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, p, people), apply(IN, f, foods));
+		// The "extensional" in ExtensionalIndexExpressionsSet means that the list/set of indices is extensionally defined,
+		// but they are the indices of an intensionally defined set.
 		intensionalUniSet = 
-				IntensionalSet.makeUniSet( // intensionalUniSet also works
+				IntensionalSet.makeUniSet( // IntensionalSet.intensionalUniSet, or simply intensionalUniSet, also works
 						indices, 
 						apply("eats", p, f), 
-						apply(FunctorConstants.NOT, 
-								apply(FunctorConstants.AND, Equality.make(p, "Rodrigo"), Equality.make(f, "shrimp")))); 
+						apply(NOT, 
+								apply(AND, Equality.make(p, "Rodrigo"), Equality.make(f, "shrimp")))); 
+		// Note that Equality.make(p, "Rodrigo") is the same as apply(FunctorConstants.EQUAL, p, "Rodrigo").
+		// We often have 'make' methods for many operators: And.make, Or.make and so on.
 		println(intensionalUniSet);
 		
 		// When writing code on sets, we typically are modifying an existing set expression, so we can re-use its parts,
@@ -346,6 +351,7 @@ public class ExpressoAPIExamples {
 	}
 
 	/**
+	 * Evaluates a series of tests and prints the results.
 	 * @param inputsAndOutputs
 	 * @param theory
 	 * @param context
