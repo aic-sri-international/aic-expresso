@@ -308,6 +308,8 @@ public class ExpressoAPIExamples {
 		// We will later see how we can use contexts that restrict the free variable assignments of interest.
 		
 		// Now that we have a theory and a context, we can evaluate expressions:
+		println("1 + 0*X + 1  =  " + theory.evaluate(parse("1 + 1"), context));
+		
 		evaluate(new String[] {
 				"1 + 1", "2",
 				"X + 1 + 1", "X + 2",
