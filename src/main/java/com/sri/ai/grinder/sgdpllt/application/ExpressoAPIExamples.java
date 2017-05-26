@@ -104,8 +104,8 @@ public class ExpressoAPIExamples {
 		// Util has lots and lots and lots of very useful methods that eliminate boring Java chores.
 		// We definitely recommend studying it carefully!
 		// To easily write just "println" and have it work, write "println" and use Ctrl-1 to be offered the option
-		// of statically import Util.println.
-		// You can statically import an identifier in Eclipse with Shift-Ctrl-M in Windows.
+		// of statically importing Util.println.
+		// You can statically import an identifier in Eclipse by placing the cursor on it and pressing Shift-Ctrl-M in Windows.
 		println("a        : " + a);
 		println("ten      : " + ten);
 		println("trueValue: " + trueValue);
@@ -252,7 +252,7 @@ public class ExpressoAPIExamples {
 		Expression foods = makeSymbol("Foods");
 		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, p, people), apply(IN, f, foods));
 		// The "extensional" in ExtensionalIndexExpressionsSet means that the list/set of indices is extensionally defined,
-		// but they are the indices of an intensionally defined set.
+		// even though they will be the indices of an intensionally defined set.
 		intensionalUniSet = 
 				IntensionalSet.makeUniSet( // IntensionalSet.intensionalUniSet, or simply intensionalUniSet, also works
 						indices, 
@@ -261,12 +261,13 @@ public class ExpressoAPIExamples {
 								apply(AND, Equality.make(p, "Rodrigo"), Equality.make(f, "shrimp")))); 
 		// Note that Equality.make(p, "Rodrigo") is the same as apply(FunctorConstants.EQUAL, p, "Rodrigo").
 		// We often have 'make' methods for many operators: And.make, Or.make and so on.
+		// packages in com.sri.ai.expresso.grinder.sgdpllt.library have many such operator-specific classes.
 		println(intensionalUniSet);
 		
 		// When writing code on sets, we typically are modifying an existing set expression, so we can re-use its parts,
 		// by using special part-replacement methods.
 		// This requires the variable to implement the IntensionalSet interface, though.
-		// IMPORTANT: expressions are IMMUTABLE, so setCondition returns a NEW expression,
+		// IMPORTANT: expressions are IMMUTABLE, so setCondition and other part-replacement methods return a NEW expression,
 		// although the parts not replaced are re-used.
 		IntensionalSet intensionalSetCast = (IntensionalSet) intensionalUniSet;
 		Expression noCondition = intensionalSetCast.setCondition(makeSymbol(true));
@@ -333,11 +334,11 @@ public class ExpressoAPIExamples {
 
 		// now let us assume we have a free variable J which is an integer
 		// The context is also a boolean formula (a constraint)
-		// Current, it's value is "true", but we can conjoin it with a literal J < 0
+		// Current, its value is "true", but we can conjoin it with a literal J < 0
 		context = context.conjoin(parse("J < 0"));
 		evaluate(new String[] {
 				"J < 1", "true",
-				"sum({{ (on I in 1..10) I : I != J }})", "55", // J is irrelevant because it is out of the range of I
+				"sum({{ (on I in 1..1000) I : I != J }})", "500500", // J is irrelevant because it is out of the range of I
 				// see many more examples in SymbolicShell.java
 		}, theory, context);
 
