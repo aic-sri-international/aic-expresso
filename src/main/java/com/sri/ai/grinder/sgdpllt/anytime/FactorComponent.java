@@ -77,10 +77,16 @@ public class FactorComponent {
 					if (test == false){
 						VariableComponent newV = new VariableComponent(e, Phi, M, union);
 						this.children.add(newV);
+						Set<Expression> intersection = new HashSet<Expression>(newV.Dext);
+						intersection.retainAll(M.getNeighborsOfSet(Pext));
+						Dext.addAll(intersection);
+						
+						
+						D.addAll(newV.Dext);
 					}
-					
-				
 				}
+
+				D.removeAll(Dext);
 			}
 		} else {
 			int j = this.choose();
@@ -127,6 +133,10 @@ public class FactorComponent {
 	
 	public static void main(String[] args) {
 
+		/* 
+		
+		// First Model with 1 loop
+		  
 		Expression func = DefaultSymbol.createSymbol("f");
 		
 		Expression a = DefaultSymbol.createSymbol("a");
@@ -149,13 +159,69 @@ public class FactorComponent {
 		Factor.add(f2);
 		Factor.add(f3);
 		Factor.add(f4);
+		Factor.add(res);*/
+		
+		/*//Second model with 2 loops
+	
+		Expression func = DefaultSymbol.createSymbol("f");
+		
+		Expression a = DefaultSymbol.createSymbol("a");
+		Expression b = DefaultSymbol.createSymbol("b");
+		Expression c = DefaultSymbol.createSymbol("c");
+		Expression d = DefaultSymbol.createSymbol("d");
+		Expression e = DefaultSymbol.createSymbol("e");
+		Expression f = DefaultSymbol.createSymbol("f");
+		Expression q = DefaultSymbol.createSymbol("q");
+
+		Expression f1 = apply(IF_THEN_ELSE, a, q, b);
+		Expression f2 = apply(IF_THEN_ELSE, b, a, e);
+		Expression f3 = apply(IF_THEN_ELSE, a, d, c);
+		Expression f4 = apply(IF_THEN_ELSE, d, e, f);
+		Expression res = apply(func, q);
+
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(res);
+		
+		*/
+		
+		// Third model with local loops
+		
+		Expression func = DefaultSymbol.createSymbol("f");
+		
+		Expression a = DefaultSymbol.createSymbol("a");
+		Expression b = DefaultSymbol.createSymbol("b");
+		Expression c = DefaultSymbol.createSymbol("c");
+		Expression d = DefaultSymbol.createSymbol("d");
+		Expression e = DefaultSymbol.createSymbol("e");
+		Expression f = DefaultSymbol.createSymbol("f");
+		Expression g = DefaultSymbol.createSymbol("g");
+		Expression h = DefaultSymbol.createSymbol("h");
+		Expression q = DefaultSymbol.createSymbol("q");
+
+		Expression f1 = apply(IF_THEN_ELSE, q, a, b);
+		Expression f2 = apply(IF_THEN_ELSE, a, b, c);
+		Expression f3 = apply(IF_THEN_ELSE, c, d, e);
+		Expression f4 = apply(IF_THEN_ELSE, e, f, g);
+		Expression f5 = apply(IF_THEN_ELSE, f, g, h);
+		Expression res = apply(func, q);
+
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(f5);
 		Factor.add(res);
 
 		Model m = new Model(Factor);
 
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
 		
-		int nbIter = 10;
+		int nbIter = 20;
 		
 		for (int i = 0; i<nbIter; i++){
 			ComponentResultat.update(new HashSet<Expression>());
@@ -166,6 +232,6 @@ public class FactorComponent {
 			System.out.println(" ");
 		}
 		
-		//ComponentResultat.print(0);
+		ComponentResultat.print(0);
 	}
 }

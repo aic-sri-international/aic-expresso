@@ -70,12 +70,22 @@ public class VariableComponent {
 					if (test == false){
 						FactorComponent newC = new FactorComponent(e, V, M, Pext);
 						this.children.add(newC);
+						Set<Expression> intersection = new HashSet<Expression>();
+						intersection.addAll(newC.Dext);
+						intersection.retainAll(M.getNeighborsOfSet(Pext));
+						
+						Dext.addAll(intersection);
+
+					
+						D.addAll(newC.Dext);
 					}
 					
 					
 					
 				}
 			}
+
+			D.removeAll(Dext);
 		}
 		else{
 			int j = this.choose();
@@ -88,6 +98,7 @@ public class VariableComponent {
 			Set<Expression> intersection = new HashSet<Expression>();
 			intersection.addAll(this.children.get(j).Dext);
 			intersection.retainAll(M.getNeighborsOfSet(Pext));
+			
 			Dext.addAll(intersection);
 
 		
