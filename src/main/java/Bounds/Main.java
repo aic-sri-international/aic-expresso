@@ -33,6 +33,8 @@ public class Main {
 		Context context = new TrueContext(theory);
 		context = context.extendWithSymbols("A","Boolean");
 		context = context.extendWithSymbols("B","Boolean");
+		context = context.extendWithSymbols("X","Boolean");
+		context = context.extendWithSymbols("Y","Boolean");
 		
 		//Set of numbers
 		Expression one   = DefaultSymbol.createSymbol(1);
@@ -41,8 +43,8 @@ public class Main {
 		Expression setOFNumbers = ExtensionalSet.makeUniSet(one, two, three);
 
 		//Set of functions
-		Expression phi1 = parse("if A = true then 1 else if B = true then 2 else 3");
-		Expression phi2 = parse("if A = true then if B = true then 4 else 5 else 6");
+		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
+		Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
 		Expression phi3 = parse("if A = true then 7 else if B = true then 8 else 9");
 		Expression phi4 = parse("if A = true then 10 else if B = true then 11 else 12");
 		Expression setOfFactors = ExtensionalSet.makeUniSet(phi1, phi2, phi3, phi4);
@@ -65,7 +67,7 @@ public class Main {
 		println("normal(setFac) : " + Bounds.normalize(setOfFactors, theory, context));
 		println("normal(setNum) : " + Bounds.normalize(setOFNumbers, theory, context));
 		
-		Expression phinormalized = parse("(if A = true then 1 else if B = true then 2 else 3) / sum({{ ( on A in Boolean, B in Boolean ) if A = true then 1 else if B = true then 2 else 3 }})");
+		Expression phinormalized = parse("(if X = true then 1 else if Y = true then 2 else 3) / sum({{ ( on A in Boolean, B in Boolean ) if A = true then 1 else if B = true then 2 else 3 }})");
 		Expression eval = theory.evaluate(phinormalized, context);
 		println(eval);
 	}
