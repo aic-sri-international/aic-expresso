@@ -14,6 +14,9 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 
 public class Model {
 	public ManyToManyRelation<Expression, Expression> Map;
@@ -24,8 +27,10 @@ public class Model {
 		this.Map = new ManyToManyRelation<Expression, Expression> ();
 		this.InitializeFComponent = new HashSet<FactorComponent>();
 		this.InitializeVComponent = new HashSet<VariableComponent>();
+		
+		Context context = new TrueContext();
 		for (Expression f : Factor){
-			for (Expression v : getVariables(f)){
+			for (Expression v : Expressions.freeVariables(f, context)){
 				Map.add(f, v);
 			}
 		}
