@@ -50,13 +50,21 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
+import static com.sri.ai.util.Util.set;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.helper.UniquelyNamedConstantAreAllSymbolsNotIn;
+import com.sri.ai.grinder.helper.UniquelyNamedConstantIncludingBooleansAndNumbersPredicate;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
@@ -355,6 +363,59 @@ public class ExpressoAPIExamples {
 				"J < K", "true",
 				// see many more examples in SymbolicShell.java
 		}, theory, context);
+		
+		// Obtaining all free variables in an expression.
+		// In order to obtain all free variables appearing in an expression
+		// (and therefore excluding quantified variables (for all X, there exists X) and set indices ({ (on Z in Real) Z }))
+		// we must traverse the expression and select its sub-expressions that are variables.
+		// However, we need to know what a variable is.
+		// It is not enough to say that any symbol is a variable, because "1" and "true" are symbols, but not variables.
+		// It is not enough to say that any symbols that is an identifier (starting with an alphabet letter) is a variable,
+		// because we may have uniquely named constants such as "john" and "bob" that are not to be treated as variables
+		// (we want "john = bob" to be evaluated to "false", and if they were variable, this would not happen.
+		// The way Expresso deals with this question is by letting the user define a predicate in the context that
+		// encoded what a uniquely named constant is, and considering any other symbol to be considered a variable.
+		
+		// By default, Expresso follows the Prolog convention of capitalized variables: X is a variable, x is not.
+		// Note how this takes "Real" to be a variable!
+		
+		context = new TrueContext();
+		Expression expression = parse("X + f(g(x, Y, 1, true, false, 10, bob, john, there exists Z in Real : 10, { (on W in Real) 1 } ))");
+		Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
+		println("variables in " + expression + " by Prolog standard: " + variablesInExpression); // outputs [X, Y]
+		
+		// More recently, we have adopted the practice of not caring about capitalization.
+		// This means that we may, for example, defined uniquely named constants to be any symbols that are not in a given set of variables.
+		Set<Expression> allVariables = set(parse("x"), parse("X"), parse("Y"), parse("Z"), parse("W"));
+		context = context.setIsUniquelyNamedConstantPredicate(new UniquelyNamedConstantAreAllSymbolsNotIn(allVariables));
+		variablesInExpression = Expressions.freeVariables(expression, context);
+		println(
+				"variables in " + expression + " if all variables is " + 
+						allVariables + ": " + variablesInExpression); // outputs [x, X, Y]
+		
+		// Sometimes, it is useful to replace subexpressions in a given expression by another subexpression:
+		expression = parse("f(f(f(X))) + X");
+		Expression valueOfX = parse("10");
+		Expression replacementOfFirstOccurrenceOnly = expression.replaceFirstOccurrence(parse("X"), valueOfX, context);
+		println("Replacing only the first occurrence of X by its value gives " + replacementOfFirstOccurrenceOnly);
+		Expression replacementOfAllOccurrences = expression.replaceAllOccurrences(parse("X"), valueOfX, context);
+		println("Replacing all occurrences of X by its value gives " + replacementOfAllOccurrences);
+		// There are a LOT of variants of these functions in Expression (not Expressions),
+		// including some very flexible ones that allow the user to provide a function for determining the replacement.
+
+		// BUG: need to debug
+//		// Here's how to decide if a point is in the convex hull of other two points:
+//		Context convexityContext = trueContext.extendWithSymbols("p", "Real", "p1", "Real", "p2", "Real");
+//		convexityContext = convexityContext.conjoin(parse("p  = 4"));
+//		convexityContext = convexityContext.conjoin(parse("p1 = 3"));
+//		convexityContext = convexityContext.conjoin(parse("p2 = 5"));
+//		Expression isInConvexHull = 
+//				parse("there exists c1 in Real : there exists c2 in Real : "
+//						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and p = c1*3 and c2*5");
+////		parse("there exists c1 in Real : there exists c2 in Real : "
+////				+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and p = c1*p1 and c2*p2");
+//		Expression result = theory.evaluate(isInConvexHull, convexityContext);
+//		println("4 is in the convex hull of 3 and 5: " + result);
 	}
 
 	/**

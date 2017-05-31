@@ -54,8 +54,9 @@ public class FactorComponent {
 
 	}
 	
+	
+	
 	public void update(Set<Expression> Pext) {
-		
 		
 		if (this.children.isEmpty()) {
 			for (Expression e : this.M.getNeighbors(Phi)) {
@@ -139,14 +140,14 @@ public class FactorComponent {
 		  
 		Expression func = DefaultSymbol.createSymbol("f");
 		
-		Expression a = DefaultSymbol.createSymbol("a");
-		Expression b = DefaultSymbol.createSymbol("b");
-		Expression c = DefaultSymbol.createSymbol("c");
-		Expression d = DefaultSymbol.createSymbol("d");
-		Expression e = DefaultSymbol.createSymbol("e");
-		Expression f = DefaultSymbol.createSymbol("f");
-		Expression g = DefaultSymbol.createSymbol("g");
-		Expression q = DefaultSymbol.createSymbol("q");
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		Expression e = DefaultSymbol.createSymbol("E");
+		Expression f = DefaultSymbol.createSymbol("F");
+		Expression g = DefaultSymbol.createSymbol("G");
+		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression f1 = apply(IF_THEN_ELSE, a, q, d);
 		Expression f2 = apply(IF_THEN_ELSE, b, q, g);
@@ -165,13 +166,13 @@ public class FactorComponent {
 	
 		Expression func = DefaultSymbol.createSymbol("f");
 		
-		Expression a = DefaultSymbol.createSymbol("a");
-		Expression b = DefaultSymbol.createSymbol("b");
-		Expression c = DefaultSymbol.createSymbol("c");
-		Expression d = DefaultSymbol.createSymbol("d");
-		Expression e = DefaultSymbol.createSymbol("e");
-		Expression f = DefaultSymbol.createSymbol("f");
-		Expression q = DefaultSymbol.createSymbol("q");
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		Expression e = DefaultSymbol.createSymbol("E");
+		Expression f = DefaultSymbol.createSymbol("F");
+		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression f1 = apply(IF_THEN_ELSE, a, q, b);
 		Expression f2 = apply(IF_THEN_ELSE, b, a, e);
@@ -192,15 +193,15 @@ public class FactorComponent {
 		
 		Expression func = DefaultSymbol.createSymbol("f");
 		
-		Expression a = DefaultSymbol.createSymbol("a");
-		Expression b = DefaultSymbol.createSymbol("b");
-		Expression c = DefaultSymbol.createSymbol("c");
-		Expression d = DefaultSymbol.createSymbol("d");
-		Expression e = DefaultSymbol.createSymbol("e");
-		Expression f = DefaultSymbol.createSymbol("f");
-		Expression g = DefaultSymbol.createSymbol("g");
-		Expression h = DefaultSymbol.createSymbol("h");
-		Expression q = DefaultSymbol.createSymbol("q");
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		Expression e = DefaultSymbol.createSymbol("E");
+		Expression f = DefaultSymbol.createSymbol("F");
+		Expression g = DefaultSymbol.createSymbol("G");
+		Expression h = DefaultSymbol.createSymbol("H");
+		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression f1 = apply(IF_THEN_ELSE, q, a, b);
 		Expression f2 = apply(IF_THEN_ELSE, a, b, c);
@@ -221,7 +222,7 @@ public class FactorComponent {
 
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
 		
-		int nbIter = 20;
+		int nbIter = 30;
 		
 		for (int i = 0; i<nbIter; i++){
 			ComponentResultat.update(new HashSet<Expression>());
