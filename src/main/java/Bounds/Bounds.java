@@ -27,9 +27,13 @@ public class Bounds {
 	
 	
 	/**
-	 * 
-	 * 
-	 * Assumes that each element of the bound is a factor with the same domain 
+	 * Assumes that each element of the bound is a factor with the same domain
+	 * Normalizes each factor of the bound. In latex notation: 
+	 * 			{\phi/sum_{var(\phi)}\phi : \phi in bound} 
+	 * @param bound
+	 * @param theory
+	 * @param context
+	 * @return  bound of normalized factors
 	 */
 	public static Expression normalize(Expression bound, Theory theory, Context context){
 		List<Expression> listOfBound = ExtensionalSet.getElements(bound);
@@ -50,10 +54,18 @@ public class Bounds {
 		Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
 		Expression f =  apply("/", phi, sumOnPhi);
 		Expression result = applyFunctionToBound(f, phi, bound, theory, context);
-		//update limits (eliminate redundancies)
+		//TODO update extremes (eliminate redundancies)
 		return result;
 	}
 	
+	
+	/**
+	 * Computes the product of each term of a list of bounds
+	 * @param theory
+	 * @param context
+	 * @param listOfBounds
+	 * @return bound resulting from the product of bounds
+	 */
 	public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
 		if(listOfBounds.length == 0){ 
 			return null;
@@ -83,11 +95,23 @@ public class Bounds {
 				elements.add(evaluation);
 			}
 		}
-		//update extremes
+		//TODO update extremes
 		DefaultExtensionalUniSet result = new DefaultExtensionalUniSet(elements);
 		return result;
 	}
 	
+	/**
+	 * apply a function to each term of a bound
+	 * @param f 
+	 * 			function to be applied to the factors
+	 * @param variableName
+	 * 			The variable in f to be replaced by phi (for each phi in b)
+	 * @param b
+	 * 			Bound
+	 * @param theory
+	 * @param context
+	 * @return {f(\phi) : \phi \in b}
+	 */
 	public static Expression applyFunctionToBound(Expression f, Expression variableName, Expression b, Theory theory, Context context){
 		ExtensionalSetInterface bAsExtensionalSet = (ExtensionalSetInterface) b;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
@@ -103,7 +127,12 @@ public class Bounds {
 		return result;
 	}
 	
-	/*private static Expression updateExtremes(Expression B){
+	/**
+	 * 
+	 * @param B
+	 * @return
+	 */
+	private static Expression updateExtremes(Expression B){
 		List<Expression> listOfB = ExtensionalSet.getElements(B);
 		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
 		for(Expression phi : listOfB){
@@ -111,5 +140,4 @@ public class Bounds {
 		}
 		
 	}
-	 */
 }
