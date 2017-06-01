@@ -197,6 +197,11 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
+	public boolean containsSymbol(Expression symbol) {
+		return symbolsAndTypes.containsKey(symbol);
+	}
+	
+	@Override
 	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
 		return symbolsAndTypes.get(symbol);
 	}

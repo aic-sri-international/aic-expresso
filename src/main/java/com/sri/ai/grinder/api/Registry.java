@@ -98,6 +98,11 @@ public interface Registry extends Cloneable {
 	Registry setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes);
 	
 	/**
+	 * Indicates whether the registry contains a symbol. 
+	 */
+	boolean containsSymbol(Expression symbol);
+	
+	/**
 	 * @return the type of a registered symbol.
 	 */
 	Expression getTypeOfRegisteredSymbol(Expression symbol);
