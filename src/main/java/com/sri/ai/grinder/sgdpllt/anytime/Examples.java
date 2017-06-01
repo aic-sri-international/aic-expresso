@@ -13,7 +13,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 
 public class Examples {
 
-	public static VariableComponent DiamondModel(){
+	public static VariableComponent DiamondModel() {
 		Expression func = DefaultSymbol.createSymbol("f");
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
@@ -21,11 +21,19 @@ public class Examples {
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
-		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL , a, trueValue),  apply(IF_THEN_ELSE, apply(EQUAL , q, trueValue), 95, 5), apply(IF_THEN_ELSE, apply(EQUAL , q, trueValue), 5, 95));
-		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL , b, trueValue),  apply(IF_THEN_ELSE, apply(EQUAL , q, trueValue), 5, 95), apply(IF_THEN_ELSE, apply(EQUAL , q, trueValue), 95, 5));
-		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL , c, trueValue),  apply(IF_THEN_ELSE, apply(EQUAL , b, trueValue), 60, 40), apply(IF_THEN_ELSE, apply(EQUAL , b, trueValue), 40, 60));
-		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL , c, trueValue),  apply(IF_THEN_ELSE, apply(EQUAL , a, trueValue), 50, 50), apply(IF_THEN_ELSE, apply(EQUAL , a, trueValue), 50, 50));
-		
+		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95));
+		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
+		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
+		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
+
 		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
@@ -33,16 +41,16 @@ public class Examples {
 		Factor.add(f3);
 		Factor.add(f4);
 		Factor.add(res);
-		
+
 		Model m = new Model(Factor);
-		
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
-	public static VariableComponent Model1(){
+
+	public static VariableComponent Model1() {
 		Expression func = DefaultSymbol.createSymbol("f");
-		
+
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
@@ -64,18 +72,18 @@ public class Examples {
 		Factor.add(f3);
 		Factor.add(f4);
 		Factor.add(res);
-		
+
 		Model m = new Model(Factor);
-		
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
-		
+
 	}
 
-	public static VariableComponent Model2(){
+	public static VariableComponent Model2() {
 
 		Expression func = DefaultSymbol.createSymbol("f");
-		
+
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
@@ -96,19 +104,17 @@ public class Examples {
 		Factor.add(f3);
 		Factor.add(f4);
 		Factor.add(res);
-		
 
 		Model m = new Model(Factor);
-		
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
-	public static VariableComponent Model3(){
-		
+
+	public static VariableComponent Model3() {
 
 		Expression func = DefaultSymbol.createSymbol("f");
-		
+
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
@@ -135,21 +141,21 @@ public class Examples {
 		Factor.add(res);
 
 		Model m = new Model(Factor);
-		
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
+
 	public static void main(String[] args) {
-		
+
 		VariableComponent ComponentResultat = DiamondModel();
-		
+
 		int nbIter = 10;
-		
-		for (int i = 0; i<nbIter; i++){
+
+		for (int i = 0; i < nbIter; i++) {
 			ComponentResultat.update(new HashSet<Expression>());
 		}
-		
+
 		ComponentResultat.print(0);
 
 	}
