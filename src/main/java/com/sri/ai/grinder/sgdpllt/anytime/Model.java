@@ -14,13 +14,13 @@ import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 
 public class Model {
 	public ManyToManyRelation<Expression, Expression> map;
-	public Set<VariableComponent> initializeVComponent;
-	public Set<FactorComponent> initializeFComponent;
+	public Set<VariableComponent> initializeVariableComponent;
+	public Set<FactorComponent> initializeFactorComponent;
 
 	public Model(Set<Expression> Factor) {
 		this.map = new ManyToManyRelation<Expression, Expression>();
-		this.initializeFComponent = new HashSet<FactorComponent>();
-		this.initializeVComponent = new HashSet<VariableComponent>();
+		this.initializeFactorComponent = new HashSet<FactorComponent>();
+		this.initializeVariableComponent = new HashSet<VariableComponent>();
 
 		Context context = new TrueContext();
 		for (Expression factor : Factor) {
@@ -63,25 +63,25 @@ public class Model {
 
 	public void printInitialized() {
 		System.out.println("Variables : ");
-		for (VariableComponent variable : this.initializeVComponent) {
-			System.out.println("\t" + variable.V);
+		for (VariableComponent variable : this.initializeVariableComponent) {
+			System.out.println("\t" + variable.variable);
 			System.out.println("\t\t" + "Parents" + variable.parent);
-			System.out.println("\t\t" + "Dext" + variable.Dext);
-			System.out.println("\t\t" + "D" + variable.D);
+			System.out.println("\t\t" + "cutset Outside SubModel" + variable.cutsetOutsideSubModel);
+			System.out.println("\t\t" + "cutset Inside SubModel" + variable.cutsetInsideSubModel);
 		}
 		System.out.println("Factor : ");
-		for (FactorComponent factor : this.initializeFComponent) {
+		for (FactorComponent factor : this.initializeFactorComponent) {
 			System.out.println("\t" + factor.phi);
 			System.out.println("\t\t" + "Parents" + factor.parent);
-			System.out.println("\t\t" + "Dext" + factor.Dext);
-			System.out.println("\t\t" + "D" + factor.D);
+			System.out.println("\t\t" + "cutset Outside SubModel" + factor.cutsetOutsideSubModel);
+			System.out.println("\t\t" + "cutset Inside SubModel" + factor.cutsetInsideSubModel);
 		}
 
 	}
 
 	public Set<Expression> getInitializedFactor() {
 		Set<Expression> factorSet = new HashSet<Expression>();
-		for (FactorComponent factor : this.initializeFComponent) {
+		for (FactorComponent factor : this.initializeFactorComponent) {
 
 			factorSet.add(factor.phi);
 
@@ -91,8 +91,8 @@ public class Model {
 
 	public Set<Expression> getInitializedVariable() {
 		Set<Expression> variableSet = new HashSet<Expression>();
-		for (VariableComponent variable : this.initializeVComponent) {
-			variableSet.add(variable.V);
+		for (VariableComponent variable : this.initializeVariableComponent) {
+			variableSet.add(variable.variable);
 		}
 		return variableSet;
 	}
