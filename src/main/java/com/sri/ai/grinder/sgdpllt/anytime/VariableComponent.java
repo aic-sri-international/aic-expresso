@@ -163,12 +163,10 @@ public class VariableComponent {
 		
 		for (Expression cutset : this.cutsetInsideSubModel){
 			childrenMessage = theory.evaluate(childrenMessage, context);
-			childrenMessage = parse("sum{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
+			String str = "sum({{ (on " + cutset + " in Boolean ) " + childrenMessage + " }})";
+			childrenMessage = parse(str);
 		}
-
-		System.out.println("Return calculation of " + this.variable);
-		System.out.println("Computed expression :" + childrenMessage);
-		System.out.println(theory.evaluate(childrenMessage, context));
+		
 		return 	theory.evaluate(childrenMessage, context);
 
 	}

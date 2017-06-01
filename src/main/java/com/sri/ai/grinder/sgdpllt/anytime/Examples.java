@@ -316,7 +316,10 @@ public class Examples {
 		System.out.println("Iteration necessary : " + nbIter);
 
 		ComponentResultat.print(0);
-		ComponentResultat.calculate();
+		System.out.println(" ");
+		System.out.println(" ");
+		System.out.println(" ");
+		System.out.println(ComponentResultat.calculate());
 	}
 
 }
