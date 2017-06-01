@@ -2,6 +2,8 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 
 import com.sri.ai.util.collect.ManyToManyRelation;
 
+import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,17 +12,34 @@ import com.sri.ai.expresso.api.Expression;
 
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 public class Model {
 	public ManyToManyRelation<Expression, Expression> map;
 	public Set<VariableComponent> initializeVariableComponent;
 	public Set<FactorComponent> initializeFactorComponent;
+	public Context context;
+	public Theory theory;
 
 	public Model(Set<Expression> Factor) {
 		this.map = new ManyToManyRelation<Expression, Expression>();
 		this.initializeFactorComponent = new HashSet<FactorComponent>();
 		this.initializeVariableComponent = new HashSet<VariableComponent>();
+		this.theory = new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, false),
+				new LinearRealArithmeticTheory(false, false),
+				new TupleTheory(),
+				new PropositionalTheory());
+		this.context = new TrueContext(theory);			
+		context = context.add(BOOLEAN_TYPE);
 
 		Context context = new TrueContext();
 		for (Expression factor : Factor) {

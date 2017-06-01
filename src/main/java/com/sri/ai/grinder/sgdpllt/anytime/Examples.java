@@ -10,7 +10,57 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.println;
+import static com.sri.ai.util.Util.set;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
+import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.helper.UniquelyNamedConstantAreAllSymbolsNotIn;
+import com.sri.ai.grinder.helper.UniquelyNamedConstantIncludingBooleansAndNumbersPredicate;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 public class Examples {
 
 	public static VariableComponent TriangleModel() {
@@ -42,17 +92,15 @@ public class Examples {
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
 		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), d, 95));
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95));
 		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), e, 5));
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
 		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
@@ -247,9 +295,17 @@ public class Examples {
 	}
 
 	public static void main(String[] args) {
+		
 
-		VariableComponent ComponentResultat = TriangleModel();
-
+		Theory theory = new CompoundTheory(
+				new EqualityTheory(false, true),
+				new DifferenceArithmeticTheory(false, false),
+				new LinearRealArithmeticTheory(false, false),
+				new TupleTheory(),
+				new PropositionalTheory());
+		Context context = new TrueContext(theory);			
+		context = context.add(BOOLEAN_TYPE);		
+		VariableComponent ComponentResultat = DiamondModel();
 		int nbIter = 0;
 
 		while(!ComponentResultat.entirelyDiscover) {
@@ -260,7 +316,7 @@ public class Examples {
 		System.out.println("Iteration necessary : " + nbIter);
 
 		ComponentResultat.print(0);
-
+		ComponentResultat.calculate();
 	}
 
 }

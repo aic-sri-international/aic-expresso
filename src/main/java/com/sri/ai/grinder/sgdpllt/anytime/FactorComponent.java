@@ -1,12 +1,18 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 public class FactorComponent {
 
@@ -125,6 +131,7 @@ public class FactorComponent {
 			tab += "\t";
 		}
 		System.out.println(tab + "Factor : " + phi);
+		System.out.println(tab + "Children : " + children);
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
@@ -132,5 +139,41 @@ public class FactorComponent {
 		for (VariableComponent c : this.children) {
 			c.print(tabs + 1);
 		}
+	}
+	
+	public Expression calculate(){
+		Theory theory = this.model.theory;
+		Context context = this.model.context;		
+		
+		Expression childrenMessage = parse("1");
+		
+		for(VariableComponent children : this.children){
+			childrenMessage = apply(TIMES, childrenMessage, children.calculate());
+		}
+		
+		childrenMessage = apply(TIMES, childrenMessage, this.phi);
+		
+		
+		for (Expression cutset : this.cutsetInsideSubModel){
+			childrenMessage = parse("{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
+		}
+		
+		Set<Expression> toSum = model.getNeighbors(phi);
+		for (Expression e : this.parent) {
+			toSum.remove(e);
+		}
+		toSum.removeAll(this.cutsetOutsideSubModel);
+		toSum.removeAll(this.cutsetInsideSubModel);
+		System.out.println(toSum);
+		
+		for (Expression variableToSum : toSum){
+			childrenMessage = theory.evaluate(childrenMessage, context);
+			childrenMessage = parse("{{(on " + variableToSum + " in Boolean ) " + childrenMessage + " }})");
+		}
+
+		System.out.println("Return calculation of " + this.phi);
+		System.out.println(theory.evaluate(childrenMessage, context));
+		return 	theory.evaluate(childrenMessage, context);
+
 	}
 }
