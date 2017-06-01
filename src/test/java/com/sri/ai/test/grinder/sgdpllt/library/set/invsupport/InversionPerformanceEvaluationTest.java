@@ -201,7 +201,7 @@ public class InversionPerformanceEvaluationTest {
 			throw new UnsupportedOperationException("Currently only support singular indices");
 		}
 		Expression index              = indices.get(0);
-		Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+		Context intensionalSetContext = context.extendWith(indexExpressionsSet);
 		Type type                     = GrinderUtil.getType(index, intensionalSetContext);
 		
 		Rational result = resultSoFar.multiply(type.cardinality().rationalValue());

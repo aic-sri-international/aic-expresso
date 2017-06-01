@@ -369,7 +369,7 @@ public class SampleCommonInterpreterTest {
 
 			if (indices.size() == 1) {
 				Expression index = indices.get(0);
-				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);			
+				Context intensionalSetContext = context.extendWith(indexExpressions);			
 				// Ensure condition of correct type is created
 				Type indexType = GrinderUtil.getType(index, intensionalSetContext);
 				

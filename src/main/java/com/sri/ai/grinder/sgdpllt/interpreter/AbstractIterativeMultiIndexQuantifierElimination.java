@@ -1,6 +1,5 @@
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.extendRegistryWithIndexExpressions;
 import static com.sri.ai.util.Util.in;
 
 import java.util.Iterator;
@@ -59,7 +58,7 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 	
 	@Override
 	public Expression solve(AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
-		context = (Context) extendRegistryWithIndexExpressions(indexExpressions, context);
+		context = context.extendWith(indexExpressions);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		return solve(group, indices, indicesCondition, body, context);
 	}

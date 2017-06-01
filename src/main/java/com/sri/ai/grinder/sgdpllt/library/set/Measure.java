@@ -103,7 +103,7 @@ public class Measure {
 					throw new UnsupportedOperationException("Index and Head must be the same to calculate the meaure of an Intensional : "+intensionalSet);
 				}
 				Expression intensionalSetCondition = intensionalSet.getCondition();
-				Context intensionalSetContext      = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+				Context intensionalSetContext      = context.extendWith(indexExpressionsSet);
 				Type indexType                     = GrinderUtil.getType(intensionalSetIndex, intensionalSetContext);
 				
 				if (intensionalSetCondition.equals(false)) {

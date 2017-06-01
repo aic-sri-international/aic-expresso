@@ -70,7 +70,7 @@ public class IntensionalSetConditionSimplifier implements Simplifier {
 			Expression condition = intensionalSet.getCondition();
 			if (!(condition.equals(Expressions.TRUE) || condition.equals(Expressions.FALSE))) {
 				IndexExpressionsSet indexExpressionsSet = intensionalSet.getIndexExpressions();
-				Context extendedContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+				Context extendedContext = context.extendWith(indexExpressionsSet);
 				
 				Expression evaluatedCondition = context.getTheory().evaluate(condition, extendedContext);
 				if (!evaluatedCondition.equals(condition)) {

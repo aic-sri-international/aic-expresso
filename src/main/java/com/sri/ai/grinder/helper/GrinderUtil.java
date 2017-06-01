@@ -130,26 +130,6 @@ import com.sri.ai.util.math.Rational;
 public class GrinderUtil {
 
 	/**
-	 * Returns a registry with symbols extended by a list of index expressions.
-	 */
-	public static Registry extendRegistryWithIndexExpressions(IndexExpressionsSet indexExpressions, Registry registry) {
-		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		Registry result = registry.registerAdditionalSymbolsAndTypes(indexToTypeMap);
-		return result;
-	}
-
-	/**
-	 * Returns a registry with symbols extended by a list of index expressions.
-	 */
-	public static Registry extendSymbolsWithIndexExpressions(List<Expression> indexExpressions, Registry registry) {
-		Registry result = 
-				extendRegistryWithIndexExpressions(
-						new ExtensionalIndexExpressionsSet(indexExpressions),
-						registry);
-		return result;
-	}
-
-	/**
 	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the registry, if any.
 	 */
 	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, Registry registry) {
@@ -204,7 +184,8 @@ public class GrinderUtil {
 			
 			symbolDeclarations.add(parse(symbolName + " in " + typeName));
 		}
-		registry = extendSymbolsWithIndexExpressions(symbolDeclarations, registry);
+		Registry result = registry.extendWith(new ExtensionalIndexExpressionsSet(symbolDeclarations));
+		registry = result;
 					
 		for (Type type : types) {
 			registry = registry.add(type);
@@ -331,7 +312,7 @@ public class GrinderUtil {
 				Expression head = intensionalSetArgument.getHead();
 				// NOTE: Need to extend the registry as the index expressions in the quantifier may
 				// declare new types (i.e. function types).
-				Registry headRegistry = GrinderUtil.extendRegistryWithIndexExpressions(intensionalSetArgument.getIndexExpressions(), registry);
+				Registry headRegistry = registry.extendWith(intensionalSetArgument.getIndexExpressions());
 				result = getTypeExpression(head, headRegistry);
 			}
 			else if (argument.getSyntacticFormType().equals(ExtensionalSet.SYNTACTIC_FORM_TYPE)) {
@@ -469,7 +450,7 @@ public class GrinderUtil {
 			IntensionalSet set = (IntensionalSet) expression;
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may
 			// declare new types (i.e. function types).
-			Registry headRegistry = GrinderUtil.extendRegistryWithIndexExpressions(set.getIndexExpressions(), registry);
+			Registry headRegistry = registry.extendWith(set.getIndexExpressions());
 			Expression headType = getTypeExpression(set.getHead(), headRegistry);
 			result = new DefaultIntensionalMultiSet(list(), headType, TRUE);
 		}
@@ -563,7 +544,7 @@ public class GrinderUtil {
 			QuantifiedExpressionWithABody quantifiedExpressionWithABody = (QuantifiedExpressionWithABody) expression;
 			// NOTE: Need to extend the registry as the index expressions in the quantifier may
 			// declare new types (i.e. function types).
-			Registry quantifiedExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(quantifiedExpressionWithABody.getIndexExpressions(), registry);
+			Registry quantifiedExpressionWithABodyRegistry = registry.extendWith(quantifiedExpressionWithABody.getIndexExpressions());
 			result = getTypeExpression(quantifiedExpressionWithABody.getBody(), quantifiedExpressionWithABodyRegistry);
 		}
 		else if (expression instanceof LambdaExpression) {
@@ -571,7 +552,7 @@ public class GrinderUtil {
 			Collection<Expression> domain = IndexExpressions.getIndexDomainsOfQuantifiedExpression(lambdaExpression);
 
 			IndexExpressionsSet indexExpressions = lambdaExpression.getIndexExpressions();
-			Registry lambdaExpressionWithABodyRegistry = GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, registry);
+			Registry lambdaExpressionWithABodyRegistry = registry.extendWith(indexExpressions);
 			Expression coDomain = getTypeExpression(lambdaExpression.getBody(), lambdaExpressionWithABodyRegistry);
 			
 			result = Expressions.apply(FUNCTION_TYPE, domain, coDomain);

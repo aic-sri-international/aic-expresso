@@ -101,7 +101,7 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 					Expression c2 = otherMultiSet.getCondition();
 					
 					Expression thereExists          = ThereExists.make(i2, And.make(c2, Equality.make(h2, h1)));
-					Context    i1ExtendedContext    = (Context) GrinderUtil.extendRegistryWithIndexExpressions(i1, context);
+					Context    i1ExtendedContext    = context.extendWith(i1);
 					Expression thereExistsEvaluated = context.getTheory().evaluate(thereExists, i1ExtendedContext);
 					if (thereExistsEvaluated.equals(false)) {
 						// They don't intersect, which means you have an empty

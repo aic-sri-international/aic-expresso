@@ -49,10 +49,11 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
 /**
@@ -167,14 +168,14 @@ public interface Registry extends Cloneable {
 	 * @param symbolsAndTypes
 	 * @return
 	 */
-	default Registry extendWithSymbols(Expression... symbolsAndTypes) {
+	default Registry extendWithSymbolsAndTypes(Expression... symbolsAndTypes) {
 		Util.myAssert(symbolsAndTypes.length % 2 == 0, () -> "Need to extend registry with a sequence of symbols and their types");
 		List<Expression> indexExpressions = list();
 		for (int i = 0; i != symbolsAndTypes.length/2; i++) {
 			Expression indexExpression = apply(FunctorConstants.IN, symbolsAndTypes[2*i], symbolsAndTypes[2*i + 1]);
 			indexExpressions.add(indexExpression);
 		}
-		Registry result = GrinderUtil.extendRegistryWithIndexExpressions(new ExtensionalIndexExpressionsSet(indexExpressions), this);
+		Registry result = extendWith(new ExtensionalIndexExpressionsSet(indexExpressions));
 		return result;
 	}
 	
@@ -184,11 +185,22 @@ public interface Registry extends Cloneable {
 	 * @return
 	 */
 	default Registry extendWithSymbols(String... symbolsAndTypes) {
-		Expression expressions[] = new Expression[symbolsAndTypes.length];
+		Expression symbolsAndTypesExpressions[] = new Expression[symbolsAndTypes.length];
 		for (int i = 0; i != symbolsAndTypes.length; i++) {
-			expressions[i] = parse(symbolsAndTypes[i]);
+			symbolsAndTypesExpressions[i] = parse(symbolsAndTypes[i]);
 		}
-		Registry result = extendWithSymbols(expressions);
+		Registry result = extendWithSymbolsAndTypes(symbolsAndTypesExpressions);
+		return result;
+	}
+	
+	/**
+	 * Extends the registry with the given index expressions.
+	 * @param indexExpressions
+	 * @return
+	 */
+	default Registry extendWith(IndexExpressionsSet indexExpressions) {
+		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
+		Registry result = registerAdditionalSymbolsAndTypes(indexToTypeMap);
 		return result;
 	}
 }
