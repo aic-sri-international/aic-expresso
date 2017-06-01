@@ -151,7 +151,7 @@ public class InversionSimplifier implements Simplifier {
 		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));	
 		Context lastQuantifierHeadContext = context;
 		for (Expression quantifier : originalQuantifierOrder) {
-			lastQuantifierHeadContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), lastQuantifierHeadContext);
+			lastQuantifierHeadContext = lastQuantifierHeadContext.extendWith(getIndexExpressions(quantifier));
 		}
 
 		// Construct E correctly based on quantifiers after summation.
@@ -291,7 +291,7 @@ public class InversionSimplifier implements Simplifier {
 		Expression lastQuantifierHead = getHead(originalQuantifierOrder.get(originalQuantifierOrder.size()-1));		
 		Context innerContext = context;
 		for (Expression quantifier : originalQuantifierOrder) {
-			innerContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(getIndexExpressions(quantifier), innerContext);
+			innerContext = innerContext.extendWith(getIndexExpressions(quantifier));
 		}
 		Context lastQuantifierHeadContext = innerContext;
 		
@@ -464,7 +464,7 @@ public class InversionSimplifier implements Simplifier {
 			throw new UnsupportedOperationException("Currently only support singular indices");
 		}
 		Expression index              = indices.get(0);
-		Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressionsSet, context);
+		Context intensionalSetContext = context.extendWith(indexExpressionsSet);
 		Type type                     = GrinderUtil.getType(index, intensionalSetContext);
 		
 		FunctionType functionType = null;

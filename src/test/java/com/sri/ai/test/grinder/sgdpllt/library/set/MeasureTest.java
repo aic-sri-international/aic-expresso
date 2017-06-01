@@ -145,7 +145,7 @@ private Context context;
 
 			if (indices.size() == 1) {
 				Expression index = indices.get(0);
-				Context intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(intensionalSet.getIndexExpressions(), context);
+				Context intensionalSetContext = context.extendWith(intensionalSet.getIndexExpressions());
 				Type type = GrinderUtil.getType(index, intensionalSetContext);
 				if (type instanceof RealExpressoType || type instanceof RealInterval) {
 					SingleVariableLinearRealArithmeticConstraint singleVariableConstraint = new SingleVariableLinearRealArithmeticConstraint(index, true, context.getTheory());

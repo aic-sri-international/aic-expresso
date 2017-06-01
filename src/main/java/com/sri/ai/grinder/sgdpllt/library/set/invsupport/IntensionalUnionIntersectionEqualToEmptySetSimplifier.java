@@ -111,7 +111,7 @@ public class IntensionalUnionIntersectionEqualToEmptySetSimplifier implements Si
 				IndexExpressionsSet saIndexExpressionsSet = intensionalSet.getIndexExpressions();
 				Expression          saHead                = intensionalSet.getHead();
 				Expression          saCondition           = intensionalSet.getCondition();
-				Context             intensionalSetContext = (Context) GrinderUtil.extendRegistryWithIndexExpressions(saIndexExpressionsSet, context);
+				Context             intensionalSetContext = context.extendWith(saIndexExpressionsSet);
 				for (int i = 0; i < originalIndexes.size(); i++) {
 					Expression originalIndex = originalIndexes.get(i);
 					Expression saIndex       = saIndexes.get(i);

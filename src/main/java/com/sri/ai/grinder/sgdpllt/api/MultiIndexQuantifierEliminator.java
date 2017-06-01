@@ -8,7 +8,6 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.SGDPLLTUtil;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
@@ -28,7 +27,7 @@ public interface MultiIndexQuantifierEliminator {
 			Expression body,
 			Context context) {
 
-		context = (Context) GrinderUtil.extendRegistryWithIndexExpressions(indexExpressions, context);
+		context = context.extendWith(indexExpressions);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Expression quantifierFreeExpression = solve(group, indices, indicesCondition, body, context);
 		return quantifierFreeExpression;

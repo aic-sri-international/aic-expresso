@@ -43,6 +43,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Registry;
 
@@ -113,8 +114,8 @@ public interface Context extends Registry, Constraint {
 	 * @return
 	 */
 	@Override
-	default Context extendWithSymbols(Expression... symbolsAndTypes) {
-		return (Context) Registry.super.extendWithSymbols(symbolsAndTypes);
+	default Context extendWithSymbolsAndTypes(Expression... symbolsAndTypes) {
+		return (Context) Registry.super.extendWithSymbolsAndTypes(symbolsAndTypes);
 	}
 	
 	/**
@@ -125,6 +126,10 @@ public interface Context extends Registry, Constraint {
 	@Override
 	default Context extendWithSymbols(String... symbolsAndTypes) {
 		return (Context) Registry.super.extendWithSymbols(symbolsAndTypes);
+	}
+	
+	default Context extendWith(IndexExpressionsSet indexExpressions) {
+		return (Context) Registry.super.extendWith(indexExpressions);
 	}
 	
 	default Context conjoin(Expression formula) {
