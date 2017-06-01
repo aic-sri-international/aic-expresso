@@ -25,6 +25,8 @@ import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 public class Bounds {
 	// a bound is a set of expressions representing its extreme points
 	
+	static boolean debug = false;
+	
 	
 	/**
 	 * Assumes that each element of the bound is a factor with the same domain
@@ -54,7 +56,6 @@ public class Bounds {
 		Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
 		Expression f =  apply("/", phi, sumOnPhi);
 		Expression result = applyFunctionToBound(f, phi, bound, theory, context);
-		//TODO update extremes (eliminate redundancies)
 		return result;
 	}
 	
@@ -71,7 +72,7 @@ public class Bounds {
 			return null;
 		}
 		
-		Expression result = boundProduct (0, theory, context, listOfBounds);
+		Expression result= boundProduct (0, theory, context, listOfBounds);
 		return result;
 	}
 
@@ -95,8 +96,10 @@ public class Bounds {
 				elements.add(evaluation);
 			}
 		}
-		//TODO update extremes
-		DefaultExtensionalUniSet result = new DefaultExtensionalUniSet(elements);
+		
+		DefaultExtensionalUniSet productBound = new DefaultExtensionalUniSet(elements);
+		//Updating extreme points
+		Expression result = updateExtremes(productBound);
 		return result;
 	}
 	
@@ -118,26 +121,46 @@ public class Bounds {
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
 		for(Expression phi : ExtensionalSet.getElements(bAsExtensionalSet)){
 			Expression substitution = f.replaceAllOccurrences(variableName, phi, context);
-			println("evaluating: " + substitution);
-			Expression evaluation = theory.evaluate(substitution, context);
-			println("result: " + evaluation);
+			//debuging
+			if (debug) println("evaluating: " + substitution);
+			Expression evaluation = theory.evaluate(substitution, context); // problem in evaluation method...
+			//debuging
+			if (debug) println("result: " + evaluation);
 			elements.add(evaluation);
+		}
+		DefaultExtensionalUniSet fOfb = new DefaultExtensionalUniSet(elements);
+		//Updating extreme points
+		Expression result = updateExtremes(fOfb);		
+		return result;
+	}
+	
+	/**
+	 * Eliminate factors not in Ext(C.Hull(B)) 
+	 * @param B
+	 * @return 
+	 */
+	private static Expression updateExtremes(Expression B){
+		List<Expression> listOfB = ExtensionalSet.getElements(B);
+		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
+		for(Expression phi : listOfB){
+			if (isExtremePoint(phi,B)){
+				elements.add(phi);
+			}
 		}
 		DefaultExtensionalUniSet result = new DefaultExtensionalUniSet(elements);
 		return result;
 	}
 	
 	/**
-	 * 
-	 * @param B
+	 * checks if \phi is a convex combination of the elements in bound
+	 * @param phi
+	 * 			factor
+	 * @param bound
 	 * @return
 	 */
-	private static Expression updateExtremes(Expression B){
-		List<Expression> listOfB = ExtensionalSet.getElements(B);
-		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
-		for(Expression phi : listOfB){
-			
-		}
-		
+	private static boolean isExtremePoint(Expression phi, Expression bound){
+		return true;
 	}
+	
+	
 }
