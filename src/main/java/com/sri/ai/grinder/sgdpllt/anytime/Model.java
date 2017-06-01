@@ -40,6 +40,7 @@ public class Model {
 				new PropositionalTheory());
 		this.context = new TrueContext(theory);			
 		context = context.add(BOOLEAN_TYPE);
+		
 
 		Context context = new TrueContext();
 		for (Expression factor : Factor) {

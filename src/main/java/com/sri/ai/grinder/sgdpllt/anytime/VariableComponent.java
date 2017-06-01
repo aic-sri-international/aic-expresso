@@ -1,6 +1,6 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
@@ -13,13 +13,6 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 public class VariableComponent {
 
