@@ -159,8 +159,7 @@ public class Bounds {
 	 * @return
 	 */
 	private static boolean isExtremePoint(Expression phi, Expression bound){
+		//TODO
 		return true;
-	}
-	
-	
+	}	
 }
