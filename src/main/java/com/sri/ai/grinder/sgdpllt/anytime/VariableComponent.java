@@ -10,52 +10,50 @@ import com.sri.ai.expresso.api.Expression;
 
 public class VariableComponent {
 
-	public Model M;
-	public Expression V;
+	public Model model;
+	public Expression variable;
 	public Set<Expression> parent;
 	public ArrayList<FactorComponent> children;
-	public Set<Expression> Dext;
-	public Set<Expression> D;
-	public Set<Expression> B;
-	public Set<Expression> Pint;
+	public Set<Expression> cutsetOutsideSubModel;
+	public Set<Expression> cutsetInsideSubModel;
+	public Set<Expression> bound;
+	public Set<Expression> phiInsideSubModel;
 
-	public VariableComponent(Expression V, Expression Parent, Model M, Set<Expression> Pext) {
+	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext) {
 
-		this.M = M;
-		this.V = V;
+		this.model = model;
+		this.variable = variable;
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
-		this.Pint = new HashSet<Expression>();
+		this.phiInsideSubModel = new HashSet<Expression>();
 		this.children = new ArrayList<FactorComponent>();
-		this.D = new HashSet<Expression>();
-		this.Dext = new HashSet<Expression>();
-		this.B = new HashSet<Expression>();
+		this.cutsetInsideSubModel = new HashSet<Expression>();
+		this.cutsetOutsideSubModel = new HashSet<Expression>();
+		this.bound = new HashSet<Expression>();
 
 		Set<Expression> intersection = new HashSet<Expression>();
-		intersection.addAll(M.getNeighborsOfSet(M.getInitializedVariable()));
-		Collection<Expression> S = M.getNeighbors(V);
+		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));
+		Collection<Expression> S = model.getNeighbors(variable);
 		for (Expression e : this.parent) {
 			S.remove(e);
 		}
 		S.retainAll(intersection);
 		if (!S.isEmpty()) {
-			this.Dext.add(V);
+			this.cutsetOutsideSubModel.add(variable);
 		}
 
-		M.initializeVComponent.add(this);
-
-		// this.B =
+		model.initializeVariableComponent.add(this);
 	}
 
 	public void update(Set<Expression> Pext) {
 
 		if (this.children.isEmpty()) {
-			for (Expression e : this.M.getNeighbors(V)) {
+			for (Expression e : this.model.getNeighbors(variable)) {
 				if (!this.parent.contains(e)) {
 
 					boolean test = false;
 
-					for (FactorComponent c : M.initializeFComponent) {
+					for (FactorComponent c : model.initializeFactorComponent) {
 
 						if (c.phi.equals(e)) {
 							test = true;
@@ -65,41 +63,40 @@ public class VariableComponent {
 					}
 
 					if (test == false) {
-						FactorComponent newC = new FactorComponent(e, V, M, Pext);
+						FactorComponent newC = new FactorComponent(e, variable, model, Pext);
 						this.children.add(newC);
 						Set<Expression> intersection = new HashSet<Expression>();
-						intersection.addAll(newC.Dext);
-						intersection.retainAll(M.getNeighborsOfSet(Pext));
+						intersection.addAll(newC.cutsetOutsideSubModel);
+						intersection.retainAll(model.getNeighborsOfSet(Pext));
 
-						Dext.addAll(intersection);
+						cutsetOutsideSubModel.addAll(intersection);
 
-						D.addAll(newC.Dext);
+						cutsetInsideSubModel.addAll(newC.cutsetOutsideSubModel);
 					}
 
 				}
 			}
 
-			D.removeAll(Dext);
+			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 		} else {
 			int j = this.choose();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
-				union.addAll(this.children.get(i).Pint);
+				union.addAll(this.children.get(i).phiInsideSubModel);
 			}
 			this.children.get(j).update(union);
 
 			Set<Expression> intersection = new HashSet<Expression>();
-			intersection.addAll(this.children.get(j).Dext);
-			intersection.retainAll(M.getNeighborsOfSet(Pext));
+			intersection.addAll(this.children.get(j).cutsetOutsideSubModel);
+			intersection.retainAll(model.getNeighborsOfSet(Pext));
 
-			Dext.addAll(intersection);
+			cutsetOutsideSubModel.addAll(intersection);
 
-			D.addAll(this.children.get(j).Dext);
-			D.removeAll(Dext);
+			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
+			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
-			Pint.addAll(this.children.get(j).Pint);
+			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 
-			// B = sum_{D} product Bk
 		}
 	}
 
@@ -114,9 +111,9 @@ public class VariableComponent {
 		for (int i = 0; i < tabs; i++) {
 			tab += "\t";
 		}
-		System.out.println(tab + "Variable : " + V);
-		System.out.println(tab + "Dext : " + Dext);
-		System.out.println(tab + "D : " + D);
+		System.out.println(tab + "Variable : " + variable);
+		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
+		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
 
 		for (FactorComponent c : this.children) {
 			c.print(tabs + 1);
