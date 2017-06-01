@@ -67,8 +67,12 @@ public class Main {
 		println("normal(setFac) : " + Bounds.normalize(setOfFactors, theory, context));
 		println("normal(setNum) : " + Bounds.normalize(setOFNumbers, theory, context));
 		
+		//Testing normalization operation renaming variables
 		Expression phinormalized = parse("(if X = true then 1 else if Y = true then 2 else 3) / sum({{ ( on A in Boolean, B in Boolean ) if A = true then 1 else if B = true then 2 else 3 }})");
 		Expression eval = theory.evaluate(phinormalized, context);
-		println(eval);
+		println("normalizing(" + phinormalized + ") : \n \t :  " +eval);
+		
+		//Testing @isExtremePoint
+		Bounds.isExtremePoint(phi4, 3, setOfFactors, theory, context);
 	}
 }

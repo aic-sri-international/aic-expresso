@@ -2,10 +2,11 @@ package Bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 //import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.cardinality;
+import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.getElements;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.removeNonDestructively;
 import static com.sri.ai.util.Util.println;
 
@@ -17,12 +18,9 @@ import com.sri.ai.expresso.api.ExtensionalSetInterface;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
-//import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
-//import com.sri.ai.util.Util;
-
 
 public class Bounds {
 	// a bound is a set of expressions representing its extreme points
@@ -101,7 +99,7 @@ public class Bounds {
 		
 		DefaultExtensionalUniSet productBound = new DefaultExtensionalUniSet(elements);
 		//Updating extreme points
-		Expression result = updateExtremes(productBound);
+		Expression result = updateExtremes(productBound,theory,context);
 		return result;
 	}
 	
@@ -132,7 +130,7 @@ public class Bounds {
 		}
 		DefaultExtensionalUniSet fOfb = new DefaultExtensionalUniSet(elements);
 		//Updating extreme points
-		Expression result = updateExtremes(fOfb);		
+		Expression result = updateExtremes(fOfb,theory,context);		
 		return result;
 	}
 	
@@ -141,12 +139,12 @@ public class Bounds {
 	 * @param B
 	 * @return 
 	 */
-	private static Expression updateExtremes(Expression B){
-		List<Expression> listOfB = ExtensionalSet.getElements(B);
+	private static Expression updateExtremes(Expression B,Theory theory, Context context){
+		List<Expression> listOfB = getElements(B);
 		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
 		int indexPhi = 0;
 		for(Expression phi : listOfB){
-			if (isExtremePoint(phi,indexPhi,B)){
+			if (isExtremePoint(phi,indexPhi,B,theory,context)){
 				elements.add(phi);
 			}
 			indexPhi++;
@@ -162,22 +160,55 @@ public class Bounds {
 	 * @param bound
 	 * @return
 	 */
-	private static boolean isExtremePoint(Expression phi,int indexPhi, Expression bound){
+	public static boolean isExtremePoint(Expression phi,int indexPhi, Expression bound, Theory theory, Context context){
 		//TODO
+		
 		Expression boundWithoutPhi = removeNonDestructively(bound, indexPhi);//caro pq recopia a lista toda
-		int n = cardinality(boundWithoutPhi);
+		List<Expression> listOfB = getElements(boundWithoutPhi);
+		int n = listOfB.size();
+		
 		Expression[] c = new Expression[n];
 		for(int i = 0;i<n;i++){
-			c[i] = makeSymbol("c" + (i+1));
-		}
-		String formula = "";
-		for(int i = 0;i<n;i++){
-			formula = formula + "there exists c" + i + "in Real : ";
-		}
-		for(int i = 0;i<n;i++){
-			formula = formula + "c" + i + " >= 0 and c" + i + "<= 1 and ";
+			c[i] = makeSymbol("c" + i);
+
+			context = context.extendWithSymbols("c" + i,"Real");
 		}
 		
+		String formula = "";
+		//there exists ci in real
+		for(int i = 0;i<n;i++){
+			formula = formula + "there exists c" + i + " in Real : ";
+		}
+		// 0<=ci<=1
+		for(int i = 0;i<n;i++){
+			formula = formula + "c" + i + " >= 0 and c" + i + " <= 1 and ";
+		}
+		//sum over ci =1
+		for(int i = 0;i<n;i++){
+			formula = formula + "c" + i;
+			if(i != n-1){
+				formula = formula + " + ";
+			}
+			else{
+				formula = formula + " = 1 and ";
+			}
+		}
+		//sum of ci*phi1 = phi
+		int i = 0;
+		for(Expression phii : listOfB){
+			formula = formula + phii + "*c" + i;
+			if(i != n-1){
+				formula = formula + " + ";
+			}
+			else{
+				formula = formula + " = " + phi;
+			}
+			i++;
+		}
+		
+		if(debug) println(formula);
+		//Expression formulaOfExtremePoints = parse(formula);
+		//Expression result = theory.evaluate(formulaOfExtremePoints, context);
 		return true;
 	}	
 }
