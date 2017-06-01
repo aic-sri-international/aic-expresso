@@ -56,9 +56,15 @@ public class VariableComponent {
 					boolean test = false;
 
 					for (FactorComponent c : M.initializeFComponent) {
+<<<<<<< HEAD
 						if (c.phi.equals(e)) {
 							test = true;
 							this.parent.add(c.phi);
+=======
+						if (c.Phi.equals(e)) {
+							test = true;
+							this.parent.add(c.Phi);
+>>>>>>> b0eaa323c4cea79c396dcbcdcd4d68f8e20dfa50
 						}
 					}
 

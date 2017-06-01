@@ -89,8 +89,13 @@ public class Model {
 		}
 		System.out.println("Factor : ");
 		for (FactorComponent p : this.initializeFComponent) {
+<<<<<<< HEAD
 			System.out.println("\t" + p.phi);
 			System.out.println("\t\t" + "Parents" + p.parent);
+=======
+			System.out.println("\t" + p.Phi);
+			System.out.println("\t\t" + "Parents" + p.Parent);
+>>>>>>> b0eaa323c4cea79c396dcbcdcd4d68f8e20dfa50
 			System.out.println("\t\t" + "Dext" + p.Dext);
 			System.out.println("\t\t" + "D" + p.D);
 		}
@@ -100,7 +105,11 @@ public class Model {
 	public Set<Expression> getInitializedFactor() {
 		Set<Expression> res = new HashSet<Expression>();
 		for (FactorComponent f : this.initializeFComponent) {
+<<<<<<< HEAD
 			res.add(f.phi);
+=======
+			res.add(f.Phi);
+>>>>>>> b0eaa323c4cea79c396dcbcdcd4d68f8e20dfa50
 		}
 		return res;
 	}
