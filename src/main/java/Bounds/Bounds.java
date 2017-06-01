@@ -174,6 +174,7 @@ public class Bounds {
 			context = context.extendWithSymbols("c" + i,"Real");
 		}
 		
+		//Building a string with the formula whose satisfiability is returned
 		String formula = "";
 		//there exists ci in real
 		for(int i = 0;i<n;i++){
@@ -196,7 +197,7 @@ public class Bounds {
 		//sum of ci*phi1 = phi
 		int i = 0;
 		for(Expression phii : listOfB){
-			formula = formula + phii + "*c" + i;
+			formula = formula + "(" + phii + ")*c" + i;
 			if(i != n-1){
 				formula = formula + " + ";
 			}
@@ -206,9 +207,9 @@ public class Bounds {
 			i++;
 		}
 		
-		if(debug) println(formula);
-		//Expression formulaOfExtremePoints = parse(formula);
-		//Expression result = theory.evaluate(formulaOfExtremePoints, context);
+		println(formula);
+		Expression formulaOfExtremePoints = parse(formula);
+		Expression result = theory.evaluate(formulaOfExtremePoints, context);
 		return true;
 	}	
 }

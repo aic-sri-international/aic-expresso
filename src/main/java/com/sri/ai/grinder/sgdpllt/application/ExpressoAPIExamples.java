@@ -323,7 +323,7 @@ public class ExpressoAPIExamples {
 		
 		// Now that we have a theory and a context, we can evaluate expressions:
 		println("1 + 0*X + 1  =  " + theory.evaluate(parse("1 + 1"), context));
-		
+		                   
 		evaluate(new String[] {
 				"1 + 1", "2",
 				"X + 1 + 1", "X + 2",
@@ -404,18 +404,16 @@ public class ExpressoAPIExamples {
 		// including some very flexible ones that allow the user to provide a function for determining the replacement.
 
 		// BUG: need to debug
-//		// Here's how to decide if a point is in the convex hull of other two points:
-//		Context convexityContext = trueContext.extendWithSymbols("p", "Real", "p1", "Real", "p2", "Real");
-//		convexityContext = convexityContext.conjoin(parse("p  = 4"));
-//		convexityContext = convexityContext.conjoin(parse("p1 = 3"));
-//		convexityContext = convexityContext.conjoin(parse("p2 = 5"));
-//		Expression isInConvexHull = 
-//				parse("there exists c1 in Real : there exists c2 in Real : "
-//						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and p = c1*3 and c2*5");
-////		parse("there exists c1 in Real : there exists c2 in Real : "
-////				+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and p = c1*p1 and c2*p2");
-//		Expression result = theory.evaluate(isInConvexHull, convexityContext);
-//		println("4 is in the convex hull of 3 and 5: " + result);
+		// Here's how to decide if a point is in the convex hull of other two points:
+		Context convexityContext = context.extendWithSymbols("p", "Real", "p1", "Real", "p2", "Real");
+		//convexityContext = convexityContext.conjoin(parse("p  = 4"));
+		//convexityContext = convexityContext.conjoin(parse("p1 = 3"));
+		//convexityContext = convexityContext.conjoin(parse("p2 = 5"));
+		Expression isInConvexHull = 
+				parse("there exists c1 in Real : there exists c2 in Real : "
+						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and 4 = c1*3 + c2*5");
+		Expression result = theory.evaluate(isInConvexHull, convexityContext);
+		println("4 is in the convex hull of 3 and 5: " + result);
 	}
 
 	/**
