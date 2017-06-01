@@ -20,19 +20,19 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 
 public class Model {
-	public ManyToManyRelation<Expression, Expression> Map;
-	public Set<VariableComponent> InitializeVComponent;
-	public Set<FactorComponent> InitializeFComponent;
+	public ManyToManyRelation<Expression, Expression> map;
+	public Set<VariableComponent> initializeVComponent;
+	public Set<FactorComponent> initializeFComponent;
 
 	public Model(Set<Expression> Factor) {
-		this.Map = new ManyToManyRelation<Expression, Expression>();
-		this.InitializeFComponent = new HashSet<FactorComponent>();
-		this.InitializeVComponent = new HashSet<VariableComponent>();
+		this.map = new ManyToManyRelation<Expression, Expression>();
+		this.initializeFComponent = new HashSet<FactorComponent>();
+		this.initializeVComponent = new HashSet<VariableComponent>();
 
 		Context context = new TrueContext();
 		for (Expression f : Factor) {
 			for (Expression v : Expressions.freeVariables(f, context)) {
-				Map.add(f, v);
+				map.add(f, v);
 			}
 		}
 	}
@@ -52,10 +52,10 @@ public class Model {
 	public Set<Expression> getNeighbors(Expression e) {
 		Set<Expression> res = new HashSet<Expression>();
 		if (e.getFunctor() == null) {
-			res.addAll(Map.getAsOfB(e));
+			res.addAll(map.getAsOfB(e));
 			return res;
 		} else {
-			res.addAll(Map.getBsOfA(e));
+			res.addAll(map.getBsOfA(e));
 			return res;
 		}
 	}
@@ -72,25 +72,25 @@ public class Model {
 	}
 
 	public Collection<Expression> getFactor() {
-		return Map.getAs();
+		return map.getAs();
 	}
 
 	public Collection<Expression> getVariable() {
-		return Map.getBs();
+		return map.getBs();
 	}
 
 	public void printInitialized() {
 		System.out.println("Variables : ");
-		for (VariableComponent v : this.InitializeVComponent) {
+		for (VariableComponent v : this.initializeVComponent) {
 			System.out.println("\t" + v.V);
-			System.out.println("\t\t" + "Parents" + v.Parent);
+			System.out.println("\t\t" + "Parents" + v.parent);
 			System.out.println("\t\t" + "Dext" + v.Dext);
 			System.out.println("\t\t" + "D" + v.D);
 		}
 		System.out.println("Factor : ");
-		for (FactorComponent p : this.InitializeFComponent) {
-			System.out.println("\t" + p.Phi);
-			System.out.println("\t\t" + "Parents" + p.Parent);
+		for (FactorComponent p : this.initializeFComponent) {
+			System.out.println("\t" + p.phi);
+			System.out.println("\t\t" + "Parents" + p.parent);
 			System.out.println("\t\t" + "Dext" + p.Dext);
 			System.out.println("\t\t" + "D" + p.D);
 		}
@@ -99,15 +99,15 @@ public class Model {
 
 	public Set<Expression> getInitializedFactor() {
 		Set<Expression> res = new HashSet<Expression>();
-		for (FactorComponent f : this.InitializeFComponent) {
-			res.add(f.Phi);
+		for (FactorComponent f : this.initializeFComponent) {
+			res.add(f.phi);
 		}
 		return res;
 	}
 
 	public Set<Expression> getInitializedVariable() {
 		Set<Expression> res = new HashSet<Expression>();
-		for (VariableComponent v : this.InitializeVComponent) {
+		for (VariableComponent v : this.initializeVComponent) {
 			res.add(v.V);
 		}
 		return res;
