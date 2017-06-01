@@ -13,6 +13,7 @@ public class VariableComponent {
 	public Model model;
 	public Expression variable;
 	public Set<Expression> parent;
+	public boolean entirelyDiscover;
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
@@ -25,6 +26,7 @@ public class VariableComponent {
 		this.variable = variable;
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
+		this.entirelyDiscover = false;
 		this.phiInsideSubModel = new HashSet<Expression>();
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
@@ -36,6 +38,9 @@ public class VariableComponent {
 		Collection<Expression> S = model.getNeighbors(variable);
 		for (Expression e : this.parent) {
 			S.remove(e);
+		}
+		if (S.isEmpty()){
+			this.entirelyDiscover = true;
 		}
 		S.retainAll(intersection);
 		if (!S.isEmpty()) {
@@ -98,12 +103,21 @@ public class VariableComponent {
 			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 
 		}
+		
+		boolean isChildrenDiscovered = true;
+		for (FactorComponent children : this.children){
+			isChildrenDiscovered = isChildrenDiscovered && children.entirelyDiscover;
+		}
+		this.entirelyDiscover = isChildrenDiscovered;
 	}
 
 	public int choose() {
-		Random rn = new Random();
-		return rn.nextInt(this.children.size());
-		// return 0;
+		for (int j = 0; j<this.children.size(); j++){
+			if (!this.children.get(j).entirelyDiscover){
+				return j;
+			}
+		}
+		return 0;
 	}
 
 	public void print(int tabs) {
@@ -114,6 +128,7 @@ public class VariableComponent {
 		System.out.println(tab + "Variable : " + variable);
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
+		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
 
 		for (FactorComponent c : this.children) {
 			c.print(tabs + 1);

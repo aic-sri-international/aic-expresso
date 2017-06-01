@@ -13,20 +13,46 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 
 public class Examples {
 
+	public static VariableComponent TriangleModel() {
+		Expression func = DefaultSymbol.createSymbol("f");
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression q = DefaultSymbol.createSymbol("Q");
+		
+		Expression f1 = apply(IF_THEN_ELSE, a, q, 5);
+		Expression f2 = apply(IF_THEN_ELSE, b, q, 5);
+		Expression f3 = apply(IF_THEN_ELSE, a, b, 5);
+		
+
+		Expression res = apply(func, q);
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(res);
+
+		Model m = new Model(Factor);
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		return ComponentResultat;
+	}
+	
 	public static VariableComponent DiamondModel() {
 		Expression func = DefaultSymbol.createSymbol("f");
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		Expression e = DefaultSymbol.createSymbol("E");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
 		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95));
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), d, 95));
 		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), e, 5));
 		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
@@ -46,6 +72,80 @@ public class Examples {
 
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
+	}
+	
+	public static VariableComponent TreeModel() {
+		Expression func = DefaultSymbol.createSymbol("f");
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression q = DefaultSymbol.createSymbol("Q");
+
+		Expression trueValue = DefaultSymbol.createSymbol(true);
+		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95));
+		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
+		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
+		
+
+		Expression res = apply(func, q);
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(res);
+
+		Model m = new Model(Factor);
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		return ComponentResultat;
+	}
+	
+	public static VariableComponent DoubleDiamondModel() {
+		Expression func = DefaultSymbol.createSymbol("f");
+
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		Expression e = DefaultSymbol.createSymbol("E");
+		Expression f = DefaultSymbol.createSymbol("F");
+		Expression g = DefaultSymbol.createSymbol("G");
+		Expression q = DefaultSymbol.createSymbol("Q");
+
+		Expression f1 = apply(IF_THEN_ELSE, a, q, 5);
+		Expression f2 = apply(IF_THEN_ELSE, e, q, 5);
+		Expression f3 = apply(IF_THEN_ELSE, g, q, 5);
+		Expression f4 = apply(IF_THEN_ELSE, e, f, 5);
+		Expression f5 = apply(IF_THEN_ELSE, g, f, 5);
+		Expression f6 = apply(IF_THEN_ELSE, b, d, 5);
+		Expression f7 = apply(IF_THEN_ELSE, c, d, 5);
+		Expression f8 = apply(IF_THEN_ELSE, b, a, 5);
+		Expression f9 = apply(IF_THEN_ELSE, c, a, 5);
+		Expression res = apply(func, q);
+
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(f5);
+		Factor.add(f6);
+		Factor.add(f7);
+		Factor.add(f8);
+		Factor.add(f9);
+		Factor.add(res);
+
+		Model m = new Model(Factor);
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		return ComponentResultat;
+
 	}
 
 	public static VariableComponent Model1() {
@@ -148,13 +248,16 @@ public class Examples {
 
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResultat = DiamondModel();
+		VariableComponent ComponentResultat = TriangleModel();
 
-		int nbIter = 10;
+		int nbIter = 0;
 
-		for (int i = 0; i < nbIter; i++) {
+		while(!ComponentResultat.entirelyDiscover) {
 			ComponentResultat.update(new HashSet<Expression>());
+			nbIter ++;
 		}
+		
+		System.out.println("Iteration necessary : " + nbIter);
 
 		ComponentResultat.print(0);
 
