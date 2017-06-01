@@ -1,19 +1,12 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 
 public class FactorComponent {
 
@@ -125,7 +118,7 @@ public class FactorComponent {
 		}
 		return 0;
 	}
-
+	
 	public void print(int tabs) {
 		String tab = new String();
 		for (int i = 0; i < tabs; i++) {

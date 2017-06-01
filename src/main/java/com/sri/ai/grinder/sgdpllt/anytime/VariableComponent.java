@@ -3,7 +3,6 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
