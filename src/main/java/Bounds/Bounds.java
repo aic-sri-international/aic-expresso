@@ -5,6 +5,8 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 //import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.cardinality;
+import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.removeNonDestructively;
 import static com.sri.ai.util.Util.println;
 
 import java.util.ArrayList;
@@ -114,7 +116,7 @@ public class Bounds {
 	 * @param theory
 	 * @param context
 	 * @return {f(\phi) : \phi \in b}
-	 */
+	 */ //TODO : use divide and conquer
 	public static Expression applyFunctionToBound(Expression f, Expression variableName, Expression b, Theory theory, Context context){
 		ExtensionalSetInterface bAsExtensionalSet = (ExtensionalSetInterface) b;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
@@ -142,10 +144,12 @@ public class Bounds {
 	private static Expression updateExtremes(Expression B){
 		List<Expression> listOfB = ExtensionalSet.getElements(B);
 		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
+		int indexPhi = 0;
 		for(Expression phi : listOfB){
-			if (isExtremePoint(phi,B)){
+			if (isExtremePoint(phi,indexPhi,B)){
 				elements.add(phi);
 			}
+			indexPhi++;
 		}
 		DefaultExtensionalUniSet result = new DefaultExtensionalUniSet(elements);
 		return result;
@@ -158,8 +162,22 @@ public class Bounds {
 	 * @param bound
 	 * @return
 	 */
-	private static boolean isExtremePoint(Expression phi, Expression bound){
+	private static boolean isExtremePoint(Expression phi,int indexPhi, Expression bound){
 		//TODO
+		Expression boundWithoutPhi = removeNonDestructively(bound, indexPhi);//caro pq recopia a lista toda
+		int n = cardinality(boundWithoutPhi);
+		Expression[] c = new Expression[n];
+		for(int i = 0;i<n;i++){
+			c[i] = makeSymbol("c" + (i+1));
+		}
+		String formula = "";
+		for(int i = 0;i<n;i++){
+			formula = formula + "there exists c" + i + "in Real : ";
+		}
+		for(int i = 0;i<n;i++){
+			formula = formula + "c" + i + " >= 0 and c" + i + "<= 1 and ";
+		}
+		
 		return true;
 	}	
 }
