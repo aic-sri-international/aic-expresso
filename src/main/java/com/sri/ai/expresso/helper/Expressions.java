@@ -39,6 +39,7 @@ package com.sri.ai.expresso.helper;
 
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
+import static com.sri.ai.util.base.PairOf.pairOf;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +98,7 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.base.SingletonListMaker;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.IntegerIterator;
@@ -442,10 +444,11 @@ public class Expressions {
 	 * to make it unique, according to a given predicate indicating uniqueness.
 	 */
 	public static Expression primedUntilUnique(Expression symbol, Predicate<Expression> isUnique) {
-		while (! isUnique.apply(symbol)) {
-			symbol = Expressions.makeSymbol(symbol + "'");
+		Symbol newSymbol = (Symbol) symbol;
+		while (! isUnique.apply(newSymbol)) {
+			newSymbol = Expressions.makeSymbol(newSymbol + "'");
 		}
-		return symbol;
+		return newSymbol;
 	}
 	
 	/**
@@ -1092,6 +1095,26 @@ public class Expressions {
 		List<Expression> result = mapIntoList(
 				new ZipIterator(argumentIterators),
 				arguments -> apply(functor, arguments));
+		return result;
+	}
+	
+	/**
+	 * Given a symbol, a predicate indicating what symbols are already defined in some situation,
+	 * and an expression possibly containing the symbol,
+	 * prime the symbol until it is unique,
+	 * and return the new symbol and the result of replacing the old symbol by the new in the expression containing it.
+	 * @param symbol
+	 * @param alreadyDefined
+	 * @param containingSymbol
+	 * @return the new symbol and the result of replacing the old symbol by the new in the expression containing it.
+	 */
+	public static PairOf<Expression> standardizeApart(Symbol symbol, Predicate<Expression> alreadyDefined, Expression containingSymbol) {
+		Expression newSymbol = symbol;
+		while (alreadyDefined.apply(newSymbol)) {
+			newSymbol = primedUntilUnique(newSymbol, s -> ! alreadyDefined.apply(s));
+		}
+		Expression newExpressionContainingSymbol = containingSymbol.replaceSymbol(symbol, newSymbol, null);
+		PairOf<Expression> result = pairOf(newSymbol, newExpressionContainingSymbol);
 		return result;
 	}
 }

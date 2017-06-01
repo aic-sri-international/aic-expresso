@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.api;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -54,6 +55,22 @@ import com.sri.ai.expresso.core.DefaultTuple;
 public interface Tuple extends Expression {
 	String TUPLE_LABEL = "( . )";
 	public final static Tuple EMPTY_TUPLE = new DefaultTuple();
+	
+	public static Tuple make(List<Expression> elements) {
+		return new DefaultTuple(elements);
+	}
+	
+	public static Tuple make(Expression... elements) {
+		return new DefaultTuple(Arrays.asList(elements));
+	}
+	
+	public static Tuple tuple(List<Expression> elements) {
+		return make(elements);
+	}
+	
+	public static Tuple tuple(Expression... elements) {
+		return make(Arrays.asList(elements));
+	}
 	
 	/**
 	 * Returns the arguments of a function application expression if this is one.

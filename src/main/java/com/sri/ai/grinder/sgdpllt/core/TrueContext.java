@@ -216,6 +216,11 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
+	public boolean containsSymbol(Expression symbol) {
+		return registry.containsSymbol(symbol);
+	}
+
+	@Override
 	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
 		return registry.getTypeOfRegisteredSymbol(symbol);
 	}

@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
@@ -55,6 +56,7 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.group.Max;
@@ -130,6 +132,14 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 		constraint = constraint.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
+		
+		// nested indices
+		Expression expression = parse("sum({{(on I in 1..2, J in 2..3) sum({{ (on I in 1..10, J in 1..2) I + J : I != J }}) }})");
+		context = new TrueContext(theoryTestingSupport.getTheory());
+		expected = parse("536");
+		Expression actual = theoryTestingSupport.getTheory().evaluate(expression, context);
+		println(actual);
+		assertEquals(expected, actual);
 	}
 	
 	@Test

@@ -31,10 +31,10 @@ public class Main {
 				new PropositionalTheory());
 		
 		Context context = new TrueContext(theory);
-		context = context.extendWithSymbols("A","Boolean");
-		context = context.extendWithSymbols("B","Boolean");
-		context = context.extendWithSymbols("X","Boolean");
-		context = context.extendWithSymbols("Y","Boolean");
+		context = context.extendWithSymbolsAndTypes("A","Boolean");
+		context = context.extendWithSymbolsAndTypes("B","Boolean");
+		context = context.extendWithSymbolsAndTypes("X","Boolean");
+		context = context.extendWithSymbolsAndTypes("Y","Boolean");
 		
 		//Set of numbers
 		Expression one   = DefaultSymbol.createSymbol(1);
@@ -68,7 +68,7 @@ public class Main {
 		println("normal(setNum) : " + Bounds.normalize(setOFNumbers, theory, context));
 		
 		//Testing normalization operation renaming variables
-		Expression phinormalized = parse("(if X = true then 1 else if Y = true then 2 else 3) / sum({{ ( on A in Boolean, B in Boolean ) if A = true then 1 else if B = true then 2 else 3 }})");
+		Expression phinormalized = parse("(if A = true then 1 else if B = true then 2 else 3) / sum({{ ( on A in Boolean, B in Boolean ) if A = true then 1 else if B = true then 2 else 3 }})");
 		Expression eval = theory.evaluate(phinormalized, context);
 		println("normalizing(" + phinormalized + ") : \n \t :  " +eval);
 		
