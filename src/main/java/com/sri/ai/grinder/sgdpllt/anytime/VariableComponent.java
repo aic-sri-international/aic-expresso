@@ -157,16 +157,17 @@ public class VariableComponent {
 		
 		for(FactorComponent children : this.children){
 			childrenMessage = apply(TIMES, childrenMessage, children.calculate());
+			childrenMessage = theory.evaluate(childrenMessage, context);
 		}
 		
 		
 		for (Expression cutset : this.cutsetInsideSubModel){
-			System.out.println(childrenMessage);
 			childrenMessage = theory.evaluate(childrenMessage, context);
-			childrenMessage = parse("{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
+			childrenMessage = parse("sum{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
 		}
 
 		System.out.println("Return calculation of " + this.variable);
+		System.out.println("Computed expression :" + childrenMessage);
 		System.out.println(theory.evaluate(childrenMessage, context));
 		return 	theory.evaluate(childrenMessage, context);
 

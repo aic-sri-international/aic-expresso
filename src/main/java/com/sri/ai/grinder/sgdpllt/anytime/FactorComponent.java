@@ -155,7 +155,8 @@ public class FactorComponent {
 		
 		
 		for (Expression cutset : this.cutsetInsideSubModel){
-			childrenMessage = parse("{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
+			childrenMessage = parse("sum{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
+			childrenMessage = theory.evaluate(childrenMessage, context);
 		}
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
@@ -164,14 +165,16 @@ public class FactorComponent {
 		}
 		toSum.removeAll(this.cutsetOutsideSubModel);
 		toSum.removeAll(this.cutsetInsideSubModel);
-		System.out.println(toSum);
 		
 		for (Expression variableToSum : toSum){
+			System.out.println(variableToSum);
 			childrenMessage = theory.evaluate(childrenMessage, context);
-			childrenMessage = parse("{{(on " + variableToSum + " in Boolean ) " + childrenMessage + " }})");
+			System.out.println(childrenMessage);
+			childrenMessage = parse("sum{{(on " + variableToSum + " in Boolean ) " + childrenMessage + " }})");
 		}
 
 		System.out.println("Return calculation of " + this.phi);
+		System.out.println("Computed expression :" + childrenMessage);
 		System.out.println(theory.evaluate(childrenMessage, context));
 		return 	theory.evaluate(childrenMessage, context);
 
