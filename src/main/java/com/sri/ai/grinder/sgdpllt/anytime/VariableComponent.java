@@ -9,7 +9,7 @@ import java.util.Set;
 import com.sri.ai.expresso.api.Expression;
 
 public class VariableComponent {
-	
+
 	public Model M;
 	public Expression V;
 	public Set<Expression> Parent;
@@ -18,9 +18,8 @@ public class VariableComponent {
 	public Set<Expression> D;
 	public Set<Expression> B;
 	public Set<Expression> Pint;
-	
-	
-	public VariableComponent(Expression V, Expression Parent, Model M, Set<Expression> Pext){
+
+	public VariableComponent(Expression V, Expression Parent, Model M, Set<Expression> Pext) {
 
 		this.M = M;
 		this.V = V;
@@ -31,66 +30,58 @@ public class VariableComponent {
 		this.D = new HashSet<Expression>();
 		this.Dext = new HashSet<Expression>();
 		this.B = new HashSet<Expression>();
-		
+
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(M.getNeighborsOfSet(M.getInitializedVariable()));
 		Collection<Expression> S = M.getNeighbors(V);
-		for (Expression e : this.Parent){
+		for (Expression e : this.Parent) {
 			S.remove(e);
 		}
 		S.retainAll(intersection);
-		if(!S.isEmpty()){
+		if (!S.isEmpty()) {
 			this.Dext.add(V);
 		}
-		
+
 		M.InitializeVComponent.add(this);
 
-		
-		// this.B = 
+		// this.B =
 	}
-	
-	public void update(Set<Expression> Pext){
-		
 
-		
-		if (this.children.isEmpty()){
-			for (Expression e : this.M.getNeighbors(V)){
-				if (!this.Parent.contains(e)){
-					
+	public void update(Set<Expression> Pext) {
+
+		if (this.children.isEmpty()) {
+			for (Expression e : this.M.getNeighbors(V)) {
+				if (!this.Parent.contains(e)) {
+
 					boolean test = false;
-					
-					
-					for(FactorComponent c : M.InitializeFComponent){
-						if (c.Phi.equals(e)){
+
+					for (FactorComponent c : M.InitializeFComponent) {
+						if (c.Phi.equals(e)) {
 							test = true;
 							this.Parent.add(c.Phi);
 						}
 					}
-					
-					if (test == false){
+
+					if (test == false) {
 						FactorComponent newC = new FactorComponent(e, V, M, Pext);
 						this.children.add(newC);
 						Set<Expression> intersection = new HashSet<Expression>();
 						intersection.addAll(newC.Dext);
 						intersection.retainAll(M.getNeighborsOfSet(Pext));
-						
+
 						Dext.addAll(intersection);
 
-					
 						D.addAll(newC.Dext);
 					}
-					
-					
-					
+
 				}
 			}
 
 			D.removeAll(Dext);
-		}
-		else{
+		} else {
 			int j = this.choose();
-			Set<Expression> union = new HashSet<Expression>(Pext); 
-			for (int i = 0; i < this.children.size(); i++){
+			Set<Expression> union = new HashSet<Expression>(Pext);
+			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).Pint);
 			}
 			this.children.get(j).update(union);
@@ -98,36 +89,34 @@ public class VariableComponent {
 			Set<Expression> intersection = new HashSet<Expression>();
 			intersection.addAll(this.children.get(j).Dext);
 			intersection.retainAll(M.getNeighborsOfSet(Pext));
-			
+
 			Dext.addAll(intersection);
 
-		
 			D.addAll(this.children.get(j).Dext);
 			D.removeAll(Dext);
-		
-		
+
 			Pint.addAll(this.children.get(j).Pint);
-		
+
 			// B = sum_{D} product Bk
 		}
 	}
-	
-	public int choose(){
+
+	public int choose() {
 		Random rn = new Random();
 		return rn.nextInt(this.children.size());
-		//return 0;
+		// return 0;
 	}
 
-	public void print(int tabs){
+	public void print(int tabs) {
 		String tab = new String();
-		for (int i = 0; i<tabs; i++){
+		for (int i = 0; i < tabs; i++) {
 			tab += "\t";
 		}
 		System.out.println(tab + "Variable : " + V);
 		System.out.println(tab + "Dext : " + Dext);
 		System.out.println(tab + "D : " + D);
-		
-		for (FactorComponent c : this.children){
+
+		for (FactorComponent c : this.children) {
 			c.print(tabs + 1);
 		}
 

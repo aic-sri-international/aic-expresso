@@ -28,7 +28,6 @@ public class FactorComponent {
 
 	public FactorComponent(Expression Phi, Expression Parent, Model M, Set<Expression> Pext) {
 
-		
 		this.Pint = new HashSet<Expression>();
 		this.M = M;
 		this.children = new ArrayList<VariableComponent>();
@@ -41,11 +40,11 @@ public class FactorComponent {
 
 		this.Phi = Phi;
 		this.Pint.add(Phi);
-		
+
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(M.getNeighborsOfSet(M.getInitializedFactor()));
 		Collection<Expression> S = M.getNeighbors(Phi);
-		for (Expression e : this.Parent){
+		for (Expression e : this.Parent) {
 			S.remove(e);
 		}
 		S.retainAll(intersection);
@@ -53,36 +52,31 @@ public class FactorComponent {
 		M.InitializeFComponent.add(this);
 
 	}
-	
-	
-	
+
 	public void update(Set<Expression> Pext) {
-		
+
 		if (this.children.isEmpty()) {
 			for (Expression e : this.M.getNeighbors(Phi)) {
 				if (!this.Parent.contains(e)) {
 					Set<Expression> union = new HashSet<Expression>(Pext);
 					union.add(Phi);
-					
-					
+
 					boolean test = false;
-					
-					
-					for(VariableComponent c : M.InitializeVComponent){
-						if (c.V.equals(e)){
+
+					for (VariableComponent c : M.InitializeVComponent) {
+						if (c.V.equals(e)) {
 							test = true;
 							this.Parent.add(c.V);
 						}
 					}
-					
-					if (test == false){
+
+					if (test == false) {
 						VariableComponent newV = new VariableComponent(e, Phi, M, union);
 						this.children.add(newV);
 						Set<Expression> intersection = new HashSet<Expression>(newV.Dext);
 						intersection.retainAll(M.getNeighborsOfSet(Pext));
 						Dext.addAll(intersection);
-						
-						
+
 						D.addAll(newV.Dext);
 					}
 				}
@@ -100,139 +94,35 @@ public class FactorComponent {
 			Set<Expression> intersection = new HashSet<Expression>(this.children.get(j).Dext);
 			intersection.retainAll(M.getNeighborsOfSet(Pext));
 			Dext.addAll(intersection);
-			
-			
+
 			D.addAll(this.children.get(j).Dext);
 			D.removeAll(Dext);
 
 			Pint.addAll(this.children.get(j).Pint);
 
-			// B = 
+			// B =
 		}
 	}
 
 	public int choose() {
 		Random rn = new Random();
 		return rn.nextInt(this.children.size());
-		//return 0;
+		// return 0;
 	}
 
-	public void print(int tabs){
+	public void print(int tabs) {
 		String tab = new String();
-		for (int i = 0; i<tabs; i++){
+		for (int i = 0; i < tabs; i++) {
 			tab += "\t";
 		}
 		System.out.println(tab + "Factor : " + Phi);
 		System.out.println(tab + "Dext : " + Dext);
 		System.out.println(tab + "D : " + D);
-		
-		for (VariableComponent c : this.children){
+
+		for (VariableComponent c : this.children) {
 			c.print(tabs + 1);
 		}
 
 	}
-	
-	public static void main(String[] args) {
 
-		/* 
-		
-		// First Model with 1 loop
-		  
-		Expression func = DefaultSymbol.createSymbol("f");
-		
-		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
-		Expression f = DefaultSymbol.createSymbol("F");
-		Expression g = DefaultSymbol.createSymbol("G");
-		Expression q = DefaultSymbol.createSymbol("Q");
-
-		Expression f1 = apply(IF_THEN_ELSE, a, q, d);
-		Expression f2 = apply(IF_THEN_ELSE, b, q, g);
-		Expression f3 = apply(IF_THEN_ELSE, b, f, c);
-		Expression f4 = apply(IF_THEN_ELSE, c, a, e);
-		Expression res = apply(func, q);
-
-		Set<Expression> Factor = new HashSet<Expression>();
-		Factor.add(f1);
-		Factor.add(f2);
-		Factor.add(f3);
-		Factor.add(f4);
-		Factor.add(res);*/
-		
-		/*//Second model with 2 loops
-	
-		Expression func = DefaultSymbol.createSymbol("f");
-		
-		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
-		Expression f = DefaultSymbol.createSymbol("F");
-		Expression q = DefaultSymbol.createSymbol("Q");
-
-		Expression f1 = apply(IF_THEN_ELSE, a, q, b);
-		Expression f2 = apply(IF_THEN_ELSE, b, a, e);
-		Expression f3 = apply(IF_THEN_ELSE, a, d, c);
-		Expression f4 = apply(IF_THEN_ELSE, d, e, f);
-		Expression res = apply(func, q);
-
-		Set<Expression> Factor = new HashSet<Expression>();
-		Factor.add(f1);
-		Factor.add(f2);
-		Factor.add(f3);
-		Factor.add(f4);
-		Factor.add(res);
-		
-		*/
-		
-		// Third model with local loops
-		
-		Expression func = DefaultSymbol.createSymbol("f");
-		
-		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
-		Expression f = DefaultSymbol.createSymbol("F");
-		Expression g = DefaultSymbol.createSymbol("G");
-		Expression h = DefaultSymbol.createSymbol("H");
-		Expression q = DefaultSymbol.createSymbol("Q");
-
-		Expression f1 = apply(IF_THEN_ELSE, q, a, b);
-		Expression f2 = apply(IF_THEN_ELSE, a, b, c);
-		Expression f3 = apply(IF_THEN_ELSE, c, d, e);
-		Expression f4 = apply(IF_THEN_ELSE, e, f, g);
-		Expression f5 = apply(IF_THEN_ELSE, f, g, h);
-		Expression res = apply(func, q);
-
-		Set<Expression> Factor = new HashSet<Expression>();
-		Factor.add(f1);
-		Factor.add(f2);
-		Factor.add(f3);
-		Factor.add(f4);
-		Factor.add(f5);
-		Factor.add(res);
-
-		Model m = new Model(Factor);
-
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>() );
-		
-		int nbIter = 30;
-		
-		for (int i = 0; i<nbIter; i++){
-			ComponentResultat.update(new HashSet<Expression>());
-			System.out.println("Niveau " + i);
-			System.out.println(" ");
-			ComponentResultat.M.printInitialized();
-			System.out.println(" ");
-			System.out.println(" ");
-		}
-		
-		ComponentResultat.print(0);
-	}
 }
