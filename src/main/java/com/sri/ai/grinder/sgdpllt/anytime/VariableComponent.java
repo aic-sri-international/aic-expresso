@@ -12,7 +12,7 @@ public class VariableComponent {
 
 	public Model M;
 	public Expression V;
-	public Set<Expression> Parent;
+	public Set<Expression> parent;
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> Dext;
 	public Set<Expression> D;
@@ -23,8 +23,8 @@ public class VariableComponent {
 
 		this.M = M;
 		this.V = V;
-		this.Parent = new HashSet<Expression>();
-		this.Parent.add(Parent);
+		this.parent = new HashSet<Expression>();
+		this.parent.add(Parent);
 		this.Pint = new HashSet<Expression>();
 		this.children = new ArrayList<FactorComponent>();
 		this.D = new HashSet<Expression>();
@@ -34,7 +34,7 @@ public class VariableComponent {
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(M.getNeighborsOfSet(M.getInitializedVariable()));
 		Collection<Expression> S = M.getNeighbors(V);
-		for (Expression e : this.Parent) {
+		for (Expression e : this.parent) {
 			S.remove(e);
 		}
 		S.retainAll(intersection);
@@ -42,7 +42,7 @@ public class VariableComponent {
 			this.Dext.add(V);
 		}
 
-		M.InitializeVComponent.add(this);
+		M.initializeVComponent.add(this);
 
 		// this.B =
 	}
@@ -51,14 +51,14 @@ public class VariableComponent {
 
 		if (this.children.isEmpty()) {
 			for (Expression e : this.M.getNeighbors(V)) {
-				if (!this.Parent.contains(e)) {
+				if (!this.parent.contains(e)) {
 
 					boolean test = false;
 
-					for (FactorComponent c : M.InitializeFComponent) {
+					for (FactorComponent c : M.initializeFComponent) {
 						if (c.Phi.equals(e)) {
 							test = true;
-							this.Parent.add(c.Phi);
+							this.parent.add(c.Phi);
 						}
 					}
 

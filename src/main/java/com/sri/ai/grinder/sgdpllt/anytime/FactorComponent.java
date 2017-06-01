@@ -49,7 +49,7 @@ public class FactorComponent {
 		}
 		S.retainAll(intersection);
 		this.Dext.addAll(S);
-		M.InitializeFComponent.add(this);
+		M.initializeFComponent.add(this);
 
 	}
 
@@ -63,7 +63,7 @@ public class FactorComponent {
 
 					boolean test = false;
 
-					for (VariableComponent c : M.InitializeVComponent) {
+					for (VariableComponent c : M.initializeVComponent) {
 						if (c.V.equals(e)) {
 							test = true;
 							this.Parent.add(c.V);
