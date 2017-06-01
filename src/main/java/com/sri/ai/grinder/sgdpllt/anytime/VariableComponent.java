@@ -163,5 +163,10 @@ public class VariableComponent {
 		return 	theory.evaluate(childrenMessage, context);
 
 	}
+
+	public Expression naiveCalcul(){
+		String string = "(" + this.model.naiveCalculation(this.variable) + ")/sum({{ (on "  + this.variable + " in Boolean) " + this.model.naiveCalculation(this.variable) + " }})";
+		return this.model.theory.evaluate(parse(string), this.model.context);
+	}
 	
 }

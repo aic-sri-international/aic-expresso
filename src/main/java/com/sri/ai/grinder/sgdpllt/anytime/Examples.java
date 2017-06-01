@@ -291,7 +291,7 @@ public class Examples {
 
 	public static void main(String[] args) {
 			
-		VariableComponent ComponentResultat = DiamondModel();
+		VariableComponent ComponentResultat = TreeModel();
 		int nbIter = 0;
 		ComponentResultat.model.context = ComponentResultat.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
 		while(!ComponentResultat.entirelyDiscover) {
@@ -301,15 +301,16 @@ public class Examples {
 		
 		System.out.println("Iteration necessary : " + nbIter);
 
-		ComponentResultat.print(0);
+		//ComponentResultat.print(0);
 		Expression unnormalizedMessage = ComponentResultat.calculate();
 		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
-		println(string);
 		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
 		System.out.println(" ");
 		System.out.println(" ");
 		System.out.println(" ");
 		System.out.println(normalizedMessage);
+		Expression naiveResult = ComponentResultat.naiveCalcul();
+		System.out.println(naiveResult);
 	}
 
 }

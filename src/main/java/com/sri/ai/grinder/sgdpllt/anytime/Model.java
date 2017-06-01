@@ -3,13 +3,16 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 import com.sri.ai.util.collect.ManyToManyRelation;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
-
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -115,5 +118,26 @@ public class Model {
 			variableSet.add(variable.variable);
 		}
 		return variableSet;
+	}
+	
+	public Expression naiveCalculation(Expression query){
+
+		Expression func = DefaultSymbol.createSymbol("f");
+		Expression factorProduct = parse("1");
+		Expression initialFactor = apply(func, query);
+		
+		for (Expression factor : this.getFactor()){
+			if (!factor.equals(initialFactor)){
+				factorProduct = apply(TIMES, factor, factorProduct);
+			}
+		}
+		Expression summedProduct = factorProduct;
+		for (Expression variable : this.getVariable()){
+			if (variable != query){
+				String str = "sum({{ (on " + variable + " in Boolean ) " + summedProduct + " }})";
+				summedProduct = theory.evaluate(parse(str), context);
+			}
+		}
+		return summedProduct;
 	}
 }
