@@ -52,19 +52,16 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.set;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.UniquelyNamedConstantAreAllSymbolsNotIn;
-import com.sri.ai.grinder.helper.UniquelyNamedConstantIncludingBooleansAndNumbersPredicate;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
@@ -334,7 +331,7 @@ public class ExpressoAPIExamples {
 		
 		// now let us assume we have a free variable J which is an integer
 		// Contexts are, like expressions, also IMMUTABLE:
-		Context context2 = context.extendWithSymbols("J", "Integer");
+		Context context2 = context.extendWithSymbolsAndTypes("J", "Integer");
 		// However, here we just want to use the same variable 'context' all along, so we keep the updated context in it:
 		context = context2;
 		// Because we store the reference to the modified context in the same variable, we lose the reference to the original one,
@@ -357,7 +354,7 @@ public class ExpressoAPIExamples {
 		}, theory, context);
 
 		// we now add another symbol and constraint
-		context = context.extendWithSymbols("K", "Integer");
+		context = context.extendWithSymbolsAndTypes("K", "Integer");
 		context = context.conjoin(parse("K > 0"));
 		evaluate(new String[] {
 				"J < K", "true",

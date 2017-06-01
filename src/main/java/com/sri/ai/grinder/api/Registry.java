@@ -37,9 +37,8 @@
  */
 package com.sri.ai.grinder.api;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.list;
+import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.grinder.helper.GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +51,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
@@ -170,29 +168,22 @@ public interface Registry extends Cloneable {
 	 */
 	default Registry extendWithSymbolsAndTypes(Expression... symbolsAndTypes) {
 		Util.myAssert(symbolsAndTypes.length % 2 == 0, () -> "Need to extend registry with a sequence of symbols and their types");
-		List<Expression> indexExpressions = list();
-		for (int i = 0; i != symbolsAndTypes.length/2; i++) {
-			Expression indexExpression = apply(FunctorConstants.IN, symbolsAndTypes[2*i], symbolsAndTypes[2*i + 1]);
-			indexExpressions.add(indexExpression);
-		}
+		List<Expression> indexExpressions = makeIndexExpressionsFromSymbolsAndTypes(symbolsAndTypes);
 		Registry result = extendWith(new ExtensionalIndexExpressionsSet(indexExpressions));
 		return result;
 	}
-	
+
 	/**
 	 * Extends with pairs of symbols and their respective types represented as strings.
 	 * @param symbolsAndTypes
 	 * @return
 	 */
-	default Registry extendWithSymbols(String... symbolsAndTypes) {
-		Expression symbolsAndTypesExpressions[] = new Expression[symbolsAndTypes.length];
-		for (int i = 0; i != symbolsAndTypes.length; i++) {
-			symbolsAndTypesExpressions[i] = parse(symbolsAndTypes[i]);
-		}
+	default Registry extendWithSymbolsAndTypes(String... symbolsAndTypes) {
+		Expression[] symbolsAndTypesExpressions = makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(symbolsAndTypes);
 		Registry result = extendWithSymbolsAndTypes(symbolsAndTypesExpressions);
 		return result;
 	}
-	
+
 	/**
 	 * Extends the registry with the given index expressions.
 	 * @param indexExpressions

@@ -17,6 +17,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.util.Util;
@@ -50,6 +51,13 @@ public class IndexExpressions {
 					indexExpressionsList,
 					Expressions.makeSymbol("in"),
 					new Null<Expression, Expression>());
+		return result;
+	}
+	
+	public static ExtensionalIndexExpressionsSet makeExtensionalIndexExpressionsSetFromSymbolsAndTypesStrings(String...symbolsAndTypes) {
+		Expression[] symbolsAndTypesExpressions = GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(symbolsAndTypes);
+		List<Expression> indexExpressions = GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes(symbolsAndTypesExpressions);
+		ExtensionalIndexExpressionsSet result = new ExtensionalIndexExpressionsSet(indexExpressions);
 		return result;
 	}
 

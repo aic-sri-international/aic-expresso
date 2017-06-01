@@ -130,6 +130,33 @@ import com.sri.ai.util.math.Rational;
 public class GrinderUtil {
 
 	/**
+	 * Makes a list of expressions representing symbols and their types from a list of their strings.
+	 * @param symbolsAndTypes
+	 * @return
+	 */
+	public static Expression[] makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(String... symbolsAndTypes) {
+		Expression symbolsAndTypesExpressions[] = new Expression[symbolsAndTypes.length];
+		for (int i = 0; i != symbolsAndTypes.length; i++) {
+			symbolsAndTypesExpressions[i] = parse(symbolsAndTypes[i]);
+		}
+		return symbolsAndTypesExpressions;
+	}
+	
+	/**
+	 * Makes list of index expressions from symbols and types.
+	 * @param symbolsAndTypes
+	 * @return
+	 */
+	public static List<Expression> makeIndexExpressionsFromSymbolsAndTypes(Expression... symbolsAndTypes) {
+		List<Expression> indexExpressions = list();
+		for (int i = 0; i != symbolsAndTypes.length/2; i++) {
+			Expression indexExpression = apply(FunctorConstants.IN, symbolsAndTypes[2*i], symbolsAndTypes[2*i + 1]);
+			indexExpressions.add(indexExpression);
+		}
+		return indexExpressions;
+	}
+	
+	/**
 	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the registry, if any.
 	 */
 	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, Registry registry) {

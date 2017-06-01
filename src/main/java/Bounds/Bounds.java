@@ -2,7 +2,6 @@ package Bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 //import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
@@ -171,7 +170,7 @@ public class Bounds {
 		for(int i = 0;i<n;i++){
 			c[i] = makeSymbol("c" + i);
 
-			context = context.extendWithSymbols("c" + i,"Real");
+			context = context.extendWithSymbolsAndTypes("c" + i,"Real");
 		}
 		
 		String formula = "";

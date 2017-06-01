@@ -1,5 +1,7 @@
 package com.sri.ai.grinder.sgdpllt.api;
 
+import static com.sri.ai.expresso.api.Tuple.tuple;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.core.SGDPLLTUtil;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.base.Triple;
 
 /**
  * Interface to classes able to eliminate quantification (for a fixed group) over given indices, constraint and body.
@@ -27,7 +30,14 @@ public interface MultiIndexQuantifierEliminator {
 			Expression body,
 			Context context) {
 
-		context = context.extendWith(indexExpressions);
+		Triple<Context, ExtensionalIndexExpressionsSet, Expression> extension
+		= context.extendWith(indexExpressions, tuple(indicesCondition, body));
+		context = extension.first;
+		indexExpressions = extension.second;
+		indicesCondition = extension.third.get(0);
+		body = extension.third.get(1);
+		
+//		context = context.extendWith(indexExpressions);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Expression quantifierFreeExpression = solve(group, indices, indicesCondition, body, context);
 		return quantifierFreeExpression;

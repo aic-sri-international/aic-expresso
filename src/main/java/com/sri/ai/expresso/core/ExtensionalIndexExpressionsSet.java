@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.grinder.helper.GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
@@ -76,8 +78,15 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet, Seri
 		this(Arrays.asList(indexExpressions));
 	}
 	
+	public ExtensionalIndexExpressionsSet(String... symbolsAndTypesStrings) {
+		this(
+				makeIndexExpressionsFromSymbolsAndTypes(
+						makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(
+								symbolsAndTypesStrings)));
+	}
+	
 	public List<Expression> getList() {
-		return list;
+		return Collections.unmodifiableList(list);
 	}
 
 	@Override
@@ -105,6 +114,23 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet, Seri
 			newIndexExpressions = this;
 		}
 		return newIndexExpressions;
+	}
+	
+	@Override
+	public boolean equals(Object another) {
+		boolean result;
+		if (another instanceof ExtensionalIndexExpressionsSet) {
+			result = list.equals(((ExtensionalIndexExpressionsSet) another).list);
+		}
+		else {
+			result = false;
+		}
+		return result;
+	}
+	
+	@Override
+	public int hashCode() {
+		return list.hashCode();
 	}
 	
 	@Override

@@ -7,7 +7,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
