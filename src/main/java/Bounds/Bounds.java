@@ -240,7 +240,7 @@ public class Bounds {
 		Expression body = apply(AND, allcibetwen0And1, sumOverCiEqualsOne, convexSum);
 		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal,body);
 		
-		println(isExtreme);
+		if (debug) println(isExtreme);
 		//Expression result = theory.evaluate(isExtreme, context);
 		return true;
 	}	
