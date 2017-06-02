@@ -2,65 +2,19 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
+import static com.sri.ai.util.Util.println;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
-
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
-
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
-import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.println;
-import static com.sri.ai.util.Util.set;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
-import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.helper.UniquelyNamedConstantAreAllSymbolsNotIn;
-import com.sri.ai.grinder.helper.UniquelyNamedConstantIncludingBooleansAndNumbersPredicate;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.Equality;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.util.Util;
+
 public class Examples {
 
 	public static VariableComponent TriangleModel() {
@@ -107,6 +61,8 @@ public class Examples {
 		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
+		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
+				1,0);
 
 		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
@@ -114,6 +70,45 @@ public class Examples {
 		Factor.add(f2);
 		Factor.add(f3);
 		Factor.add(f4);
+		Factor.add(f5);
+		Factor.add(res);
+
+		Model m = new Model(Factor);
+
+		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		return ComponentResultat;
+	}
+	
+
+	public static VariableComponent BasicBayesianLoopyModel() {
+		Expression func = DefaultSymbol.createSymbol("f");
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression q = DefaultSymbol.createSymbol("Q");
+		
+		Expression trueValue = DefaultSymbol.createSymbol(true);
+		
+		Expression f1 = IfThenElse.make(apply(EQUAL, q, trueValue), IfThenElse.make(a, parse("0.1"), parse("0.9")), IfThenElse.make(a, parse("0.9"), parse("0.1")));
+		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
+		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
+		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
+		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
+				1,0);
+
+		Expression res = apply(func, q);
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(f5);
 		Factor.add(res);
 
 		Model m = new Model(Factor);
@@ -295,19 +290,10 @@ public class Examples {
 	}
 
 	public static void main(String[] args) {
-		
-
-		Theory theory = new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, false),
-				new LinearRealArithmeticTheory(false, false),
-				new TupleTheory(),
-				new PropositionalTheory());
-		Context context = new TrueContext(theory);			
-		context = context.add(BOOLEAN_TYPE);		
-		VariableComponent ComponentResultat = DiamondModel();
+			
+		VariableComponent ComponentResultat = TreeModel();
 		int nbIter = 0;
-
+		ComponentResultat.model.context = ComponentResultat.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
 		while(!ComponentResultat.entirelyDiscover) {
 			ComponentResultat.update(new HashSet<Expression>());
 			nbIter ++;
@@ -315,8 +301,16 @@ public class Examples {
 		
 		System.out.println("Iteration necessary : " + nbIter);
 
-		ComponentResultat.print(0);
-		ComponentResultat.calculate();
+		//ComponentResultat.print(0);
+		Expression unnormalizedMessage = ComponentResultat.calculate();
+		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
+		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
+		System.out.println(" ");
+		System.out.println(" ");
+		System.out.println(" ");
+		System.out.println(normalizedMessage);
+		Expression naiveResult = ComponentResultat.naiveCalcul();
+		System.out.println(naiveResult);
 	}
 
 }

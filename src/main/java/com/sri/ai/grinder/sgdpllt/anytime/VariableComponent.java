@@ -1,6 +1,6 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
+
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
@@ -13,13 +13,6 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 public class VariableComponent {
 
@@ -163,14 +156,17 @@ public class VariableComponent {
 		
 		for (Expression cutset : this.cutsetInsideSubModel){
 			childrenMessage = theory.evaluate(childrenMessage, context);
-			childrenMessage = parse("sum{{(on " + cutset + " in Boolean ) " + childrenMessage + " }})");
+			String str = "sum({{ (on " + cutset + " in Boolean ) " + childrenMessage + " }})";
+			childrenMessage = parse(str);
 		}
-
-		System.out.println("Return calculation of " + this.variable);
-		System.out.println("Computed expression :" + childrenMessage);
-		System.out.println(theory.evaluate(childrenMessage, context));
+		
 		return 	theory.evaluate(childrenMessage, context);
 
+	}
+
+	public Expression naiveCalcul(){
+		String string = "(" + this.model.naiveCalculation(this.variable) + ")/sum({{ (on "  + this.variable + " in Boolean) " + this.model.naiveCalculation(this.variable) + " }})";
+		return this.model.theory.evaluate(parse(string), this.model.context);
 	}
 	
 }

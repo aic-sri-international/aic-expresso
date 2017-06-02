@@ -67,6 +67,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -328,6 +329,8 @@ public class ExpressoAPIExamples {
 				"product({{ (on I in 1..5) 2 : I != 3 and I != 5 }})", "8",
 				// see many more examples in SymbolicShell.java
 		}, theory, context);
+		
+		
 		
 		// now let us assume we have a free variable J which is an integer
 		// Contexts are, like expressions, also IMMUTABLE:
