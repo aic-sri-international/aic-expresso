@@ -1,4 +1,4 @@
-package Bounds;
+package com.sri.ai.grinder.sgdpllt.library.bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -138,11 +138,12 @@ public class Bounds {
 	}*/
 	
 	/**
-	 * apply a function to each term of a bound
+	 * apply a function (f) to each term of a bound (b) 
 	 * @param f 
 	 * 			function to be applied to the factors
 	 * @param variableName
-	 * 			The variable in f to be replaced by phi (for each phi in b)
+	 * 			The variable in f to be replaced by phi (for each phi in b). 
+	 * 			If if is a function of the variable v, VariableName is v
 	 * @param b
 	 * 			Bound
 	 * @param theory
@@ -188,7 +189,7 @@ public class Bounds {
 	}
 	
 	/**
-	 * checks if \phi is a convex combination of the elements in bound
+	 * Checks if \phi is a convex combination of the elements in bound
 	 * @param phi
 	 * 			factor
 	 * @param bound
