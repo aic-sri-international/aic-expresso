@@ -3,15 +3,21 @@ package Bounds;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
-import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.cardinality;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.getElements;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.removeNonDestructively;
 import static com.sri.ai.util.Util.println;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,7 +25,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExtensionalSetInterface;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
@@ -200,41 +208,41 @@ public class Bounds {
 			context = context.extendWithSymbolsAndTypes("c" + i,"Real");
 		}
 		
-		String formula = "";
-		//there exists ci in real
-		for(int i = 0;i<n;i++){
-			formula = formula + "there exists c" + i + " in Real : ";
-		}
 		// 0<=ci<=1
+		ArrayList<Expression> listOfC = new ArrayList<>(listOfB.size());
 		for(int i = 0;i<n;i++){
-			formula = formula + "c" + i + " >= 0 and c" + i + " <= 1 and ";
+			Expression cibetwen0And1 = 
+					apply(AND,apply(GREATER_THAN_OR_EQUAL_TO,1,c[i]),
+							  apply(GREATER_THAN_OR_EQUAL_TO,c[i],0)
+						  );
+			listOfC.add(cibetwen0And1);
 		}
+		Expression allcibetwen0And1 = apply(AND, listOfC);
+		
 		//sum over ci =1
-		for(int i = 0;i<n;i++){
-			formula = formula + "c" + i;
-			if(i != n-1){
-				formula = formula + " + ";
-			}
-			else{
-				formula = formula + " = 1 and ";
-			}
-		}
+		listOfC = new ArrayList<>(Arrays.asList(c));
+		Expression sumOverCiEqualsOne = apply(EQUAL,1,apply(SUM,listOfC));
+
 		//sum of ci*phi1 = phi
+		ArrayList<Expression> prodciphii = new ArrayList<>(listOfB.size());
 		int i = 0;
 		for(Expression phii : listOfB){
-			formula = formula + "(" + phii + ")*c" + i;
-			if(i != n-1){
-				formula = formula + " + ";
-			}
-			else{
-				formula = formula + " = " + phi;
-			}
+			prodciphii.add(apply(TIMES,phii,c[i]));
 			i++;
 		}
+		Expression convexSum = apply(EQUAL,phi,apply(SUM, prodciphii));
 		
-		//println(formula);
-		//Expression formulaOfExtremePoints = parse(formula);
-		//Expression result = theory.evaluate(formulaOfExtremePoints, context);
+		ArrayList<Expression> listOfCiInReal = new ArrayList<>(listOfB.size());
+		for(i = 0; i <n; i++){
+			listOfCiInReal.add(apply(IN,c[i],"Real"));
+		}
+		IndexExpressionsSet thereExistsCiInReal = new ExtensionalIndexExpressionsSet(listOfCiInReal);
+		
+		Expression body = apply(AND, allcibetwen0And1, sumOverCiEqualsOne, convexSum);
+		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal,body);
+		
+		println(isExtreme);
+		//Expression result = theory.evaluate(isExtreme, context);
 		return true;
 	}	
 }

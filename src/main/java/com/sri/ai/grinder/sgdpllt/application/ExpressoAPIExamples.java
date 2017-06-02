@@ -405,7 +405,7 @@ public class ExpressoAPIExamples {
 
 		// BUG: need to debug
 		// Here's how to decide if a point is in the convex hull of other two points:
-		Context convexityContext = context.extendWithSymbols("p", "Real", "p1", "Real", "p2", "Real");
+		Context convexityContext = context.extendWithSymbolsAndTypes("p", "Real", "p1", "Real", "p2", "Real");
 		//convexityContext = convexityContext.conjoin(parse("p  = 4"));
 		//convexityContext = convexityContext.conjoin(parse("p1 = 3"));
 		//convexityContext = convexityContext.conjoin(parse("p2 = 5"));
