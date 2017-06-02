@@ -313,17 +313,28 @@ public class Examples {
 
 		ComponentResultat.print(0);
 		
-
+		long startTime = System.currentTimeMillis();
 		Expression naiveResult = ComponentResultat.naiveCalcul();
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		
+		System.out.println();
 		System.out.println(" ");
 		System.out.println(" ");
 		System.out.println("Naive Result : " + naiveResult);
+		println("totalTime: " + totalTime);
+		
+		startTime = System.currentTimeMillis();
 		Expression unnormalizedMessage = ComponentResultat.calculate();
 		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
 		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
 		System.out.println(" ");
 		System.out.println(" ");
 		System.out.println("Our computation : " + normalizedMessage);
+		println("totalTime: " + totalTime);
 	}
 
 }
