@@ -5,8 +5,7 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
-//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
@@ -221,7 +220,7 @@ public class Bounds {
 		
 		//sum over ci =1
 		listOfC = new ArrayList<>(Arrays.asList(c));
-		Expression sumOverCiEqualsOne = apply(EQUAL,1,apply(SUM,listOfC));
+		Expression sumOverCiEqualsOne = apply(EQUAL,1,apply(PLUS,listOfC));
 
 		//sum of ci*phi1 = phi
 		ArrayList<Expression> prodciphii = new ArrayList<>(listOfB.size());
@@ -230,7 +229,7 @@ public class Bounds {
 			prodciphii.add(apply(TIMES,phii,c[i]));
 			i++;
 		}
-		Expression convexSum = apply(EQUAL,phi,apply(SUM, prodciphii));
+		Expression convexSum = apply(EQUAL,phi,apply(PLUS, prodciphii));
 		
 		ArrayList<Expression> listOfCiInReal = new ArrayList<>(listOfB.size());
 		for(i = 0; i <n; i++){
