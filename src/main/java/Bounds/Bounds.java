@@ -4,16 +4,17 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets.getElements;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets.removeNonDestructively;
+import static com.sri.ai.util.Util.in;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.println;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
 
@@ -81,25 +81,24 @@ public class Bounds {
 	 * @return bound resulting from the product of bounds
 	 */
 	public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
-		ArrayList<NullaryFunction<Iterator<Expression>>> iteratorForBoundList = new ArrayList<>(listOfBounds.length);
-		Iterator<ArrayList<Expression>> cartesianProduct;
-		ArrayList<Expression> element;
 		
-		ArrayList<Expression> resultList= new ArrayList<>();
-		iteratorForBoundList = Util.mapIntoArrayList(listOfBounds, bound -> () -> getElements(bound).iterator());
+		ArrayList<NullaryFunction<Iterator<Expression>>> iteratorForBoundList = 
+				mapIntoArrayList(listOfBounds, bound -> () -> getElements(bound).iterator());
 		
-		cartesianProduct = new CartesianProductIterator<Expression>(iteratorForBoundList);
+		Iterator<ArrayList<Expression>> cartesianProduct = new CartesianProductIterator<Expression>(iteratorForBoundList);
 		
-		while(cartesianProduct.hasNext()){
-			element = cartesianProduct.next();
+		ArrayList<Expression> resultList = new ArrayList<>();
+		for (ArrayList<Expression> element : in(cartesianProduct)){
 			Expression product = apply("*",element);
 			Expression evaluation = theory.evaluate(product,context);
 			resultList.add(evaluation);
 		}
 		
 		Expression result =  new DefaultExtensionalUniSet(resultList);
-		//Updating extreme points
-		result = updateExtremes(result,theory,context);
+		
+		// Updating extreme points
+		result = updateExtremes(result, theory, context);
+		
 		return result;		
 	}
 	/*public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
