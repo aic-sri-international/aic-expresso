@@ -3,13 +3,16 @@ package Bounds;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
-//import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.cardinality;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.getElements;
 import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.removeNonDestructively;
 import static com.sri.ai.util.Util.println;
 
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
@@ -20,6 +23,10 @@ import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.util.Util;
+import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.util.collect.CartesianProductIterator;
+
 
 public class Bounds {
 	// a bound is a set of expressions representing its extreme points
@@ -67,6 +74,28 @@ public class Bounds {
 	 * @return bound resulting from the product of bounds
 	 */
 	public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
+		ArrayList<NullaryFunction<Iterator<Expression>>> iteratorForBoundList = new ArrayList<>(listOfBounds.length);
+		Iterator<ArrayList<Expression>> cartesianProduct;
+		ArrayList<Expression> element;
+		
+		ArrayList<Expression> resultList= new ArrayList<>();
+		iteratorForBoundList = Util.mapIntoArrayList(listOfBounds, bound -> () -> getElements(bound).iterator());
+		
+		cartesianProduct = new CartesianProductIterator<Expression>(iteratorForBoundList);
+		
+		while(cartesianProduct.hasNext()){
+			element = cartesianProduct.next();
+			Expression product = apply("*",element);
+			Expression evaluation = theory.evaluate(product,context);
+			resultList.add(evaluation);
+		}
+		
+		Expression result =  new DefaultExtensionalUniSet(resultList);
+		//Updating extreme points
+		result = updateExtremes(result,theory,context);
+		return result;		
+	}
+	/*public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
 		if(listOfBounds.length == 0){ 
 			return null;
 		}
@@ -100,7 +129,7 @@ public class Bounds {
 		//Updating extreme points
 		Expression result = updateExtremes(productBound,theory,context);
 		return result;
-	}
+	}*/
 	
 	/**
 	 * apply a function to each term of a bound
@@ -113,7 +142,7 @@ public class Bounds {
 	 * @param theory
 	 * @param context
 	 * @return {f(\phi) : \phi \in b}
-	 */ //TODO : use divide and conquer
+	 */
 	public static Expression applyFunctionToBound(Expression f, Expression variableName, Expression b, Theory theory, Context context){
 		ExtensionalSetInterface bAsExtensionalSet = (ExtensionalSetInterface) b;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
@@ -161,7 +190,6 @@ public class Bounds {
 	 */
 	public static boolean isExtremePoint(Expression phi,int indexPhi, Expression bound, Theory theory, Context context){
 		//TODO
-		
 		Expression boundWithoutPhi = removeNonDestructively(bound, indexPhi);//caro pq recopia a lista toda
 		List<Expression> listOfB = getElements(boundWithoutPhi);
 		int n = listOfB.size();
@@ -169,11 +197,9 @@ public class Bounds {
 		Expression[] c = new Expression[n];
 		for(int i = 0;i<n;i++){
 			c[i] = makeSymbol("c" + i);
-
 			context = context.extendWithSymbolsAndTypes("c" + i,"Real");
 		}
 		
-		//Building a string with the formula whose satisfiability is returned
 		String formula = "";
 		//there exists ci in real
 		for(int i = 0;i<n;i++){
@@ -206,9 +232,9 @@ public class Bounds {
 			i++;
 		}
 		
-		println(formula);
-		Expression formulaOfExtremePoints = parse(formula);
-		Expression result = theory.evaluate(formulaOfExtremePoints, context);
+		//println(formula);
+		//Expression formulaOfExtremePoints = parse(formula);
+		//Expression result = theory.evaluate(formulaOfExtremePoints, context);
 		return true;
 	}	
 }

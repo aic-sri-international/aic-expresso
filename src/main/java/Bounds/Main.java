@@ -45,34 +45,38 @@ public class Main {
 		//Set of functions
 		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
 		Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
-		Expression phi3 = parse("if A = true then 7 else if B = true then 8 else 9");
-		Expression phi4 = parse("if A = true then 10 else if B = true then 11 else 12");
+		Expression phi3 = parse("if X = true then 7 else if Y = true then 8 else 9");
+		Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
 		Expression setOfFactors = ExtensionalSet.makeUniSet(phi1, phi2, phi3, phi4);
 		println("setOfFactors: " + setOfFactors);
 		
 		//Testing @applyFunctionToBound
+		println("Testing @applyFunctionToBound");
 		Expression phi = DefaultSymbol.createSymbol("phi");
 		Expression f = parse("13*phi");
-	//	Expression f2 = parse("sum(A true or false, phi)");
 		println("f: " + f);
 		
 		println("f(setNum (1,2,3)): " + Bounds.applyFunctionToBound(f, phi, setOFNumbers, theory, context));
 		println("f(setfac): " + Bounds.applyFunctionToBound(f, phi, setOfFactors, theory, context)); // NOT the expected answer!
 		
 		//Testing @boundProduct
+		println("\nTesting @boundProduct");
 		println("setFac X setFac X setNum" + Bounds.boundProduct(theory, context, setOfFactors,setOfFactors,setOFNumbers));
 		
 		//Testing @normalize
+		println("\nTesting @normalize");
 		println("bound : " + setOfFactors);
 		println("normal(setFac) : " + Bounds.normalize(setOfFactors, theory, context));
 		println("normal(setNum) : " + Bounds.normalize(setOFNumbers, theory, context));
 		
 		//Testing normalization operation renaming variables
+		println("\nTesting normalization operation renaming variables");
 		Expression phinormalized = parse("(if A = true then 1 else if B = true then 2 else 3) / sum({{ ( on A in Boolean, B in Boolean ) if A = true then 1 else if B = true then 2 else 3 }})");
 		Expression eval = theory.evaluate(phinormalized, context);
-		println("normalizing(" + phinormalized + ") : \n \t :  " +eval);
+		println("Normalizing(" + phinormalized + ") : \n \t :  " +eval);
 		
 		//Testing @isExtremePoint
+		println("\nTesting @isExtremePoint");
 		Bounds.isExtremePoint(phi4, 3, setOfFactors, theory, context);
 	}
 }
