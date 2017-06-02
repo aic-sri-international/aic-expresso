@@ -38,6 +38,7 @@ public class VariableComponent {
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
 		this.bound = new HashSet<Expression>();
+		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));

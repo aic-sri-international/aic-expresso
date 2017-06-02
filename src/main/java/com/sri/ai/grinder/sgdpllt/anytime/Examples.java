@@ -78,7 +78,6 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
 
 	public static VariableComponent BasicBayesianLoopyModel() {
 		Expression func = DefaultSymbol.createSymbol("f");
@@ -134,6 +133,11 @@ public class Examples {
 		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
+		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
+		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
+				1,0);
 		
 
 		Expression res = apply(func, q);
@@ -141,6 +145,8 @@ public class Examples {
 		Factor.add(f1);
 		Factor.add(f2);
 		Factor.add(f3);
+		//Factor.add(f4);
+		//Factor.add(f5);
 		Factor.add(res);
 
 		Model m = new Model(Factor);
@@ -301,16 +307,19 @@ public class Examples {
 		
 		System.out.println("Iteration necessary : " + nbIter);
 
-		//ComponentResultat.print(0);
+		ComponentResultat.print(0);
+		
+
+		Expression naiveResult = ComponentResultat.naiveCalcul();
+		System.out.println(" ");
+		System.out.println(" ");
+		System.out.println("Naive Result : " + naiveResult);
 		Expression unnormalizedMessage = ComponentResultat.calculate();
 		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
 		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
 		System.out.println(" ");
 		System.out.println(" ");
-		System.out.println(" ");
-		System.out.println(normalizedMessage);
-		Expression naiveResult = ComponentResultat.naiveCalcul();
-		System.out.println(naiveResult);
+		System.out.println("Our computation : " + normalizedMessage);
 	}
 
 }
