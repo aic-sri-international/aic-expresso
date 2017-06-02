@@ -301,7 +301,9 @@ public class Examples {
 
 	public static void main(String[] args) {
 			
-		VariableComponent ComponentResultat = DoubleDiamondModel();
+		VariableComponent ComponentResultat = TreeModel();
+		
+		long startTime = System.currentTimeMillis();
 		int nbIter = 0;
 		ComponentResultat.model.context = ComponentResultat.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
 		while(!ComponentResultat.entirelyDiscover) {
@@ -309,14 +311,27 @@ public class Examples {
 			nbIter ++;
 		}
 		
-		System.out.println("Iteration necessary : " + nbIter);
+		//System.out.println("Iteration necessary : " + nbIter);
 
-		ComponentResultat.print(0);
+		//ComponentResultat.print(0);
 		
-		long startTime = System.currentTimeMillis();
-		Expression naiveResult = ComponentResultat.naiveCalcul();
+		
+		Expression unnormalizedMessage = ComponentResultat.calculate();
+		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
+		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
+		
+		System.out.println(" ");
+		System.out.println(" ");
+		System.out.println("Our computation : " + normalizedMessage);
+		println("totalTime: " + totalTime);
+		
+
+		startTime = System.currentTimeMillis();
+		Expression naiveResult = ComponentResultat.naiveCalcul();
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
 		
 		System.out.println();
 		System.out.println(" ");
@@ -324,17 +339,6 @@ public class Examples {
 		System.out.println("Naive Result : " + naiveResult);
 		println("totalTime: " + totalTime);
 		
-		startTime = System.currentTimeMillis();
-		Expression unnormalizedMessage = ComponentResultat.calculate();
-		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
-		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
-		endTime   = System.currentTimeMillis();
-		totalTime = endTime - startTime;
-		
-		System.out.println(" ");
-		System.out.println(" ");
-		System.out.println("Our computation : " + normalizedMessage);
-		println("totalTime: " + totalTime);
 	}
 
 }
