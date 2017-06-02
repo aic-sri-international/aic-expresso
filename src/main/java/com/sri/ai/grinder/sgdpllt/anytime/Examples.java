@@ -296,7 +296,7 @@ public class Examples {
 		Factor.add(probabilitySmoker);
 
 		Model m = new Model(Factor);
-		m.addBooleanConditions(condition);
+		m.addConditions(condition);
 
 		
 
@@ -403,9 +403,13 @@ public class Examples {
 		return ComponentResultat;
 	}
 
+	
 	public static void main(String[] args) {
 
 		VariableComponent ComponentResult = TreeModelWithInteger();
+		Set<Expression> condition = new HashSet<Expression>();
+		condition.add(parse("A = 1"));
+		ComponentResult.model.addConditions(condition);
 		runningTest(ComponentResult);
 	}
 

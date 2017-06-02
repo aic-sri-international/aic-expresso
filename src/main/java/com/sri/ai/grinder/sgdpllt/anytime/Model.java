@@ -149,26 +149,11 @@ public class Model {
 		return variableSet;
 	}
 	
-	public void addBooleanConditions(Set<Expression> condition){
+	public void addConditions(Set<Expression> condition){
 		Set<Expression> Factor = new HashSet<Expression>(this.getFactor());
 		for(Expression singleCondition : condition){
-			for (Expression variable : this.getVariable()){
-				if(singleCondition.getArguments().contains(variable)){
-					if(singleCondition.getArguments().contains(parse("true"))){
-						Expression trueVariable = IfThenElse.make(variable, parse("1"), parse("0"));
-						Factor.add(trueVariable);
-					}
-					else{
-						Expression falseVariable = IfThenElse.make(variable, parse("0"), parse("1"));
-						Factor.add(falseVariable);
-					}
-					for(Expression factor : this.getFactor()){
-						if(singleCondition.getArguments().containsAll(this.getNeighbors(factor))){
-							Factor.remove(factor);
-						}
-					}
-				}
-			}
+			Expression factorCondition = IfThenElse.make(singleCondition, parse("1"), parse("0"));
+			Factor.add(factorCondition);
 		}
 		if(!condition.isEmpty()){
 			Model m = new Model(Factor);
