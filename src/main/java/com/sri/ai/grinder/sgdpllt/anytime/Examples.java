@@ -4,6 +4,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 import static com.sri.ai.util.Util.println;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,11 +24,10 @@ public class Examples {
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
-		
+
 		Expression f1 = apply(IF_THEN_ELSE, a, q, 5);
 		Expression f2 = apply(IF_THEN_ELSE, b, q, 5);
 		Expression f3 = apply(IF_THEN_ELSE, a, b, 5);
-		
 
 		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
@@ -41,7 +41,7 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
+
 	public static VariableComponent DiamondModel() {
 		Expression func = DefaultSymbol.createSymbol("f");
 		Expression a = DefaultSymbol.createSymbol("A");
@@ -62,8 +62,7 @@ public class Examples {
 		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
-		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
-				1,0);
+		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
 
 		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
@@ -86,10 +85,11 @@ public class Examples {
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
 		Expression q = DefaultSymbol.createSymbol("Q");
-		
+
 		Expression trueValue = DefaultSymbol.createSymbol(true);
-		
-		Expression f1 = IfThenElse.make(apply(EQUAL, q, trueValue), IfThenElse.make(a, parse("0.1"), parse("0.9")), IfThenElse.make(a, parse("0.9"), parse("0.1")));
+
+		Expression f1 = IfThenElse.make(apply(EQUAL, q, trueValue), IfThenElse.make(a, parse("0.1"), parse("0.9")),
+				IfThenElse.make(a, parse("0.9"), parse("0.1")));
 		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
@@ -99,8 +99,7 @@ public class Examples {
 		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
-		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
-				1,0);
+		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
 
 		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
@@ -116,7 +115,7 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
+
 	public static VariableComponent TreeModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
@@ -133,6 +132,7 @@ public class Examples {
 		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
+
 		
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
@@ -149,6 +149,11 @@ public class Examples {
 		m.setValues(b,  "Boolean");
 		m.setValues(c,  "Boolean");
 		m.setValues(q,  "Boolean");
+
+		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
+		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -182,7 +187,7 @@ public class Examples {
 		m.setType(c,  "Boolean");
 		m.setType(q,  "Boolean");
 		
-		m.setValues(a,  "0..1");
+		m.setValues(a,  "0..4");
 		m.setValues(b,  "Boolean");
 		m.setValues(c,  "Boolean");
 		m.setValues(q,  "Boolean");
@@ -190,7 +195,7 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-	
+
 	public static VariableComponent DoubleDiamondModel() {
 		Expression func = DefaultSymbol.createSymbol("f");
 
@@ -203,16 +208,24 @@ public class Examples {
 		Expression g = DefaultSymbol.createSymbol("G");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-
-		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("3"), parse("9")), IfThenElse.make(q, parse("5"), parse("7")));
-		Expression f2 = IfThenElse.make(e, IfThenElse.make(q, parse("2"), parse("8")), IfThenElse.make(q, parse("1"), parse("0")));
-		Expression f3 = IfThenElse.make(g, IfThenElse.make(q, parse("34"), parse("9")), IfThenElse.make(q, parse("5"), parse("7")));
-		Expression f4 = IfThenElse.make(e, IfThenElse.make(f, parse("5"), parse("2")), IfThenElse.make(f, parse("1"), parse("1")));
-		Expression f5 = IfThenElse.make(g, IfThenElse.make(f, parse("6"), parse("0")), IfThenElse.make(f, parse("0"), parse("3")));
-		Expression f6 = IfThenElse.make(b, IfThenElse.make(d, parse("9"), parse("3")), IfThenElse.make(d, parse("2"), parse("0")));
-		Expression f7 = IfThenElse.make(c, IfThenElse.make(d, parse("1"), parse("7")), IfThenElse.make(d, parse("6"), parse("6")));
-		Expression f8 = IfThenElse.make(b, IfThenElse.make(a, parse("2"), parse("1")), IfThenElse.make(a, parse("4"), parse("10")));
-		Expression f9 = IfThenElse.make(c, IfThenElse.make(a, parse("6"), parse("4")), IfThenElse.make(a, parse("8"), parse("4")));
+		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("3"), parse("9")),
+				IfThenElse.make(q, parse("5"), parse("7")));
+		Expression f2 = IfThenElse.make(e, IfThenElse.make(q, parse("2"), parse("8")),
+				IfThenElse.make(q, parse("1"), parse("0")));
+		Expression f3 = IfThenElse.make(g, IfThenElse.make(q, parse("34"), parse("9")),
+				IfThenElse.make(q, parse("5"), parse("7")));
+		Expression f4 = IfThenElse.make(e, IfThenElse.make(f, parse("5"), parse("2")),
+				IfThenElse.make(f, parse("1"), parse("1")));
+		Expression f5 = IfThenElse.make(g, IfThenElse.make(f, parse("6"), parse("0")),
+				IfThenElse.make(f, parse("0"), parse("3")));
+		Expression f6 = IfThenElse.make(b, IfThenElse.make(d, parse("9"), parse("3")),
+				IfThenElse.make(d, parse("2"), parse("0")));
+		Expression f7 = IfThenElse.make(c, IfThenElse.make(d, parse("1"), parse("7")),
+				IfThenElse.make(d, parse("6"), parse("6")));
+		Expression f8 = IfThenElse.make(b, IfThenElse.make(a, parse("2"), parse("1")),
+				IfThenElse.make(a, parse("4"), parse("10")));
+		Expression f9 = IfThenElse.make(c, IfThenElse.make(a, parse("6"), parse("4")),
+				IfThenElse.make(a, parse("8"), parse("4")));
 		Expression f10 = IfThenElse.make(c, parse("1"), parse("0"));
 		Expression res = apply(func, q);
 
@@ -234,6 +247,62 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
 
+	}
+
+	public static VariableComponent RealCancerModel(Set<Expression> condition) {
+
+		// https://qph.ec.quoracdn.net/main-qimg-17c53810d49f6e917af93e576a9ec8da
+
+		Expression visitToAsia = DefaultSymbol.createSymbol("VisitToAsia");
+		Expression tuberculosis = DefaultSymbol.createSymbol("Tuberculosis");
+		Expression lungCancer = DefaultSymbol.createSymbol("LungCancer");
+		Expression lungCancerOrTuberculosis = DefaultSymbol.createSymbol("LungCancerOrTuberculosis");
+		Expression positiveXRay = DefaultSymbol.createSymbol("PositiveXRay");
+		Expression dispnea = DefaultSymbol.createSymbol("Dispnea");
+		Expression bronchitis = DefaultSymbol.createSymbol("Bronchitis");
+		Expression smoker = DefaultSymbol.createSymbol("Smoker");
+
+		Expression probabilityVisitToAsia = IfThenElse.make(visitToAsia, parse("0.01"), parse("0.99"));
+		Expression probabilitySmoker = IfThenElse.make(smoker, parse("0.5"), parse("0.5"));
+
+		Expression f1 = IfThenElse.make(visitToAsia, IfThenElse.make(tuberculosis, parse("0.05"), parse("0.95")),
+				IfThenElse.make(tuberculosis, parse("0.01"), parse("0.99")));
+		Expression f2 = IfThenElse.make(smoker, IfThenElse.make(lungCancer, parse("0.1"), parse("0.9")),
+				IfThenElse.make(lungCancer, parse("0.01"), parse("0.99")));
+		Expression f3 = IfThenElse.make(smoker, IfThenElse.make(bronchitis, parse("0.6"), parse("0.4")),
+				IfThenElse.make(bronchitis, parse("0.3"), parse("0.7")));
+		Expression f4 = IfThenElse.make(lungCancerOrTuberculosis,
+				IfThenElse.make(positiveXRay, parse("0.98"), parse("0.02")),
+				IfThenElse.make(positiveXRay, parse("0.05"), parse("0.95")));
+
+		Expression f5 = IfThenElse.make(lungCancerOrTuberculosis,
+				IfThenElse.make(lungCancer, parse("1"), IfThenElse.make(tuberculosis, parse("1"), parse("0"))),
+				IfThenElse.make(lungCancer, parse("0"), IfThenElse.make(tuberculosis, parse("0"), parse("1"))));
+
+		Expression f6 = IfThenElse.make(lungCancerOrTuberculosis,
+				IfThenElse.make(bronchitis, IfThenElse.make(dispnea, parse("0.9"), parse("0.1")),
+						IfThenElse.make(dispnea, parse("0.7"), parse("0.3"))),
+				IfThenElse.make(bronchitis, IfThenElse.make(dispnea, parse("0.8"), parse("0.2")),
+						IfThenElse.make(dispnea, parse("0.1"), parse("0.9"))));
+
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(f5);
+		Factor.add(f6);
+		Factor.add(probabilityVisitToAsia);
+		Factor.add(probabilitySmoker);
+
+		Model m = new Model(Factor);
+		m.addBooleanConditions(condition);
+
+		
+
+		VariableComponent ComponentResultat = new VariableComponent(lungCancer, DefaultSymbol.createSymbol(""), m,
+				new HashSet<Expression>());
+		return ComponentResultat;
 	}
 
 	public static VariableComponent Model1() {
@@ -343,14 +412,11 @@ public class Examples {
 	private static void runningTest(VariableComponent ComponentResult) {
 
 		long startTime, endTime, totalTime;
-		//int nbIter = 0;
 		ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
 		while(!ComponentResult.entirelyDiscover) {
 			ComponentResult.update(new HashSet<Expression>());
-		//	nbIter ++;
 		}
 		
-		//println("Iteration necessary : " + nbIter);
 		
 		ComponentResult.print(0);
 		
@@ -372,4 +438,5 @@ public class Examples {
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
 	}
+
 }
