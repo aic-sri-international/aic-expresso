@@ -40,18 +40,14 @@ package com.sri.ai.expresso.api;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 
 /**
  * An {@link Expression} that represents an extensionally defined set.
- * <p>
- * Currently named {@link ExtensionalSetInterface} in order not to be confused with {@link ExtensionalSet},
- * which will be phased out in time.
  * 
  * @author braz
  */
 @Beta
-public interface ExtensionalSetInterface extends Expression {
+public interface ExtensionalSet extends Expression {
 	
 	/**
 	 * Indicates whether the set is a uniset.

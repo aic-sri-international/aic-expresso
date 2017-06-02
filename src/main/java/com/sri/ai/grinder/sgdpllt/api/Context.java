@@ -166,7 +166,8 @@ public interface Context extends Registry, Constraint {
 	extendWith(ExtensionalIndexExpressionsSet indexExpressions, Expression expressionInScope) {
 		Triple<Context, ExtensionalIndexExpressionsSet, Expression> result;
 		if (thereExists(getIndices(indexExpressions), index -> this.containsSymbol(index))) {
-			// OPTIMIZATION: only kicks in this entire procedure when extending with symbol in the context (previous ones could have been dealt with normally).
+			// OPTIMIZATION: only kick in this entire procedure when extending with symbol in the context (previous ones could have been dealt with normally).
+			
 			// the objects to be returned in the triple:
 			Context newContext = this;
 			ArrayList<Expression> newIndexExpressionsList = new ArrayList<>(indexExpressions.getList());

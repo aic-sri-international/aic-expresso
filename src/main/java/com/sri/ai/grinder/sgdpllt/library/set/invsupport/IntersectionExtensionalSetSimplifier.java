@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.Or;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
@@ -118,7 +118,7 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 				result = Sets.EMPTY_SET;
 			} else if (firstExtensionalSet != null && otherSets.size() > 0) {
 				List<Expression> unionArgs = new ArrayList<>();
-				for (Expression e : ExtensionalSet.getElements(firstExtensionalSet)) {
+				for (Expression e : ExtensionalSets.getElements(firstExtensionalSet)) {
 					List<Expression> conjuncts = new ArrayList<>();
 					for (Expression otherSet : otherSets) {
 						Expression inCondition;
@@ -135,11 +135,11 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 					}
 					Expression condition = And.simplify(And.make(conjuncts));
 					if (condition.equals(true)) {
-						unionArgs.add(ExtensionalSet.makeUniSetExpression(Arrays.asList(e)));
+						unionArgs.add(ExtensionalSets.makeUniSetExpression(Arrays.asList(e)));
 					}
 					else if (!condition.equals(false)) {
 						// Not true or false (i.e. false implies empty set and can be dropped from the union up front).
-						Expression thenBranch = ExtensionalSet.makeUniSetExpression(Arrays.asList(e));
+						Expression thenBranch = ExtensionalSets.makeUniSetExpression(Arrays.asList(e));
 						Expression elseBranch = Sets.EMPTY_SET;
 						Expression ifThenElse = IfThenElse.make(condition, thenBranch, elseBranch, true);
 						unionArgs.add(ifThenElse);
@@ -190,7 +190,7 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 	    // (evaluate each equality as you go along for potential short-circuiting 
 	    //  -- note this covers e in {} if n = 0).
 		Expression result;
-		List<Expression> eSetElements = ExtensionalSet.getElements(eSet);
+		List<Expression> eSetElements = ExtensionalSets.getElements(eSet);
 		if (eSetElements.size() == 0) { // can't be in the empty set.
 			result = Expressions.FALSE;
 		}

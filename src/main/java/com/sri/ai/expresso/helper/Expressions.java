@@ -93,7 +93,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;
@@ -191,10 +191,10 @@ public class Expressions {
 		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {
 			result = makeDefaultTupleFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(ExtensionalSet.UNI_SET_LABEL)) {
+		else if (label.equals(ExtensionalSets.UNI_SET_LABEL)) {
 			result = makeDefaultExtensionalUniSetFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(ExtensionalSet.MULTI_SET_LABEL)) {
+		else if (label.equals(ExtensionalSets.MULTI_SET_LABEL)) {
 			result = makeDefaultExtensionalMultiSetFromLabelAndSubTrees(label, subTreeObjects);
 		}
 		else if (label.equals(IntensionalSet.UNI_SET_LABEL)) {

@@ -51,7 +51,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 
 /**
@@ -114,7 +114,7 @@ public class Sets {
 		}
 	}
 
-	public static final Expression EMPTY_SET = ExtensionalSet.makeEmptySet();
+	public static final Expression EMPTY_SET = ExtensionalSets.makeEmptySet();
 	
 	public static Predicate<Expression> IS_EMPTY_SET = new IsEmptySet();
 
@@ -127,25 +127,25 @@ public class Sets {
 	public static Predicate<Expression> IS_INTENSIONAL_UNI_SET = new IsIntensionalUniSet();
 
 	public static boolean isEmptySet(Expression expression) {
-		return ExtensionalSet.isEmptySet(expression);
+		return ExtensionalSets.isEmptySet(expression);
 	}
 
 	public static boolean isSingletonExtensionalSet(Expression expression) {
-		boolean result = isExtensionalSet(expression) && ExtensionalSet.getElements(expression).size() == 1;
+		boolean result = isExtensionalSet(expression) && ExtensionalSets.getElements(expression).size() == 1;
 		return result;
 	}
 
 	public static boolean isExtensionalUniSet(Expression expression) {
 		return
 		expression != null &&
-		expression.getSyntaxTree().getLabel().equals(ExtensionalSet.UNI_SET_LABEL)
+		expression.getSyntaxTree().getLabel().equals(ExtensionalSets.UNI_SET_LABEL)
 		&& expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub tree
 	}
 
 	public static boolean isExtensionalMultiSet(Expression expression) {
 		return
 		expression != null &&
-		expression.getSyntaxTree().getLabel().equals(ExtensionalSet.MULTI_SET_LABEL)
+		expression.getSyntaxTree().getLabel().equals(ExtensionalSets.MULTI_SET_LABEL)
 		&& expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub tree
 	}
 	
@@ -177,8 +177,8 @@ public class Sets {
 		boolean result =
 			expression != null &&
 			(
-					expression.getSyntaxTree().getLabel().equals(ExtensionalSet.UNI_SET_LABEL) ||
-					expression.getSyntaxTree().getLabel().equals(ExtensionalSet.MULTI_SET_LABEL)
+					expression.getSyntaxTree().getLabel().equals(ExtensionalSets.UNI_SET_LABEL) ||
+					expression.getSyntaxTree().getLabel().equals(ExtensionalSets.MULTI_SET_LABEL)
 			)
 			&&
 			expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub tree
@@ -255,7 +255,7 @@ public class Sets {
 	}
 
 	public static String fromIntensionalToExtensionalSetSyntaxTreeLabel(Object label) {
-		return Util.equals(label, IntensionalSet.MULTI_SET_LABEL)? ExtensionalSet.MULTI_SET_LABEL : ExtensionalSet.UNI_SET_LABEL;
+		return Util.equals(label, IntensionalSet.MULTI_SET_LABEL)? ExtensionalSets.MULTI_SET_LABEL : ExtensionalSets.UNI_SET_LABEL;
 	}
 
 	public static boolean isSet(Expression expression) {
@@ -266,7 +266,7 @@ public class Sets {
 	 * Returns the label of the syntactic tree representing the set.
 	 * This is a symbol with the value of one of
 	 * {@link IntensionalSet#MULTI_SET_LABEL}, {@link IntensionalSet#UNI_SET_LABEL},
-	 * {@link ExtensionalSet#MULTI_SET_LABEL}, or {@link ExtensionalSet#UNI_SET_LABEL}.
+	 * {@link ExtensionalSets#MULTI_SET_LABEL}, or {@link ExtensionalSets#UNI_SET_LABEL}.
 	 */
 	public static SyntaxTree getLabel(Expression setExpression) {
 		SyntaxTree result = SyntaxTrees.wrap(setExpression.getSyntaxTree().getLabel());

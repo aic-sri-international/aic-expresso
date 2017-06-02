@@ -117,7 +117,7 @@ import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.GreaterThan;
 import com.sri.ai.grinder.sgdpllt.library.number.LessThan;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -342,7 +342,7 @@ public class GrinderUtil {
 				Registry headRegistry = registry.extendWith(intensionalSetArgument.getIndexExpressions());
 				result = getTypeExpression(head, headRegistry);
 			}
-			else if (argument.getSyntacticFormType().equals(ExtensionalSet.SYNTACTIC_FORM_TYPE)) {
+			else if (argument.getSyntacticFormType().equals(ExtensionalSets.SYNTACTIC_FORM_TYPE)) {
 				List<Expression> arguments = ((AbstractExtensionalSet)argument).getElementsDefinitions();
 				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(arguments, registry);
 			}

@@ -63,7 +63,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.Or;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 
 @Beta
@@ -192,7 +192,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitExtensionalUniset(
 			AntlrGrinderParser.ExtensionalUnisetContext ctx) {
-		Expression result = ExtensionalSet.makeUniSet(expressionsList(ctx.expr()));
+		Expression result = ExtensionalSets.makeUniSet(expressionsList(ctx.expr()));
 		return result;
 	}
 	
@@ -200,7 +200,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
 	@Override 
 	public Expression visitExtensionalMultiset(AntlrGrinderParser.ExtensionalMultisetContext ctx) { 
-		Expression result = ExtensionalSet.makeMultiSet(expressionsList(ctx.expr()));
+		Expression result = ExtensionalSets.makeMultiSet(expressionsList(ctx.expr()));
 		return result;
 	}
 	
@@ -413,10 +413,10 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		if (scope == null && conditionExpression == null) {
 			// We need to construct an extensional set in this case
 			if (label.equals(IntensionalSet.UNI_SET_LABEL)) {
-				result = ExtensionalSet.makeUniSet(headExpression);
+				result = ExtensionalSets.makeUniSet(headExpression);
 			}
 			else {
-				result = ExtensionalSet.makeMultiSet(Arrays.asList(headExpression));
+				result = ExtensionalSets.makeMultiSet(Arrays.asList(headExpression));
 			}
 		}
 		else {

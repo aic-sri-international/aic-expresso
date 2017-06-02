@@ -54,7 +54,7 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.RangeAndExceptionsSet;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
@@ -138,7 +138,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 				if (Sets.isEmptySet(realInterval)) {
 					result = null; // used to indicate an empty set.
 				}
-				else if (ExtensionalSet.isExtensionalSet(realInterval) && ExtensionalSet.isSingleton(realInterval)) {
+				else if (ExtensionalSets.isExtensionalSet(realInterval) && ExtensionalSets.isSingleton(realInterval)) {
 					String singletonValue = realInterval.get(0).toString();
 					result = new RealInterval("["+singletonValue+";"+singletonValue+"]");				
 				}

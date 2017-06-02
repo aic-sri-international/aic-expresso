@@ -68,7 +68,7 @@ import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -240,8 +240,8 @@ public class ExpressoAPIExamples {
 		Expression b = makeSymbol("b");
 		Expression c = makeSymbol("c");
 		Expression d = makeSymbol("d");
-		Expression extensionalUniSet = ExtensionalSet.makeUniSet(a, b, c, d);
-		Expression extensionalMultiSet = ExtensionalSet.makeMultiSet(a, b, c, d);
+		Expression extensionalUniSet = ExtensionalSets.makeUniSet(a, b, c, d);
+		Expression extensionalMultiSet = ExtensionalSets.makeMultiSet(a, b, c, d);
 		println(extensionalUniSet);
 		println(extensionalMultiSet);
 		

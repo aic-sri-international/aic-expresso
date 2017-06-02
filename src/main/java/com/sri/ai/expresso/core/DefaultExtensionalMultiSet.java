@@ -41,11 +41,11 @@ import java.util.ArrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExtensionalSetInterface;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.expresso.api.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 
 /**
- * A default implementation of a {@link ExtensionalSet} for multisets.
+ * A default implementation of a {@link ExtensionalSets} for multisets.
  * 
  * @author braz
  */
@@ -60,11 +60,11 @@ public class DefaultExtensionalMultiSet extends AbstractExtensionalSet {
 
 	@Override
 	protected String getLabel() {
-		return ExtensionalSet.MULTI_SET_LABEL;
+		return ExtensionalSets.MULTI_SET_LABEL;
 	}
 
 	@Override
-	protected ExtensionalSetInterface make(ArrayList<Expression> elementsDefinitions) {
+	protected ExtensionalSet make(ArrayList<Expression> elementsDefinitions) {
 		return new DefaultExtensionalMultiSet(elementsDefinitions);
 	}
 

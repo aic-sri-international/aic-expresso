@@ -7,7 +7,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -40,14 +40,14 @@ public class Main {
 		Expression one   = DefaultSymbol.createSymbol(1);
 		Expression two   = DefaultSymbol.createSymbol(2);
 		Expression three = DefaultSymbol.createSymbol(3);
-		Expression setOFNumbers = ExtensionalSet.makeUniSet(one, two, three);
+		Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two, three);
 
 		//Set of functions
 		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
 		Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
 		Expression phi3 = parse("if X = true then 7 else if Y = true then 8 else 9");
 		Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
-		Expression setOfFactors = ExtensionalSet.makeUniSet(phi1, phi2, phi3, phi4);
+		Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
 		println("setOfFactors: " + setOfFactors);
 		
 		//Testing @applyFunctionToBound

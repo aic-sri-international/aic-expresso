@@ -43,11 +43,11 @@ import java.util.ArrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExtensionalSetInterface;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.expresso.api.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 
 /**
- * A default implementation of a {@link ExtensionalSet} for unisets.
+ * A default implementation of a {@link ExtensionalSets} for unisets.
  * 
  * @author braz
  */
@@ -66,11 +66,11 @@ public class DefaultExtensionalUniSet extends AbstractExtensionalSet {
 
 	@Override
 	protected String getLabel() {
-		return ExtensionalSet.UNI_SET_LABEL;
+		return ExtensionalSets.UNI_SET_LABEL;
 	}
 
 	@Override
-	protected ExtensionalSetInterface make(ArrayList<Expression> elementsDefinitions) {
+	protected ExtensionalSet make(ArrayList<Expression> elementsDefinitions) {
 		return new DefaultExtensionalUniSet(elementsDefinitions);
 	}
 

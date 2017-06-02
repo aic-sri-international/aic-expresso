@@ -10,8 +10,8 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.getElements;
-import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet.removeNonDestructively;
+import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets.getElements;
+import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets.removeNonDestructively;
 import static com.sri.ai.util.Util.println;
 
 
@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExtensionalSetInterface;
+import com.sri.ai.expresso.api.ExtensionalSet;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
@@ -29,7 +29,7 @@ import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -51,7 +51,7 @@ public class Bounds {
 	 * @return  bound of normalized factors
 	 */
 	public static Expression normalize(Expression bound, Theory theory, Context context){
-		List<Expression> listOfBound = ExtensionalSet.getElements(bound);
+		List<Expression> listOfBound = ExtensionalSets.getElements(bound);
 		if(listOfBound.size() == 0){
 			return null;
 		}
@@ -151,10 +151,10 @@ public class Bounds {
 	 * @return {f(\phi) : \phi \in b}
 	 */
 	public static Expression applyFunctionToBound(Expression f, Expression variableName, Expression b, Theory theory, Context context){
-		ExtensionalSetInterface bAsExtensionalSet = (ExtensionalSetInterface) b;
+		ExtensionalSet bAsExtensionalSet = (ExtensionalSet) b;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
-		for(Expression phi : ExtensionalSet.getElements(bAsExtensionalSet)){
+		for(Expression phi : ExtensionalSets.getElements(bAsExtensionalSet)){
 			Expression substitution = f.replaceAllOccurrences(variableName, phi, context);
 			//debuging
 			if (debug) println("evaluating: " + substitution);

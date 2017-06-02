@@ -7,16 +7,16 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndSyntacticContext;
-import com.sri.ai.expresso.api.ExtensionalSetInterface;
+import com.sri.ai.expresso.api.ExtensionalSet;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 
-public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpression implements ExtensionalSetInterface {
+public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpression implements ExtensionalSet {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -26,7 +26,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 
 	protected abstract String getLabel();
 	
-	protected abstract ExtensionalSetInterface make(ArrayList<Expression> elementsDefinitions);
+	protected abstract ExtensionalSet make(ArrayList<Expression> elementsDefinitions);
 	
 	public AbstractExtensionalSet(ArrayList<Expression> elementsDefinitions) {
 		super();
@@ -53,7 +53,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 			@Override
 			public Expression replace(Expression expression, Expression newSubExpression) {
 				Util.myAssert(() -> expression instanceof AbstractExtensionalSet, () -> getClass().getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
-				Expression result = ((ExtensionalSetInterface)expression).setElementDefinition(this.index, newSubExpression);
+				Expression result = ((ExtensionalSet)expression).setElementDefinition(this.index, newSubExpression);
 				return result;
 			}
 
@@ -80,7 +80,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 
 	@Override
 	public Expression setElementDefinition(int i, Expression newIthElement) {
-		ExtensionalSetInterface result;
+		ExtensionalSet result;
 		
 		if (get(i) == newIthElement) {
 			result = this;
@@ -101,7 +101,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 
 	@Override
 	public Object getSyntacticFormType() {
-		return ExtensionalSet.SYNTACTIC_FORM_TYPE;
+		return ExtensionalSets.SYNTACTIC_FORM_TYPE;
 	}
 
 	@Override

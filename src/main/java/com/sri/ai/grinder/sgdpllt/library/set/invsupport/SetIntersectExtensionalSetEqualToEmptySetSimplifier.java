@@ -11,7 +11,7 @@ import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
@@ -74,7 +74,7 @@ public class SetIntersectExtensionalSetEqualToEmptySetSimplifier implements Simp
 						//  (S = &empty;)
 						if (extensionalSet.numberOfArguments() > 1) {											
 							// (S &cap; {t<sub>2</sub>,&hellip;,t<sub>n</sub>} = &empty;)
-							Expression extensionalSetReducedByT1 = ExtensionalSet.makeOfSameTypeAs(extensionalSet, extensionalSet.getArguments().subList(1, extensionalSet.numberOfArguments()));
+							Expression extensionalSetReducedByT1 = ExtensionalSets.makeOfSameTypeAs(extensionalSet, extensionalSet.getArguments().subList(1, extensionalSet.numberOfArguments()));
 	
 							Expression intersectionReducedByT1 = Expressions.apply(FunctorConstants.INTERSECTION, otherExtensionalOrIntensionalUnionSet, extensionalSetReducedByT1);
 

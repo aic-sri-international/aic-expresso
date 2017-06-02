@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 
 /**
@@ -131,7 +131,7 @@ public class SetOfArgumentTuplesForFunctionOccurringInExpression {
 		// if E is &fnof;(t) for t a tuple, oc<sub>&fnof;</sub>[E] is {t}
 		else if (isFApplication.apply(e)) {
 			Expression tupleT = Expressions.makeTuple(e.getArguments());
-			Expression setT   = ExtensionalSet.makeUniSet(tupleT);
+			Expression setT   = ExtensionalSets.makeUniSet(tupleT);
 			unionArgs.add(setT);
 		}
 		// if E is &fnof;, oc<sub>&fnof;</sub>[E] is &Alpha;
@@ -142,7 +142,7 @@ public class SetOfArgumentTuplesForFunctionOccurringInExpression {
 			}
 			
 			Expression tupleT = Expressions.makeTuple(domainTypes);
-			Expression setT   = ExtensionalSet.makeUniSet(tupleT);
+			Expression setT   = ExtensionalSets.makeUniSet(tupleT);
 			unionArgs.add(setT);
 		}
 		// if E is g(E&prime;) for g a function symbol distinct from &fnof; and t a k-tuple of expressions
