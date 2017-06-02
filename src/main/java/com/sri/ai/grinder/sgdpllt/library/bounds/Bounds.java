@@ -2,10 +2,12 @@ package com.sri.ai.grinder.sgdpllt.library.bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
@@ -28,8 +30,11 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+//import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+//import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -40,6 +45,27 @@ public class Bounds {
 	
 	static boolean debug = false;
 	
+	public static Expression simplex(List<Expression> Variables, Model model){
+		ArrayList<Expression> simplexList = new ArrayList<>();
+
+		Expression one = makeSymbol("1");
+		Expression zero= makeSymbol("0");
+		
+		for(Expression var : Variables){
+			Expression values = parse (model.getValues(var)); //TODO getValues should return the right
+															//Expression rather than a string to be parsed.
+															//By the way, that expression should represent a UniSet 
+			List<Expression> listOfValues = getElements(values);
+			for (Expression value : listOfValues){
+				simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, value), one, zero));
+			}
+			//simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, true ), one, zero));
+			//simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, false), one, zero));
+		}
+
+		Expression result =  new DefaultExtensionalUniSet(simplexList);
+		return result;
+	}
 	
 	/**
 	 * Assumes that each element of the bound is a factor with the same domain
