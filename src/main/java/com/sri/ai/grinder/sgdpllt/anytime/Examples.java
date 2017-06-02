@@ -300,45 +300,42 @@ public class Examples {
 	}
 
 	public static void main(String[] args) {
-			
-		VariableComponent ComponentResultat = TreeModel();
+
+		VariableComponent ComponentResult = DoubleDiamondModel();
+		runningTest(ComponentResult);
+	}
+
+	private static void runningTest(VariableComponent ComponentResult) {
+
+		long startTime, endTime, totalTime;
 		
-		long startTime = System.currentTimeMillis();
-		int nbIter = 0;
-		ComponentResultat.model.context = ComponentResultat.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
-		while(!ComponentResultat.entirelyDiscover) {
-			ComponentResultat.update(new HashSet<Expression>());
-			nbIter ++;
+		//int nbIter = 0;
+		ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
+		while(!ComponentResult.entirelyDiscover) {
+			ComponentResult.update(new HashSet<Expression>());
+		//	nbIter ++;
 		}
 		
-		//System.out.println("Iteration necessary : " + nbIter);
-
-		//ComponentResultat.print(0);
+		//println("Iteration necessary : " + nbIter);
 		
+		ComponentResult.print(0);
 		
-		Expression unnormalizedMessage = ComponentResultat.calculate();
-		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResultat.variable + " in Boolean) " + unnormalizedMessage + " }})";
-		Expression normalizedMessage = ComponentResultat.model.theory.evaluate(parse(string), ComponentResultat.model.context);
-		long endTime   = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
-		
-		System.out.println(" ");
-		System.out.println(" ");
-		System.out.println("Our computation : " + normalizedMessage);
-		println("totalTime: " + totalTime);
-		
-
 		startTime = System.currentTimeMillis();
-		Expression naiveResult = ComponentResultat.naiveCalcul();
+		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
-		System.out.println();
-		System.out.println(" ");
-		System.out.println(" ");
-		System.out.println("Naive Result : " + naiveResult);
+		println("\n\nNaive Result : " + naiveResult);
 		println("totalTime: " + totalTime);
 		
+		startTime = System.currentTimeMillis();
+		Expression unnormalizedMessage = ComponentResult.calculate();
+		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in Boolean) " + unnormalizedMessage + " }})";
+		Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
+		System.out.println("\n\nOur computation : " + normalizedMessage);
+		println("totalTime: " + totalTime);
 	}
-
 }
