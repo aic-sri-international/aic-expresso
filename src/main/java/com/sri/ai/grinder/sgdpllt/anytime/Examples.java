@@ -14,6 +14,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Equals;
 
 public class Examples {
 
@@ -167,15 +168,17 @@ public class Examples {
 		Expression g = DefaultSymbol.createSymbol("G");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		Expression f1 = apply(IF_THEN_ELSE, a, q, 5);
-		Expression f2 = apply(IF_THEN_ELSE, e, q, 5);
-		Expression f3 = apply(IF_THEN_ELSE, g, q, 5);
-		Expression f4 = apply(IF_THEN_ELSE, e, f, 5);
-		Expression f5 = apply(IF_THEN_ELSE, g, f, 5);
-		Expression f6 = apply(IF_THEN_ELSE, b, d, 5);
-		Expression f7 = apply(IF_THEN_ELSE, c, d, 5);
-		Expression f8 = apply(IF_THEN_ELSE, b, a, 5);
-		Expression f9 = apply(IF_THEN_ELSE, c, a, 5);
+
+		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("3"), parse("9")), IfThenElse.make(q, parse("5"), parse("7")));
+		Expression f2 = IfThenElse.make(e, IfThenElse.make(q, parse("2"), parse("8")), IfThenElse.make(q, parse("1"), parse("0")));
+		Expression f3 = IfThenElse.make(g, IfThenElse.make(q, parse("34"), parse("9")), IfThenElse.make(q, parse("5"), parse("7")));
+		Expression f4 = IfThenElse.make(e, IfThenElse.make(f, parse("5"), parse("2")), IfThenElse.make(f, parse("1"), parse("1")));
+		Expression f5 = IfThenElse.make(g, IfThenElse.make(f, parse("6"), parse("0")), IfThenElse.make(f, parse("0"), parse("3")));
+		Expression f6 = IfThenElse.make(b, IfThenElse.make(d, parse("9"), parse("3")), IfThenElse.make(d, parse("2"), parse("0")));
+		Expression f7 = IfThenElse.make(c, IfThenElse.make(d, parse("1"), parse("7")), IfThenElse.make(d, parse("6"), parse("6")));
+		Expression f8 = IfThenElse.make(b, IfThenElse.make(a, parse("2"), parse("1")), IfThenElse.make(a, parse("4"), parse("10")));
+		Expression f9 = IfThenElse.make(c, IfThenElse.make(a, parse("6"), parse("4")), IfThenElse.make(a, parse("8"), parse("4")));
+		Expression f10 = IfThenElse.make(c, parse("1"), parse("0"));
 		Expression res = apply(func, q);
 
 		Set<Expression> Factor = new HashSet<Expression>();
@@ -188,6 +191,7 @@ public class Examples {
 		Factor.add(f7);
 		Factor.add(f8);
 		Factor.add(f9);
+		Factor.add(f10);
 		Factor.add(res);
 
 		Model m = new Model(Factor);
@@ -297,7 +301,7 @@ public class Examples {
 
 	public static void main(String[] args) {
 			
-		VariableComponent ComponentResultat = TreeModel();
+		VariableComponent ComponentResultat = DoubleDiamondModel();
 		int nbIter = 0;
 		ComponentResultat.model.context = ComponentResultat.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
 		while(!ComponentResultat.entirelyDiscover) {
