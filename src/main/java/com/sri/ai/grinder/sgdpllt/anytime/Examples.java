@@ -363,7 +363,7 @@ public class Examples {
 	public static void main(String[] args) {
 			
 		VariableComponent ComponentResultat = RealCancerModel();
-		println(ComponentResultat.model.getVariable());
+		//println(ComponentResultat.model.getVariable());
 		
 		long startTime = System.currentTimeMillis();
 		int nbIter = 0;
