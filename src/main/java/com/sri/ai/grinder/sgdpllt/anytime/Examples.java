@@ -301,7 +301,7 @@ public class Examples {
 
 	public static void main(String[] args) {
 			
-		VariableComponent ComponentResultat = TreeModel();
+		VariableComponent ComponentResultat = DoubleDiamondModel();
 		int nbIter = 0;
 		ComponentResultat.model.context = ComponentResultat.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
 		while(!ComponentResultat.entirelyDiscover) {
