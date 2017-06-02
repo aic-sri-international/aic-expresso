@@ -17,6 +17,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -120,6 +121,33 @@ public class Model {
 		return variableSet;
 	}
 	
+	public void addBooleanConditions(Set<Expression> condition){
+		Set<Expression> Factor = new HashSet<Expression>(this.getFactor());
+		for(Expression singleCondition : condition){
+			for (Expression variable : this.getVariable()){
+				if(singleCondition.getArguments().contains(variable)){
+					if(singleCondition.getArguments().contains(parse("true"))){
+						Expression trueVariable = IfThenElse.make(variable, parse("1"), parse("0"));
+						Factor.add(trueVariable);
+					}
+					else{
+						Expression falseVariable = IfThenElse.make(variable, parse("0"), parse("1"));
+						Factor.add(falseVariable);
+					}
+					for(Expression factor : this.getFactor()){
+						if(singleCondition.getArguments().containsAll(this.getNeighbors(factor))){
+							Factor.remove(factor);
+						}
+					}
+				}
+			}
+		}
+		if(!condition.isEmpty()){
+			Model m = new Model(Factor);
+			this.map = m.map;
+		}
+	}
+
 	public Expression naiveCalculation(Expression query){
 
 		Expression func = DefaultSymbol.createSymbol("f");
