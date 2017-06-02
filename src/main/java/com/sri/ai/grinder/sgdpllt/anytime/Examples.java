@@ -200,7 +200,68 @@ public class Examples {
 		return ComponentResultat;
 
 	}
+	
+	public static VariableComponent RealCancerModel() {
+		
+		//https://qph.ec.quoracdn.net/main-qimg-17c53810d49f6e917af93e576a9ec8da
+		
+		Expression visitToAsia = DefaultSymbol.createSymbol("VisitToAsia");
+		Expression tuberculosis = DefaultSymbol.createSymbol("Tuberculosis");
+		Expression lungCancer = DefaultSymbol.createSymbol("LungCancer");
+		Expression lungCancerOrTuberculosis = DefaultSymbol.createSymbol("LungCancerOrTuberculosis");
+		Expression positiveXRay = DefaultSymbol.createSymbol("PositiveXRay");
+		Expression dispnea = DefaultSymbol.createSymbol("Dispnea");
+		Expression bronchitis = DefaultSymbol.createSymbol("Bronchitis");
+		Expression smoker = DefaultSymbol.createSymbol("Smoker");
+		
+		Expression probabilityVisitToAsia= IfThenElse.make(visitToAsia, parse("0.01"), parse("0.99"));		
+		Expression probabilitySmoker= IfThenElse.make(smoker, parse("0.5"), parse("0.5"));
+		
+		Expression f1 = IfThenElse.make(visitToAsia, 
+								IfThenElse.make(tuberculosis, parse("0.05"), parse("0.95")), 
+								IfThenElse.make(tuberculosis, parse("0.01"), parse("0.99")));
+		Expression f2 = IfThenElse.make(smoker, 
+								IfThenElse.make(lungCancer, parse("0.1"), parse("0.9")), 
+								IfThenElse.make(lungCancer, parse("0.01"), parse("0.99")));
+		Expression f3 = IfThenElse.make(smoker, 
+								IfThenElse.make(bronchitis, parse("0.6"), parse("0.4")), 
+								IfThenElse.make(bronchitis, parse("0.3"), parse("0.7")));
+		Expression f4 = IfThenElse.make(lungCancerOrTuberculosis, 
+								IfThenElse.make(positiveXRay, parse("0.98"), parse("0.02")), 
+								IfThenElse.make(positiveXRay, parse("0.05"), parse("0.95")));
+		
+		Expression f5 = IfThenElse.make(lungCancerOrTuberculosis, 
+								IfThenElse.make(lungCancer, 
+										parse("1"), 
+										IfThenElse.make(tuberculosis, parse("1"), parse("0"))), 
+								IfThenElse.make(lungCancer, 
+										parse("0"), 
+										IfThenElse.make(tuberculosis, parse("0"), parse("1"))));
+		
+		Expression f6 = IfThenElse.make(lungCancerOrTuberculosis, 
+								IfThenElse.make(bronchitis, 
+										IfThenElse.make(dispnea, parse("0.9"), parse("0.1")), 
+										IfThenElse.make(dispnea, parse("0.7"), parse("0.3"))), 
+								IfThenElse.make(bronchitis, 
+										IfThenElse.make(dispnea, parse("0.8"), parse("0.2")), 
+										IfThenElse.make(dispnea, parse("0.1"), parse("0.9"))));
 
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(f5);
+		Factor.add(f6);
+		Factor.add(probabilityVisitToAsia);
+		Factor.add(probabilitySmoker);
+
+		Model m = new Model(Factor);
+
+		VariableComponent ComponentResultat = new VariableComponent(lungCancer, DefaultSymbol.createSymbol(""), m, new HashSet<Expression>());
+		return ComponentResultat;
+	}
+	
 	public static VariableComponent Model1() {
 		Expression func = DefaultSymbol.createSymbol("f");
 
@@ -301,7 +362,8 @@ public class Examples {
 
 	public static void main(String[] args) {
 			
-		VariableComponent ComponentResultat = TreeModel();
+		VariableComponent ComponentResultat = RealCancerModel();
+		println(ComponentResultat.model.getVariable());
 		
 		long startTime = System.currentTimeMillis();
 		int nbIter = 0;
