@@ -169,7 +169,7 @@ public class FactorComponent {
 		
 		for (Expression variableToSum : toSum){
 			childrenMessage = theory.evaluate(childrenMessage, context);
-			String str = "sum({{ (on " + variableToSum + " in Boolean ) " + childrenMessage + " }})";
+			String str = "sum({{ (on " + variableToSum + " in " + this.model.getValues(variableToSum) +" ) " + childrenMessage + " }})";
 			childrenMessage = parse(str);
 		}
 		return 	theory.evaluate(childrenMessage, context);

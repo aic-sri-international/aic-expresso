@@ -26,6 +26,8 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 public class Model {
 	public ManyToManyRelation<Expression, Expression> map;
+	public ManyToManyRelation<Expression, String> mapVariablesToType;
+	public ManyToManyRelation<Expression, String> mapVariablesToValuesTaken;
 	public Set<VariableComponent> initializeVariableComponent;
 	public Set<FactorComponent> initializeFactorComponent;
 	public Context context;
@@ -33,6 +35,8 @@ public class Model {
 
 	public Model(Set<Expression> Factor) {
 		this.map = new ManyToManyRelation<Expression, Expression>();
+		this.mapVariablesToType	 = new ManyToManyRelation<Expression, String>();
+		this.mapVariablesToValuesTaken	 = new ManyToManyRelation<Expression, String>();
 		this.initializeFactorComponent = new HashSet<FactorComponent>();
 		this.initializeVariableComponent = new HashSet<VariableComponent>();
 		this.theory = new CompoundTheory(
@@ -53,7 +57,31 @@ public class Model {
 		}
 	}
 
-
+	public void setType(Expression expression, String typeOfVariable) {
+		this.mapVariablesToType.add(expression, typeOfVariable);
+	}
+	
+	public void setValues(Expression expression, String ValuesTakenByVariable) {
+		this.mapVariablesToValuesTaken.add(expression, ValuesTakenByVariable);
+	}
+	
+	public String getType(Expression expression) {
+		Collection < String > collectionOfString =this.mapVariablesToType.getBsOfA(expression);
+		for(String string : collectionOfString){
+			return string;
+		}
+		return("no type has been defined for this variable");		
+	}
+	
+	public String getValues(Expression expression) {
+		Collection < String > collectionOfString =this.mapVariablesToValuesTaken.getBsOfA(expression);
+		for(String string : collectionOfString){
+			return string;
+		}
+		return("no values have been defined for this variable");		
+	}
+	
+	
 	public Set<Expression> getNeighbors(Expression expression) {
 		Set<Expression> neighbors = new HashSet<Expression>();
 		if (expression.getFunctor() == null) {
@@ -122,20 +150,17 @@ public class Model {
 	
 	public Expression naiveCalculation(Expression query){
 
-		Expression func = DefaultSymbol.createSymbol("f");
 		Expression factorProduct = parse("1");
-		Expression initialFactor = apply(func, query);
-		
 		for (Expression factor : this.getFactor()){
-			if (!factor.equals(initialFactor)){
 				factorProduct = apply(TIMES, factor, factorProduct);
-			}
 		}
+		
 		Expression summedProduct = factorProduct;
 		for (Expression variable : this.getVariable()){
 			if (variable != query){
-				String str = "sum({{ (on " + variable + " in Boolean ) " + summedProduct + " }})";
-				summedProduct = theory.evaluate(parse(str), context);
+				String values = this.getValues(variable);
+				String string = "sum({{ (on " + variable + " in " + values +" ) " + summedProduct + " }})";
+				summedProduct = theory.evaluate(parse(string), context);
 			}
 		}
 		return summedProduct;

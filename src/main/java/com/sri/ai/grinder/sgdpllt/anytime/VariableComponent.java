@@ -55,6 +55,10 @@ public class VariableComponent {
 		}
 
 		model.initializeVariableComponent.add(this);
+		
+		//we add the varaible to the context and tell of which type is the variable add
+		String typeOfVariable = this.model.getType(variable);
+		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), typeOfVariable);
 	}
 
 	public void update(Set<Expression> Pext) {
@@ -155,9 +159,9 @@ public class VariableComponent {
 		}
 		
 		
-		for (Expression cutset : this.cutsetInsideSubModel){
+		for (Expression cutsetVariable : this.cutsetInsideSubModel){
 			childrenMessage = theory.evaluate(childrenMessage, context);
-			String str = "sum({{ (on " + cutset + " in Boolean ) " + childrenMessage + " }})";
+			String str = "sum({{ (on " + cutsetVariable + " in " + this.model.getValues(cutsetVariable) +" ) " + childrenMessage + " }})";
 			childrenMessage = parse(str);
 		}
 		
@@ -166,7 +170,9 @@ public class VariableComponent {
 	}
 
 	public Expression naiveCalcul(){
-		String string = "(" + this.model.naiveCalculation(this.variable) + ")/sum({{ (on "  + this.variable + " in Boolean) " + this.model.naiveCalculation(this.variable) + " }})";
+		Expression expression = this.model.naiveCalculation(this.variable);
+		String values = this.model.getValues(this.variable);
+		String string = "(" + expression + ")/sum({{ (on "  + this.variable + " in " + values +" ) " + expression  + " }})";
 		return this.model.theory.evaluate(parse(string), this.model.context);
 	}
 	
