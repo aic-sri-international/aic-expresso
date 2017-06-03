@@ -38,11 +38,12 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
+import com.sri.ai.util.collect.ManyToManyRelation;
 
 
 public class Bounds {
 	// a bound is a set of expressions representing its extreme points
-	
+
 	static boolean debug = false;
 	
 	public static Expression simplex(List<Expression> Variables, Model model){
