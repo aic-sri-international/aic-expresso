@@ -75,6 +75,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.util.Util;
 
 /**
  * A collection of examples on how to use the Expresso API.
@@ -421,10 +422,12 @@ public class ExpressoAPIExamples {
 		
 		// Obtaining and using types:
 		context = new TrueContext();
-		context = context.extendWithSymbolsAndTypes("I", "1..4", "P", "Boolean");
+		context = context.extendWithSymbolsAndTypes("I", "3..8", "P", "Boolean");
 		println(context.getSymbolsAndTypes());
-		println(context.getTypeOfRegisteredSymbol(parse("I")));
-		Expression typeExpression = context.getTypeOfRegisteredSymbol(parse("I"));
+		println(context.getTypeExpressionOfRegisteredSymbol(parse("I")));
+		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("I"));
+		Type typeOfI = context.getType(typeExpression);
+		println("All values of the type " + typeExpression + " of I: " + Util.join(typeOfI.iterator()));
 	}
 
 	/**

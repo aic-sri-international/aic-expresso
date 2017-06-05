@@ -113,7 +113,7 @@ public class Equality implements Simplifier {
 			return true; // both are the same expression
 		}
 		else if ( context.isVariable(expression1) && context.isVariable(expression2) &&
-				Util.notNullAndDistinct(context.getTypeOfRegisteredSymbol(expression1), context.getTypeOfRegisteredSymbol(expression2))){
+				Util.notNullAndDistinct(context.getTypeExpressionOfRegisteredSymbol(expression1), context.getTypeExpressionOfRegisteredSymbol(expression2))){
 			return false; // distinct variables with different types, so not equal under current assumption that types do not overlap (which will probably be removed in the future).
 		}
 		else {

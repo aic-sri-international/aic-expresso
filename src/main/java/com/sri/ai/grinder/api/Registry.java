@@ -105,7 +105,7 @@ public interface Registry extends Cloneable {
 	/**
 	 * @return the type of a registered symbol.
 	 */
-	Expression getTypeOfRegisteredSymbol(Expression symbol);
+	Expression getTypeExpressionOfRegisteredSymbol(Expression symbol);
 	
 	/**
 	 * Create a new sub-registry and registers the symbols

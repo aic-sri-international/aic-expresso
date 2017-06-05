@@ -202,7 +202,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 	
 	@Override
-	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
+	public Expression getTypeExpressionOfRegisteredSymbol(Expression symbol) {
 		return symbolsAndTypes.get(symbol);
 	}
 
