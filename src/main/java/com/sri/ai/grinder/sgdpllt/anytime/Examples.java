@@ -43,8 +43,7 @@ public class Examples {
 	
 		m.setValues(a,  booleanExpression);
 		m.setValues(b,  booleanExpression);
-		m.setValues(q,  booleanExpression);
-
+		m.setValues(q,  booleanExpression);‰
 		
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -278,7 +277,7 @@ public class Examples {
 
 	}
 
-	public static VariableComponent RealCancerModel(Set<Expression> condition) {
+	public static VariableComponent RealCancerModel() {
 
 		// https://qph.ec.quoracdn.net/main-qimg-17c53810d49f6e917af93e576a9ec8da
 
@@ -325,7 +324,7 @@ public class Examples {
 		Factor.add(probabilitySmoker);
 
 		Model m = new Model(Factor);
-		m.addConditions(condition);
+		
 
 		
 
@@ -334,108 +333,13 @@ public class Examples {
 		return ComponentResultat;
 	}
 
-	public static VariableComponent Model1() {
-		Expression func = DefaultSymbol.createSymbol("f");
 
-		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
-		Expression f = DefaultSymbol.createSymbol("F");
-		Expression g = DefaultSymbol.createSymbol("G");
-		Expression q = DefaultSymbol.createSymbol("Q");
-
-		Expression f1 = apply(IF_THEN_ELSE, a, q, d);
-		Expression f2 = apply(IF_THEN_ELSE, b, q, g);
-		Expression f3 = apply(IF_THEN_ELSE, b, f, c);
-		Expression f4 = apply(IF_THEN_ELSE, c, a, e);
-		Expression res = apply(func, q);
-
-		Set<Expression> Factor = new HashSet<Expression>();
-		Factor.add(f1);
-		Factor.add(f2);
-		Factor.add(f3);
-		Factor.add(f4);
-		Factor.add(res);
-
-		Model m = new Model(Factor);
-
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
-		return ComponentResultat;
-
-	}
-
-	public static VariableComponent Model2() {
-
-		Expression func = DefaultSymbol.createSymbol("f");
-
-		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
-		Expression f = DefaultSymbol.createSymbol("F");
-		Expression q = DefaultSymbol.createSymbol("Q");
-
-		Expression f1 = apply(IF_THEN_ELSE, a, q, b);
-		Expression f2 = apply(IF_THEN_ELSE, b, a, e);
-		Expression f3 = apply(IF_THEN_ELSE, a, d, c);
-		Expression f4 = apply(IF_THEN_ELSE, d, e, f);
-		Expression res = apply(func, q);
-
-		Set<Expression> Factor = new HashSet<Expression>();
-		Factor.add(f1);
-		Factor.add(f2);
-		Factor.add(f3);
-		Factor.add(f4);
-		Factor.add(res);
-
-		Model m = new Model(Factor);
-
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
-		return ComponentResultat;
-	}
-
-	public static VariableComponent Model3() {
-
-		Expression func = DefaultSymbol.createSymbol("f");
-
-		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
-		Expression d = DefaultSymbol.createSymbol("D");
-		Expression e = DefaultSymbol.createSymbol("E");
-		Expression f = DefaultSymbol.createSymbol("F");
-		Expression g = DefaultSymbol.createSymbol("G");
-		Expression h = DefaultSymbol.createSymbol("H");
-		Expression q = DefaultSymbol.createSymbol("Q");
-
-		Expression f1 = apply(IF_THEN_ELSE, q, a, b);
-		Expression f2 = apply(IF_THEN_ELSE, a, b, c);
-		Expression f3 = apply(IF_THEN_ELSE, c, d, e);
-		Expression f4 = apply(IF_THEN_ELSE, e, f, g);
-		Expression f5 = apply(IF_THEN_ELSE, f, g, h);
-		Expression res = apply(func, q);
-
-		Set<Expression> Factor = new HashSet<Expression>();
-		Factor.add(f1);
-		Factor.add(f2);
-		Factor.add(f3);
-		Factor.add(f4);
-		Factor.add(f5);
-		Factor.add(res);
-
-		Model m = new Model(Factor);
-
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
-		return ComponentResultat;
-	}
+		
 
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult = TreeModel();
+		VariableComponent ComponentResult = DiamondModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
