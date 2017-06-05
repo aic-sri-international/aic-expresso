@@ -62,7 +62,7 @@ public class Bounds {
 		Expression zero= makeSymbol("0");
 		
 		for(Expression var : Variables){
-			Expression values = parse (model.getValues(var)); //TODO getValues should return the right
+			Expression values = model.getValues(var); //TODO getValues should return the right
 															//Expression rather than a string to be parsed.
 															//By the way, that expression should represent a UniSet 
 			List<Expression> listOfValues = getElements(values);
