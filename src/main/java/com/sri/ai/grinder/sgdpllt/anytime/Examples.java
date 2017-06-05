@@ -197,8 +197,7 @@ public class Examples {
 	}
 
 	public static VariableComponent DoubleDiamondModel() {
-		Expression func = DefaultSymbol.createSymbol("f");
-
+		
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
@@ -227,7 +226,6 @@ public class Examples {
 		Expression f9 = IfThenElse.make(c, IfThenElse.make(a, parse("6"), parse("4")),
 				IfThenElse.make(a, parse("8"), parse("4")));
 		Expression f10 = IfThenElse.make(c, parse("1"), parse("0"));
-		Expression res = apply(func, q);
 
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
@@ -240,11 +238,30 @@ public class Examples {
 		Factor.add(f8);
 		Factor.add(f9);
 		Factor.add(f10);
-		Factor.add(res);
-
+		
 		Model m = new Model(Factor);
+		
+		m.setType(a,  "Boolean");
+		m.setType(b,  "Boolean");
+		m.setType(c,  "Boolean");
+		m.setType(d,  "Boolean");
+		m.setType(e,  "Boolean");
+		m.setType(f,  "Boolean");
+		m.setType(g,  "Boolean");
+		m.setType(q,  "Boolean");
+		
+		m.setValues(a,  "Boolean");
+		m.setValues(b,  "Boolean");
+		m.setValues(c,  "Boolean");
+		m.setValues(d,  "Boolean");
+		m.setValues(e,  "Boolean");
+		m.setValues(f,  "Boolean");
+		m.setValues(g,  "Boolean");
+		m.setValues(q,  "Boolean");
 
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		
+
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
 
 	}
@@ -406,7 +423,7 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult = TreeModelWithInteger();
+		VariableComponent ComponentResult = DoubleDiamondModel();
 		Set<Expression> condition = new HashSet<Expression>();
 		condition.add(parse("A = 1"));
 		ComponentResult.model.addConditions(condition);
@@ -416,14 +433,25 @@ public class Examples {
 	private static void runningTest(VariableComponent ComponentResult) {
 
 		long startTime, endTime, totalTime;
-		ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");
+		ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
+		
+		//first we compute the result with our algorithm
+		//we also store the computation time to compare it to the naive computation time
+		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
 			ComponentResult.update(new HashSet<Expression>());
 		}
+		//ComponentResult.print(0);
+		Expression unnormalizedMessage = ComponentResult.calculate();
+		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in " + ComponentResult.model.getValues(ComponentResult.variable) +") " + unnormalizedMessage + " }})";
+		Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
 		
+		System.out.println("\n\nOur computation : " + normalizedMessage);
+		println("totalTime: " + totalTime);
 		
-		ComponentResult.print(0);
-		
+		//now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
 		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
@@ -432,15 +460,6 @@ public class Examples {
 		println("\n\nNaive Result : " + naiveResult);
 		println("totalTime: " + totalTime);
 		
-		startTime = System.currentTimeMillis();
-		Expression unnormalizedMessage = ComponentResult.calculate();
-		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in Boolean) " + unnormalizedMessage + " }})";
-		Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
-		endTime   = System.currentTimeMillis();
-		totalTime = endTime - startTime;
-		
-		System.out.println("\n\nOur computation : " + normalizedMessage);
-		println("totalTime: " + totalTime);
 	}
 
 }
