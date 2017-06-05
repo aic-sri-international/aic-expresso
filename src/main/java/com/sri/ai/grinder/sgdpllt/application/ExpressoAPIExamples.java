@@ -52,6 +52,7 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.set;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
@@ -425,9 +426,16 @@ public class ExpressoAPIExamples {
 		context = context.extendWithSymbolsAndTypes("I", "3..8", "P", "Boolean");
 		println(context.getSymbolsAndTypes());
 		println(context.getTypeExpressionOfRegisteredSymbol(parse("I")));
+		
 		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("I"));
-		Type typeOfI = context.getType(typeExpression);
-		println("All values of the type " + typeExpression + " of I: " + Util.join(typeOfI.iterator()));
+		Type type = context.getTypeOfRegisteredSymbol(parse("I"));
+		Iterator<Expression> iteratorToValuesInType = type.iterator();
+		println("All values of the type " + typeExpression + " of I: " + Util.join(iteratorToValuesInType));
+
+		typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("P"));
+		type = context.getTypeOfRegisteredSymbol(parse("P"));
+		iteratorToValuesInType = type.iterator();
+		println("All values of the type " + typeExpression + " of P: " + Util.join(iteratorToValuesInType));
 	}
 
 	/**

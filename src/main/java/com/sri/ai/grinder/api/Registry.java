@@ -103,9 +103,18 @@ public interface Registry extends Cloneable {
 	boolean containsSymbol(Expression symbol);
 	
 	/**
-	 * @return the type of a registered symbol.
+	 * @return the type expression of a registered symbol.
 	 */
 	Expression getTypeExpressionOfRegisteredSymbol(Expression symbol);
+	
+	/**
+	 * @return the type of a registered symbol (equivalent to <code>getType(getTypeExpressionOfRegisteredSymbol(symbol))</code>.
+	 */
+	default Type getTypeOfRegisteredSymbol(Expression symbol) {
+		Expression typeExpression = getTypeExpressionOfRegisteredSymbol(symbol);
+		Type result = getType(typeExpression);
+		return result;
+	}
 	
 	/**
 	 * Create a new sub-registry and registers the symbols
