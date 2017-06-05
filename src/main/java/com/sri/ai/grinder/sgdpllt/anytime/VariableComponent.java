@@ -191,7 +191,11 @@ public class VariableComponent {
 		Expression summation = apply(SUM, intensionalMultiSet);
 		//childrenMessage=summation;
 		
-		return this.model.theory.evaluate(summation, this.model.context);
+		Expression normalizalisation = this.model.theory.evaluate(summation, this.model.context);
+		Expression result = apply("/", expressiontoSum, normalizalisation);
+		result = this.model.theory.evaluate(result, this.model.context);
+		
+		return result;
 	}
 	
 }
