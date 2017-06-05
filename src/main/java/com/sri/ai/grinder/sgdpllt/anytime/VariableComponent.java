@@ -1,6 +1,8 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
 
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
@@ -11,6 +13,9 @@ import java.util.Set;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
@@ -160,9 +165,14 @@ public class VariableComponent {
 		
 		
 		for (Expression cutsetVariable : this.cutsetInsideSubModel){
-			childrenMessage = theory.evaluate(childrenMessage, context);
-			String str = "sum({{ (on " + cutsetVariable + " in " + this.model.getValues(cutsetVariable) +" ) " + childrenMessage + " }})";
-			childrenMessage = parse(str);
+			//childrenMessage = theory.evaluate(childrenMessage, context);
+			//String str = "sum({{ (on " + cutsetVariable + " in " + this.model.getValues(cutsetVariable) +" ) " + childrenMessage + " }})";
+			//childrenMessage = parse(str);
+			Expression valuesTakenByVariableToSum = this.model.getValues(cutsetVariable);
+			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, cutsetVariable, valuesTakenByVariableToSum ));
+			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, childrenMessage, parse("true")); 
+			Expression summation = apply(SUM,  intensionalMultiSet);
+			childrenMessage=summation;
 		}
 		
 		return 	theory.evaluate(childrenMessage, context);
@@ -170,10 +180,18 @@ public class VariableComponent {
 	}
 
 	public Expression naiveCalcul(){
-		Expression expression = this.model.naiveCalculation(this.variable);
-		String values = this.model.getValues(this.variable);
-		String string = "(" + expression + ")/sum({{ (on "  + this.variable + " in " + values +" ) " + expression  + " }})";
-		return this.model.theory.evaluate(parse(string), this.model.context);
+		Expression expressiontoSum = this.model.naiveCalculation(this.variable);
+		//String values = this.model.getValues(this.variable);
+		//String string = "(" + expression + ")/sum({{ (on "  + this.variable + " in " + values +" ) " + expression  + " }})";
+		
+		//Expression expressionToSum = theory.evaluate(childrenMessage, context);
+		Expression valuesTakenByVariableToSum = this.model.getValues(this.variable);
+		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, this.variable, valuesTakenByVariableToSum ));
+		Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, expressiontoSum, parse("true")); 
+		Expression summation = apply(SUM, intensionalMultiSet);
+		//childrenMessage=summation;
+		
+		return this.model.theory.evaluate(summation, this.model.context);
 	}
 	
 }

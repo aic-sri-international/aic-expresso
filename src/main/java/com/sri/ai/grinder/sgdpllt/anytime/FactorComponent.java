@@ -3,6 +3,10 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
@@ -11,8 +15,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.Equality;
 
 public class FactorComponent {
 
@@ -155,9 +163,17 @@ public class FactorComponent {
 		
 		
 		for (Expression cutset : this.cutsetInsideSubModel){
-			String str = "sum({{ (on " + cutset + " in Boolean ) " + childrenMessage + " }})";
-			childrenMessage = parse(str);
-			childrenMessage = theory.evaluate(childrenMessage, context);
+			//String str = "sum({{ (on " + cutset + " in Boolean ) " + childrenMessage + " }})";
+			//childrenMessage = parse(str);
+			//childrenMessage = theory.evaluate(childrenMessage, context);
+			Expression valuesTakenByVariableToSum = this.model.getValues(cutset);
+			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, cutset, valuesTakenByVariableToSum ));
+			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, childrenMessage, parse("true")); 
+			Expression summation = apply(SUM, intensionalMultiSet);
+			childrenMessage=summation;
+			//String str = "sum({{ (on " + variableToSum + " in " + this.model.getValues(variableToSum) +" ) " + childrenMessage + " }})";
+			//childrenMessage = parse(str);
+			
 		}
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
@@ -168,9 +184,14 @@ public class FactorComponent {
 		toSum.removeAll(this.cutsetInsideSubModel);
 		
 		for (Expression variableToSum : toSum){
-			childrenMessage = theory.evaluate(childrenMessage, context);
-			String str = "sum({{ (on " + variableToSum + " in " + this.model.getValues(variableToSum) +" ) " + childrenMessage + " }})";
-			childrenMessage = parse(str);
+			Expression expressionToSum = theory.evaluate(childrenMessage, context);
+			Expression valuesTakenByVariableToSum = this.model.getValues(variableToSum);
+			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, variableToSum, valuesTakenByVariableToSum ));
+			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, expressionToSum, parse("true")); 
+			Expression summation = apply(SUM, intensionalMultiSet);
+			//String str = "sum({{ (on " + variableToSum + " in " + this.model.getValues(variableToSum) +" ) " + childrenMessage + " }})";
+			//childrenMessage = parse(str);
+			childrenMessage=summation;
 		}
 		return 	theory.evaluate(childrenMessage, context);
 

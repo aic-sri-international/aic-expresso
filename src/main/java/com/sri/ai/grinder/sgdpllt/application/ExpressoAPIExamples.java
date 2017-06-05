@@ -257,6 +257,10 @@ public class ExpressoAPIExamples {
 		f = makeSymbol("F");
 		Expression foods = makeSymbol("Foods");
 		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, p, people), apply(IN, f, foods));
+		
+		
+		
+		
 		// The "extensional" in ExtensionalIndexExpressionsSet means that the list/set of indices is extensionally defined,
 		// even though they will be the indices of an intensionally defined set.
 		intensionalUniSet = 

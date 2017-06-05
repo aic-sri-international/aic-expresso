@@ -20,30 +20,37 @@ import com.sri.ai.util.base.Equals;
 public class Examples {
 
 	public static VariableComponent TriangleModel() {
-		Expression func = DefaultSymbol.createSymbol("f");
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		Expression f1 = apply(IF_THEN_ELSE, a, q, 5);
-		Expression f2 = apply(IF_THEN_ELSE, b, q, 5);
-		Expression f3 = apply(IF_THEN_ELSE, a, b, 5);
+		Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
+		Expression f2 = parse("if B then if A 10 else 1 else if A then 1 else 10");
+		Expression f3 = parse("if B then if Q 10 else 1 else if Q then 1 else 10");
 
-		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
 		Factor.add(f2);
 		Factor.add(f3);
-		Factor.add(res);
-
+		
 		Model m = new Model(Factor);
+		
+		m.setType(a,  "Boolean");
+		m.setType(b,  "Boolean");
+		m.setType(q,  "Boolean");
+		
+		Expression booleanExpression = parse("Boolean");
+	
+		m.setValues(a,  booleanExpression);
+		m.setValues(b,  booleanExpression);
+		m.setValues(q,  booleanExpression);
 
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
 
 	public static VariableComponent DiamondModel() {
-		Expression func = DefaultSymbol.createSymbol("f");
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression c = DefaultSymbol.createSymbol("C");
@@ -64,18 +71,26 @@ public class Examples {
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
 		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
 
-		Expression res = apply(func, q);
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
 		Factor.add(f2);
 		Factor.add(f3);
 		Factor.add(f4);
 		Factor.add(f5);
-		Factor.add(res);
 
 		Model m = new Model(Factor);
+		m.setType(a,  "Boolean");
+		m.setType(b,  "Boolean");
+		m.setType(c,  "Boolean");
+		m.setType(q,  "Boolean");
+		
+		Expression booleanExpression = parse("Boolean");
+		m.setValues(a,  booleanExpression);
+		m.setValues(b,  booleanExpression);
+		m.setValues(c,  booleanExpression);
+		m.setValues(q,  booleanExpression);
 
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
 
@@ -145,15 +160,12 @@ public class Examples {
 		m.setType(c,  "Boolean");
 		m.setType(q,  "Boolean");
 		
-		m.setValues(a,  "Boolean");
-		m.setValues(b,  "Boolean");
-		m.setValues(c,  "Boolean");
-		m.setValues(q,  "Boolean");
 
-		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
-				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
-		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
+		Expression booleanExpression = parse("Boolean");
+		m.setValues(a,  booleanExpression);
+		m.setValues(b,  booleanExpression);
+		m.setValues(c,  booleanExpression);
+		m.setValues(q,  booleanExpression);
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -423,10 +435,10 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult = DoubleDiamondModel();
-		Set<Expression> condition = new HashSet<Expression>();
-		condition.add(parse("A = 1"));
-		ComponentResult.model.addConditions(condition);
+		VariableComponent ComponentResult = TreeModel();
+		//Set<Expression> condition = new HashSet<Expression>();
+		//condition.add(parse("A = 1"));
+		//ComponentResult.model.addConditions(condition);
 		runningTest(ComponentResult);
 	}
 
