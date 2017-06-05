@@ -17,6 +17,7 @@ import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.println;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,13 +30,21 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 //import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 //import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
+import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
 import com.sri.ai.util.collect.ManyToManyRelation;
@@ -86,7 +95,8 @@ public class Bounds {
 		Expression phi = makeSymbol("phi");
 	
 		Expression phi1 = listOfBound.get(0);
-		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(phi1, context);
+		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(bound, context);
+		println(indices);
 		Expression noCondition = makeSymbol(true);
 		Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 				indices,
@@ -271,4 +281,40 @@ public class Bounds {
 		//Expression result = theory.evaluate(isExtreme, context);
 		return true;
 	}	
+
+	
+	public static void main(String[] args) {
+			
+	Theory theory = new CompoundTheory(
+			new EqualityTheory(false, true),
+			new DifferenceArithmeticTheory(false, false),
+			new LinearRealArithmeticTheory(false, false),
+			new TupleTheory(),
+			new PropositionalTheory());
+	
+	Context context = new TrueContext(theory);
+	context = context.extendWithSymbolsAndTypes("X","Boolean");
+	context = context.extendWithSymbolsAndTypes("Y","Boolean");
+	context = context.extendWithSymbolsAndTypes("A","Boolean");
+	context = context.extendWithSymbolsAndTypes("B","Boolean");
+	
+	//Set of numbers
+	Expression one   = DefaultSymbol.createSymbol(1);
+	Expression two   = DefaultSymbol.createSymbol(2);
+	Expression three = DefaultSymbol.createSymbol(3);
+	Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two, three);
+
+	//Set of functions
+	Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
+	Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
+	Expression phi3 = parse("if A = true then 7 else if B = true then 8 else 9");
+	Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
+	Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
+	
+	Bounds.normalize(setOfFactors, theory, context).toString();
+	
+}
+
+
+
 }
