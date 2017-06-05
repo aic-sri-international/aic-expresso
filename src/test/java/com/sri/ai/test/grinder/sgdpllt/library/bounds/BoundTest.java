@@ -62,11 +62,12 @@ public class BoundTest {
 		Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
 		
 		assertEquals(
-				parse("{if X then 1/7 else if Y then 2/7 else 3/7," +
-						" if X then if Y then 4/21 else 5/21 else 2/7, " +
-						"if X then 7/31 else if Y then 8/31 else 9/31, " +
-						"if X then 10/43 else if Y then 11/43 else 12/43 }"),
-				Bounds.normalize(setOfFactors, theory, context));
+				"{ if X then 1/7 else if Y then 2/7 else 3/7,"
+				+ " if X then if Y then 4/21 else 5/21 else 2/7, "
+				+ "if X then 7/31 else if Y then 8/31 else 9/31,"
+				+ " if X then 10/43 else if Y then 11/43 else 12/43 }",
+				Bounds.normalize(setOfFactors, theory, context).toString());
+		
 		assertEquals(parse("{ 1, 1, 1 }"), Bounds.normalize(setOFNumbers, theory, context));
 	}
 	
