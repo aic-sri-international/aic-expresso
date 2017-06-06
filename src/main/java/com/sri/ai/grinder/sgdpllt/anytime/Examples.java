@@ -4,7 +4,6 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 import static com.sri.ai.util.Util.println;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,8 +13,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
+
 
 public class Examples {
 
@@ -336,7 +334,7 @@ public class Examples {
 		m.context = m.context.extendWithSymbolsAndTypes("Bronchitis","Boolean");
 		m.context = m.context.extendWithSymbolsAndTypes("Smoker","Boolean");
 		
-		m.setType(visitToAsia,  "Boolean");
+		/*m.setType(visitToAsia,  "Boolean");
 		m.setType(tuberculosis,  "Boolean");
 		m.setType(lungCancer,  "Boolean");
 		m.setType(lungCancerOrTuberculosis,  "Boolean");
@@ -355,9 +353,7 @@ public class Examples {
 		m.setValues(positiveXRay,  booleanExpression);
 		m.setValues(dispnea,  booleanExpression);
 		m.setValues(bronchitis ,  booleanExpression);
-		m.setValues(smoker,  booleanExpression);
-
-		
+		m.setValues(smoker,  booleanExpression);*/		
 
 		VariableComponent ComponentResultat = new VariableComponent(lungCancer, DefaultSymbol.createSymbol(""), m,
 				new HashSet<Expression>());
