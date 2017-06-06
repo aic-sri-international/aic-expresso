@@ -1,5 +1,6 @@
 package com.sri.ai.grinder.sgdpllt.library.bounds;
 
+import static com.sri.ai.expresso.core.DefaultSymbol.createSymbol;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
@@ -27,16 +28,15 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExtensionalSet;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-//import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-//import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -60,15 +60,11 @@ public class Bounds {
 		Expression zero= makeSymbol("0");
 		
 		for(Expression var : Variables){
-			Expression values = model.getValues(var); //TODO getValues should return the right
-															//Expression rather than a string to be parsed.
-															//By the way, that expression should represent a UniSet 
+			Expression values = model.getValues(var); 
 			List<Expression> listOfValues = getElements(values);
 			for (Expression value : listOfValues){
 				simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, value), one, zero));
 			}
-			//simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, true ), one, zero));
-			//simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, false), one, zero));
 		}
 
 		Expression result =  new DefaultExtensionalUniSet(simplexList);
@@ -92,9 +88,8 @@ public class Bounds {
 		
 		Expression phi = makeSymbol("phi");
 	
-		Expression phi1 = listOfBound.get(0);
 		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(bound, context);
-		println(indices);
+		
 		Expression noCondition = makeSymbol(true);
 		Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 				indices,
@@ -136,48 +131,14 @@ public class Bounds {
 		
 		return result;		
 	}
-	/*public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
-		if(listOfBounds.length == 0){ 
-			return null;
-		}
-		
-		Expression result= boundProduct (0, theory, context, listOfBounds);
-		return result;
-	}
-
-	private static Expression boundProduct(int i,  Theory theory, Context context, Expression...listOfBounds){
-		if(listOfBounds.length - 1 == i){
-			return listOfBounds[i];
-		}
-		
-		Expression productOfOthers = boundProduct(i + 1, theory, context, listOfBounds);
-		Expression b = listOfBounds[i];
-
-		List<Expression> listOfb = ExtensionalSet.getElements(b);
-		List<Expression> listOfProductOfOthers = ExtensionalSet.getElements(productOfOthers);
-		
-		ArrayList<Expression> elements = new ArrayList<>(listOfb.size()*listOfProductOfOthers.size());
-		
-		for (Expression phi1 : listOfb){
-			for (Expression phi2 : listOfProductOfOthers){
-				Expression product = apply("*",phi1,phi2);
-				Expression evaluation = theory.evaluate(product,context);
-				elements.add(evaluation);
-			}
-		}
-		
-		DefaultExtensionalUniSet productBound = new DefaultExtensionalUniSet(elements);
-		//Updating extreme points
-		Expression result = updateExtremes(productBound,theory,context);
-		return result;
-	}*/
 	
 	/**
 	 * apply a function (f) to each term of a bound (b) 
-	 * Example: if we have a function f(x) and a bound b = {a,b,c} and we want to compute f(b) = {f(a), f(b), f(c)}
-	 * 			it suffices to pass as arguments : 	- f as function
-	 * 												- x as variableName
-	 * 												- b as bound
+	 * Example: if we have a function f(x) and a bound b = {a,b,c} and we want to compute 
+	 * 			f(b) = {f(a), f(b), f(c)}
+	 * 			Then it suffices to pass as arguments : 	(1) f as function 
+	 * 													(2) x as variableName
+	 * 													(3) b as bound
 	 * @param f 
 	 * 			function to be applied to the factors
 	 * @param variableName
@@ -195,10 +156,8 @@ public class Bounds {
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
 		for(Expression phi : ExtensionalSets.getElements(bAsExtensionalSet)){
 			Expression substitution = f.replaceAllOccurrences(variableName, phi, context);
-			//debuging
 			if (debug) println("evaluating: " + substitution);
-			Expression evaluation = theory.evaluate(substitution, context); // problem in evaluation method...
-			//debuging
+			Expression evaluation = theory.evaluate(substitution, context);
 			if (debug) println("result: " + evaluation);
 			elements.add(evaluation);
 		}
@@ -282,8 +241,35 @@ public class Bounds {
 		if (debug) println(isExtreme);
 		//Expression result = theory.evaluate(isExtreme, context);
 		return true;
-	}	
+	}
+	
+	public static Expression summingBound(Expression variablesToBeSummedOut, Expression bound,
+			Context context, Theory theory){
+		Expression x = parse("x");
+		
+		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variablesToBeSummedOut, context);
+		
+		Expression noCondition = makeSymbol(true);
+		Expression summingoutSet = IntensionalSet.makeMultiSet(
+				indices,
+				x,//head
+				noCondition);
+		
+		Expression f = apply(SUM,summingoutSet);
+		Expression result = applyFunctionToBound(f, x, bound, theory, context);
+		return result;
+	}
 
+	public static Expression summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Expression bound,
+			Context context, Theory theory){
+		Expression x = createSymbol("x");
+		Expression f = apply(TIMES, phi, x);		
+		
+		Expression phiTimesBound = applyFunctionToBound(f, x, bound, theory, context);
+		
+		Expression result = summingBound(variablesToBeSummedOut, phiTimesBound, context, theory);
+		return result;		
+	}
 	
 	public static void main(String[] args) {
 			
@@ -299,12 +285,6 @@ public class Bounds {
 	context = context.extendWithSymbolsAndTypes("Y","Boolean");
 	context = context.extendWithSymbolsAndTypes("A","Boolean");
 	context = context.extendWithSymbolsAndTypes("B","Boolean");
-	
-	//Set of numbers
-	Expression one   = DefaultSymbol.createSymbol(1);
-	Expression two   = DefaultSymbol.createSymbol(2);
-	Expression three = DefaultSymbol.createSymbol(3);
-	Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two, three);
 
 	//Set of functions
 	Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
@@ -313,10 +293,10 @@ public class Bounds {
 	Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
 	Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
 	
-	Bounds.normalize(setOfFactors, theory, context).toString();
+	println(Bounds.normalize(setOfFactors, theory, context));
+	
+	println(Bounds.normalize(Bounds.summingBound(parse("{A,B,X}"), setOfFactors, context, theory) , theory, context));
 	
 }
-
-
-
+	
 }
