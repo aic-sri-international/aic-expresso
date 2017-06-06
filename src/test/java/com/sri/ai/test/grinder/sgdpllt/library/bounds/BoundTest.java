@@ -3,10 +3,15 @@ package com.sri.ai.test.grinder.sgdpllt.library.bounds;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
@@ -62,7 +67,54 @@ public class BoundTest {
 	@Test
 	public void testSimplex(){
 
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		//Expression q = DefaultSymbol.createSymbol("Q");
+
+		Set<Expression> Factor = new HashSet<Expression>();
 		
+		Model m = new Model(Factor);
+		
+		m.context =	m.context.extendWithSymbolsAndTypes("A", "Boolean");
+		m.context =	m.context.extendWithSymbolsAndTypes("B", "Boolean");
+		m.context =	m.context.extendWithSymbolsAndTypes("Q", "Boolean");
+		m.context =	m.context.extendWithSymbolsAndTypes("C", "1..4");
+		m.context =	m.context.extendWithSymbolsAndTypes("D", "6..9");
+		
+		//m.setType(a,  "Boolean");
+		//m.setType(b,  "Boolean");
+		//m.setType(q,  "Boolean");
+		
+		//Expression booleanExpression = parse("Boolean");
+	
+		//m.setValues(a,  booleanExpression);
+		//m.setValues(b,  booleanExpression);
+		//m.setValues(q,  booleanExpression);
+		
+		//VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		
+		ArrayList<Expression> Variables = new ArrayList<>();
+		Variables.add(a);
+		Variables.add(b);
+		Variables.add(c);
+		Variables.add(d);
+		
+		assertEquals(
+				parse("{ if A = true then 1 else 0, "
+					+ "if A = false then 1 else 0, "
+					+ "if B = true then 1 else 0, "
+					+ "if B = false then 1 else 0, "
+					+ "if C = 1 then 1 else 0, "
+					+ "if C = 2 then 1 else 0, "
+					+ "if C = 3 then 1 else 0, "
+					+ "if C = 4 then 1 else 0, "
+					+ "if D = 6 then 1 else 0, "
+					+ "if D = 7 then 1 else 0, "
+					+ "if D = 8 then 1 else 0, "
+					+ "if D = 9 then 1 else 0 }"),
+				Bounds.simplex(Variables, m));
 	}
 	
 	@Test
