@@ -3,6 +3,7 @@ package com.sri.ai.grinder.sgdpllt.library.bounds;
 import static com.sri.ai.expresso.core.DefaultSymbol.createSymbol;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 //import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
@@ -23,11 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExtensionalSet;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Type;
 //import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
@@ -45,6 +48,13 @@ public class Bounds {
 
 	static boolean debug = false;
 	
+	/**
+	 * Returns an explicit representation for the simplex. The expression returned is
+	 * a UniSet.
+	 * @param Variables
+	 * @param model
+	 * @return
+	 */
 	public static Expression simplex(List<Expression> Variables, Model model){
 		ArrayList<Expression> simplexList = new ArrayList<>();
 
@@ -52,9 +62,10 @@ public class Bounds {
 		Expression zero= makeSymbol("0");
 		
 		for(Expression var : Variables){
-			Expression values = model.getValues(var); 
-			List<Expression> listOfValues = getElements(values);
-			for (Expression value : listOfValues){
+			Type type = model.context.getTypeOfRegisteredSymbol(var);
+			Iterator<Expression>  iteratorToValuesInType = type.iterator();
+			
+			for(Expression value : in(iteratorToValuesInType)){
 				simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, value), one, zero));
 			}
 		}
