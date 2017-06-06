@@ -31,7 +31,6 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -80,25 +79,32 @@ public class Bounds {
 	 * @param context
 	 * @return  bound of normalized factors
 	 */
-	public static Expression normalize(Expression bound, Theory theory, Context context){
-		List<Expression> listOfBound = ExtensionalSets.getElements(bound);
+	public static Expression normalize(Expression bound, Theory theory, Context context){		
+		List<Expression> listOfBound = getElements(bound);
 		if(listOfBound.size() == 0){
 			return null;
 		}
 		
-		Expression phi = makeSymbol("phi");
-	
-		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(bound, context);
+		int numberOfExtremes = listOfBound.size();
 		
-		Expression noCondition = makeSymbol(true);
-		Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
-				indices,
-				phi,//head
-				noCondition);
-		
-		Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
-		Expression f =  apply("/", phi, sumOnPhi);
-		Expression result = applyFunctionToBound(f, phi, bound, theory, context);
+		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
+		for(Expression element : listOfBound){
+			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(element, context);
+			Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
+					indices,
+					element,//head
+					makeSymbol(true)//No Condition
+					);
+			
+			Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
+			Expression f =  apply("/", element, sumOnPhi);
+			
+			Expression evaluation = theory.evaluate(f, context);
+			elements.add(evaluation);
+		}
+		DefaultExtensionalUniSet fOfBound = new DefaultExtensionalUniSet(elements);
+		//Updating extreme points
+		Expression result = updateExtremes(fOfBound,theory,context);		
 		return result;
 	}
 	
@@ -243,23 +249,58 @@ public class Bounds {
 		return true;
 	}
 	
+	/**
+	 * given a set of variables "S" and a bound "B", performs the following operation:
+	 * sum_S B = {sum_S \phi : \phi in B} 
+	 * 
+	 * @param variablesToBeSummedOut 
+	 * 		S in the example. 
+	 * 		Must be a Explicit UniSet. For example: {A,B,C} , where A, B and C are variables 
+	 * @param bound
+	 * 		B in the example
+	 * @param context
+	 * @param theory
+	 * @return
+	 */
 	public static Expression summingBound(Expression variablesToBeSummedOut, Expression bound,
 			Context context, Theory theory){
-		Expression x = parse("x");
 		
-		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variablesToBeSummedOut, context);
+		List<Expression> listOfBound = getElements(bound);
+		ArrayList<Expression> BoundSummedOut = new ArrayList<>(listOfBound.size());
 		
-		Expression noCondition = makeSymbol(true);
-		Expression summingoutSet = IntensionalSet.makeMultiSet(
-				indices,
-				x,//head
-				noCondition);
+		for(Expression phi : listOfBound){
+			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variablesToBeSummedOut, context);
+			//TODO Find a way to do : intersection (variablesToBeSummedOut, FreeVariables(phi))
+			
+			Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
+					indices,
+					phi,//head
+					makeSymbol(true)//No Condition
+					);
+			
+			Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
+			Expression evaluation = theory.evaluate(sumOnPhi, context);
+			BoundSummedOut.add(evaluation);
+		}
 		
-		Expression f = apply(SUM,summingoutSet);
-		Expression result = applyFunctionToBound(f, x, bound, theory, context);
-		return result;
+	DefaultExtensionalUniSet SetOfBoundSummedOut = new DefaultExtensionalUniSet(BoundSummedOut);
+	//Updating extreme points
+	Expression result = updateExtremes(SetOfBoundSummedOut,theory,context);		
+	return result;
 	}
-
+	/**
+	 * given a set of variables "S" a factor \phi and a bound "B", performs the following operation:
+	 * sum_S (\phi * B) = {sum_S \phi \phi' : \phi' in B} 
+	 * 
+	 * @param variablesToBeSummedOut 
+	 * 		S in the example
+	 * @param phi
+	 * @param bound
+	 * 		B in the example
+	 * @param context
+	 * @param theory
+	 * @return
+	 */
 	public static Expression summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Expression bound,
 			Context context, Theory theory){
 		Expression x = createSymbol("x");
@@ -268,35 +309,6 @@ public class Bounds {
 		Expression phiTimesBound = applyFunctionToBound(f, x, bound, theory, context);
 		
 		Expression result = summingBound(variablesToBeSummedOut, phiTimesBound, context, theory);
-		return result;		
-	}
-	
-	public static void main(String[] args) {
-			
-	Theory theory = new CompoundTheory(
-			new EqualityTheory(false, true),
-			new DifferenceArithmeticTheory(false, false),
-			new LinearRealArithmeticTheory(false, false),
-			new TupleTheory(),
-			new PropositionalTheory());
-	
-	Context context = new TrueContext(theory);
-	context = context.extendWithSymbolsAndTypes("X","Boolean");
-	context = context.extendWithSymbolsAndTypes("Y","Boolean");
-	context = context.extendWithSymbolsAndTypes("A","Boolean");
-	context = context.extendWithSymbolsAndTypes("B","Boolean");
-
-	//Set of functions
-	Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
-	Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
-	Expression phi3 = parse("if A = true then 7 else if B = true then 8 else 9");
-	Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
-	Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
-	
-	println(Bounds.normalize(setOfFactors, theory, context));
-	
-	println(Bounds.normalize(Bounds.summingBound(parse("{A,B,X}"), setOfFactors, context, theory) , theory, context));
-	
-}
-	
+		return result;
+	}	
 }
