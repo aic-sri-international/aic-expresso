@@ -21,6 +21,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 
 public class FactorComponent {
 
@@ -31,7 +32,7 @@ public class FactorComponent {
 	public ArrayList<VariableComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
-	// public Bound B;
+	public Expression bound;
 	public Set<Expression> phiInsideSubModel;
 
 	public FactorComponent(Expression phi, Expression Parent, Model model, Set<Expression> Pext) {
@@ -46,7 +47,7 @@ public class FactorComponent {
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
 		// this.B = new HashSet<Expression>();
 		// this.B = Simplex(V)
-
+		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model);
 		this.phi = phi;
 		this.phiInsideSubModel.add(phi);
 
@@ -94,6 +95,7 @@ public class FactorComponent {
 				}
 
 				cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+				
 			}
 		} else {
 			int j = this.choose();
@@ -112,7 +114,6 @@ public class FactorComponent {
 
 			phiInsideSubModel.addAll(this.children.get(j).cutsetInsideSubModel);
 
-			// B =
 		}
 		
 		
@@ -121,7 +122,8 @@ public class FactorComponent {
 			isChildrenDiscovered = isChildrenDiscovered && children.entirelyDiscover;
 		}
 		this.entirelyDiscover = isChildrenDiscovered;
-
+			
+		
 	}
 
 	public int choose() {
@@ -147,6 +149,28 @@ public class FactorComponent {
 		for (VariableComponent c : this.children) {
 			c.print(tabs + 1);
 		}
+	}
+	
+	public void calculateBound(){
+		Theory theory = this.model.theory;
+		Context context = this.model.context;		
+		
+		Expression childrenBound = parse("1");
+		
+		for(VariableComponent children : this.children){
+			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenBound, children.bound);
+		}
+		
+		Set<Expression> toSum = model.getNeighbors(phi);
+		for (Expression e : this.parent) {
+			toSum.remove(e);
+		}
+		toSum.addAll(this.cutsetInsideSubModel);
+		
+		for (Expression variableToSum : toSum){
+			//We want sum other toSum of Phi*childrenBound
+		}		
+		
 	}
 	
 	public Expression calculate(){

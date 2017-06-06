@@ -6,6 +6,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +19,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 
 public class VariableComponent {
 
@@ -28,7 +30,7 @@ public class VariableComponent {
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
-	public Set<Expression> bound;
+	public Expression bound;
 	public Set<Expression> phiInsideSubModel;
 
 	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext) {
@@ -42,7 +44,7 @@ public class VariableComponent {
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		this.bound = new HashSet<Expression>();
+		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model);
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 
 		Set<Expression> intersection = new HashSet<Expression>();
@@ -179,6 +181,23 @@ public class VariableComponent {
 
 	}
 
+	public void calculateBound(){
+		Theory theory = this.model.theory;
+		Context context = this.model.context;		
+		
+		Expression childrenBound = parse("1");
+		
+		for(FactorComponent children : this.children){
+			childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
+		}
+		
+		for (Expression variableToSum : this.cutsetInsideSubModel){
+			//We want sum other toSum of Phi*childrenBound
+		}		
+		
+	}
+	
+	
 	public Expression naiveCalcul(){
 		Expression expressiontoSum = this.model.naiveCalculation(this.variable);
 		//String values = this.model.getValues(this.variable);
