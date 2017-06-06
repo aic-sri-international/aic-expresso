@@ -176,6 +176,10 @@ public class Bounds {
 	
 	/**
 	 * apply a function (f) to each term of a bound (b) 
+	 * Example: if we have a function f(x) and a bound b = {a,b,c} and we want to compute f(b) = {f(a), f(b), f(c)}
+	 * 			it suffices to pass as arguments : 	- f as function
+	 * 												- x as variableName
+	 * 												- b as bound
 	 * @param f 
 	 * 			function to be applied to the factors
 	 * @param variableName
