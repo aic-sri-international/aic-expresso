@@ -43,7 +43,7 @@ public class Examples {
 	
 		m.setValues(a,  booleanExpression);
 		m.setValues(b,  booleanExpression);
-		m.setValues(q,  booleanExpression);‰
+		m.setValues(q,  booleanExpression);
 		
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -92,8 +92,7 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
-
-	public static VariableComponent BasicBayesianLoopyModel() {
+/*  public static VariableComponent BasicBayesianLoopyModel() {
 		Expression func = DefaultSymbol.createSymbol("f");
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
@@ -128,7 +127,7 @@ public class Examples {
 
 		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
 		return ComponentResultat;
-	}
+	}*/
 
 	public static VariableComponent TreeModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
@@ -198,10 +197,12 @@ public class Examples {
 		m.setType(c,  "Boolean");
 		m.setType(q,  "Boolean");
 		
-		m.setValues(a,  "0..4");
-		m.setValues(b,  "Boolean");
-		m.setValues(c,  "Boolean");
-		m.setValues(q,  "Boolean");
+		Expression booleanExpression = parse("Boolean");
+
+		m.setValues(a,  parse("0..4"));
+		m.setValues(b,  booleanExpression);
+		m.setValues(c,  booleanExpression);
+		m.setValues(q,  booleanExpression);
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -261,14 +262,15 @@ public class Examples {
 		m.setType(g,  "Boolean");
 		m.setType(q,  "Boolean");
 		
-		m.setValues(a,  "Boolean");
-		m.setValues(b,  "Boolean");
-		m.setValues(c,  "Boolean");
-		m.setValues(d,  "Boolean");
-		m.setValues(e,  "Boolean");
-		m.setValues(f,  "Boolean");
-		m.setValues(g,  "Boolean");
-		m.setValues(q,  "Boolean");
+		Expression booleanExpression = parse("Boolean");
+		m.setValues(a,  booleanExpression );
+		m.setValues(b,  booleanExpression );
+		m.setValues(c,  booleanExpression );
+		m.setValues(d,  booleanExpression );
+		m.setValues(e,  booleanExpression );
+		m.setValues(f,  booleanExpression );
+		m.setValues(g,  booleanExpression );
+		m.setValues(q,  booleanExpression );
 
 		
 
@@ -325,6 +327,26 @@ public class Examples {
 
 		Model m = new Model(Factor);
 		
+		m.setType(visitToAsia,  "Boolean");
+		m.setType(tuberculosis,  "Boolean");
+		m.setType(lungCancer,  "Boolean");
+		m.setType(lungCancerOrTuberculosis,  "Boolean");
+		m.setType(positiveXRay,  "Boolean");
+		m.setType(dispnea,  "Boolean");
+		m.setType(bronchitis ,  "Boolean");
+		m.setType(smoker,  "Boolean");
+
+		
+		Expression booleanExpression = parse("Boolean");
+
+		m.setValues(visitToAsia,  booleanExpression);
+		m.setValues(tuberculosis, booleanExpression);
+		m.setValues(lungCancer,  booleanExpression);
+		m.setValues(lungCancerOrTuberculosis,  booleanExpression);
+		m.setValues(positiveXRay,  booleanExpression);
+		m.setValues(dispnea,  booleanExpression);
+		m.setValues(bronchitis ,  booleanExpression);
+		m.setValues(smoker,  booleanExpression);
 
 		
 
@@ -332,14 +354,10 @@ public class Examples {
 				new HashSet<Expression>());
 		return ComponentResultat;
 	}
-
-
-		
-
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult = DiamondModel();
+		VariableComponent ComponentResult = RealCancerModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);

@@ -406,8 +406,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 	
 	@Override
-	public Expression getTypeOfRegisteredSymbol(Expression symbol) {
-		return tail.getTypeOfRegisteredSymbol(symbol);
+	public Expression getTypeExpressionOfRegisteredSymbol(Expression symbol) {
+		return tail.getTypeExpressionOfRegisteredSymbol(symbol);
 	}
 
 	@Override

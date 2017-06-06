@@ -284,7 +284,7 @@ public class IndexExpressions {
 	}
 
 	public static Expression getIndexExpressionForVariableFromcontextualSymbolsAndTypes(Expression expression, Context context) {
-		Expression type = context.getTypeOfRegisteredSymbol(expression);
+		Expression type = context.getTypeExpressionOfRegisteredSymbol(expression);
 		Expression indexExpression = makeIndexExpression(expression, type);
 		return indexExpression;
 	}

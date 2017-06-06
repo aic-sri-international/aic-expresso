@@ -171,7 +171,7 @@ public class GrinderUtil {
 	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInRegistry(Collection<Expression> indices, Registry registry) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
-			Expression type = registry.getTypeOfRegisteredSymbol(index);
+			Expression type = registry.getTypeExpressionOfRegisteredSymbol(index);
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
 			indexExpressions.add(indexExpression);
 		}
@@ -514,7 +514,7 @@ public class GrinderUtil {
 				result = makeSymbol("Number");
 			}
 			else {
-				result = registry.getTypeOfRegisteredSymbol(expression);
+				result = registry.getTypeExpressionOfRegisteredSymbol(expression);
 
 				if (result == null) {
 					Type type = getFirstSatisfyingPredicateOrNull(registry.getTypes(), t -> t.contains(expression));
@@ -707,7 +707,7 @@ public class GrinderUtil {
 	public static long getTypeCardinality(Expression symbol, Registry registry) {
 		long result = -1;
 	
-		Expression variableType = registry.getTypeOfRegisteredSymbol(symbol);
+		Expression variableType = registry.getTypeExpressionOfRegisteredSymbol(symbol);
 		if (variableType != null) {
 			Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
 			Expression typeCardinalityValue = (Expression) registry.getGlobalObject(typeCardinality);
@@ -718,7 +718,7 @@ public class GrinderUtil {
 		
 		// If that didn't work, we try find the Type object:
 		if (result == -1) {
-			variableType = registry.getTypeOfRegisteredSymbol(symbol);
+			variableType = registry.getTypeExpressionOfRegisteredSymbol(symbol);
 			if (variableType != null) {
 				Type type = registry.getType(variableType);
 				if (type != null) {

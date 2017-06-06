@@ -52,11 +52,13 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.set;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
@@ -67,7 +69,6 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -75,6 +76,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.util.Util;
 
 /**
  * A collection of examples on how to use the Expresso API.
@@ -408,16 +410,32 @@ public class ExpressoAPIExamples {
 		// including some very flexible ones that allow the user to provide a function for determining the replacement.
 
 		// BUG: need to debug
-		// Here's how to decide if a point is in the convex hull of other two points:
-		Context convexityContext = context.extendWithSymbolsAndTypes("p", "Real", "p1", "Real", "p2", "Real");
-		//convexityContext = convexityContext.conjoin(parse("p  = 4"));
-		//convexityContext = convexityContext.conjoin(parse("p1 = 3"));
-		//convexityContext = convexityContext.conjoin(parse("p2 = 5"));
-		Expression isInConvexHull = 
-				parse("there exists c1 in Real : there exists c2 in Real : "
-						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and 4 = c1*3 + c2*5");
-		Expression result = theory.evaluate(isInConvexHull, convexityContext);
-		println("4 is in the convex hull of 3 and 5: " + result);
+//		// Here's how to decide if a point is in the convex hull of other two points:
+//		Context convexityContext = context.extendWithSymbolsAndTypes("p", "Real", "p1", "Real", "p2", "Real");
+//		//convexityContext = convexityContext.conjoin(parse("p  = 4"));
+//		//convexityContext = convexityContext.conjoin(parse("p1 = 3"));
+//		//convexityContext = convexityContext.conjoin(parse("p2 = 5"));
+//		Expression isInConvexHull = 
+//				parse("there exists c1 in Real : there exists c2 in Real : "
+//						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and 4 = c1*3 + c2*5");
+//		Expression result = theory.evaluate(isInConvexHull, convexityContext);
+//		println("4 is in the convex hull of 3 and 5: " + result);
+		
+		// Obtaining and using types:
+		context = new TrueContext();
+		context = context.extendWithSymbolsAndTypes("I", "3..8", "P", "Boolean");
+		println(context.getSymbolsAndTypes());
+		println(context.getTypeExpressionOfRegisteredSymbol(parse("I")));
+		
+		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("I"));
+		Type type = context.getTypeOfRegisteredSymbol(parse("I"));
+		Iterator<Expression> iteratorToValuesInType = type.iterator();
+		println("All values of the type " + typeExpression + " of I: " + Util.join(iteratorToValuesInType));
+
+		typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("P"));
+		type = context.getTypeOfRegisteredSymbol(parse("P"));
+		iteratorToValuesInType = type.iterator();
+		println("All values of the type " + typeExpression + " of P: " + Util.join(iteratorToValuesInType));
 	}
 
 	/**

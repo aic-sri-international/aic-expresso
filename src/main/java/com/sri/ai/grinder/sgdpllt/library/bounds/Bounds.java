@@ -17,7 +17,6 @@ import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.println;
-import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +46,6 @@ import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
-import com.sri.ai.util.collect.ManyToManyRelation;
 
 
 public class Bounds {
@@ -62,7 +60,7 @@ public class Bounds {
 		Expression zero= makeSymbol("0");
 		
 		for(Expression var : Variables){
-			Expression values = parse (model.getValues(var)); //TODO getValues should return the right
+			Expression values = model.getValues(var); //TODO getValues should return the right
 															//Expression rather than a string to be parsed.
 															//By the way, that expression should represent a UniSet 
 			List<Expression> listOfValues = getElements(values);
@@ -176,6 +174,10 @@ public class Bounds {
 	
 	/**
 	 * apply a function (f) to each term of a bound (b) 
+	 * Example: if we have a function f(x) and a bound b = {a,b,c} and we want to compute f(b) = {f(a), f(b), f(c)}
+	 * 			it suffices to pass as arguments : 	- f as function
+	 * 												- x as variableName
+	 * 												- b as bound
 	 * @param f 
 	 * 			function to be applied to the factors
 	 * @param variableName

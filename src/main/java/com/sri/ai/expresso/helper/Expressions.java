@@ -908,7 +908,7 @@ public class Expressions {
 		Set<Expression> freeSymbols = freeSymbols(expression, registry);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeSymbol : freeSymbols) {
-			result.put(freeSymbol, registry.getTypeOfRegisteredSymbol(freeSymbol));
+			result.put(freeSymbol, registry.getTypeExpressionOfRegisteredSymbol(freeSymbol));
 		}
 		return result;
 	}
@@ -917,7 +917,7 @@ public class Expressions {
 		Set<Expression> freeVariables = freeVariables(expression, registry);
 		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
 		for (Expression freeVariable : freeVariables) {
-			result.put(freeVariable, registry.getTypeOfRegisteredSymbol(freeVariable));
+			result.put(freeVariable, registry.getTypeExpressionOfRegisteredSymbol(freeVariable));
 		}
 		return result;
 	}
