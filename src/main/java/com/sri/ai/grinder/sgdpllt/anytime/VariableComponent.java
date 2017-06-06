@@ -6,6 +6,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,8 +47,7 @@ public class VariableComponent {
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		//this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model);
-		this.bound=null;
+		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model);
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 
 		Set<Expression> intersection = new HashSet<Expression>();
@@ -130,6 +130,8 @@ public class VariableComponent {
 			isChildrenDiscovered = isChildrenDiscovered && children.entirelyDiscover;
 		}
 		this.entirelyDiscover = isChildrenDiscovered;
+		
+		this.calculateBound();
 	}
 
 	public int choose() {
@@ -188,7 +190,7 @@ public class VariableComponent {
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
-		Expression childrenBound = parse("1");
+		Expression childrenBound = parse("{ 1 }");
 		
 		for(FactorComponent children : this.children){
 			childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
@@ -201,8 +203,10 @@ public class VariableComponent {
 		}
 		//We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+
+
 		
-		bound = Bounds.summingBound(varToSum, childrenBound, context, theory);		
+		bound = Bounds.summingBound(varToSum, childrenBound, context, theory);
 		
 	}
 	

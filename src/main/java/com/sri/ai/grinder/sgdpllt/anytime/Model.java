@@ -80,7 +80,7 @@ public class Model {
 	}
 	
 	public void extendModelWithSymbolsAndTypes(String symbol, String values){
-		this.context.extendWithSymbolsAndTypes(symbol, values);
+		this.context = this.context.extendWithSymbolsAndTypes(symbol, values);
 	}
 
 	

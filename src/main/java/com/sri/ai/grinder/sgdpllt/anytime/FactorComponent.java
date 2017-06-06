@@ -45,8 +45,6 @@ public class FactorComponent {
 		this.parent.add(Parent);
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		// this.B = new HashSet<Expression>();
-		// this.B = Simplex(V)
 		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model);
 		this.phi = phi;
 		this.phiInsideSubModel.add(phi);
@@ -123,7 +121,7 @@ public class FactorComponent {
 		}
 		this.entirelyDiscover = isChildrenDiscovered;
 			
-		
+		this.calculateBound();
 	}
 
 	public int choose() {
@@ -155,7 +153,7 @@ public class FactorComponent {
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
-		Expression childrenBound = parse("1");
+		Expression childrenBound = parse("{ 1 }");
 		
 		for(VariableComponent children : this.children){
 			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenBound, children.bound);

@@ -13,6 +13,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -312,10 +313,13 @@ public class Examples {
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
-		runningTest(ComponentResult);
+		//runningTotalTest(ComponentResult);
+		ComponentResult.bound = Bounds.normalize(ComponentResult.bound, ComponentResult.model.theory, ComponentResult.model.context);
+		ComponentResult.bound = Bounds.updateExtremes(ComponentResult.bound, ComponentResult.model.theory, ComponentResult.model.context);
+		runningPartialTest(ComponentResult, 20);
 	}
 
-	private static void runningTest(VariableComponent ComponentResult) {
+	private static void runningTotalTest(VariableComponent ComponentResult) {
 
 		long startTime, endTime, totalTime;
 		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
@@ -347,4 +351,40 @@ public class Examples {
 		
 	}
 
+	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter) {
+
+		long startTime, endTime, totalTime;
+		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
+		
+		//first we compute the result with our algorithm
+		//we also store the computation time to compare it to the naive computation time
+		startTime = System.currentTimeMillis();
+		int i = 0;
+		while(i < nb_iter) {
+			ComponentResult.update(new HashSet<Expression>());
+			println("Bound at iteration " + i + " : " + ComponentResult.bound);
+			i++;
+		}
+		Expression normalizedMessage = ComponentResult.bound;
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
+		System.out.println("\n\nOur computation : " + normalizedMessage);
+		println("totalTime: " + totalTime);
+		
+		//now we compute the result of the query in a naive way
+		startTime = System.currentTimeMillis();
+		while(!ComponentResult.entirelyDiscover) {
+			ComponentResult.update(new HashSet<Expression>());
+		}
+		Expression naiveResult = ComponentResult.naiveCalcul();
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
+		println("\n\nNaive Result : " + naiveResult);
+		println("totalTime: " + totalTime);
+		
+	}
+
+	
 }

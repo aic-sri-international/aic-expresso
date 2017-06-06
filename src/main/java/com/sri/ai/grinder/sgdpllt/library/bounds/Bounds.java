@@ -179,7 +179,7 @@ public class Bounds {
 	 * @param B
 	 * @return 
 	 */
-	private static Expression updateExtremes(Expression B,Theory theory, Context context){
+	public static Expression updateExtremes(Expression B,Theory theory, Context context){
 		List<Expression> listOfB = getElements(B);
 		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
 		int indexPhi = 0;
