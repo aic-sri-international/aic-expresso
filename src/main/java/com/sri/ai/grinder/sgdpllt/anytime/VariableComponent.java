@@ -6,9 +6,9 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
@@ -16,10 +16,12 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.util.Util;
 
 public class VariableComponent {
 
@@ -192,9 +194,15 @@ public class VariableComponent {
 			childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
 		}
 		
-		for (Expression variableToSum : this.cutsetInsideSubModel){
-			//We want sum other toSum of Phi*childrenBound
-		}		
+		Iterator<Expression> iteratorToVariables = this.cutsetInsideSubModel.iterator();
+		ArrayList<Expression> variablesToBeSummedOut = new ArrayList<>(this.cutsetInsideSubModel.size());
+		for(Expression var : Util.in(iteratorToVariables)){
+			variablesToBeSummedOut.add(var);
+		}
+		//We want sum other toSum of Phi*childrenBound
+		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+		
+		bound = Bounds.summingBound(varToSum, childrenBound, context, theory);		
 		
 	}
 	
