@@ -327,6 +327,15 @@ public class Examples {
 
 		Model m = new Model(Factor);
 		
+		m.context = m.context.extendWithSymbolsAndTypes("VisitToAsia","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes(	"Tuberculosis","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes(	"LungCancer","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes(	"LungCancerOrTuberculosis","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes("PositiveXRay","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes("Dispnea","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes("Bronchitis","Boolean");
+		m.context = m.context.extendWithSymbolsAndTypes("Smoker","Boolean");
+		
 		m.setType(visitToAsia,  "Boolean");
 		m.setType(tuberculosis,  "Boolean");
 		m.setType(lungCancer,  "Boolean");
