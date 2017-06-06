@@ -1,7 +1,6 @@
 package com.sri.ai.test.grinder.sgdpllt.library.bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -28,7 +27,38 @@ public class BoundTest {
 	Expression setOFNumbers;
 	Expression setOfFactors;
 	
+	private void declaringTheoryContextAndSetOfFactors() {
 
+		theory = new CompoundTheory(
+								new EqualityTheory(false, true),
+								new DifferenceArithmeticTheory(false, false),
+								new LinearRealArithmeticTheory(false, false),
+								new TupleTheory(),
+								new PropositionalTheory());	
+		
+		context = new TrueContext(theory);
+		context = context.extendWithSymbolsAndTypes("X","Boolean");
+		context = context.extendWithSymbolsAndTypes("Y","Boolean");
+		context = context.extendWithSymbolsAndTypes("A","Boolean");
+		context = context.extendWithSymbolsAndTypes("B","Boolean");
+		context = context.extendWithSymbolsAndTypes("C","1..5");
+		//context = context.extendWithSymbolsAndTypes("D","{1,3,4,8}");
+
+		//Set of functions
+		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
+		Expression phi2 = parse("if A = true then if Y = true then 4 else 5 else 6");
+		Expression phi3 = parse("if X = true then 7 else if B = true then 8 else 9");
+		Expression phi4 = parse("if B = true then 10 else if A = true then 11 else 12");
+		Expression phi5 = parse("if C < 4 then 10 else if C = 4 then 11 else 12");
+		setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4, phi5);
+		
+		//Set of numbers
+		Expression one   = DefaultSymbol.createSymbol(1);
+		Expression two   = DefaultSymbol.createSymbol(2);
+		setOFNumbers = ExtensionalSets.makeUniSet(one, two);
+
+	}
+	
 	@Test
 	public void testSimplex(){
 
@@ -37,115 +67,50 @@ public class BoundTest {
 	
 	@Test
 	public void testNormalize(){
-		Theory theory = new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, false),
-				new LinearRealArithmeticTheory(false, false),
-				new TupleTheory(),
-				new PropositionalTheory());
-		
-		Context context = new TrueContext(theory);
-		context = context.extendWithSymbolsAndTypes("X","Boolean");
-		context = context.extendWithSymbolsAndTypes("Y","Boolean");
-		
-		//Set of numbers
-		Expression one   = DefaultSymbol.createSymbol(1);
-		Expression two   = DefaultSymbol.createSymbol(2);
-		Expression three = DefaultSymbol.createSymbol(3);
-		Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two, three);
-
-		//Set of functions
-		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
-		Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
-		Expression phi3 = parse("if X = true then 7 else if Y = true then 8 else 9");
-		Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
-		Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
+		declaringTheoryContextAndSetOfFactors();
 		
 		assertEquals(
-				"{ if X then 1/7 else if Y then 2/7 else 3/7,"
-				+ " if X then if Y then 4/21 else 5/21 else 2/7, "
-				+ "if X then 7/31 else if Y then 8/31 else 9/31,"
-				+ " if X then 10/43 else if Y then 11/43 else 12/43 }",
+				"{ if X then 1/7 else if Y then 2/7 else 3/7, "
+				+ "if A then if Y then 4/21 else 5/21 else 2/7, "
+				+ "if X then 7/31 else if B then 8/31 else 9/31, "
+				+ "if B then 10/43 else if A then 11/43 else 12/43, "
+				+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
 				Bounds.normalize(setOfFactors, theory, context).toString());
-		
-		assertEquals(parse("{ 1, 1, 1 }"), Bounds.normalize(setOFNumbers, theory, context));
 	}
 	
 	@Test
 	public void testBoundProduct(){
-		Theory theory = new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, false),
-				new LinearRealArithmeticTheory(false, false),
-				new TupleTheory(),
-				new PropositionalTheory());
-		
-		Context context = new TrueContext(theory);
-		context = context.extendWithSymbolsAndTypes("X","Boolean");
-		context = context.extendWithSymbolsAndTypes("Y","Boolean");
+		declaringTheoryContextAndSetOfFactors();
 		
 		//Set of numbers
 		Expression one   = DefaultSymbol.createSymbol(1);
 		Expression two   = DefaultSymbol.createSymbol(2);
-		Expression three = DefaultSymbol.createSymbol(3);
-		Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two, three);
+		Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two);
 
 		//Set of functions
-		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
-		Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
+		Expression phi1 = parse("if C = 2 then 1 else 3");
+		Expression phi2 = parse("if A = true then  1 else 6");
 		Expression phi3 = parse("if X = true then 7 else if Y = true then 8 else 9");
-		Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
-		Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
+		Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3);
 		
 		assertEquals(
-				 parse("{ if X then 1 else if Y then 4 else 9," +
-						" if X then 2 else if Y then 8 else 18," +
-						" if X then 3 else if Y then 12 else 27," +
-						" if X then if Y then 4 else 5 else if Y then 12 else 18, " +
-						"if X then if Y then 8 else 10 else if Y then 24 else 36," +
-						" if X then if Y then 12 else 15 else if Y then 36 else 54," +
-						" if X then 7 else if Y then 16 else 27," +
-						" if X then 14 else if Y then 32 else 54, " +
-						"if X then 21 else if Y then 48 else 81, " +
-						"if X then 10 else if Y then 22 else 36, " +
-						"if X then 20 else if Y then 44 else 72, " +
-						"if X then 30 else if Y then 66 else 108," +
-						" if X then if Y then 4 else 5 else if Y then 12 else 18, " +
-						"if X then if Y then 8 else 10 else if Y then 24 else 36, " +
-						"if X then if Y then 12 else 15 else if Y then 36 else 54, " +
-						"if X then if Y then 16 else 25 else 36, " +
-						"if X then if Y then 32 else 50 else 72, " +
-						"if X then if Y then 48 else 75 else 108, " +
-						"if X then if Y then 28 else 35 else if Y then 48 else 54, " +
-						"if X then if Y then 56 else 70 else if Y then 96 else 108, " +
-						"if X then if Y then 84 else 105 else if Y then 144 else 162, " +
-						"if X then if Y then 40 else 50 else if Y then 66 else 72, " +
-						"if X then if Y then 80 else 100 else if Y then 132 else 144, " +
-						"if X then if Y then 120 else 150 else if Y then 198 else 216, " +
-						"if X then 7 else if Y then 16 else 27, " +
-						"if X then 14 else if Y then 32 else 54, " +
-						"if X then 21 else if Y then 48 else 81, " +
-						"if X then if Y then 28 else 35 else if Y then 48 else 54, " +
-						"if X then if Y then 56 else 70 else if Y then 96 else 108, " +
-						"if X then if Y then 84 else 105 else if Y then 144 else 162, " +
-						"if X then 49 else if Y then 64 else 81, " +
-						"if X then 98 else if Y then 128 else 162, " +
-						"if X then 147 else if Y then 192 else 243, " +
-						"if X then 70 else if Y then 88 else 108, " +
-						"if X then 140 else if Y then 176 else 216, " +
-						"if X then 210 else if Y then 264 else 324, " +
-						"if X then 10 else if Y then 22 else 36, " +
-						"if X then 20 else if Y then 44 else 72, " +
-						"if X then 30 else if Y then 66 else 108, " +
-						"if X then if Y then 40 else 50 else if Y then 66 else 72, " +
-						"if X then if Y then 80 else 100 else if Y then 132 else 144, " +
-						"if X then if Y then 120 else 150 else if Y then 198 else 216, " +
-						"if X then 70 else if Y then 88 else 108, " +
-						"if X then 140 else if Y then 176 else 216," +
-						" if X then 210 else if Y then 264 else 324, " +
-						"if X then 100 else if Y then 121 else 144, " +
-						"if X then 200 else if Y then 242 else 288, " +
-						"if X then 300 else if Y then 363 else 432 }"
+				 parse("{ if C = 2 then 1 else 9, "
+				 		+ "if C = 2 then 2 else 18, "
+				 		+ "if C = 2 then if A then 1 else 6 else if A then 3 else 18, "
+				 		+ "if C = 2 then if A then 2 else 12 else if A then 6 else 36, "
+				 		+ "if C = 2 then if X then 7 else if Y then 8 else 9 else if X then 21 else if Y then 24 else 27, "
+				 		+ "if C = 2 then if X then 14 else if Y then 16 else 18 else if X then 42 else if Y then 48 else 54, "
+				 		+ "if A then if C = 2 then 1 else 3 else if C = 2 then 6 else 18, "
+				 		+ "if A then if C = 2 then 2 else 6 else if C = 2 then 12 else 36, "
+				 		+ "if A then 1 else 36, if A then 2 else 72, "
+				 		+ "if A then if X then 7 else if Y then 8 else 9 else if X then 42 else if Y then 48 else 54, "
+				 		+ "if A then if X then 14 else if Y then 16 else 18 else if X then 84 else if Y then 96 else 108, "
+				 		+ "if X then if C = 2 then 7 else 21 else if Y then if C = 2 then 8 else 24 else if C = 2 then 9 else 27, "
+				 		+ "if X then if C = 2 then 14 else 42 else if Y then if C = 2 then 16 else 48 else if C = 2 then 18 else 54, "
+				 		+ "if X then if A then 7 else 42 else if Y then if A then 8 else 48 else if A then 9 else 54, "
+				 		+ "if X then if A then 14 else 84 else if Y then if A then 16 else 96 else if A then 18 else 108, "
+				 		+ "if X then 49 else if Y then 64 else 81, "
+				 		+ "if X then 98 else if Y then 128 else 162 }"
 						),
 				 Bounds.boundProduct(theory, context, setOfFactors,setOfFactors,setOFNumbers));	 
 	}
@@ -153,43 +118,22 @@ public class BoundTest {
 	@Test
 	public void testApplyFunctionToBound(){
 		
-		Theory theory = new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, false),
-				new LinearRealArithmeticTheory(false, false),
-				new TupleTheory(),
-				new PropositionalTheory());
-		
-		Context context = new TrueContext(theory);
-		context = context.extendWithSymbolsAndTypes("X","Boolean");
-		context = context.extendWithSymbolsAndTypes("Y","Boolean");
-		
-		//Set of numbers
-		Expression one   = DefaultSymbol.createSymbol(1);
-		Expression two   = DefaultSymbol.createSymbol(2);
-		Expression three = DefaultSymbol.createSymbol(3);
-		Expression setOFNumbers = ExtensionalSets.makeUniSet(one, two, three);
+		declaringTheoryContextAndSetOfFactors();
 
-		//Set of functions
-		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
-		Expression phi2 = parse("if X = true then if Y = true then 4 else 5 else 6");
-		Expression phi3 = parse("if X = true then 7 else if Y = true then 8 else 9");
-		Expression phi4 = parse("if X = true then 10 else if Y = true then 11 else 12");
-		Expression setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4);
-		
 		Expression phi = DefaultSymbol.createSymbol("phi");
 		Expression f = parse("13*phi");
 		
 		assertEquals(
-				parse("{ 13, 26, 39 }"),
+				parse("{ 13, 26 }"),
 				Bounds.applyFunctionToBound(f, phi, setOFNumbers, theory, context)
 				);
 		
 		assertEquals(
-				parse("{ if X then 13 else if Y then 26 else 39, " +
-						"if X then if Y then 52 else 65 else 78, " + 
-						"if X then 91 else if Y then 104 else 117, " + 
-						"if X then 130 else if Y then 143 else 156 }"),
+				parse("{ if X then 13 else if Y then 26 else 39, "
+						+ "if A then if Y then 52 else 65 else 78, "
+						+ "if X then 91 else if B then 104 else 117, "
+						+ "if B then 130 else if A then 143 else 156, "
+						+ "if C < 4 then 130 else if C = 4 then 143 else 156 }"),
 				Bounds.applyFunctionToBound(f, phi, setOfFactors, theory, context)
 				); 
 	}
