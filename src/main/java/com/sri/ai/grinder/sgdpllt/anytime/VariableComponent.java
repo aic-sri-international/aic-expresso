@@ -44,7 +44,8 @@ public class VariableComponent {
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model);
+		//this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model);
+		this.bound=null;
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 
 		Set<Expression> intersection = new HashSet<Expression>();
@@ -64,8 +65,8 @@ public class VariableComponent {
 		model.initializeVariableComponent.add(this);
 		
 		//we add the varaible to the context and tell of which type is the variable add
-		String typeOfVariable = this.model.getType(variable);
-		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), typeOfVariable);
+		//Expression typeOfVariable = this.model.getValues(variable);
+		//this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), typeOfVariable);
 	}
 
 	public void update(Set<Expression> Pext) {

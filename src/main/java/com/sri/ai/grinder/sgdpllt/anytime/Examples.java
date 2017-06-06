@@ -24,6 +24,7 @@ public class Examples {
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
+		//we need to learn how to make factors from parse(String) here this does not work
 		Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
 		Expression f2 = parse("if B then if A 10 else 1 else if A then 1 else 10");
 		Expression f3 = parse("if B then if Q 10 else 1 else if Q then 1 else 10");
@@ -35,15 +36,9 @@ public class Examples {
 		
 		Model m = new Model(Factor);
 		
-		m.setType(a,  "Boolean");
-		m.setType(b,  "Boolean");
-		m.setType(q,  "Boolean");
-		
-		Expression booleanExpression = parse("Boolean");
-	
-		m.setValues(a,  booleanExpression);
-		m.setValues(b,  booleanExpression);
-		m.setValues(q,  booleanExpression);
+		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -78,16 +73,10 @@ public class Examples {
 		Factor.add(f5);
 
 		Model m = new Model(Factor);
-		m.setType(a,  "Boolean");
-		m.setType(b,  "Boolean");
-		m.setType(c,  "Boolean");
-		m.setType(q,  "Boolean");
-		
-		Expression booleanExpression = parse("Boolean");
-		m.setValues(a,  booleanExpression);
-		m.setValues(b,  booleanExpression);
-		m.setValues(c,  booleanExpression);
-		m.setValues(q,  booleanExpression);
+		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("C", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -153,17 +142,9 @@ public class Examples {
 		Factor.add(f3);
 
 		Model m = new Model(Factor);
-		m.setType(a,  "Boolean");
-		m.setType(b,  "Boolean");
-		m.setType(c,  "Boolean");
-		m.setType(q,  "Boolean");
-		
-
-		Expression booleanExpression = parse("Boolean");
-		m.setValues(a,  booleanExpression);
-		m.setValues(b,  booleanExpression);
-		m.setValues(c,  booleanExpression);
-		m.setValues(q,  booleanExpression);
+		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("C", "Boolean");
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -192,17 +173,11 @@ public class Examples {
 		Factor.add(f3);
 
 		Model m = new Model(Factor);
-		m.setType(a,  "Integer");
-		m.setType(b,  "Boolean");
-		m.setType(c,  "Boolean");
-		m.setType(q,  "Boolean");
+		m.extendModelWithSymbolsAndTypes("A", "1..10");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("C", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
-		Expression booleanExpression = parse("Boolean");
-
-		m.setValues(a,  parse("0..4"));
-		m.setValues(b,  booleanExpression);
-		m.setValues(c,  booleanExpression);
-		m.setValues(q,  booleanExpression);
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -252,25 +227,14 @@ public class Examples {
 		Factor.add(f10);
 		
 		Model m = new Model(Factor);
-		
-		m.setType(a,  "Boolean");
-		m.setType(b,  "Boolean");
-		m.setType(c,  "Boolean");
-		m.setType(d,  "Boolean");
-		m.setType(e,  "Boolean");
-		m.setType(f,  "Boolean");
-		m.setType(g,  "Boolean");
-		m.setType(q,  "Boolean");
-		
-		Expression booleanExpression = parse("Boolean");
-		m.setValues(a,  booleanExpression );
-		m.setValues(b,  booleanExpression );
-		m.setValues(c,  booleanExpression );
-		m.setValues(d,  booleanExpression );
-		m.setValues(e,  booleanExpression );
-		m.setValues(f,  booleanExpression );
-		m.setValues(g,  booleanExpression );
-		m.setValues(q,  booleanExpression );
+		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("C", "Boolean");
+		m.extendModelWithSymbolsAndTypes("D", "Boolean");
+		m.extendModelWithSymbolsAndTypes("E", "Boolean");
+		m.extendModelWithSymbolsAndTypes("F", "Boolean");
+		m.extendModelWithSymbolsAndTypes("G", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
 		
 
@@ -327,28 +291,15 @@ public class Examples {
 
 		Model m = new Model(Factor);
 		
-		m.setType(visitToAsia,  "Boolean");
-		m.setType(tuberculosis,  "Boolean");
-		m.setType(lungCancer,  "Boolean");
-		m.setType(lungCancerOrTuberculosis,  "Boolean");
-		m.setType(positiveXRay,  "Boolean");
-		m.setType(dispnea,  "Boolean");
-		m.setType(bronchitis ,  "Boolean");
-		m.setType(smoker,  "Boolean");
+		m.extendModelWithSymbolsAndTypes("VisitToAsia", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Tuberculosis", "Boolean");
+		m.extendModelWithSymbolsAndTypes("LungCancer", "Boolean");
+		m.extendModelWithSymbolsAndTypes("LungCancerOrTuberculosis", "Boolean");
+		m.extendModelWithSymbolsAndTypes("PositiveXRay", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Dispnea", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Bronchitis", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Smoker", "Boolean");
 
-		
-		Expression booleanExpression = parse("Boolean");
-
-		m.setValues(visitToAsia,  booleanExpression);
-		m.setValues(tuberculosis, booleanExpression);
-		m.setValues(lungCancer,  booleanExpression);
-		m.setValues(lungCancerOrTuberculosis,  booleanExpression);
-		m.setValues(positiveXRay,  booleanExpression);
-		m.setValues(dispnea,  booleanExpression);
-		m.setValues(bronchitis ,  booleanExpression);
-		m.setValues(smoker,  booleanExpression);
-
-		
 
 		VariableComponent ComponentResultat = new VariableComponent(lungCancer, DefaultSymbol.createSymbol(""), m,
 				new HashSet<Expression>());
@@ -357,7 +308,7 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult = RealCancerModel();
+		VariableComponent ComponentResult =  RealCancerModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
@@ -367,7 +318,7 @@ public class Examples {
 	private static void runningTest(VariableComponent ComponentResult) {
 
 		long startTime, endTime, totalTime;
-		ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
+		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
 		
 		//first we compute the result with our algorithm
 		//we also store the computation time to compare it to the naive computation time
