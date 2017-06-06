@@ -64,6 +64,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.UniquelyNamedConstantAreAllSymbolsNotIn;
+import com.sri.ai.grinder.helper.UniquelyNamedConstantIncludingBooleansAndNumbersPredicate;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
@@ -409,18 +410,33 @@ public class ExpressoAPIExamples {
 		// There are a LOT of variants of these functions in Expression (not Expressions),
 		// including some very flexible ones that allow the user to provide a function for determining the replacement.
 
-		// BUG: need to debug
-//		// Here's how to decide if a point is in the convex hull of other two points:
-//		Context convexityContext = context.extendWithSymbolsAndTypes("p", "Real", "p1", "Real", "p2", "Real");
-//		//convexityContext = convexityContext.conjoin(parse("p  = 4"));
-//		//convexityContext = convexityContext.conjoin(parse("p1 = 3"));
-//		//convexityContext = convexityContext.conjoin(parse("p2 = 5"));
-//		Expression isInConvexHull = 
-//				parse("there exists c1 in Real : there exists c2 in Real : "
-//						+ "0 <= c1 and c1 <= 1 and 0 <= c2 and c2 <= 1 and 4 = c1*3 + c2*5");
-//		Expression result = theory.evaluate(isInConvexHull, convexityContext);
-//		println("4 is in the convex hull of 3 and 5: " + result);
-		
+		// Here's how to decide if a point is in the convex hull of other two points:
+		Context convexityBaseContext = new TrueContext(theory);
+		convexityBaseContext = convexityBaseContext.setIsUniquelyNamedConstantPredicate(new UniquelyNamedConstantIncludingBooleansAndNumbersPredicate(set()));
+		convexityBaseContext = convexityBaseContext.extendWithSymbolsAndTypes("p", "Real", "p1", "Real", "p2", "Real", "X", "Integer");
+		Expression pValue;
+		Expression p1Value;
+		Expression p2Value;
+		String examples[] = {
+				"4", "3", "5",
+				"6", "3", "5",
+				// this case is still buggy:
+//				"if X then 2 else 3", "if X then 1 else 5", "if X then 0 else 10",
+		};
+		for (int i = 0; i != examples.length; i += 3) {
+			pValue  = parse(examples[i]);
+			p1Value = parse(examples[i + 1]);
+			p2Value = parse(examples[i + 2]);
+			Context convexityContext;
+			convexityContext = convexityBaseContext.conjoin(parse("p  = " + pValue));
+			convexityContext =     convexityContext.conjoin(parse("p1 = " + p1Value));
+			convexityContext =     convexityContext.conjoin(parse("p2 = " + p2Value));
+			Expression isInConvexHull = 
+					parse("there exists c1 in [0;1] : there exists c2 in [0;1] : c1 + c2 = 1 and p = c1*p1 + c2*p2");
+			Expression result = theory.evaluate(isInConvexHull, convexityContext);
+			println("p (value " + pValue + ") is in the convex hull of p1 and p2 (" + p1Value + ", " + p2Value + "): " + result);
+		}
+
 		// Obtaining and using types:
 		context = new TrueContext();
 		context = context.extendWithSymbolsAndTypes("I", "3..8", "P", "Boolean");
