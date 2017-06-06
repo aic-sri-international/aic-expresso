@@ -179,7 +179,6 @@ public class BoundTest {
 		
 		Expression phi = DefaultSymbol.createSymbol("phi");
 		Expression f = parse("13*phi");
-		println("f: " + f);
 		
 		assertEquals(
 				parse("{ 13, 26, 39 }"),
@@ -192,7 +191,6 @@ public class BoundTest {
 						"if X then 91 else if Y then 104 else 117, " + 
 						"if X then 130 else if Y then 143 else 156 }"),
 				Bounds.applyFunctionToBound(f, phi, setOfFactors, theory, context)
-				);
-		println("f(setfac): " + Bounds.applyFunctionToBound(f, phi, setOfFactors, theory, context)); 
+				); 
 	}
 }
