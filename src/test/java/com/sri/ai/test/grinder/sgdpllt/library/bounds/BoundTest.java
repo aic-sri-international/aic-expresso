@@ -137,4 +137,25 @@ public class BoundTest {
 				Bounds.applyFunctionToBound(f, phi, setOfFactors, theory, context)
 				); 
 	}
+	
+	@Test
+	public void testSummingOverBound(){
+		declaringTheoryContextAndSetOfFactors();
+		
+		assertEquals(
+				parse("{ if Y then 12 else 16, "
+						+ "if Y then 40 else 44, "
+						+ "62, "
+						+ "86, "
+						+ "if C < 4 then 80 else if C = 4 then 88 else 96 }"),
+				Bounds.summingBound(parse("{A,B,X}"), setOfFactors, context, theory));
+
+		assertEquals(
+				parse("{if X then 20 else if Y then 40 else 60, "
+						+ "if Y then 100 else 110, "
+						+ "if X then 140 else 170, "
+						+ "215, "
+						+ "212 }"),
+				Bounds.summingBound(parse("{A,B,C}"), setOfFactors, context, theory));
+	}
 }
