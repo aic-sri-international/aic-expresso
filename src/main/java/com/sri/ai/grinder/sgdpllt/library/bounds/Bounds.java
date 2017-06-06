@@ -17,7 +17,6 @@ import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.println;
-import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +46,6 @@ import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
-import com.sri.ai.util.collect.ManyToManyRelation;
 
 
 public class Bounds {
