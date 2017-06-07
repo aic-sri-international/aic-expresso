@@ -3,6 +3,7 @@ package com.sri.ai.grinder.sgdpllt.library.bounds;
 import static com.sri.ai.expresso.core.DefaultSymbol.createSymbol;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
@@ -120,10 +121,21 @@ public class Bounds {
 	 */
 	public static Expression boundProduct(Theory theory, Context context, Expression...listOfBounds){
 		
+		if(listOfBounds.length == 0){
+			Expression singletonWithNumberOne = ExtensionalSets.makeUniSet(parse("1"));
+			return singletonWithNumberOne;
+		}
+		
 		ArrayList<NullaryFunction<Iterator<Expression>>> iteratorForBoundList = 
 				mapIntoArrayList(listOfBounds, bound -> () -> getElements(bound).iterator());
 		
 		Iterator<ArrayList<Expression>> cartesianProduct = new CartesianProductIterator<Expression>(iteratorForBoundList);
+		
+		if(!cartesianProduct.hasNext()){
+			Expression singletonWithNumberOne = ExtensionalSets.makeUniSet(parse("1"));
+			println("One of the bounds on the list is { }, which is an error");
+			return singletonWithNumberOne;
+		}
 		
 		ArrayList<Expression> resultList = new ArrayList<>();
 		for (ArrayList<Expression> element : in(cartesianProduct)){

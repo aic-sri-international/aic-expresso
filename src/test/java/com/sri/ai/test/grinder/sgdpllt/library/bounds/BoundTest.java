@@ -23,6 +23,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.util.Util;
 
 
 public class BoundTest {
@@ -165,6 +166,9 @@ public class BoundTest {
 				 		+ "if X then 98 else if Y then 128 else 162 }"
 						),
 				 Bounds.boundProduct(theory, context, setOfFactors,setOfFactors,setOFNumbers));	 
+
+		assertEquals(parse("{1}"),Bounds.boundProduct(theory, context, new Expression[0]));
+		//Util.println(Bounds.boundProduct(theory, context, parse("{}"), parse("{1,2}")));
 	}
 	
 	@Test
