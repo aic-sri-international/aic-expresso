@@ -80,7 +80,8 @@ public class Bounds {
 	 * @param context
 	 * @return  bound of normalized factors
 	 */
-	public static Expression normalize(Expression bound, Theory theory, Context context){		
+	public static Expression normalize(Expression bound, Theory theory, Context context){	
+		//return bound;
 		List<Expression> listOfBound = getElements(bound);
 		if(listOfBound.size() == 0){
 			return null;

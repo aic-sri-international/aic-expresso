@@ -44,6 +44,35 @@ public class Examples {
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
 	}
+	
+	public static VariableComponent LigneModel() {
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression q = DefaultSymbol.createSymbol("Q");
+
+		//we need to learn how to make factors from parse(String) here this does not work
+		/*Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
+		Expression f2 = parse("if A then if B 10 else 1 else if B then 1 else 10");
+		Expression f3 = parse("if B then 10 else 20");*/
+		Expression f1 = IfThenElse.make(q, IfThenElse.make(a, parse("10"), parse("20")), IfThenElse.make(a, parse("20"), parse("10")));
+		Expression f2 = IfThenElse.make(a, IfThenElse.make(b, parse("10"), parse("30")), IfThenElse.make(b, parse("50"), parse("10")));
+		Expression f3 = IfThenElse.make(b, parse("10"), parse("30"));
+
+
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		
+		Model m = new Model(Factor);
+		
+		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
+		
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		return ComponentResultat;
+	}
 
 	public static VariableComponent DiamondModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
@@ -62,16 +91,16 @@ public class Examples {
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
 				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
 		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50),
-				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 50, 50));
-		Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 40, 30),
+				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 30, 70));
+		//Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
 
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
 		Factor.add(f2);
 		Factor.add(f3);
 		Factor.add(f4);
-		Factor.add(f5);
+		//Factor.add(f5);
 
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
@@ -309,7 +338,7 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  RealCancerModel();
+		VariableComponent ComponentResult =  DiamondModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
@@ -371,7 +400,7 @@ public class Examples {
 		
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
-		/*
+		
 		//now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
@@ -383,7 +412,7 @@ public class Examples {
 		
 		println("\n\nNaive Result : " + naiveResult);
 		println("totalTime: " + totalTime);
-		*/
+		
 	}
 
 	
