@@ -314,7 +314,7 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 1);
+		runningPartialTest(ComponentResult, 5);
 	}
 
 	private static void runningTotalTest(VariableComponent ComponentResult) {
@@ -330,8 +330,9 @@ public class Examples {
 		}
 		//ComponentResult.print(0);
 		Expression unnormalizedMessage = ComponentResult.calculate();
-		String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in " + ComponentResult.model.getValues(ComponentResult.variable) +") " + unnormalizedMessage + " }})";
-		Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
+		//String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in " + ComponentResult.model.getValues(ComponentResult.variable) +") " + unnormalizedMessage + " }})";
+		//Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
+		Expression normalizedMessage = Bounds.normalize(unnormalizedMessage, ComponentResult.model.theory, ComponentResult.model.context);
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
