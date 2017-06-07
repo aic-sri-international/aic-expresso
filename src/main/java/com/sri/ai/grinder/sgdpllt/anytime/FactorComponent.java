@@ -153,11 +153,19 @@ public class FactorComponent {
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
-		Expression childrenBound = parse("{ 1 }");
+		//Expression childrenBound = parse("{1}");
+
+		//for(VariableComponent children : this.children){
+		//	childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenBound, children.bound);
+		//}
 		
+		Expression[] cildrenArray = new Expression[children.size()];
+		int i = 0;
 		for(VariableComponent children : this.children){
-			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenBound, children.bound);
+			cildrenArray[i] = children.bound;
+			i++;
 		}
+		Expression childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, cildrenArray);
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : this.parent) {

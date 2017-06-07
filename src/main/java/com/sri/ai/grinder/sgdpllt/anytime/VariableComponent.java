@@ -190,11 +190,19 @@ public class VariableComponent {
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
-		Expression childrenBound = parse("{ 1 }");
+		//Expression childrenBound = parse("{ 1 }");
 		
+		//for(FactorComponent children : this.children){
+		//	childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
+		//}
+		
+		Expression[] cildrenArray = new Expression[children.size()];
+		int i = 0;
 		for(FactorComponent children : this.children){
-			childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
+			cildrenArray[i] = children.bound;
+			i++;
 		}
+		Expression childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, cildrenArray);
 		
 		Iterator<Expression> iteratorToVariables = this.cutsetInsideSubModel.iterator();
 		ArrayList<Expression> variablesToBeSummedOut = new ArrayList<>(this.cutsetInsideSubModel.size());
@@ -203,8 +211,6 @@ public class VariableComponent {
 		}
 		//We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-
-
 		
 		bound = Bounds.summingBound(varToSum, childrenBound, context, theory);
 		
