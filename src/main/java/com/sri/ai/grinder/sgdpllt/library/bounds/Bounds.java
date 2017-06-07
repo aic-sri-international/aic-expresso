@@ -246,6 +246,7 @@ public class Bounds {
 		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal,body);
 		
 		if (debug) println(isExtreme);
+		
 		//Expression result = theory.evaluate(isExtreme, context);
 		//if (true) println(result);
 		return true;

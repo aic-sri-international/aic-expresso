@@ -315,7 +315,8 @@ public class Examples {
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
 		runningPartialTest(ComponentResult, 20);
-	}
+		ComponentResult.print(0);
+		}
 
 	private static void runningTotalTest(VariableComponent ComponentResult) {
 
@@ -349,7 +350,7 @@ public class Examples {
 		println("totalTime: " + totalTime);
 		
 	}
-
+		
 	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter) {
 
 		long startTime, endTime, totalTime;

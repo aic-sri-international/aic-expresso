@@ -151,7 +151,9 @@ public class VariableComponent {
 		System.out.println(tab + "Variable : " + variable);
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
+		System.out.println(tab + "Bound : " + this.bound);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
+		
 
 		for (FactorComponent c : this.children) {
 			c.print(tabs + 1);
@@ -196,13 +198,19 @@ public class VariableComponent {
 		//	childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
 		//}
 		
-		Expression[] cildrenArray = new Expression[children.size()];
+		Expression[] childrenArray = new Expression[children.size()];
 		int i = 0;
 		for(FactorComponent children : this.children){
-			cildrenArray[i] = children.bound;
+			childrenArray[i] = children.bound;
 			i++;
 		}
-		Expression childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, cildrenArray);
+		Expression childrenBound;
+		if(childrenArray.length != 0){
+			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenArray);
+		}
+		else{
+			childrenBound = parse("{ 1 }");
+		}
 		
 		Iterator<Expression> iteratorToVariables = this.cutsetInsideSubModel.iterator();
 		ArrayList<Expression> variablesToBeSummedOut = new ArrayList<>(this.cutsetInsideSubModel.size());

@@ -142,6 +142,7 @@ public class FactorComponent {
 		System.out.println(tab + "Children : " + children);
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
+		System.out.println(tab + "Bound : " + this.bound);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
 
 		for (VariableComponent c : this.children) {
@@ -189,7 +190,7 @@ public class FactorComponent {
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
-		Expression childrenMessage = parse("1");
+		Expression childrenMessage = parse("{ 1 }");
 		
 		for(VariableComponent children : this.children){
 			childrenMessage = apply(TIMES, childrenMessage, children.calculate());
