@@ -339,12 +339,12 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  RealCancerModel();
+		VariableComponent ComponentResult =  DiamondModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 50);
+		runningPartialTest(ComponentResult, 6);
 		ComponentResult.print(0);
 		}
 
@@ -391,8 +391,10 @@ public class Examples {
 		startTime = System.currentTimeMillis();
 		int i = 0;
 		while(i < nb_iter) {
-			ComponentResult.update(new HashSet<Expression>());
-			println("Bound at iteration " + i + " : " + ComponentResult.bound);
+			if(!ComponentResult.entirelyDiscover) {
+				ComponentResult.update(new HashSet<Expression>());
+				println("Bound at iteration " + i + " : " + ComponentResult.bound);
+			}
 			i++;
 		}
 		Expression normalizedMessage = ComponentResult.bound;

@@ -35,12 +35,14 @@ public class FactorComponent {
 	public Set<Expression> cutsetInsideSubModel;
 	public Expression bound;
 	public Set<Expression> phiInsideSubModel;
+	public Integer lastUpdatedChild;
 
 	public FactorComponent(Expression phi, Expression Parent, Model model, Set<Expression> Pext) {
 
 		this.phiInsideSubModel = new HashSet<Expression>();
 		this.model = model;
 		this.entirelyDiscover = false;
+		this.lastUpdatedChild = 0;
 		this.children = new ArrayList<VariableComponent>();
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
@@ -98,7 +100,7 @@ public class FactorComponent {
 				
 			}
 		} else {
-			int j = this.choose();
+			int j = this.chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).cutsetInsideSubModel);
@@ -126,13 +128,29 @@ public class FactorComponent {
 		this.calculateBound();
 	}
 
-	public int choose() {
+	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
 			if (!this.children.get(j).entirelyDiscover){
 				return j;
 			}
 		}
 		return 0;
+	}
+	
+	public int chooseBreadthFirst() {
+		for (int j = lastUpdatedChild + 1; j<this.children.size(); j++){
+			if (!this.children.get(j).entirelyDiscover){
+				this.lastUpdatedChild = j;
+				return j;
+			}
+		}
+		for (int j = 0; j<lastUpdatedChild; j++){
+			if (!this.children.get(j).entirelyDiscover){
+				this.lastUpdatedChild = j;
+				return j;
+			}
+		}
+		return lastUpdatedChild;
 	}
 	
 	public void print(int tabs) {

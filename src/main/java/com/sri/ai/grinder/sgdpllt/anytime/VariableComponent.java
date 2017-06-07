@@ -35,11 +35,13 @@ public class VariableComponent {
 	public Set<Expression> cutsetInsideSubModel;
 	public Expression bound;
 	public Set<Expression> phiInsideSubModel;
+	public Integer lastUpdatedChild;
 
 	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext) {
 
 		this.model = model;
 		this.variable = variable;
+		this.lastUpdatedChild = 0;
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
 		this.entirelyDiscover = false;
@@ -106,7 +108,7 @@ public class VariableComponent {
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 		} else {
-			int j = this.choose();
+			int j = this.chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).phiInsideSubModel);
@@ -135,13 +137,29 @@ public class VariableComponent {
 		this.calculateBound();
 	}
 
-	public int choose() {
+	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
 			if (!this.children.get(j).entirelyDiscover){
 				return j;
 			}
 		}
 		return 0;
+	}
+
+	public int chooseBreadthFirst() {
+		for (int j = lastUpdatedChild + 1; j<this.children.size(); j++){
+			if (!this.children.get(j).entirelyDiscover){
+				this.lastUpdatedChild = j;
+				return j;
+			}
+		}
+		for (int j = 0; j<lastUpdatedChild; j++){
+			if (!this.children.get(j).entirelyDiscover){
+				this.lastUpdatedChild = j;
+				return j;
+			}
+		}
+		return lastUpdatedChild;
 	}
 
 	public void print(int tabs) {
