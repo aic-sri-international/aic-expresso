@@ -314,9 +314,7 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		ComponentResult.bound = Bounds.normalize(ComponentResult.bound, ComponentResult.model.theory, ComponentResult.model.context);
-		ComponentResult.bound = Bounds.updateExtremes(ComponentResult.bound, ComponentResult.model.theory, ComponentResult.model.context);
-		runningPartialTest(ComponentResult, 20);
+		runningPartialTest(ComponentResult, 1);
 	}
 
 	private static void runningTotalTest(VariableComponent ComponentResult) {
@@ -371,7 +369,7 @@ public class Examples {
 		
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
-		
+		/*
 		//now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
@@ -383,7 +381,7 @@ public class Examples {
 		
 		println("\n\nNaive Result : " + naiveResult);
 		println("totalTime: " + totalTime);
-		
+		*/
 	}
 
 	

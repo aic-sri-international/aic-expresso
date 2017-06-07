@@ -247,6 +247,7 @@ public class Bounds {
 		
 		if (debug) println(isExtreme);
 		//Expression result = theory.evaluate(isExtreme, context);
+		//if (true) println(result);
 		return true;
 	}
 	
