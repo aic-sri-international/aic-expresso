@@ -58,6 +58,7 @@ public class VariableComponent {
 		}
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
+			this.bound=parse("{ 1 }");
 		}
 		S.retainAll(intersection);
 		if (!S.isEmpty()) {

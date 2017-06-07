@@ -156,14 +156,14 @@ public class Examples {
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
 		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95));
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 25),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 195));
 		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 95),
+				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 50, 95),
 				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
 		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 40),
-				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 60));
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 50),
+				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 70));
 
 		
 		Set<Expression> Factor = new HashSet<Expression>();
@@ -175,6 +175,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
 		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("C", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
 		return ComponentResultat;
@@ -338,12 +339,12 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  DiamondModel();
+		VariableComponent ComponentResult =  RealCancerModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 20);
+		runningPartialTest(ComponentResult, 50);
 		ComponentResult.print(0);
 		}
 

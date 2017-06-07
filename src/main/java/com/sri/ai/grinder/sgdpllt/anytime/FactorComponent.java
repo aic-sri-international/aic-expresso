@@ -21,6 +21,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 
 public class FactorComponent {
@@ -57,6 +58,7 @@ public class FactorComponent {
 		}
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
+			this.bound = ExtensionalSets.makeUniSet(this.phi);
 		}
 		S.retainAll(intersection);
 		this.cutsetOutsideSubModel.addAll(S);
@@ -170,6 +172,9 @@ public class FactorComponent {
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : this.parent) {
+			toSum.remove(e);
+		}
+		for (Expression e : this.cutsetOutsideSubModel) {
 			toSum.remove(e);
 		}
 		toSum.addAll(this.cutsetInsideSubModel);
