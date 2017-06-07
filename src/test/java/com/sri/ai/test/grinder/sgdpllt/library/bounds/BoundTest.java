@@ -195,19 +195,19 @@ public class BoundTest {
 		declaringTheoryContextAndSetOfFactors();
 		
 		assertEquals(
-				parse("{ if Y then 12 else 16, "
-						+ "if Y then 40 else 44, "
-						+ "62, "
-						+ "86, "
-						+ "if C < 4 then 80 else if C = 4 then 88 else 96 }"),
-				Bounds.summingBound(parse("{A,B,X}"), setOfFactors, context, theory));
+			  "{ if Y then 3/7 else 4/7, "
+			+ "if Y then 10/21 else 11/21, "
+			+ "1, "
+			+ "1, "
+			+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
+			Bounds.summingBound(parse("{A,B,X}"), setOfFactors, context, theory).toString());
 
 		assertEquals(
-				parse("{if X then 20 else if Y then 40 else 60, "
-						+ "if Y then 100 else 110, "
-						+ "if X then 140 else 170, "
-						+ "215, "
-						+ "212 }"),
-				Bounds.summingBound(parse("{A,B,C}"), setOfFactors, context, theory));
+				"{ if X then 1/7 else if Y then 2/7 else 3/7, "
+				+ "if Y then 10/21 else 11/21, "
+				+ "if X then 14/31 else 17/31, "
+				+ "1, "
+				+ "1 }",
+				Bounds.summingBound(parse("{A,B,C}"), setOfFactors, context, theory).toString());
 	}
 }
