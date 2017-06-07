@@ -314,7 +314,8 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 1);
+		runningPartialTest(ComponentResult, 20);
+		System.out.println(Bounds.normalize(parse("{ if LungCancer then 0.6 else 0.2, if LungCancer then 0.1 else 0.7 }"), ComponentResult.model.theory, ComponentResult.model.context));
 	}
 
 	private static void runningTotalTest(VariableComponent ComponentResult) {
