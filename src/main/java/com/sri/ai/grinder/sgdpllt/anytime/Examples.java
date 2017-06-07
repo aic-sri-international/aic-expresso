@@ -314,7 +314,7 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 5);
+		runningPartialTest(ComponentResult, 20);
 	}
 
 	private static void runningTotalTest(VariableComponent ComponentResult) {

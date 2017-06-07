@@ -288,6 +288,7 @@ public class Bounds {
 	DefaultExtensionalUniSet SetOfBoundSummedOut = new DefaultExtensionalUniSet(BoundSummedOut);
 	//Updating extreme points
 	Expression result = updateExtremes(SetOfBoundSummedOut,theory,context);		
+	result = normalize(result, theory, context);
 	return result;
 	}
 	/**
@@ -307,10 +308,12 @@ public class Bounds {
 			Context context, Theory theory){
 		Expression x = createSymbol("x");
 		Expression f = apply(TIMES, phi, x);		
-		
-		Expression phiTimesBound = applyFunctionToBound(f, x, bound, theory, context);
+		bound = normalize(bound, theory, context);
+		Expression phiTimesBound = applyFunctionToBound(f, x, bound, theory, context);	
 		
 		Expression result = summingBound(variablesToBeSummedOut, phiTimesBound, context, theory);
+		
+		bound = normalize(bound, theory, context);
 		return result;
 	}	
 }
