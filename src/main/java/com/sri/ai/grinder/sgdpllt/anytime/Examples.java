@@ -151,25 +151,21 @@ public class Examples {
 	public static VariableComponent TreeModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
-		Expression c = DefaultSymbol.createSymbol("C");
+		//Expression c = DefaultSymbol.createSymbol("C");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
-		Expression f1 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 25),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 5, 195));
-		Expression f2 = apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 50, 95),
-				apply(IF_THEN_ELSE, apply(EQUAL, q, trueValue), 95, 5));
-		Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
-				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 50),
-				apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 70));
+		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("0.1"), parse("0.9")), IfThenElse.make(q, parse("0.8"), parse("0.2")));
+		Expression f2 = IfThenElse.make(b, IfThenElse.make(q, parse("55"), parse("45")), IfThenElse.make(q, parse("65"), parse("35")));
+		//Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+			//	apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 50),
+				//apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 70));
 
 		
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
 		Factor.add(f2);
-		Factor.add(f3);
+		//Factor.add(f3);
 
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
@@ -339,12 +335,12 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  DiamondModel();
+		VariableComponent ComponentResult =  TreeModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 6);
+		runningPartialTest(ComponentResult, 2);
 		ComponentResult.print(0);
 		}
 
@@ -403,7 +399,7 @@ public class Examples {
 		
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
-		
+		/*
 		//now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
@@ -415,6 +411,8 @@ public class Examples {
 		
 		println("\n\nNaive Result : " + naiveResult);
 		println("totalTime: " + totalTime);
+		*/
+		
 		
 	}
 

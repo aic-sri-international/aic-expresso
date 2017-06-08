@@ -1,7 +1,9 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
 
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
@@ -13,6 +15,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -108,7 +111,7 @@ public class VariableComponent {
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 		} else {
-			int j = this.chooseBreadthFirst();
+			int j = this.chooseDepthImportantFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).phiInsideSubModel);
@@ -162,6 +165,54 @@ public class VariableComponent {
 		return lastUpdatedChild;
 	}
 
+	public int chooseDepthImportantFirst() {
+		Expression min = parse("{ 1 }");
+		Integer jToReturn = 0;
+		for (int j = 0; j<this.children.size(); j++){
+			if (!this.children.get(j).entirelyDiscover){
+				
+				Set<Expression> toMultiply = this.model.getNeighbors(this.children.get(j).phi);
+				toMultiply.removeAll(this.children.get(j).parent);
+				
+				DefaultExtensionalUniSet varToMultiply = new DefaultExtensionalUniSet(new ArrayList(toMultiply));
+				
+				IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(varToMultiply, this.model.context);
+				//TODO Find a way to do : intersection (variablesToBeSummedOut, FreeVariables(phi))
+				
+				Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
+						indices,
+						Bounds.normalize(this.children.get(j).phi, this.model.theory, this.model.context),//head
+						makeSymbol(true)//No Condition
+						);
+				
+				Expression firstProduct = apply(TIMES, setOfFactorInstantiations);
+				Expression evaluation = this.model.theory.evaluate(firstProduct, this.model.context);
+				
+				DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(new ArrayList(this.children.get(j).parent));
+				
+				indices = getIndexExpressionsOfFreeVariablesIn(varToSum, this.model.context);
+				
+				setOfFactorInstantiations = IntensionalSet.makeMultiSet(
+						indices,
+						evaluation,//head
+						makeSymbol(true)//No Condition
+						);
+				
+				Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
+				evaluation = this.model.theory.evaluate(sumOnPhi, this.model.context);
+				
+				if(evaluation.compareTo(min) < 0){
+					min = evaluation;
+					jToReturn = j;
+				}
+				
+			}
+
+		}
+		return jToReturn;
+	}
+
+	
 	public void print(int tabs) {
 		String tab = new String();
 		for (int i = 0; i < tabs; i++) {
@@ -180,6 +231,7 @@ public class VariableComponent {
 
 	}
 
+	
 	public Expression calculate(){
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
@@ -207,6 +259,7 @@ public class VariableComponent {
 
 	}
 
+	
 	public void calculateBound(){
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
