@@ -421,7 +421,7 @@ public class ExpressoAPIExamples {
 				"4", "3", "5",
 				"6", "3", "5",
 				// this case is still buggy:
-//				"if X then 2 else 3", "if X then 1 else 5", "if X then 0 else 10",
+				//"if X = 1 then 2 else 3", "if X = 2 then 1 else 5", "if X = 10 then 0 else 10",
 		};
 		for (int i = 0; i != examples.length; i += 3) {
 			pValue  = parse(examples[i]);
@@ -436,6 +436,12 @@ public class ExpressoAPIExamples {
 			Expression result = theory.evaluate(isInConvexHull, convexityContext);
 			println("p (value " + pValue + ") is in the convex hull of p1 and p2 (" + p1Value + ", " + p2Value + "): " + result);
 		}
+
+		// Even coding the values directly still results in a bug.
+//		Expression isInConvexHull = 
+//				parse("there exists c1 in [0;1] : there exists c2 in [0;1] : c1 + c2 = 1 and (if X = 1 then 2 else 3) = c1*(if X = 2 then 1 else 3) + c2*(if X = 10 then 0 else 10)");
+//		Expression result = theory.evaluate(isInConvexHull, convexityBaseContext);
+//		println("if X = 1 then 2 else 3 is in the convex hull of if X = 2 then 1 else 3 and if X = 10 then 0 else 10: " + result);
 
 		// Obtaining and using types:
 		context = new TrueContext();
