@@ -1,9 +1,17 @@
 package com.sri.ai.grinder.sgdpllt.library.bounds;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
+//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -25,13 +33,38 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	@Override
-	public Bound simplex(List<Expression> Variables, Model model) {
-		// TODO Auto-generated method stub
+	public DefaultIntensionalBound simplex(List<Expression> Variables, Model model) {
+
+		Context context= model.context;
+		Expression one = makeSymbol("1");
+		Expression zero= makeSymbol("0");
+	
+		Object[] simplexOnASingleVariable = new Expression[Variables.size()];
+		
+		int i = 0;
+		for(Expression var : Variables){
+			Expression c = makeSymbol("c");
+			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(var, context);
+			IndexExpressionsSet indicesReplaced = indices.replaceSymbol(var, c, context);
+			
+			Expression simplexOnVar = IntensionalSet.makeUniSet(
+					indicesReplaced,
+					apply(IF_THEN_ELSE,apply(EQUAL,var,c),one,zero),
+					makeSymbol(true)//No Condition
+					);
+			
+			simplexOnASingleVariable[i] = simplexOnVar;
+			i++;
+		}
+		
+//		DefaultIntensionalBound result = apply(PRODUCT, simplexOnASingleVariable);
+		//return result;
 		return null;
 	}
 
+
 	@Override
-	public Bound normalize(Expression bound, Theory theory, Context context) {
+	public Bound normalize(Bound bound, Theory theory, Context context) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -43,22 +76,23 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	@Override
-	public Bound summingBound(Expression variablesToBeSummedOut, Expression bound, Context context, Theory theory) {
+	public Bound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Expression bound,
-			Context context, Theory theory) {
+	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound, Context context,
+			Theory theory) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Bound applyFunctionToBound(Expression f, Expression variableName, Expression b, Theory theory,
-			Context context) {
+	public Bound applyFunctionToBound(Expression f, Expression variableName, Bound b, Theory theory, Context context) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
 }

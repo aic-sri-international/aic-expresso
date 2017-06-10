@@ -26,7 +26,7 @@ public interface Bound extends Expression{
 	 * @param context
 	 * @return  bound of normalized factors
 	 */
-	public Bound normalize(Expression bound, Theory theory, Context context);
+	public Bound normalize(Bound bound, Theory theory, Context context);
 
 	/**
 	 * Computes the product of each term of a list of bounds
@@ -50,7 +50,7 @@ public interface Bound extends Expression{
 	 * @param theory
 	 * @return
 	 */
-	public Bound summingBound(Expression variablesToBeSummedOut, Expression bound,
+	public Bound summingBound(Expression variablesToBeSummedOut, Bound bound,
 			Context context, Theory theory);
 	
 	/**
@@ -66,7 +66,7 @@ public interface Bound extends Expression{
 	 * @param theory
 	 * @return
 	 */
-	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Expression bound,
+	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
 			Context context, Theory theory);
 
 	public boolean isExtensionalBound();
@@ -79,5 +79,5 @@ public interface Bound extends Expression{
 	 * @param listOfBounds
 	 * @return bound resulting from the product of bounds
 	 */
-	public Bound applyFunctionToBound(Expression f, Expression variableName, Expression b, Theory theory, Context context);
+	public Bound applyFunctionToBound(Expression f, Expression variableName, Bound b, Theory theory, Context context);
 }

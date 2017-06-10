@@ -1,7 +1,6 @@
 package com.sri.ai.test.grinder.sgdpllt.library.bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import static com.sri.ai.util.Util.arrayList;
 
 
 
@@ -33,8 +33,8 @@ public class BoundTest {
 	
 	Theory theory ;
 	Context context;
-	Expression setOFNumbers;
-	Expression setOfFactors;
+	Bound setOFNumbers;
+	Bound setOfFactors;
 	Bound extensionalBound;
 	
 	private void declaringTheoryContextAndSetOfFactors() {
@@ -60,12 +60,12 @@ public class BoundTest {
 		Expression phi3 = parse("if X = true then 7 else if B = true then 8 else 9");
 		Expression phi4 = parse("if B = true then 10 else if A = true then 11 else 12");
 		Expression phi5 = parse("if C < 4 then 10 else if C = 4 then 11 else 12");
-		setOfFactors = ExtensionalSets.makeUniSet(phi1, phi2, phi3, phi4, phi5);
-		
+		setOfFactors = new DefaultExtensionalBound(arrayList(phi1, phi2, phi3, phi4, phi5)); 
+	
 		//Set of numbers
 		Expression one   = DefaultSymbol.createSymbol(1);
 		Expression two   = DefaultSymbol.createSymbol(2);
-		setOFNumbers = ExtensionalSets.makeUniSet(one, two);
+		setOFNumbers = new DefaultExtensionalBound(arrayList(one,two));
 
 		extensionalBound = new DefaultExtensionalBound(); 
 	}
