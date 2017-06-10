@@ -1,6 +1,7 @@
 package com.sri.ai.test.grinder.sgdpllt.library.bounds;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -15,7 +16,9 @@ import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -23,7 +26,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
-import com.sri.ai.util.Util;
+
 
 
 public class BoundTest {
@@ -32,6 +35,7 @@ public class BoundTest {
 	Context context;
 	Expression setOFNumbers;
 	Expression setOfFactors;
+	Bound extensionalBound;
 	
 	private void declaringTheoryContextAndSetOfFactors() {
 
@@ -63,6 +67,7 @@ public class BoundTest {
 		Expression two   = DefaultSymbol.createSymbol(2);
 		setOFNumbers = ExtensionalSets.makeUniSet(one, two);
 
+		extensionalBound = new DefaultExtensionalBound(); 
 	}
 	
 	@Test
@@ -101,6 +106,9 @@ public class BoundTest {
 		Variables.add(b);
 		Variables.add(c);
 		Variables.add(d);
+
+		extensionalBound = new DefaultExtensionalBound(); 
+
 		
 		assertEquals(
 				parse("{ if A = true then 1 else 0, "
@@ -115,7 +123,8 @@ public class BoundTest {
 					+ "if D = 7 then 1 else 0, "
 					+ "if D = 8 then 1 else 0, "
 					+ "if D = 9 then 1 else 0 }"),
-				Bounds.simplex(Variables, m));
+				extensionalBound.simplex(Variables, m));
+		
 	}
 	
 	@Test
@@ -128,7 +137,7 @@ public class BoundTest {
 				+ "if X then 7/31 else if B then 8/31 else 9/31, "
 				+ "if B then 10/43 else if A then 11/43 else 12/43, "
 				+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
-				Bounds.normalize(setOfFactors, theory, context).toString());
+				extensionalBound.normalize(setOfFactors, theory, context).toString());
 	}
 	
 	@Test
@@ -165,7 +174,7 @@ public class BoundTest {
 				 		+ "if X then 49 else if Y then 64 else 81, "
 				 		+ "if X then 98 else if Y then 128 else 162 }"
 						),
-				 Bounds.boundProduct(theory, context, setOfFactors,setOfFactors,setOFNumbers));	 
+				 extensionalBound.boundProduct(theory, context, setOfFactors,setOfFactors,setOFNumbers));	 
 
 		assertEquals(parse("{1}"),Bounds.boundProduct(theory, context, new Expression[0]));
 		//Util.println(Bounds.boundProduct(theory, context, parse("{}"), parse("{1,2}")));
@@ -190,7 +199,7 @@ public class BoundTest {
 						+ "if X then 91 else if B then 104 else 117, "
 						+ "if B then 130 else if A then 143 else 156, "
 						+ "if C < 4 then 130 else if C = 4 then 143 else 156 }"),
-				Bounds.applyFunctionToBound(f, phi, setOfFactors, theory, context)
+				extensionalBound.applyFunctionToBound(f, phi, setOfFactors, theory, context)
 				); 
 	}
 	
@@ -204,7 +213,7 @@ public class BoundTest {
 			+ "1, "
 			+ "1, "
 			+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
-			Bounds.summingBound(parse("{A,B,X}"), setOfFactors, context, theory).toString());
+			extensionalBound.summingBound(parse("{A,B,X}"), setOfFactors, context, theory).toString());
 
 		assertEquals(
 				"{ if X then 1/7 else if Y then 2/7 else 3/7, "
@@ -212,6 +221,6 @@ public class BoundTest {
 				+ "if X then 14/31 else 17/31, "
 				+ "1, "
 				+ "1 }",
-				Bounds.summingBound(parse("{A,B,C}"), setOfFactors, context, theory).toString());
+				extensionalBound.summingBound(parse("{A,B,C}"), setOfFactors, context, theory).toString());
 	}
 }
