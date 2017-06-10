@@ -192,8 +192,8 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	
 
 	@Override
-	public DefaultExtensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound b, Theory theory, Context context){
-		ExtensionalSet bAsExtensionalSet = (ExtensionalSet) b;
+	public DefaultExtensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context){
+		ExtensionalSet bAsExtensionalSet = (ExtensionalSet) bound;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
 		for(Expression phi : ExtensionalSets.getElements(bAsExtensionalSet)){

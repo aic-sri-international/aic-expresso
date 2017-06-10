@@ -6,6 +6,8 @@ import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVar
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 //import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
 import java.util.List;
 
@@ -34,7 +36,8 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 
 	@Override
 	public DefaultIntensionalBound simplex(List<Expression> Variables, Model model) {
-
+		//TODO Don't know how to represent
+		
 		Context context= model.context;
 		Expression one = makeSymbol("1");
 		Expression zero= makeSymbol("0");
@@ -62,37 +65,102 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		return null;
 	}
 
+	@Override
+	public DefaultIntensionalBound normalize(Bound bound, Theory theory, Context context) {
+		//not tested
+		if(!bound.isIntensionalBound()){
+			//TODO Launch exception or something
+			return null;
+		}
+		
+		IntensionalSet intensionalBound = (IntensionalSet) bound;
+		
+		IndexExpressionsSet indexExpressions = intensionalBound.getIndexExpressions();
+		Expression Head                      = intensionalBound.getHead();
+		Expression condition                 = intensionalBound.getCondition();
+		
+		IndexExpressionsSet freeVariablesOfTheHead = getIndexExpressionsOfFreeVariablesIn(Head, context);
+		
+		Expression setInstantiationsOfTheHead = IntensionalSet.makeMultiSet(
+				freeVariablesOfTheHead,
+				Head,//head
+				makeSymbol(true)//No Condition
+				);
+		
+		Expression sumOnPhi = apply(SUM, setInstantiationsOfTheHead);
+		Expression normalizedHead =  apply("/", Head, sumOnPhi);
+		
+		Expression evaluation = theory.evaluate(normalizedHead, context);
+		
+		DefaultIntensionalBound normalizedIntensionalSet = 
+				new DefaultIntensionalBound(indexExpressions, evaluation, condition);
+		return normalizedIntensionalSet;		
+	}
 
 	@Override
-	public Bound normalize(Bound bound, Theory theory, Context context) {
+	public DefaultIntensionalBound boundProduct(Theory theory, Context context, Expression... listOfBounds) {
+		// unite the index expressions and multiply the heads
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Bound boundProduct(Theory theory, Context context, Expression... listOfBounds) {
-		// TODO Auto-generated method stub
-		return null;
+	public DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
+		//not tested
+		if(!bound.isIntensionalBound()){
+			//TODO Launch exception or something
+			return null;
+		}
+		Expression x = makeSymbol("variableX");
+		
+		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variablesToBeSummedOut, context);
+		
+		Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
+				indices,
+				x,//head
+				makeSymbol(true)//No Condition
+				);
+		Expression f = apply(SUM, setOfFactorInstantiations);
+		
+		DefaultIntensionalBound result = applyFunctionToBound(f, x, bound, theory, context);
+		return result;		
 	}
 
 	@Override
-	public Bound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound, Context context,
+	public DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound, Context context,
 			Theory theory) {
-		// TODO Auto-generated method stub
-		return null;
+		//not tested
+		if(!bound.isIntensionalBound()){
+			//TODO Launch exception or something
+			return null;
+		}
+		Expression x = makeSymbol("l");
+		Expression f = apply(TIMES, x,phi);
+		
+		DefaultIntensionalBound fOfBound = applyFunctionToBound(f, x, bound, theory, context);
+		
+		DefaultIntensionalBound result = summingBound(variablesToBeSummedOut, fOfBound, context, theory);
+		return result;				
 	}
 
 	@Override
-	public Bound applyFunctionToBound(Expression f, Expression variableName, Bound b, Theory theory, Context context) {
-		// TODO Auto-generated method stub
-		return null;
+	public DefaultIntensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context) {
+		//not tested
+		if(!bound.isIntensionalBound()){
+			//TODO Launch exception or something
+			return null;
+		}
+		
+		IntensionalSet intensionalBound = (IntensionalSet) bound;
+		
+		IndexExpressionsSet indexExpressions = intensionalBound.getIndexExpressions();
+		Expression Head                      = intensionalBound.getHead();
+		Expression condition                 = intensionalBound.getCondition();
+		
+		Expression fOfHead = f.replaceAllOccurrences(variableName, Head, context);
+		Expression evaluation = theory.evaluate(fOfHead, context);
+		
+		DefaultIntensionalBound result = new DefaultIntensionalBound(indexExpressions, evaluation, condition);
+		return result;
 	}
-
-	
 }
