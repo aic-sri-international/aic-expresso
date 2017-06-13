@@ -180,6 +180,39 @@ public class BoundTest {
 				+ "if B then 10/43 else if A then 11/43 else 12/43, "
 				+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
 				extensionalBound.normalize(setOfFactors, theory, context).toString());
+
+		assertEquals(
+				parse("{ ( on A' in Boolean, C' in 1..5 ) "
+						+ "if C = C' then "
+							+ "if A then "
+								+ "if A' then "
+									+ "0.2 "
+								+ "else "
+									+ "0.8 "
+							+ "else "
+								+ "if not A' then "
+									+ "0.2 "
+								+ "else "
+									+ "0.8"
+							+ " else 0 }"),
+				intensionalBound.normalize(IntensionalSetOfFactors1, theory, context));
+		
+		assertEquals(
+				parse("{ ( on A' in Boolean, C' in 1..5, A'' in Boolean ) "
+						+ "if C = C' then "
+							+ "if A then "
+								+ "if A'' then "
+									+ "1 "
+								+ "else "
+									+ "0 "
+							+ "else "
+								+ "if not A'' then "
+									+ "1 "
+								+ "else "
+									+ "0 "
+						+ "else "
+							+ "0 }"),
+				intensionalBound.normalize(intensionalBound.boundProduct(theory, context, IntensionalSetOfFactors1,IntensionalSetOfFactors2), theory, context));
 	}
 	
 	@Test
