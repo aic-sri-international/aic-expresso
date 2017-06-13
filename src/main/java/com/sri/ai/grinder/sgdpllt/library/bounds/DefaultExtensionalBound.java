@@ -52,6 +52,10 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		super(elementsDefinitions);
 	}
 	
+	public DefaultExtensionalBound(Expression... elementsDefinitions) {
+		super(new ArrayList<>(Arrays.asList(elementsDefinitions)));
+	}
+	
 	public DefaultExtensionalBound(Expression singleElement) {
 		super(arrayList(singleElement));
 	}
@@ -60,32 +64,40 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	}
 	
 	@Override
-	public DefaultExtensionalBound simplex(List<Expression> Variables, Model model) {
-		//TODO 	change function to receive theory + context instead of model (for coherence with the others)
-		//		the change is quite straightforward, but lets wait for the others get adapted with this
-		//		new class hierarchies designed for the bounds
-		ArrayList<Expression> simplexList = new ArrayList<>();
+	public DefaultExtensionalBound simplex(List<Expression> Variables, Model m) {
+		DefaultExtensionalBound result = simplex(Variables,m.theory , m.context);
+		return result;
+	}
+	
+	@Override
+	public DefaultExtensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
 
 		Expression one = makeSymbol("1");
 		Expression zero= makeSymbol("0");
 		
+		DefaultExtensionalBound[] arrayOfBounds = new DefaultExtensionalBound[Variables.size()];
+		
+		int i = 0;
 		for(Expression var : Variables){
-			Type type = model.context.getTypeOfRegisteredSymbol(var);
+			Type type = context.getTypeOfRegisteredSymbol(var);
 			Iterator<Expression>  iteratorToValuesInType = type.iterator();
 			
+			ArrayList<Expression> oneVariableSimplexList = new ArrayList<>();
+			
 			for(Expression value : in(iteratorToValuesInType)){
-				simplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, value), one, zero));
+				oneVariableSimplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, value), one, zero));
 			}
+			arrayOfBounds[i] = new DefaultExtensionalBound(oneVariableSimplexList);
+			i++;
 		}
-
-		DefaultExtensionalBound result =  new DefaultExtensionalBound(simplexList);
+		
+		DefaultExtensionalBound result = boundProduct(theory, context, arrayOfBounds);
 		return result;
 	}
 
 	@Override
 	public DefaultExtensionalBound normalize(Bound bound, Theory theory, Context context) {
 		if(!bound.isExtensionalBound()){
-			//TODO launch exception or something
 			return null;
 		}
 		
@@ -118,7 +130,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	}
 
 	@Override
-	public DefaultExtensionalBound boundProduct(Theory theory, Context context, Expression... listOfBounds) {		
+	public DefaultExtensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {		
 		if(listOfBounds.length == 0){
 			DefaultExtensionalBound singletonWithNumberOne = new DefaultExtensionalBound(parse("1"));
 			return singletonWithNumberOne;
@@ -189,10 +201,8 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		
 		return result;
 	}
-	
 
-	@Override
-	public DefaultExtensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context){
+	protected DefaultExtensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context){
 		ExtensionalSet bAsExtensionalSet = (ExtensionalSet) bound;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);

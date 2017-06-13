@@ -17,6 +17,14 @@ public interface Bound extends Expression{
 	 */
 	public Bound simplex(List<Expression> Variables, Model model);
 	
+	/** Returns an explicit representation for the simplex. The expression returned is
+	 * a UniSet.
+	 * @param Variables
+	 * @param model
+	 * @return
+	 */
+	public Bound simplex(List<Expression> Variables, Theory theory, Context context);
+	
 	/**
 	 * Assumes that each element of the bound is a factor with the same domain
 	 * Normalizes each factor of the bound. In latex notation: 
@@ -35,7 +43,7 @@ public interface Bound extends Expression{
 	 * @param listOfBounds
 	 * @return bound resulting from the product of bounds
 	 */
-	public Bound boundProduct(Theory theory, Context context, Expression...listOfBounds);
+	public Bound boundProduct(Theory theory, Context context, Bound...listOfBounds);
 		
 	/**
 	 * given a set of variables "S" and a bound "B", performs the following operation:
@@ -79,5 +87,5 @@ public interface Bound extends Expression{
 	 * @param listOfBounds
 	 * @return bound resulting from the product of bounds
 	 */
-	public Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
+	//public Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
 }
