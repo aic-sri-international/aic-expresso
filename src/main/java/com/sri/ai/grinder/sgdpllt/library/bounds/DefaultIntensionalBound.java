@@ -101,19 +101,41 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		
 		DefaultIntensionalBound intensionalBound = (DefaultIntensionalBound) bound;
 		
-		IndexExpressionsSet indexExpressions = intensionalBound.getIndexExpressions();
+		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalBound.getIndexExpressions();
 		Expression Head                      = intensionalBound.getHead();
 		Expression condition                 = intensionalBound.getCondition();
 		
-		IndexExpressionsSet freeVariablesOfTheHead = getIndexExpressionsOfFreeVariablesIn(Head, context);
+		Set<Expression> hashSetOfindexVariables = Util.set();
+		
+		ExtensionalIndexExpressionsSet freeVariablesOfTheHead = (ExtensionalIndexExpressionsSet) getIndexExpressionsOfFreeVariablesIn(Head, context);
+		
+		for(Expression indexExpression: indexExpressions.getList()){
+			Symbol index = (Symbol) indexExpression.get(0);
+			Expression type = indexExpression.get(1);
+			context = context.extendWithSymbolsAndTypes(index,type);
+			
+			hashSetOfindexVariables.add(index);
+		}
+		
+		ArrayList<Expression> variablesToSumOutList = new ArrayList<>();
+		for(Expression indexExpression: freeVariablesOfTheHead.getList()){
+			Expression index = indexExpression.getFunctorOrSymbol();//Gambiarra!
+			if(!hashSetOfindexVariables.contains(index)){
+				variablesToSumOutList.add(indexExpression);
+			}
+		}
+		
+		ExtensionalIndexExpressionsSet variablesToSumOut = new ExtensionalIndexExpressionsSet(variablesToSumOutList);
 		
 		Expression setOfInstantiationsOfTheHead = IntensionalSet.makeMultiSet(
-				freeVariablesOfTheHead,
+				variablesToSumOut,
 				Head,//head
 				makeSymbol(true)//No Condition
 				);
 		
 		Expression sumOnPhi = apply(SUM, setOfInstantiationsOfTheHead);
+		
+		//sumOnPhi = theory.evaluate(sumOnPhi, context);
 		Expression normalizedHead =  apply("/", Head, sumOnPhi);
 		
 		Expression evaluation = theory.evaluate(normalizedHead, context);
