@@ -25,6 +25,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.util.Util;
 
 public class VariableComponent {
@@ -36,7 +37,7 @@ public class VariableComponent {
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
-	public Expression bound;
+	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer lastUpdatedChild;
 
@@ -52,7 +53,7 @@ public class VariableComponent {
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model);
+		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,true);
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 
 		Set<Expression> intersection = new HashSet<Expression>();
@@ -63,7 +64,7 @@ public class VariableComponent {
 		}
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
-			this.bound=parse("{ 1 }");
+			this.bound= Bounds.makeSingleElementBound(makeSymbol(1), true);
 		}
 		S.retainAll(intersection);
 		if (!S.isEmpty()) {
@@ -181,7 +182,7 @@ public class VariableComponent {
 				
 				Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 						indices,
-						Bounds.normalize(this.children.get(j).phi, this.model.theory, this.model.context),//head
+						Bounds.normalizeSingleExpression(this.children.get(j).phi, this.model.theory, this.model.context),//head
 						makeSymbol(true)//No Condition
 						);
 				
@@ -270,18 +271,18 @@ public class VariableComponent {
 		//	childrenBound = Bounds.boundProduct(theory, context, childrenBound, children.bound);
 		//}
 		
-		Expression[] childrenArray = new Expression[children.size()];
+		Bound[] childrenArray = new Bound[children.size()];
 		int i = 0;
 		for(FactorComponent children : this.children){
 			childrenArray[i] = children.bound;
 			i++;
 		}
-		Expression childrenBound;
+		Bound childrenBound;
 		if(childrenArray.length != 0){
 			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenArray);
 		}
 		else{
-			childrenBound = parse("{ 1 }");
+			childrenBound = Bounds.makeSingleElementBound(makeSymbol(1), true);
 		}
 		
 		Iterator<Expression> iteratorToVariables = this.cutsetInsideSubModel.iterator();

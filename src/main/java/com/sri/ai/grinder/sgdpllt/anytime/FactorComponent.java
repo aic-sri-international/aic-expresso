@@ -10,7 +10,6 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
@@ -20,9 +19,9 @@ import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
-import com.sri.ai.util.Util;
+
 
 public class FactorComponent {
 
@@ -33,7 +32,7 @@ public class FactorComponent {
 	public ArrayList<VariableComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
-	public Expression bound;
+	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer lastUpdatedChild;
 
@@ -48,7 +47,7 @@ public class FactorComponent {
 		this.parent.add(Parent);
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model);
+		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model,true); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
 		this.phi = phi;
 		this.phiInsideSubModel.add(phi);
 
@@ -60,7 +59,7 @@ public class FactorComponent {
 		}
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
-			this.bound = ExtensionalSets.makeUniSet(this.phi);
+			this.bound = Bounds.makeSingleElementBound(this.phi, true);
 		}
 		S.retainAll(intersection);
 		this.cutsetOutsideSubModel.addAll(S);
@@ -180,13 +179,13 @@ public class FactorComponent {
 		//	childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenBound, children.bound);
 		//}
 		
-		Expression[] cildrenArray = new Expression[children.size()];
+		Bound[] cildrenArray = new Bound[children.size()];
 		int i = 0;
 		for(VariableComponent children : this.children){
 			cildrenArray[i] = children.bound;
 			i++;
 		}
-		Expression childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, cildrenArray);
+		Bound childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, cildrenArray);
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : this.parent) {
@@ -197,13 +196,9 @@ public class FactorComponent {
 		}
 		toSum.addAll(this.cutsetInsideSubModel);
 		
-		//This is to convert a set to a list, to afterwards create a UniSet.
-		//It's too verbose, maybe there is a cleaner way to do it
-		Iterator<Expression> iteratorToVariables = toSum.iterator();
 		ArrayList<Expression> variablesToBeSummedOut = new ArrayList<>(toSum.size());
-		for(Expression var : Util.in(iteratorToVariables)){
-			variablesToBeSummedOut.add(var);
-		}
+		variablesToBeSummedOut.addAll(toSum);
+		
 		//We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		bound = Bounds.summingPhiTimesBound(varToSum, phi, childrenBound, context, theory);

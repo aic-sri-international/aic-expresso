@@ -340,7 +340,7 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 2);
+		runningPartialTest(ComponentResult, 10);
 		ComponentResult.print(0);
 		}
 
@@ -359,7 +359,7 @@ public class Examples {
 		Expression unnormalizedMessage = ComponentResult.calculate();
 		//String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in " + ComponentResult.model.getValues(ComponentResult.variable) +") " + unnormalizedMessage + " }})";
 		//Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
-		Expression normalizedMessage = Bounds.normalize(unnormalizedMessage, ComponentResult.model.theory, ComponentResult.model.context);
+		Expression normalizedMessage = Bounds.normalizeSingleExpression(unnormalizedMessage, ComponentResult.model.theory, ComponentResult.model.context);
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
