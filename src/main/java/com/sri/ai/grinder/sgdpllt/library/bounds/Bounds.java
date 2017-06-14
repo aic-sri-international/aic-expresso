@@ -16,7 +16,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.util.Util;
 
 public class Bounds{
 	static boolean debug = false;
@@ -24,9 +23,10 @@ public class Bounds{
 	static DefaultIntensionalBound intensionalBound = new DefaultIntensionalBound();
 	
 	/**
-	 * Returns an explicit representation for the simplex. The expression returned is
-	 * a UniSet.
-	 * @param Variables
+	 * Returns a simplex on the the given Variables. 
+	 * if ExtensionalRepresentation == true -> simplex is a extensional Bound
+	 * else simplex is a extensional simplex
+	 * @param Variables : list of variables. one freeVAriable per expression
 	 * @param model
 	 * @return
 	 */
@@ -35,6 +35,16 @@ public class Bounds{
 		return result;
 	}
 	
+	/**
+	 * Returns a simplex on the the given Variables. 
+	 * if ExtensionalRepresentation == true -> simplex is a extensional Bound
+	 * else simplex is a extensional simplex
+	 * @param Variables : list of variables. one freeVAriable per expression
+	 * @param theory
+	 * @param context
+	 * @param ExtensionalRepresentation
+	 * @return
+	 */
 	public static Bound simplex(List<Expression> Variables, Theory theory, Context context, boolean ExtensionalRepresentation){
 		Bound result = ExtensionalRepresentation ? extensionalBound.simplex(Variables, theory, context) : intensionalBound.simplex(Variables, theory, context);
 		return result;
@@ -96,7 +106,8 @@ public class Bounds{
 	}
 	
 	/**
-	 * Eliminate factors not in Ext(C.Hull(B)) 
+	 * Eliminate factors not in Ext(C.Hull(B))
+	 * Only available for ExtensionalBounds
 	 * @param B
 	 * @return 
 	 */
