@@ -14,6 +14,7 @@ public class Example {
 	
 	public static VariableComponent TreeModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
@@ -25,6 +26,7 @@ public class Example {
 		
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
@@ -35,7 +37,7 @@ public class Example {
 	public static void main(String[] args) {
 		VariableComponent ComponentResultat = TreeModel();
 		
-		Expression expression = parse("if Q then if A then 0.2 else 0.7 else if A then 0.8 else 0.3");
+		Expression expression = parse("if Q then if A then if B then 0.2 else 0.7 else if B then 0.5 else 0.5 else if A then if A then 0.8 else 0.3 else if B then 0.4 else 0.6");
 		System.out.println(Derivative.derivativeSingleExpression(expression, parse("Q"), ComponentResultat.model));
 	}
 

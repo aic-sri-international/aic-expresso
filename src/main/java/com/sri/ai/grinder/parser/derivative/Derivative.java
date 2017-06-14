@@ -11,6 +11,7 @@ import java.util.Set;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
@@ -24,7 +25,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
@@ -33,37 +34,49 @@ public class Derivative {
 	public static Expression derivativeSingleExpression(Expression expression, Expression query, Model model){
 		Context context = model.context;
 		Set<Expression> variableInFactor = Expressions.freeVariables(expression, context);
+		Set<Expression> bounds = new HashSet<Expression>();
 		variableInFactor.remove(query);
 		Set<Expression> ProbabilitiesFactor = new HashSet<Expression>();
+		Expression condition = parse("true");
 		for (Expression variable : variableInFactor){
 			String str = "";
+			String strCondition = "";
 			Type type = context.getTypeOfRegisteredSymbol(variable);
 			Iterator<Expression> valuesInType = type.iterator();
 			List<Expression> probability = new ArrayList<Expression> ();
-			int i = 0;
 			for(Expression values : in(valuesInType)){
-				String s = "prob" + values.toString();
+				String s = "prob" + variable.toString() + values.toString();
 				probability.add(parse(s));
-				str = str + "if " + variable + " then " + parse(s) + " else ";
+				model.extendModelWithSymbolsAndTypes(s, "0..1");
+				strCondition = strCondition + s + " + ";
+				str = str + "if " + variable + " = " + values.toString() +" then " + parse(s) + " else ";
 			}
-			str = str + " 0 ";
+			str = str + " 0";
+			strCondition = strCondition + "0 = 1";
+
+			condition = apply(AND, condition, parse(strCondition));
+			//Expression withCondition = model.theory.evaluate(parse(strCondition), context);
 			ProbabilitiesFactor.add(parse(str));
 		}
+		
 		Expression product = expression;
 		for (Expression factor : ProbabilitiesFactor){
 			product = apply(TIMES, product, factor);
 		}
 		Expression evaluation = product;
+
+		context = model.context;
 		for (Expression variable : variableInFactor){
 			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variable, context);
-		
+
 			Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 				indices,
 				evaluation,//head
-				makeSymbol(true)//No Condition
+				condition
 				);
 		
 			Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
+			System.out.println(sumOnPhi);
 			evaluation = model.theory.evaluate(sumOnPhi, context);
 		}
 		return evaluation;
