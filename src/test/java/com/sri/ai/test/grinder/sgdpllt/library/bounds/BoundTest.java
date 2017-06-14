@@ -240,8 +240,8 @@ public class BoundTest {
 						 ));	 
 
 		assertEquals(
-				parse("{1}"),
-				Bounds.boundProduct(theory, context, new Expression[0]));
+				null,
+				Bounds.boundProduct(theory, context, new DefaultExtensionalBound(new Expression[1])));
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, C'' in 1..4, B' in Boolean ) if C = C' then if A then if A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else if not A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else 0 }"),

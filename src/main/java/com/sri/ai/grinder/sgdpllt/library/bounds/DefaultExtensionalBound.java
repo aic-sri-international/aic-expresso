@@ -149,6 +149,9 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		
 		ArrayList<Expression> resultList = new ArrayList<>();
 		for (ArrayList<Expression> element : in(cartesianProduct)){
+			if (element == null || element.get(0) == null){
+				return null;
+			}
 			Expression product = apply("*",element);
 			Expression evaluation = theory.evaluate(product,context);
 			resultList.add(evaluation);
