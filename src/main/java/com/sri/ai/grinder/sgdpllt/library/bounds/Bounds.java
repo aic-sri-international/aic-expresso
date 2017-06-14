@@ -202,11 +202,4 @@ public class Bounds{
 		return evaluation;
 	}
 	
-	public static void main(String[] args) {
-		Util.println(Bounds.makeSingleElementBound(Expressions.parse("if A then 1 else 0"), false));
-
-		
-		
-	}
-	
 }
