@@ -3,7 +3,7 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
@@ -40,8 +40,9 @@ public class VariableComponent {
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer lastUpdatedChild;
+	public boolean isExtensionalBound;
 
-	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext) {
+	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
 
 		this.model = model;
 		this.variable = variable;
@@ -53,8 +54,9 @@ public class VariableComponent {
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,true);
+		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
+		this.isExtensionalBound = isExtensionalBound;
 
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));
@@ -64,7 +66,7 @@ public class VariableComponent {
 		}
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
-			this.bound= Bounds.makeSingleElementBound(makeSymbol(1), true);
+			this.bound= Bounds.makeSingleElementBound(makeSymbol(1), isExtensionalBound);
 		}
 		S.retainAll(intersection);
 		if (!S.isEmpty()) {
@@ -96,7 +98,7 @@ public class VariableComponent {
 					}
 
 					if (test == false) {
-						FactorComponent newC = new FactorComponent(e, variable, model, Pext);
+						FactorComponent newC = new FactorComponent(e, variable, model, Pext, isExtensionalBound);
 						this.children.add(newC);
 						Set<Expression> intersection = new HashSet<Expression>();
 						intersection.addAll(newC.cutsetOutsideSubModel);

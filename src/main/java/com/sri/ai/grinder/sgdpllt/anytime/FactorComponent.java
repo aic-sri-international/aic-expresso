@@ -35,8 +35,9 @@ public class FactorComponent {
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer lastUpdatedChild;
+	public boolean isExtensionalBound;
 
-	public FactorComponent(Expression phi, Expression Parent, Model model, Set<Expression> Pext) {
+	public FactorComponent(Expression phi, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
 
 		this.phiInsideSubModel = new HashSet<Expression>();
 		this.model = model;
@@ -47,9 +48,10 @@ public class FactorComponent {
 		this.parent.add(Parent);
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
-		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model,true); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
+		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model,isExtensionalBound); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
 		this.phi = phi;
 		this.phiInsideSubModel.add(phi);
+		this.isExtensionalBound = isExtensionalBound;
 
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedFactor()));
@@ -59,7 +61,7 @@ public class FactorComponent {
 		}
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
-			this.bound = Bounds.makeSingleElementBound(this.phi, true);
+			this.bound = Bounds.makeSingleElementBound(this.phi, isExtensionalBound);
 		}
 		S.retainAll(intersection);
 		this.cutsetOutsideSubModel.addAll(S);
@@ -85,7 +87,7 @@ public class FactorComponent {
 					}
 
 					if (test == false) {
-						VariableComponent newV = new VariableComponent(e, phi, model, union);
+						VariableComponent newV = new VariableComponent(e, phi, model, union,isExtensionalBound);
 						this.children.add(newV);
 						Set<Expression> intersection = new HashSet<Expression>(newV.cutsetOutsideSubModel);
 						intersection.retainAll(model.getNeighborsOfSet(Pext));

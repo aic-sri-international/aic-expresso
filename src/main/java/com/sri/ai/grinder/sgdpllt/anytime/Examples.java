@@ -20,6 +20,8 @@ import com.sri.ai.util.base.Equals;
 
 public class Examples {
 
+	public static boolean isExtensionalBound = false;
+	
 	public static VariableComponent TriangleModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
@@ -41,7 +43,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 	}
 	
@@ -70,7 +72,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 	}
 
@@ -108,7 +110,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("C", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 	}
 /*  public static VariableComponent BasicBayesianLoopyModel() {
@@ -173,7 +175,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("C", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 	}
 	
@@ -206,7 +208,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 	}
 
@@ -265,7 +267,7 @@ public class Examples {
 
 		
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 
 	}
@@ -329,7 +331,7 @@ public class Examples {
 
 
 		VariableComponent ComponentResultat = new VariableComponent(lungCancer, DefaultSymbol.createSymbol(""), m,
-				new HashSet<Expression>());
+				new HashSet<Expression>(), isExtensionalBound);
 		return ComponentResultat;
 	}
 	

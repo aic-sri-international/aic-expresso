@@ -232,6 +232,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		Expression f = apply(SUM, setOfFactorInstantiations);
 		
 		DefaultIntensionalBound result = applyFunctionToBound(f, x, bound, theory, context);
+		result = normalize(result, theory, context);
 		return result;		
 	}
 
