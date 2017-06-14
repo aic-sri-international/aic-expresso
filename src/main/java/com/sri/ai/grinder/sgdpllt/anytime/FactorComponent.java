@@ -203,7 +203,7 @@ public class FactorComponent {
 		
 		//We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		bound = Bounds.summingPhiTimesBound(varToSum, phi, childrenBound, context, theory);
+		bound = childrenBound.summingPhiTimesBound(varToSum, phi, context, theory);
 	}
 	
 	public Expression calculate(){

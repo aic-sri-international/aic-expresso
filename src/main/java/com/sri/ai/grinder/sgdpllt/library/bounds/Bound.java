@@ -1,30 +1,12 @@
 package com.sri.ai.grinder.sgdpllt.library.bounds;
 
-import java.util.List;
-
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 public interface Bound extends Expression{
 	
-	/** Returns an explicit representation for the simplex. The expression returned is
-	 * a UniSet.
-	 * @param Variables
-	 * @param model
-	 * @return
-	 */
-	public Bound simplex(List<Expression> Variables, Model model);
-	
-	/** Returns an explicit representation for the simplex. The expression returned is
-	 * a UniSet.
-	 * @param Variables
-	 * @param model
-	 * @return
-	 */
-	public Bound simplex(List<Expression> Variables, Theory theory, Context context);
-	
+
 	/**
 	 * Assumes that each element of the bound is a factor with the same domain
 	 * Normalizes each factor of the bound. In latex notation: 
@@ -34,16 +16,7 @@ public interface Bound extends Expression{
 	 * @param context
 	 * @return  bound of normalized factors
 	 */
-	public Bound normalize(Bound bound, Theory theory, Context context);
-
-	/**
-	 * Computes the product of each term of a list of bounds
-	 * @param theory
-	 * @param context
-	 * @param listOfBounds
-	 * @return bound resulting from the product of bounds
-	 */
-	public Bound boundProduct(Theory theory, Context context, Bound...listOfBounds);
+	public Bound normalize(Theory theory, Context context);
 		
 	/**
 	 * given a set of variables "S" and a bound "B", performs the following operation:
@@ -58,7 +31,7 @@ public interface Bound extends Expression{
 	 * @param theory
 	 * @return
 	 */
-	public Bound summingBound(Expression variablesToBeSummedOut, Bound bound,
+	public Bound summingBound(Expression variablesToBeSummedOut,
 			Context context, Theory theory);
 	
 	/**
@@ -74,7 +47,7 @@ public interface Bound extends Expression{
 	 * @param theory
 	 * @return
 	 */
-	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
+	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
 			Context context, Theory theory);
 
 	public boolean isExtensionalBound();
@@ -88,4 +61,30 @@ public interface Bound extends Expression{
 	 * @return bound resulting from the product of bounds
 	 */
 	//public Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
+	
+	
+//	/** Returns an explicit representation for the simplex. The expression returned is
+//	 * a UniSet.
+//	 * @param Variables
+//	 * @param model
+//	 * @return
+//	 */
+//	public Bound simplex(List<Expression> Variables, Model model);
+//	
+//	/** Returns an explicit representation for the simplex. The expression returned is
+//	 * a UniSet.
+//	 * @param Variables
+//	 * @param model
+//	 * @return
+//	 */
+//	public Bound simplex(List<Expression> Variables, Theory theory, Context context);
+//	
+//	/**
+//	 * Computes the product of each term of a list of bounds
+//	 * @param theory
+//	 * @param context
+//	 * @param listOfBounds
+//	 * @return bound resulting from the product of bounds
+//	 */
+//	public Bound boundProduct(Theory theory, Context context, Bound...listOfBounds);
 }

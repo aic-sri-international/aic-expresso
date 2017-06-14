@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -26,7 +25,6 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
-import com.sri.ai.util.Util;
 
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -121,8 +119,8 @@ public class BoundTest {
 				makeSymbol(true)
 				);
 		
-		IntensionalSetOfFactors2 = intensionalBound.simplex(arrayList(parse("A")), m);
-		IntensionalSetOfFactors3 = intensionalBound.simplex(arrayList(parse("C"),parse("B")), m);
+		IntensionalSetOfFactors2 = DefaultIntensionalBound.simplex(arrayList(parse("A")), m);
+		IntensionalSetOfFactors3 = DefaultIntensionalBound.simplex(arrayList(parse("C"),parse("B")), m);
 	}
 	
 	@Test
@@ -156,7 +154,7 @@ public class BoundTest {
 						+ "if not A then if not B then if D = 7 then 1 else 0 else 0 else 0, "
 						+ "if not A then if not B then if D = 8 then 1 else 0 else 0 else 0, "
 						+ "if not A then if not B then if D = 9 then 1 else 0 else 0 else 0 }"),
-				extensionalBound.simplex(Variables, m));
+				DefaultExtensionalBound.simplex(Variables, m));
 		
 		Variables.add(c);
 		
@@ -164,11 +162,11 @@ public class BoundTest {
 				parse("{ ( on A' in Boolean, B' in Boolean, D' in 6..9, C' in 1..4 ) "
 						+ "if C = C' then if D = D' then if B = B' then if A = A' then "
 						+ "1 else 0 else 0 else 0 else 0 }"),
-				intensionalBound.simplex(Variables, m));
+				DefaultIntensionalBound.simplex(Variables, m));
 		
 		assertEquals(parse("{ ( on A' in Boolean) if A = A' then 1 else 0}"), IntensionalSetOfFactors2);
 		assertEquals(parse("{(on C' in 1..4, B' in Boolean) if B = B' then if C = C' then 1 else 0 else 0}"), IntensionalSetOfFactors3);
-		assertEquals(parse("{(on ) 1}"), intensionalBound.simplex(arrayList(), m));
+		assertEquals(parse("{(on ) 1}"), DefaultIntensionalBound.simplex(arrayList(), m));
 	}
 	
 	@Test
@@ -181,7 +179,7 @@ public class BoundTest {
 				+ "if X then 7/31 else if B then 8/31 else 9/31, "
 				+ "if B then 10/43 else if A then 11/43 else 12/43, "
 				+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
-				extensionalBound.normalize(setOfFactors, theory, context).toString());
+				setOfFactors.normalize(theory, context).toString());
 
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5 ) "
@@ -197,7 +195,9 @@ public class BoundTest {
 								+ "else "
 									+ "0.8"
 							+ " else 0 }"),
-				intensionalBound.normalize(IntensionalSetOfFactors1, theory, context));
+				IntensionalSetOfFactors1.normalize(theory, context));
+		
+		Bound b = Bounds.boundProduct(theory, context, IntensionalSetOfFactors1,IntensionalSetOfFactors2).normalize(theory, context);
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, A'' in Boolean ) "
@@ -214,7 +214,7 @@ public class BoundTest {
 									+ "0 "
 						+ "else "
 							+ "0 }"),
-				intensionalBound.normalize(intensionalBound.boundProduct(theory, context, IntensionalSetOfFactors1,IntensionalSetOfFactors2), theory, context));
+				b);
 	}
 	
 	@Test
@@ -235,7 +235,7 @@ public class BoundTest {
 				 		+ "if A then 22 else 144, if C < 4 then if A then 10 else 60 else if C = 4 then if A then 11 else 66 else if A then 12 else 72, "
 				 		+ "if C < 4 then if A then 20 else 120 else if C = 4 then if A then 22 else 132 else if A then 24 else 144 }"
 						),
-				 extensionalBound.boundProduct(theory, context,
+				 Bounds.boundProduct(theory, context,
 						 setOfFactors,
 						 setOfFactors2,
 						 setOFNumbers
@@ -247,11 +247,11 @@ public class BoundTest {
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, C'' in 1..4, B' in Boolean ) if C = C' then if A then if A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else if not A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else 0 }"),
-				intensionalBound.boundProduct(theory, context, IntensionalSetOfFactors1, IntensionalSetOfFactors3));	
+				Bounds.boundProduct(theory, context, IntensionalSetOfFactors1, IntensionalSetOfFactors3));	
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean ) if A then if A' then 1 else 0 else if not A' then 1 else 0 }"),
-				intensionalBound.boundProduct(theory, context, intensionalBound.simplex(arrayList(parse("A")), m)));
+				Bounds.boundProduct(theory, context, DefaultIntensionalBound.simplex(arrayList(parse("A")), m)));
 	}
 	
 	@Test
@@ -264,7 +264,7 @@ public class BoundTest {
 			+ "1, "
 			+ "1, "
 			+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
-			extensionalBound.summingBound(parse("{A,B,X}"), setOfFactors, context, theory).toString());
+			setOfFactors.summingBound(parse("{A,B,X}"), context, theory).toString());
 
 		assertEquals(
 				"{ if X then 1/7 else if Y then 2/7 else 3/7, "
@@ -272,7 +272,7 @@ public class BoundTest {
 				+ "if X then 14/31 else 17/31, "
 				+ "1, "
 				+ "1 }",
-				extensionalBound.summingBound(parse("{A,B,C}"), setOfFactors, context, theory).toString());
+				setOfFactors.summingBound(parse("{A,B,C}"), context, theory).toString());
 	}
 	@Test
 	public void testNormilizeOneSingleElement(){

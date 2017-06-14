@@ -11,7 +11,6 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -19,8 +18,8 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 public class Bounds{
 	static boolean debug = false;
-	static DefaultExtensionalBound extensionalBound = new DefaultExtensionalBound();
-	static DefaultIntensionalBound intensionalBound = new DefaultIntensionalBound();
+//	static DefaultExtensionalBound extensionalBound = new DefaultExtensionalBound();
+//	static DefaultIntensionalBound intensionalBound = new DefaultIntensionalBound();
 	
 	/**
 	 * Returns a simplex on the the given Variables. 
@@ -31,7 +30,7 @@ public class Bounds{
 	 * @return
 	 */
 	public static Bound simplex(List<Expression> Variables, Model model, boolean ExtensionalRepresentation){
-		Bound result = ExtensionalRepresentation ? extensionalBound.simplex(Variables, model) : intensionalBound.simplex(Variables, model);
+		Bound result = ExtensionalRepresentation ? DefaultExtensionalBound.simplex(Variables, model) : DefaultIntensionalBound.simplex(Variables, model);
 		return result;
 	}
 	
@@ -46,30 +45,7 @@ public class Bounds{
 	 * @return
 	 */
 	public static Bound simplex(List<Expression> Variables, Theory theory, Context context, boolean ExtensionalRepresentation){
-		Bound result = ExtensionalRepresentation ? extensionalBound.simplex(Variables, theory, context) : intensionalBound.simplex(Variables, theory, context);
-		return result;
-	}
-
-	/**
-	 * Assumes that each element of the bound is a factor with the same domain
-	 * Normalizes each factor of the bound. In latex notation: 
-	 * 			{\phi/sum_{var(\phi)}\phi : \phi in bound} 
-	 * @param bound
-	 * @param theory
-	 * @param context
-	 * @return  bound of normalized factors
-	 */
-	public static Bound normalize(Bound bound, Theory theory, Context context){
-		Bound result;
-		if(bound.isExtensionalBound()){
-			result = extensionalBound.normalize(bound, theory, context);
-		}
-		else if(bound.isIntensionalBound()){
-			result = intensionalBound.normalize(bound, theory, context);
-		}
-		else{
-			result = null;
-		}
+		Bound result = ExtensionalRepresentation ? DefaultExtensionalBound.simplex(Variables, theory, context) : DefaultIntensionalBound.simplex(Variables, theory, context);
 		return result;
 	}
 	
@@ -90,7 +66,7 @@ public class Bounds{
 					return null;
 				}
 			}
-			Bound result = extensionalBound.boundProduct(theory, context, listOfBounds);
+			Bound result = DefaultExtensionalBound.boundProduct(theory, context, listOfBounds);
 			return result;
 		}
 		if(listOfBounds[0].isIntensionalBound()){
@@ -99,7 +75,7 @@ public class Bounds{
 					return null;
 				}
 			}
-			Bound result = intensionalBound.boundProduct(theory, context, listOfBounds);
+			Bound result = DefaultIntensionalBound.boundProduct(theory, context, listOfBounds);
 			return result;
 		}
 		return null;
@@ -118,90 +94,7 @@ public class Bounds{
 		Bound result = DefaultExtensionalBound.updateExtremes(B, theory, context);
 		return result;
 	}
-	
-	/**
-	 * given a set of variables "S" and a bound "B", performs the following operation:
-	 * sum_S B = {sum_S \phi : \phi in B} 
-	 * 
-	 * @param variablesToBeSummedOut 
-	 * 		S in the example. 
-	 * 		Must be a Explicit UniSet. For example: {A,B,C} , where A, B and C are variables 
-	 * @param bound
-	 * 		B in the example
-	 * @param context
-	 * @param theory
-	 * @return
-	 */
-	public static Bound summingBound(Expression variablesToBeSummedOut, Bound bound,
-			Context context, Theory theory){
-		Bound result = null; 
-		if(bound.isExtensionalBound()){
-			result = extensionalBound.summingBound(variablesToBeSummedOut, bound, context, theory);
-		}
-		else if(bound.isIntensionalBound()){
-			result = intensionalBound.summingBound(variablesToBeSummedOut, bound, context, theory);
-		}								
-		return result;
-	}
-	
-	/**
-	 * given a set of variables "S" a factor \phi and a bound "B", performs the following operation:
-	 * sum_S (\phi * B) = {sum_S \phi \phi' : \phi' in B} 
-	 * 
-	 * @param variablesToBeSummedOut 
-	 * 		S in the example. Must be a ExtensionalSet
-	 * @param phi
-	 * @param bound
-	 * 		B in the example
-	 * @param context
-	 * @param theory
-	 * @return
-	 */
-	public static Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
-			Context context, Theory theory){
-		Bound result = null; 
-		if(bound.isExtensionalBound()){
-			result = extensionalBound.summingPhiTimesBound(variablesToBeSummedOut, phi, bound, context, theory);
-		}
-		else if(bound.isIntensionalBound()){
-			result = intensionalBound.summingPhiTimesBound(variablesToBeSummedOut, phi, bound, context, theory);
-		}								
-		return result;		
-	}
-	
-	/**
-	 * Same as the other with the same name.
-	 * variablesToBeSummedOut is a list of Expressions. each expression must have one single free variable 
-	 * @param variablesToBeSummedOut
-	 * @param phi
-	 * @param bound
-	 * @param context
-	 * @param theory
-	 * @return
-	 */
-	public static Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Bound bound,
-			Context context, Theory theory){
-		Expression setOfVariablesToBeSummedOut = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		Bound result = summingPhiTimesBound(setOfVariablesToBeSummedOut, phi, bound, context, theory);
-		return result;
-	}
-	
-	/**
-	 * Same as the other with the same name.
-	 * variablesToBeSummedOut is a list of Expressions. each expression must have one single free variable 
-	 * @param variablesToBeSummedOut
-	 * @param bound
-	 * @param context
-	 * @param theory
-	 * @return
-	 */
-	public static Bound summingBound(ArrayList<Expression> variablesToBeSummedOut, Bound bound,
-			Context context, Theory theory){
-		Expression setOfVariablesToBeSummedOut = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		Bound result = summingBound(setOfVariablesToBeSummedOut, bound, context, theory);
-		return result;
-	}
-	
+
 	/**
 	 * Make a one element bound: either a extensionalBound Singleton or a intensional Bound w/ indexes 
 	 * @param head
@@ -240,4 +133,118 @@ public class Bounds{
 		return evaluation;
 	}
 	
+//
+//	/**
+//	 * Assumes that each element of the bound is a factor with the same domain
+//	 * Normalizes each factor of the bound. In latex notation: 
+//	 * 			{\phi/sum_{var(\phi)}\phi : \phi in bound} 
+//	 * @param bound
+//	 * @param theory
+//	 * @param context
+//	 * @return  bound of normalized factors
+//	 */
+//	public static Bound normalize(Bound bound, Theory theory, Context context){
+//		Bound result;
+//		if(bound.isExtensionalBound()){
+//			result = extensionalBound.normalize(bound, theory, context);
+//		}
+//		else if(bound.isIntensionalBound()){
+//			result = intensionalBound.normalize(bound, theory, context);
+//		}
+//		else{
+//			result = null;
+//		}
+//		return result;
+//	}
+//	/**
+//	 * given a set of variables "S" and a bound "B", performs the following operation:
+//	 * sum_S B = {sum_S \phi : \phi in B} 
+//	 * 
+//	 * @param variablesToBeSummedOut 
+//	 * 		S in the example. 
+//	 * 		Must be a Explicit UniSet. For example: {A,B,C} , where A, B and C are variables 
+//	 * @param bound
+//	 * 		B in the example
+//	 * @param context
+//	 * @param theory
+//	 * @return
+//	 */
+//	public static Bound summingBound(Expression variablesToBeSummedOut, Bound bound,
+//			Context context, Theory theory){
+//		Bound result = null; 
+//		if(bound.isExtensionalBound()){
+//			result = extensionalBound.summingBound(variablesToBeSummedOut, bound, context, theory);
+//		}
+//		else if(bound.isIntensionalBound()){
+//			result = intensionalBound.summingBound(variablesToBeSummedOut, bound, context, theory);
+//		}								
+//		return result;
+//	}
+//	
+//	/**
+//	 * given a set of variables "S" a factor \phi and a bound "B", performs the following operation:
+//	 * sum_S (\phi * B) = {sum_S \phi \phi' : \phi' in B} 
+//	 * 
+//	 * @param variablesToBeSummedOut 
+//	 * 		S in the example. Must be a ExtensionalSet
+//	 * @param phi
+//	 * @param bound
+//	 * 		B in the example
+//	 * @param context
+//	 * @param theory
+//	 * @return
+//	 */
+//	public static Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
+//			Context context, Theory theory){
+//		Bound result = null; 
+//		if(bound.isExtensionalBound()){
+//			result = extensionalBound.summingPhiTimesBound(variablesToBeSummedOut, phi, bound, context, theory);
+//		}
+//		else if(bound.isIntensionalBound()){
+//			result = intensionalBound.summingPhiTimesBound(variablesToBeSummedOut, phi, bound, context, theory);
+//		}								
+//		return result;		
+//	}
+//	
+//	/**
+//	 * Same as the other with the same name.
+//	 * variablesToBeSummedOut is a list of Expressions. each expression must have one single free variable 
+//	 * @param variablesToBeSummedOut
+//	 * @param phi
+//	 * @param bound
+//	 * @param context
+//	 * @param theory
+//	 * @return
+//	 */
+//	public static Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Bound bound,
+//			Context context, Theory theory){
+//		Expression setOfVariablesToBeSummedOut = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+//		Bound result = summingPhiTimesBound(setOfVariablesToBeSummedOut, phi, bound, context, theory);
+//		return result;
+//	}
+//	
+//	/**
+//	 * Same as the other with the same name.
+//	 * variablesToBeSummedOut is a list of Expressions. each expression must have one single free variable 
+//	 * @param variablesToBeSummedOut
+//	 * @param bound
+//	 * @param context
+//	 * @param theory
+//	 * @return
+//	 */
+//	public static Bound summingBound(ArrayList<Expression> variablesToBeSummedOut, Bound bound,
+//			Context context, Theory theory){
+//		Expression setOfVariablesToBeSummedOut = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+//		Bound result = summingBound(setOfVariablesToBeSummedOut, bound, context, theory);
+//		return result;
+//	}
+//	
+//	/**
+//	 * Computes the product of each term of a list of bounds
+//	 * @param theory
+//	 * @param context
+//	 * @param listOfBounds
+//	 * @return bound resulting from the product of bounds
+//	 */
+//	public Bound boundProduct(Theory theory, Context context, Bound...listOfBounds);
 }

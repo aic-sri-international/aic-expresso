@@ -38,7 +38,6 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	
 	/**
 	 * Empty Bound
 	 */
@@ -54,14 +53,12 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		this(new ExtensionalIndexExpressionsSet(indexExpressionsList), head, condition);
 	}
 
-	@Override
-	public DefaultIntensionalBound simplex(List<Expression> Variables, Model model) {
+	static public DefaultIntensionalBound simplex(List<Expression> Variables, Model model) {
 		DefaultIntensionalBound result = simplex(Variables, model.theory,model.context);
 		return result;
 	}
 	
-	@Override
-	public DefaultIntensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
+	static public DefaultIntensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
 		if(Variables.size() == 0){
 			return new DefaultIntensionalBound();
 		}
@@ -93,8 +90,13 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	@Override
-	public DefaultIntensionalBound normalize(Bound bound, Theory theory, Context context) {
-		//not tested
+	public DefaultIntensionalBound normalize(Theory theory, Context context) {
+		DefaultIntensionalBound result = normalize(this, theory, context);
+		return result;
+	}
+	
+	private DefaultIntensionalBound normalize(Bound bound, Theory theory, Context context) 
+	{
 		if(!bound.isIntensionalBound()){
 			return null;
 		}
@@ -145,8 +147,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		return normalizedIntensionalSet;		
 	}
 
-	@Override
-	public DefaultIntensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {
+	public static DefaultIntensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {
 		Set<Expression> alreadyDefined = Util.set();
 		alreadyDefined.addAll(context.getSymbols());
 		Predicate<Expression> isAlreadyDefined = e -> alreadyDefined.contains(e);
@@ -208,7 +209,12 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	@Override
-	public DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
+	public DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Context context, Theory theory){
+		DefaultIntensionalBound result = summingBound(variablesToBeSummedOut, this, context, theory);
+		return result;
+	}
+	
+	private DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
 		if(!bound.isIntensionalBound()){
 			return null;
 		}
@@ -237,7 +243,13 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	@Override
-	public DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound, Context context,
+	public DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Context context,
+			Theory theory){
+		DefaultIntensionalBound result = summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
+		return result;
+	}
+	
+	private DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound, Context context,
 			Theory theory) {
 		if(!bound.isIntensionalBound()){
 			return null;

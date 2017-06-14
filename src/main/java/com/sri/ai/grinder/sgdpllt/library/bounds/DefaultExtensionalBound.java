@@ -63,14 +63,12 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	public DefaultExtensionalBound() {
 	}
 	
-	@Override
-	public DefaultExtensionalBound simplex(List<Expression> Variables, Model m) {
+	static public DefaultExtensionalBound simplex(List<Expression> Variables, Model m) {
 		DefaultExtensionalBound result = simplex(Variables,m.theory , m.context);
 		return result;
 	}
 	
-	@Override
-	public DefaultExtensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
+	static public DefaultExtensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
 
 		Expression one = makeSymbol("1");
 		Expression zero= makeSymbol("0");
@@ -96,7 +94,11 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	}
 
 	@Override
-	public DefaultExtensionalBound normalize(Bound bound, Theory theory, Context context) {
+	public DefaultExtensionalBound normalize(Theory theory, Context context) {
+		return normalize(this, theory, context);
+	}
+	
+	private DefaultExtensionalBound normalize(Bound bound, Theory theory, Context context) {
 		if(!bound.isExtensionalBound()){
 			return null;
 		}
@@ -129,8 +131,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		return result;
 	}
 
-	@Override
-	public DefaultExtensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {		
+	static public DefaultExtensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {		
 		if(listOfBounds.length == 0){
 			DefaultExtensionalBound singletonWithNumberOne = new DefaultExtensionalBound(parse("1"));
 			return singletonWithNumberOne;
@@ -166,7 +167,11 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	}
 
 	@Override
-	public DefaultExtensionalBound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
+	public DefaultExtensionalBound summingBound(Expression variablesToBeSummedOut, Context context, Theory theory) {
+		return summingBound(variablesToBeSummedOut, this, context, theory);
+	}	
+	
+	private  DefaultExtensionalBound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
 
 		List<Expression> listOfBound = getElements(bound);
 		ArrayList<Expression> BoundSummedOut = new ArrayList<>(listOfBound.size());
@@ -193,8 +198,13 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	}
 
 	@Override
-	public DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
-			Context context, Theory theory) {
+	public DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
+			Context context, Theory theory){
+		return summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
+	}	
+	
+	private DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
+			Context context, Theory theory){
 		Expression x = createSymbol("x");
 		Expression f = apply(TIMES, phi, x);		
 		bound = normalize(bound, theory, context);
