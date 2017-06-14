@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -25,6 +26,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.util.Util;
 
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -271,5 +273,16 @@ public class BoundTest {
 				+ "1, "
 				+ "1 }",
 				extensionalBound.summingBound(parse("{A,B,C}"), setOfFactors, context, theory).toString());
+	}
+	@Test
+	public void testNormilizeOneSingleElement(){
+		declaringTheoryContextAndSetOfFactors();
+		assertEquals(
+				"if A then if B then 67/76 else 7/76 else 1/76",
+				Bounds.normalizeSingleExpression(
+						parse("if A then if B then 67 else 7 else 1")
+						, theory,
+						context)
+				.toString());
 	}
 }

@@ -1,13 +1,22 @@
 package com.sri.ai.grinder.sgdpllt.library.bounds;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.util.Util;
 
 public class Bounds{
 	static boolean debug = false;
@@ -161,4 +170,43 @@ public class Bounds{
 		Bound result = summingBound(setOfVariablesToBeSummedOut, bound, context, theory);
 		return result;
 	}
+	
+	/**
+	 * Make a one element bound: either a extensionalBound Singleton or a intensional Bound w/ indexes 
+	 * @param head
+	 * @param index
+	 * @param condition
+	 * @param isExtensional
+	 * @return
+	 */
+	public static Bound makeSingleElementBound(Expression head, boolean isExtensional){
+		if(isExtensional){
+			return new DefaultExtensionalBound(head);
+		}
+		return new DefaultIntensionalBound(new ArrayList<Expression>() , head, Expressions.makeSymbol("true"));
+	}
+	
+	public static Expression normalizeSingleExpression (Expression phi, Theory theory, Context context){
+		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(phi, context);
+		
+		Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
+				indices,
+				phi,//head
+				makeSymbol(true)//No Condition
+				);
+		
+		Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
+		Expression f =  apply("/", phi, sumOnPhi);
+		
+		Expression evaluation = theory.evaluate(f, context);
+		return evaluation;
+	}
+	
+	public static void main(String[] args) {
+		Util.println(Bounds.makeSingleElementBound(Expressions.parse("if A then 1 else 0"), false));
+
+		
+		
+	}
+	
 }
