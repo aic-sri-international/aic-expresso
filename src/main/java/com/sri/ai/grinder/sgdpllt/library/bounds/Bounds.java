@@ -149,7 +149,7 @@ public class Bounds{
 	 * sum_S (\phi * B) = {sum_S \phi \phi' : \phi' in B} 
 	 * 
 	 * @param variablesToBeSummedOut 
-	 * 		S in the example
+	 * 		S in the example. Must be a ExtensionalSet
 	 * @param phi
 	 * @param bound
 	 * 		B in the example
@@ -169,12 +169,32 @@ public class Bounds{
 		return result;		
 	}
 	
+	/**
+	 * Same as the other with the same name.
+	 * variablesToBeSummedOut is a list of Expressions. each expression must have one single free variable 
+	 * @param variablesToBeSummedOut
+	 * @param phi
+	 * @param bound
+	 * @param context
+	 * @param theory
+	 * @return
+	 */
 	public static Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Bound bound,
 			Context context, Theory theory){
 		Expression setOfVariablesToBeSummedOut = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		Bound result = summingPhiTimesBound(setOfVariablesToBeSummedOut, phi, bound, context, theory);
 		return result;
 	}
+	
+	/**
+	 * Same as the other with the same name.
+	 * variablesToBeSummedOut is a list of Expressions. each expression must have one single free variable 
+	 * @param variablesToBeSummedOut
+	 * @param bound
+	 * @param context
+	 * @param theory
+	 * @return
+	 */
 	public static Bound summingBound(ArrayList<Expression> variablesToBeSummedOut, Bound bound,
 			Context context, Theory theory){
 		Expression setOfVariablesToBeSummedOut = new DefaultExtensionalUniSet(variablesToBeSummedOut);
@@ -197,6 +217,13 @@ public class Bounds{
 		return new DefaultIntensionalBound(new ArrayList<Expression>() , head, Expressions.makeSymbol("true"));
 	}
 	
+	/**
+	 * Does not work for sets or bounds. Aims at normalizing a sing expression phi
+	 * @param phi
+	 * @param theory
+	 * @param context
+	 * @return
+	 */
 	public static Expression normalizeSingleExpression (Expression phi, Theory theory, Context context){
 		IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(phi, context);
 		
