@@ -8,7 +8,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+
 
 public class Example {
 	
@@ -26,7 +29,7 @@ public class Example {
 		
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
-		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "1..4");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
 		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>());
@@ -35,10 +38,11 @@ public class Example {
 	
 
 	public static void main(String[] args) {
-		VariableComponent ComponentResultat = TreeModel();
-		
-		Expression expression = parse("if Q then if A then if B then 0.2 else 0.7 else if B then 0.5 else 0.5 else if A then if A then 0.8 else 0.3 else if B then 0.4 else 0.6");
-		System.out.println(Derivative.derivativeSingleExpression(expression, parse("Q"), ComponentResultat.model));
+		VariableComponent v = TreeModel();
+		Context context = v.model.context;
+		Expression expression = parse("if A != 1 then A * B else 2 * B");
+		System.out.println(Derivative.Derivative(expression, parse("A"), context));
 	}
+	
 
 }
