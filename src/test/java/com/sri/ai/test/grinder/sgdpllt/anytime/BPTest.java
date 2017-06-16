@@ -101,6 +101,31 @@ public class BPTest {
 	}
 	
 
+	private Model randomModel(int nVariables, int nFactors , Theory theory, Context context, Expression possibleValues){
+		Set<Expression> Factor = new HashSet<Expression>();
+		
+		Expression[] a = new Expression[nVariables];
+		for(int i = 0; i < nVariables; i++){
+			a[i]= makeSymbol("A_"+i);
+			context = context.extendWithSymbolsAndTypes(a[i],possibleValues);
+		}
+		Random rand = new Random();
+		
+		for (int i = 0; i < nFactors; i++) {
+			int n = rand.nextInt(15);
+			Expression[] varOfF = new Expression[n];
+			for (int j = 0; j < varOfF.length; j++) {
+				varOfF[j] = a[rand.nextInt(nVariables)];
+			}
+			Expression f = generateProbability(context, varOfF);
+			Factor.add(f);
+		}
+		Model result = new Model(Factor,theory,context);
+
+		return result;
+		
+	}
+
 	public static void main(String[] args) {
 		Theory theory = new CompoundTheory(
 				new EqualityTheory(false, true),
@@ -111,15 +136,18 @@ public class BPTest {
 		Context context = new TrueContext(theory);			
 		context = context.add(BOOLEAN_TYPE);
 		
-		Model m = IsingModel(2, 2,theory, context, parse("Boolean"));
+		Model m = IsingModel(3, 3,theory, context, parse("Boolean"));
 		
-		for(Pair<Expression, Expression> e : in(m.map.iterator())){
-			println(e.second + " -> " + e.first);
-		}
+		//for(Pair<Expression, Expression> e : in(m.map.iterator())){
+		//	println(e.second + " -> " + e.first);
+		//}
 				
-		VariableComponent comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
+		VariableComponent comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);
 		
-		 Examples.runningPartialTest(comp, 50);
+		println("naive gives: " 
+				+ comp.naiveCalcul());
+		
+		Examples.runningPartialTest(comp, 50);
 		
 	}
 	

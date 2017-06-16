@@ -346,7 +346,7 @@ public class Examples {
 		ComponentResult.print(0);
 		}
 
-	private static void runningTotalTest(VariableComponent ComponentResult) {
+	public static void runningTotalTest(VariableComponent ComponentResult) {
 
 		long startTime, endTime, totalTime;
 		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify

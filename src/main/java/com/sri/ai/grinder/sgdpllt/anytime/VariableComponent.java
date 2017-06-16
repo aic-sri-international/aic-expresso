@@ -289,7 +289,7 @@ public class VariableComponent {
 			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound, childrenArray);
 		}
 		else{
-			childrenBound = Bounds.makeSingleElementBound(makeSymbol(1), true);
+			childrenBound = Bounds.makeSingleElementBound(makeSymbol(1), isExtensionalBound);
 		}
 		
 		Iterator<Expression> iteratorToVariables = this.cutsetInsideSubModel.iterator();
