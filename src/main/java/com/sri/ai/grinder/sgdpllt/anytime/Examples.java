@@ -355,7 +355,7 @@ public class Examples {
 		//we also store the computation time to compare it to the naive computation time
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
-			ComponentResult.update(new HashSet<Expression>());
+			ComponentResult.update(new HashSet<Expression>(), true);
 		}
 		//ComponentResult.print(0);
 		Expression unnormalizedMessage = ComponentResult.calculate();
@@ -390,7 +390,7 @@ public class Examples {
 		int i = 0;
 		while(i < nb_iter) {
 			if(!ComponentResult.entirelyDiscover) {
-				ComponentResult.update(new HashSet<Expression>());
+				ComponentResult.update(new HashSet<Expression>(), true);
 				println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;
