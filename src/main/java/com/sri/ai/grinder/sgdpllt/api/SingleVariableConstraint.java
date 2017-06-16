@@ -115,7 +115,11 @@ public interface SingleVariableConstraint extends Constraint {
 		
 		// if formula is not appropriate constraint, create a new one and conjoin with formula
 		if (result == null) {
-			result = theory.makeSingleVariableConstraint(variable, theory, context).conjoin(formula, context);
+			SingleVariableConstraint singleVariableConstraint = theory.makeSingleVariableConstraint(variable, theory, context);
+			if (singleVariableConstraint == null) {
+				throw new Error("The current theory does not know how to manipulate constraints on " + variable + " (type " + context.getTypeOfRegisteredSymbol(variable) + ").");
+			}
+			result = singleVariableConstraint.conjoin(formula, context);
 		}
 		
 		return result;

@@ -57,6 +57,12 @@ public class Model {
 			}
 		}
 	}
+	
+	public Model(Set<Expression> Factor,Theory theory, Context context){
+		this(Factor);
+		this.theory = theory;	
+		this.context = context.add(BOOLEAN_TYPE);
+	}
 
 	/*public void setType(Expression expression, String typeOfVariable) {
 		this.mapVariablesToType.add(expression, typeOfVariable);
@@ -73,13 +79,17 @@ public class Model {
 		}
 		return("no type has been defined for this variable");		
 	}*/
-	
+
 	public Expression getValues(Expression variable) {
 		Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
 		return values;
 	}
 	
 	public void extendModelWithSymbolsAndTypes(String symbol, String values){
+		this.context = this.context.extendWithSymbolsAndTypes(symbol, values);
+	}
+	
+	public void extendModelWithSymbolsAndTypes(Expression symbol, Expression values){
 		this.context = this.context.extendWithSymbolsAndTypes(symbol, values);
 	}
 

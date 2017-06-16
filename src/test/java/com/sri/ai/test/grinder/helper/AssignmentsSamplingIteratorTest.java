@@ -110,7 +110,7 @@ public class AssignmentsSamplingIteratorTest {
 	@Test
 	public void testSampleOverFunction() {
 		updateContextWithIndexAndType("f", new FunctionType(GrinderUtil.BOOLEAN_TYPE, new IntegerInterval(1,10)));
-		Assert.assertEquals("{f='->'(1..10, Boolean)}:{f='->'(1..10, Boolean)}:{f='->'(1..10, Boolean)}", join(":", newSamplingIterator("f", 3, "true")));
+		Assert.assertEquals("{f=1..10 -> Boolean}:{f=1..10 -> Boolean}:{f=1..10 -> Boolean}", join(":", newSamplingIterator("f", 3, "true")));
 	}
 	
 	@Test
