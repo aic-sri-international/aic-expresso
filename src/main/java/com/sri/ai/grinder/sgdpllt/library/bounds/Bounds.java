@@ -56,11 +56,9 @@ public class Bounds{
 	 * @param listOfBounds
 	 * @return bound resulting from the product of bounds
 	 */
-	public static Bound boundProduct(Theory theory, Context context, Bound...listOfBounds){
-		if(listOfBounds.length == 0){
-			return null;
-		}
-		if(listOfBounds[0].isExtensionalBound()){
+	public static Bound boundProduct(Theory theory, Context context, boolean isExtensional, Bound...listOfBounds){
+		
+		if(isExtensional){
 			for(Bound bound : listOfBounds){
 				if(!bound.isExtensionalBound()){
 					return null;
@@ -69,7 +67,7 @@ public class Bounds{
 			Bound result = DefaultExtensionalBound.boundProduct(theory, context, listOfBounds);
 			return result;
 		}
-		if(listOfBounds[0].isIntensionalBound()){
+		if(!isExtensional){
 			for(Bound bound : listOfBounds){
 				if(!bound.isIntensionalBound()){
 					return null;

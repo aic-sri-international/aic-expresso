@@ -200,7 +200,7 @@ public class FactorComponent {
 			cildrenArray[i] = children.bound;
 			i++;
 		}
-		Bound childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, cildrenArray);
+		Bound childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,cildrenArray);
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : this.parent) {

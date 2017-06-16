@@ -378,7 +378,7 @@ public class Examples {
 		println("totalTime: " + totalTime);
 		
 	}
-		
+
 	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
 
 		long startTime, endTime, totalTime;

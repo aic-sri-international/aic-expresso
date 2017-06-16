@@ -290,7 +290,7 @@ public class VariableComponent {
 		}
 		Bound childrenBound;
 		if(childrenArray.length != 0){
-			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenArray);
+			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound, childrenArray);
 		}
 		else{
 			childrenBound = Bounds.makeSingleElementBound(makeSymbol(1), true);

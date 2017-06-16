@@ -148,6 +148,11 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	public static DefaultIntensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {
+		if(listOfBounds.length == 0){
+			DefaultIntensionalBound result = new DefaultIntensionalBound();
+			return result;
+		}
+		
 		Set<Expression> alreadyDefined = Util.set();
 		alreadyDefined.addAll(context.getSymbols());
 		Predicate<Expression> isAlreadyDefined = e -> alreadyDefined.contains(e);
