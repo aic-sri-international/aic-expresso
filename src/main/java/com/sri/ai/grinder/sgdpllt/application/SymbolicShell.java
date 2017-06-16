@@ -233,7 +233,7 @@ public class SymbolicShell {
 	private static String throwableMessage(Throwable e) {
 		String message;
 		if (e.getMessage() == null || e.getMessage().equals("null")) {
-			message = "Sorry, an error without a message occurred\n";
+			message = "Sorry, an error without a message occurred. The error object is of type: " + e.getClass().getSimpleName() + ".\n";
 		}
 		else {
 			message = e.getMessage();

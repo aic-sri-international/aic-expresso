@@ -119,7 +119,7 @@ public class BPTest {
 				
 		VariableComponent comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
 		
-		Examples.runningPartialTest(comp, 50);
+		// Examples.runningPartialTest(comp, 50);
 		
 	}
 	
