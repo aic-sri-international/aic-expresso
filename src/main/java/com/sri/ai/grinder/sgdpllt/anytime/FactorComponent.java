@@ -59,6 +59,9 @@ public class FactorComponent {
 		this.phi = phi;
 		this.phiInsideSubModel.add(phi);
 		this.isExtensionalBound = isExtensionalBound;
+		
+		this.schema.addAll(Expressions.freeVariables(this.phi, this.model.context));
+		this.schema.remove(Parent);
 
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedFactor()));
@@ -224,9 +227,8 @@ public class FactorComponent {
 		Context context = this.model.context;		
 		Set<Expression> freeVariables =new HashSet<Expression>();
 		freeVariables.addAll(Expressions.freeVariables(this.phi, context));
-		//freeVariables.add(this.variable);
 		for(VariableComponent children : this.children){
-			freeVariables.addAll(Expressions.freeVariables(children.bound, context));
+			freeVariables.addAll(children.schema);
 		}
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : this.parent) {

@@ -57,6 +57,7 @@ public class VariableComponent {
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
 		this.schema = new HashSet<Expression>();
+		this.schema.add(this.variable);
 		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 		this.isExtensionalBound = isExtensionalBound;
@@ -271,7 +272,7 @@ public class VariableComponent {
 
 	}
 
-	
+
 	public void calculateBound(){
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
@@ -314,7 +315,7 @@ public class VariableComponent {
 		Set<Expression> freeVariables =new HashSet<Expression>();
 		freeVariables.add(this.variable);
 		for(FactorComponent children : this.children){
-			freeVariables.addAll(Expressions.freeVariables(children.bound, context));
+			freeVariables.addAll(children.schema);
 		}
 		
 		freeVariables.removeAll(this.cutsetInsideSubModel);
