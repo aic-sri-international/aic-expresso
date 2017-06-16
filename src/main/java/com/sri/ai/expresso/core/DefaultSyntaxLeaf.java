@@ -116,6 +116,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN);
 		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN_OR_EQUAL_TO);
 		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
+		_specialFunctorSymbols.add(FunctorConstants.FUNCTION_TYPE);
 	}
 	private static int     _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
 	private static boolean _displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();

@@ -1,20 +1,15 @@
 package com.sri.ai.grinder.parser.derivative;
 
-import static com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets.getElements;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -22,11 +17,9 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import static com.sri.ai.util.Util.in;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
@@ -62,10 +55,14 @@ public class Derivative {
 	}
 	
 	public static Expression constantCase(Expression expression, Expression variable, Context context){
-		if(!expression.equals(variable)){
-			return parse("0");
+		if(expression.equals(variable)){
+			return parse("1");
 		}
-		return parse("1");
+		if(expression.equals(parse("Undefined"))){
+			return parse("Undefined");
+		}
+		
+		return parse("0");
 	}
 	
 	public static Expression productCase(Expression expression, Expression variable, Context context){
@@ -84,7 +81,7 @@ public class Derivative {
 		List<Expression> arguments = expression.getArguments();
 		Expression sum = arguments.get(1);
 		for(int i = 2; i<arguments.size(); i++){
-			sum = apply("*", sum, arguments.get(i));
+			sum = apply("+", sum, arguments.get(i));
 		}
 		Expression toEvaluate = apply("+",Derivative(arguments.get(0), variable, context), Derivative(sum, variable, context));
 		return theory.simplify(toEvaluate , context);
@@ -182,32 +179,23 @@ public class Derivative {
 		return parse("UndefinedIfThenElseFunctor");
 	}
 	
-	/* First skeleton
-	public static Expression derivativeSingleExpression(Expression expression, Expression query, Model model){
-		Context context = model.context;
+	public static Set<Expression> derivativesOfFactor(Expression expression, Expression query, Context context){
+		Theory theory = context.getTheory();
 		Set<Expression> variableInFactor = Expressions.freeVariables(expression, context);
-		Set<Expression> bounds = new HashSet<Expression>();
 		variableInFactor.remove(query);
 		Set<Expression> ProbabilitiesFactor = new HashSet<Expression>();
-		Expression condition = parse("true");
 		for (Expression variable : variableInFactor){
 			String str = "";
-			String strCondition = "";
 			Type type = context.getTypeOfRegisteredSymbol(variable);
 			Iterator<Expression> valuesInType = type.iterator();
 			List<Expression> probability = new ArrayList<Expression> ();
 			for(Expression values : in(valuesInType)){
 				String s = "prob" + variable.toString() + values.toString();
 				probability.add(parse(s));
-				model.extendModelWithSymbolsAndTypes(s, "0..1");
-				strCondition = strCondition + s + " + ";
+				context.extendWithSymbolsAndTypes(s, "0..1");
 				str = str + "if " + variable + " = " + values.toString() +" then " + parse(s) + " else ";
 			}
 			str = str + " 0";
-			strCondition = strCondition + "0 = 1";
-
-			condition = apply(AND, condition, parse(strCondition));
-			//Expression withCondition = model.theory.evaluate(parse(strCondition), context);
 			ProbabilitiesFactor.add(parse(str));
 		}
 		
@@ -217,22 +205,34 @@ public class Derivative {
 		}
 		Expression evaluation = product;
 
-		context = model.context;
 		for (Expression variable : variableInFactor){
 			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variable, context);
 
 			Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 				indices,
 				evaluation,//head
-				condition
+				parse("true")
 				);
 		
 			Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
 			System.out.println(sumOnPhi);
-			evaluation = model.theory.evaluate(sumOnPhi, context);
+			evaluation = theory.evaluate(sumOnPhi, context);
 		}
-		return evaluation;
+		int i = 0;
+		Set<Expression> result = new HashSet<Expression>();
+		System.out.println(result);
+		for (Expression variable : variableInFactor){
+			Type type = context.getTypeOfRegisteredSymbol(variable);
+			Iterator<Expression> valuesInType = type.iterator();
+			for(Expression values : in(valuesInType)){
+				String s = "prob" + variable.toString() + values.toString();
+				result.add(Derivative.Derivative(evaluation, parse(s), context));
+			}
+			i++;
+		}
+		
+		
+		return result;
 	}
 	
-	*/
 }

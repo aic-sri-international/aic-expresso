@@ -163,6 +163,9 @@ public class SGDPLLT extends AbstractMultiIndexQuantifierEliminator {
 		// did not work out because condition is not SingleVariableConstraint on last index
 		body = IfThenElse.make(quantifierFreeIndicesCondition, quantifierFreeBody, group.additiveIdentityElement());
 		lastIndexConstraint = theory.makeSingleVariableConstraint(lastIndex, theory, context);
+		if (lastIndexConstraint == null) {
+			throw new Error("The current theory does not know how to manipulate constraints on " + lastIndex + " (type " + context.getTypeOfRegisteredSymbol(lastIndex) + ").");
+		}
 		Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint = Pair.make(body, lastIndexConstraint);
 		
 		return bodyAndLastIndexConstraint;

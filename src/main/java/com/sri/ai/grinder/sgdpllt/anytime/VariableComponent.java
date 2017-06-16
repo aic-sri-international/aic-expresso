@@ -80,7 +80,7 @@ public class VariableComponent {
 		//this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), typeOfVariable);
 	}
 
-	public void update(Set<Expression> Pext) {
+	public void update(Set<Expression> Pext, Boolean withBound) {
 
 		if (this.children.isEmpty()) {
 			for (Expression e : this.model.getNeighbors(variable)) {
@@ -119,7 +119,7 @@ public class VariableComponent {
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).phiInsideSubModel);
 			}
-			this.children.get(j).update(union);
+			this.children.get(j).update(union, withBound);
 
 			Set<Expression> intersection = new HashSet<Expression>();
 			intersection.addAll(this.children.get(j).cutsetOutsideSubModel);
@@ -140,7 +140,12 @@ public class VariableComponent {
 		}
 		this.entirelyDiscover = isChildrenDiscovered;
 		
-		this.calculateBound();
+		if(withBound){
+			this.calculateBound();
+		}
+		else{
+			this.calculateSchema();
+		}
 	}
 
 	public int chooseDepthFirst() {
@@ -299,6 +304,10 @@ public class VariableComponent {
 		
 	}
 	
+	
+	public void calculateSchema(){
+		
+	}
 	
 	public Expression naiveCalcul(){
 		Expression expressiontoSum = this.model.naiveCalculation(this.variable);

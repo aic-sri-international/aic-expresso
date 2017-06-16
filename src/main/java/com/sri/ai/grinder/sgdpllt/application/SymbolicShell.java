@@ -64,6 +64,7 @@ import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.sgdpllt.theory.function.BruteForceFunctionTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
@@ -89,7 +90,9 @@ public class SymbolicShell {
 				new DifferenceArithmeticTheory(false, false),
 				new LinearRealArithmeticTheory(false, false),
 				new TupleTheory(),
-				new PropositionalTheory());
+				new PropositionalTheory(),
+				new BruteForceFunctionTheory()
+				);
 		
 		Context context = new TrueContext(theory);
 		context = context.add(BOOLEAN_TYPE);
@@ -167,7 +170,6 @@ public class SymbolicShell {
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
 			interpretedInputParsedAsExpression(consoleIterator, theory, example, context);
-			consoleIterator.getOutputWriter().println("\n");
 		}
 
 		while (consoleIterator.hasNext()) {
@@ -212,7 +214,7 @@ public class SymbolicShell {
 				return context;
 			}
 			Expression result = theory.evaluate(input, context);
-			consoleIterator.getOutputWriter().println("\n" + result + "\n");
+			consoleIterator.getOutputWriter().println(result + "\n");
 		} catch (Error e) {
 			dealWith(consoleIterator, e);
 		} catch (Exception e) {
@@ -233,7 +235,7 @@ public class SymbolicShell {
 	private static String throwableMessage(Throwable e) {
 		String message;
 		if (e.getMessage() == null || e.getMessage().equals("null")) {
-			message = "Sorry, an error without a message occurred\n";
+			message = "Sorry, an error without a message occurred. The error object is of type: " + e.getClass().getSimpleName() + ".\n";
 		}
 		else {
 			message = e.getMessage();

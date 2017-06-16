@@ -69,7 +69,7 @@ public class FactorComponent {
 
 	}
 
-	public void update(Set<Expression> Pext) {
+	public void update(Set<Expression> Pext, Boolean withBound) {
 
 		if (this.children.isEmpty()) {
 			for (Expression e : this.model.getNeighbors(phi)) {
@@ -106,7 +106,7 @@ public class FactorComponent {
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).cutsetInsideSubModel);
 			}
-			this.children.get(j).update(union);
+			this.children.get(j).update(union, withBound);
 
 			Set<Expression> intersection = new HashSet<Expression>(this.children.get(j).cutsetOutsideSubModel);
 			intersection.retainAll(model.getNeighborsOfSet(Pext));
@@ -126,7 +126,12 @@ public class FactorComponent {
 		}
 		this.entirelyDiscover = isChildrenDiscovered;
 			
-		this.calculateBound();
+		if(withBound){
+			this.calculateBound();
+		}
+		else{
+			this.calculateSchema();
+		}
 	}
 
 	public int chooseDepthFirst() {
@@ -204,6 +209,10 @@ public class FactorComponent {
 		//We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		bound = childrenBound.summingPhiTimesBound(varToSum, phi, context, theory);
+	}
+	
+	public void calculateSchema(){
+		
 	}
 	
 	public Expression calculate(){
