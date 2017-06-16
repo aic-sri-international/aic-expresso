@@ -4,20 +4,30 @@ import com.sri.ai.util.collect.ManyToManyRelation;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultIntensionalBound;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -174,20 +184,38 @@ public class Model {
 
 	public Expression naiveCalculation(Expression query){
 
-		Expression factorProduct = parse("1");
-		for (Expression factor : this.getFactor()){
-				factorProduct = apply(TIMES, factor, factorProduct);
-		}
+//		Expression factorProduct = parse("1");
+//		for (Expression factor : this.getFactor()){
+//				factorProduct = apply(TIMES, factor, factorProduct);
+//		}
+//		Expression summedProduct = factorProduct;
+//		for (Expression variable : this.getVariable()){
+//			if (variable != query){
+//				Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
+//				//to change
+//				String string = "sum({{ (on " + variable + " in " + values +" ) " + summedProduct + " }})";
+//				summedProduct = theory.evaluate(parse(string), context);
+//			}
+//		}
+		Collection<Expression> collectionOfFactors = this.getFactor();
+		Object[] arrayOfFactors = collectionOfFactors.toArray(new Expression[collectionOfFactors.size()]);
+		Expression factorProduct = apply(TIMES,arrayOfFactors);
 		
-		Expression summedProduct = factorProduct;
-		for (Expression variable : this.getVariable()){
+		Collection<Expression> collectionOfVariables = this.getVariable();
+		List<Expression> indexExpressionsList = new ArrayList<>(collectionOfVariables.size());
+		for (Expression variable : collectionOfVariables){
 			if (variable != query){
-				Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
-				//to change
-				String string = "sum({{ (on " + variable + " in " + values +" ) " + summedProduct + " }})";
-				summedProduct = theory.evaluate(parse(string), context);
+				Expression type = context.getTypeExpressionOfRegisteredSymbol(variable);
+				Expression indexExpression = IndexExpressions.makeIndexExpression(variable, type);
+				indexExpressionsList.add(indexExpression);				
 			}
 		}
-		return summedProduct;
+		DefaultIntensionalMultiSet productMultiset = new DefaultIntensionalMultiSet(indexExpressionsList, factorProduct, makeSymbol(true));
+		Expression summedProduct = apply(SUM,productMultiset);
+		summedProduct = theory.evaluate(summedProduct, context);
+
+		Expression result = Bounds.normalizeSingleExpression(summedProduct, theory, context);
+		result = theory.evaluate(result, context);
+		return result;
 	}
 }

@@ -324,21 +324,22 @@ public class VariableComponent {
 	
 	public Expression naiveCalcul(){
 		Expression expressiontoSum = this.model.naiveCalculation(this.variable);
-		//String values = this.model.getValues(this.variable);
-		//String string = "(" + expression + ")/sum({{ (on "  + this.variable + " in " + values +" ) " + expression  + " }})";
-		
-		//Expression expressionToSum = theory.evaluate(childrenMessage, context);
-		Expression valuesTakenByVariableToSum = this.model.getValues(this.variable);
-		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, this.variable, valuesTakenByVariableToSum ));
-		Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, expressiontoSum, parse("true")); 
-		Expression summation = apply(SUM, intensionalMultiSet);
-		//childrenMessage=summation;
-		
-		Expression normalizalisation = this.model.theory.evaluate(summation, this.model.context);
-		Expression result = apply("/", expressiontoSum, normalizalisation);
-		result = this.model.theory.evaluate(result, this.model.context);
-		
-		return result;
+		return expressiontoSum;
+//		//String values = this.model.getValues(this.variable);
+//		//String string = "(" + expression + ")/sum({{ (on "  + this.variable + " in " + values +" ) " + expression  + " }})";
+//		
+//		//Expression expressionToSum = theory.evaluate(childrenMessage, context);
+//		Expression valuesTakenByVariableToSum = this.model.getValues(this.variable);
+//		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, this.variable, valuesTakenByVariableToSum ));
+//		Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, expressiontoSum, parse("true")); 
+//		Expression summation = apply(SUM, intensionalMultiSet);
+//		//childrenMessage=summation;
+//		
+//		Expression normalizalisation = this.model.theory.evaluate(summation, this.model.context);
+//		Expression result = apply("/", expressiontoSum, normalizalisation);
+//		result = this.model.theory.evaluate(result, this.model.context);
+//		
+//		return result;
 	}
 	
 }

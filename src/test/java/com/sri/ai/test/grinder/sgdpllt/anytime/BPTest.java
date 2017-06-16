@@ -6,6 +6,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
+import static java.lang.Math.min;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -100,7 +101,6 @@ public class BPTest {
 		return result;
 	}
 	
-
 	private Model randomModel(int nVariables, int nFactors , Theory theory, Context context, Expression possibleValues){
 		Set<Expression> Factor = new HashSet<Expression>();
 		
@@ -112,7 +112,7 @@ public class BPTest {
 		Random rand = new Random();
 		
 		for (int i = 0; i < nFactors; i++) {
-			int n = rand.nextInt(15);
+			int n = rand.nextInt(min(15,nVariables));
 			Expression[] varOfF = new Expression[n];
 			for (int j = 0; j < varOfF.length; j++) {
 				varOfF[j] = a[rand.nextInt(nVariables)];
@@ -126,6 +126,12 @@ public class BPTest {
 		
 	}
 
+	private static void printModel(Model m) {
+		for(Pair<Expression, Expression> e : in(m.map.iterator())){
+			println(e.second + " -> " + e.first);
+		}
+	}
+
 	public static void main(String[] args) {
 		Theory theory = new CompoundTheory(
 				new EqualityTheory(false, true),
@@ -133,22 +139,74 @@ public class BPTest {
 				new LinearRealArithmeticTheory(false, false),
 				new TupleTheory(),
 				new PropositionalTheory());
-		Context context = new TrueContext(theory);			
-		context = context.add(BOOLEAN_TYPE);
+		Context context = new TrueContext(theory);
 		
 		Model m = IsingModel(3, 3,theory, context, parse("Boolean"));
 		
-		//for(Pair<Expression, Expression> e : in(m.map.iterator())){
-		//	println(e.second + " -> " + e.first);
-		//}
+		//printModel(m);
 				
-		VariableComponent comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);
-		
-		println("naive gives: " 
-				+ comp.naiveCalcul());
-		
-		Examples.runningPartialTest(comp, 50, true);
+		runTest(m);
 		
 	}
 	
+	private static void runTest(Model m) {
+		VariableComponent comp ;
+		
+		println("Naive");
+		println(m.naiveCalculation(parse("A_0_0")));
+		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
+		runNaive(comp, true);
+		
+		println("Intensional");
+		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);		
+		runningPartialTest(comp, 50, true);
+		
+		println("Extensional");
+		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
+		runningPartialTest(comp, 50, true);
+		
+		println("Naive");
+		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
+		runNaive(comp, true);
+	}
+
+	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
+		long startTime, endTime, totalTime;
+		
+		//we compute the result with our algorithm
+		//we also store the computation time to compare it to the naive computation time
+		startTime = System.currentTimeMillis();
+		int i = 0;
+		while(i < nb_iter) {
+			if(!ComponentResult.entirelyDiscover) {
+				ComponentResult.update(new HashSet<Expression>(), withBound);
+				println("... " + i);//println("Bound at iteration " + i + " : " + ComponentResult.bound);
+			}
+			i++;
+		}
+		
+		Expression normalizedMessage = ComponentResult.bound;
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
+		System.out.println("\n\nOur computation : " + normalizedMessage);
+		println("totalTime: " + totalTime+ " milliseconds");
+	}
+	
+	private static void runNaive(VariableComponent ComponentResult, Boolean withBound) {
+		long startTime;
+		long endTime;
+		long totalTime;
+		startTime = System.currentTimeMillis();
+		while(!ComponentResult.entirelyDiscover) {
+			ComponentResult.update(new HashSet<Expression>(),withBound);
+			
+		}
+		Expression naiveResult = ComponentResult.naiveCalcul();
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
+		println("\n\nNaive Result : " + naiveResult);
+		println("totalTime: " + totalTime + " milliseconds");
+	}
 }
