@@ -379,7 +379,7 @@ public class Examples {
 		
 	}
 		
-	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter) {
+	public static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter) {
 
 		long startTime, endTime, totalTime;
 		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
