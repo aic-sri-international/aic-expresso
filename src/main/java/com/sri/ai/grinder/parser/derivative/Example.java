@@ -29,10 +29,11 @@ public class Example {
 		
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
-		m.extendModelWithSymbolsAndTypes("B", "1..4");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
-		VariableComponent ComponentResultat = null; // new VariableComponent(q, null, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), true);
+
 		return ComponentResultat;
 	}
 	
@@ -40,8 +41,8 @@ public class Example {
 	public static void main(String[] args) {
 		VariableComponent v = TreeModel();
 		Context context = v.model.context;
-		Expression expression = parse("if A != 1 then A * B else 2 * B");
-		System.out.println(Derivative.Derivative(expression, parse("A"), context));
+		Expression expression = parse("if Q then if A then if B then 4 else 2 else if B then 6 else 7 else if A then if B then 0 else 2 else if B then 1 else 1");
+		System.out.println(Derivative.derivativesOfFactor(expression, parse("Q"), context));
 	}
 	
 
