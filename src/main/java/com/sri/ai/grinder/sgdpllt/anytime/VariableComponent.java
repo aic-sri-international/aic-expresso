@@ -22,6 +22,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
@@ -37,6 +38,7 @@ public class VariableComponent {
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
+	public Set<Expression> schema;
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer lastUpdatedChild;
@@ -54,6 +56,7 @@ public class VariableComponent {
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
+		this.schema = new HashSet<Expression>();
 		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
 		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 		this.isExtensionalBound = isExtensionalBound;
@@ -230,6 +233,7 @@ public class VariableComponent {
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
 		System.out.println(tab + "Bound : " + this.bound);
+		System.out.println(tab + "Schema : " + this.schema);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
 		
 
@@ -304,9 +308,18 @@ public class VariableComponent {
 		
 	}
 	
-	
 	public void calculateSchema(){
+		Theory theory = this.model.theory;
+		Context context = this.model.context;		
+		Set<Expression> freeVariables =new HashSet<Expression>();
+		freeVariables.add(this.variable);
+		for(FactorComponent children : this.children){
+			freeVariables.addAll(Expressions.freeVariables(children.bound, context));
+		}
 		
+		freeVariables.removeAll(this.cutsetInsideSubModel);
+		
+		this.schema = freeVariables;
 	}
 	
 	public Expression naiveCalcul(){

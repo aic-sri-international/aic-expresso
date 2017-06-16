@@ -147,7 +147,7 @@ public class BPTest {
 		println("naive gives: " 
 				+ comp.naiveCalcul());
 		
-		Examples.runningPartialTest(comp, 50);
+		Examples.runningPartialTest(comp, 50, true);
 		
 	}
 	
