@@ -342,11 +342,11 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 10);
+		runningPartialTest(ComponentResult, 10, false);
 		ComponentResult.print(0);
 		}
 
-	private static void runningTotalTest(VariableComponent ComponentResult) {
+	private static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {
 
 		long startTime, endTime, totalTime;
 		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
@@ -355,7 +355,7 @@ public class Examples {
 		//we also store the computation time to compare it to the naive computation time
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
-			ComponentResult.update(new HashSet<Expression>(), true);
+			ComponentResult.update(new HashSet<Expression>(), withBound);
 		}
 		//ComponentResult.print(0);
 		Expression unnormalizedMessage = ComponentResult.calculate();
@@ -379,7 +379,7 @@ public class Examples {
 		
 	}
 		
-	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter) {
+	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
 
 		long startTime, endTime, totalTime;
 		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
@@ -390,7 +390,7 @@ public class Examples {
 		int i = 0;
 		while(i < nb_iter) {
 			if(!ComponentResult.entirelyDiscover) {
-				ComponentResult.update(new HashSet<Expression>(), true);
+				ComponentResult.update(new HashSet<Expression>(), withBound);
 				println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;

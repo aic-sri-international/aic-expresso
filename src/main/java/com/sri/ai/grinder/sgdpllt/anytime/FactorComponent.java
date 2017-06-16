@@ -7,9 +7,12 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
+
+import static com.sri.ai.util.Util.list;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
@@ -17,10 +20,12 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 
 
 public class FactorComponent {
@@ -36,6 +41,7 @@ public class FactorComponent {
 	public Set<Expression> phiInsideSubModel;
 	public Integer lastUpdatedChild;
 	public boolean isExtensionalBound;
+	public Set<Expression> schema;
 
 	public FactorComponent(Expression phi, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
 
@@ -48,6 +54,7 @@ public class FactorComponent {
 		this.parent.add(Parent);
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
+		this.schema = new HashSet<Expression>();
 		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model,isExtensionalBound); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
 		this.phi = phi;
 		this.phiInsideSubModel.add(phi);
@@ -169,6 +176,7 @@ public class FactorComponent {
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
 		System.out.println(tab + "Bound : " + this.bound);
+		System.out.println(tab + "Schema : " + this.schema);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
 
 		for (VariableComponent c : this.children) {
@@ -212,7 +220,27 @@ public class FactorComponent {
 	}
 	
 	public void calculateSchema(){
+		Theory theory = this.model.theory;
+		Context context = this.model.context;		
+		Set<Expression> freeVariables =new HashSet<Expression>();
+		freeVariables.addAll(Expressions.freeVariables(this.phi, context));
+		//freeVariables.add(this.variable);
+		for(VariableComponent children : this.children){
+			freeVariables.addAll(Expressions.freeVariables(children.bound, context));
+		}
+		Set<Expression> toSum = model.getNeighbors(phi);
+		for (Expression e : this.parent) {
+			toSum.remove(e);
+		}
+		for (Expression e : this.cutsetOutsideSubModel) {
+			toSum.remove(e);
+		}
+		toSum.addAll(this.cutsetInsideSubModel);
 		
+		freeVariables.removeAll(toSum);
+		
+		
+		this.schema = freeVariables;
 	}
 	
 	public Expression calculate(){
