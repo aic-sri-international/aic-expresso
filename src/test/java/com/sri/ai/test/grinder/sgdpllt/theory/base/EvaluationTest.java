@@ -324,31 +324,31 @@ public class EvaluationTest {
 		String expressionString;
 		Expression expected;
 
-		expressionString = "sum( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
+		expressionString = "sum( {{ (on f in 0..2 -> Boolean)  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
 		expected = parse("11"); // 2+3+3+3
 		runTest(expressionString, expected, context);
 		
-		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3  :  f(2) }} )";
+		expressionString = "sum({{ (on f in 1..2 -> Boolean, g in 1..2 -> Boolean)  if f(1) and g(2) then 2 else 3  :  f(2) }} )";
 		expected = parse("22"); 
 		runTest(expressionString, expected, context);
 		
-		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3 }} )";
+		expressionString = "sum({{ (on f in 1..2 -> Boolean, g in 1..2 -> Boolean)  if f(1) and g(2) then 2 else 3 }} )";
 		expected = parse("44"); 
 		runTest(expressionString, expected, context);
 		
-		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) then 2 else 3 }} )";
+		expressionString = "sum({{ (on f in 1..2 -> Boolean, g in 1..2 -> Boolean)  if f(1) then 2 else 3 }} )";
 		expected = parse("40"); 
 		runTest(expressionString, expected, context);
 		
-		expressionString = "sum({{ (on f in '->'(x(1..2), Boolean))  if f(1) then 2 else 3 }} )";
+		expressionString = "sum({{ (on f in 1..2 -> Boolean)  if f(1) then 2 else 3 }} )";
 		expected = parse("10"); 
 		runTest(expressionString, expected, context);
 		
-		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  if f(1) = 1 then 2 else 3 }} )";
+		expressionString = "sum({{ (on f in 1..2 -> 1..2)  if f(1) = 1 then 2 else 3 }} )";
 		expected = parse("10"); 
 		runTest(expressionString, expected, context);
 		
-		expressionString = "sum({{ (on f in '->'(x(1..2), 1..2))  f(1) }} )";
+		expressionString = "sum({{ (on f in 1..2 -> 1..2)  f(1) }} )";
 		expected = parse("6"); 
 		runTest(expressionString, expected, context);
 		
@@ -360,19 +360,15 @@ public class EvaluationTest {
 		expected = parse("(lambda : 1) + (lambda : 2)"); 
 		runTest(expressionString, expected, context);
 
-		expressionString = "product( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
+		expressionString = "product( {{ (on f in 0..2 -> Boolean)  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
 		expected = parse("54"); // 2*3*3*3
 		runTest(expressionString, expected, context);
 
-		expressionString = "max( {{ (on f in '->'(x(0..2), Boolean))  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
+		expressionString = "max( {{ (on f in 0..2 -> Boolean)  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
 		expected = parse("3");
 		runTest(expressionString, expected, context);
 		
-		expressionString = "| f in '->'(0..2, Boolean) : f(0) |";
-		expected = parse("4");
-		runTest(expressionString, expected, context);
-		
-		expressionString = "| f in '->'(x(0..2), Boolean) : f(0) |";
+		expressionString = "| f in 0..2 -> Boolean : f(0) |";
 		expected = parse("4");
 		runTest(expressionString, expected, context);
 		
@@ -380,7 +376,11 @@ public class EvaluationTest {
 		expected = parse("4");
 		runTest(expressionString, expected, context);
 		
-		expressionString = "| f in '->'(x(0..2, 0..2), Boolean) : f(0, 0) |";
+		expressionString = "| f in 0..2 -> Boolean : f(0) |";
+		expected = parse("4");
+		runTest(expressionString, expected, context);
+		
+		expressionString = "| f in x(0..2, 0..2) -> Boolean : f(0, 0) |";
 		expected = parse("256");
 		runTest(expressionString, expected, context);
 		
@@ -388,11 +388,11 @@ public class EvaluationTest {
 		expected = parse("256");
 		runTest(expressionString, expected, context);
 		
-		expressionString = "for all f in '->'(x(0..2), Boolean) : f(0)";
+		expressionString = "for all f in 0..2 -> Boolean : f(0)";
 		expected = parse("false");
 		runTest(expressionString, expected, context);
 		
-		expressionString = "for all f in '->'(x(0..2), Boolean) : (f(0) or not f(0)) and P";
+		expressionString = "for all f in x(0..2) -> Boolean : (f(0) or not f(0)) and P";
 		expected = parse("P");
 		runTest(expressionString, expected, context);	
 		
