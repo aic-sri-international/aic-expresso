@@ -240,17 +240,18 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	 * @return 
 	 */
 	public static DefaultExtensionalBound updateExtremes(Bound B,Theory theory, Context context){
-		List<Expression> listOfB = getElements(B);
-		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
-		int indexPhi = 0;
-		for(Expression phi : listOfB){
-			if (isExtremePoint(phi,indexPhi,B,theory,context)){
-				elements.add(phi);
-			}
-			indexPhi++;
-		}
-		DefaultExtensionalBound result = new DefaultExtensionalBound(elements);
-		return result;
+		return (DefaultExtensionalBound) B;
+//		List<Expression> listOfB = getElements(B);
+//		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
+//		int indexPhi = 0;
+//		for(Expression phi : listOfB){
+//			if (isExtremePoint(phi,indexPhi,B,theory,context)){
+//				elements.add(phi);
+//			}
+//			indexPhi++;
+//		}
+//		DefaultExtensionalBound result = new DefaultExtensionalBound(elements);
+//		return result;
 	}
 	
 	/**
@@ -268,8 +269,8 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		
 		Expression[] c = new Expression[n];
 		for(int i = 0;i<n;i++){
-			c[i] = makeSymbol("c" + i);
-			context = context.extendWithSymbolsAndTypes("c" + i,"Real");
+			c[i] = makeSymbol("C_" + i);
+			context = context.extendWithSymbolsAndTypes("C_" + i,"Real");
 		}
 		
 		// 0<=ci<=1
@@ -299,16 +300,17 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		ArrayList<Expression> listOfCiInReal = new ArrayList<>(listOfB.size());
 		for(i = 0; i <n; i++){
 			listOfCiInReal.add(apply(IN,c[i],"Real"));
+			context = context.extendWithSymbolsAndTypes(c[i],parse("Real"));
 		}
 		IndexExpressionsSet thereExistsCiInReal = new ExtensionalIndexExpressionsSet(listOfCiInReal);
 		
 		Expression body = apply(AND, allcibetwen0And1, sumOverCiEqualsOne, convexSum);
 		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal,body);
 		
-		if (debug) println(isExtreme);
+//		if (true) println(isExtreme);
 		
-		//Expression result = theory.evaluate(isExtreme, context);
-		//if (true) println(result);
+		Expression result = theory.evaluate(isExtreme, context);
+//		if (true) println(result);
 		return true;
 	}
 }

@@ -183,20 +183,29 @@ public class Model {
 	}
 
 	public Expression naiveCalculation(Expression query){
+		Expression factorProduct = parse("1");
+		for (Expression factor : this.getFactor()){
+				factorProduct = apply(TIMES, factor, factorProduct);
+		}
+		Expression summedProduct = factorProduct;
+		for (Expression variable : this.getVariable()){
+			if (variable != query){
+				Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
+				//to change
+				String string = "sum({{ (on " + variable + " in " + values +" ) " + summedProduct + " }})";
+				summedProduct = theory.evaluate(parse(string), context);
+			}
+		}
+		
+		summedProduct = theory.evaluate(summedProduct, context);
 
-//		Expression factorProduct = parse("1");
-//		for (Expression factor : this.getFactor()){
-//				factorProduct = apply(TIMES, factor, factorProduct);
-//		}
-//		Expression summedProduct = factorProduct;
-//		for (Expression variable : this.getVariable()){
-//			if (variable != query){
-//				Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
-//				//to change
-//				String string = "sum({{ (on " + variable + " in " + values +" ) " + summedProduct + " }})";
-//				summedProduct = theory.evaluate(parse(string), context);
-//			}
-//		}
+		Expression result = Bounds.normalizeSingleExpression(summedProduct, theory, context);
+		result = theory.evaluate(result, context);
+		return result;
+		
+	}
+	
+	public Expression VECalculation(Expression query){
 		Collection<Expression> collectionOfFactors = this.getFactor();
 		Object[] arrayOfFactors = collectionOfFactors.toArray(new Expression[collectionOfFactors.size()]);
 		Expression factorProduct = apply(TIMES,arrayOfFactors);

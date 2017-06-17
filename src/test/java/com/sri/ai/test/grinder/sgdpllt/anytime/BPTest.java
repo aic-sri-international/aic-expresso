@@ -11,12 +11,17 @@ import static java.lang.Math.min;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderParser.IntensionalMultisetContext;
 import com.sri.ai.grinder.sgdpllt.anytime.Examples;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
@@ -24,6 +29,9 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultIntensionalBound;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -141,7 +149,7 @@ public class BPTest {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);
 		
-		Model m = IsingModel(3, 3,theory, context, parse("Boolean"));
+		Model m = IsingModel(3,4,theory, context, parse("Boolean"));
 		
 		//printModel(m);
 				
@@ -151,23 +159,19 @@ public class BPTest {
 	
 	private static void runTest(Model m) {
 		VariableComponent comp ;
+		println("Go!");
+		runVE(m,(parse("A_0_0")),true);
 		
-		println("Naive");
-		println(m.naiveCalculation(parse("A_0_0")));
 		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
 		runNaive(comp, true);
-		
-		println("Intensional");
-		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);		
-		runningPartialTest(comp, 50, true);
 		
 		println("Extensional");
 		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
 		runningPartialTest(comp, 50, true);
-		
-		println("Naive");
-		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
-		runNaive(comp, true);
+
+		println("Intensional");
+		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);		
+		runningPartialTest(comp, 50, true);
 	}
 
 	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
@@ -180,7 +184,7 @@ public class BPTest {
 		while(i < nb_iter) {
 			if(!ComponentResult.entirelyDiscover) {
 				ComponentResult.update(new HashSet<Expression>(), withBound);
-				println("... " + i);//println("Bound at iteration " + i + " : " + ComponentResult.bound);
+				println("... " + i + " error :" + ComponentResult.bound);//getError(ComponentResult.bound, ComponentResult.model.theory,ComponentResult.model.context));//println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;
 		}
@@ -190,7 +194,7 @@ public class BPTest {
 		totalTime = endTime - startTime;
 		
 		System.out.println("\n\nOur computation : " + normalizedMessage);
-		println("totalTime: " + totalTime+ " milliseconds");
+		println("totalTime: " + totalTime/1000. + " seconds");
 	}
 	
 	private static void runNaive(VariableComponent ComponentResult, Boolean withBound) {
@@ -198,15 +202,41 @@ public class BPTest {
 		long endTime;
 		long totalTime;
 		startTime = System.currentTimeMillis();
-		while(!ComponentResult.entirelyDiscover) {
-			ComponentResult.update(new HashSet<Expression>(),withBound);
-			
-		}
+		
 		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
 		println("\n\nNaive Result : " + naiveResult);
-		println("totalTime: " + totalTime + " milliseconds");
+		println("totalTime: " + totalTime/1000. + " seconds");
 	}
+	
+	private static void runVE(Model m, Expression query, Boolean withBound) {
+		long startTime;
+		long endTime;
+		long totalTime;
+		startTime = System.currentTimeMillis();
+		
+		Expression naiveResult = m.VECalculation(query);
+		endTime   = System.currentTimeMillis();
+		totalTime = endTime - startTime;
+		
+		println("\n\nVE Result : " + naiveResult);
+		println("totalTime: " + totalTime/1000. + " seconds");
+		println(naiveResult.getArguments());
+	}
+	
+	private static float getError(Bound b,Theory t, Context c){
+		if(b.isExtensionalBound()){
+			List<Expression> l =((DefaultExtensionalBound) b).getElementsDefinitions();
+			
+			Expression e1 = l.get(0);
+			Expression e2 = l.get(1);
+			Expression n = t.evaluate(apply("-",e1.get(2),e2.get(2)),c);
+			float f = n.getArguments().get(0).intValue() / n.getArguments().get(1).intValue() ;
+			return f;
+		}
+		return 0;
+	}
+
 }

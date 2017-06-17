@@ -197,7 +197,7 @@ public class BoundTest {
 							+ " else 0 }"),
 				IntensionalSetOfFactors1.normalize(theory, context));
 		
-		Bound b = Bounds.boundProduct(theory, context, IntensionalSetOfFactors1,IntensionalSetOfFactors2).normalize(theory, context);
+		Bound b = Bounds.boundProduct(theory, context, false, IntensionalSetOfFactors1,IntensionalSetOfFactors2).normalize(theory, context);
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, A'' in Boolean ) "
@@ -235,7 +235,7 @@ public class BoundTest {
 				 		+ "if A then 22 else 144, if C < 4 then if A then 10 else 60 else if C = 4 then if A then 11 else 66 else if A then 12 else 72, "
 				 		+ "if C < 4 then if A then 20 else 120 else if C = 4 then if A then 22 else 132 else if A then 24 else 144 }"
 						),
-				 Bounds.boundProduct(theory, context,
+				 Bounds.boundProduct(theory, context,true,
 						 setOfFactors,
 						 setOfFactors2,
 						 setOFNumbers
@@ -243,15 +243,15 @@ public class BoundTest {
 
 		assertEquals(
 				null,
-				Bounds.boundProduct(theory, context, new DefaultExtensionalBound(new Expression[1])));
+				Bounds.boundProduct(theory, context, true, new DefaultExtensionalBound(new Expression[1])));
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, C'' in 1..4, B' in Boolean ) if C = C' then if A then if A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else if not A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else 0 }"),
-				Bounds.boundProduct(theory, context, IntensionalSetOfFactors1, IntensionalSetOfFactors3));	
+				Bounds.boundProduct(theory, context, false, IntensionalSetOfFactors1, IntensionalSetOfFactors3));	
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean ) if A then if A' then 1 else 0 else if not A' then 1 else 0 }"),
-				Bounds.boundProduct(theory, context, DefaultIntensionalBound.simplex(arrayList(parse("A")), m)));
+				Bounds.boundProduct(theory, context,false,  DefaultIntensionalBound.simplex(arrayList(parse("A")), m)));
 	}
 	
 	@Test
