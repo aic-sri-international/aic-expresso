@@ -337,13 +337,13 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  TreeModel();
+		VariableComponent ComponentResult =  DoubleDiamondModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		runningPartialTest(ComponentResult, 10, false);
-		ComponentResult.print(0);
+		runningPartialTest(ComponentResult, 20, true);
+		//ComponentResult.print(0);
 		}
 
 	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {
@@ -407,17 +407,12 @@ public class Examples {
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
 			ComponentResult.update(new HashSet<Expression>());
-		}
+		}*/
 		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
 		println("\n\nNaive Result : " + naiveResult);
-		println("totalTime: " + totalTime);
-		*/
-		
-		
-	}
-
-	
+		println("totalTime: " + totalTime);	
+	}	
 }

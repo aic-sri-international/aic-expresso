@@ -111,6 +111,7 @@ public class FactorComponent {
 				
 			}
 		} else {
+			//int j = this.chooseBreadthFirst();
 			int j = this.chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
@@ -154,7 +155,7 @@ public class FactorComponent {
 	}
 	
 	public int chooseBreadthFirst() {
-		for (int j = lastUpdatedChild + 1; j<this.children.size(); j++){
+		for (int j = lastUpdatedChild ; j<this.children.size(); j++){
 			if (!this.children.get(j).entirelyDiscover){
 				this.lastUpdatedChild = j;
 				return j;
