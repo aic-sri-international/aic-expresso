@@ -47,7 +47,7 @@ import static com.sri.ai.util.Util.println;
 public class BPTest {
 	private static Expression randomNumberGenerator(){
 		 Random randomGenerator = new Random();
-		 return makeSymbol(randomGenerator.nextInt(20));
+		 return makeSymbol(randomGenerator.nextInt(9));
 	}
 	private static Expression generateProbability(Context context,int i, Expression... listOfVariables){
 		if(listOfVariables.length == 0 ){
@@ -223,7 +223,7 @@ public class BPTest {
 		
 		println("\n\nVE Result : " + naiveResult);
 		println("totalTime: " + totalTime/1000. + " seconds");
-		println(naiveResult.getArguments());
+		//println(naiveResult.getArguments());
 	}
 	
 	private static float getError(Bound b,Theory t, Context c){

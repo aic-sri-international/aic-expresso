@@ -118,7 +118,8 @@ public class VariableComponent {
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 		} else {
-			int j = this.chooseDepthImportantFirst();
+			//int j = this.chooseDepthImportantFirst();
+			int j = this.chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).phiInsideSubModel);
