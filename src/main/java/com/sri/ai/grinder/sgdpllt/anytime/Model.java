@@ -71,7 +71,7 @@ public class Model {
 	public Model(Set<Expression> Factor,Theory theory, Context context){
 		this(Factor);
 		this.theory = theory;	
-		this.context = context.add(BOOLEAN_TYPE);
+		this.context = context;
 	}
 
 	/*public void setType(Expression expression, String typeOfVariable) {

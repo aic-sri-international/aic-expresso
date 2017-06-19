@@ -1,9 +1,7 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
-
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
@@ -22,7 +20,6 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
@@ -45,7 +42,7 @@ public class VariableComponent {
 	public boolean isExtensionalBound;
 
 	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
-
+//we don't get to use Pext
 		this.model = model;
 		this.variable = variable;
 		this.lastUpdatedChild = 0;
@@ -59,7 +56,6 @@ public class VariableComponent {
 		this.schema = new HashSet<Expression>();
 		this.schema.add(this.variable);
 		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
-		this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), "Boolean");
 		this.isExtensionalBound = isExtensionalBound;
 
 		Set<Expression> intersection = new HashSet<Expression>();
@@ -89,18 +85,14 @@ public class VariableComponent {
 		if (this.children.isEmpty()) {
 			for (Expression e : this.model.getNeighbors(variable)) {
 				if (!this.parent.contains(e)) {
-
-					boolean test = false;
-
+					boolean test = false;//test = isEAlreadyUncovered = isEAParent
+					
 					for (FactorComponent c : model.initializeFactorComponent) {
-
 						if (c.phi.equals(e)) {
 							test = true;
 							this.parent.add(c.phi);
-
 						}
 					}
-
 					if (test == false) {
 						FactorComponent newC = new FactorComponent(e, variable, model, Pext, isExtensionalBound);
 						this.children.add(newC);
@@ -112,12 +104,12 @@ public class VariableComponent {
 
 						cutsetInsideSubModel.addAll(newC.cutsetOutsideSubModel);
 					}
-
 				}
 			}
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
-		} else {
+		}
+		else {
 			//int j = this.chooseDepthImportantFirst();
 			int j = this.chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
