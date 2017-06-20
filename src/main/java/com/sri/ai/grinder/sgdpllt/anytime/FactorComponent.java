@@ -137,7 +137,7 @@ public class FactorComponent {
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
-			phiInsideSubModel.addAll(this.children.get(j).cutsetInsideSubModel);
+			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 
 		}
 		
@@ -163,7 +163,7 @@ public class FactorComponent {
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
 		}
-		Pext.retainAll(phiInsideSubModel);
+		Pext.removeAll(phiInsideSubModel);
 		
 		Set<Expression> intersection = new HashSet<Expression>();
 		for(VariableComponent children : this.children){
@@ -171,7 +171,7 @@ public class FactorComponent {
 		}
 		intersection.retainAll(model.getNeighborsOfSet(Pext));
 
-		cutsetOutsideSubModel.addAll(intersection);
+		cutsetOutsideSubModel = intersection;
 		for(VariableComponent children : this.children){
 			cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel);
 		}

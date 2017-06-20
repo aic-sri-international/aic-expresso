@@ -74,6 +74,7 @@ public class VariableComponent {
 		S.retainAll(intersection);
 		if (!S.isEmpty()) {
 			this.cutsetOutsideSubModel.add(variable);
+			this.isCutset = true;
 		}
 
 		model.initializeVariableComponent.add(this);
@@ -166,15 +167,20 @@ public class VariableComponent {
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
 		}
-		Pext.retainAll(phiInsideSubModel);
+		Pext.removeAll(phiInsideSubModel);
 		
 		Set<Expression> intersection = new HashSet<Expression>();
 		for(FactorComponent children : this.children){
 			intersection.addAll(children.cutsetOutsideSubModel);
 		}
 		intersection.retainAll(model.getNeighborsOfSet(Pext));
+		System.out.println("Intersection = " + intersection);
+		System.out.println("Pext = " + Pext);
 
-		cutsetOutsideSubModel.addAll(intersection);
+		cutsetOutsideSubModel = intersection;
+		if(this.isCutset){
+			this.cutsetOutsideSubModel.add(this.variable);
+		}
 		for(FactorComponent children : this.children){
 			cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel);
 		}
@@ -310,6 +316,25 @@ public class VariableComponent {
 		for (FactorComponent c : this.children) {
 			c.print(tabs + 1);
 		}
+
+	}
+
+	public void printTotal() {
+		String tab = new String();
+		Set<Expression> Pext = new HashSet<Expression>();
+		for (FactorComponent factor : this.model.initializeFactorComponent){
+			Pext.add(factor.phi);
+		}
+		Pext.removeAll(phiInsideSubModel);
+		System.out.println(tab + "Variable : " + variable);
+		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
+		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
+		System.out.println(tab + "Bound : " + this.bound);
+		System.out.println(tab + "Schema : " + this.schema);
+		System.out.println(tab + "isCutset : " + this.isCutset);
+		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
+		System.out.println(tab + "Phi Inside Submodel : " + this.phiInsideSubModel);
+		System.out.println(tab + "Pext : " + Pext);
 
 	}
 
