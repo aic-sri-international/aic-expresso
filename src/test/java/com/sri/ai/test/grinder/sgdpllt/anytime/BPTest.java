@@ -168,7 +168,7 @@ public class BPTest {
 		println("Extensional");
 		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
 		runningPartialTest(comp, 50, true);
-
+		comp.print(0);
 		println("Intensional");
 		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);		
 		runningPartialTest(comp, 50, true);
