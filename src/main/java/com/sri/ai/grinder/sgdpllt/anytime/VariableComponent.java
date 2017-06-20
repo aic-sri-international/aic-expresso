@@ -38,14 +38,14 @@ public class VariableComponent {
 	public Set<Expression> schema;
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
-	public Integer lastUpdatedChild;
+	public Integer childToUpdate;
 	public boolean isExtensionalBound;
 
 	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
 //we don't get to use Pext
 		this.model = model;
 		this.variable = variable;
-		this.lastUpdatedChild = 0;
+		this.childToUpdate = 0;
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
 		this.entirelyDiscover = false;
@@ -155,19 +155,31 @@ public class VariableComponent {
 	}
 
 	public int chooseBreadthFirst() {
-		for (int j = lastUpdatedChild + 1; j<this.children.size(); j++){
-			if (!this.children.get(j).entirelyDiscover){
-				this.lastUpdatedChild = j;
-				return j;
-			}
+		int result = childToUpdate;
+		
+		int size = children.size();
+		if(size > 1){
+			do{
+				childToUpdate ++;
+				childToUpdate %= size;
+			}while(childToUpdate != result && 
+					this.children.get(childToUpdate).entirelyDiscover);
 		}
-		for (int j = 0; j<lastUpdatedChild; j++){
-			if (!this.children.get(j).entirelyDiscover){
-				this.lastUpdatedChild = j;
-				return j;
-			}
-		}
-		return lastUpdatedChild;
+			
+		return result;		
+//		for (int j = childToUpdate + 1; j<this.children.size(); j++){
+//			if (!this.children.get(j).entirelyDiscover){
+//				this.childToUpdate = j;
+//				return j;
+//			}
+//		}
+//		for (int j = 0; j<childToUpdate; j++){
+//			if (!this.children.get(j).entirelyDiscover){
+//				this.childToUpdate = j;
+//				return j;
+//			}
+//		}
+//		return childToUpdate;
 	}
 
 	public int chooseDepthImportantFirst() {
