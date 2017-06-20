@@ -40,7 +40,7 @@ public class FactorComponent {
 	public Set<Expression> cutsetInsideSubModel;
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
-	public Integer lastUpdatedChild;
+	public Integer childToUpdate;
 	public boolean isExtensionalBound;
 	public Set<Expression> schema;
 
@@ -49,7 +49,7 @@ public class FactorComponent {
 		this.phiInsideSubModel = new HashSet<Expression>();
 		this.model = model;
 		this.entirelyDiscover = false;
-		this.lastUpdatedChild = 0;
+		this.childToUpdate = 0;
 		this.children = new ArrayList<VariableComponent>();
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
@@ -195,19 +195,32 @@ public class FactorComponent {
 	}
 	
 	public int chooseBreadthFirst() {
-		for (int j = lastUpdatedChild + 1 ; j<this.children.size(); j++){
-			if (!this.children.get(j).entirelyDiscover){
-				this.lastUpdatedChild = j;
-				return j;
-			}
+
+		int result = childToUpdate;
+		
+		int size = children.size();
+		if(size > 1){
+			do{
+				childToUpdate ++;
+				childToUpdate %= size;
+			}while(childToUpdate != result && 
+					this.children.get(childToUpdate).entirelyDiscover);
 		}
-		for (int j = 0; j<lastUpdatedChild; j++){
-			if (!this.children.get(j).entirelyDiscover){
-				this.lastUpdatedChild = j;
-				return j;
-			}
-		}
-		return lastUpdatedChild;
+		
+		return result;
+//		for (int j = lastUpdatedChild ; j<this.children.size(); j++){
+//			if (!this.children.get(j).entirelyDiscover){
+//				this.lastUpdatedChild = j;
+//				return j;
+//			}
+//		}
+//		for (int j = 0; j<lastUpdatedChild; j++){
+//			if (!this.children.get(j).entirelyDiscover){
+//				this.lastUpdatedChild = j;
+//				return j;
+//			}
+//		}
+//		return lastUpdatedChild;
 	}
 	
 	public int chooseMySelf(){
