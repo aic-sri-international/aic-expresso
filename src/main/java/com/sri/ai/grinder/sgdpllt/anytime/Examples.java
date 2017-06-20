@@ -28,9 +28,14 @@ public class Examples {
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		//we need to learn how to make factors from parse(String) here this does not work
-		Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
+		/*Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
 		Expression f2 = parse("if B then if A 10 else 1 else if A then 1 else 10");
-		Expression f3 = parse("if B then if Q 10 else 1 else if Q then 1 else 10");
+		Expression f3 = parse("if B then if Q 10 else 1 else if Q then 1 else 10");*/
+		
+		Expression f1 = IfThenElse.make(q, IfThenElse.make(a, parse("10"), parse("20")), IfThenElse.make(a, parse("20"), parse("10")));
+		Expression f2 = IfThenElse.make(a, IfThenElse.make(b, parse("10"), parse("30")), IfThenElse.make(b, parse("50"), parse("10")));
+		Expression f3 = IfThenElse.make(b, IfThenElse.make(q, parse("10"), parse("70")), IfThenElse.make(q, parse("20"), parse("10")));
+
 
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
@@ -337,13 +342,15 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  TreeModel();
+		VariableComponent ComponentResult =  TriangleModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
+
 		runningPartialTest(ComponentResult, 10, true);
 		ComponentResult.print(0);
+
 		}
 
 	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {
@@ -405,14 +412,21 @@ public class Examples {
 		
 		//now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
+<<<<<<< HEAD
 		//while(!ComponentResult.entirelyDiscover) {
 		//	ComponentResult.update(new HashSet<Expression>());
 		//}
+=======
+		while(!ComponentResult.entirelyDiscover) {
+			ComponentResult.update(new HashSet<Expression>());
+		}*/
+>>>>>>> 1b90a03e57a2df167ea56a1844e1b6ae08046a5a
 		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
 		println("\n\nNaive Result : " + naiveResult);
+<<<<<<< HEAD
 		println("totalTime: " + totalTime);
 		
 		
@@ -420,4 +434,8 @@ public class Examples {
 	}
 
 	
+=======
+		println("totalTime: " + totalTime);	
+	}	
+>>>>>>> 1b90a03e57a2df167ea56a1844e1b6ae08046a5a
 }

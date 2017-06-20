@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
@@ -93,6 +94,9 @@ public class FactorComponent {
 						if (c.variable.equals(e)) {
 							test = true;
 							this.parent.add(c.variable);
+							if(c.isCutset == true){
+								//c.updateCutset();
+							}
 						}
 					}
 
@@ -111,7 +115,9 @@ public class FactorComponent {
 				
 			}
 		} else {
-			int j = this.chooseBreadthFirst();
+			//int j = this.chooseBreadthFirst();
+			//int j = this.chooseBreadthFirst();
+			int j = chooseMySelf();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).cutsetInsideSubModel);
@@ -144,6 +150,39 @@ public class FactorComponent {
 		}
 	}
 
+	
+/*	
+	public void updateCutset(){
+		Set<Expression> Pext = new HashSet<Expression>();
+		for (FactorComponent factor : this.model.initializeFactorComponent){
+			Pext.add(factor.phi);
+		}
+		Pext.retainAll(phiInsideSubModel);
+		
+		Set<Expression> intersection = new HashSet<Expression>();
+		for(VariableComponent children : this.children){
+			intersection.addAll(children.cutsetOutsideSubModel);
+		}
+		intersection.retainAll(model.getNeighborsOfSet(Pext));
+
+		cutsetOutsideSubModel.addAll(intersection);
+		for(VariableComponent children : this.children){
+			cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel);
+		}
+		cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+
+		for (Expression parent : this.parent){
+			if (this.children.contains(parent)){
+				for (VariableComponent c : model.initializeVariableComponent) {
+					if (c.variable.equals(parent)) {
+						c.updateCutset();
+					}
+				}
+			}
+		}
+	}
+
+*/
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
 			if (!this.children.get(j).entirelyDiscover){
@@ -154,6 +193,7 @@ public class FactorComponent {
 	}
 	
 	public int chooseBreadthFirst() {
+
 		int result = childToUpdate;
 		
 		int size = children.size();
@@ -164,7 +204,7 @@ public class FactorComponent {
 			}while(childToUpdate != result && 
 					this.children.get(childToUpdate).entirelyDiscover);
 		}
-			
+		
 		return result;
 //		for (int j = lastUpdatedChild ; j<this.children.size(); j++){
 //			if (!this.children.get(j).entirelyDiscover){
@@ -179,6 +219,17 @@ public class FactorComponent {
 //			}
 //		}
 //		return lastUpdatedChild;
+	}
+	
+	public int chooseMySelf(){
+		System.out.println("Choose next factor for factor " + this.phi + " : ");
+		for (int i = 0; i < this.children.size(); i++){
+			System.out.println("Choice " + i + " = " + this.children.get(i).variable);
+		}
+		Scanner reader = new Scanner(System.in);  // Reading from System.in
+		System.out.println("Enter a choice: ");
+		int n = reader.nextInt(); // Scans the next token of the input as an int.
+		return n;
 	}
 	
 	public void print(int tabs) {

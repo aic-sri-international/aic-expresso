@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Set;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
@@ -40,6 +41,7 @@ public class VariableComponent {
 	public Set<Expression> phiInsideSubModel;
 	public Integer childToUpdate;
 	public boolean isExtensionalBound;
+	public boolean isCutset;
 
 	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
 //we don't get to use Pext
@@ -57,6 +59,7 @@ public class VariableComponent {
 		this.schema.add(this.variable);
 		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
 		this.isExtensionalBound = isExtensionalBound;
+		this.isCutset = false;
 
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));
@@ -91,6 +94,7 @@ public class VariableComponent {
 						if (c.phi.equals(e)) {
 							test = true;
 							this.parent.add(c.phi);
+							//c.updateCutset();
 						}
 					}
 					if (test == false) {
@@ -108,10 +112,14 @@ public class VariableComponent {
 			}
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+			if (cutsetOutsideSubModel.contains(this.variable)){
+				this.isCutset = true;
+			}
 		}
 		else {
 			//int j = this.chooseDepthImportantFirst();
-			int j = this.chooseBreadthFirst();
+			//int j = this.chooseBreadthFirst();
+			int j = chooseMySelf();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).phiInsideSubModel);
@@ -128,6 +136,9 @@ public class VariableComponent {
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
 			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
+			if (cutsetOutsideSubModel.contains(this.variable)){
+				this.isCutset = true;
+			}
 
 		}
 		
@@ -144,6 +155,39 @@ public class VariableComponent {
 			this.calculateSchema();
 		}
 	}
+
+	/*
+	public void updateCutset(){
+		System.out.println("Used by variable : " + this.variable);
+		Set<Expression> Pext = new HashSet<Expression>();
+		for (FactorComponent factor : this.model.initializeFactorComponent){
+			Pext.add(factor.phi);
+		}
+		Pext.retainAll(phiInsideSubModel);
+		
+		Set<Expression> intersection = new HashSet<Expression>();
+		for(FactorComponent children : this.children){
+			intersection.addAll(children.cutsetOutsideSubModel);
+		}
+		intersection.retainAll(model.getNeighborsOfSet(Pext));
+
+		cutsetOutsideSubModel.addAll(intersection);
+		for(FactorComponent children : this.children){
+			cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel);
+		}
+		cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+
+		for (Expression parent : this.parent){
+			if (this.children.contains(parent)){
+				for (FactorComponent c : model.initializeFactorComponent) {
+					if (c.phi.equals(parent)) {
+						c.updateCutset();
+					}
+				}
+			}
+		}
+	}
+*/
 
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
@@ -182,6 +226,17 @@ public class VariableComponent {
 //		return childToUpdate;
 	}
 
+	public int chooseMySelf(){
+		System.out.println("Choose next factor for variable " + this.variable + " : ");
+		for (int i = 0; i < this.children.size(); i++){
+			System.out.println("Choice " + i + " = " + this.children.get(i).phi);
+		}
+		Scanner reader = new Scanner(System.in);  // Reading from System.in
+		System.out.println("Enter a choice: ");
+		int n = reader.nextInt(); // Scans the next token of the input as an int.
+		return n;
+	}
+	
 	public int chooseDepthImportantFirst() {
 		Expression min = parse("{ 1 }");
 		Integer jToReturn = 0;
@@ -240,6 +295,7 @@ public class VariableComponent {
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
 		System.out.println(tab + "Bound : " + this.bound);
 		System.out.println(tab + "Schema : " + this.schema);
+		System.out.println(tab + "isCutset : " + this.isCutset);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
 		
 
