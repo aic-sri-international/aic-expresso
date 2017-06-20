@@ -1,3 +1,4 @@
+
 package com.sri.ai.grinder.sgdpllt.library.bounds;
 
 import static com.sri.ai.expresso.core.DefaultSymbol.createSymbol;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExtensionalSet;
@@ -31,10 +33,13 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -240,12 +245,20 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	 * @return 
 	 */
 	public static DefaultExtensionalBound updateExtremes(Bound B,Theory theory, Context context){
-		return (DefaultExtensionalBound) B;
-//		List<Expression> listOfB = getElements(B);
-//		ArrayList<Expression> elements = new ArrayList<>(listOfB.size());
+		List<Expression> listOfB = getElements(B);
+		ArrayList<Expression> listOfBwithoutZeros = new ArrayList<>(listOfB.size());
+		for(Expression phi : listOfB){
+			if (!phi.equals(makeSymbol(0))){
+				listOfBwithoutZeros.add(phi);
+			}
+		}
+		
+		DefaultExtensionalBound BWithoutZeros = new DefaultExtensionalBound(listOfBwithoutZeros);
+		return BWithoutZeros;
+//		ArrayList<Expression> elements = new ArrayList<>(listOfBwithoutZeros.size());
 //		int indexPhi = 0;
-//		for(Expression phi : listOfB){
-//			if (isExtremePoint(phi,indexPhi,B,theory,context)){
+//		for(Expression phi : listOfBwithoutZeros){
+//			if (isExtremePoint(phi,indexPhi,BWithoutZeros,theory,context)){
 //				elements.add(phi);
 //			}
 //			indexPhi++;
@@ -297,6 +310,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		}
 		Expression convexSum = apply(EQUAL,phi,apply(PLUS, prodciphii));
 		
+		//(there exists) ci in Real
 		ArrayList<Expression> listOfCiInReal = new ArrayList<>(listOfB.size());
 		for(i = 0; i <n; i++){
 			listOfCiInReal.add(apply(IN,c[i],"Real"));
@@ -304,13 +318,16 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		}
 		IndexExpressionsSet thereExistsCiInReal = new ExtensionalIndexExpressionsSet(listOfCiInReal);
 		
-		Expression body = apply(AND, allcibetwen0And1, sumOverCiEqualsOne, convexSum);
-		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal,body);
+		//(for all) variables in their domains
+		IndexExpressionsSet forAllVariablesEvaluations = getIndexExpressionsOfFreeVariablesIn(bound,context);
 		
-//		if (true) println(isExtreme);
+		Expression body = apply(AND, allcibetwen0And1, sumOverCiEqualsOne, convexSum);
+		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal, body);
+		isExtreme = new DefaultUniversallyQuantifiedFormula(forAllVariablesEvaluations, isExtreme);
+		//println(isExtreme);
 		
 		Expression result = theory.evaluate(isExtreme, context);
-//		if (true) println(result);
-		return true;
+
+		return !result.booleanValue();
 	}
 }
