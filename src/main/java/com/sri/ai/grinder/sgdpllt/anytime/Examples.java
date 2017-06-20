@@ -347,9 +347,10 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
+
 		runningPartialTest(ComponentResult, 20, true);
 		ComponentResult.print(0);
-		}
+	}
 
 	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {
 
@@ -407,17 +408,25 @@ public class Examples {
 		
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
-		/*
+		
 		//now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
+/*
 		while(!ComponentResult.entirelyDiscover) {
 			ComponentResult.update(new HashSet<Expression>());
 		}*/
+
 		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
 		
 		println("\n\nNaive Result : " + naiveResult);
+
+		println("totalTime: " + totalTime);
+		
+		
+		
 		println("totalTime: " + totalTime);	
 	}	
+
 }
