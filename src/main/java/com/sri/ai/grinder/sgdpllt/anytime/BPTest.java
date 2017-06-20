@@ -1,4 +1,4 @@
-package com.sri.ai.test.grinder.sgdpllt.anytime;
+package com.sri.ai.grinder.sgdpllt.anytime;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
