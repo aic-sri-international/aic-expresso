@@ -348,7 +348,7 @@ public class Examples {
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
 		runningPartialTest(ComponentResult, 20, true);
-		//ComponentResult.print(0);
+		ComponentResult.print(0);
 		}
 
 	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {

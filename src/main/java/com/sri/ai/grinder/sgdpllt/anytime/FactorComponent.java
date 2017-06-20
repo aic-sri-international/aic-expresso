@@ -120,7 +120,9 @@ public class FactorComponent {
 			int j = chooseMySelf();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
-				union.addAll(this.children.get(i).cutsetInsideSubModel);
+				if(j!=i){
+					union.addAll(this.children.get(i).cutsetInsideSubModel);
+				}
 			}
 			this.children.get(j).update(union, withBound);
 
