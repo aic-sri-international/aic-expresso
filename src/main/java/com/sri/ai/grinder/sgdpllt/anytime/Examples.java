@@ -342,13 +342,13 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  TriangleModel();
+		VariableComponent ComponentResult =  DiamondModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
 		runningPartialTest(ComponentResult, 20, true);
-		//ComponentResult.print(0);
+		ComponentResult.print(0);
 		}
 
 	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {

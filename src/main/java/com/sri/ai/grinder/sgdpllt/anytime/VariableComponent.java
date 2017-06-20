@@ -86,19 +86,20 @@ public class VariableComponent {
 	public void update(Set<Expression> Pext, Boolean withBound) {
 
 		if (this.children.isEmpty()) {
-			for (Expression e : this.model.getNeighbors(variable)) {
-				if (!this.parent.contains(e)) {
+			for (Expression factorInvolvingVariable : this.model.getNeighbors(variable)) {
+				if (!this.parent.contains(factorInvolvingVariable)) {
 					boolean test = false;//test = isEAlreadyUncovered = isEAParent
 					
-					for (FactorComponent c : model.initializeFactorComponent) {
-						if (c.phi.equals(e)) {
+					for (FactorComponent factorComponentAlreadyInitialized : model.initializeFactorComponent) {
+						if (factorComponentAlreadyInitialized.phi.equals(factorInvolvingVariable)) {
 							test = true;
-							this.parent.add(c.phi);
-							//c.updateCutset();
+							this.parent.add(factorComponentAlreadyInitialized.phi);
+							
+							factorComponentAlreadyInitialized.updateCutset();
 						}
 					}
 					if (test == false) {
-						FactorComponent newC = new FactorComponent(e, variable, model, Pext, isExtensionalBound);
+						FactorComponent newC = new FactorComponent(factorInvolvingVariable, variable, model, Pext, isExtensionalBound);
 						this.children.add(newC);
 						Set<Expression> intersection = new HashSet<Expression>();
 						intersection.addAll(newC.cutsetOutsideSubModel);
@@ -118,8 +119,8 @@ public class VariableComponent {
 		}
 		else {
 			//int j = this.chooseDepthImportantFirst();
-			//int j = this.chooseBreadthFirst();
-			int j = chooseMySelf();
+			int j = this.chooseBreadthFirst();
+			//int j = chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).phiInsideSubModel);
@@ -156,7 +157,7 @@ public class VariableComponent {
 		}
 	}
 
-	/*
+
 	public void updateCutset(){
 		System.out.println("Used by variable : " + this.variable);
 		Set<Expression> Pext = new HashSet<Expression>();
@@ -177,17 +178,22 @@ public class VariableComponent {
 		}
 		cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
+		System.out.println(this.parent);
+		
+		
 		for (Expression parent : this.parent){
-			if (this.children.contains(parent)){
+			if (parent==null){
+				return;
+			}
 				for (FactorComponent c : model.initializeFactorComponent) {
 					if (c.phi.equals(parent)) {
 						c.updateCutset();
 					}
 				}
-			}
+			
 		}
 	}
-*/
+
 
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){

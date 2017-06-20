@@ -83,25 +83,29 @@ public class FactorComponent {
 	public void update(Set<Expression> Pext, Boolean withBound) {
 
 		if (this.children.isEmpty()) {
-			for (Expression e : this.model.getNeighbors(phi)) {
-				if (!this.parent.contains(e)) {
-					Set<Expression> union = new HashSet<Expression>(Pext);
+			for (Expression variableInvolvedInPhi : this.model.getNeighbors(phi)) {
+				if (!this.parent.contains(variableInvolvedInPhi)) {//if the variable variableInvolvedInPhi is not contain in parent, it is a new variable
+					Set<Expression> union = new HashSet<Expression>(Pext); 
 					union.add(phi);
 
-					boolean test = false;
+					boolean test = false; // boolean to test if the variable as already been initialized
 
-					for (VariableComponent c : model.initializeVariableComponent) {
-						if (c.variable.equals(e)) {
+					//all variable are checked to see if the variable variableInvolvedInPhi has already been discovered
+					for (VariableComponent variableComponentAlreadyInitialized : model.initializeVariableComponent) {
+						if (variableComponentAlreadyInitialized.variable.equals(variableInvolvedInPhi)) {
 							test = true;
-							this.parent.add(c.variable);
-							if(c.isCutset == true){
-								//c.updateCutset();
-							}
+							System.out.println("refind variable already initialized : " + variableComponentAlreadyInitialized.variable );
+							//this.parent.add(variableComponentAlreadyInitialized.variable);
+							variableComponentAlreadyInitialized.parent.add(this.phi);
+							//if(variableComponentAlreadyInitialized.isCutset == true){
+								System.out.println("isCutset is used");
+								variableComponentAlreadyInitialized.updateCutset();
+							//}
 						}
 					}
 
 					if (test == false) {
-						VariableComponent newV = new VariableComponent(e, phi, model, union,isExtensionalBound);
+						VariableComponent newV = new VariableComponent(variableInvolvedInPhi, phi, model, union,isExtensionalBound);
 						this.children.add(newV);
 						Set<Expression> intersection = new HashSet<Expression>(newV.cutsetOutsideSubModel);
 						intersection.retainAll(model.getNeighborsOfSet(Pext));
@@ -116,8 +120,8 @@ public class FactorComponent {
 			}
 		} else {
 			//int j = this.chooseBreadthFirst();
-			//int j = this.chooseBreadthFirst();
-			int j = chooseMySelf();
+			int j = this.chooseBreadthFirst();
+			//int j = chooseBreadthFirst();
 			Set<Expression> union = new HashSet<Expression>(Pext);
 			for (int i = 0; i < this.children.size(); i++) {
 				union.addAll(this.children.get(i).cutsetInsideSubModel);
@@ -151,8 +155,8 @@ public class FactorComponent {
 	}
 
 	
-/*	
 	public void updateCutset(){
+		System.out.println("Used by factor : " + this.phi);
 		Set<Expression> Pext = new HashSet<Expression>();
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
@@ -172,17 +176,16 @@ public class FactorComponent {
 		cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
 		for (Expression parent : this.parent){
-			if (this.children.contains(parent)){
 				for (VariableComponent c : model.initializeVariableComponent) {
 					if (c.variable.equals(parent)) {
 						c.updateCutset();
 					}
 				}
-			}
+			
 		}
 	}
 
-*/
+
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
 			if (!this.children.get(j).entirelyDiscover){
