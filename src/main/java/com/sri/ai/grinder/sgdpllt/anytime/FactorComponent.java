@@ -137,7 +137,7 @@ public class FactorComponent {
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
-			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
+			phiInsideSubModel.addAll(this.children.get(j).factorsInsideSubModel);
 
 		}
 		

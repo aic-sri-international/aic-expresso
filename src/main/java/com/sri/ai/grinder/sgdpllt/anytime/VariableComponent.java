@@ -38,7 +38,7 @@ public class VariableComponent {
 	public Set<Expression> cutsetInsideSubModel;
 	public Set<Expression> schema;
 	public Bound bound;
-	public Set<Expression> phiInsideSubModel;
+	public Set<Expression> factorsInsideSubModel;
 	public Integer childToUpdate;
 	public boolean isExtensionalBound;
 	public boolean isCutset;
@@ -51,7 +51,7 @@ public class VariableComponent {
 		this.parent = new HashSet<Expression>();
 		this.parent.add(Parent);
 		this.entirelyDiscover = false;
-		this.phiInsideSubModel = new HashSet<Expression>();
+		this.factorsInsideSubModel = new HashSet<Expression>();
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
@@ -86,29 +86,39 @@ public class VariableComponent {
 
 	public void update(Set<Expression> Pext, Boolean withBound) {
 
+		//we look at the children
+		//if they have not been discovered yet we initilized them 
 		if (this.children.isEmpty()) {
+			//we look at the factors involving the variable
 			for (Expression factorInvolvingVariable : this.model.getNeighbors(variable)) {
+				//we carefully check the case of the parent factor, we do not want to initialize the parent again
 				if (!this.parent.contains(factorInvolvingVariable)) {
-					boolean test = false;//test = isEAlreadyUncovered = isEAParent
+					boolean isFactorAlreadyDiscovered = false;//test = isEAlreadyUncovered = isEAParent
 					
+					//we check if the neighbor factor has already been initialized
 					for (FactorComponent factorComponentAlreadyInitialized : model.initializeFactorComponent) {
 						if (factorComponentAlreadyInitialized.phi.equals(factorInvolvingVariable)) {
-							test = true;
-							this.parent.add(factorComponentAlreadyInitialized.phi);
-							
+							isFactorAlreadyDiscovered = true;
+							///this.parent.add(factorComponentAlreadyInitialized.phi);
+							//if a we discover a variable already initialized we update the parent of this variable
+							factorComponentAlreadyInitialized.parent.add(this.variable);
+							//once discovered, we update the cutsetInsideModel and the cutsetOutideModel
 							factorComponentAlreadyInitialized.updateCutset();
 						}
 					}
-					if (test == false) {
-						FactorComponent newC = new FactorComponent(factorInvolvingVariable, variable, model, Pext, isExtensionalBound);
-						this.children.add(newC);
+					
+					if (isFactorAlreadyDiscovered == false) {
+						//we initialize the new factor component
+						FactorComponent newFactorComponent = new FactorComponent(factorInvolvingVariable, variable, model, Pext, isExtensionalBound);
+						//we update the new factor component initialized as a child of the current avriabnle component
+						this.children.add(newFactorComponent);
+						//we are going to update cutsetOutsideModel
 						Set<Expression> intersection = new HashSet<Expression>();
-						intersection.addAll(newC.cutsetOutsideSubModel);
+						intersection.addAll(newFactorComponent.cutsetOutsideSubModel);
 						intersection.retainAll(model.getNeighborsOfSet(Pext));
-
 						cutsetOutsideSubModel.addAll(intersection);
 
-						cutsetInsideSubModel.addAll(newC.cutsetOutsideSubModel);
+						cutsetInsideSubModel.addAll(newFactorComponent.cutsetOutsideSubModel);
 					}
 				}
 			}
@@ -139,7 +149,7 @@ public class VariableComponent {
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
-			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
+			factorsInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 			if (cutsetOutsideSubModel.contains(this.variable)){
 				this.isCutset = true;
 			}
@@ -167,7 +177,7 @@ public class VariableComponent {
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
 		}
-		Pext.removeAll(phiInsideSubModel);
+		Pext.removeAll(factorsInsideSubModel);
 		
 		Set<Expression> intersection = new HashSet<Expression>();
 		for(FactorComponent children : this.children){
@@ -325,7 +335,7 @@ public class VariableComponent {
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
 		}
-		Pext.removeAll(phiInsideSubModel);
+		Pext.removeAll(factorsInsideSubModel);
 		System.out.println(tab + "Variable : " + variable);
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
@@ -333,7 +343,7 @@ public class VariableComponent {
 		System.out.println(tab + "Schema : " + this.schema);
 		System.out.println(tab + "isCutset : " + this.isCutset);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
-		System.out.println(tab + "Phi Inside Submodel : " + this.phiInsideSubModel);
+		System.out.println(tab + "Phi Inside Submodel : " + this.factorsInsideSubModel);
 		System.out.println(tab + "Pext : " + Pext);
 
 	}

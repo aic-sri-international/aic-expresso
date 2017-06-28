@@ -350,7 +350,7 @@ public class Examples {
 
 		runningPartialTest(ComponentResult, 20, true);
 		ComponentResult.print(0);
-		ComponentResult.printTotal();
+		//ComponentResult.printTotal();
 	}
 
 	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {
