@@ -114,7 +114,7 @@ public class VariableComponent {
 		}
 		//we look at the children
 		//if they have not been discovered yet we initilized them 
-		if (this.children.isEmpty()) {
+		if (this.children.isEmpty() && this.parent.size() != this.model.getNeighbors(variable).size()) {
 			//we look at the factors involving the variable
 			for (Expression factorInvolvingVariable : this.model.getNeighbors(variable)) {
 				//we carefully check the case of the parent factor, we do not want to initialize the parent again
@@ -127,8 +127,8 @@ public class VariableComponent {
 							isFactorAlreadyDiscovered = true;
 							///this.parent.add(factorComponentAlreadyInitialized.phi);
 							//if a we discover a variable already initialized we update the parent of this variable
-							factorComponentAlreadyInitialized.parent.add(this);
-							this.children.add(factorComponentAlreadyInitialized);
+							factorComponentAlreadyInitialized.children.add(this);
+							this.parent.add(factorComponentAlreadyInitialized);
 							//once discovered, we update the cutsetInsideModel and the cutsetOutideModel
 							//factorComponentAlreadyInitialized.updateCutset();
 						}
@@ -155,6 +155,9 @@ public class VariableComponent {
 			if (cutsetOutsideSubModel.contains(this.variable)){
 				this.isCutset = true;
 			}
+		}
+		else if (this.children.isEmpty()){
+			this.entirelyDiscover = true;
 		}
 		else {
 			int j = 0;

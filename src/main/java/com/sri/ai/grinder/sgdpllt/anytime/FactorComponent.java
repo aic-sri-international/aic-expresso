@@ -86,14 +86,16 @@ public class FactorComponent {
 		for(Expression cutset : S){
 			Set<VariableComponent> AllInitializedVariableComponent = new HashSet<VariableComponent>();
 			AllInitializedVariableComponent.addAll(this.model.initializeVariableComponent);
+			boolean test = true;
 			for (VariableComponent InitializedVariableComponent : AllInitializedVariableComponent){
 				if (InitializedVariableComponent.variable == cutset){
 					InitializedVariableComponent.isCutset = true;
+					test = false;
 				}
-				else{
-					VariableComponent newV = new VariableComponent(cutset, this, isExtensionalBound);
-					newV.isCutset = true;
-				}
+			}
+			if (test){
+				VariableComponent newV = new VariableComponent(cutset, this, isExtensionalBound);
+				newV.isCutset = true;
 			}
 		}
 		

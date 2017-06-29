@@ -341,12 +341,12 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  DiamondModel();
+		VariableComponent ComponentResult =  DoubleDiamondModel();
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		String chooseFunction = "DFS";
+		String chooseFunction = "BFS";
 		runningPartialTest(ComponentResult, 20, true, chooseFunction);
 		ComponentResult.print(0);
 		//ComponentResult.printTotal();
