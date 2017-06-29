@@ -28,30 +28,50 @@ import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.util.Util;
 
 public class VariableComponent {
-
+	
 	public Model model;
 	public Expression variable;
-	public Set<Expression> parent;
-	public boolean entirelyDiscover;
+	public Set<FactorComponent> parent;
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
-	public Set<Expression> schema;
 	public Bound bound;
-	public Set<Expression> factorsInsideSubModel;
+	public Set<Expression> phiInsideSubModel;
 	public Integer childToUpdate;
 	public boolean isExtensionalBound;
+	public Set<Expression> schema;
+	public boolean entirelyDiscover;
 	public boolean isCutset;
 
-	public VariableComponent(Expression variable, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
+	public VariableComponent(Expression variable, Model model, boolean isExtensionalBound) {
+		//we don't get to use Pext
+				this.model = model;
+				this.variable = variable;
+				this.childToUpdate = 0;
+				this.parent = new HashSet<FactorComponent>();
+				this.entirelyDiscover = false;
+				this.phiInsideSubModel = new HashSet<Expression>();
+				this.children = new ArrayList<FactorComponent>();
+				this.cutsetInsideSubModel = new HashSet<Expression>();
+				this.cutsetOutsideSubModel = new HashSet<Expression>();
+				this.schema = new HashSet<Expression>();
+				this.schema.add(this.variable);
+				this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
+				this.isExtensionalBound = isExtensionalBound;
+				this.isCutset = false;
+				model.initializeVariableComponent.add(this);
+				
+			}
+
+	public VariableComponent(Expression variable, FactorComponent Parent, boolean isExtensionalBound) {
 //we don't get to use Pext
-		this.model = model;
+		this.model = Parent.model;
 		this.variable = variable;
 		this.childToUpdate = 0;
-		this.parent = new HashSet<Expression>();
+		this.parent = new HashSet<FactorComponent>();
 		this.parent.add(Parent);
 		this.entirelyDiscover = false;
-		this.factorsInsideSubModel = new HashSet<Expression>();
+		this.phiInsideSubModel = new HashSet<Expression>();
 		this.children = new ArrayList<FactorComponent>();
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
@@ -64,9 +84,7 @@ public class VariableComponent {
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));
 		Collection<Expression> S = model.getNeighbors(variable);
-		for (Expression e : this.parent) {
-			S.remove(e);
-		}
+		S.remove(Parent.phi);
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
 			this.bound= Bounds.makeSingleElementBound(makeSymbol(1), isExtensionalBound);
@@ -84,15 +102,23 @@ public class VariableComponent {
 		//this.model.context = this.model.context.extendWithSymbolsAndTypes(this.variable.toString(), typeOfVariable);
 	}
 
-	public void update(Set<Expression> Pext, Boolean withBound) {
+	public void update(Boolean withBound, String chooseFunction) {
 
+		Set<Expression> Pext = new HashSet<Expression>();
+		Pext.addAll(this.model.getInitializedFactor());
+		Pext.removeAll(this.phiInsideSubModel);
+
+		Set<Expression> ExpressionParent = new HashSet<Expression>();
+		for (FactorComponent Parent : this.parent){
+			ExpressionParent.add(Parent.phi);
+		}
 		//we look at the children
 		//if they have not been discovered yet we initilized them 
 		if (this.children.isEmpty()) {
 			//we look at the factors involving the variable
 			for (Expression factorInvolvingVariable : this.model.getNeighbors(variable)) {
 				//we carefully check the case of the parent factor, we do not want to initialize the parent again
-				if (!this.parent.contains(factorInvolvingVariable)) {
+				if (!ExpressionParent.contains(factorInvolvingVariable)) {
 					boolean isFactorAlreadyDiscovered = false;//test = isEAlreadyUncovered = isEAParent
 					
 					//we check if the neighbor factor has already been initialized
@@ -101,15 +127,16 @@ public class VariableComponent {
 							isFactorAlreadyDiscovered = true;
 							///this.parent.add(factorComponentAlreadyInitialized.phi);
 							//if a we discover a variable already initialized we update the parent of this variable
-							factorComponentAlreadyInitialized.parent.add(this.variable);
+							factorComponentAlreadyInitialized.parent.add(this);
+							this.children.add(factorComponentAlreadyInitialized);
 							//once discovered, we update the cutsetInsideModel and the cutsetOutideModel
-							factorComponentAlreadyInitialized.updateCutset();
+							//factorComponentAlreadyInitialized.updateCutset();
 						}
 					}
 					
 					if (isFactorAlreadyDiscovered == false) {
 						//we initialize the new factor component
-						FactorComponent newFactorComponent = new FactorComponent(factorInvolvingVariable, variable, model, Pext, isExtensionalBound);
+						FactorComponent newFactorComponent = new FactorComponent(factorInvolvingVariable, this, isExtensionalBound);
 						//we update the new factor component initialized as a child of the current avriabnle component
 						this.children.add(newFactorComponent);
 						//we are going to update cutsetOutsideModel
@@ -129,16 +156,24 @@ public class VariableComponent {
 			}
 		}
 		else {
-			//int j = this.chooseDepthImportantFirst();
-			int j = this.chooseBreadthFirst();
-			//int j = chooseBreadthFirst();
-			Set<Expression> union = new HashSet<Expression>(Pext);
-			for (int i = 0; i < this.children.size(); i++) {
-				if(j!=i){
-					union.addAll(this.children.get(i).cutsetInsideSubModel);
-				}
+			int j = 0;
+			if(chooseFunction == "BFS"){
+				 j = this.chooseBreadthFirst();
 			}
-			this.children.get(j).update(union, withBound);
+			else if (chooseFunction == "DFS"){
+				 j = this.chooseDepthFirst();
+				
+			}
+			else if (chooseFunction == "myself"){
+				 j = this.chooseMySelf();
+				
+			}
+			else {
+				System.out.println("Unexistant Choose Function");
+				 j = -1;
+			}
+			
+			this.children.get(j).update(withBound, chooseFunction);
 
 			Set<Expression> intersection = new HashSet<Expression>();
 			intersection.addAll(this.children.get(j).cutsetOutsideSubModel);
@@ -149,7 +184,7 @@ public class VariableComponent {
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
-			factorsInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
+			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 			if (cutsetOutsideSubModel.contains(this.variable)){
 				this.isCutset = true;
 			}
@@ -170,14 +205,14 @@ public class VariableComponent {
 		}
 	}
 
-
+/*
 	public void updateCutset(){
 		System.out.println("Used by variable : " + this.variable);
 		Set<Expression> Pext = new HashSet<Expression>();
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
 		}
-		Pext.removeAll(factorsInsideSubModel);
+		Pext.removeAll(phiInsideSubModel);
 		
 		Set<Expression> intersection = new HashSet<Expression>();
 		for(FactorComponent children : this.children){
@@ -211,7 +246,7 @@ public class VariableComponent {
 			
 		}
 	}
-
+*/
 
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
@@ -335,7 +370,7 @@ public class VariableComponent {
 		for (FactorComponent factor : this.model.initializeFactorComponent){
 			Pext.add(factor.phi);
 		}
-		Pext.removeAll(factorsInsideSubModel);
+		Pext.removeAll(phiInsideSubModel);
 		System.out.println(tab + "Variable : " + variable);
 		System.out.println(tab + "cutset Outside SubModel : " + cutsetOutsideSubModel);
 		System.out.println(tab + "cutset Inside SubModel : " + cutsetInsideSubModel);
@@ -343,7 +378,7 @@ public class VariableComponent {
 		System.out.println(tab + "Schema : " + this.schema);
 		System.out.println(tab + "isCutset : " + this.isCutset);
 		System.out.println(tab + "Entirely discover : " + this.entirelyDiscover);
-		System.out.println(tab + "Phi Inside Submodel : " + this.factorsInsideSubModel);
+		System.out.println(tab + "Phi Inside Submodel : " + this.phiInsideSubModel);
 		System.out.println(tab + "Pext : " + Pext);
 
 	}

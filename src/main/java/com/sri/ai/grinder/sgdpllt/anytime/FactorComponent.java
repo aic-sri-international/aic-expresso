@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -33,8 +34,7 @@ public class FactorComponent {
 
 	public Model model;
 	public Expression phi;
-	public Set<Expression> parent;
-	public boolean entirelyDiscover;
+	public Set<VariableComponent> parent;
 	public ArrayList<VariableComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
@@ -43,22 +43,31 @@ public class FactorComponent {
 	public Integer childToUpdate;
 	public boolean isExtensionalBound;
 	public Set<Expression> schema;
+	public boolean entirelyDiscover;
 
-	public FactorComponent(Expression phi, Expression Parent, Model model, Set<Expression> Pext, boolean isExtensionalBound) {
+	public FactorComponent(Expression phi, VariableComponent Parent, boolean isExtensionalBound) {
 
+		this.model = Parent.model;
+		
+		this.phi = phi;
+
+		this.children = new ArrayList<VariableComponent>();
+		
+		this.parent = new HashSet<VariableComponent>();
+		this.parent.add(Parent);
+		
 		this.phiInsideSubModel = new HashSet<Expression>();
-		this.model = model;
+		this.phiInsideSubModel.add(phi);
+		
 		this.entirelyDiscover = false;
 		this.childToUpdate = 0;
-		this.children = new ArrayList<VariableComponent>();
-		this.parent = new HashSet<Expression>();
-		this.parent.add(Parent);
 		this.cutsetInsideSubModel = new HashSet<Expression>();
 		this.cutsetOutsideSubModel = new HashSet<Expression>();
 		this.schema = new HashSet<Expression>();
-		this.bound = Bounds.simplex(new ArrayList<Expression>(this.parent), model,isExtensionalBound); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
-		this.phi = phi;
-		this.phiInsideSubModel.add(phi);
+		List<Expression> VariableParent = new ArrayList<Expression>();
+		VariableParent.add(Parent.variable);
+		this.bound = Bounds.simplex(VariableParent, model,isExtensionalBound); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
+
 		this.isExtensionalBound = isExtensionalBound;
 		
 		this.schema.addAll(Expressions.freeVariables(this.phi, this.model.context));
@@ -67,26 +76,47 @@ public class FactorComponent {
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedFactor()));
 		Collection<Expression> S = model.getNeighbors(phi);
-		for (Expression e : this.parent) {
-			S.remove(e);
-		}
+		S.remove(Parent.variable);
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
 			this.bound = Bounds.makeSingleElementBound(this.phi, isExtensionalBound);
 		}
 		S.retainAll(intersection);
 		this.cutsetOutsideSubModel.addAll(S);
+		
+		for(Expression cutset : S){
+			for (VariableComponent InitializedVariableComponent : this.model.initializeVariableComponent){
+				if (InitializedVariableComponent.variable == cutset){
+					InitializedVariableComponent.isCutset = true;
+				}
+				else{
+					VariableComponent newV = new VariableComponent(cutset, this, isExtensionalBound);
+					newV.isCutset = true;
+				}
+			}
+		}
+		
 		model.initializeFactorComponent.add(this);
 
 	}
 
-	public void update(Set<Expression> Pext, Boolean withBound) {
+	public void update(Boolean withBound, String chooseFunction) {
 
+		Set<Expression> Pext = new HashSet<Expression>();
+		Pext.addAll(this.model.getInitializedFactor());
+		Pext.removeAll(this.phiInsideSubModel);
+		
+		Set<Expression> ExpressionParent = new HashSet<Expression>();
+		for (VariableComponent Parent : this.parent){
+			ExpressionParent.add(Parent.variable);
+		}
+		
 		if (this.children.isEmpty()) {
+			Set<Expression> union = new HashSet<Expression>(Pext); 
+			union.add(phi);
+			
 			for (Expression variableInvolvedInPhi : this.model.getNeighbors(phi)) {
-				if (!this.parent.contains(variableInvolvedInPhi)) {//if the variable variableInvolvedInPhi is not contain in parent, it is a new variable
-					Set<Expression> union = new HashSet<Expression>(Pext); 
-					union.add(phi);
+				if (!ExpressionParent.contains(variableInvolvedInPhi)) {//if the variable variableInvolvedInPhi is not contain in parent, it is a new variable
 
 					boolean test = false; // boolean to test if the variable as already been initialized
 
@@ -94,18 +124,18 @@ public class FactorComponent {
 					for (VariableComponent variableComponentAlreadyInitialized : model.initializeVariableComponent) {
 						if (variableComponentAlreadyInitialized.variable.equals(variableInvolvedInPhi)) {
 							test = true;
-							System.out.println("refind variable already initialized : " + variableComponentAlreadyInitialized.variable );
-							//this.parent.add(variableComponentAlreadyInitialized.variable);
-							variableComponentAlreadyInitialized.parent.add(this.phi);
-							//if(variableComponentAlreadyInitialized.isCutset == true){
-								System.out.println("isCutset is used");
-								variableComponentAlreadyInitialized.updateCutset();
-							//}
-						}
+							variableComponentAlreadyInitialized.parent.add(this);
+							this.children.add(variableComponentAlreadyInitialized);
+							Set<Expression> intersection = new HashSet<Expression>(variableComponentAlreadyInitialized.cutsetOutsideSubModel);
+							intersection.retainAll(model.getNeighborsOfSet(Pext));
+							cutsetOutsideSubModel.addAll(intersection);
+
+							cutsetInsideSubModel.addAll(variableComponentAlreadyInitialized.cutsetOutsideSubModel);
+						}	
 					}
 
 					if (test == false) {
-						VariableComponent newV = new VariableComponent(variableInvolvedInPhi, phi, model, union,isExtensionalBound);
+						VariableComponent newV = new VariableComponent(variableInvolvedInPhi, this, isExtensionalBound);
 						this.children.add(newV);
 						Set<Expression> intersection = new HashSet<Expression>(newV.cutsetOutsideSubModel);
 						intersection.retainAll(model.getNeighborsOfSet(Pext));
@@ -119,16 +149,24 @@ public class FactorComponent {
 				
 			}
 		} else {
-			//int j = this.chooseBreadthFirst();
-			int j = this.chooseBreadthFirst();
-			//int j = chooseBreadthFirst();
-			Set<Expression> union = new HashSet<Expression>(Pext);
-			for (int i = 0; i < this.children.size(); i++) {
-				if(j!=i){
-					union.addAll(this.children.get(i).cutsetInsideSubModel);
-				}
+			int j = 0;
+			if(chooseFunction == "BFS"){
+				 j = this.chooseBreadthFirst();
 			}
-			this.children.get(j).update(union, withBound);
+			else if (chooseFunction == "DFS"){
+				 j = this.chooseDepthFirst();
+				
+			}
+			else if (chooseFunction == "myself"){
+				 j = this.chooseMySelf();
+				
+			}
+			else {
+				System.out.println("Unexistant Choose Function");
+				 j = -1;
+			}
+			
+			this.children.get(j).update(withBound, chooseFunction);
 
 			Set<Expression> intersection = new HashSet<Expression>(this.children.get(j).cutsetOutsideSubModel);
 			intersection.retainAll(model.getNeighborsOfSet(Pext));
@@ -137,7 +175,7 @@ public class FactorComponent {
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
-			phiInsideSubModel.addAll(this.children.get(j).factorsInsideSubModel);
+			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 
 		}
 		
@@ -156,7 +194,7 @@ public class FactorComponent {
 		}
 	}
 
-	
+	/*
 	public void updateCutset(){
 		System.out.println("Used by factor : " + this.phi);
 		Set<Expression> Pext = new HashSet<Expression>();
@@ -186,7 +224,7 @@ public class FactorComponent {
 			
 		}
 	}
-
+*/
 
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
@@ -256,6 +294,12 @@ public class FactorComponent {
 	}
 	
 	public void calculateBound(){
+		
+		Set<Expression> ExpressionParent = new HashSet<Expression>();
+		for (VariableComponent Parent : this.parent){
+			ExpressionParent.add(Parent.variable);
+		}
+		
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
@@ -274,7 +318,7 @@ public class FactorComponent {
 		Bound childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,cildrenArray);
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
-		for (Expression e : this.parent) {
+		for (Expression e : ExpressionParent) {
 			toSum.remove(e);
 		}
 		for (Expression e : this.cutsetOutsideSubModel) {
@@ -291,6 +335,10 @@ public class FactorComponent {
 	}
 	
 	public void calculateSchema(){
+		Set<Expression> ExpressionParent = new HashSet<Expression>();
+		for (VariableComponent Parent : this.parent){
+			ExpressionParent.add(Parent.variable);
+		}
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		Set<Expression> freeVariables =new HashSet<Expression>();
@@ -299,7 +347,7 @@ public class FactorComponent {
 			freeVariables.addAll(children.schema);
 		}
 		Set<Expression> toSum = model.getNeighbors(phi);
-		for (Expression e : this.parent) {
+		for (Expression e : ExpressionParent) {
 			toSum.remove(e);
 		}
 		for (Expression e : this.cutsetOutsideSubModel) {
@@ -314,6 +362,10 @@ public class FactorComponent {
 	}
 	
 	public Expression calculate(){
+		Set<Expression> ExpressionParent = new HashSet<Expression>();
+		for (VariableComponent Parent : this.parent){
+			ExpressionParent.add(Parent.variable);
+		}
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		
@@ -341,7 +393,7 @@ public class FactorComponent {
 		}
 		
 		Set<Expression> toSum = model.getNeighbors(phi);
-		for (Expression e : this.parent) {
+		for (Expression e : ExpressionParent) {
 			toSum.remove(e);
 		}
 		toSum.removeAll(this.cutsetOutsideSubModel);

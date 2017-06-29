@@ -48,7 +48,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
 		return ComponentResultat;
 	}
 	
@@ -77,7 +77,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
 		return ComponentResultat;
 	}
 
@@ -115,7 +115,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("C", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
 		return ComponentResultat;
 	}
 /*  public static VariableComponent BasicBayesianLoopyModel() {
@@ -151,8 +151,8 @@ public class Examples {
 
 		Model m = new Model(Factor);
 
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
-		return ComponentResultat;
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
+				return ComponentResultat;
 	}*/
 
 	public static VariableComponent TreeModel() {
@@ -180,7 +180,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("C", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
 		return ComponentResultat;
 	}
 	
@@ -213,7 +213,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 		
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
 		return ComponentResultat;
 	}
 
@@ -272,7 +272,7 @@ public class Examples {
 
 		
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
 		return ComponentResultat;
 
 	}
@@ -335,8 +335,7 @@ public class Examples {
 		m.extendModelWithSymbolsAndTypes("Smoker", "Boolean");
 
 
-		VariableComponent ComponentResultat = new VariableComponent(lungCancer, DefaultSymbol.createSymbol(""), m,
-				new HashSet<Expression>(), isExtensionalBound);
+		VariableComponent ComponentResultat = new VariableComponent(lungCancer, m, isExtensionalBound);
 		return ComponentResultat;
 	}
 	
@@ -347,13 +346,13 @@ public class Examples {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-
-		runningPartialTest(ComponentResult, 20, true);
+		String chooseFunction = "myself";
+		runningPartialTest(ComponentResult, 20, true, chooseFunction);
 		ComponentResult.print(0);
 		//ComponentResult.printTotal();
 	}
 
-	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound) {
+	public static void runningTotalTest(VariableComponent ComponentResult, Boolean withBound, String chooseFunction) {
 
 
 		long startTime, endTime, totalTime;
@@ -363,7 +362,7 @@ public class Examples {
 		//we also store the computation time to compare it to the naive computation time
 		startTime = System.currentTimeMillis();
 		while(!ComponentResult.entirelyDiscover) {
-			ComponentResult.update(new HashSet<Expression>(), withBound);
+			ComponentResult.update(withBound, chooseFunction);
 		}
 		//ComponentResult.print(0);
 		Expression unnormalizedMessage = ComponentResult.calculate();
@@ -387,7 +386,7 @@ public class Examples {
 		
 	}
 
-	public static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
+	public static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound, String chooseFunction) {
 
 		long startTime, endTime, totalTime;
 		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
@@ -398,7 +397,7 @@ public class Examples {
 		int i = 0;
 		while(i < nb_iter) {
 			if(!ComponentResult.entirelyDiscover) {
-				ComponentResult.update(new HashSet<Expression>(), withBound);
+				ComponentResult.update(withBound, chooseFunction);
 				println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;
