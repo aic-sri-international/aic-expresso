@@ -149,32 +149,32 @@ public class BPTest {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);
 		
-		Model m = IsingModel(3,4,theory, context, parse("Boolean"));
-		
+		Model m = IsingModel(2,3,theory, context, parse("Boolean"));
+		String chooseFunction = "BFS";
 		//printModel(m);
 				
-		runTest(m);
+		runTest(m, chooseFunction);
 		
 	}
 	
-	private static void runTest(Model m) {
+	private static void runTest(Model m, String chooseFunction) {
 		VariableComponent comp ;
 		println("Go!");
 		runVE(m,(parse("A_0_0")),true);
 		
-		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
+		comp = new VariableComponent(parse("A_0_0"), m, true);
 		runNaive(comp, true);
 		
 		println("Extensional");
-		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), true);
-		runningPartialTest(comp, 50, true);
+		comp = new VariableComponent(parse("A_0_0"), m, true);
+		runningPartialTest(comp, 50, true, chooseFunction);
 		comp.print(0);
 		println("Intensional");
-		comp = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);		
-		runningPartialTest(comp, 50, true);
+		comp = new VariableComponent(parse("A_0_0"), m, false);		
+		runningPartialTest(comp, 50, true, chooseFunction);
 	}
 
-	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
+	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound, String chooseFunction) {
 		long startTime, endTime, totalTime;
 		
 		//we compute the result with our algorithm
@@ -183,7 +183,7 @@ public class BPTest {
 		int i = 0;
 		while(i < nb_iter) {
 			if(!ComponentResult.entirelyDiscover) {
-				ComponentResult.update(new HashSet<Expression>(), withBound);
+				ComponentResult.update(withBound, chooseFunction);
 				println("... " + i + " error :" + ComponentResult.bound);//getError(ComponentResult.bound, ComponentResult.model.theory,ComponentResult.model.context));//println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;
