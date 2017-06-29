@@ -32,7 +32,7 @@ public class Example {
 		m.extendModelWithSymbolsAndTypes("B", "Boolean");
 		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
 
-		VariableComponent ComponentResultat = new VariableComponent(q, null, m, new HashSet<Expression>(), true);
+		VariableComponent ComponentResultat = new VariableComponent(q, m, true);
 
 		return ComponentResultat;
 	}

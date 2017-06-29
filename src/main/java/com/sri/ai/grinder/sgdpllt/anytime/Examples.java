@@ -14,6 +14,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -342,6 +343,8 @@ public class Examples {
 	public static void main(String[] args) {
 
 		VariableComponent ComponentResult =  DoubleDiamondModel();
+		
+		
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);

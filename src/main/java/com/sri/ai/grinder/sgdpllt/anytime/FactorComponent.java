@@ -1,12 +1,10 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
-
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
-
 
 import static com.sri.ai.util.Util.list;
 import java.util.ArrayList;
@@ -27,8 +25,8 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
-
 
 public class FactorComponent {
 
@@ -48,17 +46,17 @@ public class FactorComponent {
 	public FactorComponent(Expression phi, VariableComponent Parent, boolean isExtensionalBound) {
 
 		this.model = Parent.model;
-		
+
 		this.phi = phi;
 
 		this.children = new ArrayList<VariableComponent>();
-		
+
 		this.parent = new HashSet<VariableComponent>();
 		this.parent.add(Parent);
-		
+
 		this.phiInsideSubModel = new HashSet<Expression>();
 		this.phiInsideSubModel.add(phi);
-		
+
 		this.entirelyDiscover = false;
 		this.childToUpdate = 0;
 		this.cutsetInsideSubModel = new HashSet<Expression>();
@@ -66,10 +64,28 @@ public class FactorComponent {
 		this.schema = new HashSet<Expression>();
 		List<Expression> VariableParent = new ArrayList<Expression>();
 		VariableParent.add(Parent.variable);
-		this.bound = Bounds.simplex(VariableParent, model,isExtensionalBound); //true says that it is a extensional simplex. TODO : add a constructor that chooses the kind of bound
+		this.bound = Bounds.simplex(VariableParent, model, isExtensionalBound); // true
+																				// says
+																				// that
+																				// it
+																				// is
+																				// a
+																				// extensional
+																				// simplex.
+																				// TODO
+																				// :
+																				// add
+																				// a
+																				// constructor
+																				// that
+																				// chooses
+																				// the
+																				// kind
+																				// of
+																				// bound
 
 		this.isExtensionalBound = isExtensionalBound;
-		
+
 		this.schema.addAll(Expressions.freeVariables(this.phi, this.model.context));
 		this.schema.remove(Parent);
 
@@ -77,28 +93,28 @@ public class FactorComponent {
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedFactor()));
 		Collection<Expression> S = model.getNeighbors(phi);
 		S.remove(Parent.variable);
-		if (S.isEmpty()){
+		if (S.isEmpty()) {
 			this.entirelyDiscover = true;
 			this.bound = Bounds.makeSingleElementBound(this.phi, isExtensionalBound);
 		}
 		S.retainAll(intersection);
 		this.cutsetOutsideSubModel.addAll(S);
-		for(Expression cutset : S){
+		for (Expression cutset : S) {
 			Set<VariableComponent> AllInitializedVariableComponent = new HashSet<VariableComponent>();
 			AllInitializedVariableComponent.addAll(this.model.initializeVariableComponent);
 			boolean test = true;
-			for (VariableComponent InitializedVariableComponent : AllInitializedVariableComponent){
-				if (InitializedVariableComponent.variable == cutset){
+			for (VariableComponent InitializedVariableComponent : AllInitializedVariableComponent) {
+				if (InitializedVariableComponent.variable == cutset) {
 					InitializedVariableComponent.isCutset = true;
 					test = false;
 				}
 			}
-			if (test){
+			if (test) {
 				VariableComponent newV = new VariableComponent(cutset, this, isExtensionalBound);
 				newV.isCutset = true;
 			}
 		}
-		
+
 		model.initializeFactorComponent.add(this);
 
 	}
@@ -108,33 +124,47 @@ public class FactorComponent {
 		Set<Expression> Pext = new HashSet<Expression>();
 		Pext.addAll(this.model.getInitializedFactor());
 		Pext.removeAll(this.phiInsideSubModel);
-		
+
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
-		for (VariableComponent Parent : this.parent){
+		for (VariableComponent Parent : this.parent) {
 			ExpressionParent.add(Parent.variable);
 		}
-		
+
 		if (this.children.isEmpty()) {
-			Set<Expression> union = new HashSet<Expression>(Pext); 
+			Set<Expression> union = new HashSet<Expression>(Pext);
 			union.add(phi);
-			
+
 			for (Expression variableInvolvedInPhi : this.model.getNeighbors(phi)) {
-				if (!ExpressionParent.contains(variableInvolvedInPhi)) {//if the variable variableInvolvedInPhi is not contain in parent, it is a new variable
+				if (!ExpressionParent.contains(variableInvolvedInPhi)) {// if
+																		// the
+																		// variable
+																		// variableInvolvedInPhi
+																		// is
+																		// not
+																		// contain
+																		// in
+																		// parent,
+																		// it is
+																		// a new
+																		// variable
 
-					boolean test = false; // boolean to test if the variable as already been initialized
+					boolean test = false; // boolean to test if the variable as
+											// already been initialized
 
-					//all variable are checked to see if the variable variableInvolvedInPhi has already been discovered
+					// all variable are checked to see if the variable
+					// variableInvolvedInPhi has already been discovered
 					for (VariableComponent variableComponentAlreadyInitialized : model.initializeVariableComponent) {
 						if (variableComponentAlreadyInitialized.variable.equals(variableInvolvedInPhi)) {
 							test = true;
 							variableComponentAlreadyInitialized.parent.add(this);
 							this.children.add(variableComponentAlreadyInitialized);
-							Set<Expression> intersection = new HashSet<Expression>(variableComponentAlreadyInitialized.cutsetOutsideSubModel);
+							Set<Expression> intersection = new HashSet<Expression>(
+									variableComponentAlreadyInitialized.cutsetOutsideSubModel);
 							intersection.retainAll(model.getNeighborsOfSet(Pext));
 							cutsetOutsideSubModel.addAll(intersection);
 
 							cutsetInsideSubModel.addAll(variableComponentAlreadyInitialized.cutsetOutsideSubModel);
-						}	
+						}
 					}
 
 					if (test == false) {
@@ -149,26 +179,23 @@ public class FactorComponent {
 				}
 
 				cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
-				
+
 			}
 		} else {
 			int j = 0;
-			if(chooseFunction == "BFS"){
-				 j = this.chooseBreadthFirst();
-			}
-			else if (chooseFunction == "DFS"){
-				 j = this.chooseDepthFirst();
-				
-			}
-			else if (chooseFunction == "myself"){
-				 j = this.chooseMySelf();
-				
-			}
-			else {
+			if (chooseFunction == "BFS") {
+				j = this.chooseBreadthFirst();
+			} else if (chooseFunction == "DFS") {
+				j = this.chooseDepthFirst();
+
+			} else if (chooseFunction == "myself") {
+				j = this.chooseMySelf();
+
+			} else {
 				System.out.println("Unexistant Choose Function");
-				 j = -1;
+				j = -1;
 			}
-			
+
 			this.children.get(j).update(withBound, chooseFunction);
 
 			Set<Expression> intersection = new HashSet<Expression>(this.children.get(j).cutsetOutsideSubModel);
@@ -181,103 +208,92 @@ public class FactorComponent {
 			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 
 		}
-		
-		
+
 		boolean isChildrenDiscovered = true;
-		for (VariableComponent children : this.children){
+		for (VariableComponent children : this.children) {
 			isChildrenDiscovered = isChildrenDiscovered && children.entirelyDiscover;
 		}
 		this.entirelyDiscover = isChildrenDiscovered;
-			
-		if(withBound){
+
+		if (withBound) {
 			this.calculateBound();
-		}
-		else{
+		} else {
 			this.calculateSchema();
 		}
 	}
 
 	/*
-	public void updateCutset(){
-		System.out.println("Used by factor : " + this.phi);
-		Set<Expression> Pext = new HashSet<Expression>();
-		for (FactorComponent factor : this.model.initializeFactorComponent){
-			Pext.add(factor.phi);
-		}
-		Pext.removeAll(phiInsideSubModel);
-		
-		Set<Expression> intersection = new HashSet<Expression>();
-		for(VariableComponent children : this.children){
-			intersection.addAll(children.cutsetOutsideSubModel);
-		}
-		intersection.retainAll(model.getNeighborsOfSet(Pext));
-
-		cutsetOutsideSubModel = intersection;
-		for(VariableComponent children : this.children){
-			cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel);
-		}
-		cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
-
-		for (Expression parent : this.parent){
-				for (VariableComponent c : model.initializeVariableComponent) {
-					if (c.variable.equals(parent)) {
-						c.updateCutset();
-					}
-				}
-			
-		}
-	}
-*/
+	 * public void updateCutset(){ System.out.println("Used by factor : " +
+	 * this.phi); Set<Expression> Pext = new HashSet<Expression>(); for
+	 * (FactorComponent factor : this.model.initializeFactorComponent){
+	 * Pext.add(factor.phi); } Pext.removeAll(phiInsideSubModel);
+	 * 
+	 * Set<Expression> intersection = new HashSet<Expression>();
+	 * for(VariableComponent children : this.children){
+	 * intersection.addAll(children.cutsetOutsideSubModel); }
+	 * intersection.retainAll(model.getNeighborsOfSet(Pext));
+	 * 
+	 * cutsetOutsideSubModel = intersection; for(VariableComponent children :
+	 * this.children){
+	 * cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel); }
+	 * cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+	 * 
+	 * for (Expression parent : this.parent){ for (VariableComponent c :
+	 * model.initializeVariableComponent) { if (c.variable.equals(parent)) {
+	 * c.updateCutset(); } }
+	 * 
+	 * } }
+	 */
 
 	public int chooseDepthFirst() {
-		for (int j = 0; j<this.children.size(); j++){
-			if (!this.children.get(j).entirelyDiscover){
+		for (int j = 0; j < this.children.size(); j++) {
+			if (!this.children.get(j).entirelyDiscover) {
 				return j;
 			}
 		}
 		return 0;
 	}
-	
+
 	public int chooseBreadthFirst() {
 
 		int result = childToUpdate;
-		
+
 		int size = children.size();
-		if(size > 1){
-			do{
-				childToUpdate ++;
+		if (size > 1) {
+			do {
+				childToUpdate++;
 				childToUpdate %= size;
-			}while(childToUpdate != result && 
-					this.children.get(childToUpdate).entirelyDiscover);
+			} while (childToUpdate != result && this.children.get(childToUpdate).entirelyDiscover);
 		}
-		
+
 		return result;
-//		for (int j = lastUpdatedChild ; j<this.children.size(); j++){
-//			if (!this.children.get(j).entirelyDiscover){
-//				this.lastUpdatedChild = j;
-//				return j;
-//			}
-//		}
-//		for (int j = 0; j<lastUpdatedChild; j++){
-//			if (!this.children.get(j).entirelyDiscover){
-//				this.lastUpdatedChild = j;
-//				return j;
-//			}
-//		}
-//		return lastUpdatedChild;
+		// for (int j = lastUpdatedChild ; j<this.children.size(); j++){
+		// if (!this.children.get(j).entirelyDiscover){
+		// this.lastUpdatedChild = j;
+		// return j;
+		// }
+		// }
+		// for (int j = 0; j<lastUpdatedChild; j++){
+		// if (!this.children.get(j).entirelyDiscover){
+		// this.lastUpdatedChild = j;
+		// return j;
+		// }
+		// }
+		// return lastUpdatedChild;
 	}
-	
-	public int chooseMySelf(){
+
+	public int chooseMySelf() {
 		System.out.println("Choose next factor for factor " + this.phi + " : ");
-		for (int i = 0; i < this.children.size(); i++){
+		for (int i = 0; i < this.children.size(); i++) {
 			System.out.println("Choice " + i + " = " + this.children.get(i).variable);
 		}
-		Scanner reader = new Scanner(System.in);  // Reading from System.in
+		Scanner reader = new Scanner(System.in); // Reading from System.in
 		System.out.println("Enter a choice: ");
-		int n = reader.nextInt(); // Scans the next token of the input as an int.
+		int n = reader.nextInt(); // Scans the next token of the input as an
+									// int.
 		return n;
 	}
-	
+
 	public void print(int tabs) {
 		String tab = new String();
 		for (int i = 0; i < tabs; i++) {
@@ -295,31 +311,37 @@ public class FactorComponent {
 			c.print(tabs + 1);
 		}
 	}
-	
-	public void calculateBound(){
-		
+
+	public void calculateBound() {
+
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
-		for (VariableComponent Parent : this.parent){
+		for (VariableComponent Parent : this.parent) {
 			ExpressionParent.add(Parent.variable);
 		}
-		
-		Theory theory = this.model.theory;
-		Context context = this.model.context;		
-		
-		//Expression childrenBound = parse("{1}");
 
-		//for(VariableComponent children : this.children){
-		//	childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, childrenBound, children.bound);
-		//}
-		
+		Theory theory = this.model.theory;
+		Context context = this.model.context;
+
+		// Expression childrenBound = parse("{1}");
+
+		// for(VariableComponent children : this.children){
+		// childrenBound = Bounds.boundProduct(this.model.theory,
+		// this.model.context, childrenBound, children.bound);
+		// }
+
 		Bound[] cildrenArray = new Bound[children.size()];
 		int i = 0;
-		for(VariableComponent children : this.children){
-			cildrenArray[i] = children.bound;
+		for (VariableComponent children : this.children) {
+			if (children.isCutset) {
+				cildrenArray[i] = Bounds.makeSingleElementBound(parse("1"), isExtensionalBound);
+			} else {
+				cildrenArray[i] = children.bound;
+			}
 			i++;
 		}
-		Bound childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,cildrenArray);
-		
+		Bound childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,
+				cildrenArray);
+
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : ExpressionParent) {
 			toSum.remove(e);
@@ -328,25 +350,41 @@ public class FactorComponent {
 			toSum.remove(e);
 		}
 		toSum.addAll(this.cutsetInsideSubModel);
-		
+
+		if (!this.cutsetInsideSubModel.isEmpty()) {
+			Bound[] cutsetTimesNormalBound = new Bound[this.cutsetInsideSubModel.size() + 1];
+			cutsetTimesNormalBound[0] = childrenBound;
+			int j = 1;
+			for (Expression cutset : this.cutsetInsideSubModel) {
+				cutsetTimesNormalBound[j] = new DefaultExtensionalBound(parse("1"));
+				for (VariableComponent VariableInitialized : this.model.initializeVariableComponent) {
+					if (cutset == VariableInitialized.variable) {
+						cutsetTimesNormalBound[j] = VariableInitialized.bound;
+					}
+				}
+				j++;
+			}
+			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,
+					cutsetTimesNormalBound);
+		}
 		ArrayList<Expression> variablesToBeSummedOut = new ArrayList<>(toSum.size());
 		variablesToBeSummedOut.addAll(toSum);
-		
-		//We want sum other toSum of Phi*childrenBound
+
+		// We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		bound = childrenBound.summingPhiTimesBound(varToSum, phi, context, theory);
 	}
-	
-	public void calculateSchema(){
+
+	public void calculateSchema() {
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
-		for (VariableComponent Parent : this.parent){
+		for (VariableComponent Parent : this.parent) {
 			ExpressionParent.add(Parent.variable);
 		}
 		Theory theory = this.model.theory;
-		Context context = this.model.context;		
-		Set<Expression> freeVariables =new HashSet<Expression>();
+		Context context = this.model.context;
+		Set<Expression> freeVariables = new HashSet<Expression>();
 		freeVariables.addAll(Expressions.freeVariables(this.phi, context));
-		for(VariableComponent children : this.children){
+		for (VariableComponent children : this.children) {
 			freeVariables.addAll(children.schema);
 		}
 		Set<Expression> toSum = model.getNeighbors(phi);
@@ -357,62 +395,67 @@ public class FactorComponent {
 			toSum.remove(e);
 		}
 		toSum.addAll(this.cutsetInsideSubModel);
-		
+
 		freeVariables.removeAll(toSum);
-		
-		
+
 		this.schema = freeVariables;
 	}
-	
-	public Expression calculate(){
+
+	public Expression calculate() {
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
-		for (VariableComponent Parent : this.parent){
+		for (VariableComponent Parent : this.parent) {
 			ExpressionParent.add(Parent.variable);
 		}
 		Theory theory = this.model.theory;
-		Context context = this.model.context;		
-		
+		Context context = this.model.context;
+
 		Expression childrenMessage = parse("{ 1 }");
-		
-		for(VariableComponent children : this.children){
+
+		for (VariableComponent children : this.children) {
 			childrenMessage = apply(TIMES, childrenMessage, children.calculate());
 		}
-		
+
 		childrenMessage = apply(TIMES, childrenMessage, this.phi);
-		
-		
-		for (Expression cutset : this.cutsetInsideSubModel){
-			//String str = "sum({{ (on " + cutset + " in Boolean ) " + childrenMessage + " }})";
-			//childrenMessage = parse(str);
-			//childrenMessage = theory.evaluate(childrenMessage, context);
+
+		for (Expression cutset : this.cutsetInsideSubModel) {
+			// String str = "sum({{ (on " + cutset + " in Boolean ) " +
+			// childrenMessage + " }})";
+			// childrenMessage = parse(str);
+			// childrenMessage = theory.evaluate(childrenMessage, context);
 			Expression valuesTakenByVariableToSum = this.model.getValues(cutset);
-			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, cutset, valuesTakenByVariableToSum ));
-			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, childrenMessage, parse("true")); 
+			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(
+					apply(IN, cutset, valuesTakenByVariableToSum));
+			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, childrenMessage, parse("true"));
 			Expression summation = apply(SUM, intensionalMultiSet);
-			childrenMessage=summation;
-			//String str = "sum({{ (on " + variableToSum + " in " + this.model.getValues(variableToSum) +" ) " + childrenMessage + " }})";
-			//childrenMessage = parse(str);
-			
+			childrenMessage = summation;
+			// String str = "sum({{ (on " + variableToSum + " in " +
+			// this.model.getValues(variableToSum) +" ) " + childrenMessage + "
+			// }})";
+			// childrenMessage = parse(str);
+
 		}
-		
+
 		Set<Expression> toSum = model.getNeighbors(phi);
 		for (Expression e : ExpressionParent) {
 			toSum.remove(e);
 		}
 		toSum.removeAll(this.cutsetOutsideSubModel);
 		toSum.removeAll(this.cutsetInsideSubModel);
-		
-		for (Expression variableToSum : toSum){
+
+		for (Expression variableToSum : toSum) {
 			Expression expressionToSum = theory.evaluate(childrenMessage, context);
 			Expression valuesTakenByVariableToSum = this.model.getValues(variableToSum);
-			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, variableToSum, valuesTakenByVariableToSum ));
-			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, expressionToSum, parse("true")); 
+			IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(
+					apply(IN, variableToSum, valuesTakenByVariableToSum));
+			Expression intensionalMultiSet = IntensionalSet.makeMultiSet(indices, expressionToSum, parse("true"));
 			Expression summation = apply(SUM, intensionalMultiSet);
-			//String str = "sum({{ (on " + variableToSum + " in " + this.model.getValues(variableToSum) +" ) " + childrenMessage + " }})";
-			//childrenMessage = parse(str);
-			childrenMessage=summation;
+			// String str = "sum({{ (on " + variableToSum + " in " +
+			// this.model.getValues(variableToSum) +" ) " + childrenMessage + "
+			// }})";
+			// childrenMessage = parse(str);
+			childrenMessage = summation;
 		}
-		return 	theory.evaluate(childrenMessage, context);
+		return theory.evaluate(childrenMessage, context);
 
 	}
 }

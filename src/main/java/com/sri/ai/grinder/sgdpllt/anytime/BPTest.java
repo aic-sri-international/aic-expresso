@@ -149,7 +149,7 @@ public class BPTest {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);
 		
-		Model m = IsingModel(2,3,theory, context, parse("Boolean"));
+		Model m = IsingModel(3,3,theory, context, parse("Boolean"));
 		String chooseFunction = "BFS";
 		//printModel(m);
 				
@@ -168,7 +168,7 @@ public class BPTest {
 		println("Extensional");
 		comp = new VariableComponent(parse("A_0_0"), m, true);
 		runningPartialTest(comp, 50, true, chooseFunction);
-		comp.print(0);
+		//comp.print(0);
 		println("Intensional");
 		comp = new VariableComponent(parse("A_0_0"), m, false);		
 		runningPartialTest(comp, 50, true, chooseFunction);
@@ -184,7 +184,7 @@ public class BPTest {
 		while(i < nb_iter) {
 			if(!ComponentResult.entirelyDiscover) {
 				ComponentResult.update(withBound, chooseFunction);
-				println("... " + i + " error :" + ComponentResult.bound);//getError(ComponentResult.bound, ComponentResult.model.theory,ComponentResult.model.context));//println("Bound at iteration " + i + " : " + ComponentResult.bound);
+				//println("... " + i + " error :" + ComponentResult.bound);//getError(ComponentResult.bound, ComponentResult.model.theory,ComponentResult.model.context));//println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;
 		}

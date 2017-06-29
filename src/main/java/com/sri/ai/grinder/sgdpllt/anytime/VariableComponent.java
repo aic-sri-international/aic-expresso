@@ -24,6 +24,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.util.Util;
 
@@ -207,6 +208,13 @@ public class VariableComponent {
 		else{
 			this.calculateSchema();
 		}
+		/*
+		if(this.isCutset){
+			System.out.println("Bound modifiées pour " + this.variable);
+			double d = 1/this.parent.size();
+			this.bound = model.theory.evaluate(apply("^", bound, parse("d")), model.context);
+		}
+		*/
 	}
 
 /*
@@ -447,6 +455,24 @@ public class VariableComponent {
 		}
 		//We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+		
+		
+		if (!this.cutsetInsideSubModel.isEmpty()) {
+			Bound[] cutsetTimesNormalBound = new Bound[this.cutsetInsideSubModel.size() + 1];
+			cutsetTimesNormalBound[0] = childrenBound;
+			int j = 1;
+			for (Expression cutset : this.cutsetInsideSubModel) {
+				cutsetTimesNormalBound[j] = new DefaultExtensionalBound(parse("1"));
+				for (VariableComponent VariableInitialized : this.model.initializeVariableComponent) {
+					if (cutset == VariableInitialized.variable) {
+						cutsetTimesNormalBound[j] = VariableInitialized.bound;
+					}
+				}
+				j++;
+			}
+			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,
+					cutsetTimesNormalBound);
+		}
 		
 		bound = childrenBound.summingBound(varToSum, context, theory);
 		
