@@ -147,6 +147,7 @@ public class VariableComponent {
 
 						cutsetInsideSubModel.addAll(newFactorComponent.cutsetOutsideSubModel);
 					}
+					this.phiInsideSubModel.add(factorInvolvingVariable);
 				}
 			}
 

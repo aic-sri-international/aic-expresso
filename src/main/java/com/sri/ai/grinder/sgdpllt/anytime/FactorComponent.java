@@ -83,9 +83,10 @@ public class FactorComponent {
 		}
 		S.retainAll(intersection);
 		this.cutsetOutsideSubModel.addAll(S);
-		
 		for(Expression cutset : S){
-			for (VariableComponent InitializedVariableComponent : this.model.initializeVariableComponent){
+			Set<VariableComponent> AllInitializedVariableComponent = new HashSet<VariableComponent>();
+			AllInitializedVariableComponent.addAll(this.model.initializeVariableComponent);
+			for (VariableComponent InitializedVariableComponent : AllInitializedVariableComponent){
 				if (InitializedVariableComponent.variable == cutset){
 					InitializedVariableComponent.isCutset = true;
 				}
