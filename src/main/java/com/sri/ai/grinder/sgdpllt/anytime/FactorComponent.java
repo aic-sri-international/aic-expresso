@@ -107,6 +107,7 @@ public class FactorComponent {
 				if (InitializedVariableComponent.variable == cutset) {
 					InitializedVariableComponent.cutsetOutsideSubModel.add(cutset);
 					InitializedVariableComponent.isCutset = true;
+					InitializedVariableComponent.updateParentCutset(this);
 					test = false;
 				}
 			}
@@ -166,6 +167,7 @@ public class FactorComponent {
 							cutsetOutsideSubModel.addAll(intersection);
 
 							cutsetInsideSubModel.addAll(variableComponentAlreadyInitialized.cutsetOutsideSubModel);
+							variableComponentAlreadyInitialized.updateParentCutset(this);
 						}
 					}
 
@@ -224,29 +226,35 @@ public class FactorComponent {
 		}
 	}
 
-	/*
-	 * public void updateCutset(){ System.out.println("Used by factor : " +
-	 * this.phi); Set<Expression> Pext = new HashSet<Expression>(); for
-	 * (FactorComponent factor : this.model.initializeFactorComponent){
-	 * Pext.add(factor.phi); } Pext.removeAll(phiInsideSubModel);
-	 * 
-	 * Set<Expression> intersection = new HashSet<Expression>();
-	 * for(VariableComponent children : this.children){
-	 * intersection.addAll(children.cutsetOutsideSubModel); }
-	 * intersection.retainAll(model.getNeighborsOfSet(Pext));
-	 * 
-	 * cutsetOutsideSubModel = intersection; for(VariableComponent children :
-	 * this.children){
-	 * cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel); }
-	 * cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
-	 * 
-	 * for (Expression parent : this.parent){ for (VariableComponent c :
-	 * model.initializeVariableComponent) { if (c.variable.equals(parent)) {
-	 * c.updateCutset(); } }
-	 * 
-	 * } }
-	 */
+	public void updateParentCutset(VariableComponent CallingParent){
+		Set<Expression> Pext = new HashSet<Expression>();
+		Pext.addAll(this.model.getInitializedFactor());
+		Pext.removeAll(this.phiInsideSubModel);
 
+		Set<Expression> childrenCutset = new HashSet<Expression>();
+		
+		for (VariableComponent children : this.children){
+			childrenCutset.addAll(children.cutsetOutsideSubModel);
+		}
+		
+
+		this.cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
+		this.cutsetOutsideSubModel.removeAll(cutsetOutsideSubModel);
+		this.cutsetInsideSubModel.addAll(childrenCutset);
+		childrenCutset.retainAll(model.getNeighborsOfSet(Pext));
+		cutsetOutsideSubModel.addAll(childrenCutset);
+		this.cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+		
+		this.calculateBound();
+		
+		
+		for(VariableComponent parent : this.parent){
+			if(!parent.equals(CallingParent)){
+				parent.updateParentCutset(null);
+			}
+		}
+	}
+	
 	public int chooseDepthFirst() {
 		for (int j = 0; j < this.children.size(); j++) {
 			if (!this.children.get(j).entirelyDiscover) {

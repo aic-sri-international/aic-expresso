@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -43,7 +44,8 @@ public class VariableComponent {
 	public Set<Expression> schema;
 	public boolean entirelyDiscover;
 	public boolean isCutset;
-
+	
+	
 	public VariableComponent(Expression variable, Model model, boolean isExtensionalBound) {
 		//we don't get to use Pext
 				this.model = model;
@@ -156,9 +158,9 @@ public class VariableComponent {
 			
 			
 			
-			if(!this.parent.isEmpty()){
-				cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
-			}
+			//if(!this.parent.isEmpty()){
+			//	cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
+			//}
 			
 			
 			
@@ -202,9 +204,9 @@ public class VariableComponent {
 
 			
 			
-			if(!this.parent.isEmpty()){
-				cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
-			}
+			//if(!this.parent.isEmpty()){
+			//	cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
+			//}
 			
 			
 			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
@@ -226,57 +228,42 @@ public class VariableComponent {
 		else{
 			this.calculateSchema();
 		}
-		/*
-		if(this.isCutset){
-			System.out.println("Bound modifiées pour " + this.variable);
-			double d = 1/this.parent.size();
-			this.bound = model.theory.evaluate(apply("^", bound, parse("d")), model.context);
-		}
-		*/
 	}
 
-/*
-	public void updateCutset(){
-		System.out.println("Used by variable : " + this.variable);
+
+	public void updateParentCutset(FactorComponent CallingParent){
 		Set<Expression> Pext = new HashSet<Expression>();
-		for (FactorComponent factor : this.model.initializeFactorComponent){
-			Pext.add(factor.phi);
-		}
-		Pext.removeAll(phiInsideSubModel);
-		
-		Set<Expression> intersection = new HashSet<Expression>();
-		for(FactorComponent children : this.children){
-			intersection.addAll(children.cutsetOutsideSubModel);
-		}
-		intersection.retainAll(model.getNeighborsOfSet(Pext));
-		System.out.println("Intersection = " + intersection);
-		System.out.println("Pext = " + Pext);
+		Pext.addAll(this.model.getInitializedFactor());
+		Pext.removeAll(this.phiInsideSubModel);
 
-		cutsetOutsideSubModel = intersection;
+		Set<Expression> childrenCutset = new HashSet<Expression>();
+		
+		for (FactorComponent children : this.children){
+			childrenCutset.addAll(children.cutsetOutsideSubModel);
+		}
+		
 		if(this.isCutset){
-			this.cutsetOutsideSubModel.add(this.variable);
+			childrenCutset.add(this.variable);
 		}
-		for(FactorComponent children : this.children){
-			cutsetInsideSubModel.addAll(children.cutsetOutsideSubModel);
-		}
-		cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
-
-		System.out.println(this.parent);
 		
 		
-		for (Expression parent : this.parent){
-			if (parent==null){
-				return;
+		this.cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
+		this.cutsetOutsideSubModel.removeAll(cutsetOutsideSubModel);
+		this.cutsetInsideSubModel.addAll(childrenCutset);
+		childrenCutset.retainAll(model.getNeighborsOfSet(Pext));
+		cutsetOutsideSubModel.addAll(childrenCutset);
+		this.cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+		
+		this.calculateBound();
+		
+		
+		for(FactorComponent parent : this.parent){
+			if(!parent.equals(CallingParent)){
+				parent.updateParentCutset(null);
 			}
-				for (FactorComponent c : model.initializeFactorComponent) {
-					if (c.phi.equals(parent)) {
-						c.updateCutset();
-					}
-				}
-			
 		}
 	}
-*/
+
 
 	public int chooseDepthFirst() {
 		for (int j = 0; j<this.children.size(); j++){
