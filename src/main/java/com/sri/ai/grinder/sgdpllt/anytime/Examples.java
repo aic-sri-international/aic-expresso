@@ -229,8 +229,9 @@ public class Examples {
 		Expression g = DefaultSymbol.createSymbol("G");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("3"), parse("9")),
-				IfThenElse.make(q, parse("5"), parse("7")));
+		//Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("3"), parse("9")),
+			//	IfThenElse.make(q, parse("5"), parse("7")));
+		Expression f1 = parse("if Q then if A then 3 else 9 else if A then 5 else 7");
 		Expression f2 = IfThenElse.make(e, IfThenElse.make(q, parse("2"), parse("8")),
 				IfThenElse.make(q, parse("1"), parse("0")));
 		Expression f3 = IfThenElse.make(g, IfThenElse.make(q, parse("34"), parse("9")),
@@ -277,6 +278,51 @@ public class Examples {
 		return ComponentResultat;
 
 	}
+	
+public static VariableComponent TripleCutsetModel() {
+		
+		Expression a = DefaultSymbol.createSymbol("A");
+		Expression b = DefaultSymbol.createSymbol("B");
+		Expression c = DefaultSymbol.createSymbol("C");
+		Expression d = DefaultSymbol.createSymbol("D");
+		Expression e = DefaultSymbol.createSymbol("E");
+		Expression q = DefaultSymbol.createSymbol("Q");
+
+		//Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("3"), parse("9")),
+			//	IfThenElse.make(q, parse("5"), parse("7")));
+		Expression f1 = parse("if Q then if A then 3 else 9 else if A then 5 else 7");
+		Expression f2 = parse("if A then if B then 8 else 22 else if B then 9 else 3");
+		Expression f3 = parse("if A then if d then 32 else 1 else if D then 15 else 7");
+		Expression f4 = parse("if B then if C then 13 else 1 else if C then 2 else 5");
+		Expression f5 = parse("if D then if C then 6 else 1 else if C then 5 else 2");	
+		
+		Expression f6 = parse("if Q then if E then 7 else 2 else if E then 2 else 7");
+		Expression f7 = parse("if E then if C then 1 else 9 else if C then 9 else 1");	
+		
+		Set<Expression> Factor = new HashSet<Expression>();
+		Factor.add(f1);
+		Factor.add(f2);
+		Factor.add(f3);
+		Factor.add(f4);
+		Factor.add(f5);
+		Factor.add(f6);
+		Factor.add(f7);
+		
+		Model m = new Model(Factor);
+		m.extendModelWithSymbolsAndTypes("A", "Boolean");
+		m.extendModelWithSymbolsAndTypes("B", "Boolean");
+		m.extendModelWithSymbolsAndTypes("C", "Boolean");
+		m.extendModelWithSymbolsAndTypes("D", "Boolean");
+		m.extendModelWithSymbolsAndTypes("E", "Boolean");
+		m.extendModelWithSymbolsAndTypes("Q", "Boolean");
+
+		
+
+		VariableComponent ComponentResultat = new VariableComponent(q, m, isExtensionalBound);
+		return ComponentResultat;
+
+	}
+
 
 	public static VariableComponent RealCancerModel() {
 
@@ -342,16 +388,16 @@ public class Examples {
 	
 	public static void main(String[] args) {
 
-		VariableComponent ComponentResult =  DoubleDiamondModel();
+		VariableComponent ComponentResult =  TripleCutsetModel();
 		
 		
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		String chooseFunction = "BFS";
+		String chooseFunction = "DFS";
 		runningPartialTest(ComponentResult, 20, true, chooseFunction);
-		ComponentResult.print(0);
+		//ComponentResult.print(0);
 		//ComponentResult.printTotal();
 	}
 
