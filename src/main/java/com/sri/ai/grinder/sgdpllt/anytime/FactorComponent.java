@@ -36,6 +36,7 @@ public class FactorComponent {
 	public ArrayList<VariableComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
+	public Set<Expression> SummedOutCutset;
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer childToUpdate;
@@ -64,6 +65,9 @@ public class FactorComponent {
 		this.schema = new HashSet<Expression>();
 		List<Expression> VariableParent = new ArrayList<Expression>();
 		VariableParent.add(Parent.variable);
+		this.SummedOutCutset = new HashSet<Expression>();
+		this.SummedOutCutset.addAll(Parent.SummedOutCutset);
+		this.SummedOutCutset.addAll(Parent.cutsetInsideSubModel);
 		this.bound = Bounds.simplex(VariableParent, model, isExtensionalBound); // true
 																				// says
 																				// that
@@ -131,7 +135,10 @@ public class FactorComponent {
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
 		for (VariableComponent Parent : this.parent) {
 			ExpressionParent.add(Parent.variable);
+			this.SummedOutCutset.addAll(Parent.SummedOutCutset);
+			this.SummedOutCutset.addAll(Parent.cutsetInsideSubModel);
 		}
+		
 
 		if (this.children.isEmpty()) {
 			Set<Expression> union = new HashSet<Expression>(Pext);
@@ -167,6 +174,7 @@ public class FactorComponent {
 							cutsetOutsideSubModel.addAll(intersection);
 
 							cutsetInsideSubModel.addAll(variableComponentAlreadyInitialized.cutsetOutsideSubModel);
+							cutsetInsideSubModel.removeAll(SummedOutCutset);
 							variableComponentAlreadyInitialized.updateParentCutset(this);
 						}
 					}
@@ -183,6 +191,7 @@ public class FactorComponent {
 				}
 
 				cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+				cutsetInsideSubModel.removeAll(SummedOutCutset);
 
 			}
 		} else {
@@ -200,6 +209,7 @@ public class FactorComponent {
 				j = -1;
 			}
 
+			
 			this.children.get(j).update(withBound, chooseFunction);
 
 			Set<Expression> intersection = new HashSet<Expression>(this.children.get(j).cutsetOutsideSubModel);
@@ -208,6 +218,7 @@ public class FactorComponent {
 
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+			cutsetInsideSubModel.removeAll(SummedOutCutset);
 
 			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 
@@ -225,7 +236,7 @@ public class FactorComponent {
 			this.calculateSchema();
 		}
 	}
-
+	
 	public void updateParentCutset(VariableComponent CallingParent){
 		Set<Expression> Pext = new HashSet<Expression>();
 		Pext.addAll(this.model.getInitializedFactor());
@@ -252,7 +263,11 @@ public class FactorComponent {
 			if(!parent.equals(CallingParent)){
 				parent.updateParentCutset(null);
 			}
+			this.SummedOutCutset.addAll(parent.SummedOutCutset);
+			this.SummedOutCutset.addAll(parent.cutsetInsideSubModel);
 		}
+		this.cutsetInsideSubModel.removeAll(this.SummedOutCutset);
+		
 	}
 	
 	public int chooseDepthFirst() {
@@ -468,4 +483,5 @@ public class FactorComponent {
 		return theory.evaluate(childrenMessage, context);
 
 	}
+
 }

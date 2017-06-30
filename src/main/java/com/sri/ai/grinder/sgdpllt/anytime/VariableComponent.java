@@ -37,6 +37,7 @@ public class VariableComponent {
 	public ArrayList<FactorComponent> children;
 	public Set<Expression> cutsetOutsideSubModel;
 	public Set<Expression> cutsetInsideSubModel;
+	public Set<Expression> SummedOutCutset;
 	public Bound bound;
 	public Set<Expression> phiInsideSubModel;
 	public Integer childToUpdate;
@@ -63,6 +64,7 @@ public class VariableComponent {
 				this.isExtensionalBound = isExtensionalBound;
 				this.isCutset = false;
 				model.initializeVariableComponent.add(this);
+				this.SummedOutCutset = new HashSet<Expression>();
 				
 			}
 
@@ -99,6 +101,10 @@ public class VariableComponent {
 		}
 
 		model.initializeVariableComponent.add(this);
+
+		this.SummedOutCutset = new HashSet<Expression>();
+		this.SummedOutCutset.addAll(Parent.SummedOutCutset);
+		this.SummedOutCutset.addAll(Parent.cutsetInsideSubModel);
 		
 		//we add the varaible to the context and tell of which type is the variable add
 		//Expression typeOfVariable = this.model.getValues(variable);
@@ -114,6 +120,8 @@ public class VariableComponent {
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
 		for (FactorComponent Parent : this.parent){
 			ExpressionParent.add(Parent.phi);
+			this.SummedOutCutset.addAll(Parent.SummedOutCutset);
+			this.SummedOutCutset.addAll(Parent.cutsetInsideSubModel);
 		}
 		//we look at the children
 		//if they have not been discovered yet we initilized them 
@@ -155,6 +163,7 @@ public class VariableComponent {
 			}
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+			cutsetInsideSubModel.removeAll(SummedOutCutset);
 			
 			
 			
@@ -201,6 +210,7 @@ public class VariableComponent {
 
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+			cutsetInsideSubModel.removeAll(SummedOutCutset);
 
 			
 			
@@ -228,6 +238,8 @@ public class VariableComponent {
 		else{
 			this.calculateSchema();
 		}
+
+		cutsetInsideSubModel.removeAll(SummedOutCutset);
 	}
 
 
@@ -260,8 +272,12 @@ public class VariableComponent {
 		for(FactorComponent parent : this.parent){
 			if(!parent.equals(CallingParent)){
 				parent.updateParentCutset(null);
+				this.SummedOutCutset.addAll(parent.SummedOutCutset);
+				this.SummedOutCutset.addAll(parent.cutsetInsideSubModel);
 			}
 		}
+
+		this.cutsetInsideSubModel.removeAll(this.SummedOutCutset);
 	}
 
 
