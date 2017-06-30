@@ -292,7 +292,7 @@ public static VariableComponent TripleCutsetModel() {
 			//	IfThenElse.make(q, parse("5"), parse("7")));
 		Expression f1 = parse("if Q then if A then 3 else 9 else if A then 5 else 7");
 		Expression f2 = parse("if A then if B then 8 else 22 else if B then 9 else 3");
-		Expression f3 = parse("if A then if d then 32 else 1 else if D then 15 else 7");
+		Expression f3 = parse("if A then if D then 32 else 1 else if D then 15 else 7");
 		Expression f4 = parse("if B then if C then 13 else 1 else if C then 2 else 5");
 		Expression f5 = parse("if D then if C then 6 else 1 else if C then 5 else 2");	
 		
@@ -395,9 +395,9 @@ public static VariableComponent TripleCutsetModel() {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		String chooseFunction = "DFS";
+		String chooseFunction = "BFS";
 		runningPartialTest(ComponentResult, 20, true, chooseFunction);
-		//ComponentResult.print(0);
+		ComponentResult.print(0);
 		//ComponentResult.printTotal();
 	}
 

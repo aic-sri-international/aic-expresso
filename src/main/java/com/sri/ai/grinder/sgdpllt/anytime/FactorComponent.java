@@ -105,12 +105,14 @@ public class FactorComponent {
 			boolean test = true;
 			for (VariableComponent InitializedVariableComponent : AllInitializedVariableComponent) {
 				if (InitializedVariableComponent.variable == cutset) {
+					InitializedVariableComponent.cutsetOutsideSubModel.add(cutset);
 					InitializedVariableComponent.isCutset = true;
 					test = false;
 				}
 			}
 			if (test) {
 				VariableComponent newV = new VariableComponent(cutset, this, isExtensionalBound);
+				newV.cutsetOutsideSubModel.add(newV.variable);
 				newV.isCutset = true;
 			}
 		}
