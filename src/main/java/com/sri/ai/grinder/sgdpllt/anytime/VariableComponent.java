@@ -45,6 +45,7 @@ public class VariableComponent {
 	public Set<Expression> schema;
 	public boolean entirelyDiscover;
 	public boolean isCutset;
+	public FactorComponent principalParent;
 	
 	
 	public VariableComponent(Expression variable, Model model, boolean isExtensionalBound) {
@@ -65,6 +66,7 @@ public class VariableComponent {
 				this.isCutset = false;
 				model.initializeVariableComponent.add(this);
 				this.SummedOutCutset = new HashSet<Expression>();
+				this.principalParent = null;
 				
 			}
 
@@ -85,6 +87,7 @@ public class VariableComponent {
 		this.bound = Bounds.simplex(new ArrayList<Expression>(Arrays.asList(this.variable)), this.model,isExtensionalBound);
 		this.isExtensionalBound = isExtensionalBound;
 		this.isCutset = false;
+		this.principalParent = Parent;
 
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));
@@ -480,22 +483,7 @@ public class VariableComponent {
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		
 		
-		if (!this.cutsetInsideSubModel.isEmpty()) {
-			Bound[] cutsetTimesNormalBound = new Bound[this.cutsetInsideSubModel.size() + 1];
-			cutsetTimesNormalBound[0] = childrenBound;
-			int j = 1;
-			for (Expression cutset : this.cutsetInsideSubModel) {
-				cutsetTimesNormalBound[j] = new DefaultExtensionalBound(parse("1"));
-				for (VariableComponent VariableInitialized : this.model.initializeVariableComponent) {
-					if (cutset == VariableInitialized.variable) {
-						cutsetTimesNormalBound[j] = VariableInitialized.bound;
-					}
-				}
-				j++;
-			}
-			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,
-					cutsetTimesNormalBound);
-		}
+		
 		
 		bound = childrenBound.summingBound(varToSum, context, theory);
 		

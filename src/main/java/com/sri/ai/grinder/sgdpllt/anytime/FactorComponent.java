@@ -357,7 +357,7 @@ public class FactorComponent {
 		Bound[] cildrenArray = new Bound[children.size()];
 		int i = 0;
 		for (VariableComponent children : this.children) {
-			if (children.isCutset) {
+			if (!children.principalParent.equals(this)) {
 				cildrenArray[i] = Bounds.makeSingleElementBound(parse("1"), isExtensionalBound);
 			} else {
 				cildrenArray[i] = children.bound;
@@ -376,22 +376,7 @@ public class FactorComponent {
 		}
 		toSum.addAll(this.cutsetInsideSubModel);
 
-		if (!this.cutsetInsideSubModel.isEmpty()) {
-			Bound[] cutsetTimesNormalBound = new Bound[this.cutsetInsideSubModel.size() + 1];
-			cutsetTimesNormalBound[0] = childrenBound;
-			int j = 1;
-			for (Expression cutset : this.cutsetInsideSubModel) {
-				cutsetTimesNormalBound[j] = new DefaultExtensionalBound(parse("1"));
-				for (VariableComponent VariableInitialized : this.model.initializeVariableComponent) {
-					if (cutset == VariableInitialized.variable) {
-						cutsetTimesNormalBound[j] = VariableInitialized.bound;
-					}
-				}
-				j++;
-			}
-			childrenBound = Bounds.boundProduct(this.model.theory, this.model.context, isExtensionalBound,
-					cutsetTimesNormalBound);
-		}
+		
 		ArrayList<Expression> variablesToBeSummedOut = new ArrayList<>(toSum.size());
 		variablesToBeSummedOut.addAll(toSum);
 

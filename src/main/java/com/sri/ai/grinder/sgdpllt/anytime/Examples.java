@@ -386,11 +386,10 @@ public static VariableComponent TripleCutsetModel() {
 		return ComponentResultat;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] asrgs) {
 
 		VariableComponent ComponentResult =  TripleCutsetModel();
-		
-		
+
 		//Set<Expression> condition = new HashSet<Expression>();
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
