@@ -153,6 +153,17 @@ public class VariableComponent {
 			}
 
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
+			
+			
+			
+			if(!this.parent.isEmpty()){
+				cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
+			}
+			
+			
+			
+			
+			
 			if (cutsetOutsideSubModel.contains(this.variable)){
 				this.isCutset = true;
 			}
@@ -189,6 +200,13 @@ public class VariableComponent {
 			cutsetInsideSubModel.addAll(this.children.get(j).cutsetOutsideSubModel);
 			cutsetInsideSubModel.removeAll(cutsetOutsideSubModel);
 
+			
+			
+			if(!this.parent.isEmpty()){
+				cutsetInsideSubModel.removeAll(cutsetInsideSubModel);
+			}
+			
+			
 			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
 			if (cutsetOutsideSubModel.contains(this.variable)){
 				this.isCutset = true;
@@ -425,6 +443,8 @@ public class VariableComponent {
 
 
 	public void calculateBound(){
+		
+		
 		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		

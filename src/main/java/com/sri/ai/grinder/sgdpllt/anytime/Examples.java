@@ -395,7 +395,7 @@ public static VariableComponent TripleCutsetModel() {
 		//condition.add(parse("A = 1"));
 		//ComponentResult.model.addConditions(condition);
 		//runningTotalTest(ComponentResult);
-		String chooseFunction = "BFS";
+		String chooseFunction = "DFS";
 		runningPartialTest(ComponentResult, 20, true, chooseFunction);
 		ComponentResult.print(0);
 		//ComponentResult.printTotal();
