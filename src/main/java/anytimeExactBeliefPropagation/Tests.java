@@ -1,10 +1,8 @@
 package anytimeExactBeliefPropagation;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.println;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -146,25 +144,25 @@ public class Tests {
 		println(ModelGenerator.LVECalculation(m));
 		println("d");
 */
-
-		Pair<Set<Expression>,Context> tree = ModelGenerator.IsingModel(3,4, theory, context, parse("Boolean"));
-		Model m = new Model(tree.first, theory, tree.second, true, parse("A_0_0"));
-		
+		Pair<Set<Expression>,Context> Imodel = ModelGenerator.IsingModel(3,4, theory, context, parse("Boolean"));
+		Model m = new Model(Imodel.first, theory, Imodel.second, true, parse("A_0_0"));
 		
 		Iterator<FactorNode> BFSExpander = new BFS<FactorNode, VariableNode>(m.getEntireGraph(), m.getQuery());
-		
+		BeliefPropagationWithConditioning sbp;
+
+		sbp = new BeliefPropagationWithConditioning(m);
 		while(BFSExpander.hasNext()){
 			m.ExpandModel(BFSExpander);
-		//	ModelGenerator.printModel(m, false);
-			println("-----------------");
+			//ModelGenerator.printModel(m, false);
+			sbp = new BeliefPropagationWithConditioning(m);
+			
+			println(sbp.inference());
+			println("-----------------" + m.AllExplored() + "-----------------");
 		}
-		
 
-		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
-		ModelGenerator.printModel(tree.first);
+		sbp = new BeliefPropagationWithConditioning(m);
+		ModelGenerator.printModel(m,false);
 		println(sbp.inference());
 		println(ModelGenerator.LVECalculation(m));
-		println("d");
-		
 	}
 }

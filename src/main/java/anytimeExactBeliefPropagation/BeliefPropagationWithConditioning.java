@@ -1,5 +1,6 @@
 package anytimeExactBeliefPropagation;
 
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.println;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 public class BeliefPropagationWithConditioning {
 	private Model model;
+	private boolean AllExplored;
 	public PartitionTree partitionTree;
 	
 	public BeliefPropagationWithConditioning(Model model) {
@@ -26,18 +28,22 @@ public class BeliefPropagationWithConditioning {
 		
 		VariableNode query = model.getQuery();
 		this.partitionTree = new PartitionTree(query,model);
+		
+		AllExplored = false;
 	}
 	
-	public Bound inference(){	
-		variableMessage(partitionTree, new HashSet<VariableNode>());
-		Bound result = partitionTree.node.getBound();
+	public Bound inference(){
+		AllExplored = model.AllExplored();
+		
+		Bound result = variableMessage(partitionTree, new HashSet<VariableNode>());
+	
 		return result;
 	}
 	
-	public void variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
+	public Bound variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
 		if(!partitionInAVariableNode.node.isVariable()){
 			println("error in S-BP!!!");
-			return;
+			return null;
 		}
 		/** 
 		 * compute the separator. 3 types:
@@ -62,14 +68,24 @@ public class BeliefPropagationWithConditioning {
 			variablesToSumOut.add(v.getValue());
 		}
 		
+		// if this node is not exhausted (see definition in Model) it means that the message coming to it is the 
+		// simplex, no matter how it is what comes below in the partition.
+		// obs. it can be equivalently thought as attaching a "simplex factor" to non exhausted nodes.
+		if(!AllExplored && !model.isExhausted((VariableNode) partitionInAVariableNode.node)){
+			Expression var = partitionInAVariableNode.node.getValue();
+			Bound bound = Bounds.simplex(arrayList(var), model.getTheory(), model.getContext(), model.isExtensional());
+//			partitionInAVariableNode.node.setBound(bound);
+			return bound;
+		}
+		
 		int i = 0;
 		for(PartitionTree p : partitionInAVariableNode.partition){
-			factorMessage(p,SeparatorForNextLevels);
-			Bound boundInP = p.node.getBound();
+			Bound boundInP = factorMessage(p,SeparatorForNextLevels);
+			//Bound boundInP = p.node.getBound();
 			boundsOfChildrenMessages[i] = boundInP;
 			i++;
 		}
-		 
+		
 		Bound bound = Bounds.boundProduct(model.getTheory(), model.getContext(), model.isExtensional(), boundsOfChildrenMessages);
 		
 		ArrayList<Expression> varToSumOutList = new ArrayList<>();
@@ -78,12 +94,13 @@ public class BeliefPropagationWithConditioning {
 		
 		bound = bound.summingBound(varToSumOut, model.getContext(), model.getTheory());
 		
-		partitionInAVariableNode.node.setBound(bound);
+		return bound;
+		//partitionInAVariableNode.node.setBound(bound);
 	}
-	public void factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
+	public Bound factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
 		if(!partitionInAFactorNode.node.isFactor()){
 			println("error in S-BP!!!");
-			return;
+			return null;
 		}
 		/** 
 		 * compute the separator. 3 types:
@@ -110,8 +127,8 @@ public class BeliefPropagationWithConditioning {
 		
 		int i =0;
 		for(PartitionTree p : partitionInAFactorNode.partition){
-			variableMessage(p,SeparatorForNextLevels);
-			Bound boundInP = p.node.getBound();
+			Bound boundInP = variableMessage(p,SeparatorForNextLevels);
+			//Bound boundInP = p.node.getBound();
 			boundsOfChildrenMessages[i] = boundInP;
 			variablesToSumOut.add(p.node.getValue());
 			i++;
@@ -129,8 +146,8 @@ public class BeliefPropagationWithConditioning {
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
 		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
-		
-		partitionInAFactorNode.node.setBound(bound);
+		return bound;
+		//partitionInAFactorNode.node.setBound(bound);
 	}
 		
 	/**

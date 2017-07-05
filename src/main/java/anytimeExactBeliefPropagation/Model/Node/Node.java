@@ -1,7 +1,6 @@
 package anytimeExactBeliefPropagation.Model.Node;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 
 /**
  * A class that provides the basic nodes for a factor graph.
@@ -16,7 +15,7 @@ import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 public abstract class Node {
 	
 	protected Expression value;
-	protected Bound bound;	
+	//protected Bound bound;	
 	
 	public Node(Expression value){
 		this.value = value;
@@ -29,12 +28,12 @@ public abstract class Node {
 		this.value = value;
 	}
 	
-	public Bound getBound(){
-		return bound;
-	}
-	public void setBound(Bound bound){
-		this.bound = bound;
-	}
+//	public Bound getBound(){
+//		return bound;
+//	}
+//	public void setBound(Bound bound){
+//		this.bound = bound;
+//	}
 	
 	@Override
 	public String toString(){
@@ -48,14 +47,12 @@ public abstract class Node {
 		String result = type +" Node: " + this.value;// + "\t Bound Extremes: " + bound;
 		return result;
 	}
-	
-	
-	
+		
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((bound == null) ? 0 : bound.hashCode());
+		//result = prime * result + ((bound == null) ? 0 : bound.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
@@ -69,11 +66,11 @@ public abstract class Node {
 		if (getClass() != obj.getClass())
 			return false;
 		Node other = (Node) obj;
-		if (bound == null) {
-			if (other.bound != null)
-				return false;
-		} else if (!bound.equals(other.bound))
-			return false;
+		//if (bound == null) {
+		//	if (other.bound != null)
+		//		return false;
+		//} else if (!bound.equals(other.bound))
+		//	return false;
 		if (value == null) {
 			if (other.value != null)
 				return false;

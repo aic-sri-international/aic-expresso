@@ -90,8 +90,8 @@ public class Model {
 	 * @return
 	 */
 	public boolean AllExplored(){
-		//TODO implement equals and contains ALL in ManyToManyRelation
-		return false;
+		boolean result = graphicalModel.equals(exploredGraphicalModel);
+		return result;
 	}
 	
 	/**

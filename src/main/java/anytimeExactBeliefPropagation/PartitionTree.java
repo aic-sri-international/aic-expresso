@@ -87,17 +87,17 @@ public class PartitionTree {
 				neighbors.addAll(factorNeighbors);
 	    	}
 	    	
-	    	for(Node neighbor: neighbors){
-	    		if (!visited.contains(neighbor)) {
-                    queue.add(neighbor);
-                    visited.add(neighbor);
-                    
-                    PartitionTree pChild = new PartitionTree(neighbor);
- 					pChild.parent = parentPartition;
- 					hashTable.put(neighbor, pChild);
-					parentPartition.partition.add(pChild);
-       		 	}
-	    	}
+		    	for(Node neighbor: neighbors){
+		    		if (!visited.contains(neighbor)) {
+	                    queue.add(neighbor);
+	                    visited.add(neighbor);
+	                    
+	                    PartitionTree pChild = new PartitionTree(neighbor);
+	 					pChild.parent = parentPartition;
+	 					hashTable.put(neighbor, pChild);
+						parentPartition.partition.add(pChild);
+	       		 	}
+		    	}
 	    }
 	}
 	

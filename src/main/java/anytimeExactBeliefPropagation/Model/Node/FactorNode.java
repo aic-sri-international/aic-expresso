@@ -1,11 +1,8 @@
 package anytimeExactBeliefPropagation.Model.Node;
 
-import static com.sri.ai.util.Util.arrayList;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 
 /**
  * Special type of {@link Node} used to represent factors
@@ -18,7 +15,7 @@ public class FactorNode extends  Node {
 		super(value);
 		//TODO right initialization
 		//Initialiation for  Variable nodes is the 
-		this.bound = Bounds.makeSingleElementBound(value, isExtensional);
+		//this.bound = Bounds.makeSingleElementBound(value, isExtensional);
 	}
 
 

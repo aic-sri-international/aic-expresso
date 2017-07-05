@@ -1,11 +1,8 @@
 package anytimeExactBeliefPropagation.Model.Node;
 
-import static com.sri.ai.util.Util.arrayList;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 
 /**
  * Special type of {@link Node} used to represent variables
@@ -19,7 +16,7 @@ public class VariableNode extends  Node {
 		//TODO right initialization
 		//Initialiation for  Variable nodes is the simplex
 		//this.bound = Bounds.makeSingleElementBound(makeSymbol(1), isExtensional);
-		this.bound = Bounds.simplex(arrayList(value), theory, context, isExtensional);
+		//this.bound = Bounds.simplex(arrayList(value), theory, context, isExtensional);
 	}
 
 	@Override
