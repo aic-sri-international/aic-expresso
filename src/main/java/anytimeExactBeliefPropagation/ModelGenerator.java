@@ -159,15 +159,70 @@ public class ModelGenerator {
 		
 	}
 
+	/**
+	 * Creates a model that looks like a queue of factors and variables
+	 * 		Q - F - V - F -...- F - V 
+	 * @param nVariables
+	 * @param theory
+	 * @param context
+	 * @param possibleValues
+	 * @return
+	 */
+	public static Pair<Set<Expression>,Context> lineModel(int nVariables , Theory theory, Context context, Expression possibleValues){
+		Set<Expression> factorsInModel = new HashSet<Expression>();
+		
+		Expression[] a = new Expression[nVariables];
+		for(int i = 0; i < nVariables; i++){
+			a[i]= makeSymbol("A_"+i);
+			context = context.extendWithSymbolsAndTypes(a[i],possibleValues);
+		}
+		for (int i = 0; i < a.length - 1; i++) {
+			Expression factor = generateProbability(context, a[i],a[i+1]);
+			factorsInModel.add(factor);
+		}
+		Pair<Set<Expression>,Context> result =  new Pair<>(factorsInModel,context);
+		return result;
+	}
 	
-	//line
-	
-	
-	// bi tree
-	
-	
-	//three tree
-	
+	/**
+	 * creates a tree with n children per node
+	 * @param depth
+	 * @param numberOfChildren
+	 * @param theory
+	 * @param context
+	 * @param possibleValues
+	 * @return
+	 */
+	public static Pair<Set<Expression>,Context> nTreeModel(int depth , int numberOfChildren, Theory theory, Context context, Expression possibleValues){
+		Set<Expression> factorsInModel = new HashSet<Expression>();
+		
+		int nCols = 1;
+		for(int i = 0; i < depth; i++){
+			nCols *= numberOfChildren; 
+		}
+		
+		Expression[][] a = new Expression[depth][nCols];
+		for(int i = 0; i < depth; i++){
+			for (int j = 0; j < nCols; j++) {				
+				a[i][j]= makeSymbol("A_" + i + "_" + j);
+				context = context.extendWithSymbolsAndTypes(a[i][j],possibleValues);
+			}
+		}
+		
+		int colMax = 1;
+		for (int i = 0; i < depth - 1; i++) {
+			for (int j = 0; j < colMax; j++) {
+				for (int k = j * numberOfChildren; k < (j+1) * numberOfChildren; k++) {
+					Expression factor = generateProbability(context, a[i][j],a[i+1][k]);
+					factorsInModel.add(factor);
+				}
+			}
+			colMax*=numberOfChildren;
+		}
+		Pair<Set<Expression>,Context> result =  new Pair<>(factorsInModel,context);
+		return result;
+	}
+		
 	public static Expression LVECalculation(Model m){
 		return LVECalculation(m.getEntireGraph().getBs(),m.getQuery().getValue(),m.getContext(),m.getTheory());
 	}
@@ -200,7 +255,6 @@ public class ModelGenerator {
 		
 		return result;
 	}
-	
 	
 	public static void printModel(Model m, boolean entire) {
 		ManyToManyRelation<VariableNode,FactorNode> graph = entire ? m.getEntireGraph() : m.getExploredGraph();

@@ -66,6 +66,7 @@ public class Tests {
 		//Testing if contains works for equivalent but not equal nodes. (that is, if hashCode overwritten went well)
 		Collection<VariableNode> vars = m.getEntireGraph().getAs();
 		boolean f = vars.contains(m.getQuery());
+		println(f);
 		
 		//Testing BFS
 		println("Printing BFS expansion");
@@ -98,11 +99,11 @@ public class Tests {
 		println(sbp.inference());
 		println(ModelGenerator.LVECalculation(m));
 		
-		
-		
+		//Testing lineModel
+		ModelGenerator.printModel(ModelGenerator.lineModel(5, theory, context, parse("Boolean")).first);
 		//TODO desencapsular node : simbolo representa var ja...
 		//TODO Bound product should accept sets as input
-		
+		ModelGenerator.printModel(ModelGenerator.nTreeModel(4, 2, theory, context,parse("Boolean")).first);
 		//One can implement its own Iterator
 //		Iterator<FactorNode> NaiveGraphExpander = new Iterator<FactorNode>() {
 //			
