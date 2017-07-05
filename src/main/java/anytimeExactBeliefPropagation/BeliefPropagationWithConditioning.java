@@ -36,7 +36,7 @@ public class BeliefPropagationWithConditioning {
 	
 	public void variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
 		if(!partitionInAVariableNode.node.isVariable()){
-			println("erro no -S-BP!!!");
+			println("error in S-BP!!!");
 			return;
 		}
 		/** 
@@ -53,10 +53,6 @@ public class BeliefPropagationWithConditioning {
 		Set<VariableNode> SeparatorForNextLevels = new HashSet<>();
 		SeparatorForNextLevels.addAll(SeparatorOnThisLevel);
 		SeparatorForNextLevels.addAll(SeparatorVariablesOnLevelAbove);
-		
-		if(!SeparatorForNextLevels.isEmpty() || !SeparatorOnThisLevel.isEmpty() || !SeparatorVariablesOnLevelAbove.isEmpty()){
-			println("oia soh so");
-		}
 		
 		// calling children partitions. for each partition, call message passing, 
 		// store bound
@@ -76,7 +72,6 @@ public class BeliefPropagationWithConditioning {
 		 
 		Bound bound = Bounds.boundProduct(model.getTheory(), model.getContext(), model.isExtensional(), boundsOfChildrenMessages);
 		
-		//NOT SURE :(
 		ArrayList<Expression> varToSumOutList = new ArrayList<>();
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
@@ -87,7 +82,7 @@ public class BeliefPropagationWithConditioning {
 	}
 	public void factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
 		if(!partitionInAFactorNode.node.isFactor()){
-			println("erro no -S-BP!!!");
+			println("error in S-BP!!!");
 			return;
 		}
 		/** 
@@ -129,20 +124,15 @@ public class BeliefPropagationWithConditioning {
 		 
 		Bound bound = Bounds.boundProduct(model.getTheory(), model.getContext(), model.isExtensional(), boundsOfChildrenMessages);
 		
-		//NOT SURE :(
 		ArrayList<Expression> varToSumOutList = new ArrayList<>();
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		//parece quee nao eh exatamente essa a operacao. mas nesse teste era pra estar cert. a operacao eh phi do noh  Times (soma var_1 mensagem 1)(soma var2 msg2)...
-		// e o q c ta fazendo eh soma em var 1 2 ... de phi times messages. 
-		//nan ta certo assim, eu eh que escrevi a equacao errado
 		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
 		
 		partitionInAFactorNode.node.setBound(bound);
 	}
-	
-	
+		
 	/**
 	 * Given the partition, compute the separator. TODO more efficient implementation
 	 * @param p

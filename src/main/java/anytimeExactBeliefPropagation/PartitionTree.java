@@ -150,6 +150,5 @@ public class PartitionTree {
 				//setOfFactors.add((FactorNode) p.node);
 			}
 		}
-		//partition de factor nao conta o proprio factor no setOfFactors
 	}
 }

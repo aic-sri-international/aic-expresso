@@ -147,7 +147,7 @@ public class Tests {
 		println("d");
 */
 
-		Pair<Set<Expression>,Context> tree = ModelGenerator.IsingModel(3,3, theory, context, parse("Boolean"));
+		Pair<Set<Expression>,Context> tree = ModelGenerator.IsingModel(3,4, theory, context, parse("Boolean"));
 		Model m = new Model(tree.first, theory, tree.second, true, parse("A_0_0"));
 		
 		
