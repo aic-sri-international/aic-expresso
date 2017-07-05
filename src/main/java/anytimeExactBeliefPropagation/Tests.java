@@ -1,5 +1,6 @@
 package anytimeExactBeliefPropagation;
 
+import static anytimeExactBeliefPropagation.ModelGenerator.IsingModel;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.println;
 
@@ -22,7 +23,6 @@ import com.sri.ai.util.base.Triple;
 import anytimeExactBeliefPropagation.Model.BFS;
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
-import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 public class Tests {
 	public static void main(String[] args) {
@@ -145,10 +145,10 @@ public class Tests {
 		println(ModelGenerator.LVECalculation(m));
 		println("d");
 */
-		Triple<Set<Expression>,Context,Expression> Imodel = ModelGenerator.IsingModel(3, 4, context, parse("Boolean"));
-		Model m = new Model(Imodel,theory, true);
 		
-		Iterator<FactorNode> BFSExpander = new BFS<FactorNode, VariableNode>(m.getEntireGraph(), m.getQuery());
+		Model m = new Model(IsingModel(3, 4, context, parse("Boolean")),theory, true);
+		
+		Iterator<FactorNode> BFSExpander = new BFS(m);
 		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
 		while(BFSExpander.hasNext()){
 			Bound inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
