@@ -46,12 +46,17 @@ public class BeliefPropagationWithConditioning {
 		 * 						separators for levels below this 	(SeparatorForNextLevels)
 		 */
 		Set<VariableNode> SeparatorOnThisLevel = ComputeSeparator(partitionInAVariableNode);
+		SeparatorOnThisLevel.remove((VariableNode) partitionInAVariableNode.node);
 		//exclude the variables on other levels. they will be summed afterwards(TODO not so sure about it...)
 		SeparatorOnThisLevel.removeAll(SeparatorVariablesOnLevelAbove);
 		
 		Set<VariableNode> SeparatorForNextLevels = new HashSet<>();
 		SeparatorForNextLevels.addAll(SeparatorOnThisLevel);
 		SeparatorForNextLevels.addAll(SeparatorVariablesOnLevelAbove);
+		
+		if(!SeparatorForNextLevels.isEmpty() || !SeparatorOnThisLevel.isEmpty() || !SeparatorVariablesOnLevelAbove.isEmpty()){
+			println("oia soh so");
+		}
 		
 		// calling children partitions. for each partition, call message passing, 
 		// store bound
@@ -116,6 +121,11 @@ public class BeliefPropagationWithConditioning {
 			variablesToSumOut.add(p.node.getValue());
 			i++;
 		}
+		
+		for(VariableNode v : SeparatorVariablesOnLevelAbove){
+			variablesToSumOut.remove(v.getValue());
+		}
+		
 		 
 		Bound bound = Bounds.boundProduct(model.getTheory(), model.getContext(), model.isExtensional(), boundsOfChildrenMessages);
 		
@@ -124,6 +134,9 @@ public class BeliefPropagationWithConditioning {
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
+		//parece quee nao eh exatamente essa a operacao. mas nesse teste era pra estar cert. a operacao eh phi do noh  Times (soma var_1 mensagem 1)(soma var2 msg2)...
+		// e o q c ta fazendo eh soma em var 1 2 ... de phi times messages. 
+		//nan ta certo assim, eu eh que escrevi a equacao errado
 		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
 		
 		partitionInAFactorNode.node.setBound(bound);

@@ -84,6 +84,11 @@ public class Model {
 			}
 		}
 	}
+	
+	/**
+	 * Returns true if exploredGraphicalModel == graphicalModel
+	 * @return
+	 */
 	public boolean AllExplored(){
 		//TODO implement equals and contains ALL in ManyToManyRelation
 		return false;

@@ -45,7 +45,7 @@ public abstract class Node {
 		if(this.isFactor()){
 			type = "Factor";
 		}
-		String result = type +" Node: " + this.value + "\t Bound Extremes: " + bound;
+		String result = type +" Node: " + this.value;// + "\t Bound Extremes: " + bound;
 		return result;
 	}
 	

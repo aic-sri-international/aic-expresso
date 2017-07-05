@@ -128,6 +128,9 @@ public class PartitionTree {
 
 	private void CompleteTree(){
 		setOfFactors = new HashSet<>();
+		if(node.isFactor()){
+			setOfFactors.add((FactorNode)this.node);
+		}
 		if(partition.size() == 0){
 			return;
 		}
@@ -144,7 +147,7 @@ public class PartitionTree {
 		if(node.isVariable()){
 			for(PartitionTree p : partition){
 				setOfFactors.addAll(p.setOfFactors);
-				setOfFactors.add((FactorNode) p.node);
+				//setOfFactors.add((FactorNode) p.node);
 			}
 		}
 		//partition de factor nao conta o proprio factor no setOfFactors

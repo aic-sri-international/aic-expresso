@@ -222,7 +222,13 @@ public class ModelGenerator {
 		Pair<Set<Expression>,Context> result =  new Pair<>(factorsInModel,context);
 		return result;
 	}
-		
+	
+	/**
+	 * Lifited variabble Elimination
+	 * this method just creates the inference equation and asks SGDPLL to solve it
+	 * @param m
+	 * @return
+	 */
 	public static Expression LVECalculation(Model m){
 		return LVECalculation(m.getEntireGraph().getBs(),m.getQuery().getValue(),m.getContext(),m.getTheory());
 	}

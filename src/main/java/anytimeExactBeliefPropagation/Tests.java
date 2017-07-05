@@ -36,13 +36,14 @@ public class Tests {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);	
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
-		////Testing Nodes
+/*		////Testing Nodes
 		VariableNode variable = new VariableNode(makeSymbol("A"), true, theory, context);
 		FactorNode factor = new FactorNode(parse("if A then 1 else 2"), true, theory, context);
 		
 		println(variable + "\n" + factor + "\n");
-		
-		//////Testing IsingModel creation
+*/		
+
+/*		//////Testing IsingModel creation
 		Pair<Set<Expression>,Context> IsingM = ModelGenerator.IsingModel(2, 2, theory, context, parse("Boolean"));
 		ModelGenerator.printModel(IsingM.first);
 		context = IsingM.second;
@@ -62,12 +63,13 @@ public class Tests {
 			ModelGenerator.printModel(m, false);
 			println("-----------------");
 		}
-		
-		//Testing if contains works for equivalent but not equal nodes. (that is, if hashCode overwritten went well)
+*/		
+/*		//Testing if contains works for equivalent but not equal nodes. (that is, if hashCode overwritten went well)
 		Collection<VariableNode> vars = m.getEntireGraph().getAs();
 		boolean f = vars.contains(m.getQuery());
 		println(f);
-		
+*/
+/*
 		//Testing BFS
 		println("Printing BFS expansion");
 		m.clearExploredGraph();
@@ -79,7 +81,8 @@ public class Tests {
 			println("-----------------");
 		}
 		
-		//Testing Partition
+*/
+/*		//Testing Partition
 		//// Testing creating Partition
 		PartitionTree p = new PartitionTree(m.getQuery());
 		p.CreatePartitionTreeWithBFS(m);
@@ -121,5 +124,47 @@ public class Tests {
 //			}
 //			
 //		}; 
+*/		
+
+		
+/*		Pair<Set<Expression>,Context> tree = ModelGenerator.nTreeModel(3, 3, theory, context, parse("Boolean"));
+		Model m = new Model(tree.first, theory, tree.second, true, parse("A_0_0"));
+		
+		
+		Iterator<FactorNode> BFSExpander = new BFS<FactorNode, VariableNode>(m.getEntireGraph(), m.getQuery());
+		
+		while(BFSExpander.hasNext()){
+			m.ExpandModel(BFSExpander);
+		//	ModelGenerator.printModel(m, false);
+			println("-----------------");
+		}
+		
+
+		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
+		ModelGenerator.printModel(tree.first);
+		println(sbp.inference());
+		println(ModelGenerator.LVECalculation(m));
+		println("d");
+*/
+
+		Pair<Set<Expression>,Context> tree = ModelGenerator.IsingModel(3,3, theory, context, parse("Boolean"));
+		Model m = new Model(tree.first, theory, tree.second, true, parse("A_0_0"));
+		
+		
+		Iterator<FactorNode> BFSExpander = new BFS<FactorNode, VariableNode>(m.getEntireGraph(), m.getQuery());
+		
+		while(BFSExpander.hasNext()){
+			m.ExpandModel(BFSExpander);
+		//	ModelGenerator.printModel(m, false);
+			println("-----------------");
+		}
+		
+
+		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
+		ModelGenerator.printModel(tree.first);
+		println(sbp.inference());
+		println(ModelGenerator.LVECalculation(m));
+		println("d");
+		
 	}
 }
