@@ -29,6 +29,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.collect.ManyToManyRelation;
 
 import anytimeExactBeliefPropagation.Model.Model;
@@ -90,13 +91,12 @@ public class ModelGenerator {
 	 * Generates an Ising model with random probabilities
 	 * @param nLines
 	 * @param nCols
-	 * @param theory
 	 * @param context
 	 * @param possibleValues 
 	 * 			Example: Boolean, 1..6
 	 * @return
 	 */
-	public static Pair<Set<Expression>,Context> IsingModel(int nLines, int nCols,Theory theory, Context context, Expression possibleValues){
+	public static Triple<Set<Expression>,Context,Expression> IsingModel(int nLines, int nCols, Context context, Expression possibleValues){
 		Set<Expression> factorsInModel = new HashSet<Expression>();
 		
 		Expression[][] a = new Expression[nLines][nCols];
@@ -120,22 +120,20 @@ public class ModelGenerator {
 				}
 			}
 		}		
-		Pair<Set<Expression>,Context> result = new Pair<>(factorsInModel,context);
+		Triple<Set<Expression>,Context,Expression> result = new Triple<>(factorsInModel,context,a[0][0]);
 		return result;
 	}
 	
 	/**
 	 * Generates a random model with a given number of variables
 	 * 
- * 
 	 * @param nVariables
 	 * @param nFactors
-	 * @param theory
 	 * @param context
 	 * @param possibleValues
 	 * @return
 	 */
-	public static Pair<Set<Expression>,Context> randomModel(int nVariables, int nFactors , Theory theory, Context context, Expression possibleValues){
+	public static Triple<Set<Expression>,Context,Expression> randomModel(int nVariables, int nFactors, Context context, Expression possibleValues){
 		Set<Expression> factorsInModel = new HashSet<Expression>();
 		
 		Expression[] a = new Expression[nVariables];
@@ -154,7 +152,7 @@ public class ModelGenerator {
 			Expression f = generateProbability(context, varOfF);
 			factorsInModel.add(f);
 		}
-		Pair<Set<Expression>,Context> result =  new Pair<>(factorsInModel,context);
+		Triple<Set<Expression>,Context,Expression> result = new Triple<>(factorsInModel,context,a[0]);
 		return result;
 		
 	}
@@ -163,12 +161,11 @@ public class ModelGenerator {
 	 * Creates a model that looks like a queue of factors and variables
 	 * 		Q - F - V - F -...- F - V 
 	 * @param nVariables
-	 * @param theory
 	 * @param context
 	 * @param possibleValues
 	 * @return
 	 */
-	public static Pair<Set<Expression>,Context> lineModel(int nVariables , Theory theory, Context context, Expression possibleValues){
+	public static Triple<Set<Expression>,Context,Expression> lineModel(int nVariables, Context context, Expression possibleValues){
 		Set<Expression> factorsInModel = new HashSet<Expression>();
 		
 		Expression[] a = new Expression[nVariables];
@@ -180,7 +177,7 @@ public class ModelGenerator {
 			Expression factor = generateProbability(context, a[i],a[i+1]);
 			factorsInModel.add(factor);
 		}
-		Pair<Set<Expression>,Context> result =  new Pair<>(factorsInModel,context);
+		Triple<Set<Expression>,Context,Expression> result = new Triple<>(factorsInModel,context,a[0]);
 		return result;
 	}
 	
@@ -188,12 +185,11 @@ public class ModelGenerator {
 	 * creates a tree with n children per node
 	 * @param depth
 	 * @param numberOfChildren
-	 * @param theory
 	 * @param context
 	 * @param possibleValues
 	 * @return
 	 */
-	public static Pair<Set<Expression>,Context> nTreeModel(int depth , int numberOfChildren, Theory theory, Context context, Expression possibleValues){
+	public static Triple<Set<Expression>,Context,Expression> nTreeModel(int depth , int numberOfChildren, Context context, Expression possibleValues){
 		Set<Expression> factorsInModel = new HashSet<Expression>();
 		
 		int nCols = 1;
@@ -219,7 +215,7 @@ public class ModelGenerator {
 			}
 			colMax*=numberOfChildren;
 		}
-		Pair<Set<Expression>,Context> result =  new Pair<>(factorsInModel,context);
+		Triple<Set<Expression>,Context,Expression> result = new Triple<>(factorsInModel,context,a[0][0]);
 		return result;
 	}
 	

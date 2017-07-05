@@ -10,13 +10,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
-import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.Triple;
 
 import anytimeExactBeliefPropagation.Model.BFS;
 import anytimeExactBeliefPropagation.Model.Model;
@@ -144,25 +145,18 @@ public class Tests {
 		println(ModelGenerator.LVECalculation(m));
 		println("d");
 */
-		Pair<Set<Expression>,Context> Imodel = ModelGenerator.IsingModel(3,4, theory, context, parse("Boolean"));
-		Model m = new Model(Imodel.first, theory, Imodel.second, true, parse("A_0_0"));
+		Triple<Set<Expression>,Context,Expression> Imodel = ModelGenerator.IsingModel(3, 4, context, parse("Boolean"));
+		Model m = new Model(Imodel,theory, true);
 		
 		Iterator<FactorNode> BFSExpander = new BFS<FactorNode, VariableNode>(m.getEntireGraph(), m.getQuery());
-		BeliefPropagationWithConditioning sbp;
-
-		sbp = new BeliefPropagationWithConditioning(m);
+		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
 		while(BFSExpander.hasNext()){
-			m.ExpandModel(BFSExpander);
+			Bound inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
 			//ModelGenerator.printModel(m, false);
-			sbp = new BeliefPropagationWithConditioning(m);
-			
-			println(sbp.inference());
-			println("-----------------" + m.AllExplored() + "-----------------");
+			println(inferenceResult);
+			println("----------------- AllExplored : " + m.AllExplored() + "-----------------");
 		}
 
-		sbp = new BeliefPropagationWithConditioning(m);
-		ModelGenerator.printModel(m,false);
-		println(sbp.inference());
 		println(ModelGenerator.LVECalculation(m));
 	}
 }

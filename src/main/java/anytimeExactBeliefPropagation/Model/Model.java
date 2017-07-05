@@ -11,6 +11,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultIntensionalBound;
+import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.collect.ManyToManyRelation;
 
 import anytimeExactBeliefPropagation.BeliefPropagationWithConditioning;
@@ -64,7 +65,10 @@ public class Model {
 	public Model(Set<Expression> Factors,Theory theory, Context context, boolean isExtensional, Expression query){
 		this(Factors,theory, context, isExtensional, new VariableNode(query, isExtensional, theory, context));
 	}
-	
+	public Model(Triple<Set<Expression>,Context,Expression> factorsTheoryAndQuery,Theory theory, boolean isExtensional){
+		this(factorsTheoryAndQuery.first, theory, factorsTheoryAndQuery.second, isExtensional, factorsTheoryAndQuery.third);
+	}
+
 	/**
 	 * This method receives as input an {@code Iterator<FactorNode>} object and expands the 
 	 * {@code exploredGraphicalModel} by adding ONE FACTOR to it. 
@@ -128,7 +132,6 @@ public class Model {
 		this.exploredGraphicalModel = graph;
 	}
 	
-	
 	/**
 	 * If we wish to restart the incremental inference process (maybe to test other forms of
 	 * graph expansion or other partition trees), it suffices to clear the explored graph 
@@ -165,5 +168,9 @@ public class Model {
 	 */
 	public boolean isExtensional(){
 		return isExtensional;
+	}
+	
+	public void SetExploredGraphToEntireGraph(){
+		exploredGraphicalModel = graphicalModel;
 	}
 }

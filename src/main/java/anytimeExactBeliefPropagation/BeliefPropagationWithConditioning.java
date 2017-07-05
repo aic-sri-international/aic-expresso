@@ -6,6 +6,7 @@ import static com.sri.ai.util.Util.println;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -25,18 +26,31 @@ public class BeliefPropagationWithConditioning {
 	
 	public BeliefPropagationWithConditioning(Model model) {
 		this.model = model;
-		
-		VariableNode query = model.getQuery();
-		this.partitionTree = new PartitionTree(query,model);
-		
 		AllExplored = false;
+	}
+
+	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
+		if(it.hasNext()){
+			model.ExpandModel(it);
+			Bound result = inference();
+			return result;
+		}
+		return null;
+	}
+	
+	public Bound InferenceOverEntireModel(){
+		model.SetExploredGraphToEntireGraph();
+		Bound result = inference();
+		return result;
 	}
 	
 	public Bound inference(){
+		VariableNode query = model.getQuery();
+		this.partitionTree = new PartitionTree(query,model);
+		
 		AllExplored = model.AllExplored();
 		
 		Bound result = variableMessage(partitionTree, new HashSet<VariableNode>());
-	
 		return result;
 	}
 	
@@ -149,13 +163,14 @@ public class BeliefPropagationWithConditioning {
 		return bound;
 		//partitionInAFactorNode.node.setBound(bound);
 	}
-		
+
+	
 	/**
 	 * Given the partition, compute the separator. TODO more efficient implementation
 	 * @param p
 	 * @return
 	 */
-	public Set<VariableNode> ComputeSeparator(PartitionTree pTree){
+	private Set<VariableNode> ComputeSeparator(PartitionTree pTree){
 		//Create sets with the variables in each partition
 		List<Set<VariableNode>> VariablePartition = new ArrayList<Set<VariableNode>>();
 		for(PartitionTree p : pTree.partition){
