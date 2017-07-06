@@ -175,7 +175,7 @@ public class BeliefPropagationWithConditioning {
 		List<Set<VariableNode>> VariablePartition = new ArrayList<Set<VariableNode>>();
 		for(PartitionTree p : pTree.children){
 			Set<VariableNode> variablesOfP = new HashSet<>();
-			for(FactorNode phi : p.setOfFactors){
+			for(FactorNode phi : p.setOfFactorsInsidePartition){
 				Collection<VariableNode> VarsOfPhi= model.getExploredGraph().getAsOfB(phi);
 				variablesOfP.addAll(VarsOfPhi);
 			}

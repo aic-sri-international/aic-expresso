@@ -18,9 +18,9 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
  * This class defines a partition tree for factors of a given {@link Model}.
  * 
  * In the S-BP algorithm, each {@link Node} has it's own partition, and sees a given part of the graph.
- * This is shown here by the attributes {@code node} and {@code setOfFactors}.
- * Those a partition of those {@code setOfFactors} is found in the attribute {@code parents}. 
- * This means that the Union of p.setOfFactors, for p in partition is equal to this.setOfFactors. 
+ * This is shown here by the attributes {@code node} and {@code setOfFactorsInsidePartition}.
+ * Those a partition of those {@code setOfFactorsInsidePartition} is found in the attribute {@code parents}. 
+ * This means that the Union of p.setOfFactorsInsidePartition, for p in partition is equal to this.setOfFactorsInsidePartition. 
  * 
  * @author ferreira
  *
@@ -28,7 +28,7 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 
 public class PartitionTree {
-	public Set<FactorNode> setOfFactors;
+	public Set<FactorNode> setOfFactorsInsidePartition;
 	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
@@ -103,7 +103,7 @@ public class PartitionTree {
 	
 	/**
 	 * This will print on the standard output the nodes of the partition tree in a tree indentation.
-	 * One if one wishes to print the setOfFactors of each node, set {@code PrintSetOfFactorsAlso} to {@code true}, and otherwise {@code false}
+	 * One if one wishes to print the setOfFactorsInsidePartition of each node, set {@code PrintSetOfFactorsAlso} to {@code true}, and otherwise {@code false}
 	 *  
 	 * @param PrintSetOfFactorsAlso
 	 */
@@ -117,7 +117,7 @@ public class PartitionTree {
 		}
 		println(indentation + node);
 		if(PrintSetOfFactorsAlso){
-			println(indentation + setOfFactors.size());
+			println(indentation + setOfFactorsInsidePartition.size());
 		}
 		
 		i++;
@@ -127,9 +127,9 @@ public class PartitionTree {
 	}
 
 	private void CompleteTree(){
-		setOfFactors = new HashSet<>();
+		setOfFactorsInsidePartition = new HashSet<>();
 		if(node.isFactor()){
-			setOfFactors.add((FactorNode)this.node);
+			setOfFactorsInsidePartition.add((FactorNode)this.node);
 		}
 		if(children.size() == 0){
 			return;
@@ -141,13 +141,13 @@ public class PartitionTree {
 		
 		if(node.isFactor()){
 			for(PartitionTree p : children){
-				setOfFactors.addAll(p.setOfFactors);
+				setOfFactorsInsidePartition.addAll(p.setOfFactorsInsidePartition);
 			}
 		}
 		if(node.isVariable()){
 			for(PartitionTree p : children){
-				setOfFactors.addAll(p.setOfFactors);
-				//setOfFactors.add((FactorNode) p.node);
+				setOfFactorsInsidePartition.addAll(p.setOfFactorsInsidePartition);
+				//setOfFactorsInsidePartition.add((FactorNode) p.node);
 			}
 		}
 	}
