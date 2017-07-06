@@ -83,6 +83,11 @@ public class Tests {
 		println("Computation with SGDPLL");
 		println(ModelGenerator.LVECalculation(m) + "\n");
 	}
+	
+	
+	//public Pair<double,T> computeTimeAndReturnResults(T t){
+		
+	//}
 }
 
 

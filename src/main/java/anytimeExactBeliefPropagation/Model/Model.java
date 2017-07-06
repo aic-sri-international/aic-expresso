@@ -91,6 +91,14 @@ public class Model {
 		}
 	}
 	
+	public void ExpandModel(FactorNode newFactorNode){
+		//BFS, DFS,...
+		for (Expression variable : Expressions.freeVariables(newFactorNode.getValue(), context)) {
+			VariableNode v = new VariableNode(variable, isExtensional,theory,context);
+			exploredGraphicalModel.add(v,newFactorNode);
+		}	
+	}
+	
 	/**
 	 * Returns true if exploredGraphicalModel == graphicalModel
 	 * @return

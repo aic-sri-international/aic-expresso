@@ -31,7 +31,9 @@ public class BeliefPropagationWithConditioning {
 
 	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
 		if(it.hasNext()){
-			model.ExpandModel(it);
+			FactorNode newfactor = it.next();
+			model.ExpandModel(newfactor);
+			//partitionTree.add(newFactor);
 			Bound result = inference();
 			return result;
 		}

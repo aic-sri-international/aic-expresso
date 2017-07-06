@@ -32,6 +32,7 @@ public class PartitionTree {
 	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
+	public Set<FactorNode> Separator;
 	
    	public PartitionTree(Node node) {
 		this.node = node;
@@ -45,6 +46,34 @@ public class PartitionTree {
 		CreatePartitionTreeWithBFS(model);
 		CompleteTree();
 	}
+   	
+//   	public void add(FactorNode newFactor){
+//   		PartitionTree p = choosePlaceToPlaceFactor();
+//   		//for each variable of p, if variable does not belong to any other factor in the tree,
+//   		// then add variable below p.
+//   		
+//   		
+//   		//
+//   		p.addPartitionToPartitionTreeAndUpdatePArtitionTree();
+//   	}
+//   	
+//   	private void addPartitionToPartitionTreeAndUpdatePArtitionTree(){
+//   		FactorNode newFactor = (FactorNode) this.node;
+//   		updateSetOfFactors(newFactor);
+//   		updateCutSet();
+//   		updateBound(newFactor);
+//   	}
+//   	public void updateSetOfFactors(FactorNode newFactor){
+//   		this.setOfFactorsInsidePartition.add(newFactor);
+//   		if(this.parent!=null){
+//   			this.parent.updateSetOfFactors(newFactor);
+//   		}
+//   	}
+//   	public void updateCutSet(){
+//   		
+//   	}
+//   	
+   	//TODO : change way of expanding model
    	
    	/**
    	 * This class creates a partition based on a BFS process.
