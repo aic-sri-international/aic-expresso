@@ -149,9 +149,9 @@ public class BPTest {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);
 		
-		Model m = IsingModel(3,3,theory, context, parse("Boolean"));
+		Model m = IsingModel(4,3,theory, context, parse("Boolean"));
 		String chooseFunction = "BFS";
-		//printModel(m);
+		printModel(m);
 				
 		runTest(m, chooseFunction);
 		

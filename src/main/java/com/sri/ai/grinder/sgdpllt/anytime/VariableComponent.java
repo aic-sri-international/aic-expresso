@@ -92,7 +92,7 @@ public class VariableComponent {
 		Set<Expression> intersection = new HashSet<Expression>();
 		intersection.addAll(model.getNeighborsOfSet(model.getInitializedVariable()));
 		Collection<Expression> S = model.getNeighbors(variable);
-		S.remove(Parent.phi);
+		S.remove(Parent.factor);
 		if (S.isEmpty()){
 			this.entirelyDiscover = true;
 			this.bound= Bounds.makeSingleElementBound(makeSymbol(1), isExtensionalBound);
@@ -122,7 +122,7 @@ public class VariableComponent {
 
 		Set<Expression> ExpressionParent = new HashSet<Expression>();
 		for (FactorComponent Parent : this.parent){
-			ExpressionParent.add(Parent.phi);
+			ExpressionParent.add(Parent.factor);
 			this.SummedOutCutset.addAll(Parent.SummedOutCutset);
 			this.SummedOutCutset.addAll(Parent.cutsetInsideSubModel);
 		}
@@ -137,7 +137,7 @@ public class VariableComponent {
 					
 					//we check if the neighbor factor has already been initialized
 					for (FactorComponent factorComponentAlreadyInitialized : model.initializeFactorComponent) {
-						if (factorComponentAlreadyInitialized.phi.equals(factorInvolvingVariable)) {
+						if (factorComponentAlreadyInitialized.factor.equals(factorInvolvingVariable)) {
 							isFactorAlreadyDiscovered = true;
 							///this.parent.add(factorComponentAlreadyInitialized.phi);
 							//if a we discover a variable already initialized we update the parent of this variable
@@ -222,7 +222,7 @@ public class VariableComponent {
 			//}
 			
 			
-			phiInsideSubModel.addAll(this.children.get(j).phiInsideSubModel);
+			phiInsideSubModel.addAll(this.children.get(j).factorsInsideSubModel);
 			if (cutsetOutsideSubModel.contains(this.variable)){
 				this.isCutset = true;
 			}
@@ -324,7 +324,7 @@ public class VariableComponent {
 	public int chooseMySelf(){
 		System.out.println("Choose next factor for variable " + this.variable + " : ");
 		for (int i = 0; i < this.children.size(); i++){
-			System.out.println("Choice " + i + " = " + this.children.get(i).phi);
+			System.out.println("Choice " + i + " = " + this.children.get(i).factor);
 		}
 		Scanner reader = new Scanner(System.in);  // Reading from System.in
 		System.out.println("Enter a choice: ");
@@ -338,7 +338,7 @@ public class VariableComponent {
 		for (int j = 0; j<this.children.size(); j++){
 			if (!this.children.get(j).entirelyDiscover){
 				
-				Set<Expression> toMultiply = this.model.getNeighbors(this.children.get(j).phi);
+				Set<Expression> toMultiply = this.model.getNeighbors(this.children.get(j).factor);
 				toMultiply.removeAll(this.children.get(j).parent);
 				
 				DefaultExtensionalUniSet varToMultiply = new DefaultExtensionalUniSet(new ArrayList(toMultiply));
@@ -348,7 +348,7 @@ public class VariableComponent {
 				
 				Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 						indices,
-						Bounds.normalizeSingleExpression(this.children.get(j).phi, this.model.theory, this.model.context),//head
+						Bounds.normalizeSingleExpression(this.children.get(j).factor, this.model.theory, this.model.context),//head
 						makeSymbol(true)//No Condition
 						);
 				
@@ -404,7 +404,7 @@ public class VariableComponent {
 		String tab = new String();
 		Set<Expression> Pext = new HashSet<Expression>();
 		for (FactorComponent factor : this.model.initializeFactorComponent){
-			Pext.add(factor.phi);
+			Pext.add(factor.factor);
 		}
 		Pext.removeAll(phiInsideSubModel);
 		System.out.println(tab + "Variable : " + variable);

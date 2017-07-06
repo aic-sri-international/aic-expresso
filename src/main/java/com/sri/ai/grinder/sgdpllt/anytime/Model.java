@@ -144,7 +144,7 @@ public class Model {
 		}
 		System.out.println("Factor : ");
 		for (FactorComponent factor : this.initializeFactorComponent) {
-			System.out.println("\t" + factor.phi);
+			System.out.println("\t" + factor.factor);
 			System.out.println("\t\t" + "Parents" + factor.parent);
 			System.out.println("\t\t" + "cutset Outside SubModel" + factor.cutsetOutsideSubModel);
 			System.out.println("\t\t" + "cutset Inside SubModel" + factor.cutsetInsideSubModel);
@@ -156,7 +156,7 @@ public class Model {
 		Set<Expression> factorSet = new HashSet<Expression>();
 		for (FactorComponent factor : this.initializeFactorComponent) {
 
-			factorSet.add(factor.phi);
+			factorSet.add(factor.factor);
 
 		}
 		return factorSet;
