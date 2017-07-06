@@ -76,7 +76,7 @@ public class BeliefPropagationWithConditioning {
 		
 		// calling children partitions. for each partition, call message passing, 
 		// store bound
-		Bound[]  boundsOfChildrenMessages = new Bound[partitionInAVariableNode.partition.size()];
+		Bound[]  boundsOfChildrenMessages = new Bound[partitionInAVariableNode.children.size()];
 		Set<Expression> variablesToSumOut = new HashSet<>();
 		for(VariableNode v : SeparatorOnThisLevel){
 			variablesToSumOut.add(v.getValue());
@@ -93,7 +93,7 @@ public class BeliefPropagationWithConditioning {
 		}
 		
 		int i = 0;
-		for(PartitionTree p : partitionInAVariableNode.partition){
+		for(PartitionTree p : partitionInAVariableNode.children){
 			Bound boundInP = factorMessage(p,SeparatorForNextLevels);
 			//Bound boundInP = p.node.getBound();
 			boundsOfChildrenMessages[i] = boundInP;
@@ -133,14 +133,14 @@ public class BeliefPropagationWithConditioning {
 		// calling children partitions. for each partition, call message passing, 
 		// store VariableNode (we are going to sum them all out) and
 		// store bound
-		Bound[]  boundsOfChildrenMessages = new Bound[partitionInAFactorNode.partition.size()];
+		Bound[]  boundsOfChildrenMessages = new Bound[partitionInAFactorNode.children.size()];
 		Set<Expression> variablesToSumOut = new HashSet<>();
 		for(VariableNode v : SeparatorOnThisLevel){
 			variablesToSumOut.add(v.getValue());
 		}
 		
 		int i =0;
-		for(PartitionTree p : partitionInAFactorNode.partition){
+		for(PartitionTree p : partitionInAFactorNode.children){
 			Bound boundInP = variableMessage(p,SeparatorForNextLevels);
 			//Bound boundInP = p.node.getBound();
 			boundsOfChildrenMessages[i] = boundInP;
@@ -173,7 +173,7 @@ public class BeliefPropagationWithConditioning {
 	private Set<VariableNode> ComputeSeparator(PartitionTree pTree){
 		//Create sets with the variables in each partition
 		List<Set<VariableNode>> VariablePartition = new ArrayList<Set<VariableNode>>();
-		for(PartitionTree p : pTree.partition){
+		for(PartitionTree p : pTree.children){
 			Set<VariableNode> variablesOfP = new HashSet<>();
 			for(FactorNode phi : p.setOfFactors){
 				Collection<VariableNode> VarsOfPhi= model.getExploredGraph().getAsOfB(phi);

@@ -29,14 +29,14 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 public class PartitionTree {
 	public Set<FactorNode> setOfFactors;
-	public Set<PartitionTree> partition;
+	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
 	
    	public PartitionTree(Node node) {
 		this.node = node;
 		
-		partition = new HashSet<>();
+		children = new HashSet<>();
 		
 	}
 	
@@ -95,7 +95,7 @@ public class PartitionTree {
 	                    PartitionTree pChild = new PartitionTree(neighbor);
 	 					pChild.parent = parentPartition;
 	 					hashTable.put(neighbor, pChild);
-						parentPartition.partition.add(pChild);
+						parentPartition.children.add(pChild);
 	       		 	}
 		    	}
 	    }
@@ -121,7 +121,7 @@ public class PartitionTree {
 		}
 		
 		i++;
-		for(PartitionTree p : partition){
+		for(PartitionTree p : children){
 			p.printTree(i+1, PrintSetOfFactorsAlso);
 		}
 	}
@@ -131,21 +131,21 @@ public class PartitionTree {
 		if(node.isFactor()){
 			setOfFactors.add((FactorNode)this.node);
 		}
-		if(partition.size() == 0){
+		if(children.size() == 0){
 			return;
 		}
 		
-		for(PartitionTree p : partition){
+		for(PartitionTree p : children){
 			p.CompleteTree();
 		}
 		
 		if(node.isFactor()){
-			for(PartitionTree p : partition){
+			for(PartitionTree p : children){
 				setOfFactors.addAll(p.setOfFactors);
 			}
 		}
 		if(node.isVariable()){
-			for(PartitionTree p : partition){
+			for(PartitionTree p : children){
 				setOfFactors.addAll(p.setOfFactors);
 				//setOfFactors.add((FactorNode) p.node);
 			}
