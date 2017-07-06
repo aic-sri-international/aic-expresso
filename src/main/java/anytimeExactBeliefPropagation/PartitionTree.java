@@ -29,10 +29,11 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 public class PartitionTree {
 	public Set<FactorNode> setOfFactorsInsidePartition;
+	public Set<VariableNode> setOfVariablesInsidePartition;
 	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
-	public Set<FactorNode> Separator;
+	public Set<VariableNode> Separator;
 	
    	public PartitionTree(Node node) {
 		this.node = node;
@@ -49,30 +50,59 @@ public class PartitionTree {
    	
 //   	public void add(FactorNode newFactor){
 //   		PartitionTree p = choosePlaceToPlaceFactor();
-//   		//for each variable of p, if variable does not belong to any other factor in the tree,
-//   		// then add variable below p.
+////   		for each variable of p, if variable does not belong to any other factor in the tree,
+////   		 then add variable below p.
 //   		
 //   		
-//   		//
+//   		
 //   		p.addPartitionToPartitionTreeAndUpdatePArtitionTree();
 //   	}
-//   	
-//   	private void addPartitionToPartitionTreeAndUpdatePArtitionTree(){
-//   		FactorNode newFactor = (FactorNode) this.node;
-//   		updateSetOfFactors(newFactor);
-//   		updateCutSet();
-//   		updateBound(newFactor);
-//   	}
-//   	public void updateSetOfFactors(FactorNode newFactor){
-//   		this.setOfFactorsInsidePartition.add(newFactor);
-//   		if(this.parent!=null){
-//   			this.parent.updateSetOfFactors(newFactor);
-//   		}
-//   	}
-//   	public void updateCutSet(){
-//   		
-//   	}
-//   	
+   	
+   	private void addPartitionToPartitionTreeAndUpdatePArtitionTree(){
+   		FactorNode newFactor = (FactorNode) this.node;
+   		updateSetOfFactors(newFactor);
+   		updateCutSet();
+   		updateBound();
+   	}
+   	public void updateSetOfFactors(FactorNode newFactor){
+   		this.setOfFactorsInsidePartition.add(newFactor);
+   		if(this.parent!=null){
+   			this.parent.updateSetOfFactors(newFactor);
+   		}
+   	}
+   	public void updateCutSet(){
+   		if (this.parent!=null){
+   			this.parent.updateCutSet();
+   		}
+   		this.Separator = this.findCutSet();
+   	}
+   	
+   	public Set<VariableNode> findCutSet(){
+   		Set<VariableNode> setOfCusets = new HashSet<VariableNode>();
+   		for(PartitionTree child1 : this.children){
+   	   		for(PartitionTree child2 : this.children){
+   	   			if(!child1.equals(child2)){
+   	   			Set<VariableNode> copyOfVariablesInChild1 = copySet(child1.setOfVariablesInsidePartition);
+   	   			copyOfVariablesInChild1.retainAll(child2.setOfVariablesInsidePartition);
+	   	   		setOfCusets.addAll(copyOfVariablesInChild1);
+   	   			}
+   	   		}
+   		}
+   		return setOfCusets;
+   	}
+   	
+   	public static Set<VariableNode> copySet(Set<VariableNode> setOfVariablesToCopy){
+   		Set<VariableNode> setOfVariables = new HashSet<VariableNode>();
+   		for (VariableNode variableNode : setOfVariablesToCopy){
+   			setOfVariables.add(variableNode);
+   		}
+   		return setOfVariables;
+   	}
+   	
+   	public void updateBound(){
+   		
+   	}
+   	
    	//TODO : change way of expanding model
    	
    	/**
