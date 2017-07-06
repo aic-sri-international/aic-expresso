@@ -2,6 +2,7 @@ package anytimeExactBeliefPropagation;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -27,7 +29,9 @@ import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.collect.ManyToManyRelation;
@@ -40,6 +44,7 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
  *  A class that provides a handful number of graphical models, under the form of {@link Set}s of  {@link Expression}s
  * 
  * TODO Add "seeds" for repeatability
+ * TODO for binary query nodes, add max-min probability of truth
  * 
  * @author Gabriel Azevedo Ferreira
  */
@@ -279,4 +284,42 @@ public class ModelGenerator {
 		}
 	}
 
+	public static Pair<Double,Double> MaxMinProbability(Bound b,Model m){
+		Context context = m.getContext();
+		Theory theory = m.getTheory();
+		Expression query = m.getQuery().getValue();
+		Type type = context.getTypeOfRegisteredSymbol(query);
+		
+		if(type.getName().equals("Boolean")){
+			double maxProbabilityOfTrue = -1;
+			double minProbabilityOfTrue = 10;
+			
+			if(b.isExtensionalBound()){
+				DefaultExtensionalBound extensionalBound = (DefaultExtensionalBound) b;
+				List<Expression> listOfElements = extensionalBound.getArguments();
+				for(Expression distribution : listOfElements){
+					//replace and evaluate
+					Expression replacingQueryByTrue = distribution.replaceAllOccurrences(query, parse("true"), context);
+					Expression evaluating = theory.evaluate(replacingQueryByTrue, context);
+					//convert to double
+					double value = evaluating.doubleValue();
+					//update max and min
+					if(value > maxProbabilityOfTrue){
+						maxProbabilityOfTrue = value;
+					}
+					if(value < minProbabilityOfTrue){
+						minProbabilityOfTrue = value;
+					}
+				}
+				Pair<Double,Double> result = new Pair<>(minProbabilityOfTrue,maxProbabilityOfTrue);
+				return result;
+			}
+			else if(b.isIntensionalBound()){
+				
+			}
+			
+		}
+		
+		return null;		
+	}
 }

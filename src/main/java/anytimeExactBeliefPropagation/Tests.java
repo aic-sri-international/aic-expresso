@@ -18,6 +18,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.util.base.Pair;
 
 import anytimeExactBeliefPropagation.Model.BFS;
 import anytimeExactBeliefPropagation.Model.Model;
@@ -36,14 +37,14 @@ public class Tests {
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
 
 		String modelName = "Ising Model";
-		Model m = new Model(IsingModel(3, 4, context, parse("Boolean")),theory, true);
+		Model m = new Model(IsingModel(4, 4, context, parse("Boolean")),theory, true);
 		
-		testFunction(modelName, m,false);
+		testFunction(modelName, m,true);
 		
 		modelName = "Line Model";
 		m = new Model(lineModel(10, context, parse("Boolean")),theory, true);
 		
-		testFunction(modelName, m,false);
+		testFunction(modelName, m,true);
 		
 		modelName = "Binary Tree Model";
 		m = new Model(nTreeModel(5, 2, context, parse("Boolean")),theory, true);
@@ -66,7 +67,13 @@ public class Tests {
 			inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
 			//ModelGenerator.printModel(m, false);
 			if(printAll){
-				println(inferenceResult);
+				println("Number of ExtremePoints : "+inferenceResult.getArguments().size());
+				Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
+				println("Minimal probability of Query = true : " +
+						minAndMaxProbabilityofQueryequalsTrue.first +
+						"\nMaximal probability of Query = true :" +
+						minAndMaxProbabilityofQueryequalsTrue.second +
+						"\nLength of interval (that is, (max - min)) : " + (minAndMaxProbabilityofQueryequalsTrue.second - minAndMaxProbabilityofQueryequalsTrue.first));
 				println("----------------- AllExplored : " + m.AllExplored() + "-----------------");
 			}
 		}
@@ -74,7 +81,7 @@ public class Tests {
 		if(!printAll)
 			println(inferenceResult);
 		println("Computation with SGDPLL");
-		println(ModelGenerator.LVECalculation(m));
+		println(ModelGenerator.LVECalculation(m) + "\n");
 	}
 }
 
