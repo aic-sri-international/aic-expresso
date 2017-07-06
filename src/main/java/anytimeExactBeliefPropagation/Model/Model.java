@@ -56,9 +56,11 @@ public class Model {
 		this(theory, context, isExtensional, query);
 		for (Expression factor : Factors) {
 			FactorNode f = new FactorNode(factor,isExtensional,theory,context);
-			for (Expression variable : Expressions.freeVariables(factor, context)) {
-				VariableNode v = new VariableNode(variable, isExtensional,theory,context);
-				graphicalModel.add(v,f);
+			if(factor != null){
+				for (Expression variable : Expressions.freeVariables(factor, context)) {
+					VariableNode v = new VariableNode(variable, isExtensional,theory,context);
+					graphicalModel.add(v,f);
+				}
 			}
 		}
 	}

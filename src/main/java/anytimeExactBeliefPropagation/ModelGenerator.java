@@ -39,6 +39,8 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 /**
  *  A class that provides a handful number of graphical models, under the form of {@link Set}s of  {@link Expression}s
  * 
+ * TODO Add "seeds" for repeatability
+ * 
  * @author Gabriel Azevedo Ferreira
  */
 @Beta
