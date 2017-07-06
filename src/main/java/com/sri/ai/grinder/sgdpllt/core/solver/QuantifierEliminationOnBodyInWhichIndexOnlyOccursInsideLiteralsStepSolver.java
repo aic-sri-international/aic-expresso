@@ -37,10 +37,13 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
+import static com.sri.ai.util.Util.thereExists;
+
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
@@ -61,9 +64,7 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, Context)} to
  * the literal-free body and {@link SingleVariableConstraint#modelCount(Context)},
  * followed by {@link Theory#simplify(Expression, Context)}.
- * No if then else externalization is performed.
  * </ul>
- * 
  * 
  * @author braz
  *
@@ -91,10 +92,16 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 	protected Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
 		Expression result;
-		if (getGroup().isIdempotent()) {
+		
+		Expression index = indexConstraint.getVariable();
+		if (thereExists(new SubExpressionsDepthFirstIterator(literalFreeBody), s -> s.equals(index))) {
+			Expression problemExpression = group.makeProblemExpression(index, context.getTypeExpressionOfRegisteredSymbol(index), indexConstraint, literalFreeBody);
+			throw new Error("Problem " + problemExpression + " has index that is not in a literal but is in body, and current solver does not support that.");
+		}
+		else if (getGroup().isIdempotent()) {
 			Expression conditionForSatisfiability = indexConstraint.satisfiability(context);
 			if (conditionForSatisfiability == null) {
-				throw new Error("No satisfiability solver present for " + indexConstraint.getVariable() + ". Need to implement re-construction of original expression");
+				throw new Error("No satisfiability solver present for " + index + ". Need to implement re-construction of original expression");
 			}
 			result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
 		}
