@@ -184,7 +184,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 			formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
 					(group, constraint, body);
 		}
-		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);;
+		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
 		return result;
 	}
 	

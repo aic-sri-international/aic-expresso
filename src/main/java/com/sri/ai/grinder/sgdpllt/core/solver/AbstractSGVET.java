@@ -121,12 +121,12 @@ public class AbstractSGVET extends AbstractMultiIndexQuantifierEliminator {
 		checkInterrupted();
 		
 		// Make sure body is simplified and quantifier-free.
-		body = context.getTheory().evaluate(body, context);
+		Expression simplifiedBody = context.getTheory().evaluate(body, context);
 		
 		Expression result;
 		if (getDebug()) {
-			System.out.println("SGVE(T) input: " + body);	
-			System.out.println("Width        : " + width(body, context));
+			System.out.println("SGVE(T) input: " + simplifiedBody);	
+			System.out.println("Width        : " + width(simplifiedBody, context));
 		}
 
 		AssociativeCommutativeSemiRing semiRing = (AssociativeCommutativeSemiRing) group;
@@ -137,7 +137,7 @@ public class AbstractSGVET extends AbstractMultiIndexQuantifierEliminator {
 		}
 		else {
 			Expression factoredConditionalsExpression =
-					factoredConditionalsWithAbsorbingElseClause(semiRing, body, context);
+					factoredConditionalsWithAbsorbingElseClause(semiRing, simplifiedBody, context);
 			partition = pickPartition(semiRing, factoredConditionalsExpression, indices, context);
 		}
 
@@ -145,7 +145,7 @@ public class AbstractSGVET extends AbstractMultiIndexQuantifierEliminator {
 			if (basicOutput) {
 				System.out.println("No partition");	
 			}
-			result = subSolver.solve(group, indices, indicesConstraint, body, context);
+			result = subSolver.solve(group, indices, indicesConstraint, simplifiedBody, context);
 		}
 		else {
 			Expression indexSubProblemExpression = product(semiRing, partition.expressionsOnIndexAndNot.first, context);
