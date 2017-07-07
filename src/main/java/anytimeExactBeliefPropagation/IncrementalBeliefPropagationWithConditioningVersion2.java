@@ -2,8 +2,10 @@ package anytimeExactBeliefPropagation;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 
@@ -22,6 +24,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 		this.model = model;
 		findPartitionGivenANode = new HashMap<>();
 		partitionTree = new PartitionTree(model.getQuery());
+		findPartitionGivenANode.put(model.getQuery(), partitionTree);
 	}
 	
 	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
@@ -39,25 +42,25 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 		if(it.hasNext()){
 			//get factor to add
 			FactorNode newfactor = it.next();
-			//expand the model (add new factor to the explored part of the graph)
-			model.ExpandModel(newfactor);
 			//create partition tree of new Factor
 			PartitionTree newPartition = new PartitionTree(newfactor);
 			findPartitionGivenANode.put(newfactor, newPartition);
+			
 			Collection<VariableNode> exploredVariablesInModel = model.getExploredVariables();
+			exploredVariablesInModel.add((VariableNode)partitionTree.node);
 			
 			//get variables to be put below new factor in the three
 			//adding them to the tree
-			Collection<VariableNode> variablesToBePutItTheThree = model.getVariablesOfAFactor(newfactor);
-			variablesToBePutItTheThree.retainAll(exploredVariablesInModel);
-			for(VariableNode v : variablesToBePutItTheThree){
+			Collection<VariableNode> variablesToBePutItTheTree = model.getVariablesOfAFactor(newfactor);
+			variablesToBePutItTheTree.removeAll(exploredVariablesInModel);
+			for(VariableNode v : variablesToBePutItTheTree){
 				PartitionTree p = new PartitionTree(v);
 				newPartition.children.add(p);
 			}
 			
 			//get variables to be put below new factor in the tree	
 			Collection<VariableNode> variablesInTheTreeLinkedToFactor = model.getVariablesOfAFactor(newfactor);
-			variablesInTheTreeLinkedToFactor.removeAll(exploredVariablesInModel);
+			variablesInTheTreeLinkedToFactor.retainAll(exploredVariablesInModel);
 			
 			if(variablesInTheTreeLinkedToFactor.isEmpty()){
 				return null;
@@ -68,6 +71,9 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			PartitionTree parentOfNewFactor = findPartitionGivenANode.get(var);
 			parentOfNewFactor.children.add(newPartition);
 			newPartition.parent = parentOfNewFactor;
+
+			//expand the model (add new factor to the explored part of the graph)
+			model.ExpandModel(newfactor);
 			
 			return newPartition;
 		}
