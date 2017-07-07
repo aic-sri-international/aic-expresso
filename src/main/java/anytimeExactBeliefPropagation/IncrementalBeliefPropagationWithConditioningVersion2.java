@@ -30,6 +30,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
 		if(it.hasNext()){
 			PartitionTree newFactorPartition = ExpandModel(it);
+			newFactorPartition.model=newFactorPartition.parent.model;
 			newFactorPartition.addPartitionToPartitionTreeAndUpdatePArtitionTree();
 			Bound result = this.partitionTree.node.getBound();
 			//Bound result = inference();
@@ -56,6 +57,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			for(VariableNode v : variablesToBePutItTheTree){
 				PartitionTree p = new PartitionTree(v);
 				newPartition.children.add(p);
+				newPartition.model=p.model;
 			}
 			
 			//get variables to be put below new factor in the tree	

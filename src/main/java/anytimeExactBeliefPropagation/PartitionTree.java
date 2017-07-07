@@ -2,12 +2,14 @@ package anytimeExactBeliefPropagation;
 
 import static com.sri.ai.grinder.sgdpllt.library.bounds.Bounds.simplex;
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -70,24 +72,17 @@ public class PartitionTree {
 		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
 		this.setOfFactorsInsidePartition = new HashSet<FactorNode>();
 		this.setOfVariablesInsidePartition= new HashSet<VariableNode>();
-		
-		if(this.node.isFactor()){
-			this.node.setBound(simplex(arrayList(this.node.getValue()), model.getTheory(),model.getContext(), true));
-		}
+
 	}
 	
    	public PartitionTree(Node node) {
 		this.node = node;
-		this.model=this.parent.model;
+		//this.model=this.parent.model;
 		children = new HashSet<>();
 		this.Separator = new HashSet<VariableNode>();
 		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
 		this.setOfFactorsInsidePartition = new HashSet<FactorNode>();
 		this.setOfVariablesInsidePartition= new HashSet<VariableNode>();
-		
-		if(this.node.isFactor()){
-			this.node.setBound(simplex(arrayList(this.node.getValue()), model.getTheory(),model.getContext(), true));
-		}
 	}
 	
    	public PartitionTree(Node root, Model model) {
@@ -120,6 +115,7 @@ public class PartitionTree {
    		if (this.node.isFactor()){
 	   		FactorNode newFactor = (FactorNode) this.node;
 	   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
+	   		//Util.println(model);
 	   		newVariables.addAll(this.model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
 	   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable set
 	   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
@@ -137,7 +133,7 @@ public class PartitionTree {
    	}
    	
    	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Set<VariableNode>  newVariables){
-   		Util.println(this.setOfFactorsInsidePartition);
+   		//Util.println(this.setOfFactorsInsidePartition);
    		this.setOfFactorsInsidePartition.add(newFactor);
    		this.setOfVariablesInsidePartition.addAll(newVariables);
    		if(this.parent!=null){
@@ -185,8 +181,7 @@ public class PartitionTree {
    		this.updateBoundOfParent();
    	}
    	
-	public void updateCurrentBound(){
-   		
+	public void updateCurrentBound(){		
    		if (this.node.isVariable()){
    			Bound newBound=this.messageFromFactorToVariable();
    			this.node.setBound(newBound);
@@ -254,14 +249,45 @@ public class PartitionTree {
 		Bound[] childrenArray = new Bound[children.size()];
 		int i = 0;
 		for(PartitionTree children : this.children){
+			if(children.node.getBound()==null){
+				return this.simplexOfNode();
+			}
 			childrenArray[i] = children.node.getBound();
 			i++;
 		}
-		Util.println(theory);
-		Util.println(context);
-		Util.println(childrenArray);
+		//Util.println(theory);
+		//Util.println(context);
+		//Util.println(childrenArray);
 		Bound childrenBound = Bounds.boundProduct(theory, context, true, childrenArray);//TODO to modify
 		return childrenBound;
+   	}
+   	
+   	public Bound simplexOfNode(){
+   		if(this.node.isVariable()){
+   			return Bounds.simplex(arrayList(this.node.getValue()), model.getTheory(), model.getContext(), true);
+   		}
+   		Set < VariableNode > variableNodes = new HashSet <VariableNode>();
+   		variableNodes.addAll(this.model.getEntireGraph().getAsOfB((FactorNode)this.node));
+   		variableNodes.remove((VariableNode)this.parent.node);
+   		if(variableNodes.isEmpty()){
+   			return null; //TO modify
+   			
+   		}else{
+   			Expression[] variableNode= getArrayOfBoundsFromSetOfVariableNodes(variableNodes);
+   			return simplex(arrayList(variableNode), model.getTheory(), model.getContext(), true);
+   		}
+   	}
+   	
+   	public Expression[] getArrayOfBoundsFromSetOfVariableNodes(Set<VariableNode>  variableNodes){
+   		Iterator<VariableNode> it = variableNodes.iterator();
+   		int n = variableNodes.size();
+   		Expression[] tabExpression= new Expression[n];
+   		int i=0;
+   		for(VariableNode v : in(it)){
+   			tabExpression[i]= v.getValue();
+   			i++;
+   		}
+   		return tabExpression;
    	}
    	
 /*------------------------------------------------------------------------------------------------------------------------*/
