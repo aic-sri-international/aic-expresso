@@ -1,5 +1,6 @@
 package anytimeExactBeliefPropagation.Model;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,7 +15,6 @@ import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultIntensionalBound;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.collect.ManyToManyRelation;
 
-import anytimeExactBeliefPropagation.BeliefPropagationWithConditioning;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
@@ -182,5 +182,29 @@ public class Model {
 	
 	public void SetExploredGraphToEntireGraph(){
 		exploredGraphicalModel = graphicalModel;
+	}
+
+	public Collection<VariableNode> getVariablesOfAFactor(FactorNode factor){
+		return graphicalModel.getAsOfB(factor);
+	}
+	
+	public Collection<FactorNode> getFactorsLinkedToAVariable(VariableNode variable){
+		return graphicalModel.getBsOfA(variable);
+	}
+	
+	public Collection<FactorNode> getExploredFactors(){
+		return exploredGraphicalModel.getBs();
+	}
+	
+	public Collection<VariableNode> getExploredVariables(){
+		return exploredGraphicalModel.getAs();
+	}
+	
+	public Collection<VariableNode> getAllFactors(){
+		return graphicalModel.getAs();
+	}
+	
+	public Collection<FactorNode> getAllVariables(){
+		return graphicalModel.getBs();
 	}
 }
