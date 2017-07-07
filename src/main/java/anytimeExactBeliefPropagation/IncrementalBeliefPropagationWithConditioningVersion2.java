@@ -15,24 +15,24 @@ import anytimeExactBeliefPropagation.Model.Node.Node;
 import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 public class IncrementalBeliefPropagationWithConditioningVersion2 {
-	private Model model;
+	//private Model model;
 	public PartitionTree partitionTree;
 	
 	private Map<Node,PartitionTree> findPartitionGivenANode;
 	
 	public IncrementalBeliefPropagationWithConditioningVersion2(Model model) {
-		this.model = model;
+		//this.model = model;
 		findPartitionGivenANode = new HashMap<>();
-		partitionTree = new PartitionTree(model.getQuery());
+		partitionTree = new PartitionTree(model);
 		findPartitionGivenANode.put(model.getQuery(), partitionTree);
 	}
 	
 	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
 		if(it.hasNext()){
 			PartitionTree newFactorPartition = ExpandModel(it);
-			//TODO update the tree
-			
-			Bound result = inference();
+			newFactorPartition.addPartitionToPartitionTreeAndUpdatePArtitionTree();
+			Bound result = this.partitionTree.node.getBound();
+			//Bound result = inference();
 			return result;
 		}
 		return null;
@@ -46,12 +46,12 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			PartitionTree newPartition = new PartitionTree(newfactor);
 			findPartitionGivenANode.put(newfactor, newPartition);
 			
-			Collection<VariableNode> exploredVariablesInModel = model.getExploredVariables();
+			Collection<VariableNode> exploredVariablesInModel = this.partitionTree.model.getExploredVariables();
 			exploredVariablesInModel.add((VariableNode)partitionTree.node);
 			
 			//get variables to be put below new factor in the three
 			//adding them to the tree
-			Collection<VariableNode> variablesToBePutItTheTree = model.getVariablesOfAFactor(newfactor);
+			Collection<VariableNode> variablesToBePutItTheTree = this.partitionTree.model.getVariablesOfAFactor(newfactor);
 			variablesToBePutItTheTree.removeAll(exploredVariablesInModel);
 			for(VariableNode v : variablesToBePutItTheTree){
 				PartitionTree p = new PartitionTree(v);
@@ -59,7 +59,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			}
 			
 			//get variables to be put below new factor in the tree	
-			Collection<VariableNode> variablesInTheTreeLinkedToFactor = model.getVariablesOfAFactor(newfactor);
+			Collection<VariableNode> variablesInTheTreeLinkedToFactor = this.partitionTree.model.getVariablesOfAFactor(newfactor);
 			variablesInTheTreeLinkedToFactor.retainAll(exploredVariablesInModel);
 			
 			if(variablesInTheTreeLinkedToFactor.isEmpty()){
@@ -73,7 +73,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			newPartition.parent = parentOfNewFactor;
 
 			//expand the model (add new factor to the explored part of the graph)
-			model.ExpandModel(newfactor);
+			this.partitionTree.model.ExpandModel(newfactor);
 			
 			return newPartition;
 		}
