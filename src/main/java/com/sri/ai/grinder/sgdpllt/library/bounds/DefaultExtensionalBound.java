@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExtensionalSet;
@@ -33,13 +32,12 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -201,11 +199,24 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	result = normalize(result, theory, context);
 	return result;
 	}
+	
+	public DefaultExtensionalBound summingBound(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
+		Expression varsSet = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+		DefaultExtensionalBound result = summingBound(varsSet,context,theory);
+		return result;
+	}
+
 
 	@Override
 	public DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
 			Context context, Theory theory){
 		return summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
+	}	
+	
+	public DefaultExtensionalBound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
+			Context context, Theory theory){
+		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+		return summingPhiTimesBound(varSet, phi, context, theory); 
 	}	
 	
 	private DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
@@ -330,4 +341,5 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 
 		return !result.booleanValue();
 	}
+
 }

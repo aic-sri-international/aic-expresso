@@ -1,5 +1,7 @@
 package com.sri.ai.grinder.sgdpllt.library.bounds;
 
+import java.util.ArrayList;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -34,6 +36,9 @@ public interface Bound extends Expression{
 	public Bound summingBound(Expression variablesToBeSummedOut,
 			Context context, Theory theory);
 	
+	public Bound summingBound(ArrayList<Expression> variablesToBeSummedOut,
+			Context context, Theory theory);
+	
 	/**
 	 * given a set of variables "S" a factor \phi and a bound "B", performs the following operation:
 	 * sum_S (\phi * B) = {sum_S \phi \phi' : \phi' in B} 
@@ -48,6 +53,9 @@ public interface Bound extends Expression{
 	 * @return
 	 */
 	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
+			Context context, Theory theory);
+
+	public Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
 			Context context, Theory theory);
 
 	public boolean isExtensionalBound();
