@@ -4,6 +4,8 @@ import static com.sri.ai.grinder.sgdpllt.library.bounds.Bounds.simplex;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -274,7 +276,7 @@ public class PartitionTree {
    		variableNodes.addAll(this.model.getEntireGraph().getAsOfB((FactorNode)this.node));
    		variableNodes.remove((VariableNode)this.parent.node);
    		if(variableNodes.isEmpty()){
-   			return null; //TO modify
+   			return Bounds.makeSingleElementBound(parse("1"), true);
    			
    		}else{
    			Expression[] variableNode= getArrayOfBoundsFromSetOfVariableNodes(variableNodes);
