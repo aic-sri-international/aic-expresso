@@ -148,8 +148,9 @@ public class PartitionTree {
 			childrenArray[i] = children.node.getBound();
 			i++;
 		}
-		Bound childrenBound = Bounds.boundProduct(theory, context, isExtensionalBound,childrenArray);//to modify
-		return childrenBound;
+		//Bound childrenBound = Bounds.boundProduct(theory, context, isExtensionalBound,childrenArray);//to modify
+		//return childrenBound;
+		return null;
    	}
    	
    	//TODO : change way of expanding model
