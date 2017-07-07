@@ -22,6 +22,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
@@ -277,6 +278,19 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		DefaultIntensionalBound result = summingBound(variablesToBeSummedOut, fOfBound, context, theory);
 		return result;				
 	}
+	
+	@Override
+	public Bound summingBound(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
+		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+		return summingBound(varSet, context, theory); 
+	}
+
+	@Override
+	public Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context,
+			Theory theory) {
+		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
+		return summingPhiTimesBound(varSet, phi, context, theory); 
+	}
 
 	protected DefaultIntensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context) {
 		if(!bound.isIntensionalBound()){
@@ -295,4 +309,6 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		DefaultIntensionalBound result = new DefaultIntensionalBound(indexExpressions, evaluation, condition);
 		return result;
 	}
+
+
 }

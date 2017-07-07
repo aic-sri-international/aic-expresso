@@ -14,6 +14,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.util.base.PairOf;
 
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
@@ -55,26 +56,16 @@ public class BeliefPropagationWithConditioning {
 		Bound result = variableMessage(partitionTree, new HashSet<VariableNode>());
 		return result;
 	}
-	
+		
 	public Bound variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
 		if(!partitionInAVariableNode.node.isVariable()){
 			println("error in S-BP!!!");
 			return null;
 		}
-		/** 
-		 * compute the separator. 3 types:
-		 * 						separators for levels above this 	(SeparatorVariablesOnLevelAbove)
-		 * 						separators for this level 			(SeparatorOnThisLevel)
-		 * 						separators for levels below this 	(SeparatorForNextLevels)
-		 */
-		Set<VariableNode> SeparatorOnThisLevel = ComputeSeparator(partitionInAVariableNode);
-		SeparatorOnThisLevel.remove((VariableNode) partitionInAVariableNode.node);
-		//exclude the variables on other levels. they will be summed afterwards(TODO not so sure about it...)
-		SeparatorOnThisLevel.removeAll(SeparatorVariablesOnLevelAbove);
-		
-		Set<VariableNode> SeparatorForNextLevels = new HashSet<>();
-		SeparatorForNextLevels.addAll(SeparatorOnThisLevel);
-		SeparatorForNextLevels.addAll(SeparatorVariablesOnLevelAbove);
+
+		PairOf<Set<VariableNode>> sep = ComputeSeparatorOnThisLevelAndSeparatorOnLevelsBelow(partitionInAVariableNode, SeparatorVariablesOnLevelAbove);
+		Set<VariableNode> SeparatorOnThisLevel = sep.first;
+		Set<VariableNode> SeparatorForNextLevels = sep.second;
 		
 		// calling children partitions. for each partition, call message passing, 
 		// store bound
@@ -113,24 +104,16 @@ public class BeliefPropagationWithConditioning {
 		return bound;
 		//partitionInAVariableNode.node.setBound(bound);
 	}
+
 	public Bound factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
 		if(!partitionInAFactorNode.node.isFactor()){
 			println("error in S-BP!!!");
 			return null;
 		}
-		/** 
-		 * compute the separator. 3 types:
-		 * 						separators for levels above this 	(SeparatorVariablesOnLevelAbove)
-		 * 						separators for this level 			(SeparatorOnThisLevel)
-		 * 						separators for levels below this 	(SeparatorForNextLevels)
-		 */
-		Set<VariableNode> SeparatorOnThisLevel = ComputeSeparator(partitionInAFactorNode);
-		//exclude the variables on other levels. they will be summed afterwards(TODO not so sure about it...)
-		SeparatorOnThisLevel.removeAll(SeparatorVariablesOnLevelAbove);
 		
-		Set<VariableNode> SeparatorForNextLevels = new HashSet<>();
-		SeparatorForNextLevels.addAll(SeparatorOnThisLevel);
-		SeparatorForNextLevels.addAll(SeparatorVariablesOnLevelAbove);
+		PairOf<Set<VariableNode>> sep = ComputeSeparatorOnThisLevelAndSeparatorOnLevelsBelow(partitionInAFactorNode, SeparatorVariablesOnLevelAbove);
+		Set<VariableNode> SeparatorOnThisLevel = sep.first;
+		Set<VariableNode> SeparatorForNextLevels = sep.second;
 		
 		// calling children partitions. for each partition, call message passing, 
 		// store VariableNode (we are going to sum them all out) and
@@ -165,7 +148,6 @@ public class BeliefPropagationWithConditioning {
 		return bound;
 		//partitionInAFactorNode.node.setBound(bound);
 	}
-
 	
 	/**
 	 * Given the partition, compute the separator. TODO more efficient implementation
@@ -196,5 +178,28 @@ public class BeliefPropagationWithConditioning {
 			}
 		}
 		return separatorVariables;
+	}
+	
+	private PairOf<Set<VariableNode>> ComputeSeparatorOnThisLevelAndSeparatorOnLevelsBelow(PartitionTree partition, Set<VariableNode> SeparatorVariablesOnLevelAbove){
+		/** 
+		 * compute the separator. 3 types:
+		 * 						separators for levels above this 	(SeparatorVariablesOnLevelAbove)
+		 * 						separators for this level 			(SeparatorOnThisLevel)
+		 * 						separators for levels below this 	(SeparatorForNextLevels)
+		 */
+		Set<VariableNode> SeparatorOnThisLevel = ComputeSeparator(partition);
+		if(partition.node.isVariable()){
+			SeparatorOnThisLevel.remove((VariableNode) partition.node);
+		}
+		//exclude the variables on other levels. they will be summed afterwards
+		SeparatorOnThisLevel.removeAll(SeparatorVariablesOnLevelAbove);
+		
+		Set<VariableNode> SeparatorForNextLevels = new HashSet<>();
+		SeparatorForNextLevels.addAll(SeparatorOnThisLevel);
+		SeparatorForNextLevels.addAll(SeparatorVariablesOnLevelAbove);
+		
+		PairOf<Set<VariableNode>> result = 
+				new PairOf<>(SeparatorOnThisLevel,SeparatorForNextLevels);
+		return result;
 	}
 }

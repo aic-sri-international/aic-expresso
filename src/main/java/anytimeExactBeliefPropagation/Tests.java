@@ -42,12 +42,34 @@ public class Tests {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);	
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
+		Model m;
+		String modelName;
 
-		String modelName = "Ising Model";
+		modelName = "Ising Model";
+		m = new Model(IsingModel(5,5, context, parse("Boolean")),theory, true);
+		
+		testFunction(modelName, m,true);
+		
+//		modelName = "Line Model";
+//		m = new Model(lineModel(10, context, parse("Boolean")),theory, true);
+//		
+//		testFunction(modelName, m,true);
+//		
+//		modelName = "Binary Tree Model";
+//		m = new Model(nTreeModel(4, 2, context, parse("Boolean")),theory, true);
+//		
+//		testFunction(modelName, m,true);
+//		
+//		modelName = "Random Model";
+//		m = new Model(ModelGenerator.randomModel(8, 10, context, parse("Boolean")),theory, true);
+//		
+//		testFunction(modelName, m,true);
+
+		modelName = "Ising Model";
 		
 		List<List<TupleOfData>> listOdModelsToPrintInFile = new ArrayList<>();
 		
-		Model m = new Model(IsingModel(2, 4, context, parse("Boolean")),theory, true);
+		m = new Model(IsingModel(20, 4, context, parse("Boolean")),theory, true);
 		List<TupleOfData> IsingModel2X2 = testing("IsingModel",m,2,2);
 		listOdModelsToPrintInFile.add(IsingModel2X2);
 		println("ok");
@@ -73,7 +95,7 @@ public class Tests {
 //		println("ok");
 		
 		modelName = "Line Model";
-		m = new Model(lineModel(40, context, parse("Boolean")),theory, true);
+		m = new Model(lineModel(20, context, parse("Boolean")),theory, true);
 		List<TupleOfData> line10 = testing(modelName,m,4,5);
 		listOdModelsToPrintInFile.add(line10);
 		println("ok");
@@ -87,21 +109,6 @@ public class Tests {
 		
 		testingAndWritingToFile(modelName + ".csv",listOdModelsToPrintInFile);
 		
-		
-//		modelName = "Line Model";
-//		m = new Model(lineModel(10, context, parse("Boolean")),theory, true);
-//		
-//		testFunction(modelName, m,true);
-//		
-//		modelName = "Binary Tree Model";
-//		m = new Model(nTreeModel(4, 2, context, parse("Boolean")),theory, true);
-//		
-//		testFunction(modelName, m,true);
-//		
-//		modelName = "Random Model";
-//		m = new Model(ModelGenerator.randomModel(10, 10, context, parse("Boolean")),theory, true);
-//		
-//		testFunction(modelName, m,true);
 
 	}
 
@@ -110,8 +117,15 @@ public class Tests {
 		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
 		println("Exploring " + modelName);
 		Bound inferenceResult = null;
+		double totalTime = 0;
 		while(BFSExpander.hasNext()){
+			long tStart = System.currentTimeMillis();
 			inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
+			long tEnd = System.currentTimeMillis();
+			long tDelta = tEnd - tStart;
+			double time = tDelta / 1000.0;	
+			totalTime += time;
+			
 			//ModelGenerator.printModel(m, false);
 			if(printAll){
 				println("Number of ExtremePoints : "+inferenceResult.getArguments().size());
@@ -120,7 +134,8 @@ public class Tests {
 						minAndMaxProbabilityofQueryequalsTrue.first +
 						"\nMaximal probability of Query = true :" +
 						minAndMaxProbabilityofQueryequalsTrue.second +
-						"\nLength of interval (that is, (max - min)) : " + (minAndMaxProbabilityofQueryequalsTrue.second - minAndMaxProbabilityofQueryequalsTrue.first));
+						"\nLength of interval (that is, (max - min)) : " + (minAndMaxProbabilityofQueryequalsTrue.second - minAndMaxProbabilityofQueryequalsTrue.first) +
+						"\nTime to compute this iteration:" + time + ". Toatal time : " + totalTime);
 				println("----------------- AllExplored : " + m.AllExplored() + "-----------------");
 			}
 		}
@@ -128,7 +143,14 @@ public class Tests {
 		if(!printAll)
 			println(inferenceResult);
 		println("Computation with SGDPLL");
-		println(ModelGenerator.LVECalculation(m) + "\n");
+		long tStart = System.currentTimeMillis();
+		Expression LVE = ModelGenerator.LVECalculation(m);
+		long tEnd = System.currentTimeMillis();
+		long tDelta = tEnd - tStart;
+		double time = tDelta / 1000.0;	
+		
+		println(LVE + "\n"+
+				"\nTime to compute:" + time);
 	}
 	
 	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter){
@@ -162,6 +184,8 @@ public class Tests {
 			}
 			
 			result.add(t);
+			
+			println("....");
 		}
 		
 		TupleOfData t = new TupleOfData();
@@ -188,7 +212,8 @@ public class Tests {
 		}
 		
 		result.add(t);	
-		
+
+		println("------------------------------------------------------------");
 		return result;
 	}
 	
