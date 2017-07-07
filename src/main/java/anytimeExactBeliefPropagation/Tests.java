@@ -47,7 +47,7 @@ public class Tests {
 		
 		
 		modelName = "Ising Model";
-		m = new Model(IsingModel(5,5, context, parse("Boolean")),theory, true);
+		m = new Model(IsingModel(3,2, context, parse("Boolean")),theory, true);
 		
 		testFunction(modelName, m,true);
 		

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
+import com.sri.ai.util.Util;
 
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
@@ -31,6 +32,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 		if(it.hasNext()){
 			PartitionTree newFactorPartition = ExpandModel(it);
 			newFactorPartition.model=newFactorPartition.parent.model;
+			Util.println(newFactorPartition.model);
 			newFactorPartition.addPartitionToPartitionTreeAndUpdatePArtitionTree();
 			Bound result = this.partitionTree.node.getBound();
 			//Bound result = inference();
@@ -50,17 +52,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			Collection<VariableNode> exploredVariablesInModel = this.partitionTree.model.getExploredVariables();
 			exploredVariablesInModel.add((VariableNode)partitionTree.node);
 			
-			//get variables to be put below new factor in the three
-			//adding them to the tree
-			Collection<VariableNode> variablesToBePutItTheTree = this.partitionTree.model.getVariablesOfAFactor(newfactor);
-			variablesToBePutItTheTree.removeAll(exploredVariablesInModel);
-			for(VariableNode v : variablesToBePutItTheTree){
-				PartitionTree p = new PartitionTree(v);
-				newPartition.children.add(p);
-				newPartition.model=p.model;
-			}
-			
-			//get variables to be put below new factor in the tree	
+			//get variables in the tree linked to the factor. attach the factor to one of them
 			Collection<VariableNode> variablesInTheTreeLinkedToFactor = this.partitionTree.model.getVariablesOfAFactor(newfactor);
 			variablesInTheTreeLinkedToFactor.retainAll(exploredVariablesInModel);
 			
@@ -73,6 +65,23 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			PartitionTree parentOfNewFactor = findPartitionGivenANode.get(var);
 			parentOfNewFactor.children.add(newPartition);
 			newPartition.parent = parentOfNewFactor;
+			newPartition.model = parentOfNewFactor.model;
+			
+			
+			//get variables to be put below new factor in the three
+			//adding them to the tree
+			Collection<VariableNode> variablesToBePutItTheTree = this.partitionTree.model.getVariablesOfAFactor(newfactor);
+			variablesToBePutItTheTree.removeAll(exploredVariablesInModel);
+			for(VariableNode v : variablesToBePutItTheTree){
+				PartitionTree p = new PartitionTree(v);
+				newPartition.children.add(p);
+				p.parent =newPartition;
+				p.model=newPartition.model;
+				
+				findPartitionGivenANode.put(v, p);
+			}
+			
+			
 
 			//expand the model (add new factor to the explored part of the graph)
 			this.partitionTree.model.ExpandModel(newfactor);

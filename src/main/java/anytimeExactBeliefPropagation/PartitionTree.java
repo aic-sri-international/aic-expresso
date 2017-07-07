@@ -116,6 +116,10 @@ public class PartitionTree {
 	   		FactorNode newFactor = (FactorNode) this.node;
 	   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
 	   		//Util.println(model);
+	   		if(this.model==null){
+	   			this.model=this.parent.model;
+	   		}
+	   		Util.println(this.model);
 	   		newVariables.addAll(this.model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
 	   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable set
 	   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
