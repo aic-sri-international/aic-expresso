@@ -76,7 +76,7 @@ public class PartitionTree {
    		FactorNode newFactor = (FactorNode) this.node;
    		updateSetsOfFactorsAndVariables(newFactor, model);
    		updateCutSet();
-   		updateBound(model);
+   		updateBounds(model);
    	}
    	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Model model){
    		Set<VariableNode> newVariables = new HashSet<VariableNode>();
@@ -123,7 +123,12 @@ public class PartitionTree {
    		return setOfVariables;
    	}
    	
-   	public void updateBound(Model model){
+   	public void updateBounds(Model model){
+   		this.updateCurrentBound(model);
+   		this.updateBoundOfParent(model);
+   	}
+   	
+	public void updateCurrentBound(Model model){
    		Bound childrenProduct = this.childrenProduct(model);
    		if (this.node.isVariable()){
    			Bound newBound=this.sum(model, childrenProduct);
@@ -131,6 +136,12 @@ public class PartitionTree {
    		}else{
    			Bound newBound=this.messageFromVariableToFactor(model, childrenProduct);
    			this.node.setBound(newBound);
+   		}
+   	}
+   	
+   	public void updateBoundOfParent(Model model){
+   		if(this.parent!=null){
+   			this.parent.updateBounds(model);
    		}
    	}
    	
