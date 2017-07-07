@@ -73,16 +73,29 @@ public class PartitionTree {
 //   	}
    	
    	private void addPartitionToPartitionTreeAndUpdatePArtitionTree(Model model){
-   		FactorNode newFactor = (FactorNode) this.node;
-   		updateSetsOfFactorsAndVariables(newFactor, model);
+   		//TODO modify update variables and factors
+   		updateSetsOfFactorsAndVariables( model);
    		updateCutSet();
    		updateBounds(model);
    	}
-   	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Model model){
-   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
-   		newVariables.addAll(model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
-   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable
-   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
+   	public void updateSetsOfFactorsAndVariables(Model model){
+   		if (this.node.isFactor()){
+	   		FactorNode newFactor = (FactorNode) this.node;
+	   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
+	   		newVariables.addAll(model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
+	   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable
+	   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
+   		} else{
+   			this.updateSetsOfVariables();
+   		}
+   	}
+   	
+   	public void updateSetsOfVariables(){
+   		VariableNode newVariable = (VariableNode) this.node;
+   		this.setOfVariablesInsidePartition.add(newVariable);
+   		if(this.parent!=null){
+   			this.parent.updateSetsOfVariables();
+   		}
    	}
    	
    	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Set<VariableNode>  newVariables){
