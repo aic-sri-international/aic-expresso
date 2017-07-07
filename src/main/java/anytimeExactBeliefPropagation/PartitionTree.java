@@ -44,7 +44,7 @@ public class PartitionTree {
 	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
-	public Set<VariableNode> Separator;
+	public Set<VariableNode> Separator;//TODO replace Separator by a set of Expression
 	public Set<VariableNode> cutsetOfAllLevelsAbove;
 	
    	public PartitionTree(Node node) {
@@ -128,14 +128,53 @@ public class PartitionTree {
    		if (this.node.isVariable()){
    			Bound newBound=this.sum(model, childrenProduct);
    			this.node.setBound(newBound);
+   		}else{
+   			Bound newBound=this.messageFromVariableToFactor(model, childrenProduct);
+   			this.node.setBound(newBound);
    		}
+   	}
+   	
+   	public Bound messageFromVariableToFactor(Model model, Bound childrenProduct){
+   		Context context = model.getContext();
+   		Theory theory = model.getTheory();
+   		ArrayList<Expression> varToSum = this.getVarToSumInMessageFromVariableToFactor();
+   		return childrenProduct.summingBound(varToSum, context, theory);
+   	}
+   	
+   	public ArrayList<Expression> getVarToSumInMessageFromVariableToFactor(){
+   		ArrayList<Expression> result = new ArrayList<>();
+   		//add all children
+   		for(PartitionTree p : this.children){
+   			result.add(p.node.getValue());
+   		}
+   		
+   		//add this level separator variables 
+   		for(VariableNode v : this.Separator){
+   			result.add(v.getValue());
+   		}
+   		
+   		//take above variables out.
+   		for(VariableNode v : this.cutsetOfAllLevelsAbove){
+   			result.remove(v.getValue());
+   		}
+   		return result;
    	}
    	
    	public Bound sum(Model model, Bound childrenProduct){
    		Context context = model.getContext();
    		Theory theory = model.getTheory();
-   		//childrenProduct.summingBound(variablesToBeSummedOut, context, theory);
-   		return null;
+   
+   		ArrayList<Expression> varToSum = this.copySetOfVariableToListOfExpression();
+   		return childrenProduct.summingBound(varToSum, context, theory);
+   	}
+   	
+   	public ArrayList<Expression> copySetOfVariableToListOfExpression(){
+   		ArrayList<Expression> varToSum = new ArrayList<>();
+   		//varToSum.addAll(this.Separator);
+   		for(VariableNode v : this.Separator){
+   			varToSum.add(v.getValue());
+   		}
+   		return varToSum;
    	}
    	
    	public Bound childrenProduct(Model model){
