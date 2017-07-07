@@ -1,6 +1,7 @@
 package anytimeExactBeliefPropagation.Model.Node;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 
 /**
  * A class that provides the basic nodes for a factor graph.
@@ -15,7 +16,7 @@ import com.sri.ai.expresso.api.Expression;
 public abstract class Node {
 	
 	protected Expression value;
-	//protected Bound bound;	
+	protected Bound bound;	
 	
 	public Node(Expression value){
 		this.value = value;
@@ -28,12 +29,12 @@ public abstract class Node {
 		this.value = value;
 	}
 	
-//	public Bound getBound(){
-//		return bound;
-//	}
-//	public void setBound(Bound bound){
-//		this.bound = bound;
-//	}
+	public Bound getBound(){
+		return bound;
+	}
+	public void setBound(Bound bound){
+		this.bound = bound;
+	}
 	
 	@Override
 	public String toString(){

@@ -1,13 +1,24 @@
 package anytimeExactBeliefPropagation;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.println;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
+import com.sri.ai.grinder.sgdpllt.anytime.FactorComponent;
+import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
+import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
@@ -34,11 +45,14 @@ public class PartitionTree {
 	public Node node;
 	public PartitionTree parent;
 	public Set<VariableNode> Separator;
+	public Set<VariableNode> cutsetOfAllLevelsAbove;
 	
    	public PartitionTree(Node node) {
 		this.node = node;
 		
 		children = new HashSet<>();
+		this.Separator = new HashSet<VariableNode>();
+		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
 		
 	}
 	
@@ -58,16 +72,24 @@ public class PartitionTree {
 //   		p.addPartitionToPartitionTreeAndUpdatePArtitionTree();
 //   	}
    	
-   	private void addPartitionToPartitionTreeAndUpdatePArtitionTree(){
+   	private void addPartitionToPartitionTreeAndUpdatePArtitionTree(Model model){
    		FactorNode newFactor = (FactorNode) this.node;
-   		updateSetOfFactors(newFactor);
+   		updateSetsOfFactorsAndVariables(newFactor, model);
    		updateCutSet();
-   		updateBound();
+   		updateBound(model);
    	}
-   	public void updateSetOfFactors(FactorNode newFactor){
+   	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Model model){
+   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
+   		newVariables.addAll(model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
+   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable
+   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
+   	}
+   	
+   	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Set<VariableNode>  newVariables){
    		this.setOfFactorsInsidePartition.add(newFactor);
+   		this.setOfVariablesInsidePartition.addAll(newVariables);
    		if(this.parent!=null){
-   			this.parent.updateSetOfFactors(newFactor);
+   			this.parent.updateSetsOfFactorsAndVariables(newFactor, newVariables);
    		}
    	}
    	public void updateCutSet(){
@@ -82,9 +104,11 @@ public class PartitionTree {
    		for(PartitionTree child1 : this.children){
    	   		for(PartitionTree child2 : this.children){
    	   			if(!child1.equals(child2)){
-   	   			Set<VariableNode> copyOfVariablesInChild1 = copySet(child1.setOfVariablesInsidePartition);
-   	   			copyOfVariablesInChild1.retainAll(child2.setOfVariablesInsidePartition);
-	   	   		setOfCusets.addAll(copyOfVariablesInChild1);
+   	   				Set<VariableNode> copyOfVariablesInChild1 = copySet(child1.setOfVariablesInsidePartition);
+   	   				copyOfVariablesInChild1.retainAll(child2.setOfVariablesInsidePartition);//we keep all the variables that the two children have in common
+   	   	   			copyOfVariablesInChild1.removeAll(cutsetOfAllLevelsAbove);//we remove the variables which have been taken as cutset in levels above
+   	   	   			//be careful here maybe we have to remove more variables   	   					
+   	   				setOfCusets.addAll(copyOfVariablesInChild1);
    	   			}
    	   		}
    		}
@@ -99,8 +123,34 @@ public class PartitionTree {
    		return setOfVariables;
    	}
    	
-   	public void updateBound(){
-   		
+   	public void updateBound(Model model){
+   		Bound childrenProduct = this.childrenProduct(model);
+   		if (this.node.isVariable()){
+   			Bound newBound=this.sum(model, childrenProduct);
+   			this.node.setBound(newBound);
+   		}
+   	}
+   	
+   	public Bound sum(Model model, Bound childrenProduct){
+   		Context context = model.getContext();
+   		Theory theory = model.getTheory();
+   		//childrenProduct.summingBound(variablesToBeSummedOut, context, theory);
+   		return null;
+   	}
+   	
+   	public Bound childrenProduct(Model model){
+   		Theory theory = model.getTheory();
+		Context context = model.getContext();	
+	
+		Bound[] childrenArray = new Bound[children.size()];
+		int i = 0;
+		for(PartitionTree children : this.children){
+			childrenArray[i] = children.node.getBound();
+			i++;
+		}
+		//Bound childrenBound = Bounds.boundProduct(theory, context, isExtensionalBound,childrenArray);//to modify
+		//return childrenBound;
+		return null;
    	}
    	
    	//TODO : change way of expanding model
