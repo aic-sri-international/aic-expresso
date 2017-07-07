@@ -44,7 +44,8 @@ public class Tests {
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
 		Model m;
 		String modelName;
-
+		
+		
 		modelName = "Ising Model";
 		m = new Model(IsingModel(5,5, context, parse("Boolean")),theory, true);
 		
@@ -114,7 +115,7 @@ public class Tests {
 
 	private static void testFunction(String modelName, Model m, boolean printAll) {
 		Iterator<FactorNode> BFSExpander = new BFS(m);
-		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
+		IncrementalBeliefPropagationWithConditioningVersion2 sbp = new IncrementalBeliefPropagationWithConditioningVersion2(m);
 		println("Exploring " + modelName);
 		Bound inferenceResult = null;
 		double totalTime = 0;
@@ -159,7 +160,7 @@ public class Tests {
 		int id = 0;
 		m.clearExploredGraph();
 		Iterator<FactorNode> BFSExpander = new BFS(m);
-		BeliefPropagationWithConditioning sbp = new BeliefPropagationWithConditioning(m);
+		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
 		while(BFSExpander.hasNext()){
 			
 			TupleOfData t = new TupleOfData();

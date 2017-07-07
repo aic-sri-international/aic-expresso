@@ -20,21 +20,21 @@ import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
-public class BeliefPropagationWithConditioning {
+public class IncrementalBeliefPropagationWithConditioning {
 	private Model model;
 	private boolean AllExplored;
 	public PartitionTree partitionTree;
 	
-	public BeliefPropagationWithConditioning(Model model) {
+	
+	public IncrementalBeliefPropagationWithConditioning(Model model) {
 		this.model = model;
+		
 		AllExplored = false;
 	}
-
+	
 	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
 		if(it.hasNext()){
-			FactorNode newfactor = it.next();
-			model.ExpandModel(newfactor);
-			//partitionTree.add(newFactor);
+			model.ExpandModel(it);
 			Bound result = inference();
 			return result;
 		}

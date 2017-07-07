@@ -1,6 +1,5 @@
 package anytimeExactBeliefPropagation;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.println;
 
 import java.util.ArrayList;
@@ -12,13 +11,9 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
-import com.sri.ai.grinder.sgdpllt.anytime.FactorComponent;
-import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
@@ -78,10 +73,13 @@ public class PartitionTree {
    		updateCutSet();
    		updateBounds(model);
    	}
+   	
+ /*------------------------------------------------------------------------------------------------------------------------*/
+   	
    	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Model model){
    		Set<VariableNode> newVariables = new HashSet<VariableNode>();
    		newVariables.addAll(model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
-   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable
+   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable set
    		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
    	}
    	
@@ -92,6 +90,9 @@ public class PartitionTree {
    			this.parent.updateSetsOfFactorsAndVariables(newFactor, newVariables);
    		}
    	}
+   	
+ /*------------------------------------------------------------------------------------------------------------------------*/
+ 
    	public void updateCutSet(){
    		if (this.parent!=null){
    			this.parent.updateCutSet();
@@ -122,6 +123,8 @@ public class PartitionTree {
    		}
    		return setOfVariables;
    	}
+
+/*------------------------------------------------------------------------------------------------------------------------*/
    	
    	public void updateBounds(Model model){
    		this.updateCurrentBound(model);
@@ -203,7 +206,7 @@ public class PartitionTree {
 		return null;
    	}
    	
-   	//TODO : change way of expanding model
+/*------------------------------------------------------------------------------------------------------------------------*/
    	
    	/**
    	 * This class creates a partition based on a BFS process.
