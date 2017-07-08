@@ -1,11 +1,17 @@
 package anytimeExactBeliefPropagation;
 
+import static com.sri.ai.grinder.sgdpllt.library.bounds.Bounds.simplex;
+import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -16,6 +22,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.util.Util;
 
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
@@ -43,14 +50,42 @@ public class PartitionTree {
 	public PartitionTree parent;
 	public Set<VariableNode> Separator;//TODO replace Separator by a set of Expression
 	public Set<VariableNode> cutsetOfAllLevelsAbove;
+	public Model model;
 	
-   	public PartitionTree(Node node) {
+	/*public PartitionTree(Node node, Model model) {
 		this.node = node;
-		
+		this.model=model;	
 		children = new HashSet<>();
 		this.Separator = new HashSet<VariableNode>();
 		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
+		this.setOfFactorsInsidePartition = new HashSet<FactorNode>();
+		this.setOfVariablesInsidePartition= new HashSet<VariableNode>();
 		
+		if(this.node.isFactor()){
+			this.node.setBound(simplex(arrayList(this.node.getValue()), model.getTheory(),model.getContext(), true));
+		}
+		
+	}*/
+	
+	public PartitionTree(Model model) {
+		this.node = model.getQuery();
+		this.model=model;
+		children = new HashSet<>();
+		this.Separator = new HashSet<VariableNode>();
+		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
+		this.setOfFactorsInsidePartition = new HashSet<FactorNode>();
+		this.setOfVariablesInsidePartition= new HashSet<VariableNode>();
+
+	}
+	
+   	public PartitionTree(Node node) {
+		this.node = node;
+		//this.model=this.parent.model;
+		children = new HashSet<>();
+		this.Separator = new HashSet<VariableNode>();
+		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
+		this.setOfFactorsInsidePartition = new HashSet<FactorNode>();
+		this.setOfVariablesInsidePartition= new HashSet<VariableNode>();
 	}
 	
    	public PartitionTree(Node root, Model model) {
@@ -58,6 +93,7 @@ public class PartitionTree {
 		CreatePartitionTreeWithBFS(model);
 		CompleteTree();
 	}
+   	
    	
 //   	public void add(FactorNode newFactor){
 //   		PartitionTree p = choosePlaceToPlaceFactor();
@@ -69,20 +105,25 @@ public class PartitionTree {
 //   		p.addPartitionToPartitionTreeAndUpdatePArtitionTree();
 //   	}
    	
-   	public void addPartitionToPartitionTreeAndUpdatePArtitionTree(Model model){
+   	public void addPartitionToPartitionTreeAndUpdatePArtitionTree(){
    		//TODO modify update variables and factors
-   		updateSetsOfFactorsAndVariables( model);
+   		updateSetsOfFactorsAndVariables( );
    		updateCutSet();
-   		updateBounds(model);
+   		updateBounds();
    	}
    	
  /*------------------------------------------------------------------------------------------------------------------------*/
    	
-   	public void updateSetsOfFactorsAndVariables(Model model){
+   	public void updateSetsOfFactorsAndVariables(){
    		if (this.node.isFactor()){
 	   		FactorNode newFactor = (FactorNode) this.node;
 	   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
-	   		newVariables.addAll(model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
+	   		//Util.println(model);
+	   		if(this.model==null){
+	   			this.model=this.parent.model;
+	   		}
+	   		Util.println(this.model);
+	   		newVariables.addAll(this.model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
 	   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable set
 	   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
    		} else{
@@ -99,6 +140,7 @@ public class PartitionTree {
    	}
    	
    	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Set<VariableNode>  newVariables){
+   		//Util.println(this.setOfFactorsInsidePartition);
    		this.setOfFactorsInsidePartition.add(newFactor);
    		this.setOfVariablesInsidePartition.addAll(newVariables);
    		if(this.parent!=null){
@@ -215,33 +257,36 @@ public class PartitionTree {
    	
    	
 
+
 /*------------------------------------------------------------------------------------------------------------------------*/
  
-   	public void updateBounds(Model model){
-   		this.updateCurrentBound(model);
-   		this.updateBoundOfParent(model);
+
+   	public void updateBounds(){
+   		this.updateCurrentBound();
+   		this.updateBoundOfParent();
+
    	}
    	
-	public void updateCurrentBound(Model model){
-   		Bound childrenProduct = this.childrenProduct(model);
+	public void updateCurrentBound(){		
    		if (this.node.isVariable()){
-   			Bound newBound=this.sum(model, childrenProduct);
+   			Bound newBound=this.messageFromFactorToVariable();
    			this.node.setBound(newBound);
    		}else{
-   			Bound newBound=this.messageFromVariableToFactor(model, childrenProduct);
+   			Bound newBound=this.messageFromVariableToFactor();
    			this.node.setBound(newBound);
    		}
    	}
    	
-   	public void updateBoundOfParent(Model model){
+   	public void updateBoundOfParent(){
    		if(this.parent!=null){
-   			this.parent.updateBounds(model);
+   			this.parent.updateBounds();
    		}
    	}
    	
-   	public Bound messageFromVariableToFactor(Model model, Bound childrenProduct){
-   		Context context = model.getContext();
-   		Theory theory = model.getTheory();
+   	public Bound messageFromVariableToFactor(){
+   		Bound childrenProduct = this.childrenProduct();
+   		Context context = this.model.getContext();
+   		Theory theory = this.model.getTheory();
    		ArrayList<Expression> varToSum = this.getVarToSumInMessageFromVariableToFactor();
    		return childrenProduct.summingBound(varToSum, context, theory);
    	}
@@ -265,15 +310,16 @@ public class PartitionTree {
    		return result;
    	}
    	
-   	public Bound sum(Model model, Bound childrenProduct){
+   	public Bound messageFromFactorToVariable(){
+   		Bound childrenProduct = this.childrenProduct();
    		Context context = model.getContext();
    		Theory theory = model.getTheory();
-   
-   		ArrayList<Expression> varToSum = this.copySetOfVariableToListOfExpression();
+   		ArrayList<Expression> varToSum = this.getVarToSumInMessageFromFactorToVariable();
    		return childrenProduct.summingBound(varToSum, context, theory);
    	}
    	
-   	public ArrayList<Expression> copySetOfVariableToListOfExpression(){
+   	
+   	public ArrayList<Expression> getVarToSumInMessageFromFactorToVariable(){
    		ArrayList<Expression> varToSum = new ArrayList<>();
    		//varToSum.addAll(this.Separator);
    		for(VariableNode v : this.Separator){
@@ -282,18 +328,52 @@ public class PartitionTree {
    		return varToSum;
    	}
    	
-   	public Bound childrenProduct(Model model){
+   	public Bound childrenProduct(){
    		Theory theory = model.getTheory();
 		Context context = model.getContext();	
 	
 		Bound[] childrenArray = new Bound[children.size()];
 		int i = 0;
 		for(PartitionTree children : this.children){
+			if(children.node.getBound()==null){
+				return this.simplexOfNode();
+			}
 			childrenArray[i] = children.node.getBound();
 			i++;
 		}
+		//Util.println(theory);
+		//Util.println(context);
+		//Util.println(childrenArray);
 		Bound childrenBound = Bounds.boundProduct(theory, context, true, childrenArray);//TODO to modify
 		return childrenBound;
+   	}
+   	
+   	public Bound simplexOfNode(){
+   		if(this.node.isVariable()){
+   			return Bounds.simplex(arrayList(this.node.getValue()), model.getTheory(), model.getContext(), true);
+   		}
+   		Set < VariableNode > variableNodes = new HashSet <VariableNode>();
+   		variableNodes.addAll(this.model.getEntireGraph().getAsOfB((FactorNode)this.node));
+   		variableNodes.remove((VariableNode)this.parent.node);
+   		if(variableNodes.isEmpty()){
+   			return Bounds.makeSingleElementBound(parse("1"), true);
+   			
+   		}else{
+   			Expression[] variableNode= getArrayOfBoundsFromSetOfVariableNodes(variableNodes);
+   			return simplex(arrayList(variableNode), model.getTheory(), model.getContext(), true);
+   		}
+   	}
+   	
+   	public Expression[] getArrayOfBoundsFromSetOfVariableNodes(Set<VariableNode>  variableNodes){
+   		Iterator<VariableNode> it = variableNodes.iterator();
+   		int n = variableNodes.size();
+   		Expression[] tabExpression= new Expression[n];
+   		int i=0;
+   		for(VariableNode v : in(it)){
+   			tabExpression[i]= v.getValue();
+   			i++;
+   		}
+   		return tabExpression;
    	}
    	
 /*------------------------------------------------------------------------------------------------------------------------*/
