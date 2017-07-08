@@ -55,6 +55,7 @@ public class IncrementalBeliefPropagationWithConditioningVersion2 {
 			variablesToBePutItTheTree.removeAll(exploredVariablesInModel);
 			for(VariableNode v : variablesToBePutItTheTree){
 				PartitionTree p = new PartitionTree(v);
+				p.parent = newPartition;
 				newPartition.children.add(p);
 			}
 			
