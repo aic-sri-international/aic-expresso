@@ -21,18 +21,20 @@ import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
 public class IncrementalBeliefPropagationWithConditioning {
+	private Model model;
 	private boolean AllExplored;
 	public PartitionTree partitionTree;
 	
 	
 	public IncrementalBeliefPropagationWithConditioning(Model model) {
+		this.model = model;
+		
 		AllExplored = false;
-		this.partitionTree=new PartitionTree(model);
 	}
 	
 	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
 		if(it.hasNext()){
-			this.partitionTree.model.ExpandModel(it);
+			model.ExpandModel(it);
 			Bound result = inference();
 			return result;
 		}
@@ -40,16 +42,16 @@ public class IncrementalBeliefPropagationWithConditioning {
 	}
 	
 	public Bound InferenceOverEntireModel(){
-		this.partitionTree.model.SetExploredGraphToEntireGraph();
+		model.SetExploredGraphToEntireGraph();
 		Bound result = inference();
 		return result;
 	}
 	
 	public Bound inference(){
-		VariableNode query = this.partitionTree.model.getQuery();
-		this.partitionTree = new PartitionTree(query,this.partitionTree.model);
+		VariableNode query = model.getQuery();
+		this.partitionTree = new PartitionTree(query,model);
 		
-		AllExplored = this.partitionTree.model.AllExplored();
+		AllExplored = model.AllExplored();
 		
 		Bound result = variableMessage(partitionTree, new HashSet<VariableNode>());
 		return result;
@@ -76,9 +78,9 @@ public class IncrementalBeliefPropagationWithConditioning {
 		// if this node is not exhausted (see definition in Model) it means that the message coming to it is the 
 		// simplex, no matter how it is what comes below in the partition.
 		// obs. it can be equivalently thought as attaching a "simplex factor" to non exhausted nodes.
-		if(!AllExplored && !this.partitionTree.model.isExhausted((VariableNode) partitionInAVariableNode.node)){
+		if(!AllExplored && !model.isExhausted((VariableNode) partitionInAVariableNode.node)){
 			Expression var = partitionInAVariableNode.node.getValue();
-			Bound bound = Bounds.simplex(arrayList(var), this.partitionTree.model.getTheory(), this.partitionTree.model.getContext(), this.partitionTree.model.isExtensional());
+			Bound bound = Bounds.simplex(arrayList(var), model.getTheory(), model.getContext(), model.isExtensional());
 //			partitionInAVariableNode.node.setBound(bound);
 			return bound;
 		}
@@ -91,13 +93,13 @@ public class IncrementalBeliefPropagationWithConditioning {
 			i++;
 		}
 		
-		Bound bound = Bounds.boundProduct(this.partitionTree.model.getTheory(), this.partitionTree.model.getContext(), this.partitionTree.model.isExtensional(), boundsOfChildrenMessages);
+		Bound bound = Bounds.boundProduct(model.getTheory(), model.getContext(), model.isExtensional(), boundsOfChildrenMessages);
 		
 		ArrayList<Expression> varToSumOutList = new ArrayList<>();
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		bound = bound.summingBound(varToSumOut, this.partitionTree.model.getContext(), this.partitionTree.model.getTheory());
+		bound = bound.summingBound(varToSumOut, model.getContext(), model.getTheory());
 		
 		return bound;
 		//partitionInAVariableNode.node.setBound(bound);
@@ -136,13 +138,13 @@ public class IncrementalBeliefPropagationWithConditioning {
 		}
 		
 		 
-		Bound bound = Bounds.boundProduct(this.partitionTree.model.getTheory(), this.partitionTree.model.getContext(), this.partitionTree.model.isExtensional(), boundsOfChildrenMessages);
+		Bound bound = Bounds.boundProduct(model.getTheory(), model.getContext(), model.isExtensional(), boundsOfChildrenMessages);
 		
 		ArrayList<Expression> varToSumOutList = new ArrayList<>();
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), this.partitionTree.model.getContext(), this.partitionTree.model.getTheory());
+		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
 		return bound;
 		//partitionInAFactorNode.node.setBound(bound);
 	}
@@ -158,7 +160,7 @@ public class IncrementalBeliefPropagationWithConditioning {
 		for(PartitionTree p : pTree.children){
 			Set<VariableNode> variablesOfP = new HashSet<>();
 			for(FactorNode phi : p.setOfFactorsInsidePartition){
-				Collection<VariableNode> VarsOfPhi= this.partitionTree.model.getExploredGraph().getAsOfB(phi);
+				Collection<VariableNode> VarsOfPhi= model.getExploredGraph().getAsOfB(phi);
 				variablesOfP.addAll(VarsOfPhi);
 			}
 			VariablePartition.add(variablesOfP);
