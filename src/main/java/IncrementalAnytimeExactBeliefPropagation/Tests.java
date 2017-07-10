@@ -41,11 +41,11 @@ public class Tests {
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
 		
 		
-		Model m = new Model(IsingModel(3,2, context, parse("Boolean")),theory,true);
+		Model m = new Model(IsingModel(4,3, context, parse("Boolean")),theory,true);
 		
 		//m = new Model(ModelGenerator.lineModel(6, context, parse("Boolean")),theory,true);
 		
-		m = new Model(ModelGenerator.nTreeModel(3, 3, context, parse("Boolean")),theory,true);
+		//m = new Model(ModelGenerator.nTreeModel(3, 3, context, parse("Boolean")),theory,true);
 		
 		
 //		Iterator<PartitionTree> BFSExpander = new BFS(m);

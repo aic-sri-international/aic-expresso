@@ -115,7 +115,7 @@ public class Tests {
 
 	private static void testFunction(String modelName, Model m, boolean printAll) {
 		Iterator<FactorNode> BFSExpander = new BFS(m);
-		IncrementalBeliefPropagationWithConditioningVersion2 sbp = new IncrementalBeliefPropagationWithConditioningVersion2(m);
+		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
 		println("Exploring " + modelName);
 		Bound inferenceResult = null;
 		double totalTime = 0;

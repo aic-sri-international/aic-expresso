@@ -103,73 +103,76 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    		//Update this cutset, and all above together
    		addingToCutSet(newFactorPartition, newSeparatorVariables, null);
    		   		
-   		//Update cutset of "Virgin Variables" . acho que isso vem depois do addingToCutset
-   		for(PartitionTree p : newFactorPartition.children){
-   			Set<VariableNode> SeparatorOfAllAboveForChildrenOfNewFactor = new HashSet<>();
-   			SeparatorOfAllAboveForChildrenOfNewFactor.addAll(newFactorPartition.Separator);
-   			SeparatorOfAllAboveForChildrenOfNewFactor.addAll(newFactorPartition.cutsetOfAllLevelsAbove);
-   			
-   			p.cutsetOfAllLevelsAbove = SeparatorOfAllAboveForChildrenOfNewFactor; 
-   		}
+//   		//Update cutset of "Virgin Variables" .
+//   		for(PartitionTree p : newFactorPartition.children){
+//   			Set<VariableNode> SeparatorOfAllAboveForChildrenOfNewFactor = new HashSet<>();
+//   			SeparatorOfAllAboveForChildrenOfNewFactor.addAll(newFactorPartition.Separator);
+//   			SeparatorOfAllAboveForChildrenOfNewFactor.addAll(newFactorPartition.cutsetOfAllLevelsAbove);
+//   			
+//   			p.cutsetOfAllLevelsAbove = SeparatorOfAllAboveForChildrenOfNewFactor; 
+//   		}
    	}
 
    	private void addingToCutSet(PartitionTree currentNode, Collection<VariableNode> toAdd, PartitionTree notToUpdate){
-   		// chamar no conjunto de cima.
    		if(currentNode != null && currentNode.parent != null){
-   			//Chama a funcao pro pai, e atualiza o LAS
-   			addingToCutSet(currentNode.parent,toAdd,currentNode);
+   			//Call to the parent then update the node.
+   			addingToCutSet(currentNode.parent, toAdd, currentNode);
    			
    			currentNode.cutsetOfAllLevelsAbove.addAll(currentNode.parent.Separator);
    			currentNode.cutsetOfAllLevelsAbove.addAll(currentNode.parent.cutsetOfAllLevelsAbove);
-   			
    			currentNode.Separator.removeAll(currentNode.cutsetOfAllLevelsAbove);
    		}
-   		
-   		currentNode.recomputeBound = true;
-   		toAdd.removeAll(currentNode.Separator);
-   		if(toAdd.isEmpty()){
-   			return;
-   		}
-   		
-   		List<Set<VariableNode>> listOfMiniCutsets = new ArrayList<>();
-   		
+
+   		List<VariableNode> newCutSetVariables = new ArrayList<>();
+   				
    		for (PartitionTree p : currentNode.children){
    			if(!p.equals(notToUpdate)){
 	   			HashSet<VariableNode> toAddInThisChild = new HashSet<>();
 	   			toAddInThisChild.addAll(toAdd);
 	   			toAddInThisChild.retainAll(p.setOfVariables);
-	   			//toAddInThisChild.removeAll(currentNode.Separator);
-	   			
-	   			updateLASandSeparator(p, toAddInThisChild);//essa funcao so desce na arvore e adiciona toAdd no LAS e tira toAdd do separator.
-	   			
-	   			listOfMiniCutsets.add(toAddInThisChild); // melhorar nome
+	   			newCutSetVariables.addAll(toAddInThisChild);
+   			}
+   		}
+
+   		currentNode.Separator.addAll(newCutSetVariables);
+   		currentNode.recomputeBound = true;
+   		for (PartitionTree p : currentNode.children){
+   			if(!p.equals(notToUpdate)){
+	   			updateLASandSeparator(p);
    			}
    		}
    		
-   		for(Set<VariableNode> miniCutset : listOfMiniCutsets){
-   			currentNode.Separator.addAll(miniCutset);
-   			toAdd.removeAll(miniCutset);
-   		}
    	}
    	
-   	public void updateLASandSeparator(PartitionTree partition ,Set<VariableNode> toAdd){
-   		partition.recomputeBound = true;
-   		//intercessao de to add e separator
-   		toAdd.removeAll(partition.Separator);
-   		
-   		//subtrai to add das variav
-   		partition.Separator.removeAll(toAdd);
-   		partition.cutsetOfAllLevelsAbove.addAll(toAdd);
-   		
-   		//se toAdd naoVazio!
-   		if(!toAdd.isEmpty()){
-   			for(PartitionTree p : partition.children){
-   				Set<VariableNode> toAddAux = new HashSet<>();
-   				toAddAux.addAll(toAdd);
-   				p.updateLASandSeparator(toAddAux);
-   			}
-   		}
-   	}
+   	
+	private void updateLASandSeparator(PartitionTree partition){
+		partition.recomputeBound = true;
+		Set<VariableNode> newCutsetAbove = new HashSet<>();
+		if(partition.parent == null){
+			return;
+		}
+		newCutsetAbove.addAll(partition.parent.cutsetOfAllLevelsAbove);
+		newCutsetAbove.addAll(partition.parent.Separator);
+		
+		if(!thisSetIncreasestheLAS(newCutsetAbove,partition)){
+			return;
+		}
+		partition.cutsetOfAllLevelsAbove.addAll(newCutsetAbove);
+		partition.Separator.removeAll(newCutsetAbove);
+		
+		for (PartitionTree p : partition.children){	
+			updateLASandSeparator(p);
+		}
+	}
+	
+	private boolean thisSetIncreasestheLAS(Collection<VariableNode> newCutsetOfAllAbove,PartitionTree partition){
+		Set<VariableNode> v = new HashSet<>();
+		v.addAll(newCutsetOfAllAbove);
+		v.removeAll(partition.cutsetOfAllLevelsAbove);
+		return !v.isEmpty();
+	}
+   	
+
 /*------------------------------------------------------------------------------------------------------------------------*/   	
    	
    	public void updateBounds(){
