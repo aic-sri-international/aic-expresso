@@ -2,12 +2,10 @@ package IncrementalAnytimeExactBeliefPropagation;
 
 import static com.sri.ai.util.Util.println;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -35,8 +33,8 @@ public class PartitionTree {
 	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
-	public Set<VariableNode> Separator;//TODO replace Separator by a set of Expression
-	public Set<VariableNode> cutsetOfAllLevelsAbove;
+	public Set<VariableNode> Separator;
+	public Set<VariableNode> cutsetOfAllLevelsAbove;// Also called LAS  (Levels Above Separator) in some function names
 	public boolean recomputeBound;
 	
 		
@@ -62,98 +60,7 @@ public class PartitionTree {
    		this(root);
 		CreatePartitionTreeWithBFS(model);
 		CompleteTree();
-	}
-   	   	
-  
-   	
- /*------------------------------------------------------------------------------------------------------------------------*/
-   	
-   
-   	
- /*------------------------------------------------------------------------------------------------------------------------*/
- 
-
-/*------------------------------------------------------------------------------------------------------------------------*/
- //Alternative iplementation of updating cutset:
-   	public void updateCutSet2(Model m){
-   		FactorNode factor = (FactorNode) this.node;
-   		//we take all variables of this factor, and remove those that haven't appeared in other parts of the graph
-   		Collection<VariableNode> newSeparatorVariables = m.getVariablesOfAFactor(factor);
-   		newSeparatorVariables.removeAll(this.children);
-   		newSeparatorVariables.remove(this.parent);
-   		
-   		//Update cutset of "Virgin Variables"
-   		//TODO
-   		
-   		
-   		//Update this cutset, and all above together
-   		addingToCutSet(newSeparatorVariables, null);
-   	}
-
-   	private Set<VariableNode> addingToCutSet(Collection<VariableNode> toAdd, PartitionTree notToUpdate){
-   		// chamar no conjunto de cima.
-   		if(this != null && this.parent != null){
-   			//Chama a funcao pro pai, e atualiza o LAS
-   			Set<VariableNode> LevelAbobeSeparator = parent.addingToCutSet(toAdd,this);
-   			this.cutsetOfAllLevelsAbove = LevelAbobeSeparator;
-   			this.Separator.removeAll(this.cutsetOfAllLevelsAbove);
-   		}
-   		
-   		List<Set<VariableNode>> listOfMiniCutsets = new ArrayList<>();
-   		
-   		for (PartitionTree p : this.children){
-   			if(!p.equals(notToUpdate)){
-	   			HashSet<VariableNode> toAddInThisChild = new HashSet<>();
-	   			toAddInThisChild.addAll(toAdd);
-	   			toAddInThisChild.retainAll(p.setOfVariables);
-	   			toAddInThisChild.removeAll(this.Separator);
-	   			
-	   			p.updateLASandSeparator(toAddInThisChild);//essa funcao so desce na arvore e adiciona toAdd no LAS e tira toAdd do separator.
-	   			
-	   			listOfMiniCutsets.add(toAddInThisChild); // melhorar nome
-   			}
-   		}
-   		
-   		for(Set<VariableNode> miniCutset : listOfMiniCutsets){
-   			this.Separator.addAll(miniCutset);
-   		}
-   		
-   		toAdd.removeAll(this.Separator); // acho que ta certo, mas talvez tenha que ser so remover a uniao do minisets
-   		//this.LAS = parent.LAS Union 
-   		
-   		
-   		//retornar this.Separator + this. LAS (acho)
-   		Set<VariableNode> result = new HashSet<>();
-   		result.addAll(this.Separator);
-   		result.addAll(this.cutsetOfAllLevelsAbove);
-   		return result;
-   	}
-   	
-   	public void updateLASandSeparator(Set<VariableNode> toAdd){
-   		//intercessao de to add e separator
-   		toAdd.removeAll(this.Separator);
-   		
-   		//subtrai to add das variav
-   		this.Separator.removeAll(toAdd);
-   		this.cutsetOfAllLevelsAbove.addAll(toAdd);
-   		
-   		//se toAdd naoVazio!
-   		if(!toAdd.isEmpty()){
-   			for(PartitionTree p : this.children){
-   				Set<VariableNode> toAddAux = new HashSet<>();
-   				toAddAux.addAll(toAdd);
-   				p.updateLASandSeparator(toAddAux);
-   			}
-   		}
-   	}
-   	
-   	
-
-
-/*------------------------------------------------------------------------------------------------------------------------*/
- 
-
-   	
+	}   	
 /*------------------------------------------------------------------------------------------------------------------------*/
    	
    	/**

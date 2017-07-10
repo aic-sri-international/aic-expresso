@@ -39,15 +39,8 @@ public class Tests {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);	
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
-		
-		
-		Model m = new Model(IsingModel(4,3, context, parse("Boolean")),theory,true);
-		
-		//m = new Model(ModelGenerator.lineModel(6, context, parse("Boolean")),theory,true);
-		
-		//m = new Model(ModelGenerator.nTreeModel(3, 3, context, parse("Boolean")),theory,true);
-		
-		
+
+		//Testing BFS Expander
 //		Iterator<PartitionTree> BFSExpander = new BFS(m);
 //		
 //		while(BFSExpander.hasNext()){
@@ -61,13 +54,18 @@ public class Tests {
 //			}
 //		}
 		
-		testFunction("me", m, true);
 		
+		Model m = new Model(IsingModel(4,3, context, parse("Boolean")),theory,true);
+
+		testFunction("IsingModel", m, true);
 		
-//		modelName = "Line Model";
-//		m = new Model(lineModel(10, context, parse("Boolean")),theory, true);
-//		
+		m = new Model(ModelGenerator.lineModel(8, context, parse("Boolean")),theory,true);
+
+		testFunction("lineModel", m, true);
 		
+		m = new Model(ModelGenerator.nTreeModel(3, 3, context, parse("Boolean")),theory,true);
+
+		testFunction("nTreeModel", m, true);
 	}
 
 	private static void testFunction(String modelName, Model m, boolean printAll) {
@@ -94,7 +92,7 @@ public class Tests {
 						minAndMaxProbabilityofQueryequalsTrue.second +
 						"\nLength of interval (that is, (max - min)) : " + (minAndMaxProbabilityofQueryequalsTrue.second - minAndMaxProbabilityofQueryequalsTrue.first) +
 						"\nTime to compute this iteration:" + time + ". Toatal time : " + totalTime);
-				println("----------------- AllExplored : " + m.AllExplored() + "-----------------");
+				println("----------------- AllExplored : " + sbp.AllExplored() + "-----------------");
 			}
 		}
 

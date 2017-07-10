@@ -19,12 +19,33 @@ import com.sri.ai.util.base.PairOf;
 import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 import IncrementalAnytimeExactBeliefPropagation.Model.Node.FactorNode;
 import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
-
+/**
+ * This class does AnytymeBeliefPropagationWithSeparatorConditioning in an incremental way.
+ * The way AnytymeBeliefPropagationWithSeparatorConditioning works is as follows:
+ * 		We begin with a explored part of the graph
+ * 		We add one Factor Node to this graph
+ * 		We assign bounds to Variable Nodes that are not fully explored, that is have not been exhausted (See @c{@code isExhasuted} in {@link Model})
+ * 		We Apply the Inference Algorithm known as Belief propagation with separator conditioning (S-BP). for this, it is necessary to :
+ * 			Define a {@link PartitionTree}
+ * 			do the message passing step, from the leafs to the query
+ * 
+ * The way the Incremental version works is as follows: 
+ * 		In order for S-BP to work, a {@link PartitionTree} structure have to be defined before the message passing process starts.
+ * 		This version of the AnytymeBeliefPropagationWithSeparatorConditioning algorithm manages to reuse the {@link PartitionTree} defined in a previous iteration
+ * in order to save computation time used to build it. Instead, we just update certain nodes influenced by the new added factor. 
+ * (P.S. This approach may have a down Side : There are many possibilities of partition threes, and the choice of the a good one entirely determines the complexity of the inference process. 
+ *  On the other hand, computing a partition tree is a relatively cheap operation. Therefore, buy not rebuilding a partition tree, can lead to a much longer computation time during the S-BP step,
+ *  even though time is saved in the partition tree definition phase.
+ * 
+ * @author ferreira
+ *
+ */
 public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 	private Model model;
 	private boolean AllExplored;
 	public PartitionTree partitionTree;
-	private Iterator<PartitionTree> partitionTreeIterator; 
+	private Iterator<PartitionTree> partitionTreeIterator;	// on the first iteration, it.next() gives the query (a variable node)
+															// after the first iteration, it.next returns factors to be added in the partition three
 	
 	public IncrementalAnytymeBeliefPropagationWithSeparatorConditioning(Model model, Iterator<PartitionTree> partitionTreeIterator) {
 		this.model = model;
@@ -58,7 +79,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		return null;
 	}
 	
-	public void updatePartitionTree(PartitionTree p){
+	private void updatePartitionTree(PartitionTree p){
 		FactorNode newFactor = (FactorNode) p.node;
 		Collection<VariableNode> variablesOfNewFactor = model.getVariablesOfAFactor(newFactor);
 		
@@ -72,14 +93,14 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 	
  /*------------------------------------------------------------------------------------------------------------------------*/
    	
- 	public void updateSetOfFactorsInPartitionTree(PartitionTree p,FactorNode newFactor){	
+ 	private void updateSetOfFactorsInPartitionTree(PartitionTree p,FactorNode newFactor){	
    		while(p != null){
    			p.setOfFactors.add(newFactor);
    			p = p.parent;
    		}
    	}
  /*------------------------------------------------------------------------------------------------------------------------*/
- 	public void updateSetOfVariablesInPartitionTree(PartitionTree p,Collection<VariableNode> variablesOfNewFactor){	
+ 	private void updateSetOfVariablesInPartitionTree(PartitionTree p,Collection<VariableNode> variablesOfNewFactor){	
    		while(p != null){
    			p.setOfVariables.addAll(variablesOfNewFactor);
    			p.setOfVariables.remove(p.node);
@@ -90,7 +111,12 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
  /*------------------------------------------------------------------------------------------------------------------------*/
  
  	private void updateCutSet(PartitionTree newFactorPartition,FactorNode newFactor){
- 	
+ 	//when a factor is added, it is possible that the separator of many variables have to be updated
+ 	//One of the guaranties that we have is that the new cutset variables of each node are certain to be among the variables of the newFactor
+ 	//we remove the children of the new factor because those are certain not to be in the rest of the graph (are not arguments of other factors)
+ 	// we remove the parent because it is not new to the graph.
+ 		
+ 		
    		//we take all variables of this factor, and remove those that haven't appeared in other parts of the graph
    		Collection<VariableNode> newSeparatorVariables = model.getVariablesOfAFactor(newFactor);
    			//we remove the children
@@ -134,6 +160,8 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    			}
    		}
 
+   		toAdd.remove(newCutSetVariables);
+   		
    		currentNode.Separator.addAll(newCutSetVariables);
    		currentNode.recomputeBound = true;
    		for (PartitionTree p : currentNode.children){
@@ -174,11 +202,14 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    	
 
 /*------------------------------------------------------------------------------------------------------------------------*/   	
-   	
-   	public void updateBounds(){
+   	/**
+   	 * The Updadte Bounds is the traditional message passing that we have in S-BP. The difference is that, when the cutsets
+   	 * were updated, a tag "recompute" bound was assigned to all nodes whose separator have been updated 
+   	 */
+   	private void updateBounds(){
    		updateBounds(partitionTree);
    	}
-	public void updateBounds(PartitionTree currentNode){
+	private void updateBounds(PartitionTree currentNode){
 		if(!currentNode.recomputeBound){
 			return;
 		}
@@ -238,7 +269,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		return bound;
 	}
 	
-	public Bound variableMessage(PartitionTree currentNode){
+	private Bound variableMessage(PartitionTree currentNode){
 		Set<Expression> variablesToSumOut = new HashSet<>();
 		for(VariableNode v : currentNode.Separator){
 			variablesToSumOut.add(v.getValue());
@@ -264,6 +295,11 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 	}
    	
  /*------------------------------------------------------------------------------------------------------------------------*/   	
+/**
+ * from here it's the code to anytimeBeliefPropagation (not used) 	
+ */
+	
+	
 	
 	public Bound InferenceOverEntireModel(){
 		model.SetExploredGraphToEntireGraph();
@@ -281,7 +317,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		return result;
 	}
 		
-	public Bound variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
+	private Bound variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
 		if(!partitionInAVariableNode.node.isVariable()){
 			println("error in S-BP!!!");
 			return null;
@@ -329,7 +365,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		//partitionInAVariableNode.node.setBound(bound);
 	}
 
-	public Bound factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
+	private Bound factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
 		if(!partitionInAFactorNode.node.isFactor()){
 			println("error in S-BP!!!");
 			return null;
