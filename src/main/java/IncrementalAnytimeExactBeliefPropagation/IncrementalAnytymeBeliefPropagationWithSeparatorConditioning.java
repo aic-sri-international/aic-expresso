@@ -99,6 +99,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    			p = p.parent;
    		}
    	}
+ 
  /*------------------------------------------------------------------------------------------------------------------------*/
  	private void updateSetOfVariablesInPartitionTree(PartitionTree p,Collection<VariableNode> variablesOfNewFactor){	
    		while(p != null){
@@ -171,7 +172,6 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    		}
    		
    	}
-   	
    	
 	private void updateLASandSeparator(PartitionTree partition){
 		partition.recomputeBound = true;

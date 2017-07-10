@@ -28,33 +28,51 @@ import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
 import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 
 public class Tests {
+	static Theory theory;
+	static Context context;
 	
 	public static void main(String[] args) {
 		//Theory initialization
-		Theory theory = new CompoundTheory(
+		theory = new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, false),
 				new LinearRealArithmeticTheory(false, false),
 				new TupleTheory(),
 				new PropositionalTheory());
-		Context context = new TrueContext(theory);	
+		context = new TrueContext(theory);	
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
 
 		//Testing BFS Expander
-//		Iterator<PartitionTree> BFSExpander = new BFS(m);
-//		
-//		while(BFSExpander.hasNext()){
-//			PartitionTree p = BFSExpander.next();
-//			println("node : " + p.node);
-//			println("parent: "+ p.parent.node);
-//			
-//			println("children");
-//			for(PartitionTree pv : p.children){
-//				println(pv.node.getValue());
-//			}
-//		}
+		//testingBFS();
 		
+		//Testing on standard output (output results on screen)
+		//testingAndPrintingOnScreen();
 		
+		testingAndPrintingOnFile();
+		
+	}
+
+	public static void testingAndPrintingOnFile() {
+		List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
+		
+		int nLines = 4;
+		int nCols = 3;
+		Model m = new Model(IsingModel(nLines, nCols, context, parse("Boolean")),theory,true);
+		modelsToprintInFile.add(testing("IsingModel", m,nLines, nCols));
+		
+		int nFactors = 15;
+		m = new Model(ModelGenerator.lineModel(nFactors, context, parse("Boolean")),theory,true);
+		modelsToprintInFile.add(testing("lineModel", m, nFactors));
+		
+		int nLevels = 5;
+		int nChildren = 2;
+		m = new Model(ModelGenerator.nTreeModel(nLevels, nChildren, context, parse("Boolean")),theory,true);
+		modelsToprintInFile.add(testing("nTreeModel", m, nLevels, nChildren));
+		
+		testingAndWritingToFile("SomeTests", modelsToprintInFile);
+	}
+
+	public static void testingAndPrintingOnScreen() {
 		Model m = new Model(IsingModel(4,3, context, parse("Boolean")),theory,true);
 
 		testFunction("IsingModel", m, true);
@@ -63,11 +81,33 @@ public class Tests {
 
 		testFunction("lineModel", m, true);
 		
-		m = new Model(ModelGenerator.nTreeModel(3, 3, context, parse("Boolean")),theory,true);
+		m = new Model(ModelGenerator.nTreeModel(9, 2, context, parse("Boolean")),theory,true);
 
 		testFunction("nTreeModel", m, true);
 	}
 
+	public static void testingBFS() {
+		Model m = new Model(IsingModel(4,3, context, parse("Boolean")),theory,true);
+		Iterator<PartitionTree> BFSExpander = new BFS(m);
+		
+		while(BFSExpander.hasNext()){
+			PartitionTree p = BFSExpander.next();
+			println("node : " + p.node);
+			println("parent: "+ p.parent.node);
+			
+			println("children");
+			for(PartitionTree pv : p.children){
+				println(pv.node.getValue());
+			}
+		}
+	}
+
+	/**
+	 * This function tests a given model and prints the results on the screen 
+	 * @param modelName
+	 * @param m
+	 * @param printAll - says if you wanna all the steps to be printed or just the final iteration
+	 */
 	private static void testFunction(String modelName, Model m, boolean printAll) {
 		Iterator<PartitionTree> BFSExpander = new BFS(m);
 		IncrementalAnytymeBeliefPropagationWithSeparatorConditioning sbp = new IncrementalAnytymeBeliefPropagationWithSeparatorConditioning(m,BFSExpander);
@@ -109,6 +149,14 @@ public class Tests {
 				"\nTime to compute:" + time);
 	}
 	
+	/**
+	 * This tests a model and, instead of printing information, stores its in a list of data structures
+	 * each element of the list corresponds to a iteration of the algorithm
+	 * @param modelName
+	 * @param m
+	 * @param parameter
+	 * @return
+	 */
 	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter){
 		List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
@@ -169,10 +217,16 @@ public class Tests {
 		
 		result.add(t);	
 
-		println("------------------------------------------------------------");
+		println("------------------------- Done -----------------------------------");
 		return result;
 	}
 	
+	/**
+	 * This prints in a file the content of trying many different models.
+	 * the idea is to test many different models (with teh function {@code testing}) and have them printed in the same .csv  file
+	 * @param filename
+	 * @param testedModels
+	 */
 	public static void testingAndWritingToFile(String filename, List<List<TupleOfData>> testedModels){
 		try{
 		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
