@@ -1,6 +1,8 @@
 package IncrementalAnytimeExactBeliefPropagation;
 
 import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.IsingModel;
+import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.lineModel;
+import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.nTreeModel;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.println;
 
@@ -30,6 +32,7 @@ import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 public class Tests {
 	static Theory theory;
 	static Context context;
+	static int ID = 0;
 	
 	public static void main(String[] args) {
 		//Theory initialization
@@ -53,8 +56,10 @@ public class Tests {
 	}
 
 	public static void testingAndPrintingOnFile() {
-		
-		testingAndPrintingOnScreen();
+		String modelName = "lineModel14";
+		Model m = new Model(lineModel(14, context, parse("Boolean")),theory,true);
+
+		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(m,20,modelName);
 		
 		println("The End");
 	}
@@ -68,30 +73,56 @@ public class Tests {
 		int nLines = 4;
 		int nCols = 4;
 		Model m = new Model(IsingModel(nLines, nCols, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testingAndExportingListWithDataFunction("IsingModel", m,nLines, nCols));
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("IsingModel", m, true,nLines, nCols));
 		
 		int nFactors = 12;
 		m = new Model(ModelGenerator.lineModel(nFactors, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testingAndExportingListWithDataFunction("lineModel", m, nFactors));
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("lineModel", m, true, nFactors));
 		
 		int nLevels = 4;
 		int nChildren = 2;
 		m = new Model(ModelGenerator.nTreeModel(nLevels, nChildren, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testingAndExportingListWithDataFunction("nTreeModel", m, nLevels, nChildren));
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("nTreeModel", m, true, nLevels, nChildren));
 		
 		writingToFile("SomeTests.csv", modelsToprintInFile);
 	}
+
+
+	public static void testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(Model m,int n,String fileNameWithoutExtension) {
+	
+	ModelGenerator.resetRandomGenerator();
+	
+	List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
+	
+	
+	for(int i = 0; i < n; i++){
+		//Model m = new Model(IsingModel(nLines, nCols, context, parse("Boolean")),theory,true);
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("IsingModelIncremental", m, true));
+		println(i);
+	}
+	
+	ModelGenerator.resetRandomGenerator();
+	
+	for(int i = 0; i < n; i++){
+		//Model m = new Model(IsingModel(nLines, nCols, context, parse("Boolean")),theory,true);
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("IsingModelNONIncremental", m, false));
+		println(i);
+	}
+	
+	writingToFile(fileNameWithoutExtension + ".csv", modelsToprintInFile);
+}
+
 
 	public static void testingAndPrintingOnScreen() {
 		Model m = new Model(IsingModel(4,3, context, parse("Boolean")),theory,true);
 
 		testFunction("IsingModel", m, true);
 		
-		m = new Model(ModelGenerator.lineModel(8, context, parse("Boolean")),theory,true);
+		m = new Model(lineModel(8, context, parse("Boolean")),theory,true);
 
 		testFunction("lineModel", m, true);
 		
-		m = new Model(ModelGenerator.nTreeModel(9, 2, context, parse("Boolean")),theory,true);
+		m = new Model(nTreeModel(9, 2, context, parse("Boolean")),theory,true);
 
 		testFunction("nTreeModel", m, true);
 	}
@@ -168,7 +199,7 @@ public class Tests {
 	 * @param parameter
 	 * @return
 	 */
-	public static List<TupleOfData> testingAndExportingListWithDataFunction(String modelName, Model m, Integer... parameter){
+	public static List<TupleOfData> testingAndExportingListWithDataFunction(String modelName, Model m, boolean Incrementalversion, Integer... parameter){
 		List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
@@ -183,7 +214,7 @@ public class Tests {
 			TupleOfData t = new TupleOfData();
 			
 			long tStart = System.currentTimeMillis();
-			Bound inferenceResult = sbp.ExpandAndComputeInference();
+			Bound inferenceResult = Incrementalversion? sbp.ExpandAndComputeInference() : sbp.ExpandAndComputeInferenceByRebuildingPartitionTree();
 			long tEnd = System.currentTimeMillis();
 			long tDelta = tEnd - tStart;
 			t.time = tDelta /1000.0;
@@ -193,7 +224,8 @@ public class Tests {
 			
 			t.typeOfComputationUsed = "S-BP";
 			t.graphicalModelName = modelName;
-			t.id = id++;
+			t.id = ID++;
+			t.iteration = id++;
 			t.numberOfExtremePoints = inferenceResult.getArguments().size();
 			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
 			t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
@@ -251,15 +283,16 @@ public class Tests {
 		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
 		    //print head of dataset
 		    writer.println("Id,"
-		    		+ "typeOfComputationUsed,"
-		    		+ "graphicalModelName,"
-		    		+ "minAndMaxProbabilityofQueryequalsTrue,"
-		    		+ "maxAndMaxProbabilityofQueryequalsTrue,"
+		    		+ "TypeOfComputationUsed,"
+		    		+ "GraphicalModelName,"
+		    		+ "Iteration,"
+		    		+ "MinAndMaxProbabilityofQueryequalsTrue,"
+		    		+ "MaxAndMaxProbabilityofQueryequalsTrue,"
 		    		+ "IntervalLength,"
-		    		+ "numberOfExtremePoints,"
-		    		+ "allExplored,"
-		    		+ "time,"
-		    		+ "totaltime,"
+		    		+ "NumberOfExtremePoints,"
+		    		+ "AllExplored,"
+		    		+ "Time,"
+		    		+ "Total Time,"
 		    		+ "Parameter 1,"
 		    		+ "Parameter 2,"
 		    		+ "Parameter 3,"
@@ -271,6 +304,7 @@ public class Tests {
 			    		writer.print(t.id + "," +
 			    					t.typeOfComputationUsed +","+
 			    					t.graphicalModelName + "," +
+			    					t.iteration + "," +
 			    					t.minAndMaxProbabilityofQueryequalsTrue + "," +
 			    					t.maxAndMaxProbabilityofQueryequalsTrue + "," +
 			    					t.IntervalLength + "," +

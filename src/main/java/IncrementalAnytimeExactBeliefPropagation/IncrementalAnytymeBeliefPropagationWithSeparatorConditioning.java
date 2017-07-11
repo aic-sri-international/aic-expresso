@@ -145,10 +145,10 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    		addingToCutSet(newFactorPartition, newSeparatorVariables, null);
    	}
 
-   	private void addingToCutSet(PartitionTree currentNode, Collection<VariableNode> toAdd, PartitionTree notToUpdate){
+   	private void addingToCutSet(PartitionTree currentNode, Collection<VariableNode> toAddtoSeparator, PartitionTree notToUpdate){
    		if(currentNode != null && currentNode.parent != null){
    			//Call to the parent then update the node.
-   			addingToCutSet(currentNode.parent, toAdd, currentNode);
+   			addingToCutSet(currentNode.parent, toAddtoSeparator, currentNode);
    			
    			currentNode.cutsetOfAllLevelsAbove.addAll(currentNode.parent.Separator);
    			currentNode.cutsetOfAllLevelsAbove.addAll(currentNode.parent.cutsetOfAllLevelsAbove);
@@ -160,13 +160,13 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    		for (PartitionTree p : currentNode.children){
    			if(!p.equals(notToUpdate)){
 	   			HashSet<VariableNode> toAddInThisChild = new HashSet<>();
-	   			toAddInThisChild.addAll(toAdd);
+	   			toAddInThisChild.addAll(toAddtoSeparator);
 	   			toAddInThisChild.retainAll(p.setOfVariables);
 	   			newCutSetVariables.addAll(toAddInThisChild);
    			}
    		}
 
-   		toAdd.remove(newCutSetVariables);
+   		toAddtoSeparator.removeAll(newCutSetVariables);
    		
    		currentNode.Separator.addAll(newCutSetVariables);
    		currentNode.recomputeBound = true;
