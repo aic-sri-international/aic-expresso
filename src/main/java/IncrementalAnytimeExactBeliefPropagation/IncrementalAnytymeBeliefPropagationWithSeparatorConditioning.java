@@ -37,6 +37,15 @@ import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
  *  On the other hand, computing a partition tree is a relatively cheap operation. Therefore, buy not rebuilding a partition tree, can lead to a much longer computation time during the S-BP step,
  *  even though time is saved in the partition tree definition phase.
  * 
+ * 
+ * HOW TO USE THIS CLASS?
+ * 	First one has to have a iterator for the partition tree ( PS: the nodes given by the iterator must be already connected among them)
+ *  One has to create a model containing all the factor nodes that are going to be (eventually) explored.
+ *  In order to do the inference, of the query, the user has three options:
+ *  		For incremental anytime S-BP : {@code ExpandAndComputeInference}
+ *  		For anytime S-BP (rebuild partition graph at each step) : {@code ExpandAndComputeInferenceByRebuildingPartitionTree}
+ *  		For inference over the whole model at once: {@code InferenceOverEntireModel}
+ *  
  * @author ferreira
  *
  */
@@ -75,8 +84,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		}
 		return null;
 	}
-	
-	
+		
 	public Bound ExpandAndComputeInference(){
 		if(partitionTreeIterator.hasNext()){
 			PartitionTree nextFactorPartitionTree = partitionTreeIterator.next();
@@ -103,7 +111,6 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		updateCutSet(p,newFactor);
    		updateBounds();
    	}
-	
 	
  /*------------------------------------------------------------------------------------------------------------------------*/
    	
@@ -205,7 +212,6 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		return !v.isEmpty();
 	}
    	
-
 /*------------------------------------------------------------------------------------------------------------------------*/   	
    	/**
    	 * The Updadte Bounds is the traditional message passing that we have in S-BP. The difference is that, when the cutsets
@@ -301,9 +307,15 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    	
  /*------------------------------------------------------------------------------------------------------------------------*/   	
 /**
- * from here it's the code to anytimeBeliefPropagation (not used) 	
+ * from here the code corresponds to anytimeBeliefPropagation (re-do partitioning each time)
+ * 
+ *  PROS: 	MUCH easier to understand!
+ *  			Splits the process of expanding the graph from the one of defining a partition tree of the graph 
+ *  				(DECIDING THE OPTIMAL PARTITION TREE IS NP HARD, SO IT MAKES COMPLETE SENSE TO SEPARATE THOSE TWO PROCESSES)	
+ *  
+ *  CONS:	If the implementation of both the Partition Tree and the Expansion of the graph s done with a BFS (which is the current solution)
+ *  			it becomes less costly to profit from the already built Partition Tree (that is to use the IncrementalVesion).  
  */
-	
 	
 	
 	public Bound InferenceOverEntireModel(){
