@@ -70,47 +70,46 @@ public class Tests {
 		
 		List<List<TupleOfData>> listOdModelsToPrintInFile = new ArrayList<>();
 		
-		m = new Model(IsingModel(20, 4, context, parse("Boolean")),theory, true);
-		List<TupleOfData> IsingModel2X2 = testing("IsingModel",m,2,2);
-		listOdModelsToPrintInFile.add(IsingModel2X2);
-		println("ok");
-		
-		m = new Model(IsingModel(3, 3, context, parse("Boolean")),theory, true);
-		List<TupleOfData> IsingModel3X3 = testing("IsingModel",m,3,3);
-		listOdModelsToPrintInFile.add(IsingModel3X3);
-		println("ok");
-		
-		m = new Model(IsingModel(3, 4, context, parse("Boolean")),theory, true);
-		List<TupleOfData> IsingModel3X4 = testing("IsingModel",m,3,4);
-		listOdModelsToPrintInFile.add(IsingModel3X4);
-		println("ok");
-		
-		m = new Model(IsingModel(4, 4, context, parse("Boolean")),theory, true);
-		List<TupleOfData> IsingModel4X4 = testing("IsingModel",m,4,4);
-		listOdModelsToPrintInFile.add(IsingModel4X4);
-		println("ok");
-		
-//		m = new Model(IsingModel(4, 5, context, parse("Boolean")),theory, true);
-//		List<TupleOfData> IsingModel4X5 = testing("IsingModel",m,4,5);
-//		listOdModelsToPrintInFile.add(IsingModel4X5);
+//		m = new Model(IsingModel(20, 4, context, parse("Boolean")),theory, true);
+//		List<TupleOfData> IsingModel2X2 = testing("IsingModel",m,2,2);
+//		listOdModelsToPrintInFile.add(IsingModel2X2);
 //		println("ok");
-		
-		modelName = "Line Model";
-		m = new Model(lineModel(20, context, parse("Boolean")),theory, true);
-		List<TupleOfData> line10 = testing(modelName,m,4,5);
-		listOdModelsToPrintInFile.add(line10);
-		println("ok");
+//		
+//		m = new Model(IsingModel(3, 3, context, parse("Boolean")),theory, true);
+//		List<TupleOfData> IsingModel3X3 = testing("IsingModel",m,3,3);
+//		listOdModelsToPrintInFile.add(IsingModel3X3);
+//		println("ok");
+//		
+//		m = new Model(IsingModel(3, 4, context, parse("Boolean")),theory, true);
+//		List<TupleOfData> IsingModel3X4 = testing("IsingModel",m,3,4);
+//		listOdModelsToPrintInFile.add(IsingModel3X4);
+//		println("ok");
+//		
+//		m = new Model(IsingModel(4, 4, context, parse("Boolean")),theory, true);
+//		List<TupleOfData> IsingModel4X4 = testing("IsingModel",m,4,4);
+//		listOdModelsToPrintInFile.add(IsingModel4X4);
+//		println("ok");
+//		
+////		m = new Model(IsingModel(4, 5, context, parse("Boolean")),theory, true);
+////		List<TupleOfData> IsingModel4X5 = testing("IsingModel",m,4,5);
+////		listOdModelsToPrintInFile.add(IsingModel4X5);
+////		println("ok");
+//		
+//		modelName = "Line Model";
+//		m = new Model(lineModel(20, context, parse("Boolean")),theory, true);
+//		List<TupleOfData> line10 = testing(modelName,m,4,5);
+//		listOdModelsToPrintInFile.add(line10);
+//		println("ok");
 		
 
 		modelName = "Binary Tree Model";
-		m = new Model(nTreeModel(4, 2, context, parse("Boolean")),theory, true);
+		m = new Model(IsingModel(4, 4, context, parse("Boolean")),theory, true);
 		List<TupleOfData> btree = testing(modelName,m,4,5);
 		listOdModelsToPrintInFile.add(btree);
 		println("ok");
 		
 		testingAndWritingToFile(modelName + ".csv",listOdModelsToPrintInFile);
 		
-
 	}
 
 	private static void testFunction(String modelName, Model m, boolean printAll) {
@@ -154,7 +153,7 @@ public class Tests {
 				"\nTime to compute:" + time);
 	}
 	
-	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter){
+	public static List<TupleOfData> testing3(String modelName, Model m, Integer... parameter){
 		List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
@@ -169,6 +168,8 @@ public class Tests {
 			Bound inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
 			long tEnd = System.currentTimeMillis();
 			long tDelta = tEnd - tStart;
+			
+			
 			t.time= tDelta / 1000.0;	
 			t.typeOfComputationUsed = "S-BP";
 			t.graphicalModelName = modelName;
@@ -218,6 +219,93 @@ public class Tests {
 		return result;
 	}
 	
+
+	/**
+	 * This tests a model and, instead of printing information, stores its in a list of data structures
+	 * each element of the list corresponds to a iteration of the algorithm
+	 * @param modelName
+	 * @param m
+	 * @param parameter
+	 * @return
+	 */
+	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter){
+List<TupleOfData> result = new ArrayList<TupleOfData>();
+		
+		int id = 0;
+		m.clearExploredGraph();
+		Iterator<FactorNode> BFSExpander = new BFS(m);
+		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
+		
+		double tTotalTime = 0;
+		
+		while(BFSExpander.hasNext()){
+			
+			TupleOfData t = new TupleOfData();
+			
+			long tStart = System.currentTimeMillis();
+			Bound inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
+			long tEnd = System.currentTimeMillis();
+			long tDelta = tEnd - tStart;
+			t.time = tDelta /1000.0;
+			
+			tTotalTime += tDelta / 1000.0;
+			t.totalTime +=  tTotalTime;
+			
+			t.typeOfComputationUsed = "S-BP";
+			t.graphicalModelName = modelName;
+			t.id = id++;
+			t.numberOfExtremePoints = inferenceResult.getArguments().size();
+			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
+			t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
+			t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
+			t.IntervalLength = t.maxAndMaxProbabilityofQueryequalsTrue - t.minAndMaxProbabilityofQueryequalsTrue; 
+			t.allExplored = m.AllExplored();
+			
+			for (int i = 0; i < parameter.length && i < t.parameter.length; i++) {
+				t.parameter[i] = parameter[i];
+			}
+			
+			result.add(t);
+			
+			println("....");
+		}
+		
+		TupleOfData t = new TupleOfData();
+		
+		long tStart = System.currentTimeMillis();
+		Expression inferenceLVE = ModelGenerator.LVECalculation(m);
+		Bound EncapsulatingInference = Bounds.makeSingleElementBound(inferenceLVE, true);
+		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(EncapsulatingInference, m);
+		long tEnd = System.currentTimeMillis();
+		long tDelta = tEnd - tStart;
+		t.time= tDelta / 1000.0;
+		t.totalTime = t.time;
+		t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
+		t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
+		
+		t.typeOfComputationUsed = "SGDPLL";
+		t.graphicalModelName = modelName;
+		t.id = id++;
+		t.numberOfExtremePoints = 0;
+		t.IntervalLength = 0; 
+		t.allExplored = true;
+		
+		for (int i = 0; i < parameter.length && i < t.parameter.length; i++) {
+			t.parameter[i] = parameter[i];
+		}
+		
+		result.add(t);	
+
+		println("------------------------- Done -----------------------------------");
+		return result;
+	}
+	
+	/**
+	 * This prints in a file the content of trying many different models.
+	 * the idea is to test many different models (with teh function {@code testing}) and have them printed in the same .csv  file
+	 * @param filename
+	 * @param testedModels
+	 */
 	public static void testingAndWritingToFile(String filename, List<List<TupleOfData>> testedModels){
 		try{
 		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
@@ -231,11 +319,12 @@ public class Tests {
 		    		+ "numberOfExtremePoints,"
 		    		+ "allExplored,"
 		    		+ "time,"
+		    		+ "totaltime,"
 		    		+ "Parameter 1,"
 		    		+ "Parameter 2,"
 		    		+ "Parameter 3,"
 		    		+ "Parameter 4,"
-		    		+ "Parameter 5,");
+		    		+ "Parameter 5");
 		    //printLines
 		    for(List<TupleOfData> l : testedModels){		    
 			    for(TupleOfData t : l){
@@ -247,9 +336,10 @@ public class Tests {
 			    					t.IntervalLength + "," +
 			    					t.numberOfExtremePoints + "," +
 			    					t.allExplored + "," +
-			    					t.time + ",");
+			    					t.time+ "," +
+			    					t.totalTime);
 			    		for (int i = 0; i < t.parameter.length; i++) {
-			    			writer.print(t.parameter[i] + ",");
+			    			writer.print("," + t.parameter[i] );
 			    		}
 			    		writer.println();
 			    }    

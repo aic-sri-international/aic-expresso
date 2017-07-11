@@ -1,6 +1,5 @@
 package anytimeExactBeliefPropagation;
 
-
 public class TupleOfData{
 	int id = -1;
 	String typeOfComputationUsed = ""; //SGDPLL or Bounded S-BP
@@ -12,6 +11,7 @@ public class TupleOfData{
 	int numberOfExtremePoints = -1;
 	boolean allExplored = true;
 	double time = -1;
+	double totalTime = 0;
 	
 	public TupleOfData() {
 	}

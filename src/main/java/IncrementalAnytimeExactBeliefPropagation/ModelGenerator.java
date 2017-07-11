@@ -51,8 +51,15 @@ import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
 @Beta
 public class ModelGenerator {
 	
+	static int seed = 40;
+	static Random randomGenerator = new Random(seed);
+	
+	
+	public static void resetRandomGenerator(){
+		randomGenerator = new Random(seed);
+	}
+	
 	private static Expression randomNumberGenerator(){
-		 Random randomGenerator = new Random();
 		 return makeSymbol(randomGenerator.nextInt(9));
 	}
 	

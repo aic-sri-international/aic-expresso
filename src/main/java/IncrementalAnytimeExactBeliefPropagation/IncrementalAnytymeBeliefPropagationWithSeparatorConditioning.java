@@ -63,6 +63,20 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		return !partitionTreeIterator.hasNext();
 	}
 	
+	public Bound ExpandAndComputeInferenceByRebuildingPartitionTree(){
+		if(partitionTreeIterator.hasNext()){
+			PartitionTree nextFactorPartitionTree = partitionTreeIterator.next();
+			FactorNode nextFactor = (FactorNode) nextFactorPartitionTree.node;
+			
+			model.ExpandModel(nextFactor);
+			Bound result = inference();
+			
+			return result;
+		}
+		return null;
+	}
+	
+	
 	public Bound ExpandAndComputeInference(){
 		if(partitionTreeIterator.hasNext()){
 			PartitionTree nextFactorPartitionTree = partitionTreeIterator.next();
@@ -129,15 +143,6 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
    		
    		//Update this cutset, and all above together
    		addingToCutSet(newFactorPartition, newSeparatorVariables, null);
-   		   		
-//   		//Update cutset of "Virgin Variables" .
-//   		for(PartitionTree p : newFactorPartition.children){
-//   			Set<VariableNode> SeparatorOfAllAboveForChildrenOfNewFactor = new HashSet<>();
-//   			SeparatorOfAllAboveForChildrenOfNewFactor.addAll(newFactorPartition.Separator);
-//   			SeparatorOfAllAboveForChildrenOfNewFactor.addAll(newFactorPartition.cutsetOfAllLevelsAbove);
-//   			
-//   			p.cutsetOfAllLevelsAbove = SeparatorOfAllAboveForChildrenOfNewFactor; 
-//   		}
    	}
 
    	private void addingToCutSet(PartitionTree currentNode, Collection<VariableNode> toAdd, PartitionTree notToUpdate){

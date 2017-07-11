@@ -53,23 +53,33 @@ public class Tests {
 	}
 
 	public static void testingAndPrintingOnFile() {
+		
+		testingAndPrintingOnScreen();
+		
+		println("The End");
+	}
+
+	public static void testingAndWritingToFile() {
+		
+		ModelGenerator.resetRandomGenerator();
+		
 		List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
 		
 		int nLines = 4;
-		int nCols = 3;
+		int nCols = 4;
 		Model m = new Model(IsingModel(nLines, nCols, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testing("IsingModel", m,nLines, nCols));
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("IsingModel", m,nLines, nCols));
 		
-		int nFactors = 15;
+		int nFactors = 12;
 		m = new Model(ModelGenerator.lineModel(nFactors, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testing("lineModel", m, nFactors));
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("lineModel", m, nFactors));
 		
-		int nLevels = 5;
+		int nLevels = 4;
 		int nChildren = 2;
 		m = new Model(ModelGenerator.nTreeModel(nLevels, nChildren, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testing("nTreeModel", m, nLevels, nChildren));
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction("nTreeModel", m, nLevels, nChildren));
 		
-		testingAndWritingToFile("SomeTests", modelsToprintInFile);
+		writingToFile("SomeTests.csv", modelsToprintInFile);
 	}
 
 	public static void testingAndPrintingOnScreen() {
@@ -125,6 +135,7 @@ public class Tests {
 			//ModelGenerator.printModel(m, false);
 			if(printAll){
 				println("Number of ExtremePoints : "+inferenceResult.getArguments().size());
+				println("ExtremePoints : "+inferenceResult.getArguments());
 				Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
 				println("Minimal probability of Query = true : " +
 						minAndMaxProbabilityofQueryequalsTrue.first +
@@ -157,13 +168,16 @@ public class Tests {
 	 * @param parameter
 	 * @return
 	 */
-	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter){
+	public static List<TupleOfData> testingAndExportingListWithDataFunction(String modelName, Model m, Integer... parameter){
 		List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
 		m.clearExploredGraph();
 		Iterator<PartitionTree> BFSExpander = new BFS(m);
 		IncrementalAnytymeBeliefPropagationWithSeparatorConditioning sbp = new IncrementalAnytymeBeliefPropagationWithSeparatorConditioning(m,BFSExpander);
+		
+		double tTotalTime = 0;
+		
 		while(BFSExpander.hasNext()){
 			
 			TupleOfData t = new TupleOfData();
@@ -172,7 +186,11 @@ public class Tests {
 			Bound inferenceResult = sbp.ExpandAndComputeInference();
 			long tEnd = System.currentTimeMillis();
 			long tDelta = tEnd - tStart;
-			t.time= tDelta / 1000.0;	
+			t.time = tDelta /1000.0;
+			
+			tTotalTime += tDelta / 1000.0;
+			t.totalTime +=  tTotalTime;
+			
 			t.typeOfComputationUsed = "S-BP";
 			t.graphicalModelName = modelName;
 			t.id = id++;
@@ -200,7 +218,8 @@ public class Tests {
 		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(EncapsulatingInference, m);
 		long tEnd = System.currentTimeMillis();
 		long tDelta = tEnd - tStart;
-		t.time= tDelta / 1000.0;	
+		t.time= tDelta / 1000.0;
+		t.totalTime = t.time;
 		t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
 		t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
 		
@@ -227,7 +246,7 @@ public class Tests {
 	 * @param filename
 	 * @param testedModels
 	 */
-	public static void testingAndWritingToFile(String filename, List<List<TupleOfData>> testedModels){
+	public static void writingToFile(String filename, List<List<TupleOfData>> testedModels){
 		try{
 		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
 		    //print head of dataset
@@ -240,11 +259,12 @@ public class Tests {
 		    		+ "numberOfExtremePoints,"
 		    		+ "allExplored,"
 		    		+ "time,"
+		    		+ "totaltime,"
 		    		+ "Parameter 1,"
 		    		+ "Parameter 2,"
 		    		+ "Parameter 3,"
 		    		+ "Parameter 4,"
-		    		+ "Parameter 5,");
+		    		+ "Parameter 5");
 		    //printLines
 		    for(List<TupleOfData> l : testedModels){		    
 			    for(TupleOfData t : l){
@@ -256,9 +276,10 @@ public class Tests {
 			    					t.IntervalLength + "," +
 			    					t.numberOfExtremePoints + "," +
 			    					t.allExplored + "," +
-			    					t.time + ",");
+			    					t.time+ "," +
+			    					t.totalTime);
 			    		for (int i = 0; i < t.parameter.length; i++) {
-			    			writer.print(t.parameter[i] + ",");
+			    			writer.print("," + t.parameter[i] );
 			    		}
 			    		writer.println();
 			    }    
