@@ -1,0 +1,137 @@
+---
+title: "Results of anytime S-BP"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+install.packages("ggplot2")
+
+library(ggplot2)
+```
+
+```{r}
+plotingResults <- function(fileName,title, logScale = FALSE) {
+      data <- read.csv(file = fileName)
+      data <- aggregate(.~GraphicalModelName + Iteration,data,mean)
+
+      bothAnytime <- data[data$Iteration != -1 ,]
+      bothSGDPLL <- data[data$Iteration == -1 ,]
+
+      p <-ggplot(bothAnytime) + aes( x = Total.Time , 
+                            ymin = MinAndMaxProbabilityofQueryequalsTrue, 
+                            ymax= MaxAndMaxProbabilityofQueryequalsTrue, 
+                            group = GraphicalModelName,
+                            color = GraphicalModelName ) + 
+                    geom_errorbar() +
+                    geom_vline(xintercept = bothSGDPLL$Time[1]) + 
+                    geom_hline(yintercept = bothSGDPLL$MinAndMaxProbabilityofQueryequalsTrue[1], color = "black")  +
+                    ggtitle(title) + 
+                    theme(plot.title = element_text(lineheight=.8, face="bold"))
+      
+      
+      if(logScale){
+        bothAnytime <- bothAnytime[bothAnytime$IntervalLength > 10^(-6),]
+      }
+      
+      q <- ggplot(bothAnytime) + aes(x = Total.Time, 
+                                      y = IntervalLength, 
+                                      group = GraphicalModelName, 
+                                      color = GraphicalModelName) + 
+                                geom_point() + geom_line() + geom_vline(xintercept = bothSGDPLL$Time[1]) +
+                                ggtitle(title) + theme(plot.title = element_text(lineheight=.8, face="bold"))
+      
+      pdfName <- substr(fileName,1,nchar(fileName) - 4)
+      pdf(paste("images/", pdfName,"1.pdf"))
+      print(p)
+      dev.off()
+      
+      pdf(paste("images/", pdfName,"2.pdf"))
+      print(q)
+      dev.off()
+      
+      return(list(p,q,data))
+}
+
+```
+
+
+
+
+```{r}
+plotingResultsWithIncrementalOnly <- function(fileName,title, logScale = FALSE) {
+      pdfName <- substr(fileName,1,nchar(fileName) - 4)
+      
+      data <- read.csv(file = fileName)
+      data <- aggregate(.~GraphicalModelName + Iteration,data,mean)
+      
+      data <- data[data$GraphicalModelName == paste(pdfName,"Incremental",sep = ""),]
+      
+      bothAnytime <- data[data$Iteration != -1 ,]
+      bothSGDPLL <- data[data$Iteration == -1 ,]
+
+      
+      p <-ggplot(bothAnytime) + aes( x = Total.Time , 
+                            ymin = MinAndMaxProbabilityofQueryequalsTrue, 
+                            ymax= MaxAndMaxProbabilityofQueryequalsTrue, 
+                            color = GraphicalModelName ) + 
+                    geom_errorbar() +
+                    geom_vline(xintercept = bothSGDPLL$Time[1]) + 
+                    geom_hline(yintercept = bothSGDPLL$MinAndMaxProbabilityofQueryequalsTrue[1], color = "black")  +
+                    ggtitle(title) + 
+                    theme(plot.title = element_text(lineheight=.8, face="bold"))
+      
+      
+      if(logScale){
+        bothAnytime <- bothAnytime[bothAnytime$IntervalLength > 10^(-6),]
+      }
+      
+      q <- ggplot(bothAnytime) + aes(x = Total.Time, 
+                                      y = IntervalLength, 
+                                      color = GraphicalModelName) + 
+                                geom_point() + geom_line() + geom_vline(xintercept = bothSGDPLL$Time[1]) +
+                                ggtitle(title) + theme(plot.title = element_text(lineheight=.8, face="bold"))
+      
+      pdfName <- substr(fileName,1,nchar(fileName) - 4)
+      pdf(paste("images/", pdfName,"1inc.pdf"))
+      print(p)
+      dev.off()
+      
+      pdf(paste("images/", pdfName,"2inc.pdf"))
+      print(q)
+      dev.off()
+      
+      return(list(p,q,data))
+}
+data
+```
+
+
+
+```{r}
+plotingResults("lineModel20.csv","Line Model With 20 factors")
+plotingResults("lineModel13.csv","Line Model With 13 factors")
+plotingResults("lineModel25.csv","Line Model With 25 factors")
+plotingResults("BinaryTreeModel5.csv","Binary Tree Model with 5 levels of depth")
+plotingResults("IsingModel3X4.csv","Ising Model grid 3 X 4")
+plotingResults("IsingModel6X2.csv","Ising Model grid 6 X 2")
+
+```
+
+
+
+
+```{r}
+plotingResultsWithIncrementalOnly("lineModel20.csv","Line Model With 20 factors")
+plotingResultsWithIncrementalOnly("lineModel13.csv","Line Model With 13 factors")
+plotingResultsWithIncrementalOnly("lineModel25.csv","Line Model With 25 factors")
+plotingResultsWithIncrementalOnly("BinaryTreeModel5.csv","Binary Tree Model with 5 levels of depth")
+plotingResultsWithIncrementalOnly("IsingModel3X4.csv","Ising Model grid 3 X 4")
+plotingResultsWithIncrementalOnly("IsingModel6X2.csv","Ising Model grid 6 X 2")
+
+```
+
+```{r}
+plotingResultsWithIncrementalOnly("IsingModel4X4.csv","Ising Model grid 4 X 4")
+plotingResults("IsingModel4X4.csv","Ising Model grid 4 X 4")
+
+```

@@ -51,7 +51,7 @@ import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
 @Beta
 public class ModelGenerator {
 	
-	static int seed = 40;
+	static int seed = 42;
 	static Random randomGenerator = new Random(seed);
 	
 	
