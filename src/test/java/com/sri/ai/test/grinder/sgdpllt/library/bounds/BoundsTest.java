@@ -29,7 +29,7 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 
-public class BoundTest {
+public class BoundsTest {
 	
 	Theory theory ;
 	Context context;
@@ -37,14 +37,14 @@ public class BoundTest {
 	Bound setOfFactors;
 	Bound extensionalBound;
 	Bound intensionalBound;
-	Bound IntensionalSetOfFactors1;
-	Bound IntensionalSetOfFactors2;
-	Bound IntensionalSetOfFactors3;
+	Bound intensionalSetOfFactors1;
+	Bound intensionalSetOfFactors2;
+	Bound intensionalSetOfFactors3;
 	Model m;
 	
 	private void declaringTheoryContextAndSetOfFactors() {
 		
-		/*That's How we create a empty bound
+		/* That's How we create a empty bound
 		 * It is useful for abstracting the kind of bound we are talking about:
 		 * 		if you say to a program that one of his attributes is a bound, you can let the user choose
 		 * 		between a extensional or intensional representation just by passing the right object as 
@@ -55,7 +55,7 @@ public class BoundTest {
 		 * 		class foo{
 		 * 			Bound b
 		 * 			...
-		 * 			public foo(Bound b, ...){
+		 * 			public foo(Bound b, ...) {
 		 *				this.b = b;
 		 *				...
 		 *			} 	 
@@ -81,9 +81,9 @@ public class BoundTest {
 		context = context.extendWithSymbolsAndTypes("A","Boolean");
 		context = context.extendWithSymbolsAndTypes("B","Boolean");
 		context = context.extendWithSymbolsAndTypes("C","1..5");
-		//context = context.extendWithSymbolsAndTypes("D","{1,3,4,8}");
+		// context = context.extendWithSymbolsAndTypes("D","{1,3,4,8}");
 
-		//Set of functions
+		// Set of functions
 		Expression phi1 = parse("if X = true then 1 else if Y = true then 2 else 3");
 		Expression phi2 = parse("if A = true then if Y = true then 4 else 5 else 6");
 		Expression phi3 = parse("if X = true then 7 else if B = true then 8 else 9");
@@ -92,10 +92,10 @@ public class BoundTest {
 		
 		/*
 		 * This is How we create a non empty Extensional bound
-		 * */
+		 */
 		setOfFactors = new DefaultExtensionalBound(arrayList(phi1, phi2, phi3, phi4, phi5)); 
 	
-		//Set of numbers
+		// Set of numbers
 		Expression one   = DefaultSymbol.createSymbol(1);
 		Expression two   = DefaultSymbol.createSymbol(2);
 		setOFNumbers = new DefaultExtensionalBound(arrayList(one,two));
@@ -110,7 +110,7 @@ public class BoundTest {
 		m.context =	m.context.extendWithSymbolsAndTypes("C", "1..4");
 		m.context =	m.context.extendWithSymbolsAndTypes("D", "6..9");		
 		
-		IntensionalSetOfFactors1 = new DefaultIntensionalBound(
+		intensionalSetOfFactors1 = new DefaultIntensionalBound(
 				arrayList(
 						parse(" A' in Boolean"), 
 						parse("C' in 1..5")
@@ -119,12 +119,12 @@ public class BoundTest {
 				makeSymbol(true)
 				);
 		
-		IntensionalSetOfFactors2 = DefaultIntensionalBound.simplex(arrayList(parse("A")), m);
-		IntensionalSetOfFactors3 = DefaultIntensionalBound.simplex(arrayList(parse("C"),parse("B")), m);
+		intensionalSetOfFactors2 = DefaultIntensionalBound.simplex(arrayList(parse("A")), m);
+		intensionalSetOfFactors3 = DefaultIntensionalBound.simplex(arrayList(parse("C"),parse("B")), m);
 	}
 	
 	@Test
-	public void testSimplex(){
+	public void testSimplex() {
 		declaringTheoryContextAndSetOfFactors();
 		
 		Expression a = DefaultSymbol.createSymbol("A");
@@ -164,13 +164,13 @@ public class BoundTest {
 						+ "1 else 0 else 0 else 0 else 0 }"),
 				DefaultIntensionalBound.simplex(Variables, m));
 		
-		assertEquals(parse("{ ( on A' in Boolean) if A = A' then 1 else 0}"), IntensionalSetOfFactors2);
-		assertEquals(parse("{(on C' in 1..4, B' in Boolean) if B = B' then if C = C' then 1 else 0 else 0}"), IntensionalSetOfFactors3);
+		assertEquals(parse("{ ( on A' in Boolean) if A = A' then 1 else 0}"), intensionalSetOfFactors2);
+		assertEquals(parse("{(on C' in 1..4, B' in Boolean) if B = B' then if C = C' then 1 else 0 else 0}"), intensionalSetOfFactors3);
 		assertEquals(parse("{(on ) 1}"), DefaultIntensionalBound.simplex(arrayList(), m));
 	}
 	
 	@Test
-	public void testNormalize(){
+	public void testNormalize() {
 		declaringTheoryContextAndSetOfFactors();
 		
 		assertEquals(
@@ -195,9 +195,9 @@ public class BoundTest {
 								+ "else "
 									+ "0.8"
 							+ " else 0 }"),
-				IntensionalSetOfFactors1.normalize(theory, context));
+				intensionalSetOfFactors1.normalize(theory, context));
 		
-		Bound b = Bounds.boundProduct(theory, context, false, IntensionalSetOfFactors1,IntensionalSetOfFactors2).normalize(theory, context);
+		Bound b = Bounds.boundProduct(theory, context, false, intensionalSetOfFactors1,intensionalSetOfFactors2).normalize(theory, context);
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, A'' in Boolean ) "
@@ -218,10 +218,10 @@ public class BoundTest {
 	}
 	
 	@Test
-	public void testBoundProduct(){
+	public void testBoundProduct() {
 		declaringTheoryContextAndSetOfFactors();
 		
-		//Set of functions
+		// Set of functions
 		Expression phi = parse("if A = true then  1 else 6");
 		Bound setOfFactors2 = new DefaultExtensionalBound(phi);
 		
@@ -247,7 +247,7 @@ public class BoundTest {
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, C'' in 1..4, B' in Boolean ) if C = C' then if A then if A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else if not A' then if B then if B' then if C' = C'' then 1 else 0 else 0 else if not B' then if C' = C'' then 1 else 0 else 0 else if B then if B' then if C' = C'' then 4 else 0 else 0 else if not B' then if C' = C'' then 4 else 0 else 0 else 0 }"),
-				Bounds.boundProduct(theory, context, false, IntensionalSetOfFactors1, IntensionalSetOfFactors3));	
+				Bounds.boundProduct(theory, context, false, intensionalSetOfFactors1, intensionalSetOfFactors3));	
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean ) if A then if A' then 1 else 0 else if not A' then 1 else 0 }"),
@@ -255,7 +255,7 @@ public class BoundTest {
 	}
 	
 	@Test
-	public void testSummingOverBound(){
+	public void testSummingOverBound() {
 		declaringTheoryContextAndSetOfFactors();
 
 		assertEquals(
@@ -275,7 +275,7 @@ public class BoundTest {
 				setOfFactors.summingBound(parse("{A,B,C}"), context, theory).toString());
 	}
 	@Test
-	public void testNormilizeOneSingleElement(){
+	public void testNormilizeOneSingleElement() {
 		declaringTheoryContextAndSetOfFactors();
 		assertEquals(
 				"if A then if B then 67/76 else 7/76 else 1/76",

@@ -72,7 +72,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-//import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
+// import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;

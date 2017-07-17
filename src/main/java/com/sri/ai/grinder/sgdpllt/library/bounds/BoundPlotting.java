@@ -28,13 +28,13 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 public class BoundPlotting {
-	static private double ifElseToProbability(Expression ifElseExpression){
+	static private double ifElseToProbability(Expression ifElseExpression) {
 		String ifElseStatement = ifElseExpression.toString();
 		int beginOfProbaIndex = ifElseStatement.indexOf("then ") + ("then ").length();
 		int divisionIndex = ifElseStatement.indexOf(" / ");
 		int endOfProbaIndex = ifElseStatement.indexOf(" else");
 		
-		if(divisionIndex == -1){
+		if (divisionIndex == -1) {
 			String numeratorString = ifElseStatement.substring(beginOfProbaIndex, endOfProbaIndex);
 			int numerator = Integer.parseInt(numeratorString);
 			return numerator;
@@ -48,10 +48,10 @@ public class BoundPlotting {
 		return res;
 	}
 	
-	static private Pair<Double, Double> twoElementBoundToProbability(Bound b){
-		if(b.isExtensionalBound()){
+	static private Pair<Double, Double> twoElementBoundToProbability(Bound b) {
+		if (b.isExtensionalBound()) {
 			List<Expression> l = b.getArguments();
-			if(l.size() == 2){
+			if (l.size() == 2) {
 				Double pair1 = ifElseToProbability(l.get(0));
 				Double pair2 = ifElseToProbability(l.get(1));
 				return Pair.make(pair1, pair2);
@@ -60,7 +60,7 @@ public class BoundPlotting {
 		return null;
 	}
 	
-	static public void storeIntervalData(Model m, Integer nb_iter, Boolean withBound, String filename){
+	static public void storeIntervalData(Model m, Integer nb_iter, Boolean withBound, String filename) {
 		VariableComponent ComponentResult = new VariableComponent(parse("A_0_0"), null, m, new HashSet<Expression>(), false);
 		long startTime;
 		try{
@@ -68,8 +68,8 @@ public class BoundPlotting {
 		    
 		    startTime = System.currentTimeMillis();
 			int i = 0;
-			while(i < nb_iter) {
-				if(!ComponentResult.entirelyDiscover) {
+			while (i < nb_iter) {
+				if (!ComponentResult.entirelyDiscover) {
 					ComponentResult.update(new HashSet<Expression>(), withBound);
 					Pair<Double, Double>  p = twoElementBoundToProbability(ComponentResult.bound);
 					writer.print(i + "\t" + p.first + "\t" + p.second + "\t" + (abs(p.first - p.second)) + "\t" + (System.currentTimeMillis()-startTime));
@@ -92,8 +92,8 @@ public class BoundPlotting {
 				new PropositionalTheory());
 		Context context = new TrueContext(theory);
 		
-		//Model m = BPTest.IsingModel(3,3,theory, context, parse("Boolean"));
+		// Model m = BPTest.IsingModel(3,3,theory, context, parse("Boolean"));
 		
-		//storeIntervalData(m, 50, true,"text.txt");
+		// storeIntervalData(m, 50, true,"text.txt");
 	}
 }

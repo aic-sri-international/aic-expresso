@@ -127,7 +127,7 @@ public class CompoundTheory extends AbstractTheory {
 		// When the theory is used for more essential tasks,
 		// such as checking the context's satisfiability,
 		// an error will be thrown at that point.
-		//check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
+		// check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
 		
 		return result;
 	}

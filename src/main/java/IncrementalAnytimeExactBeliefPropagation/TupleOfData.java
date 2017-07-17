@@ -3,7 +3,7 @@ package IncrementalAnytimeExactBeliefPropagation;
 
 public class TupleOfData{
 	int id = -1;
-	String typeOfComputationUsed = ""; //SGDPLL or Bounded S-BP
+	String typeOfComputationUsed = ""; // SGDPLL or Bounded S-BP
 	String graphicalModelName = "";
 	int parameter[] = new int[5]; 
 	int iteration = -1;

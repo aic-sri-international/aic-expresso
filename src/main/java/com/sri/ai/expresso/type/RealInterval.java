@@ -196,7 +196,7 @@ public class RealInterval extends AbstractType {
 					result = false;
 				}
 			}
-			else if (!upperBound.equals(MINUS_INFINITY)){ // if upper bound is -infinity then lower bound must be the same and will have been tested
+			else if (!upperBound.equals(MINUS_INFINITY)) { // if upper bound is -infinity then lower bound must be the same and will have been tested
 				if (!contains(upperBound)) {
 					result = false;
 				}

@@ -278,7 +278,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 			}
 			Expression indexExpression = indexExpressionsList.get(indexExpressionIndex);
 			Expression result;
-			if (indexExpression.hasFunctor(FunctorConstants.IN)){ 
+			if (indexExpression.hasFunctor(FunctorConstants.IN)) { 
 				result = IndexExpressions.getType(indexExpression);
 			}
 			else {

@@ -162,7 +162,7 @@ public interface IntensionalSet extends QuantifiedExpression {
 		if (label.equals(UNI_SET_LABEL)) {
 			result = new DefaultIntensionalUniSet(indexExpressions, head, condition);
 		}
-		else if (label.equals(MULTI_SET_LABEL)){
+		else if (label.equals(MULTI_SET_LABEL)) {
 			result = new DefaultIntensionalMultiSet(indexExpressions, head, condition);
 		}
 		else {

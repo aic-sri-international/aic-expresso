@@ -25,12 +25,12 @@ public abstract class AbstractExtensionalBound extends DefaultExtensionalUniSet 
 		super(arrayList(makeSymbol("0"))); // TODO
 	}
 	
-	public boolean isExtensionalBound(){
+	public boolean isExtensionalBound() {
 		return true;
 	}
 	
 	
-	public boolean isIntensionalBound(){
+	public boolean isIntensionalBound() {
 		return false;
 	}
 }

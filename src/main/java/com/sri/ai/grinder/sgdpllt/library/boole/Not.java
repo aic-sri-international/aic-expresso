@@ -81,10 +81,10 @@ public class Not implements Simplifier {
 
 	/** Make a "not" application on given expression. */
 	public static Expression make(Expression expression) {
-		if (expression.equals(Expressions.TRUE)){
+		if (expression.equals(Expressions.TRUE)) {
 			return Expressions.FALSE;
 		}
-		if (expression.equals(Expressions.FALSE)){
+		if (expression.equals(Expressions.FALSE)) {
 			return Expressions.TRUE;
 		}
 		return Expressions.apply("not", expression);

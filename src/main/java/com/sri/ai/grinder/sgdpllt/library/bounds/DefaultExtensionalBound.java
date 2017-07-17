@@ -79,13 +79,13 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		DefaultExtensionalBound[] arrayOfBounds = new DefaultExtensionalBound[Variables.size()];
 		
 		int i = 0;
-		for(Expression var : Variables){
+		for (Expression var : Variables) {
 			Type type = context.getTypeOfRegisteredSymbol(var);
 			Iterator<Expression>  iteratorToValuesInType = type.iterator();
 			
 			ArrayList<Expression> oneVariableSimplexList = new ArrayList<>();
 			
-			for(Expression value : in(iteratorToValuesInType)){
+			for (Expression value : in(iteratorToValuesInType)) {
 				oneVariableSimplexList.add(apply(IF_THEN_ELSE, apply(EQUAL, var, value), one, zero));
 			}
 			arrayOfBounds[i] = new DefaultExtensionalBound(oneVariableSimplexList);
@@ -102,24 +102,24 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	}
 	
 	private DefaultExtensionalBound normalize(Bound bound, Theory theory, Context context) {
-		if(!bound.isExtensionalBound()){
+		if (!bound.isExtensionalBound()) {
 			return null;
 		}
 		
 		List<Expression> listOfBound = getElements(bound);
-		if(listOfBound.size() == 0){
+		if (listOfBound.size() == 0) {
 			return null;
 		}
 		
 		int numberOfExtremes = listOfBound.size();
 		
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
-		for(Expression element : listOfBound){
+		for (Expression element : listOfBound) {
 			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(element, context);
 			Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 					indices,
-					element,//head
-					makeSymbol(true)//No Condition
+					element,// head
+					makeSymbol(true)// No Condition
 					);
 			
 			Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
@@ -129,13 +129,13 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 			elements.add(evaluation);
 		}
 		DefaultExtensionalBound fOfBound = new DefaultExtensionalBound(elements);
-		//Updating extreme points
+		// Updating extreme points
 		DefaultExtensionalBound result = updateExtremes(fOfBound,theory,context);		
 		return result;
 	}
 
 	static public DefaultExtensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {		
-		if(listOfBounds.length == 0){
+		if (listOfBounds.length == 0) {
 			DefaultExtensionalBound singletonWithNumberOne = new DefaultExtensionalBound(parse("1"));
 			return singletonWithNumberOne;
 		}
@@ -145,15 +145,15 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		
 		Iterator<ArrayList<Expression>> cartesianProduct = new CartesianProductIterator<Expression>(iteratorForBoundList);
 		
-		if(!cartesianProduct.hasNext()){
+		if (!cartesianProduct.hasNext()) {
 			DefaultExtensionalBound singletonWithNumberOne = new DefaultExtensionalBound(parse("1"));
 			println("One of the bounds on the list is { }, which is an error");
 			return singletonWithNumberOne;
 		}
 		
 		ArrayList<Expression> resultList = new ArrayList<>();
-		for (ArrayList<Expression> element : in(cartesianProduct)){
-			if (element == null || element.get(0) == null){
+		for (ArrayList<Expression> element : in(cartesianProduct)) {
+			if (element == null || element.get(0) == null) {
 				return null;
 			}
 			Expression product = apply("*",element);
@@ -179,13 +179,13 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		List<Expression> listOfBound = getElements(bound);
 		ArrayList<Expression> BoundSummedOut = new ArrayList<>(listOfBound.size());
 		
-		for(Expression phi : listOfBound){
+		for (Expression phi : listOfBound) {
 			IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(variablesToBeSummedOut, context);
 			
 			Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 					indices,
-					phi,//head
-					makeSymbol(true)//No Condition
+					phi,// head
+					makeSymbol(true)// No Condition
 					);
 			
 			Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
@@ -194,7 +194,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		}
 		
 	DefaultExtensionalBound SetOfBoundSummedOut = new DefaultExtensionalBound(BoundSummedOut);
-	//Updating extreme points
+	// Updating extreme points
 	DefaultExtensionalBound result = updateExtremes(SetOfBoundSummedOut,theory,context);		
 	result = normalize(result, theory, context);
 	return result;
@@ -209,18 +209,18 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 
 	@Override
 	public DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
-			Context context, Theory theory){
+			Context context, Theory theory) {
 		return summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
 	}	
 	
 	public DefaultExtensionalBound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
-			Context context, Theory theory){
+			Context context, Theory theory) {
 		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		return summingPhiTimesBound(varSet, phi, context, theory); 
 	}	
 	
 	private DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
-			Context context, Theory theory){
+			Context context, Theory theory) {
 		Expression x = createSymbol("x");
 		Expression f = apply(TIMES, phi, x);		
 		bound = normalize(bound, theory, context);
@@ -231,11 +231,11 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		return result;
 	}
 
-	protected DefaultExtensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context){
+	protected DefaultExtensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context) {
 		ExtensionalSet bAsExtensionalSet = (ExtensionalSet) bound;
 		int numberOfExtremes = bAsExtensionalSet.getArguments().size();
 		ArrayList<Expression> elements = new ArrayList<>(numberOfExtremes);
-		for(Expression phi : ExtensionalSets.getElements(bAsExtensionalSet)){
+		for (Expression phi : ExtensionalSets.getElements(bAsExtensionalSet)) {
 			Expression substitution = f.replaceAllOccurrences(variableName, phi, context);
 			if (debug) println("evaluating: " + substitution);
 			Expression evaluation = theory.evaluate(substitution, context);
@@ -243,7 +243,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 			elements.add(evaluation);
 		}
 		DefaultExtensionalBound fOfb = new DefaultExtensionalBound(elements);
-		//Updating extreme points
+		// Updating extreme points
 		DefaultExtensionalBound result = updateExtremes(fOfb,theory,context);		
 		return result;
 	}
@@ -255,11 +255,11 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	 * @param B
 	 * @return 
 	 */
-	public static DefaultExtensionalBound updateExtremes(Bound B,Theory theory, Context context){
+	public static DefaultExtensionalBound updateExtremes(Bound B,Theory theory, Context context) {
 		List<Expression> listOfB = getElements(B);
 		ArrayList<Expression> listOfBwithoutZeros = new ArrayList<>(listOfB.size());
-		for(Expression phi : listOfB){
-			if (!phi.equals(makeSymbol(0))){
+		for (Expression phi : listOfB) {
+			if (!phi.equals(makeSymbol(0))) {
 				listOfBwithoutZeros.add(phi);
 			}
 		}
@@ -268,8 +268,8 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		return BWithoutZeros;
 //		ArrayList<Expression> elements = new ArrayList<>(listOfBwithoutZeros.size());
 //		int indexPhi = 0;
-//		for(Expression phi : listOfBwithoutZeros){
-//			if (isExtremePoint(phi,indexPhi,BWithoutZeros,theory,context)){
+//		for (Expression phi : listOfBwithoutZeros) {
+//			if (isExtremePoint(phi,indexPhi,BWithoutZeros,theory,context)) {
 //				elements.add(phi);
 //			}
 //			indexPhi++;
@@ -285,21 +285,21 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	 * @param bound
 	 * @return
 	 */
-	public static boolean isExtremePoint(Expression phi,int indexPhi, Bound bound, Theory theory, Context context){
-		//TODO
-		Expression boundWithoutPhi = removeNonDestructively(bound, indexPhi);//caro pq recopia a lista toda
+	public static boolean isExtremePoint(Expression phi,int indexPhi, Bound bound, Theory theory, Context context) {
+		// TODO
+		Expression boundWithoutPhi = removeNonDestructively(bound, indexPhi);// caro pq recopia a lista toda
 		List<Expression> listOfB = getElements(boundWithoutPhi);
 		int n = listOfB.size();
 		
 		Expression[] c = new Expression[n];
-		for(int i = 0;i<n;i++){
+		for (int i = 0;i<n;i++) {
 			c[i] = makeSymbol("C_" + i);
 			context = context.extendWithSymbolsAndTypes("C_" + i,"Real");
 		}
 		
 		// 0<=ci<=1
 		ArrayList<Expression> listOfC = new ArrayList<>(listOfB.size());
-		for(int i = 0;i<n;i++){
+		for (int i = 0;i<n;i++) {
 			Expression cibetwen0And1 = 
 					apply(AND,apply(GREATER_THAN_OR_EQUAL_TO,1,c[i]),
 							  apply(GREATER_THAN_OR_EQUAL_TO,c[i],0)
@@ -308,14 +308,14 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		}
 		Expression allcibetwen0And1 = apply(AND, listOfC);
 		
-		//sum over ci =1
+		// sum over ci =1
 		listOfC = new ArrayList<>(Arrays.asList(c));
 		Expression sumOverCiEqualsOne = apply(EQUAL,1,apply(PLUS,listOfC));
 
-		//sum of ci*phi1 = phi
+		// sum of ci*phi1 = phi
 		ArrayList<Expression> prodciphii = new ArrayList<>(listOfB.size());
 		int i = 0;
-		for(Expression phii : listOfB){
+		for (Expression phii : listOfB) {
 			prodciphii.add(apply(TIMES,phii,c[i]));
 			i++;
 		}
@@ -323,7 +323,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		
 		//(there exists) ci in Real
 		ArrayList<Expression> listOfCiInReal = new ArrayList<>(listOfB.size());
-		for(i = 0; i <n; i++){
+		for (i = 0; i <n; i++) {
 			listOfCiInReal.add(apply(IN,c[i],"Real"));
 			context = context.extendWithSymbolsAndTypes(c[i],parse("Real"));
 		}
@@ -335,7 +335,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 		Expression body = apply(AND, allcibetwen0And1, sumOverCiEqualsOne, convexSum);
 		Expression isExtreme = new DefaultExistentiallyQuantifiedFormula(thereExistsCiInReal, body);
 		isExtreme = new DefaultUniversallyQuantifiedFormula(forAllVariablesEvaluations, isExtreme);
-		//println(isExtreme);
+		// println(isExtreme);
 		
 		Expression result = theory.evaluate(isExtreme, context);
 

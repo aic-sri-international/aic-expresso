@@ -13,9 +13,9 @@ public class FactorNode extends  Node {
 
 	public FactorNode(Expression value, boolean isExtensional, Theory theory, Context context) {
 		super(value);
-		//TODO right initialization
-		//Initialiation for  Variable nodes is the 
-		//this.bound = Bounds.makeSingleElementBound(value, isExtensional);
+		// TODO right initialization
+		// Initialiation for  Variable nodes is the 
+		// this.bound = Bounds.makeSingleElementBound(value, isExtensional);
 	}
 
 

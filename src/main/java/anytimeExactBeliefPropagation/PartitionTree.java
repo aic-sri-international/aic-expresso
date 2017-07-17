@@ -7,6 +7,7 @@ import static com.sri.ai.util.Util.println;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class PartitionTree {
 	public Set<PartitionTree> children;
 	public Node node;
 	public PartitionTree parent;
-	public Set<VariableNode> Separator;//TODO replace Separator by a set of Expression
+	public Set<VariableNode> Separator;// TODO replace Separator by a set of Expression
 	public Set<VariableNode> cutsetOfAllLevelsAbove;
 	public Model model;
 	
@@ -61,7 +62,7 @@ public class PartitionTree {
 		this.setOfFactorsInsidePartition = new HashSet<FactorNode>();
 		this.setOfVariablesInsidePartition= new HashSet<VariableNode>();
 		
-		if(this.node.isFactor()){
+		if (this.node.isFactor()) {
 			this.node.setBound(simplex(arrayList(this.node.getValue()), model.getTheory(),model.getContext(), true));
 		}
 		
@@ -80,7 +81,7 @@ public class PartitionTree {
 	
    	public PartitionTree(Node node) {
 		this.node = node;
-		//this.model=this.parent.model;
+		// this.model=this.parent.model;
 		children = new HashSet<>();
 		this.Separator = new HashSet<VariableNode>();
 		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
@@ -95,7 +96,7 @@ public class PartitionTree {
 	}
    	
    	
-//   	public void add(FactorNode newFactor){
+//   	public void add(FactorNode newFactor) {
 //   		PartitionTree p = choosePlaceToPlaceFactor();
 ////   		for each variable of p, if variable does not belong to any other factor in the tree,
 ////   		 then add variable below p.
@@ -105,8 +106,8 @@ public class PartitionTree {
 //   		p.addPartitionToPartitionTreeAndUpdatePArtitionTree();
 //   	}
    	
-   	public void addPartitionToPartitionTreeAndUpdatePArtitionTree(){
-   		//TODO modify update variables and factors
+   	public void addPartitionToPartitionTreeAndUpdatePArtitionTree() {
+   		// TODO modify update variables and factors
    		updateSetsOfFactorsAndVariables( );
    		updateCutSet();
    		updateBounds();
@@ -114,58 +115,58 @@ public class PartitionTree {
    	
  /*------------------------------------------------------------------------------------------------------------------------*/
    	
-   	public void updateSetsOfFactorsAndVariables(){
-   		if (this.node.isFactor()){
+   	public void updateSetsOfFactorsAndVariables() {
+   		if (this.node.isFactor()) {
 	   		FactorNode newFactor = (FactorNode) this.node;
 	   		Set<VariableNode> newVariables = new HashSet<VariableNode>();
-	   		//Util.println(model);
-	   		if(this.model==null){
+	   		// Util.println(model);
+	   		if (this.model==null) {
 	   			this.model=this.parent.model;
 	   		}
 	   		Util.println(this.model);
-	   		newVariables.addAll(this.model.getExploredGraph().getAsOfB(newFactor));//we look at the variables involved in the factor
-	   		newVariables.remove(this.parent.node.getValue());//we remove the parent, which is already in the variable set
+	   		newVariables.addAll(this.model.getExploredGraph().getAsOfB(newFactor));// we look at the variables involved in the factor
+	   		newVariables.remove(this.parent.node.getValue());// we remove the parent, which is already in the variable set
 	   		this.updateSetsOfFactorsAndVariables(newFactor, newVariables);
    		} else{
    			this.updateSetsOfVariables();
    		}
    	}
    	
-   	public void updateSetsOfVariables(){
+   	public void updateSetsOfVariables() {
    		VariableNode newVariable = (VariableNode) this.node;
    		this.setOfVariablesInsidePartition.add(newVariable);
-   		if(this.parent!=null){
+   		if (this.parent!=null) {
    			this.parent.updateSetsOfVariables();
    		}
    	}
    	
-   	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Set<VariableNode>  newVariables){
-   		//Util.println(this.setOfFactorsInsidePartition);
+   	public void updateSetsOfFactorsAndVariables(FactorNode newFactor, Set<VariableNode>  newVariables) {
+   		// Util.println(this.setOfFactorsInsidePartition);
    		this.setOfFactorsInsidePartition.add(newFactor);
    		this.setOfVariablesInsidePartition.addAll(newVariables);
-   		if(this.parent!=null){
+   		if (this.parent!=null) {
    			this.parent.updateSetsOfFactorsAndVariables(newFactor, newVariables);
    		}
    	}
    	
  /*------------------------------------------------------------------------------------------------------------------------*/
  
-   	public void updateCutSet(){
-   		if (this.parent!=null){
+   	public void updateCutSet() {
+   		if (this.parent!=null) {
    			this.parent.updateCutSet();
    		}
    		this.Separator = this.findCutSet();
    	}
    	
-   	public Set<VariableNode> findCutSet(){
+   	public Set<VariableNode> findCutSet() {
    		Set<VariableNode> setOfCusets = new HashSet<VariableNode>();
-   		for(PartitionTree child1 : this.children){
-   	   		for(PartitionTree child2 : this.children){
-   	   			if(!child1.equals(child2)){
+   		for (PartitionTree child1 : this.children) {
+   	   		for (PartitionTree child2 : this.children) {
+   	   			if (!child1.equals(child2)) {
    	   				Set<VariableNode> copyOfVariablesInChild1 = copySet(child1.setOfVariablesInsidePartition);
-   	   				copyOfVariablesInChild1.retainAll(child2.setOfVariablesInsidePartition);//we keep all the variables that the two children have in common
-   	   	   			copyOfVariablesInChild1.removeAll(cutsetOfAllLevelsAbove);//we remove the variables which have been taken as cutset in levels above
-   	   	   			//be careful here maybe we have to remove more variables   	   					
+   	   				copyOfVariablesInChild1.retainAll(child2.setOfVariablesInsidePartition);// we keep all the variables that the two children have in common
+   	   	   			copyOfVariablesInChild1.removeAll(cutsetOfAllLevelsAbove);// we remove the variables which have been taken as cutset in levels above
+   	   	   			// be careful here maybe we have to remove more variables   	   					
    	   				setOfCusets.addAll(copyOfVariablesInChild1);
    	   			}
    	   		}
@@ -173,35 +174,36 @@ public class PartitionTree {
    		return setOfCusets;
    	}
    	
-   	public static Set<VariableNode> copySet(Set<VariableNode> setOfVariablesToCopy){
+   	public static Set<VariableNode> copySet(Set<VariableNode> setOfVariablesToCopy) {
    		Set<VariableNode> setOfVariables = new HashSet<VariableNode>();
-   		for (VariableNode variableNode : setOfVariablesToCopy){
+   		for (VariableNode variableNode : setOfVariablesToCopy) {
    			setOfVariables.add(variableNode);
    		}
    		return setOfVariables;
    	}
 
 /*------------------------------------------------------------------------------------------------------------------------*/
- //Alternative iplementation of updating cutset:
-   	private void updateCutSet2(Model m){
+ // Alternative iplementation of updating cutset:
+   	@SuppressWarnings("unused")
+	private void updateCutSet2(Model m) {
    		FactorNode factor = (FactorNode) this.node;
-   		//we take all variables of this factor, and remove those that haven't appeared in other parts of the graph
+   		// we take all variables of this factor, and remove those that haven't appeared in other parts of the graph
    		Collection<VariableNode> newSeparatorVariables = m.getVariablesOfAFactor(factor);
    		newSeparatorVariables.removeAll(this.children);
    		newSeparatorVariables.remove(this.parent);
    		
-   		//Update cutset of "Virgin Variables"
-   		//TODO
+   		// Update cutset of "Virgin Variables"
+   		// TODO
    		
    		
-   		//Update this cutset, and all above together
+   		// Update this cutset, and all above together
    		addingToCutSet(newSeparatorVariables, null);
    	}
 
-   	private Set<VariableNode> addingToCutSet(Collection<VariableNode> toAdd, PartitionTree notToUpdate){
+   	private Set<VariableNode> addingToCutSet(Collection<VariableNode> toAdd, PartitionTree notToUpdate) {
    		// chamar no conjunto de cima.
-   		if(this != null && this.parent != null){
-   			//Chama a funcao pro pai, e atualiza o LAS
+   		if (this != null && this.parent != null) {
+   			// Chama a funcao pro pai, e atualiza o LAS
    			Set<VariableNode> LevelAbobeSeparator = parent.addingToCutSet(toAdd,this);
    			this.cutsetOfAllLevelsAbove = LevelAbobeSeparator;
    			this.Separator.removeAll(this.cutsetOfAllLevelsAbove);
@@ -209,45 +211,45 @@ public class PartitionTree {
    		
    		List<Set<VariableNode>> listOfMiniCutsets = new ArrayList<>();
    		
-   		for (PartitionTree p : this.children){
-   			if(!p.equals(notToUpdate)){
+   		for (PartitionTree p : this.children) {
+   			if (!p.equals(notToUpdate)) {
 	   			HashSet<VariableNode> toAddInThisChild = new HashSet<>();
 	   			toAddInThisChild.addAll(toAdd);
 	   			toAddInThisChild.retainAll(p.setOfVariablesInsidePartition);
 	   			toAddInThisChild.removeAll(this.Separator);
 	   			
-	   			p.updateLASandSeparator(toAddInThisChild);//essa funcao so desce na arvore e adiciona toAdd no LAS e tira toAdd do separator.
+	   			p.updateLASandSeparator(toAddInThisChild);// essa funcao so desce na arvore e adiciona toAdd no LAS e tira toAdd do separator.
 	   			
 	   			listOfMiniCutsets.add(toAddInThisChild); // melhorar nome
    			}
    		}
    		
-   		for(Set<VariableNode> miniCutset : listOfMiniCutsets){
+   		for (Set<VariableNode> miniCutset : listOfMiniCutsets) {
    			this.Separator.addAll(miniCutset);
    		}
    		
    		toAdd.removeAll(this.Separator); // acho que ta certo, mas talvez tenha que ser so remover a uniao do minisets
-   		//this.LAS = parent.LAS Union 
+   		// this.LAS = parent.LAS Union 
    		
    		
-   		//retornar this.Separator + this. LAS (acho)
+   		// retornar this.Separator + this. LAS (acho)
    		Set<VariableNode> result = new HashSet<>();
    		result.addAll(this.Separator);
    		result.addAll(this.cutsetOfAllLevelsAbove);
    		return result;
    	}
    	
-   	public void updateLASandSeparator(Set<VariableNode> toAdd){
-   		//intercessao de to add e separator
+   	public void updateLASandSeparator(Set<VariableNode> toAdd) {
+   		// intercessao de to add e separator
    		toAdd.removeAll(this.Separator);
    		
-   		//subtrai to add das variav
+   		// subtrai to add das variav
    		this.Separator.removeAll(toAdd);
    		this.cutsetOfAllLevelsAbove.addAll(toAdd);
    		
-   		//se toAdd naoVazio!
-   		if(!toAdd.isEmpty()){
-   			for(PartitionTree p : this.children){
+   		// se toAdd naoVazio!
+   		if (!toAdd.isEmpty()) {
+   			for (PartitionTree p : this.children) {
    				Set<VariableNode> toAddAux = new HashSet<>();
    				toAddAux.addAll(toAdd);
    				p.updateLASandSeparator(toAddAux);
@@ -261,14 +263,14 @@ public class PartitionTree {
 /*------------------------------------------------------------------------------------------------------------------------*/
  
 
-   	public void updateBounds(){
+   	public void updateBounds() {
    		this.updateCurrentBound();
    		this.updateBoundOfParent();
 
    	}
    	
-	public void updateCurrentBound(){		
-   		if (this.node.isVariable()){
+	public void updateCurrentBound() {		
+   		if (this.node.isVariable()) {
    			Bound newBound=this.messageFromFactorToVariable();
    			this.node.setBound(newBound);
    		}else{
@@ -277,13 +279,13 @@ public class PartitionTree {
    		}
    	}
    	
-   	public void updateBoundOfParent(){
-   		if(this.parent!=null){
+   	public void updateBoundOfParent() {
+   		if (this.parent!=null) {
    			this.parent.updateBounds();
    		}
    	}
    	
-   	public Bound messageFromVariableToFactor(){
+   	public Bound messageFromVariableToFactor() {
    		Bound childrenProduct = this.childrenProduct();
    		Context context = this.model.getContext();
    		Theory theory = this.model.getTheory();
@@ -291,26 +293,26 @@ public class PartitionTree {
    		return childrenProduct.summingBound(varToSum, context, theory);
    	}
    	
-   	public ArrayList<Expression> getVarToSumInMessageFromVariableToFactor(){
+   	public ArrayList<Expression> getVarToSumInMessageFromVariableToFactor() {
    		ArrayList<Expression> result = new ArrayList<>();
-   		//add all children
-   		for(PartitionTree p : this.children){
+   		// add all children
+   		for (PartitionTree p : this.children) {
    			result.add(p.node.getValue());
    		}
    		
-   		//add this level separator variables 
-   		for(VariableNode v : this.Separator){
+   		// add this level separator variables 
+   		for (VariableNode v : this.Separator) {
    			result.add(v.getValue());
    		}
    		
-   		//take above variables out.
-   		for(VariableNode v : this.cutsetOfAllLevelsAbove){
+   		// take above variables out.
+   		for (VariableNode v : this.cutsetOfAllLevelsAbove) {
    			result.remove(v.getValue());
    		}
    		return result;
    	}
    	
-   	public Bound messageFromFactorToVariable(){
+   	public Bound messageFromFactorToVariable() {
    		Bound childrenProduct = this.childrenProduct();
    		Context context = model.getContext();
    		Theory theory = model.getTheory();
@@ -319,43 +321,43 @@ public class PartitionTree {
    	}
    	
    	
-   	public ArrayList<Expression> getVarToSumInMessageFromFactorToVariable(){
+   	public ArrayList<Expression> getVarToSumInMessageFromFactorToVariable() {
    		ArrayList<Expression> varToSum = new ArrayList<>();
-   		//varToSum.addAll(this.Separator);
-   		for(VariableNode v : this.Separator){
+   		// varToSum.addAll(this.Separator);
+   		for (VariableNode v : this.Separator) {
    			varToSum.add(v.getValue());
    		}
    		return varToSum;
    	}
    	
-   	public Bound childrenProduct(){
+   	public Bound childrenProduct() {
    		Theory theory = model.getTheory();
 		Context context = model.getContext();	
 	
 		Bound[] childrenArray = new Bound[children.size()];
 		int i = 0;
-		for(PartitionTree children : this.children){
-			if(children.node.getBound()==null){
+		for (PartitionTree children : this.children) {
+			if (children.node.getBound()==null) {
 				return this.simplexOfNode();
 			}
 			childrenArray[i] = children.node.getBound();
 			i++;
 		}
-		//Util.println(theory);
-		//Util.println(context);
-		//Util.println(childrenArray);
-		Bound childrenBound = Bounds.boundProduct(theory, context, true, childrenArray);//TODO to modify
+		// Util.println(theory);
+		// Util.println(context);
+		// Util.println(childrenArray);
+		Bound childrenBound = Bounds.boundProduct(theory, context, true, childrenArray);// TODO to modify
 		return childrenBound;
    	}
    	
-   	public Bound simplexOfNode(){
-   		if(this.node.isVariable()){
+   	public Bound simplexOfNode() {
+   		if (this.node.isVariable()) {
    			return Bounds.simplex(arrayList(this.node.getValue()), model.getTheory(), model.getContext(), true);
    		}
    		Set < VariableNode > variableNodes = new HashSet <VariableNode>();
    		variableNodes.addAll(this.model.getEntireGraph().getAsOfB((FactorNode)this.node));
    		variableNodes.remove((VariableNode)this.parent.node);
-   		if(variableNodes.isEmpty()){
+   		if (variableNodes.isEmpty()) {
    			return Bounds.makeSingleElementBound(parse("1"), true);
    			
    		}else{
@@ -364,12 +366,12 @@ public class PartitionTree {
    		}
    	}
    	
-   	public Expression[] getArrayOfBoundsFromSetOfVariableNodes(Set<VariableNode>  variableNodes){
+   	public Expression[] getArrayOfBoundsFromSetOfVariableNodes(Set<VariableNode>  variableNodes) {
    		Iterator<VariableNode> it = variableNodes.iterator();
    		int n = variableNodes.size();
    		Expression[] tabExpression= new Expression[n];
    		int i=0;
-   		for(VariableNode v : in(it)){
+   		for (VariableNode v : in(it)) {
    			tabExpression[i]= v.getValue();
    			i++;
    		}
@@ -395,7 +397,7 @@ public class PartitionTree {
    	 * 
    	 * @param model
    	 */
-	public void CreatePartitionTreeWithBFS(Model model){
+	public void CreatePartitionTreeWithBFS(Model model) {
 		HashMap<Node, PartitionTree> hashTable= new HashMap<>();
 	    Set<Node> visited = new HashSet<>();
 	    Queue<Node> queue = new LinkedList<>();
@@ -404,13 +406,13 @@ public class PartitionTree {
 	    queue.add(node);
 	    hashTable.put(this.node, this);
 	    
-	    while(!queue.isEmpty()){
+	    while (!queue.isEmpty()) {
 	    	Node n = queue.remove();
 	    	PartitionTree parentPartition = hashTable.get(n);
 	    	
 	    	Set<Node> neighbors = new HashSet<>();
 	    	
-	    	if(n.isFactor()){
+	    	if (n.isFactor()) {
 				Collection<VariableNode> variableNeighbors = model.getExploredGraph().getAsOfB((FactorNode) n);
 				neighbors.addAll(variableNeighbors);
 	    	}
@@ -419,7 +421,7 @@ public class PartitionTree {
 				neighbors.addAll(factorNeighbors);
 	    	}
 	    	
-		    	for(Node neighbor: neighbors){
+		    	for (Node neighbor: neighbors) {
 		    		if (!visited.contains(neighbor)) {
 	                    queue.add(neighbor);
 	                    visited.add(neighbor);
@@ -439,47 +441,47 @@ public class PartitionTree {
 	 *  
 	 * @param PrintSetOfFactorsAlso
 	 */
-	public void printTree(boolean PrintSetOfFactorsAlso){
+	public void printTree(boolean PrintSetOfFactorsAlso) {
 		printTree(0,PrintSetOfFactorsAlso);
 	}
-	private void printTree(int i,boolean PrintSetOfFactorsAlso){
+	private void printTree(int i,boolean PrintSetOfFactorsAlso) {
 		String indentation = "";
 		for (int j = 0; j < i; j++) {
 			indentation = indentation + "\t";
 		}
 		println(indentation + node);
-		if(PrintSetOfFactorsAlso){
+		if (PrintSetOfFactorsAlso) {
 			println(indentation + setOfFactorsInsidePartition.size());
 		}
 		
 		i++;
-		for(PartitionTree p : children){
+		for (PartitionTree p : children) {
 			p.printTree(i+1, PrintSetOfFactorsAlso);
 		}
 	}
 
-	private void CompleteTree(){
+	private void CompleteTree() {
 		setOfFactorsInsidePartition = new HashSet<>();
-		if(node.isFactor()){
+		if (node.isFactor()) {
 			setOfFactorsInsidePartition.add((FactorNode)this.node);
 		}
-		if(children.size() == 0){
+		if (children.size() == 0) {
 			return;
 		}
 		
-		for(PartitionTree p : children){
+		for (PartitionTree p : children) {
 			p.CompleteTree();
 		}
 		
-		if(node.isFactor()){
-			for(PartitionTree p : children){
+		if (node.isFactor()) {
+			for (PartitionTree p : children) {
 				setOfFactorsInsidePartition.addAll(p.setOfFactorsInsidePartition);
 			}
 		}
-		if(node.isVariable()){
-			for(PartitionTree p : children){
+		if (node.isVariable()) {
+			for (PartitionTree p : children) {
 				setOfFactorsInsidePartition.addAll(p.setOfFactorsInsidePartition);
-				//setOfFactorsInsidePartition.add((FactorNode) p.node);
+				// setOfFactorsInsidePartition.add((FactorNode) p.node);
 			}
 		}
 	}
