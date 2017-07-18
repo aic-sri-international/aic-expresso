@@ -1,8 +1,6 @@
 package anytimeExactBeliefPropagation;
 
 import static anytimeExactBeliefPropagation.ModelGenerator.IsingModel;
-import static anytimeExactBeliefPropagation.ModelGenerator.lineModel;
-import static anytimeExactBeliefPropagation.ModelGenerator.nTreeModel;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.println;
 
@@ -11,6 +9,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import anytimeExactBeliefPropagation.Model.BFS;
+import anytimeExactBeliefPropagation.Model.Model;
+import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -26,14 +28,10 @@ import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.Pair;
 
-import anytimeExactBeliefPropagation.Model.BFS;
-import anytimeExactBeliefPropagation.Model.Model;
-import anytimeExactBeliefPropagation.Model.Node.FactorNode;
-
 public class Tests {
 	
 	public static void main(String[] args) {
-		//Theory initialization
+		// Theory initialization
 		Theory theory = new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, false),
@@ -118,7 +116,7 @@ public class Tests {
 		println("Exploring " + modelName);
 		Bound inferenceResult = null;
 		double totalTime = 0;
-		while(BFSExpander.hasNext()){
+		while (BFSExpander.hasNext()) {
 			long tStart = System.currentTimeMillis();
 			inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
 			long tEnd = System.currentTimeMillis();
@@ -126,8 +124,8 @@ public class Tests {
 			double time = tDelta / 1000.0;	
 			totalTime += time;
 			
-			//ModelGenerator.printModel(m, false);
-			if(printAll){
+			// ModelGenerator.printModel(m, false);
+			if (printAll) {
 				println("Number of ExtremePoints : "+inferenceResult.getArguments().size());
 				Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
 				println("Minimal probability of Query = true : " +
@@ -140,7 +138,7 @@ public class Tests {
 			}
 		}
 
-		if(!printAll)
+		if (!printAll)
 			println(inferenceResult);
 		println("Computation with SGDPLL");
 		long tStart = System.currentTimeMillis();
@@ -153,14 +151,14 @@ public class Tests {
 				"\nTime to compute:" + time);
 	}
 	
-	public static List<TupleOfData> testing3(String modelName, Model m, Integer... parameter){
+	public static List<TupleOfData> testing3(String modelName, Model m, Integer... parameter) {
 		List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
 		m.clearExploredGraph();
 		Iterator<FactorNode> BFSExpander = new BFS(m);
 		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
-		while(BFSExpander.hasNext()){
+		while (BFSExpander.hasNext()) {
 			
 			TupleOfData t = new TupleOfData();
 			
@@ -228,7 +226,7 @@ public class Tests {
 	 * @param parameter
 	 * @return
 	 */
-	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter){
+	public static List<TupleOfData> testing(String modelName, Model m, Integer... parameter) {
 List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
@@ -238,7 +236,7 @@ List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		double tTotalTime = 0;
 		
-		while(BFSExpander.hasNext()){
+		while (BFSExpander.hasNext()) {
 			
 			TupleOfData t = new TupleOfData();
 			
@@ -306,10 +304,10 @@ List<TupleOfData> result = new ArrayList<TupleOfData>();
 	 * @param filename
 	 * @param testedModels
 	 */
-	public static void testingAndWritingToFile(String filename, List<List<TupleOfData>> testedModels){
+	public static void testingAndWritingToFile(String filename, List<List<TupleOfData>> testedModels) {
 		try{
 		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
-		    //print head of dataset
+		    // print head of dataset
 		    writer.println("Id,"
 		    		+ "typeOfComputationUsed,"
 		    		+ "graphicalModelName,"
@@ -325,9 +323,9 @@ List<TupleOfData> result = new ArrayList<TupleOfData>();
 		    		+ "Parameter 3,"
 		    		+ "Parameter 4,"
 		    		+ "Parameter 5");
-		    //printLines
-		    for(List<TupleOfData> l : testedModels){		    
-			    for(TupleOfData t : l){
+		    // printLines
+		    for (List<TupleOfData> l : testedModels) {		    
+			    for (TupleOfData t : l) {
 			    		writer.print(t.id + "," +
 			    					t.typeOfComputationUsed +","+
 			    					t.graphicalModelName + "," +

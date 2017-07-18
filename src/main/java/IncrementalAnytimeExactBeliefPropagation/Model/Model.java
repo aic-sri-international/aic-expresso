@@ -56,7 +56,7 @@ public class Model {
 		this(theory, context, isExtensional, query);
 		for (Expression factor : Factors) {
 			FactorNode f = new FactorNode(factor,isExtensional,theory,context);
-			if(factor != null){
+			if (factor != null) {
 				for (Expression variable : Expressions.freeVariables(factor, context)) {
 					VariableNode v = new VariableNode(variable, isExtensional,theory,context);
 					graphicalModel.add(v,f);
@@ -64,10 +64,10 @@ public class Model {
 			}
 		}
 	}
-	public Model(Set<Expression> Factors,Theory theory, Context context, boolean isExtensional, Expression query){
+	public Model(Set<Expression> Factors,Theory theory, Context context, boolean isExtensional, Expression query) {
 		this(Factors,theory, context, isExtensional, new VariableNode(query, isExtensional, theory, context));
 	}
-	public Model(Triple<Set<Expression>,Context,Expression> factorsTheoryAndQuery,Theory theory, boolean isExtensional){
+	public Model(Triple<Set<Expression>,Context,Expression> factorsTheoryAndQuery,Theory theory, boolean isExtensional) {
 		this(factorsTheoryAndQuery.first, theory, factorsTheoryAndQuery.second, isExtensional, factorsTheoryAndQuery.third);
 	}
 
@@ -80,9 +80,9 @@ public class Model {
 	 * 
 	 * @param it
 	 */
-	public void ExpandModel(Iterator<FactorNode> it){
-		//BFS, DFS,...
-		if(it.hasNext()){
+	public void ExpandModel(Iterator<FactorNode> it) {
+		// BFS, DFS,...
+		if (it.hasNext()) {
 			FactorNode newFactorNode = it.next();
 			for (Expression variable : Expressions.freeVariables(newFactorNode.getValue(), context)) {
 				VariableNode v = new VariableNode(variable, isExtensional,theory,context);
@@ -91,8 +91,8 @@ public class Model {
 		}
 	}
 	
-	public void ExpandModel(FactorNode newFactorNode){
-		//BFS, DFS,...
+	public void ExpandModel(FactorNode newFactorNode) {
+		// BFS, DFS,...
 		for (Expression variable : Expressions.freeVariables(newFactorNode.getValue(), context)) {
 			VariableNode v = new VariableNode(variable, isExtensional,theory,context);
 			exploredGraphicalModel.add(v,newFactorNode);
@@ -103,7 +103,7 @@ public class Model {
 	 * Returns true if exploredGraphicalModel == graphicalModel
 	 * @return
 	 */
-	public boolean AllExplored(){
+	public boolean AllExplored() {
 		boolean result = graphicalModel.equals(exploredGraphicalModel);
 		return result;
 	}
@@ -117,7 +117,7 @@ public class Model {
 	 * @param variable
 	 * @return
 	 */
-	public boolean isExhausted(VariableNode variable){
+	public boolean isExhausted(VariableNode variable) {
 		Set<FactorNode> factorsLinkedToVariable = new HashSet<>();
 		factorsLinkedToVariable.addAll(graphicalModel.getBsOfA(variable));
 		
@@ -146,7 +146,7 @@ public class Model {
 	 * If we wish to restart the incremental inference process (maybe to test other forms of
 	 * graph expansion or other partition trees), it suffices to clear the explored graph 
 	 */
-	public void clearExploredGraph(){
+	public void clearExploredGraph() {
 		exploredGraphicalModel = new ManyToManyRelation<>();
 	}
 	
@@ -172,39 +172,39 @@ public class Model {
 	}
 	
 	/**
-	 * This method says whether the {@link Bound}for the nodes in the graph are 
+	 * This method says whether the {@link Bound} for the nodes in the graph are 
 	 * {@link DefaultExtensionalBound}s or {@link DefaultIntensionalBound}s.
 	 * @return
 	 */
-	public boolean isExtensional(){
+	public boolean isExtensional() {
 		return isExtensional;
 	}
 	
-	public void SetExploredGraphToEntireGraph(){
+	public void SetExploredGraphToEntireGraph() {
 		exploredGraphicalModel = graphicalModel;
 	}
 
-	public Collection<VariableNode> getVariablesOfAFactor(FactorNode factor){
+	public Collection<VariableNode> getVariablesOfAFactor(FactorNode factor) {
 		return graphicalModel.getAsOfB(factor);
 	}
 	
-	public Collection<FactorNode> getFactorsLinkedToAVariable(VariableNode variable){
+	public Collection<FactorNode> getFactorsLinkedToAVariable(VariableNode variable) {
 		return graphicalModel.getBsOfA(variable);
 	}
 	
-	public Collection<FactorNode> getExploredFactors(){
+	public Collection<FactorNode> getExploredFactors() {
 		return exploredGraphicalModel.getBs();
 	}
 	
-	public Collection<VariableNode> getExploredVariables(){
+	public Collection<VariableNode> getExploredVariables() {
 		return exploredGraphicalModel.getAs();
 	}
 	
-	public Collection<VariableNode> getAllFactors(){
+	public Collection<VariableNode> getAllFactors() {
 		return graphicalModel.getAs();
 	}
 	
-	public Collection<FactorNode> getAllVariables(){
+	public Collection<FactorNode> getAllVariables() {
 		return graphicalModel.getBs();
 	}
 }

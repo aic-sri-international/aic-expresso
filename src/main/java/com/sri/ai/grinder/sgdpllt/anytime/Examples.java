@@ -27,8 +27,8 @@ public class Examples {
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		//we need to learn how to make factors from parse(String) here this does not work
-		/*Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
+		// we need to learn how to make factors from parse(String) here this does not work
+		/*Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");// apply(IF_THEN_ELSE, a, q, 5);
 		Expression f2 = parse("if B then if A 10 else 1 else if A then 1 else 10");
 		Expression f3 = parse("if B then if Q 10 else 1 else if Q then 1 else 10");*/
 		
@@ -57,8 +57,8 @@ public class Examples {
 		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		//we need to learn how to make factors from parse(String) here this does not work
-		/*Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");//apply(IF_THEN_ELSE, a, q, 5);
+		// we need to learn how to make factors from parse(String) here this does not work
+		/*Expression f1 = parse("if Q then if A 10 else 1 else if A then 1 else 10");// apply(IF_THEN_ELSE, a, q, 5);
 		Expression f2 = parse("if A then if B 10 else 1 else if B then 1 else 10");
 		Expression f3 = parse("if B then 10 else 20");*/
 		Expression f1 = IfThenElse.make(q, IfThenElse.make(a, parse("10"), parse("20")), IfThenElse.make(a, parse("20"), parse("10")));
@@ -100,14 +100,14 @@ public class Examples {
 		Expression f4 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 40, 30),
 				apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 30, 70));
-		//Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
+		// Expression f5 = apply(IF_THEN_ELSE, apply(EQUAL, a, trueValue), 1, 0);
 
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
 		Factor.add(f2);
 		Factor.add(f3);
 		Factor.add(f4);
-		//Factor.add(f5);
+		// Factor.add(f5);
 
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
@@ -158,21 +158,21 @@ public class Examples {
 	public static VariableComponent TreeModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
-		//Expression c = DefaultSymbol.createSymbol("C");
+		// Expression c = DefaultSymbol.createSymbol("C");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
 		Expression trueValue = DefaultSymbol.createSymbol(true);
 		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("0.1"), parse("0.9")), IfThenElse.make(q, parse("0.8"), parse("0.2")));
 		Expression f2 = IfThenElse.make(b, IfThenElse.make(q, parse("55"), parse("45")), IfThenElse.make(q, parse("65"), parse("35")));
-		//Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
+		// Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),
 			//	apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 60, 50),
-				//apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 70));
+				// apply(IF_THEN_ELSE, apply(EQUAL, b, trueValue), 40, 70));
 
 		
 		Set<Expression> Factor = new HashSet<Expression>();
 		Factor.add(f1);
 		Factor.add(f2);
-		//Factor.add(f3);
+		// Factor.add(f3);
 
 		Model m = new Model(Factor);
 		m.extendModelWithSymbolsAndTypes("A", "Boolean");
@@ -343,10 +343,10 @@ public class Examples {
 	public static void main(String[] args) {
 
 		VariableComponent ComponentResult =  DiamondModel();
-		//Set<Expression> condition = new HashSet<Expression>();
-		//condition.add(parse("A = 1"));
-		//ComponentResult.model.addConditions(condition);
-		//runningTotalTest(ComponentResult);
+		// Set<Expression> condition = new HashSet<Expression>();
+		// condition.add(parse("A = 1"));
+		// ComponentResult.model.addConditions(condition);
+		// runningTotalTest(ComponentResult);
 
 		runningPartialTest(ComponentResult, 20, true);
 		ComponentResult.print(0);
@@ -357,18 +357,18 @@ public class Examples {
 
 
 		long startTime, endTime, totalTime;
-		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
+		// ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");// Boolean to modify
 		
-		//first we compute the result with our algorithm
-		//we also store the computation time to compare it to the naive computation time
+		// first we compute the result with our algorithm
+		// we also store the computation time to compare it to the naive computation time
 		startTime = System.currentTimeMillis();
-		while(!ComponentResult.entirelyDiscover) {
+		while (!ComponentResult.entirelyDiscover) {
 			ComponentResult.update(new HashSet<Expression>(), withBound);
 		}
-		//ComponentResult.print(0);
+		// ComponentResult.print(0);
 		Expression unnormalizedMessage = ComponentResult.calculate();
-		//String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in " + ComponentResult.model.getValues(ComponentResult.variable) +") " + unnormalizedMessage + " }})";
-		//Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
+		// String string = "(" + unnormalizedMessage + ")/sum({{ (on "  + ComponentResult.variable + " in " + ComponentResult.model.getValues(ComponentResult.variable) +") " + unnormalizedMessage + " }})";
+		// Expression normalizedMessage = ComponentResult.model.theory.evaluate(parse(string), ComponentResult.model.context);
 		Expression normalizedMessage = Bounds.normalizeSingleExpression(unnormalizedMessage, ComponentResult.model.theory, ComponentResult.model.context);
 		endTime   = System.currentTimeMillis();
 		totalTime = endTime - startTime;
@@ -376,7 +376,7 @@ public class Examples {
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
 		
-		//now we compute the result of the query in a naive way
+		// now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
 		Expression naiveResult = ComponentResult.naiveCalcul();
 		endTime   = System.currentTimeMillis();
@@ -390,14 +390,14 @@ public class Examples {
 	public static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
 
 		long startTime, endTime, totalTime;
-		//ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");//Boolean to modify
+		// ComponentResult.model.context = ComponentResult.model.context.extendWithSymbolsAndTypes("Q", "Boolean");// Boolean to modify
 		
-		//first we compute the result with our algorithm
-		//we also store the computation time to compare it to the naive computation time
+		// first we compute the result with our algorithm
+		// we also store the computation time to compare it to the naive computation time
 		startTime = System.currentTimeMillis();
 		int i = 0;
-		while(i < nb_iter) {
-			if(!ComponentResult.entirelyDiscover) {
+		while (i < nb_iter) {
+			if (!ComponentResult.entirelyDiscover) {
 				ComponentResult.update(new HashSet<Expression>(), withBound);
 				println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
@@ -410,10 +410,10 @@ public class Examples {
 		System.out.println("\n\nOur computation : " + normalizedMessage);
 		println("totalTime: " + totalTime);
 		
-		//now we compute the result of the query in a naive way
+		// now we compute the result of the query in a naive way
 		startTime = System.currentTimeMillis();
 /*
-		while(!ComponentResult.entirelyDiscover) {
+		while (!ComponentResult.entirelyDiscover) {
 			ComponentResult.update(new HashSet<Expression>());
 		}*/
 

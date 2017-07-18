@@ -37,8 +37,8 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 
 public class Model {
 	public ManyToManyRelation<Expression, Expression> map;
-	//public ManyToManyRelation<Expression, String> mapVariablesToType;
-	//public ManyToManyRelation<Expression, Expression> mapVariablesToValuesTaken;
+	// public ManyToManyRelation<Expression, String> mapVariablesToType;
+	// public ManyToManyRelation<Expression, Expression> mapVariablesToValuesTaken;
 	public Set<VariableComponent> initializeVariableComponent;
 	public Set<FactorComponent> initializeFactorComponent;
 	public Context context;
@@ -46,8 +46,8 @@ public class Model {
 
 	public Model(Set<Expression> Factor) {
 		this.map = new ManyToManyRelation<Expression, Expression>();
-		//this.mapVariablesToType	 = new ManyToManyRelation<Expression, String>();
-		//this.mapVariablesToValuesTaken	 = new ManyToManyRelation<Expression, Expression>();
+		// this.mapVariablesToType	 = new ManyToManyRelation<Expression, String>();
+		// this.mapVariablesToValuesTaken	 = new ManyToManyRelation<Expression, Expression>();
 		this.initializeFactorComponent = new HashSet<FactorComponent>();
 		this.initializeVariableComponent = new HashSet<VariableComponent>();
 		this.theory = new CompoundTheory(
@@ -68,7 +68,7 @@ public class Model {
 		}
 	}
 	
-	public Model(Set<Expression> Factor,Theory theory, Context context){
+	public Model(Set<Expression> Factor,Theory theory, Context context) {
 		this(Factor);
 		this.theory = theory;	
 		this.context = context;
@@ -84,22 +84,22 @@ public class Model {
 	
 	/*public String getType(Expression expression) {
 		Collection < String > collectionOfString =this.mapVariablesToType.getBsOfA(expression);
-		for(String string : collectionOfString){
+		for (String string : collectionOfString) {
 			return string;
 		}
 		return("no type has been defined for this variable");		
 	}*/
 
 	public Expression getValues(Expression variable) {
-		Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
+		Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); // this.getValues(variable);
 		return values;
 	}
 	
-	public void extendModelWithSymbolsAndTypes(String symbol, String values){
+	public void extendModelWithSymbolsAndTypes(String symbol, String values) {
 		this.context = this.context.extendWithSymbolsAndTypes(symbol, values);
 	}
 	
-	public void extendModelWithSymbolsAndTypes(Expression symbol, Expression values){
+	public void extendModelWithSymbolsAndTypes(Expression symbol, Expression values) {
 		this.context = this.context.extendWithSymbolsAndTypes(symbol, values);
 	}
 
@@ -170,28 +170,28 @@ public class Model {
 		return variableSet;
 	}
 	
-	public void addConditions(Set<Expression> condition){
+	public void addConditions(Set<Expression> condition) {
 		Set<Expression> Factor = new HashSet<Expression>(this.getFactor());
-		for(Expression singleCondition : condition){
+		for (Expression singleCondition : condition) {
 			Expression factorCondition = IfThenElse.make(singleCondition, parse("1"), parse("0"));
 			Factor.add(factorCondition);
 		}
-		if(!condition.isEmpty()){
+		if (!condition.isEmpty()) {
 			Model m = new Model(Factor);
 			this.map = m.map;
 		}
 	}
 
-	public Expression naiveCalculation(Expression query){
+	public Expression naiveCalculation(Expression query) {
 		Expression factorProduct = parse("1");
-		for (Expression factor : this.getFactor()){
+		for (Expression factor : this.getFactor()) {
 				factorProduct = apply(TIMES, factor, factorProduct);
 		}
 		Expression summedProduct = factorProduct;
-		for (Expression variable : this.getVariable()){
-			if (variable != query){
-				Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); //this.getValues(variable);
-				//to change
+		for (Expression variable : this.getVariable()) {
+			if (variable != query) {
+				Expression values = this.context.getTypeExpressionOfRegisteredSymbol(variable); // this.getValues(variable);
+				// to change
 				String string = "sum({{ (on " + variable + " in " + values +" ) " + summedProduct + " }})";
 				summedProduct = theory.evaluate(parse(string), context);
 			}
@@ -205,15 +205,15 @@ public class Model {
 		
 	}
 	
-	public Expression VECalculation(Expression query){
+	public Expression VECalculation(Expression query) {
 		Collection<Expression> collectionOfFactors = this.getFactor();
 		Object[] arrayOfFactors = collectionOfFactors.toArray(new Expression[collectionOfFactors.size()]);
 		Expression factorProduct = apply(TIMES,arrayOfFactors);
 		
 		Collection<Expression> collectionOfVariables = this.getVariable();
 		List<Expression> indexExpressionsList = new ArrayList<>(collectionOfVariables.size());
-		for (Expression variable : collectionOfVariables){
-			if (variable != query){
+		for (Expression variable : collectionOfVariables) {
+			if (variable != query) {
 				Expression type = context.getTypeExpressionOfRegisteredSymbol(variable);
 				Expression indexExpression = IndexExpressions.makeIndexExpression(variable, type);
 				indexExpressionsList.add(indexExpression);				

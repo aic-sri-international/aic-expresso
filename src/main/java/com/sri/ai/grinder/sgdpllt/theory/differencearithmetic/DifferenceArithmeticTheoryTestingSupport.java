@@ -120,7 +120,7 @@ public class DifferenceArithmeticTheoryTestingSupport extends AbstractTheoryWith
 		String functor = pickUniformly(getTheoryFunctors(), getRandom());
 		Expression unsimplifiedResult = apply(functor, leftHandSide, 0);		
 		Expression result = getTheory().simplify(unsimplifiedResult, context);
-		//System.out.println("Random literal: " + result);	
+		// System.out.println("Random literal: " + result);	
 		// Note that simplify will eliminate negated variables;
 		// however, we leave their generation and then elimination here as a sanity check,
 		// as well as a useful feature for the day when we get assurance that literals will be simplified down the line,

@@ -19,7 +19,7 @@ public class BFS implements Iterator<PartitionTree> {
     PartitionTree partitionQuery;
 
     public BFS(ManyToManyRelation<VariableNode,FactorNode> g, VariableNode query) {
-        if(g.containsA(query)) {
+        if (g.containsA(query)) {
             this.graph = g;
             
             PartitionTree queryPartitionTree = new PartitionTree(query);
@@ -28,7 +28,7 @@ public class BFS implements Iterator<PartitionTree> {
             
             Set<FactorNode> factorsLinkedToQuery = new HashSet<>();
             
-            for(FactorNode childOfQuery : graph.getBsOfA(query)){
+            for (FactorNode childOfQuery : graph.getBsOfA(query)) {
             		factorsLinkedToQuery.add(childOfQuery);
             		PartitionTree childOfQueryPartition = new PartitionTree(childOfQuery,queryPartitionTree);
             		getPartitionOfANode.put(childOfQuery, childOfQueryPartition);
@@ -41,7 +41,7 @@ public class BFS implements Iterator<PartitionTree> {
         }
     }
     
-    public BFS(Model m){
+    public BFS(Model m) {
     		this(m.getEntireGraph(),m.getQuery());
     }
     
@@ -57,24 +57,24 @@ public class BFS implements Iterator<PartitionTree> {
 
     @Override
     public PartitionTree next() {
-    	if(first){
+    	if (first) {
     		first = false;
     		return this.partitionQuery;
     	}
     	
-        if(!hasNext())
+        if (!hasNext())
             throw new NoSuchElementException();
-        //removes from front of queue
+        // removes from front of queue
         FactorNode nextFactor = queue.remove();
         PartitionTree nextFactorPartition = getPartitionOfANode.get(nextFactor);
  
-        for(VariableNode neighborVariable : graph.getAsOfB(nextFactor)){
+        for (VariableNode neighborVariable : graph.getAsOfB(nextFactor)) {
         		PartitionTree neighborVariablePartition = getPartitionOfANode.get(neighborVariable);
-        		if(neighborVariablePartition == null){
+        		if (neighborVariablePartition == null) {
         			neighborVariablePartition = new PartitionTree(neighborVariable,nextFactorPartition);
         			getPartitionOfANode.put(neighborVariable, neighborVariablePartition);
         		}
-	        	for(FactorNode neighborFactor : graph.getBsOfA(neighborVariable)){
+	        	for (FactorNode neighborFactor : graph.getBsOfA(neighborVariable)) {
 	        		if (!this.visited.contains(neighborFactor)) {
 	        			PartitionTree neighborFactorPartition = new PartitionTree(neighborFactor,neighborVariablePartition);
 	        			getPartitionOfANode.put(neighborFactor, neighborFactorPartition);
@@ -89,13 +89,13 @@ public class BFS implements Iterator<PartitionTree> {
 
 }
 //
-//public class BFS<F,V> implements Iterator<F> {
+// public class BFS<F,V> implements Iterator<F> {
 //    private Set<F> visited = new HashSet<>();
 //    private Queue<F> queue = new LinkedList<>();
 //    private ManyToManyRelation<V,F> graph;
 //
 //    public BFS(ManyToManyRelation<V,F> g, V query) {
-//        if(g.containsA(query)) {
+//        if (g.containsA(query)) {
 //            this.graph = g;
 //            Set<F> factorsLinkedToQuery = new HashSet<>();
 //            factorsLinkedToQuery.addAll(graph.getBsOfA(query));
@@ -118,12 +118,12 @@ public class BFS implements Iterator<PartitionTree> {
 //
 //    @Override
 //    public F next() {
-//        if(!hasNext())
+//        if (!hasNext())
 //            throw new NoSuchElementException();
-//        //removes from front of queue
+//        // removes from front of queue
 //        F next = queue.remove();
-//        for(V neighorVariable : graph.getAsOfB(next)){
-//	        	for(F neighborFactor : graph.getBsOfA(neighorVariable)){
+//        for (V neighorVariable : graph.getAsOfB(next)) {
+//	        	for (F neighborFactor : graph.getBsOfA(neighorVariable)) {
 //	        		 if (!this.visited.contains(neighborFactor)) {
 //	                     this.queue.add(neighborFactor);
 //	                     this.visited.add(neighborFactor);

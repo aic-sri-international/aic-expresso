@@ -32,8 +32,8 @@ public class IncrementalBeliefPropagationWithConditioning {
 		AllExplored = false;
 	}
 	
-	public Bound ExpandAndComputeInference(Iterator<FactorNode> it){
-		if(it.hasNext()){
+	public Bound ExpandAndComputeInference(Iterator<FactorNode> it) {
+		if (it.hasNext()) {
 			model.ExpandModel(it);
 			Bound result = inference();
 			return result;
@@ -41,13 +41,13 @@ public class IncrementalBeliefPropagationWithConditioning {
 		return null;
 	}
 	
-	public Bound InferenceOverEntireModel(){
+	public Bound InferenceOverEntireModel() {
 		model.SetExploredGraphToEntireGraph();
 		Bound result = inference();
 		return result;
 	}
 	
-	public Bound inference(){
+	public Bound inference() {
 		VariableNode query = model.getQuery();
 		this.partitionTree = new PartitionTree(query,model);
 		
@@ -57,8 +57,8 @@ public class IncrementalBeliefPropagationWithConditioning {
 		return result;
 	}
 		
-	public Bound variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){//or notToSumVariables
-		if(!partitionInAVariableNode.node.isVariable()){
+	public Bound variableMessage(PartitionTree partitionInAVariableNode, Set<VariableNode> SeparatorVariablesOnLevelAbove) {// or notToSumVariables
+		if (!partitionInAVariableNode.node.isVariable()) {
 			println("error in S-BP!!!");
 			return null;
 		}
@@ -71,14 +71,14 @@ public class IncrementalBeliefPropagationWithConditioning {
 		// store bound
 		Bound[]  boundsOfChildrenMessages = new Bound[partitionInAVariableNode.children.size()];
 		Set<Expression> variablesToSumOut = new HashSet<>();
-		for(VariableNode v : SeparatorOnThisLevel){
+		for (VariableNode v : SeparatorOnThisLevel) {
 			variablesToSumOut.add(v.getValue());
 		}
 		
 		// if this node is not exhausted (see definition in Model) it means that the message coming to it is the 
 		// simplex, no matter how it is what comes below in the partition.
 		// obs. it can be equivalently thought as attaching a "simplex factor" to non exhausted nodes.
-		if(!AllExplored && !model.isExhausted((VariableNode) partitionInAVariableNode.node)){
+		if (!AllExplored && !model.isExhausted((VariableNode) partitionInAVariableNode.node)) {
 			Expression var = partitionInAVariableNode.node.getValue();
 			Bound bound = Bounds.simplex(arrayList(var), model.getTheory(), model.getContext(), model.isExtensional());
 //			partitionInAVariableNode.node.setBound(bound);
@@ -86,9 +86,9 @@ public class IncrementalBeliefPropagationWithConditioning {
 		}
 		
 		int i = 0;
-		for(PartitionTree p : partitionInAVariableNode.children){
+		for (PartitionTree p : partitionInAVariableNode.children) {
 			Bound boundInP = factorMessage(p,SeparatorForNextLevels);
-			//Bound boundInP = p.node.getBound();
+			// Bound boundInP = p.node.getBound();
 			boundsOfChildrenMessages[i] = boundInP;
 			i++;
 		}
@@ -102,11 +102,11 @@ public class IncrementalBeliefPropagationWithConditioning {
 		bound = bound.summingBound(varToSumOut, model.getContext(), model.getTheory());
 		
 		return bound;
-		//partitionInAVariableNode.node.setBound(bound);
+		// partitionInAVariableNode.node.setBound(bound);
 	}
 
-	public Bound factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove){
-		if(!partitionInAFactorNode.node.isFactor()){
+	public Bound factorMessage(PartitionTree partitionInAFactorNode, Set<VariableNode> SeparatorVariablesOnLevelAbove) {
+		if (!partitionInAFactorNode.node.isFactor()) {
 			println("error in S-BP!!!");
 			return null;
 		}
@@ -120,20 +120,20 @@ public class IncrementalBeliefPropagationWithConditioning {
 		// store bound
 		Bound[]  boundsOfChildrenMessages = new Bound[partitionInAFactorNode.children.size()];
 		Set<Expression> variablesToSumOut = new HashSet<>();
-		for(VariableNode v : SeparatorOnThisLevel){
+		for (VariableNode v : SeparatorOnThisLevel) {
 			variablesToSumOut.add(v.getValue());
 		}
 		
 		int i =0;
-		for(PartitionTree p : partitionInAFactorNode.children){
+		for (PartitionTree p : partitionInAFactorNode.children) {
 			Bound boundInP = variableMessage(p,SeparatorForNextLevels);
-			//Bound boundInP = p.node.getBound();
+			// Bound boundInP = p.node.getBound();
 			boundsOfChildrenMessages[i] = boundInP;
 			variablesToSumOut.add(p.node.getValue());
 			i++;
 		}
 		
-		for(VariableNode v : SeparatorVariablesOnLevelAbove){
+		for (VariableNode v : SeparatorVariablesOnLevelAbove) {
 			variablesToSumOut.remove(v.getValue());
 		}
 		
@@ -146,7 +146,7 @@ public class IncrementalBeliefPropagationWithConditioning {
 		
 		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
 		return bound;
-		//partitionInAFactorNode.node.setBound(bound);
+		// partitionInAFactorNode.node.setBound(bound);
 	}
 	
 	/**
@@ -154,18 +154,18 @@ public class IncrementalBeliefPropagationWithConditioning {
 	 * @param p
 	 * @return
 	 */
-	private Set<VariableNode> ComputeSeparator(PartitionTree pTree){
-		//Create sets with the variables in each partition
+	private Set<VariableNode> ComputeSeparator(PartitionTree pTree) {
+		// Create sets with the variables in each partition
 		List<Set<VariableNode>> VariablePartition = new ArrayList<Set<VariableNode>>();
-		for(PartitionTree p : pTree.children){
+		for (PartitionTree p : pTree.children) {
 			Set<VariableNode> variablesOfP = new HashSet<>();
-			for(FactorNode phi : p.setOfFactorsInsidePartition){
+			for (FactorNode phi : p.setOfFactorsInsidePartition) {
 				Collection<VariableNode> VarsOfPhi= model.getExploredGraph().getAsOfB(phi);
 				variablesOfP.addAll(VarsOfPhi);
 			}
 			VariablePartition.add(variablesOfP);
 		}
-		//take the variables that compose the intersection of those sets
+		// take the variables that compose the intersection of those sets
 		Set<VariableNode> separatorVariables = new HashSet<>();
 		
 		for (int i = 0; i < VariablePartition.size(); i++) {
@@ -180,7 +180,7 @@ public class IncrementalBeliefPropagationWithConditioning {
 		return separatorVariables;
 	}
 	
-	private PairOf<Set<VariableNode>> ComputeSeparatorOnThisLevelAndSeparatorOnLevelsBelow(PartitionTree partition, Set<VariableNode> SeparatorVariablesOnLevelAbove){
+	private PairOf<Set<VariableNode>> ComputeSeparatorOnThisLevelAndSeparatorOnLevelsBelow(PartitionTree partition, Set<VariableNode> SeparatorVariablesOnLevelAbove) {
 		/** 
 		 * compute the separator. 3 types:
 		 * 						separators for levels above this 	(SeparatorVariablesOnLevelAbove)
@@ -188,10 +188,10 @@ public class IncrementalBeliefPropagationWithConditioning {
 		 * 						separators for levels below this 	(SeparatorForNextLevels)
 		 */
 		Set<VariableNode> SeparatorOnThisLevel = ComputeSeparator(partition);
-		if(partition.node.isVariable()){
+		if (partition.node.isVariable()) {
 			SeparatorOnThisLevel.remove((VariableNode) partition.node);
 		}
-		//exclude the variables on other levels. they will be summed afterwards
+		// exclude the variables on other levels. they will be summed afterwards
 		SeparatorOnThisLevel.removeAll(SeparatorVariablesOnLevelAbove);
 		
 		Set<VariableNode> SeparatorForNextLevels = new HashSet<>();

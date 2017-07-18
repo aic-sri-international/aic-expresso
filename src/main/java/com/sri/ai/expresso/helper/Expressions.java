@@ -924,10 +924,10 @@ public class Expressions {
 
 	public static Expression opposite(Expression booleanConstant) {
 		Expression result;
-		if (booleanConstant.equals(TRUE)){
+		if (booleanConstant.equals(TRUE)) {
 			result = FALSE;
 		}
-		else if (booleanConstant.equals(FALSE)){
+		else if (booleanConstant.equals(FALSE)) {
 			result = TRUE;
 		}
 		else {

@@ -138,7 +138,7 @@ public class BooleanUtil {
 					return true;
 				}
 			}
-			//return pairwiseEquivalent(literal1.get(0), literal1.get(1), literal2.get(0), literal2.get(1));
+			// return pairwiseEquivalent(literal1.get(0), literal1.get(1), literal2.get(0), literal2.get(1));
 		}
 		return false;
 	}

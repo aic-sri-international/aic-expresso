@@ -13,7 +13,7 @@ public class BFS implements Iterator<FactorNode> {
     private ManyToManyRelation<VariableNode,FactorNode> graph;
 
     public BFS(ManyToManyRelation<VariableNode,FactorNode> g, VariableNode query) {
-        if(g.containsA(query)) {
+        if (g.containsA(query)) {
             this.graph = g;
             Set<FactorNode> factorsLinkedToQuery = new HashSet<>();
             factorsLinkedToQuery.addAll(graph.getBsOfA(query));
@@ -24,7 +24,7 @@ public class BFS implements Iterator<FactorNode> {
         }
     }
     
-    public BFS(Model m){
+    public BFS(Model m) {
     		this(m.getEntireGraph(),m.getQuery());
     }
     
@@ -40,12 +40,12 @@ public class BFS implements Iterator<FactorNode> {
 
     @Override
     public FactorNode next() {
-        if(!hasNext())
+        if (!hasNext())
             throw new NoSuchElementException();
-        //removes from front of queue
+        // removes from front of queue
         FactorNode next = queue.remove();
-        for(VariableNode neighorVariable : graph.getAsOfB(next)){
-	        	for(FactorNode neighborFactor : graph.getBsOfA(neighorVariable)){
+        for (VariableNode neighorVariable : graph.getAsOfB(next)) {
+	        	for (FactorNode neighborFactor : graph.getBsOfA(neighorVariable)) {
 	        		 if (!this.visited.contains(neighborFactor)) {
 	                     this.queue.add(neighborFactor);
 	                     this.visited.add(neighborFactor);
@@ -57,13 +57,13 @@ public class BFS implements Iterator<FactorNode> {
 
 }
 //
-//public class BFS<F,V> implements Iterator<F> {
+// public class BFS<F,V> implements Iterator<F> {
 //    private Set<F> visited = new HashSet<>();
 //    private Queue<F> queue = new LinkedList<>();
 //    private ManyToManyRelation<V,F> graph;
 //
 //    public BFS(ManyToManyRelation<V,F> g, V query) {
-//        if(g.containsA(query)) {
+//        if (g.containsA(query)) {
 //            this.graph = g;
 //            Set<F> factorsLinkedToQuery = new HashSet<>();
 //            factorsLinkedToQuery.addAll(graph.getBsOfA(query));
@@ -86,12 +86,12 @@ public class BFS implements Iterator<FactorNode> {
 //
 //    @Override
 //    public F next() {
-//        if(!hasNext())
+//        if (!hasNext())
 //            throw new NoSuchElementException();
-//        //removes from front of queue
+//        // removes from front of queue
 //        F next = queue.remove();
-//        for(V neighorVariable : graph.getAsOfB(next)){
-//	        	for(F neighborFactor : graph.getBsOfA(neighorVariable)){
+//        for (V neighorVariable : graph.getAsOfB(next)) {
+//	        	for (F neighborFactor : graph.getBsOfA(neighorVariable)) {
 //	        		 if (!this.visited.contains(neighborFactor)) {
 //	                     this.queue.add(neighborFactor);
 //	                     this.visited.add(neighborFactor);

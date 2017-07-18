@@ -7,7 +7,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-//import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
+// import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
@@ -42,7 +42,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	/**
 	 * Empty Bound
 	 */
-	public DefaultIntensionalBound(){
+	public DefaultIntensionalBound() {
 		super(new ExtensionalIndexExpressionsSet(new ArrayList<>()),makeSymbol("1"),makeSymbol(true));
 	}
 
@@ -60,17 +60,17 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 	
 	static public DefaultIntensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
-		if(Variables.size() == 0){
+		if (Variables.size() == 0) {
 			return new DefaultIntensionalBound();
 		}
 		Expression one = makeSymbol("1");
 		Expression zero= makeSymbol("0");
 		List<Expression> indexExpressionsList = new ArrayList<>(Variables.size());
 		
-		//ExtensionalIndexExpressionsSet indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry(Variables, context);
+		// ExtensionalIndexExpressionsSet indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry(Variables, context);
 				
 		Expression head = one;
-		for(Expression var : Variables){
+		for (Expression var : Variables) {
 			Expression index = Expressions.primedUntilUnique(var, var, context);
 			Expression type = context.getTypeExpressionOfRegisteredSymbol(var);
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
@@ -98,7 +98,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	
 	private DefaultIntensionalBound normalize(Bound bound, Theory theory, Context context) 
 	{
-		if(!bound.isIntensionalBound()){
+		if (!bound.isIntensionalBound()) {
 			return null;
 		}
 		
@@ -112,7 +112,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		
 		ExtensionalIndexExpressionsSet freeVariablesOfTheHead = (ExtensionalIndexExpressionsSet) getIndexExpressionsOfFreeVariablesIn(Head, context);
 		
-		for(Expression indexExpression: indexExpressions.getList()){
+		for (Expression indexExpression: indexExpressions.getList()) {
 			Symbol index = (Symbol) indexExpression.get(0);
 			Expression type = indexExpression.get(1);
 			context = context.extendWithSymbolsAndTypes(index,type);
@@ -121,9 +121,9 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		}
 		
 		ArrayList<Expression> variablesToSumOutList = new ArrayList<>();
-		for(Expression indexExpression: freeVariablesOfTheHead.getList()){
-			Expression index = indexExpression.getFunctorOrSymbol();//Gambiarra!
-			if(!hashSetOfindexVariables.contains(index)){
+		for (Expression indexExpression: freeVariablesOfTheHead.getList()) {
+			Expression index = indexExpression.getFunctorOrSymbol();// Gambiarra!
+			if (!hashSetOfindexVariables.contains(index)) {
 				variablesToSumOutList.add(indexExpression);
 			}
 		}
@@ -132,13 +132,13 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		
 		Expression setOfInstantiationsOfTheHead = IntensionalSet.makeMultiSet(
 				variablesToSumOut,
-				Head,//head
-				makeSymbol(true)//No Condition
+				Head,// head
+				makeSymbol(true)// No Condition
 				);
 		
 		Expression sumOnPhi = apply(SUM, setOfInstantiationsOfTheHead);
 		
-		//sumOnPhi = theory.evaluate(sumOnPhi, context);
+		// sumOnPhi = theory.evaluate(sumOnPhi, context);
 		Expression normalizedHead =  apply("/", Head, sumOnPhi);
 		
 		Expression evaluation = theory.evaluate(normalizedHead, context);
@@ -149,7 +149,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	public static DefaultIntensionalBound boundProduct(Theory theory, Context context, Bound... listOfBounds) {
-		if(listOfBounds.length == 0){
+		if (listOfBounds.length == 0) {
 			DefaultIntensionalBound result = new DefaultIntensionalBound();
 			return result;
 		}
@@ -163,8 +163,8 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		Object[] productConditionArray = new Expression[listOfBounds.length];
 		
 		int k = 0;
-		for(Bound bound : Arrays.asList(listOfBounds)){
-			if(!bound.isIntensionalBound()){
+		for (Bound bound : Arrays.asList(listOfBounds)) {
+			if (!bound.isIntensionalBound()) {
 				return null;
 			}
 			
@@ -215,18 +215,18 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	@Override
-	public DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Context context, Theory theory){
+	public DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Context context, Theory theory) {
 		DefaultIntensionalBound result = summingBound(variablesToBeSummedOut, this, context, theory);
 		return result;
 	}
 	
 	private DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Bound bound, Context context, Theory theory) {
-		if(!bound.isIntensionalBound()){
+		if (!bound.isIntensionalBound()) {
 			return null;
 		}
 		DefaultIntensionalBound intensionalBound = (DefaultIntensionalBound) bound;
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalBound.getIndexExpressions();
-		for(Expression indexExpression : indexExpressions.getList()){
+		for (Expression indexExpression : indexExpressions.getList()) {
 			Expression index = indexExpression.get(0);
 			Expression type = indexExpression.get(1);
 			context = context.extendWithSymbolsAndTypes(index,type);
@@ -238,8 +238,8 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		
 		Expression setOfFactorInstantiations = IntensionalSet.makeMultiSet(
 				indices,
-				x,//head
-				makeSymbol(true)//No Condition
+				x,// head
+				makeSymbol(true)// No Condition
 				);
 		Expression f = apply(SUM, setOfFactorInstantiations);
 		
@@ -250,20 +250,20 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 
 	@Override
 	public DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Context context,
-			Theory theory){
+			Theory theory) {
 		DefaultIntensionalBound result = summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
 		return result;
 	}
 	
 	private DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound, Context context,
 			Theory theory) {
-		if(!bound.isIntensionalBound()){
+		if (!bound.isIntensionalBound()) {
 			return null;
 		}
 		
 		DefaultIntensionalBound intensionalBound = (DefaultIntensionalBound) bound;
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalBound.getIndexExpressions();
-		for(Expression indexExpression : indexExpressions.getList()){
+		for (Expression indexExpression : indexExpressions.getList()) {
 			Expression index = indexExpression.get(0);
 			Expression type = indexExpression.get(1);
 			context = context.extendWithSymbolsAndTypes(index,type);
@@ -293,7 +293,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	}
 
 	protected DefaultIntensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context) {
-		if(!bound.isIntensionalBound()){
+		if (!bound.isIntensionalBound()) {
 			return null;
 		}
 		

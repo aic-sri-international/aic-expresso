@@ -340,7 +340,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			if (Expressions.isNumber(base) && isLegalExponent(simplifiedPower)) {
 				result = Expressions.makeSymbol(base.rationalValue().pow(simplifiedPower.intValueExact()));
 			}
-			else if (!power.equals(simplifiedPower)){
+			else if (!power.equals(simplifiedPower)) {
 				result = new DefaultFunctionApplication(Exponentiation.EXPONENTIATION_FUNCTOR, Arrays.asList(base, simplifiedPower));
 			}
 		}

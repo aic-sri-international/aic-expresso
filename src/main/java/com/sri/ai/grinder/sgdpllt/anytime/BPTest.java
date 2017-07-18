@@ -45,30 +45,30 @@ import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
 
 public class BPTest {
-	private static Expression randomNumberGenerator(){
+	private static Expression randomNumberGenerator() {
 		 Random randomGenerator = new Random();
 		 return makeSymbol(randomGenerator.nextInt(9));
 	}
-	private static Expression generateProbability(Context context,int i, Expression... listOfVariables){
-		if(listOfVariables.length == 0 ){
+	private static Expression generateProbability(Context context,int i, Expression... listOfVariables) {
+		if (listOfVariables.length == 0 ) {
 			return null;
 		}
-		Expression result = makeSymbol(0);//randomNumberGenerator();
+		Expression result = makeSymbol(0);// randomNumberGenerator();
 		
 		Expression variable = listOfVariables[i];
-		//listOfVariables.remove(0);
+		// listOfVariables.remove(0);
 		Type type = context.getTypeOfRegisteredSymbol(variable);
 		Iterator<Expression>  iteratorToValuesInType = type.iterator();
 		
-		if(listOfVariables.length == i+1){
-			for(Expression value : in(iteratorToValuesInType)){
+		if (listOfVariables.length == i+1) {
+			for (Expression value : in(iteratorToValuesInType)) {
 				Expression varEqualsValue = apply(EQUAL,variable,value);
 				Expression randProbability = randomNumberGenerator();
 				result = apply(IF_THEN_ELSE,varEqualsValue, randProbability, result);
 			}
 		}
 		else{
-			for(Expression value : in(iteratorToValuesInType)){
+			for (Expression value : in(iteratorToValuesInType)) {
 				Expression varEqualsValue = apply(EQUAL,variable,value);
 				Expression randProbability = generateProbability(context, i+1, listOfVariables);
 				result = apply(IF_THEN_ELSE,varEqualsValue, randProbability, result);
@@ -76,29 +76,29 @@ public class BPTest {
 		}
 		return result;
 	}
-	private static Expression generateProbability(Context context, Expression... listOfVariables){
+	private static Expression generateProbability(Context context, Expression... listOfVariables) {
 		return generateProbability(context, 0, listOfVariables);
 	}
 	
-	private static Model IsingModel(int nLines, int nCols,Theory theory, Context context, Expression possibleValues){
+	private static Model IsingModel(int nLines, int nCols,Theory theory, Context context, Expression possibleValues) {
 		Set<Expression> Factor = new HashSet<Expression>();
 		
 		Expression[][] a = new Expression[nLines][nCols];
 		
-		for(int i = 0; i < nLines; i++){
-			for(int j = 0; j < nCols; j++){
+		for (int i = 0; i < nLines; i++) {
+			for (int j = 0; j < nCols; j++) {
 				a[i][j] = makeSymbol("A_"+i+"_"+j);
 				context = context.extendWithSymbolsAndTypes(a[i][j],possibleValues);
 			}
 		}
 		
-		for(int i = 0; i < nLines; i++){
-			for(int j = 0; j < nCols; j++){
-				if (j < nCols - 1){
+		for (int i = 0; i < nLines; i++) {
+			for (int j = 0; j < nCols; j++) {
+				if (j < nCols - 1) {
 					Expression fHor = generateProbability(context, a[i][j], a[i][j+1]);
 					Factor.add(fHor);
 				}
-				if(i < nLines-1){
+				if (i < nLines-1) {
 					Expression fVer = generateProbability(context, a[i][j], a[i+1][j]);
 					Factor.add(fVer);
 				}
@@ -109,11 +109,11 @@ public class BPTest {
 		return result;
 	}
 	
-	private Model randomModel(int nVariables, int nFactors , Theory theory, Context context, Expression possibleValues){
+	private Model randomModel(int nVariables, int nFactors , Theory theory, Context context, Expression possibleValues) {
 		Set<Expression> Factor = new HashSet<Expression>();
 		
 		Expression[] a = new Expression[nVariables];
-		for(int i = 0; i < nVariables; i++){
+		for (int i = 0; i < nVariables; i++) {
 			a[i]= makeSymbol("A_"+i);
 			context = context.extendWithSymbolsAndTypes(a[i],possibleValues);
 		}
@@ -135,7 +135,7 @@ public class BPTest {
 	}
 
 	private static void printModel(Model m) {
-		for(Pair<Expression, Expression> e : in(m.map.iterator())){
+		for (Pair<Expression, Expression> e : in(m.map.iterator())) {
 			println(e.second + " -> " + e.first);
 		}
 	}
@@ -151,7 +151,7 @@ public class BPTest {
 		
 		Model m = IsingModel(3,4,theory, context, parse("Boolean"));
 		
-		//printModel(m);
+		// printModel(m);
 				
 		runTest(m);
 		
@@ -177,14 +177,14 @@ public class BPTest {
 	private static void runningPartialTest(VariableComponent ComponentResult, Integer nb_iter, Boolean withBound) {
 		long startTime, endTime, totalTime;
 		
-		//we compute the result with our algorithm
-		//we also store the computation time to compare it to the naive computation time
+		// we compute the result with our algorithm
+		// we also store the computation time to compare it to the naive computation time
 		startTime = System.currentTimeMillis();
 		int i = 0;
-		while(i < nb_iter) {
-			if(!ComponentResult.entirelyDiscover) {
+		while (i < nb_iter) {
+			if (!ComponentResult.entirelyDiscover) {
 				ComponentResult.update(new HashSet<Expression>(), withBound);
-				println("... " + i + " error :" + ComponentResult.bound);//getError(ComponentResult.bound, ComponentResult.model.theory,ComponentResult.model.context));//println("Bound at iteration " + i + " : " + ComponentResult.bound);
+				println("... " + i + " error :" + ComponentResult.bound);// getError(ComponentResult.bound, ComponentResult.model.theory,ComponentResult.model.context));// println("Bound at iteration " + i + " : " + ComponentResult.bound);
 			}
 			i++;
 		}
@@ -223,11 +223,11 @@ public class BPTest {
 		
 		println("\n\nVE Result : " + naiveResult);
 		println("totalTime: " + totalTime/1000. + " seconds");
-		//println(naiveResult.getArguments());
+		// println(naiveResult.getArguments());
 	}
 	
-	private static float getError(Bound b,Theory t, Context c){
-		if(b.isExtensionalBound()){
+	private static float getError(Bound b,Theory t, Context c) {
+		if (b.isExtensionalBound()) {
 			List<Expression> l =((DefaultExtensionalBound) b).getElementsDefinitions();
 			
 			Expression e1 = l.get(0);

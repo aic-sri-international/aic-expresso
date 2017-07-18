@@ -68,7 +68,7 @@ public interface Bound extends Expression{
 	 * @param listOfBounds
 	 * @return bound resulting from the product of bounds
 	 */
-	//public Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
+	// public Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
 	
 	
 //	/** Returns an explicit representation for the simplex. The expression returned is

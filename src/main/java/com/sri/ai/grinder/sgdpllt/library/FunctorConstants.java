@@ -76,8 +76,8 @@ public class FunctorConstants {
 	public static final String LESS_THAN = "<";
 	public static final String LESS_THAN_OR_EQUAL_TO = "<=";
 	public final static String GREATER_THAN_OR_EQUAL_TO = ">=";
-	//public final static String SET  = "{ . . . }";
-	//public final static String MULTISET  = "{{ . . . }}";
+	// public final static String SET  = "{ . . . }";
+	// public final static String MULTISET  = "{{ . . . }}";
 	public final static String IN = "in";
 	public final static String UNION = "union";
 	public final static String INTENSIONAL_UNION = "Union";

@@ -81,17 +81,17 @@ public class Implication implements Simplifier {
 			return Expressions.TRUE;
 		}
 		
-		if (expression.get(0).equals(Expressions.TRUE)){
+		if (expression.get(0).equals(Expressions.TRUE)) {
 			return expression.get(1);
 		}
-		else if (expression.get(0).equals(Expressions.FALSE)){
+		else if (expression.get(0).equals(Expressions.FALSE)) {
 			return Expressions.TRUE;
 		}
 
-		if (expression.get(1).equals(Expressions.TRUE)){
+		if (expression.get(1).equals(Expressions.TRUE)) {
 			return Expressions.TRUE;
 		}
-		else if (expression.get(1).equals(Expressions.FALSE)){
+		else if (expression.get(1).equals(Expressions.FALSE)) {
 			return Not.make(expression.get(0));
 		}
 
