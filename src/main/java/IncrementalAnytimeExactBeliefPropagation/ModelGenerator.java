@@ -58,6 +58,9 @@ public class ModelGenerator {
 	public static void resetRandomGenerator(){
 		randomGenerator = new Random(seed);
 	}
+	public static void setSeed(int s){
+		randomGenerator = new Random(s);
+	}
 	
 	private static Expression randomNumberGenerator(){
 		 return makeSymbol(randomGenerator.nextInt(9));

@@ -80,6 +80,8 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 			model.ExpandModel(nextFactor);
 			Bound result = inference();
 			
+			result = result.normalize(model.getTheory(), model.getContext());
+			
 			return result;
 		}
 		return null;
@@ -95,6 +97,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 			updatePartitionTree(nextFactorPartitionTree);
 			
 			Bound result = partitionTree.node.getBound();
+			result = result.normalize(model.getTheory(), model.getContext());
 			
 			return result;
 		}
@@ -321,6 +324,7 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 	public Bound InferenceOverEntireModel(){
 		model.SetExploredGraphToEntireGraph();
 		Bound result = inference();
+		result = result.normalize(model.getTheory(), model.getContext());
 		return result;
 	}
 	
@@ -478,5 +482,9 @@ public class IncrementalAnytymeBeliefPropagationWithSeparatorConditioning {
 		PairOf<Set<VariableNode>> result = 
 				new PairOf<>(SeparatorOnThisLevel,SeparatorForNextLevels);
 		return result;
+	}
+
+	public Model getModel(){
+		return this.model;
 	}
 }

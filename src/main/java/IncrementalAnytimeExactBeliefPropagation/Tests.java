@@ -1,9 +1,11 @@
 package IncrementalAnytimeExactBeliefPropagation;
 
 import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.IsingModel;
+import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.LVECalculation;
 import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.lineModel;
 import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.nTreeModel;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.bounds.Bounds.makeSingleElementBound;
 import static com.sri.ai.util.Util.println;
 
 import java.io.IOException;
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -25,6 +29,7 @@ import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
 
@@ -53,15 +58,14 @@ public class Tests {
 		//Testing on standard output (output results on screen)
 		//testingAndPrintingOnScreen();
 		
-		testingAndPrintingOnFile();
-		
-	}
+		testingAndPrintingOnFile3();		
+	}	
 
 	public static void testingAndPrintingOnFile() {
 		
-		String modelName = "IsingModel4X4";
+		String modelName = "IsingModel3X4";
 		ModelGenerator.resetRandomGenerator();
-		Triple<Set<Expression>,Context,Expression> factors = IsingModel(4,4, context, parse("Boolean"));
+		Triple<Set<Expression>,Context,Expression> factors = IsingModel(3,4, context, parse("Boolean"));
 		boolean printSGDPLL = true;
 		double thresholder = 0.0001;
 		int n = 5;
@@ -69,12 +73,43 @@ public class Tests {
 		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(factors,n,modelName,printSGDPLL,thresholder);
 		
 		println("The End");
-		//descricao de como usar a classe
-		//imprimir em texto e passar pro ppt
-		//deixar rodando o 4 por 4 (moienar com 5 de cada)
+		
+		modelName = "IsingModel4X4";
+		ModelGenerator.resetRandomGenerator();
+		factors = IsingModel(4,4, context, parse("Boolean"));
+		printSGDPLL = true;
+		thresholder = 0.0001;
+		n = 5;
+		
+		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(factors,n,modelName,printSGDPLL,thresholder);
+		
+		println("The End");
+		
+		modelName = "IsingModel6X2";
+		ModelGenerator.resetRandomGenerator();
+		factors = IsingModel(6,2, context, parse("Boolean"));
+		printSGDPLL = true;
+		thresholder = 0.0001;
+		n = 5;
+		
+		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(factors,n,modelName,printSGDPLL,thresholder);
+		
+		println("The End");
+		
+		modelName = "lineModel20";
+		ModelGenerator.resetRandomGenerator();
+		factors = lineModel(20, context, parse("Boolean"));
+		printSGDPLL = true;
+		thresholder = 0.0001;
+		n = 5;
+		
+		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(factors,n,modelName,printSGDPLL,thresholder);
+		
+		println("The End");
+		
 	}
 
-	public static void testingAndWritingToFile() {
+	public static void testingAndPrintingOnFile2() {
 		
 		ModelGenerator.resetRandomGenerator();
 		
@@ -96,6 +131,61 @@ public class Tests {
 		
 		writingToFile("SomeTests.csv", modelsToprintInFile);
 	}
+	
+	public static void testingAndPrintingOnFile3() {
+	
+		int nLines = 4;
+		int nCols = 4;
+		int n = 3; 
+		boolean printSGDPLL = true;
+		double thresholder = 0.00001;
+		
+		
+		Triple<Set<Expression>,Context,Expression> factors = IsingModel(nLines, nCols, context, parse("Boolean"));
+		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel4X4", printSGDPLL, thresholder);
+//		
+//		nLines = 7;
+//		nCols = 2;
+//		n = 10;
+//		printSGDPLL = false;
+//		factors = IsingModel(nLines, nCols, context, parse("Boolean"));
+//		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel6X2", printSGDPLL, thresholder);
+//		
+//		
+//		nLines = 20;
+//		nCols = 20;
+//		thresholder = .001;
+//		n = 10;
+//		factors = IsingModel(nLines, nCols, context, parse("Boolean"));
+//		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel20X20", printSGDPLL, thresholder);
+//		
+//		
+		
+
+//		
+//		int nLevels = 4;
+//		int nChildren = 2;
+//		factors = nTreeModel(nLevels, nChildren, context, parse("Boolean"));
+//		testingDifferentModelsWithTheSameStructure(factors, n, "BinaryTree4", printSGDPLL, thresholder);
+		
+	}
+
+	public static void testingDifferentModelsWithTheSameStructure(Triple<Set<Expression>,Context,Expression> factors,
+			int n,String fileNameWithoutExtension, boolean printSGDPLL,double thresholder) {
+	
+	List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
+	
+	int seed = 1;
+	ModelGenerator.setSeed(seed);
+	for(int i = 0; i < n; i++){
+		Model m = new Model(factors,theory,true);
+		modelsToprintInFile.add(testingAndExportingListWithDataFunction(fileNameWithoutExtension + "Incremental", m, true, printSGDPLL, thresholder));
+		println(i);
+//		seed+=10;
+	}
+
+	writingToFile(fileNameWithoutExtension + ".csv", modelsToprintInFile);
+}
 
 	public static void testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(Triple<Set<Expression>,Context,Expression> factors,
 			int n,String fileNameWithoutExtension, boolean printSGDPLL,double thresholder) {
@@ -103,6 +193,7 @@ public class Tests {
 	List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
 	
 	for(int i = 0; i < n; i++){
+		ModelGenerator.resetRandomGenerator();
 		Model m = new Model(factors,theory,true);
 		modelsToprintInFile.add(testingAndExportingListWithDataFunction(fileNameWithoutExtension + "Incremental", m, true, printSGDPLL, thresholder));
 		println(i);
@@ -205,13 +296,15 @@ public class Tests {
 	 * @param parameter
 	 * @return
 	 */
-	public static List<TupleOfData> testingAndExportingListWithDataFunction(String modelName, Model m, boolean Incrementalversion, boolean printSGDPLL,double thresholder, Integer... parameter){
+	public static List<TupleOfData> testingAndExportingListWithDataFunction(String modelName, Model m, boolean Incrementalversion, boolean printSGDPLL,
+																			double thresholder, Integer... parameter){
 		List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
 		m.clearExploredGraph();
 		Iterator<PartitionTree> BFSExpander = new BFS(m);
-		IncrementalAnytymeBeliefPropagationWithSeparatorConditioning sbp = new IncrementalAnytymeBeliefPropagationWithSeparatorConditioning(m,BFSExpander);
+		final IncrementalAnytymeBeliefPropagationWithSeparatorConditioning sbp = 
+				new IncrementalAnytymeBeliefPropagationWithSeparatorConditioning(m,BFSExpander);
 		
 		double tTotalTime = 0;
 		double error = 1;
@@ -220,31 +313,14 @@ public class Tests {
 		}
 		while(BFSExpander.hasNext() && error > thresholder){
 			
-			TupleOfData t = new TupleOfData();
-			
-			long tStart = System.currentTimeMillis();
-			Bound inferenceResult = Incrementalversion? sbp.ExpandAndComputeInference() : sbp.ExpandAndComputeInferenceByRebuildingPartitionTree();
-			long tEnd = System.currentTimeMillis();
-			long tDelta = tEnd - tStart;
-			t.time = tDelta /1000.0;
-			
-			tTotalTime += tDelta / 1000.0;
-			t.totalTime +=  tTotalTime;
-			
-			t.typeOfComputationUsed = "S-BP";
-			t.graphicalModelName = modelName;
-			t.id = ID++;
-			t.iteration = id++;
-			t.numberOfExtremePoints = inferenceResult.getArguments().size();
-			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
-			t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
-			t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
-			t.IntervalLength = t.maxAndMaxProbabilityofQueryequalsTrue - t.minAndMaxProbabilityofQueryequalsTrue; 
-			t.allExplored = m.AllExplored();
-			
-			for (int i = 0; i < parameter.length && i < t.parameter.length; i++) {
-				t.parameter[i] = parameter[i];
-			}
+			TupleOfData t = doInferenceAndStoreInformation(()->Incrementalversion? sbp.ExpandAndComputeInference() : sbp.ExpandAndComputeInferenceByRebuildingPartitionTree(),
+															sbp.getModel(),
+															modelName,
+															id++,
+															tTotalTime,
+															"S-BP",
+															parameter);
+			tTotalTime = t.totalTime;
 			
 			result.add(t);
 			error = t.IntervalLength;
@@ -252,32 +328,28 @@ public class Tests {
 		}
 		
 		if(printSGDPLL && !BFSExpander.hasNext()){
-			TupleOfData t = new TupleOfData();
-			long tStart = System.currentTimeMillis();
-			Expression inferenceLVE = ModelGenerator.LVECalculation(m);
-			long tEnd = System.currentTimeMillis();
-			long tDelta = tEnd - tStart;
-			Bound EncapsulatingInference = Bounds.makeSingleElementBound(inferenceLVE, true);
-			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(EncapsulatingInference, m);
-			t.time= tDelta / 1000.0;
-			t.totalTime = t.time;
-			t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
-			t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
-			
-			t.typeOfComputationUsed = "SGDPLL";
-			t.graphicalModelName = modelName;
-			t.id = id++;
-			t.numberOfExtremePoints = 0;
-			t.IntervalLength = 0; 
-			t.allExplored = true;
-			
-			for (int i = 0; i < parameter.length && i < t.parameter.length; i++) {
-				t.parameter[i] = parameter[i];
-			}
-			
+			TupleOfData t = doInferenceAndStoreInformation(()->makeSingleElementBound(LVECalculation(m), true),
+															m, modelName, 
+															id++,tTotalTime,
+															"SGDPLL",parameter) ;
+			tTotalTime = t.totalTime;
 			result.add(t);	
 			println("SGDPLL computed");
+		
+			//computing S-BP in the whole model (it is weirdly being faster than SGDPLL in almost any case!) 
+			m.clearExploredGraph();
+			BFSExpander = new BFS(m);
+			
+			t = doInferenceAndStoreInformation(()-> sbp.InferenceOverEntireModel(),
+					sbp.getModel(),
+					modelName,id++,
+					0,"S-BP over Entire Model",
+					parameter);
+			
+			result.add(t);	
+			println("S-BP over Entire Model computed");
 		}
+		
 		println("------------------------- Done -----------------------------------");
 		return result;
 	}
@@ -334,5 +406,41 @@ public class Tests {
 		   // do something
 		}
 	}
-
+	
+	private static TupleOfData doInferenceAndStoreInformation(NullaryFunction<Bound> doInference,
+												Model m,
+												String modelName, int id, double tTotalTime,
+												String typeOfComputationUsed,
+												Integer... parameter){
+		TupleOfData t = new TupleOfData();
+		
+		long tStart = System.currentTimeMillis();
+		Bound inferenceResult;
+		
+		inferenceResult = doInference.apply();
+		
+		long tEnd = System.currentTimeMillis();
+		long tDelta = tEnd - tStart;
+		t.time = tDelta /1000.0;
+		
+		tTotalTime += tDelta / 1000.0;
+		t.totalTime +=  tTotalTime;
+		
+		t.typeOfComputationUsed = typeOfComputationUsed;
+		t.graphicalModelName = modelName;
+		t.id = ID++;
+		t.iteration = id++;
+		t.numberOfExtremePoints = inferenceResult.getArguments().size();
+		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
+		t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
+		t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
+		t.IntervalLength = t.maxAndMaxProbabilityofQueryequalsTrue - t.minAndMaxProbabilityofQueryequalsTrue; 
+		t.allExplored = m.AllExplored();
+		
+		for (int i = 0; i < parameter.length && i < t.parameter.length; i++) {
+			t.parameter[i] = parameter[i];
+		}
+		return t;
+	}
+	
 }

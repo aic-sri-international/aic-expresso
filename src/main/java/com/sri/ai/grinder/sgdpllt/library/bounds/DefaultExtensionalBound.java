@@ -196,7 +196,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 	DefaultExtensionalBound SetOfBoundSummedOut = new DefaultExtensionalBound(BoundSummedOut);
 	//Updating extreme points
 	DefaultExtensionalBound result = updateExtremes(SetOfBoundSummedOut,theory,context);		
-	result = normalize(result, theory, context);
+	//result = normalize(result, theory, context);
 	return result;
 	}
 	
@@ -223,7 +223,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound{
 			Context context, Theory theory){
 		Expression x = createSymbol("x");
 		Expression f = apply(TIMES, phi, x);		
-		bound = normalize(bound, theory, context);
+		//bound = normalize(bound, theory, context);
 		DefaultExtensionalBound phiTimesBound = applyFunctionToBound(f, x, bound, theory, context);	
 		
 		DefaultExtensionalBound result = summingBound(variablesToBeSummedOut, phiTimesBound, context, theory);
