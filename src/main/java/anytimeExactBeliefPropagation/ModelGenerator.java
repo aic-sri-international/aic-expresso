@@ -232,7 +232,7 @@ public class ModelGenerator {
 	 * @param m
 	 * @return
 	 */
-	public static Expression LVECalculation(Model m) {
+	public static Expression lveCalculation(Model m) {
 		return LVECalculation(m.getEntireGraph().getBs(),m.getQuery().getValue(),m.getContext(),m.getTheory());
 	}
 	
@@ -284,7 +284,7 @@ public class ModelGenerator {
 		}
 	}
 
-	public static Pair<Double,Double> MaxMinProbability(Bound b,Model m) {
+	public static Pair<Double,Double> maxMinProbability(Bound b,Model m) {
 		Context context = m.getContext();
 		Theory theory = m.getTheory();
 		Expression query = m.getQuery().getValue();

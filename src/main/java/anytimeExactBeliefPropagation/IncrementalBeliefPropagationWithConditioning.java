@@ -32,7 +32,7 @@ public class IncrementalBeliefPropagationWithConditioning {
 		AllExplored = false;
 	}
 	
-	public Bound ExpandAndComputeInference(Iterator<FactorNode> it) {
+	public Bound expandAndComputeInference(Iterator<FactorNode> it) {
 		if (it.hasNext()) {
 			model.ExpandModel(it);
 			Bound result = inference();

@@ -111,14 +111,14 @@ public class Tests {
 	}
 
 	private static void testFunction(String modelName, Model m, boolean printAll) {
-		Iterator<FactorNode> BFSExpander = new BFS(m);
+		Iterator<FactorNode> bfsExpander = new BFS(m);
 		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
 		println("Exploring " + modelName);
 		Bound inferenceResult = null;
 		double totalTime = 0;
-		while (BFSExpander.hasNext()) {
+		while (bfsExpander.hasNext()) {
 			long tStart = System.currentTimeMillis();
-			inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
+			inferenceResult = sbp.expandAndComputeInference(bfsExpander);
 			long tEnd = System.currentTimeMillis();
 			long tDelta = tEnd - tStart;
 			double time = tDelta / 1000.0;	
@@ -127,7 +127,7 @@ public class Tests {
 			// ModelGenerator.printModel(m, false);
 			if (printAll) {
 				println("Number of ExtremePoints : "+inferenceResult.getArguments().size());
-				Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
+				Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.maxMinProbability(inferenceResult, m);
 				println("Minimal probability of Query = true : " +
 						minAndMaxProbabilityofQueryequalsTrue.first +
 						"\nMaximal probability of Query = true :" +
@@ -142,7 +142,7 @@ public class Tests {
 			println(inferenceResult);
 		println("Computation with SGDPLL");
 		long tStart = System.currentTimeMillis();
-		Expression LVE = ModelGenerator.LVECalculation(m);
+		Expression LVE = ModelGenerator.lveCalculation(m);
 		long tEnd = System.currentTimeMillis();
 		long tDelta = tEnd - tStart;
 		double time = tDelta / 1000.0;	
@@ -156,14 +156,14 @@ public class Tests {
 		
 		int id = 0;
 		m.clearExploredGraph();
-		Iterator<FactorNode> BFSExpander = new BFS(m);
+		Iterator<FactorNode> bfsExpander = new BFS(m);
 		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
-		while (BFSExpander.hasNext()) {
+		while (bfsExpander.hasNext()) {
 			
 			TupleOfData t = new TupleOfData();
 			
 			long tStart = System.currentTimeMillis();
-			Bound inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
+			Bound inferenceResult = sbp.expandAndComputeInference(bfsExpander);
 			long tEnd = System.currentTimeMillis();
 			long tDelta = tEnd - tStart;
 			
@@ -173,7 +173,7 @@ public class Tests {
 			t.graphicalModelName = modelName;
 			t.id = id++;
 			t.numberOfExtremePoints = inferenceResult.getArguments().size();
-			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
+			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.maxMinProbability(inferenceResult, m);
 			t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
 			t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
 			t.IntervalLength = t.maxAndMaxProbabilityofQueryequalsTrue - t.minAndMaxProbabilityofQueryequalsTrue; 
@@ -191,9 +191,9 @@ public class Tests {
 		TupleOfData t = new TupleOfData();
 		
 		long tStart = System.currentTimeMillis();
-		Expression inferenceLVE = ModelGenerator.LVECalculation(m);
+		Expression inferenceLVE = ModelGenerator.lveCalculation(m);
 		Bound EncapsulatingInference = Bounds.makeSingleElementBound(inferenceLVE, true);
-		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(EncapsulatingInference, m);
+		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.maxMinProbability(EncapsulatingInference, m);
 		long tEnd = System.currentTimeMillis();
 		long tDelta = tEnd - tStart;
 		t.time= tDelta / 1000.0;	
@@ -231,17 +231,17 @@ List<TupleOfData> result = new ArrayList<TupleOfData>();
 		
 		int id = 0;
 		m.clearExploredGraph();
-		Iterator<FactorNode> BFSExpander = new BFS(m);
+		Iterator<FactorNode> bfsExpander = new BFS(m);
 		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
 		
 		double tTotalTime = 0;
 		
-		while (BFSExpander.hasNext()) {
+		while (bfsExpander.hasNext()) {
 			
 			TupleOfData t = new TupleOfData();
 			
 			long tStart = System.currentTimeMillis();
-			Bound inferenceResult = sbp.ExpandAndComputeInference(BFSExpander);
+			Bound inferenceResult = sbp.expandAndComputeInference(bfsExpander);
 			long tEnd = System.currentTimeMillis();
 			long tDelta = tEnd - tStart;
 			t.time = tDelta /1000.0;
@@ -253,7 +253,7 @@ List<TupleOfData> result = new ArrayList<TupleOfData>();
 			t.graphicalModelName = modelName;
 			t.id = id++;
 			t.numberOfExtremePoints = inferenceResult.getArguments().size();
-			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(inferenceResult, m);
+			Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.maxMinProbability(inferenceResult, m);
 			t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
 			t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
 			t.IntervalLength = t.maxAndMaxProbabilityofQueryequalsTrue - t.minAndMaxProbabilityofQueryequalsTrue; 
@@ -271,9 +271,9 @@ List<TupleOfData> result = new ArrayList<TupleOfData>();
 		TupleOfData t = new TupleOfData();
 		
 		long tStart = System.currentTimeMillis();
-		Expression inferenceLVE = ModelGenerator.LVECalculation(m);
-		Bound EncapsulatingInference = Bounds.makeSingleElementBound(inferenceLVE, true);
-		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.MaxMinProbability(EncapsulatingInference, m);
+		Expression inferenceLVE = ModelGenerator.lveCalculation(m);
+		Bound encapsulatingInference = Bounds.makeSingleElementBound(inferenceLVE, true);
+		Pair<Double, Double> minAndMaxProbabilityofQueryequalsTrue = ModelGenerator.maxMinProbability(encapsulatingInference, m);
 		long tEnd = System.currentTimeMillis();
 		long tDelta = tEnd - tStart;
 		t.time= tDelta / 1000.0;
