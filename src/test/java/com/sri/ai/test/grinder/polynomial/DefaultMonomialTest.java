@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.polynomial.api.Monomial;
 import com.sri.ai.grinder.polynomial.core.DefaultMonomial;
+import com.sri.ai.grinder.polynomial.core.MonomialSignatureComparator;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -87,27 +88,27 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testGetNumericConstantFactor() {
-		Assert.assertEquals(new Rational(0), makeMonomial("0").getNumericConstantFactor());
-		Assert.assertEquals(new Rational(0), makeMonomial("0*x^2").getNumericConstantFactor());
-		Assert.assertEquals(new Rational(1), makeMonomial("1").getNumericConstantFactor());
-		Assert.assertEquals(new Rational(-1), makeMonomial("-1").getNumericConstantFactor());
-		Assert.assertEquals(new Rational(2), makeMonomial("2").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(0), makeMonomial("0").getNumericFactor());
+		Assert.assertEquals(new Rational(0), makeMonomial("0*x^2").getNumericFactor());
+		Assert.assertEquals(new Rational(1), makeMonomial("1").getNumericFactor());
+		Assert.assertEquals(new Rational(-1), makeMonomial("-1").getNumericFactor());
+		Assert.assertEquals(new Rational(2), makeMonomial("2").getNumericFactor());
 		
 		// Ensure the numeric constant is set to 1 if not explicitly represented in the expression
-		Assert.assertEquals(new Rational(1), makeMonomial("x^2").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(1), makeMonomial("x^2").getNumericFactor());
 		
-		Assert.assertEquals(new Rational(4), makeMonomial("4*x^2").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(4), makeMonomial("4*x^2").getNumericFactor());
 		
-		Assert.assertEquals(new Rational(4), makeMonomial("y*4*x^2").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(4), makeMonomial("y*4*x^2").getNumericFactor());
 		
 		// Test that numerical constants are multiplied together
-		Assert.assertEquals(new Rational(8), makeMonomial("y^3*2*x^2*4").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(8), makeMonomial("y^3*2*x^2*4").getNumericFactor());
 		
 		// Test edge case where the numeric constant is represented as a power	
-		Assert.assertEquals(new Rational(8), makeMonomial("2^3*x^2").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(8), makeMonomial("2^3*x^2").getNumericFactor());
 		
 		// Test edge case where the numeric constant is represented as a power and a separate constant
-		Assert.assertEquals(new Rational(24), makeMonomial("2^3*x^2*3").getNumericConstantFactor());
+		Assert.assertEquals(new Rational(24), makeMonomial("2^3*x^2*3").getNumericFactor());
 	}
 	
 	@Test
@@ -349,57 +350,57 @@ public class DefaultMonomialTest {
 	public void testAreLikeTermsUnionOfFactors() {
 		Monomial m1 = makeMonomial("2");
 		Monomial m2 = makeMonomial("2");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2");
 		m2 = makeMonomial("3");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("x");
 		m2 = makeMonomial("x");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("x");
 		m2 = makeMonomial("y");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2");
 		m2 = makeMonomial("2*x");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*x");
 		m2 = makeMonomial("2*x");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*x^1");
 		m2 = makeMonomial("2*x");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*x");
 		m2 = makeMonomial("2*x^2");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*y^1*x");
 		m2 = makeMonomial("2*x^1*y");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*y^3*x^2");
 		m2 = makeMonomial("2*x^2*y^7");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*y^1*x");
 		m2 = makeMonomial("2*x^1*y*z^4");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 	}
 	
@@ -527,6 +528,10 @@ public class DefaultMonomialTest {
 		m2 = makeMonomial("x");		
 		Assert.assertEquals(makeMonomial("x^2"), m1.times(m2));
 		
+		m1 = makeMonomial("3*y");
+		m2 = makeMonomial("y");		
+		Assert.assertEquals(makeMonomial("3 * y^2"), m1.times(m2));
+		
 		m1 = makeMonomial("2*x^2");
 		m2 = makeMonomial("3*x^3");		
 		Assert.assertEquals(makeMonomial("6*x^5"), m1.times(m2));
@@ -617,19 +622,19 @@ public class DefaultMonomialTest {
 	public void testOrderedUnionOfNonNumericConstantFactors() {
 		Monomial m1 = makeMonomial("0");
 		Monomial m2 = makeMonomial("0");
-		Assert.assertEquals(Collections.emptyList(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
+		Assert.assertEquals(Collections.emptyList(), Monomial.orderedUnionOfNonNumericFactors(m1, m2));
 		
 		m1 = makeMonomial("x");
 		m2 = makeMonomial("x");
-		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), Monomial.orderedUnionOfNonNumericFactors(m1, m2));
 		
 		m1 = makeMonomial("x^2*y^3");
 		m2 = makeMonomial("y^2*x^3");
-		Assert.assertEquals(Expressions.parse("tuple(x, y)").getArguments(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
+		Assert.assertEquals(Expressions.parse("tuple(x, y)").getArguments(), Monomial.orderedUnionOfNonNumericFactors(m1, m2));
 		
 		m1 = makeMonomial("x^2*y^3");
 		m2 = makeMonomial("z^4*y^2*x^3");
-		Assert.assertEquals(Expressions.parse("tuple(x, y, z)").getArguments(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
+		Assert.assertEquals(Expressions.parse("tuple(x, y, z)").getArguments(), Monomial.orderedUnionOfNonNumericFactors(m1, m2));
 	}
 	
 	//
@@ -713,18 +718,19 @@ public class DefaultMonomialTest {
 	}
 	
 	@Test
-	public void testCompareTo() {
-		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^1")));
-		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^5")));
-		Assert.assertEquals(1, makeMonomial("10").compareTo(makeMonomial("5*x")));
-		Assert.assertEquals(1, makeMonomial("10").compareTo(makeMonomial("x^2")));
-		Assert.assertEquals(1, makeMonomial("5*x").compareTo(makeMonomial("x^2")));
+	public void testMonomialSignatureComparator() {
+		MonomialSignatureComparator comparator = new MonomialSignatureComparator();
+		Assert.assertEquals(-1, comparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^1")));
+		Assert.assertEquals(1, comparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
+		Assert.assertEquals(1, comparator.compare(makeMonomial("10"), makeMonomial("5*x")));
+		Assert.assertEquals(1, comparator.compare(makeMonomial("10"), makeMonomial("x^2")));
+		Assert.assertEquals(1, comparator.compare(makeMonomial("5*x"), makeMonomial("x^2")));
 		
-		Assert.assertEquals(0, makeMonomial("0").compareTo(makeMonomial("7")));
-		Assert.assertEquals(0, makeMonomial("2*x^2*y^3").compareTo(makeMonomial("4*x^2*y^3")));
+		Assert.assertEquals(0, comparator.compare(makeMonomial("0"), makeMonomial("7")));
+		Assert.assertEquals(0, comparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		
-		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^6")));		
-		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^5")));
+		Assert.assertEquals(1, comparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^6")));		
+		Assert.assertEquals(-1, comparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 	}
 	
 	//

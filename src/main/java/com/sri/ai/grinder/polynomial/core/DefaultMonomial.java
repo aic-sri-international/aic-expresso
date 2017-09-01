@@ -82,10 +82,9 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	private static final long serialVersionUID = 1L;
 	//
 	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
-	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
 	//
 	private int                       degree                          = 0;
-	private Expression                numericConstantFactorExpression = null; 
+	private Expression                numericFactorExpression = null; 
 	private List<Expression>          orderedNonNumericFactors        = null; // these include the exponents
 	private List<Rational>            orderedNonNumericFactorPowers   = null;
 	private Map<Expression, Rational> factorToPower                   = new LinkedHashMap<>();
@@ -98,8 +97,8 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	// START-Monomial
 	@Override
-	public Rational getNumericConstantFactor() {
-		return numericConstantFactorExpression.rationalValue();
+	public Rational getNumericFactor() {
+		return numericFactorExpression.rationalValue();
 	}
 
 	@Override
@@ -140,9 +139,9 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			else {
 				// Check if the numeric constant is to be considered part of the coefficient or not
 				// (i.e. could be included in set of given factors to exclude)
-				Rational resultNumericConstantFactor = Rational.ONE;
-				if (coefficientFactors.contains(this.numericConstantFactorExpression)) {
-					resultNumericConstantFactor = getNumericConstantFactor();
+				Rational resultNumericFactor = Rational.ONE;
+				if (coefficientFactors.contains(this.numericFactorExpression)) {
+					resultNumericFactor = getNumericFactor();
 				}
 				
 				List<Expression> resultOrderedFactors = new ArrayList<>(this.orderedNonNumericFactors.size());
@@ -154,7 +153,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 					}
 				}
 			
-				result = make(resultNumericConstantFactor, resultOrderedFactors, resultOrderedFactorPowers);
+				result = make(resultNumericFactor, resultOrderedFactors, resultOrderedFactorPowers);
 			}
 		}
 		
@@ -175,7 +174,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	@Override
 	public Monomial times(Monomial multiplier) {
 		Monomial result;
-		// Optimization: return 0 if either numeric constant factor is 0
+		// Optimization: return 0 if either numeric factor is 0
 		if (isZero() || multiplier.isZero()) {
 			result = ZERO;
 		}
@@ -186,16 +185,16 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			result = this;
 		}
 		else {
-			List<Expression> combinedNonNumericConstantFactors = Monomial.orderedUnionOfNonNumericConstantFactors(this, multiplier);
+			List<Expression> combinedNonNumericFactors = Monomial.orderedUnionOfNonNumericFactors(this, multiplier);
 			
-			List<Rational> thisSignature       = this.getSignature(combinedNonNumericConstantFactors);
-			List<Rational> multiplierSignature = multiplier.getSignature(combinedNonNumericConstantFactors);
+			List<Rational> thisSignature       = this.getSignature(combinedNonNumericFactors);
+			List<Rational> multiplierSignature = multiplier.getSignature(combinedNonNumericFactors);
 			
-			Rational resultNumericConstantFactor = getNumericConstantFactor().multiply(multiplier.getNumericConstantFactor());
+			Rational resultNumericFactor = getNumericFactor().multiply(multiplier.getNumericFactor());
 			
 			List<Rational> resultPowers = zipWith((power1, power2) -> power1.add(power2), thisSignature, multiplierSignature);
 			
-			result = make(resultNumericConstantFactor, combinedNonNumericConstantFactors, resultPowers);
+			result = make(resultNumericFactor, combinedNonNumericFactors, resultPowers);
 		}
 		
 		return result;
@@ -213,19 +212,19 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			result = new Pair<>(ZERO, ZERO);
 		} // TODO - will likely want to make this containsAll call more efficient by using sets.		
 		else if (getOrderedNonNumericFactors().containsAll(divisor.getOrderedNonNumericFactors())) {
-			List<Expression> combinedNonNumericConstantFactors = Monomial.orderedUnionOfNonNumericConstantFactors(this, divisor);
+			List<Expression> combinedNonNumericFactors = Monomial.orderedUnionOfNonNumericFactors(this, divisor);
 			
-			List<Rational> thisSignature    = this.getSignature(combinedNonNumericConstantFactors);
-			List<Rational> divisorSignature = divisor.getSignature(combinedNonNumericConstantFactors);
+			List<Rational> thisSignature    = this.getSignature(combinedNonNumericFactors);
+			List<Rational> divisorSignature = divisor.getSignature(combinedNonNumericFactors);
 						
-			Rational resultNumericConstantFactor = getNumericConstantFactor().divide(divisor.getNumericConstantFactor());
+			Rational resultNumericFactor = getNumericFactor().divide(divisor.getNumericFactor());
 			
 			List<Rational> resultPowers = zipWith((power1, power2) -> power1.subtract(power2), thisSignature, divisorSignature);
 			if (resultPowers.stream().anyMatch(power -> power.signum() == -1)) {
 				result = new Pair<>(ZERO, this); 
 			}
 			else {
-				result = new Pair<>(make(resultNumericConstantFactor, combinedNonNumericConstantFactors, resultPowers), ZERO);
+				result = new Pair<>(make(resultNumericFactor, combinedNonNumericFactors, resultPowers), ZERO);
 			}
 		}
 		else {
@@ -248,12 +247,12 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			result = this;
 		}
 		else {
-			Rational       resultNumericConstantFactor = getNumericConstantFactor().pow(exponent);
+			Rational       resultNumericFactor = getNumericFactor().pow(exponent);
 			List<Rational> resultPowers                = new ArrayList<>(orderedNonNumericFactorPowers.size());
 			
 			orderedNonNumericFactorPowers.forEach(currentPower -> resultPowers.add(currentPower.multiply(exponent)));
 			
-			result = make(resultNumericConstantFactor, orderedNonNumericFactors, resultPowers);
+			result = make(resultNumericFactor, orderedNonNumericFactors, resultPowers);
 		}
 		
 		return result;
@@ -265,7 +264,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	// START-Expression
 	@Override
 	public Monomial clone() {
-		Monomial result = make(getNumericConstantFactor(), orderedNonNumericFactors, orderedNonNumericFactorPowers);
+		Monomial result = make(getNumericFactor(), orderedNonNumericFactors, orderedNonNumericFactorPowers);
 		return result;
 	}
 	
@@ -285,18 +284,18 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		return result;
 	}
 	
-	@Override
-	public int compareTo(Object anotherObject) {
-		int result;
-		if (anotherObject instanceof Monomial) {
-			// Monomial compareTo logic is different than the standard expression compareTo logic
-			result = _monomialComparator.compare(this, (Monomial) anotherObject);
-		}
-		else {
-			result = super.compareTo(anotherObject);
-		}
-		return result;
-	}
+//	@Override
+//	public int compareTo(Object anotherObject) {
+//		int result;
+//		if (anotherObject instanceof Monomial) {
+//			// Monomial compareTo logic is different than the standard expression compareTo logic
+//			result = _monomialComparator.compare(this, (Monomial) anotherObject);
+//		}
+//		else {
+//			result = super.compareTo(anotherObject);
+//		}
+//		return result;
+//	}
 	
 	@Override
 	public String toString() {
@@ -348,31 +347,31 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		return result;
 	}
 	
-	static Monomial make(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
+	static Monomial make(Rational numericFactor, List<Expression> orderedNonNumericFactors, List<Rational> orderedNonNumericPowers) {
 		Monomial result;
 		
-		// if numeric constant is = 0 the whole expression is 0, so reduce to that.
-		if (numericConstantFactor.equals(Rational.ZERO)) {
+		// if numeric constant is 0, the whole expression is 0, so reduce to that.
+		if (numericFactor.equals(Rational.ZERO)) {
 			result = new DefaultMonomial(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
 		}
 		else {
-			List<Expression> factors = new ArrayList<>(orderedNonNumericConstantFactors.size());
-			List<Rational>   powers  = new ArrayList<>(orderedNonNumericConstantPowers.size());		
-			for (int i = 0; i < orderedNonNumericConstantPowers.size(); i++) {
-				Rational power = orderedNonNumericConstantPowers.get(i);
+			List<Expression> factors = new ArrayList<>(orderedNonNumericFactors.size());
+			List<Rational>   powers  = new ArrayList<>(orderedNonNumericPowers.size());		
+			for (int i = 0; i < orderedNonNumericPowers.size(); i++) {
+				Rational power = orderedNonNumericPowers.get(i);
 				// Power must not be negative as this is illegal for a monomial
 				if (power.signum() == -1) {
 					throw new IllegalArgumentException("Negative powers are not allowed.");
 				}
 				// 0 power means the factor is equivalent to 1 so we can just drop it.
 				if (power.signum() > 0) {
-					Expression factor = orderedNonNumericConstantFactors.get(i);
+					Expression factor = orderedNonNumericFactors.get(i);
 					factors.add(factor);
 					powers.add(power);				
 				}
 			}
 			
-			result = new DefaultMonomial(numericConstantFactor, factors, powers);
+			result = new DefaultMonomial(numericFactor, factors, powers);
 		}
 		
 		return result;
@@ -386,12 +385,12 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		Expression result;
 		
 		if (isNumericConstant()) {
-			result = numericConstantFactorExpression;
+			result = numericFactorExpression;
 		}
 		else {
 			List<Expression> args = new ArrayList<>(1+orderedNonNumericFactors.size());
-			if (!getNumericConstantFactor().equals(Rational.ONE)) {
-				args.add(numericConstantFactorExpression);
+			if (!getNumericFactor().equals(Rational.ONE)) {
+				args.add(numericFactorExpression);
 			}
 			
 			args.addAll(zipWith((base, power) -> {
@@ -422,15 +421,15 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	// PRIVATE
 	//
-	private DefaultMonomial(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
+	private DefaultMonomial(Rational numericFactor, List<Expression> orderedNonNumericFactors, List<Rational> orderedNonNumericPowers) {
 		// NOTE: we use Collections.unmodifiable<...> to ensure Monomials are immutable.
-		this.numericConstantFactorExpression  = Expressions.makeSymbol(numericConstantFactor);
-		this.orderedNonNumericFactors = Collections.unmodifiableList(orderedNonNumericConstantFactors);
-		this.orderedNonNumericFactorPowers  = Collections.unmodifiableList(orderedNonNumericConstantPowers);
+		this.numericFactorExpression  = Expressions.makeSymbol(numericFactor);
+		this.orderedNonNumericFactors = Collections.unmodifiableList(orderedNonNumericFactors);
+		this.orderedNonNumericFactorPowers  = Collections.unmodifiableList(orderedNonNumericPowers);
 		
-		this.factorToPower.put(this.numericConstantFactorExpression, Rational.ONE);
-		for (int i = 0; i < orderedNonNumericConstantFactors.size(); i++) {
-			this.factorToPower.put(orderedNonNumericConstantFactors.get(i), orderedNonNumericConstantPowers.get(i));
+		this.factorToPower.put(this.numericFactorExpression, Rational.ONE);
+		for (int i = 0; i < orderedNonNumericFactors.size(); i++) {
+			this.factorToPower.put(orderedNonNumericFactors.get(i), orderedNonNumericPowers.get(i));
 		}
 		
 		this.factorToPower = Collections.unmodifiableMap(this.factorToPower);
@@ -439,12 +438,12 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	}
 	
 	private static Monomial make(List<Expression> numericConstantsAndTerms) {
-		Rational numericConstantFactor = Rational.ONE;
+		Rational numericFactor = Rational.ONE;
 		
 		Map<Expression, Rational> factorToPower = new LinkedHashMap<>();
 		for (Expression numericConstantOrTerm : numericConstantsAndTerms) {
 			if (Expressions.isNumber(numericConstantOrTerm)) {
-				numericConstantFactor = numericConstantFactor.multiply(numericConstantOrTerm.rationalValue());
+				numericFactor = numericFactor.multiply(numericConstantOrTerm.rationalValue());
 			}
 			else { // Is a term				
 				Expression factor            = numericConstantOrTerm;
@@ -455,7 +454,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 				if (factor.hasFunctor(MINUS) && factor.numberOfArguments() == 1) {
 					factor = factor.get(0);
 					// i.e. same as having an explicit constant '-1' multiplicand in the expression
-					numericConstantFactor = numericConstantFactor.negate();
+					numericFactor = numericFactor.negate();
 					attemptFlattening = true;
 				}
 				
@@ -470,7 +469,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 					}
 					else if (!simplifiedPower.equals(factor.get(1))) {
 						// Use the simplified version of the non legal exponent in the factor
-						// i.e. is a non numeric constant factor where the exponent has been simplified
+						// i.e. is a non numeric factor where the exponent has been simplified
 						// as best as possible.
 						factor = apply(EXPONENTIATION_FUNCTOR, factor.get(0), simplifiedPower);
 					}
@@ -489,7 +488,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 					Monomial factorAsMonomial = make(Times.getMultiplicands(factor));
 					// Need to raise to the current power
 					factorAsMonomial      = factorAsMonomial.exponentiate(power.intValue());
-					numericConstantFactor = numericConstantFactor.multiply(factorAsMonomial.getNumericConstantFactor());
+					numericFactor = numericFactor.multiply(factorAsMonomial.getNumericFactor());
 					List<Expression> factors = factorAsMonomial.getOrderedNonNumericFactors();
 					List<Rational>   powers  = factorAsMonomial.getPowersOfNonNumericFactors();
 					int factorSize = factors.size();
@@ -504,7 +503,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		}
 		
 		Monomial result = null;
-		if (numericConstantFactor.equals(Rational.ZERO)) {
+		if (numericFactor.equals(Rational.ZERO)) {
 			result = ZERO;
 		}
 		else {
@@ -514,7 +513,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			List<Rational> orderedPowers = new ArrayList<>(orderedFactors.size());
 			orderedFactors.forEach(factor -> orderedPowers.add(factorToPower.get(factor)));
 			
-			result = make(numericConstantFactor, orderedFactors, orderedPowers);
+			result = make(numericFactor, orderedFactors, orderedPowers);
 		}
 		
 		return result;

@@ -53,7 +53,7 @@ public class PolynomialIntegration {
 		
 		// Get the integrals of its terms
 		List<Expression> integralsOfTerms = new ArrayList<>();
-		for (Monomial term : polynomial.getOrderedSummands()) {
+		for (Monomial term : polynomial.getMonomials()) {
 			// indefinite integral of the term is:
 			// &#x222b; a*x^n dx = a*(x^(n+1)/(n+1) + C		
 			// NOTE: we do not need to worry about the case where n = -1 (i.e. division by zero case)
@@ -126,7 +126,7 @@ public class PolynomialIntegration {
 	private static Polynomial replaceFactor(Polynomial q, Expression variable, Expression limit, List<Expression> variablesToIncludeInResult) {
 		List<Expression> replacedTerms = new ArrayList<>();
 		
-		for (Monomial term : q.getOrderedSummands()) {
+		for (Monomial term : q.getMonomials()) {
 			List<Expression> replacedFactorsInTerm = new ArrayList<>();
 			for (Expression factor : term.getFactors()) {
 				Rational powerOfFactor = term.getPowerOfFactor(factor);

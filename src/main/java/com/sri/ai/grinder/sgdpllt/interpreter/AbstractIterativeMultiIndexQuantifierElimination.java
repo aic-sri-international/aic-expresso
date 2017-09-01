@@ -18,6 +18,20 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.util.collect.StackedHashMap;
 
+/**
+ * An abstract class for quantifier eliminators using a simple (total or sampled)
+ * iteration over the domain of the eliminated variables.
+ * <p>
+ * The current assignment to the eliminated variables is kept in the {@link Context}'s
+ * global object with key {@link #ASSIGNMENTS_GLOBAL_OBJECTS_KEY},
+ * which can be extended with {@link #extendAssignments(Map, Context)}.
+ * This same assignment is also used by top rewriters in implementations of
+ * {@link AbstractInterpreter} to simplify variables.
+ * <p>
+ * 
+ * @author braz
+ *
+ */
 public abstract class AbstractIterativeMultiIndexQuantifierElimination extends AbstractMultiIndexQuantifierEliminator {
 
 	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;

@@ -42,9 +42,16 @@ import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.conditio
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.isIfThenElse;
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.thenBranch;
+import static com.sri.ai.util.Util.in;
+import static com.sri.ai.util.Util.println;
+
+import java.util.Map;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -53,7 +60,10 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 /**
  * An abstract implementation for step solvers for quantified expressions
@@ -114,6 +124,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
 	
 	private Context initialContextForBody;
+	
+	/**
+	 * Key for {@link Context} global object indicating whether to compare non-conditional solutions with the result provided by {@link BruteForceCommonInterpreter};
+	 * check is done if key is present.
+	 */
+	public static final String BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS = "Brute force checking of non-conditional problems";
 
 	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
 		this.group = group;
@@ -268,6 +284,41 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				result
 				= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 						indexConstraint, bodyStep.getValue(), context);
+			}
+		}
+		
+		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
+			if ( ! result.itDepends()) {
+				Expression problem = group.makeProblemExpression(getIndex(), context.getTypeExpressionOfRegisteredSymbol(getIndex()), getIndexConstraint(), getBody());
+				Set<Expression> freeVariables = Expressions.freeVariables(problem, context);
+				AssignmentsIterator assignments = new AssignmentsIterator(freeVariables, context);
+				for (Map<Expression, Expression> assignment : in(assignments)) {
+					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
+					Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
+					// Only go on if the assignment satisfies the context:
+					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
+						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problem, extendedContext);
+						Expression resultGivenAssignment = bruteForceCommonInterpreter.apply(result.getValue(), extendedContext);
+						Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problem, extendedContext);
+						if ( ! bruteForceResult.equals(resultGivenAssignment)) {
+							String message = 
+									"Disagreement on " + problem + "\nunder " + assignment + ".\n"
+											+ "Context: " + context + ".\n"
+											+ "Evaluated problem: " + evaluatedProblem + ".\n"
+											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
+							println(message);
+							throw new Error(message);
+						}
+						else {
+							String message = 
+									"Agreement on " + problem + "\nunder " + assignment + ".\n"
+											+ "Context: " + context + ".\n"
+											+ "Evaluated problem: " + evaluatedProblem + ".\n"
+											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
+							println(message);
+						}
+					}
+				}
 			}
 		}
 

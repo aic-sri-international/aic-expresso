@@ -72,6 +72,11 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheoryTestingSupport;
 import com.sri.ai.util.Util;
 
+/**
+ * Interface for wrappers around {@link Theory} objects that know how to generate problems for testing.
+ * @author braz
+ *
+ */
 @Beta
 public interface TheoryTestingSupport {	
 	/**
@@ -89,8 +94,7 @@ public interface TheoryTestingSupport {
 	/**
 	 * Set the random to be used for testing support.
 	 * 
-	 * @param random
-	 *            the random to use.
+	 * @param random   the random to use.
 	 */
 	void setRandom(Random random);
 
@@ -275,6 +279,24 @@ public interface TheoryTestingSupport {
 		return result;
 	}
 	
+	/**
+	 * Creates an appropriate {@link TheoryTestingSupport} object given a {@link Theory} and a {@link Random}.
+	 * Recognized theories are:
+	 * <ul>
+	 * <li> {@link CompoundTheory}
+	 * <li> {@link DifferenceArithmeticTheory}
+	 * <li> {@link EqualityTheory}
+	 * <li> {@link LinearRealArithmeticTheory}
+	 * <li> {@link PropositionalTheory}
+	 * <li> {@link BruteForceFunctionTheory}
+	 * <li> {@link TupleTheory}
+	 * </ul>
+	 * <p>
+	 * An {@link UnsupportedOperationException} is thrown if an unrecognized theory is provided.
+	 * @param random
+	 * @param theory
+	 * @return
+	 */
 	static TheoryTestingSupport make(Random random, Theory theory) {
 		TheoryTestingSupport result;
 		

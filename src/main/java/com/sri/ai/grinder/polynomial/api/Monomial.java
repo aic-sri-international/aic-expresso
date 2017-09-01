@@ -47,8 +47,8 @@ import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
- * A monomial is a product of factors, where the numeric constant factor (if
- * any) is the first argument and the non-numeric constant factors are in order.<br>
+ * A monomial is a product of factors, where the numeric factor (if
+ * any) is the first argument and the non-numeric factors are in order.<br>
  * 
  * Examples: <br>
  * 
@@ -69,10 +69,10 @@ import com.sri.ai.util.math.Rational;
 public interface Monomial extends Expression {
 	/**
 	 * 
-	 * @return the numeric constant of the monomial (if not explicitly defined
+	 * @return the numeric factor of the monomial (if not explicitly defined
 	 *         is 1).
 	 */
-	Rational getNumericConstantFactor();
+	Rational getNumericFactor();
 
 	/**
 	 * 
@@ -88,7 +88,7 @@ public interface Monomial extends Expression {
 	 * @return true if this monomial is equivalent to the numeric constant zero.
 	 */
 	default boolean isZero() {
-		boolean result = getNumericConstantFactor().equals(Rational.ZERO);
+		boolean result = getNumericFactor().equals(Rational.ZERO);
 		return result;
 	}
 
@@ -97,7 +97,7 @@ public interface Monomial extends Expression {
 	 * @return true if this monomial is equivalent to the numeric constant one.
 	 */
 	default boolean isOne() {
-		boolean result = getNumericConstantFactor().equals(Rational.ONE)
+		boolean result = getNumericFactor().equals(Rational.ONE)
 				&& getOrderedNonNumericFactors().size() == 0;
 		return result;
 	}
@@ -114,22 +114,22 @@ public interface Monomial extends Expression {
 	 * </pre>
 	 * 
 	 * @return a Set representation of the factors contained within the Monomial
-	 *         (this includes the numeric constant factor).
+	 *         (this includes the numeric factor).
 	 */
 	Set<Expression> getFactors();
 
 	/**
-	 * Get a unique list, ordered, of the non-numeric constant factors in the
+	 * Get a unique list, ordered, of the non-numeric factors in the
 	 * monomial.
 	 * 
-	 * @return an ordered list of the non-numeric constant factors contained in
+	 * @return an ordered list of the non-numeric factors contained in
 	 *         the monomial.
 	 */
 	List<Expression> getOrderedNonNumericFactors();
 
 	/**
 	 * 
-	 * @return the powers of the non-numeric constant factors in the monomial,
+	 * @return the powers of the non-numeric factors in the monomial,
 	 *         which map to the order of these factors.
 	 */
 	List<Rational> getPowersOfNonNumericFactors();
@@ -193,9 +193,9 @@ public interface Monomial extends Expression {
 
 	/**
 	 * Convenience method that gets the signature of this Monomial using the
-	 * non-numeric constant factors contained within.
+	 * non-numeric factors contained within.
 	 * 
-	 * @return the tuple of the powers of the non-numeric constant factors that
+	 * @return the tuple of the powers of the non-numeric factors that
 	 *         are in this Monomial.
 	 */
 	default List<Rational> getSignature() {
@@ -241,27 +241,27 @@ public interface Monomial extends Expression {
 	}
 
 	/**
-	 * Convenience method that uses the combined non-numeric constant factors
-	 * from this and the other Monomial to call areLikeTerms(other,
-	 * combinedNonNumericConstantFactors).
+	 * Convenience method that uses the ordered union of non-numeric factors
+	 * from this and the other Monomial to provide the second argument to 
+	 * {@link #areLikeTerms(Monomial, List)}.
 	 * 
 	 * @param other
 	 *            the monomial to check if a like term to this monomial.
-	 * @return true if are like terms based on the combined non-numeric constant
+	 * @return true if are like terms based on the combined non-numeric 
 	 *         factors, false otherwise.
 	 */
 	default boolean areLikeTerms(Monomial other) {
-		List<Expression> combinedNonNumericConstantFactors = Monomial
-				.orderedUnionOfNonNumericConstantFactors(this, other);
+		List<Expression> combinedNonNumericFactors = 
+				Monomial.orderedUnionOfNonNumericFactors(this, other);
 
-		boolean result = areLikeTerms(other, combinedNonNumericConstantFactors);
+		boolean result = areLikeTerms(other, combinedNonNumericFactors);
 
 		return result;
 	}
 
 	/**
 	 * The degree of a monomial is the sum of the exponents of all its
-	 * non-numeric constant factors (numeric constant factors have a degree of
+	 * non-numeric factors (numeric factors have a degree of
 	 * 0).
 	 * 
 	 * @return the degree of the monomial.
@@ -305,17 +305,17 @@ public interface Monomial extends Expression {
 	Monomial exponentiate(int exponent) throws IllegalArgumentException;
 
 	/**
-	 * Create an ordered union (no duplicates) of the non-numeric constant
+	 * Create an ordered union (no duplicates) of the non-numeric
 	 * factors contained in two Monomials.
 	 * 
 	 * @param m1
 	 *            the first monomial.
 	 * @param m2
 	 *            the second monomial.
-	 * @return the ordered union (no duplicates) of the non-numeric constant
+	 * @return the ordered union (no duplicates) of the non-numeric
 	 *         factors contained in two Monomials.
 	 */
-	public static List<Expression> orderedUnionOfNonNumericConstantFactors(
+	public static List<Expression> orderedUnionOfNonNumericFactors(
 			Monomial m1, Monomial m2) {
 		List<Expression> m1Factors = m1.getOrderedNonNumericFactors();
 		List<Expression> m2Factors = m2.getOrderedNonNumericFactors();
@@ -323,7 +323,7 @@ public interface Monomial extends Expression {
 		List<Expression> result = new ArrayList<>(m1Factors.size()
 				+ m2Factors.size());
 
-		// NOTE: we know m1 and m2's non-numeric constant factors are
+		// NOTE: we know m1 and m2's non-numeric factors are
 		// ordered, which we can take advantage of to perform the
 		// ordered union more efficiently.
 		int m1FactorsSize = m1Factors.size();

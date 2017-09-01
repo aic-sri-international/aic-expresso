@@ -58,7 +58,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class MonomialComparator implements Comparator<Monomial> {
+public class MonomialSignatureComparator implements Comparator<Monomial> {
 
 	private List<Expression> variables = null;
 
@@ -67,7 +67,7 @@ public class MonomialComparator implements Comparator<Monomial> {
 	 * of the given monomials under comparison to determine the factors to use
 	 * when retrieving their signatures.
 	 */
-	public MonomialComparator() {
+	public MonomialSignatureComparator() {
 
 	}
 
@@ -78,7 +78,7 @@ public class MonomialComparator implements Comparator<Monomial> {
 	 *            The variables to use when retrieving the signatures of
 	 *            given monomials that are being compared.
 	 */
-	public MonomialComparator(List<Expression> variables) {
+	public MonomialSignatureComparator(List<Expression> variables) {
 		this.variables = new ArrayList<>(variables);
 	}
 
@@ -129,7 +129,7 @@ public class MonomialComparator implements Comparator<Monomial> {
 		// no variables defined, then fall back on the union of the
 		// non-numeric constants factors of the given monomials.
 		if (result == null) {
-			result = Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2);
+			result = Monomial.orderedUnionOfNonNumericFactors(m1, m2);
 		}
 
 		return result;

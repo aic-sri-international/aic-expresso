@@ -98,7 +98,7 @@ public class PolynomialSummation {
 			tCoefficients.add(Expressions.ZERO);
 		}
 		for (int i = 0; i < summandAsPolynomialOfIndex.numberOfTerms(); i++) {
-			Monomial term = summandAsPolynomialOfIndex.getOrderedSummands().get(i);
+			Monomial term = summandAsPolynomialOfIndex.getMonomials().get(i);
 			tCoefficients.set(term.getPowerOfFactor(indexOfSummation).intValue(), term.getCoefficient(indexVariable));
 		}
 		
@@ -118,7 +118,7 @@ public class PolynomialSummation {
 			Polynomial rPolynomial = rPolynomials.get(i);
 			for (int q = 0; q <= i; q++) {
 				Pair<Integer, Integer> indexKey = new Pair<>(i, q);
-				Monomial rqxq = rPolynomial.getSignatureTermMap().get(Arrays.asList(new Rational(q)));
+				Monomial rqxq = rPolynomial.getMapFromSignatureToMonomial().get(Arrays.asList(new Rational(q)));
 				if (rqxq == null) {
 					indexedRCoefficient.put(indexKey, Expressions.ZERO);
 				}

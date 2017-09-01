@@ -122,6 +122,9 @@ public class PolynomialSummationTest {
 	
 	@Test
 	public void testUnknownUpperAndLowerBoundsWithFreeVariablesInTerms() {		
+		Assert.assertEquals(makePolynomial("3*y^2",  "tuple(y)"), 
+				polynomialSummationSum("x", "0", "y", "3*y"));
+
 		Assert.assertEquals(makePolynomial("-1*w*y + w*z + -1.5*y^2 + 1.5*z^2 + w + -6.5*y + 9.5*z + 8",  "tuple(x)"), 
 				polynomialSummationSum("x", "y + 1", "z + 2", "3*x + w + 2"));
 		// y = -1, z = -1 => w + 5 (if y and z substituted into above expression)

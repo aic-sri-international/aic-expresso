@@ -83,7 +83,7 @@ public class SGDPLLT extends AbstractMultiIndexQuantifierEliminator {
 		
 		if (numberOfIndices != 0) {
 			// Re-use {@link SingleVariableConstraint} if condition is one.
-			// TODO: eventually we want the algorithm to work so that it splitters may be entire constraints,
+			// TODO: eventually we want the algorithm to work so that splitters may be entire constraints,
 			// if they are found. Then this encoding would become superfluous,
 			// and the condition could always be safely encoded in the body, since it would then be picked and re-used.
 			// This would also re-use body if it happens to be a constraint.

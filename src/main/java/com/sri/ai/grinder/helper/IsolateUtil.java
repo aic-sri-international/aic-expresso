@@ -167,9 +167,9 @@ public class IsolateUtil {
 		Monomial isolated = null;		
 		// Compute Alpha
 		List<Expression> alphaTerms = new ArrayList<>();
-		for (Monomial similarTerm : leftSimilarPolynomial.getOrderedSummands()) {
+		for (Monomial similarTerm : leftSimilarPolynomial.getMonomials()) {
 			List<Expression> dissimilarFactors = new ArrayList<>();
-			dissimilarFactors.add(Expressions.makeSymbol(similarTerm.getNumericConstantFactor()));
+			dissimilarFactors.add(Expressions.makeSymbol(similarTerm.getNumericFactor()));
 			for (Expression factor : similarTerm.getOrderedNonNumericFactors()) {
 				if (factor.equals(linearVariableToIsolate)) {
 					if (isolated == null) {
@@ -235,7 +235,7 @@ public class IsolateUtil {
 	public static Pair<List<Monomial>, List<Monomial>> splitIntoSimilarAndDissimilarTerms(Polynomial polynomial, Expression generalizedVariable) {
 		Pair<List<Monomial>, List<Monomial>> result = new Pair<>(new ArrayList<>(), new ArrayList<>());
 		
-		for (Monomial term : polynomial.getOrderedSummands()) {
+		for (Monomial term : polynomial.getMonomials()) {
 			if (term.getFactors().contains(generalizedVariable)) {
 				result.first.add(term);
 			}
@@ -264,8 +264,8 @@ public class IsolateUtil {
 		Expression result = operator;
 		if (!isEquality(operator)) {
 			Rational alphaCoefficientProduct = Rational.ONE;
-			for (Monomial alphaTerm : alpha.getOrderedSummands()) {
-				alphaCoefficientProduct = alphaCoefficientProduct.multiply(alphaTerm.getNumericConstantFactor());
+			for (Monomial alphaTerm : alpha.getMonomials()) {
+				alphaCoefficientProduct = alphaCoefficientProduct.multiply(alphaTerm.getNumericFactor());
 			}
 			if (alphaCoefficientProduct.isNegative()) {
 				result = flipInequalityOperator(operator);

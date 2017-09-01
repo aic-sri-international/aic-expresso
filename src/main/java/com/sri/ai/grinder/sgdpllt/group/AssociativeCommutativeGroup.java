@@ -100,9 +100,9 @@ public interface AssociativeCommutativeGroup {
 	/**
 	 * Generates an expression representing of problem of this type, given its components. 
 	 * @param index
+	 * @param indexType
 	 * @param constraint
 	 * @param body
-	 * @param context
 	 * @return
 	 */
 	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);

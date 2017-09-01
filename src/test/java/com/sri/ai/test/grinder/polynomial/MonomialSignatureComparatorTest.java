@@ -43,10 +43,10 @@ import org.junit.Test;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.polynomial.api.Monomial;
 import com.sri.ai.grinder.polynomial.core.DefaultMonomial;
-import com.sri.ai.grinder.polynomial.core.MonomialComparator;
+import com.sri.ai.grinder.polynomial.core.MonomialSignatureComparator;
 
-public class MonomialComparatorTest {
-	private MonomialComparator comparator = new MonomialComparator();
+public class MonomialSignatureComparatorTest {
+	private MonomialSignatureComparator comparator = new MonomialSignatureComparator();
 	
 	@Test
 	public void testCompareDefaultConstructor() {
@@ -62,63 +62,63 @@ public class MonomialComparatorTest {
 	
 	@Test
 	public void testCompareVariableConstructor() {
-		MonomialComparator variablesComparator;
+		MonomialSignatureComparator variablesComparator;
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(1)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(1)").getArguments());	
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(2)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(2)").getArguments());	
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(x)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(x)").getArguments());	
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(y)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(y)").getArguments());	
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(w)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(w)").getArguments());	
 		Assert.assertEquals(1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(z)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(z)").getArguments());	
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(x, y)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(x, y)").getArguments());	
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(w, x)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(w, x)").getArguments());	
 		Assert.assertEquals(1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(x, w)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(x, w)").getArguments());	
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^5")));
 		
-		variablesComparator = new MonomialComparator(Expressions.parse("tuple(x, z)").getArguments());	
+		variablesComparator = new MonomialSignatureComparator(Expressions.parse("tuple(x, z)").getArguments());	
 		Assert.assertEquals(-1, variablesComparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^5")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("0"), makeMonomial("7")));
 		Assert.assertEquals(0, variablesComparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));

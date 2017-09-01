@@ -59,21 +59,29 @@ import com.sri.ai.util.math.Rational;
  * monomials are like terms to each other wrt <em>F</em>, and monomials are in
  * order according to "comes before" wrt <em>F</em>.
  * 
+ * For example, if <em>F</em> is a singleton tuple <code>(x)</code>,
+ * the polynomial representation of <code>2*x*y + 2*x*y^2<code>
+ * must be <code>(2*y + 2*y^2)*x<code> (a single monomial)
+ * because the two terms are like terms with respect to <code>(x)</code>,
+ * whereas if <em>F</em> is <code>(x,y)</code>, then
+ * its polynomial representation would be <code>2*x*y + 2*x*y^2<code>
+ * (two monomials) because the two monomials are not like terms
+ * wrt <code>(x,y)</code>.
+ * 
  * Note that the variables can be any tuple of given expressions, and not just symbols.
  * This allows polynomials defined on more complex, unknown, terms.
  * For example, we may not know what a set <em>D</em> is, but need to
  * represent a polynomial on its cardinality: <em>2*|D|^2 + |D|</em>.
  * 
- * A "signature" (with respect to variables)
- * of a monomial is the list of powers associated
- * to each of the variables.
+ * A "signature" (with respect to a tuple of variables <emF</em>)
+ * of a monomial is the list of powers of each variable in the monomial.
  * Note that the variables are ordered,
  * and the signature follows that order.
  * For example, the monomial <em>x^2*y</em> has signature <code>(2,1)</code>
  * for variables <em>(x,y)</em>.
  * The choice of the word "signature" for this concept is due to the
  * fact that the signature of a monomial "gives away its identity"
- * and forces it to be grouped with other monomials of the same signature
+ * and forces it to be grouped with other monomials of the same signature (like terms)
  * when summed in a polynomial. 
  * 
  * Therefore:<br>
@@ -106,18 +114,19 @@ public interface Polynomial extends Expression {
 	
 	
 	/**
-	 *
-	 * @return the signature term map for this polynomial (NOTE: no two terms
-	 *         have the same signature in this representation).
+	 * Returns the signature term map for this polynomial.
+	 * The signature term map is a map from signatures (lists of {@link Rational}s)
+	 * to the (unique) monomial in the polynomial with that signature.
+	 * @return the signature term map for this polynomial.
 	 */
-	Map<List<Rational>, Monomial> getSignatureTermMap();
+	Map<List<Rational>, Monomial> getMapFromSignatureToMonomial();
 
 	/**
 	 * 
 	 * @return true if this Polynomial is equivalent to a Monomial.
 	 */
 	default boolean isMonomial() {
-		boolean result = getOrderedSummands().size() == 1;
+		boolean result = getMonomials().size() == 1;
 		return result;
 	}
 
@@ -135,7 +144,7 @@ public interface Polynomial extends Expression {
 					+ ", is not a monomial");
 		}
 	
-		Monomial result = getOrderedSummands().get(0);
+		Monomial result = getMonomials().get(0);
 	
 		return result;
 	}
@@ -145,15 +154,15 @@ public interface Polynomial extends Expression {
 	 * @return the number of terms in this polynomial.
 	 */
 	default int numberOfTerms() {
-		int result = getOrderedSummands().size();
+		int result = getMonomials().size();
 		return result;
 	}
 	
 	/**
 	 * 
-	 * @return the monomial summands of this polynomial.
+	 * @return a list of monomials in this polynomial (ordered by signature).
 	 */
-	List<Monomial> getOrderedSummands();
+	List<Monomial> getMonomials();
 	
 	/**
 	 * 
@@ -191,7 +200,7 @@ public interface Polynomial extends Expression {
 		// Default implementation makes assumption that the polynomial
 		// is represented in canonical form with terms with the highest
 		// degree listed first.
-		int result = getOrderedSummands().get(0).degree();
+		int result = getMonomials().get(0).degree();
 		return result;
 	}
 
