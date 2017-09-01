@@ -652,7 +652,7 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("(2 + 3) + 10"), p.set(0, parse("2 + 3")));
 	}
 	
-	@Test
+	//@Test // unclear compareTo is needed; and if so, should be a separate comparator, not a overriding compareTo method that does not agree with equals.
 	public void testCompareTo() {		
 		assertEquals(1, makePolynomial("10", "(x, y)").compareTo(makePolynomial("5*x", "(x, y)")));
 		assertEquals(1, makePolynomial("10", "(x, y)").compareTo(makePolynomial("x^2", "(x, y)")));

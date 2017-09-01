@@ -284,19 +284,6 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		return result;
 	}
 	
-//	@Override
-//	public int compareTo(Object anotherObject) {
-//		int result;
-//		if (anotherObject instanceof Monomial) {
-//			// Monomial compareTo logic is different than the standard expression compareTo logic
-//			result = _monomialComparator.compare(this, (Monomial) anotherObject);
-//		}
-//		else {
-//			result = super.compareTo(anotherObject);
-//		}
-//		return result;
-//	}
-	
 	@Override
 	public String toString() {
 		return toString(0);

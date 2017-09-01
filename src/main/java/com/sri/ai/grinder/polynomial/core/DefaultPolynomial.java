@@ -519,50 +519,54 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		return result;
 	}
 	
-	@Override
-	public int compareTo(Object anotherObject) {
-		int result;
-		if (anotherObject instanceof Monomial) {
-			// NOTE: Don't know the monomials signature of factors, so work with assumption are the same
-			// if being compared to.
-			result = monomialComparator.compare(getMonomials().get(0), (Monomial) anotherObject);
-		}
-		else if (anotherObject instanceof Polynomial) {
-			result = 0; // Set to something, we are guaranteed to go through the following for loop 
-			Polynomial otherPolynomial = (Polynomial) anotherObject;
-			if (this.getVariables().equals(otherPolynomial.getVariables())) {
-				for (int i = 0, j = 0; i < this.getMonomials().size() && j < otherPolynomial.getMonomials().size(); i++, j++) {
-					result = monomialComparator.compare(getMonomials().get(i), otherPolynomial.getMonomials().get(j));
-					if (result != 0) {
-						break;
-					}
-				}
-				if (result == 0) {
-					if (this.getMonomials().size() > otherPolynomial.getMonomials().size()) {
-						result = -1;
-					}
-					else if (this.getMonomials().size() < otherPolynomial.getMonomials().size()) {
-						result = 1;
-					}
-				}
-			}
-			else {
-				// Can only compare degrees of leading term as they have different variables
-				result = otherPolynomial.getMonomials().get(0).degree() - getMonomials().get(0).degree();
-				// Ensure we normalize.
-				if (result < 0) {
-					result = -1;
-				}
-				else if (result > 0) {
-					result = 1;
-				}
-			}
-		}
-		else {
-			result = super.compareTo(anotherObject);
-		}
-		return result;
-	}
+// It is unclear why this compareTo method is needed (Sept 2017);
+// And even if it is, it would need to be a separate comparator, not
+// an overridding compareTo method that does not agree with equals and hashCode.
+//	@Override
+//	public int compareTo(Object anotherObject) {
+//		throw new Error("Using DefaultPolynomial.compareTo that is not reflected in equals and hashCode");
+////		int result;
+////		if (anotherObject instanceof Monomial) {
+////			// NOTE: Don't know the monomials signature of factors, so work with assumption are the same
+////			// if being compared to.
+////			result = monomialComparator.compare(getMonomials().get(0), (Monomial) anotherObject);
+////		}
+////		else if (anotherObject instanceof Polynomial) {
+////			result = 0; // Set to something, we are guaranteed to go through the following for loop 
+////			Polynomial otherPolynomial = (Polynomial) anotherObject;
+////			if (this.getVariables().equals(otherPolynomial.getVariables())) {
+////				for (int i = 0, j = 0; i < this.getMonomials().size() && j < otherPolynomial.getMonomials().size(); i++, j++) {
+////					result = monomialComparator.compare(getMonomials().get(i), otherPolynomial.getMonomials().get(j));
+////					if (result != 0) {
+////						break;
+////					}
+////				}
+////				if (result == 0) {
+////					if (this.getMonomials().size() > otherPolynomial.getMonomials().size()) {
+////						result = -1;
+////					}
+////					else if (this.getMonomials().size() < otherPolynomial.getMonomials().size()) {
+////						result = 1;
+////					}
+////				}
+////			}
+////			else {
+////				// Can only compare degrees of leading term as they have different variables
+////				result = otherPolynomial.getMonomials().get(0).degree() - getMonomials().get(0).degree();
+////				// Ensure we normalize.
+////				if (result < 0) {
+////					result = -1;
+////				}
+////				else if (result > 0) {
+////					result = 1;
+////				}
+////			}
+////		}
+////		else {
+////			result = super.compareTo(anotherObject);
+////		}
+////		return result;
+//	}
 	
 	@Override
 	public String toString() {
@@ -592,8 +596,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	//
 	// PRIVATE
 	//
-	private DefaultPolynomial(List<Monomial> summands,
-			List<Expression> variables) {
+	private DefaultPolynomial(List<Monomial> summands, List<Expression> variables) {
 		// NOTE: we use Collections.unmodifiable<...> to ensure Polynomials are
 		// immutable.
 		this.monomialComparator = new MonomialSignatureComparator(variables);
@@ -618,11 +621,10 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		}
 	}
 
-	private static Polynomial makeFromMonomial(Expression monomialExpression,
-			List<Expression> variables) {
+	private static Polynomial makeFromMonomial(Expression monomialExpression, List<Expression> variables) {
 		Monomial monomial = DefaultMonomial.make(monomialExpression);
 		if (!monomial.isNumericConstant()) {
-			// Need to pull out the factors are to be treated together as a single constant
+			// Need to pull out the factors that need to be treated together as a single factor
 			// based on the polynomial's signature of factors.
 			Monomial coefficient = monomial.getCoefficient(variables);
 			if (!coefficient.isNumericConstant()) {
