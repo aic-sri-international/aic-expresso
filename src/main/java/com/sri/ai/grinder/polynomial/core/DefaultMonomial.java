@@ -137,6 +137,9 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 				result = this;
 			}
 			else {
+				// TODO: (Sept 2017) This treatment of coefficient factors (basically, combining factors into a single one)
+				// seems overly complicated and unnecessary.
+
 				// Check if the numeric constant is to be considered part of the coefficient or not
 				// (i.e. could be included in set of given factors to exclude)
 				Rational resultNumericFactor = Rational.ONE;

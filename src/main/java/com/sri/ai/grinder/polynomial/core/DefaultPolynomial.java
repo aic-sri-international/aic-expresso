@@ -624,6 +624,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	private static Polynomial makeFromMonomial(Expression monomialExpression, List<Expression> variables) {
 		Monomial monomial = DefaultMonomial.make(monomialExpression);
 		if (!monomial.isNumericConstant()) {
+			// TODO: (Sept 2017) This treatment of coefficient factors (basically, combining factors into a single one)
+			// seems overly complicated and unnecessary.
+			
 			// Need to pull out the factors that need to be treated together as a single factor
 			// based on the polynomial's signature of factors.
 			Monomial coefficient = monomial.getCoefficient(variables);
