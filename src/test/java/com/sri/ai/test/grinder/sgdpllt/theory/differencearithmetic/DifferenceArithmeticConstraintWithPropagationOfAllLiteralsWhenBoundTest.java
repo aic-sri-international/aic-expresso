@@ -62,14 +62,28 @@ public class DifferenceArithmeticConstraintWithPropagationOfAllLiteralsWhenBound
 	
 	@Test
 	public void debugginTests() {
+		// Problems that revealed bugs in the past.
+		// Running them in debug mode that compares not only final result, but all non-conditional sub-problem results.
+		
+		Expression problem;
+		
+		problem = parse("sum({{ ( on K in 0..4 ) sum({{ ( on J in 0..4 ) sum({{ ( on I in 0..4 ) if K + 4 >= 0 then if J < 1 then if I = K + 4 then 8 else 3 else if K >= J then 3 else 2 else if I <= 4 then if I = 3 then 4 else 1 else if J + 1 > 0 then 8 else 0 : (K > I) and (K > 0) and (K > J + -3) }}) }}) }})");
+		debug(problem);
+		
+		problem = parse("sum({{ ( on K in 0..4 ) sum({{ ( on J in 0..4 ) sum({{ ( on I in 0..4 ) if J <= 0 then if K < J + 4 then if J <= I then 5 else 5 else if I > 0 then 6 else 2 else if K >= J then if J + 3 = 0 then 9 else 4 else if K = 0 then 7 else 7 : I <= K + -1 }}) }}) }})");
+		debug(problem);
+	}
+
+	/**
+	 * @param problem
+	 */
+	public void debug(Expression problem) {
 		Theory theory = new DifferenceArithmeticTheory(true, true);
 		
 		Context context = new TrueContext(theory);
 		
 		context = context.putGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS, "Yes");
-		
-		Expression problem = parse("sum({{ ( on K in 0..4 ) sum({{ ( on J in 0..4 ) sum({{ ( on I in 0..4 ) if K + 4 >= 0 then if J < 1 then if I = K + 4 then 8 else 3 else if K >= J then 3 else 2 else if I <= 4 then if I = 3 then 4 else 1 else if J + 1 > 0 then 8 else 0 : (K > I) and (K > 0) and (K > J + -3) }}) }}) }})");
-		
+
 		Expression symbolicSolution = theory.evaluate(problem, context);
 		
 		println(symbolicSolution);
