@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver.BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS;
 import static com.sri.ai.util.Util.println;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -93,5 +94,7 @@ public class DifferenceArithmeticConstraintWithPropagationOfAllLiteralsWhenBound
 		Expression bruteForceSolution = bruteForceInterpreter.apply(problem, context);
 		
 		println(bruteForceSolution);
+		
+		Assert.assertEquals(bruteForceSolution, symbolicSolution);
 	}
 }
