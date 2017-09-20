@@ -39,24 +39,17 @@ package com.sri.ai.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
-import static com.sri.ai.util.Util.in;
-import static com.sri.ai.util.Util.join;
+import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticLiteralSide.subtractDifferenceArithmeticLiteralSides;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.number.Plus;
-import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
-import com.sri.ai.util.collect.NestedIterator;
 
 /**
  * A collection of methods for manipulating difference arithmetic literals.
@@ -79,13 +72,13 @@ public class DifferenceArithmeticUtil {
 			return expression;
 		}
 		DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(expression);
-		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(term.positives);
-		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(term.negatives); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
-		if (term.constant >= 0) {
-			leftHandSideArguments.add(makeSymbol(term.constant));
+		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(term.getPositives());
+		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(term.getNegatives()); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
+		if (term.getConstant() >= 0) {
+			leftHandSideArguments.add(makeSymbol(term.getConstant()));
 		}
 		else {
-			rightHandSideArguments.add(makeSymbol(-term.constant));
+			rightHandSideArguments.add(makeSymbol(-term.getConstant()));
 		}
 		Expression result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
 		if (result.equals(expression)) {
@@ -108,9 +101,9 @@ public class DifferenceArithmeticUtil {
 
 		DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(numericalComparison);
 
-		Set<Expression> positiveVariables = term.positives;
-		Set<Expression> negativeVariables = term.negatives;
-		int constant = term.constant;
+		Set<Expression> positiveVariables = term.getPositives();
+		Set<Expression> negativeVariables = term.getNegatives();
+		int constant = term.getConstant();
 
 		// now isolate variable:
 
@@ -176,164 +169,15 @@ public class DifferenceArithmeticUtil {
 	 */
 	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralNonZeroSide(Expression numericalComparison) {
 		
-		Function<Expression, Error> makeDuplicateError =
-				duplicate -> makeDuplicateError(numericalComparison, duplicate);
-		
 		DifferenceArithmeticLiteralSide
-		leftHandSide = makeDifferenceArithmeticLiteralSide(numericalComparison.get(0), makeDuplicateError);
+		leftHandSide = new DifferenceArithmeticLiteralSide(numericalComparison.get(0));
 
 		DifferenceArithmeticLiteralSide
-		rightHandSide = makeDifferenceArithmeticLiteralSide(numericalComparison.get(1), makeDuplicateError);
+		rightHandSide = new DifferenceArithmeticLiteralSide(numericalComparison.get(1));
 
 		DifferenceArithmeticLiteralSide
-		result = subtractDifferenceArithmeticLiteralSides(numericalComparison, leftHandSide, rightHandSide, makeDuplicateError);
+		result = subtractDifferenceArithmeticLiteralSides(numericalComparison, leftHandSide, rightHandSide);
 
 		return result;
-	}
-
-	/**
-	 * Given a sum, or an expression to be interpreted as a single-term sum,
-	 * returns a triple containing a multiset of positive terms, a multiset of negative terms,
-	 * and the sum of all numerical constants in it.
-	 * If <code>makeDuplicateError</code> is non-null and a duplicate term is found,
-	 * the duplicate is passed to it as a parameter and the resulting Error is thrown.
-	 * @param expression
-	 * @param makeDuplicateError a function that, if non-null, gets a duplicate term and makes an Error to be thrown 
-	 * @return
-	 */
-	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralSide(
-			Expression expression, 
-			Function<Expression, Error> makeDuplicateError) {
-		
-		DifferenceArithmeticLiteralSide result = new DifferenceArithmeticLiteralSide();
-
-		List<Expression> arguments = Plus.getSummands(expression);
-		for (Expression argument : arguments) {
-			if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
-				argument = UnaryMinus.simplify(argument); // removes double minuses
-			}
-			if (argument.hasFunctor(MINUS)) {
-				Expression negationArgument = argument.get(0);
-				if (negationArgument.getValue() instanceof Number) {
-					result.constant = result.constant - ((Number) negationArgument.getValue()).intValue(); // note the -  !
-				}
-				else {
-					if (result.negatives.contains(negationArgument)) {
-						throw makeDuplicateError.apply(negationArgument);
-					}
-					else if (result.positives.contains(negationArgument)) {
-						result.positives.remove(negationArgument); // cancel out with the positive one, and don't add it to negatives
-					}
-					else {
-						result.negatives.add(negationArgument);
-					}
-				}
-			}
-			else {
-				if (argument.getValue() instanceof Number) {
-					result.constant = result.constant + ((Number) argument.getValue()).intValue(); // note the +  !
-				}
-				else {
-					if (result.positives.contains(argument)) {
-						throw makeDuplicateError.apply(argument);
-					}
-					else if (result.negatives.contains(argument)) {
-						result.negatives.remove(argument); // cancel out with the negative one, and don't add it to positives
-					}
-					else {
-						result.positives.add(argument);
-					}
-				}
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Given two difference arithmetic tuples, each containing positive and negative terms and a numeric constant in a summation,
-	 * returns another tuple of the same form representing their subtraction,
-	 * or throws an Error if any of the terms appears with the same final sign multiple times
-	 * (which would require representing a multiple of it), such as in ({X}, {}, 1) - ({}, {X}, 2)
-	 * which would result in 2*X - 1.
-	 * @param numericalComparison TODO
-	 * @param positiveAndNegativeTermsAndConstant1
-	 * @param positiveAndNegativeTermsAndConstant2
-	 * @param makeDuplicateError a function getting the offending duplicate term and returning an Error to be thrown.
-	 * @return
-	 * @throws Error
-	 */
-	private static DifferenceArithmeticLiteralSide subtractDifferenceArithmeticLiteralSides(
-			Expression numericalComparison, 
-			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant1, 
-			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant2, Function<Expression, Error> makeDuplicateError) {
-
-		// cancel out terms that are positive in both first and second sides (they cancel because second parts is being subtracted):
-		Iterator<Expression> positive1Iterator = positiveAndNegativeTermsAndConstant1.positives.iterator();
-		while (positive1Iterator.hasNext()) {
-			Expression positive1 = positive1Iterator.next();
-			if (positiveAndNegativeTermsAndConstant2.positives.contains(positive1)) {
-				positive1Iterator.remove();
-				positiveAndNegativeTermsAndConstant2.positives.remove(positive1);
-			}
-		}
-		
-		// cancel out terms that are negative in both first and second parts (they cancel because second parts is being subtracted):
-		Iterator<Expression> negative1Iterator = positiveAndNegativeTermsAndConstant1.negatives.iterator();
-		while (negative1Iterator.hasNext()) {
-			Expression negative1 = negative1Iterator.next();
-			if (positiveAndNegativeTermsAndConstant2.negatives.contains(negative1)) {
-				negative1Iterator.remove();
-				positiveAndNegativeTermsAndConstant2.negatives.remove(negative1);
-			}
-		}
-		
-		Set<Expression> unionOfPositiveTerms = new LinkedHashSet<>();
-		Iterable<Expression> positiveTerms = in(new NestedIterator<Expression>(
-				positiveAndNegativeTermsAndConstant1.positives,
-				positiveAndNegativeTermsAndConstant2.negatives)); // negative terms in second tuple are actually positive since it is being subtracted
-		
-		for (Expression positive : positiveTerms) {
-			boolean noDuplicate = unionOfPositiveTerms.add(positive);
-			boolean duplicate = ! noDuplicate;
-			if (duplicate) {
-				throw makeDuplicateError.apply(positive);
-			}
-			else if (unionOfPositiveTerms.size() == 2) {
-				throw new Error(numericalComparison + " is not a difference arithmetic atom because it contains more than one positive term when moved to the left-hand side: " + join(unionOfPositiveTerms));
-			}
-		}
-		
-		Set<Expression> unionOfNegativeTerms = new LinkedHashSet<>();
-		Iterable<Expression> negativeTerms = in(new NestedIterator<Expression>(
-				positiveAndNegativeTermsAndConstant1.negatives,
-				positiveAndNegativeTermsAndConstant2.positives)); // positive terms in second tuple are actually negative since it is being subtracted
-		
-		for (Expression negative : negativeTerms) {
-			boolean noDuplicate = unionOfNegativeTerms.add(negative);
-			boolean duplicate = ! noDuplicate;
-			if (duplicate) {
-				throw makeDuplicateError.apply(negative);
-			}
-			else if (unionOfNegativeTerms.size() == 2) {
-				throw new Error(numericalComparison + " is not a difference arithmetic atom because it contains more than one negative term when moved to the left-hand side: " + join(unionOfNegativeTerms));
-			}
-		}
-		
-		int constant = positiveAndNegativeTermsAndConstant1.constant - positiveAndNegativeTermsAndConstant2.constant;
-	
-		DifferenceArithmeticLiteralSide result = new DifferenceArithmeticLiteralSide(unionOfPositiveTerms, unionOfNegativeTerms, constant);
-		return result;
-	}
-
-	/**
-	 * @param numericalComparison
-	 * @param duplicate
-	 * @return
-	 */
-	private static Error makeDuplicateError(Expression numericalComparison, Expression duplicate) {
-		return new Error(
-				numericalComparison + " is not a difference arithmetic atom because " 
-						+ duplicate + " sums with itself, but no multiples are allowed in difference arithmetic");
 	}
 }
