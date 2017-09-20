@@ -54,7 +54,6 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
@@ -89,13 +88,8 @@ public class PropositionalTheory extends AbstractTheory {
 	public boolean isAtom(Expression expression, Context context) {
 		Object syntacticFormType = expression.getSyntacticFormType();
 		boolean result = 
-				(syntacticFormType.equals(Symbol.SYNTACTIC_FORM_TYPE)
-						//|| syntacticFormType.equals(FunctionApplication.SYNTACTIC_FORM_TYPE)
-						) &&
-				GrinderUtil.isBooleanTyped(expression, context) &&
-				!expression.hasFunctor(FunctorConstants.EQUALITY) &&
-				!expression.hasFunctor(FunctorConstants.DISEQUALITY) &&
-				!FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
+				syntacticFormType.equals(Symbol.SYNTACTIC_FORM_TYPE) &&
+				GrinderUtil.isBooleanTyped(expression, context);
 		return result;
 	}
 	
