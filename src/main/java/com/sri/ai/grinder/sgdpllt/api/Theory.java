@@ -221,10 +221,10 @@ public interface Theory extends Cloneable {
 	default Expression getLiteralNegation(Expression literal, Context context) {
 		Expression result;
 		
-		if (literal.hasFunctor(NOT) && isAtom(literal.get(0), context)) {
+		if (literal.hasFunctor(NOT)) {
 			result = literal.get(0);
-		}
-		else if (literal.equals(TRUE)) {
+		} else 
+		if (literal.equals(TRUE)) {
 			result = FALSE;
 		} 
 		else if (literal.equals(FALSE)) {

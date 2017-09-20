@@ -127,7 +127,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, theory);
 	}
 
-	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms (AbstractSingleVariableConstraintWithDependentNormalizedAtoms other) {
+	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms(AbstractSingleVariableConstraintWithDependentNormalizedAtoms other) {
 		super(other);
 	}
 	

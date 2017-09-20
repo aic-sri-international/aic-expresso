@@ -117,6 +117,40 @@ public class DifferenceArithmeticUtil {
 	}
 
 	/**
+	 * Given an expression, returns a different arithmetic literal equivalent to it, or null if one does not exist.
+	 * @param expression
+	 * @param theory
+	 * @param context
+	 * @return
+	 */
+	public static Expression isEquivalentToLiteral(Expression expression, DifferenceArithmeticTheory theory, Context context) {
+		
+		Expression result;
+		DAParts parts;
+		
+		try {
+			parts = makeDifferenceArithmeticTriple(expression);
+			ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
+			ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives
+			if (parts.constant >= 0) {
+				leftHandSideArguments.add(makeSymbol(parts.constant));
+			}
+			else {
+				rightHandSideArguments.add(makeSymbol(-parts.constant));
+			}
+			result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
+			if (result.equals(expression)) {
+				result = expression; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
+			}
+		}
+		catch (Error e) {
+			result = null;
+		}
+		
+		return result;
+	}
+
+	/**
 	 * Returns an expression equivalent to difference arithmetic expression <code>numericalComparison</code> in which terms are cancelled out,
 	 * numerical constants are summed together, and the given variable occurs alone in one of the sides.
 	 * Terms on the side opposite to the variable are sorted according to their natural order.

@@ -35,9 +35,8 @@ public interface MultiIndexQuantifierEliminator {
 		context = extension.first;
 		indexExpressions = extension.second;
 		indicesCondition = extension.third.get(0);
-		body = extension.third.get(1);
+		body             = extension.third.get(1);
 		
-//		context = context.extendWith(indexExpressions);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Expression quantifierFreeExpression = solve(group, indices, indicesCondition, body, context);
 		return quantifierFreeExpression;

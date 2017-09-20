@@ -154,9 +154,10 @@ public interface Context extends Registry, Constraint {
 	/**
 	 * Extends context with index expressions, taking into account that new contextual variables may collide with existing ones.
 	 * In this case, it renames the incoming variables to unique identifiers and replaces them in the types of remaining
-	 * index expressions. It also renames the variables in a given expressions supposed to be in their scope (for example,
-	 * the head and condition of an intensionally defined set).
-	 * Returns the new context and the index expressions and expression in scope after the renaming.
+	 * index expressions. It also renames these indices if they occur in a given expression --
+	 * this is useful because the client code (invoking this method)
+	 * often knows that these renamed indices may occur in a known set of expressions that need to be updated accordingly.
+	 * Returns the new context, the index expressions and expression in scope after the renaming.
 	 * @param indexExpressions
 	 * @param expressionInScope
 	 * @return the new context and the index expressions and expression in scope after the renaming
