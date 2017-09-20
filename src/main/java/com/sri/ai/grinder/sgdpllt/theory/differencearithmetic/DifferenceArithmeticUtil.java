@@ -67,28 +67,6 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public class DifferenceArithmeticUtil {
 
-	/** 
-	 * A triple containing the components of a difference arithmetic literal:
-	 * the positive, negative and constant terms in it.
-	 * @author braz
-	 *
-	 */
-	private static class DAParts {
-		private Set<Expression> positives;
-		private Set<Expression> negatives;
-		private int constant;
-		
-		public DAParts() {
-			this(new LinkedHashSet<>(), new LinkedHashSet<>(), 0);
-		}
-		
-		public DAParts(Set<Expression> positiveTerms, Set<Expression> negativeTerms, int constant) {
-			this.positives = positiveTerms;
-			this.negatives = negativeTerms;
-			this.constant  = constant;
-		}
-	}
-	
 	/**
 	 * Simplify a difference arithmetic literal.
 	 * @param expression
@@ -100,53 +78,19 @@ public class DifferenceArithmeticUtil {
 		if (! theory.isLiteralOrBooleanConstant(expression, context)) {
 			return expression;
 		}
-		DAParts parts = makeDifferenceArithmeticTriple(expression);
-		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
-		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives
-		if (parts.constant >= 0) {
-			leftHandSideArguments.add(makeSymbol(parts.constant));
+		DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(expression);
+		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(term.positives);
+		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(term.negatives); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
+		if (term.constant >= 0) {
+			leftHandSideArguments.add(makeSymbol(term.constant));
 		}
 		else {
-			rightHandSideArguments.add(makeSymbol(-parts.constant));
+			rightHandSideArguments.add(makeSymbol(-term.constant));
 		}
 		Expression result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
 		if (result.equals(expression)) {
 			result = expression; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
 		}
-		return result;
-	}
-
-	/**
-	 * Given an expression, returns a different arithmetic literal equivalent to it, or null if one does not exist.
-	 * @param expression
-	 * @param theory
-	 * @param context
-	 * @return
-	 */
-	public static Expression isEquivalentToLiteral(Expression expression, DifferenceArithmeticTheory theory, Context context) {
-		
-		Expression result;
-		DAParts parts;
-		
-		try {
-			parts = makeDifferenceArithmeticTriple(expression);
-			ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(parts.positives);
-			ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(parts.negatives); // negatives in the left-hand side (all elements in parts are supposed to be there) move to right-hand side as positives
-			if (parts.constant >= 0) {
-				leftHandSideArguments.add(makeSymbol(parts.constant));
-			}
-			else {
-				rightHandSideArguments.add(makeSymbol(-parts.constant));
-			}
-			result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
-			if (result.equals(expression)) {
-				result = expression; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
-			}
-		}
-		catch (Error e) {
-			result = null;
-		}
-		
 		return result;
 	}
 
@@ -162,11 +106,11 @@ public class DifferenceArithmeticUtil {
 	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
 		Expression result;
 
-		DAParts parts = makeDifferenceArithmeticTriple(numericalComparison);
+		DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(numericalComparison);
 
-		Set<Expression> positiveVariables = parts.positives;
-		Set<Expression> negativeVariables = parts.negatives;
-		int constant = parts.constant;
+		Set<Expression> positiveVariables = term.positives;
+		Set<Expression> negativeVariables = term.negatives;
+		int constant = term.constant;
 
 		// now isolate variable:
 
@@ -222,28 +166,27 @@ public class DifferenceArithmeticUtil {
 
 	/**
 	 * Given a numerical comparison expression,
-	 * provides a triple with the terms with positive and negative signs, as well as an integer constant,
-	 * describing the situation in which they are all moved to the left-hand side
-	 * terms with opposite signs are canceled out, and all integer constants are summed together.
+	 * provides a {@link DifferenceArithmeticLiteralSide} representing the non-zero side of an equivalent
+	 * difference arithmetic literal in which the other size is 0.
 	 * If the <code>makeDuplicateError</code> function is not null, the detection of two terms with the same sign
 	 * will throw the Error provided by that function.
 	 * @param numericalComparison
 	 * @return
 	 * @throws Error
 	 */
-	private static DAParts makeDifferenceArithmeticTriple(Expression numericalComparison) {
+	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralNonZeroSide(Expression numericalComparison) {
 		
 		Function<Expression, Error> makeDuplicateError =
 				duplicate -> makeDuplicateError(numericalComparison, duplicate);
 		
-		DAParts
-		items0 = gatherPositiveAndNegativeTermsAndConstantInteger(numericalComparison.get(0), makeDuplicateError);
+		DifferenceArithmeticLiteralSide
+		leftHandSide = makeDifferenceArithmeticLiteralSide(numericalComparison.get(0), makeDuplicateError);
 
-		DAParts
-		items1 = gatherPositiveAndNegativeTermsAndConstantInteger(numericalComparison.get(1), makeDuplicateError);
+		DifferenceArithmeticLiteralSide
+		rightHandSide = makeDifferenceArithmeticLiteralSide(numericalComparison.get(1), makeDuplicateError);
 
-		DAParts
-		result = subtractDifferenceLogicTriples(numericalComparison, items0, items1, makeDuplicateError);
+		DifferenceArithmeticLiteralSide
+		result = subtractDifferenceArithmeticLiteralSides(numericalComparison, leftHandSide, rightHandSide, makeDuplicateError);
 
 		return result;
 	}
@@ -258,12 +201,11 @@ public class DifferenceArithmeticUtil {
 	 * @param makeDuplicateError a function that, if non-null, gets a duplicate term and makes an Error to be thrown 
 	 * @return
 	 */
-	private static DAParts 
-	gatherPositiveAndNegativeTermsAndConstantInteger(
+	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralSide(
 			Expression expression, 
 			Function<Expression, Error> makeDuplicateError) {
 		
-		DAParts result = new DAParts();
+		DifferenceArithmeticLiteralSide result = new DifferenceArithmeticLiteralSide();
 
 		List<Expression> arguments = Plus.getSummands(expression);
 		for (Expression argument : arguments) {
@@ -321,12 +263,12 @@ public class DifferenceArithmeticUtil {
 	 * @return
 	 * @throws Error
 	 */
-	private static DAParts subtractDifferenceLogicTriples(
+	private static DifferenceArithmeticLiteralSide subtractDifferenceArithmeticLiteralSides(
 			Expression numericalComparison, 
-			DAParts positiveAndNegativeTermsAndConstant1, 
-			DAParts positiveAndNegativeTermsAndConstant2, Function<Expression, Error> makeDuplicateError) {
+			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant1, 
+			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant2, Function<Expression, Error> makeDuplicateError) {
 
-		// cancel out terms that are positive in both first and second parts (they cancel because second parts is being subtracted):
+		// cancel out terms that are positive in both first and second sides (they cancel because second parts is being subtracted):
 		Iterator<Expression> positive1Iterator = positiveAndNegativeTermsAndConstant1.positives.iterator();
 		while (positive1Iterator.hasNext()) {
 			Expression positive1 = positive1Iterator.next();
@@ -380,7 +322,7 @@ public class DifferenceArithmeticUtil {
 		
 		int constant = positiveAndNegativeTermsAndConstant1.constant - positiveAndNegativeTermsAndConstant2.constant;
 	
-		DAParts result = new DAParts(unionOfPositiveTerms, unionOfNegativeTerms, constant);
+		DifferenceArithmeticLiteralSide result = new DifferenceArithmeticLiteralSide(unionOfPositiveTerms, unionOfNegativeTerms, constant);
 		return result;
 	}
 

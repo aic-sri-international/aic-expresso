@@ -200,4 +200,10 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	public Collection<Type> getNativeTypes() {
 		return list(INTEGER_TYPE);
 	}
+	
+//	public boolean isAtom2(Expression expression, Context context) {
+//		if (isApplicationOfLiteralFunctor(expression)) {
+//			
+//		}
+//	}
 }

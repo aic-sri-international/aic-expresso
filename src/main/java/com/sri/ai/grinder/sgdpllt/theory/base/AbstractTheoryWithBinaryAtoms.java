@@ -59,14 +59,14 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	 * @param expression
 	 * @return
 	 */
-	protected boolean isApplicationOfTheoryFunctor(Expression expression) {
+	protected boolean isApplicationOfLiteralFunctor(Expression expression) {
 		boolean result = expression.getFunctor() != null && theoryFunctors.contains(expression.getFunctor().toString());
 		return result;
 	}
 
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
-		boolean result = isApplicationOfTheoryFunctor(expression) || theoryFunctors.contains(expression.toString()); 
+		boolean result = isApplicationOfLiteralFunctor(expression) || theoryFunctors.contains(expression.toString()); 
 		return result;
 	}
 
@@ -80,7 +80,7 @@ public abstract class AbstractTheoryWithBinaryAtoms extends AbstractTheory {
 	public boolean isAtom(Expression expression, Context context) {
 		boolean result;
 	
-		boolean hasTheoryFunctor = isApplicationOfTheoryFunctor(expression);
+		boolean hasTheoryFunctor = isApplicationOfLiteralFunctor(expression);
 		
 		if (assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory) {
 			result = hasTheoryFunctor;

@@ -62,12 +62,18 @@ abstract public class AbstractTheoryWithBinaryAtomsIncludingEquality extends Abs
 
 	private boolean propagateAllLiteralsWhenVariableIsBound;
 
+	/**
+	 * Constructor
+	 * @param theoryFunctorsIncludingEqualityAndInequality must include equality and inequality
+	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory indicates whether this is the only theory using these functors (for efficiency)
+	 * @param propagateAllLiteralsWhenVariableIsBound indicates automatic propagation of value once variable gets bound.
+	 */
 	public AbstractTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors,
+			Collection<String> theoryFunctorsIncludingEqualityAndInequality,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 			boolean propagateAllLiteralsWhenVariableIsBound) {
 
-		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory);
+		super(theoryFunctorsIncludingEqualityAndInequality, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
 	}
 
