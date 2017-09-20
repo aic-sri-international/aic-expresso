@@ -44,7 +44,7 @@ public class DifferenceArithmeticLiteralSide {
 	 * @param expression
 	 * @return
 	 */
-	public DifferenceArithmeticLiteralSide(Expression expression) {
+	public DifferenceArithmeticLiteralSide(Expression expression) throws DuplicateTermException {
 
 		positives = new LinkedHashSet<>();
 		negatives = new LinkedHashSet<>();
@@ -62,7 +62,7 @@ public class DifferenceArithmeticLiteralSide {
 				}
 				else {
 					if (negatives.contains(negationArgument)) {
-						throw new DuplicateError(expression, negationArgument);
+						throw new DuplicateTermException(expression, negationArgument);
 					}
 					else if (positives.contains(negationArgument)) {
 						positives.remove(negationArgument); // cancel out with the positive one, and don't add it to negatives
@@ -78,7 +78,7 @@ public class DifferenceArithmeticLiteralSide {
 				}
 				else {
 					if (positives.contains(argument)) {
-						throw new DuplicateError(expression, argument);
+						throw new DuplicateTermException(expression, argument);
 					}
 					else if (negatives.contains(argument)) {
 						negatives.remove(argument); // cancel out with the negative one, and don't add it to positives
@@ -113,12 +113,15 @@ public class DifferenceArithmeticLiteralSide {
 	 * @param positiveAndNegativeTermsAndConstant1
 	 * @param positiveAndNegativeTermsAndConstant2
 	 * @return
+	 * @throws DuplicateTermException thrown when a term appears with the same sign on the same side of a literal, meaning that the comparison cannot be a difference arithmetic literal.
 	 * @throws Error
 	 */
-	static DifferenceArithmeticLiteralSide subtractDifferenceArithmeticLiteralSides(
+	public static DifferenceArithmeticLiteralSide subtractDifferenceArithmeticLiteralSides(
 			Expression numericalComparison, 
 			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant1, 
-			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant2) {
+			DifferenceArithmeticLiteralSide positiveAndNegativeTermsAndConstant2) 
+	throws DuplicateTermException, InvalidLiteralException
+	{
 
 		// cancel out terms that are positive in both first and second sides (they cancel because second parts is being subtracted):
 		Iterator<Expression> positive1Iterator = positiveAndNegativeTermsAndConstant1.positives.iterator();
@@ -149,10 +152,10 @@ public class DifferenceArithmeticLiteralSide {
 			boolean noDuplicate = unionOfPositiveTerms.add(positive);
 			boolean duplicate = ! noDuplicate;
 			if (duplicate) {
-				throw new DuplicateError(numericalComparison, positive);
+				throw new DuplicateTermException(numericalComparison, positive);
 			}
 			else if (unionOfPositiveTerms.size() == 2) {
-				throw new Error(numericalComparison + " is not a difference arithmetic atom because it contains more than one positive term when moved to the left-hand side: " + join(unionOfPositiveTerms));
+				throw new InvalidLiteralException(numericalComparison + " is not a difference arithmetic atom because it contains more than one positive term when moved to the left-hand side: " + join(unionOfPositiveTerms));
 			}
 		}
 		
@@ -165,10 +168,10 @@ public class DifferenceArithmeticLiteralSide {
 			boolean noDuplicate = unionOfNegativeTerms.add(negative);
 			boolean duplicate = ! noDuplicate;
 			if (duplicate) {
-				throw new DuplicateError(numericalComparison, negative);
+				throw new DuplicateTermException(numericalComparison, negative);
 			}
 			else if (unionOfNegativeTerms.size() == 2) {
-				throw new Error(numericalComparison + " is not a difference arithmetic atom because it contains more than one negative term when moved to the left-hand side: " + join(unionOfNegativeTerms));
+				throw new InvalidLiteralException(numericalComparison + " is not a difference arithmetic atom because it contains more than one negative term when moved to the left-hand side: " + join(unionOfNegativeTerms));
 			}
 		}
 		
@@ -176,6 +179,14 @@ public class DifferenceArithmeticLiteralSide {
 	
 		DifferenceArithmeticLiteralSide result = new DifferenceArithmeticLiteralSide(unionOfPositiveTerms, unionOfNegativeTerms, constant);
 		return result;
+	}
+	
+	public static class DifferenceArithmeticLiteralSideException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		public DifferenceArithmeticLiteralSideException(String message) {
+			super(message);
+		}
 	}
 	
 	/**
@@ -190,13 +201,27 @@ public class DifferenceArithmeticLiteralSide {
 	 * @author braz
 	 *
 	 */
-	public static class DuplicateError extends Error {
+	public static class DuplicateTermException extends DifferenceArithmeticLiteralSideException {
 		private static final long serialVersionUID = 1L;
 
-		public DuplicateError(Expression numericalComparison, Expression duplicate) {
+		public DuplicateTermException(Expression numericalComparison, Expression duplicate) {
 			super(numericalComparison + " is not a difference arithmetic atom because " 
 					+ duplicate + " sums with itself, but no multiples are allowed in difference arithmetic");
 		}
 	}
 	
+	
+	/**
+	 * An error indicating that an expression is not a different arithmetic literal.
+	 * @param message
+	 * @author braz
+	 *
+	 */
+	public static class InvalidLiteralException extends DifferenceArithmeticLiteralSideException {
+		private static final long serialVersionUID = 1L;
+
+		public InvalidLiteralException(String message) {
+			super(message);
+		}
+	}
 }

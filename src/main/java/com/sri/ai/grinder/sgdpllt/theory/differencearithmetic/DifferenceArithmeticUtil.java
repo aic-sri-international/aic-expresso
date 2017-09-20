@@ -50,6 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.number.Plus;
+import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticLiteralSide.DifferenceArithmeticLiteralSideException;
 
 /**
  * A collection of methods for manipulating difference arithmetic literals.
@@ -68,22 +69,32 @@ public class DifferenceArithmeticUtil {
 	 * @return
 	 */
 	public static Expression simplify(Expression expression, DifferenceArithmeticTheory theory, Context context) {
-		if (! theory.isLiteralOrBooleanConstant(expression, context)) {
-			return expression;
+		Expression result;
+		
+		try {
+			if (theory.isLiteralOrBooleanConstant(expression, context)) {
+				DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(expression);
+				ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(term.getPositives());
+				ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(term.getNegatives()); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
+				if (term.getConstant() >= 0) {
+					leftHandSideArguments.add(makeSymbol(term.getConstant()));
+				}
+				else {
+					rightHandSideArguments.add(makeSymbol(-term.getConstant()));
+				}
+				result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
+				if (result.equals(expression)) {
+					result = expression; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
+				}
+			}
+			else {
+				result = expression;
+			}
 		}
-		DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(expression);
-		ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(term.getPositives());
-		ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(term.getNegatives()); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
-		if (term.getConstant() >= 0) {
-			leftHandSideArguments.add(makeSymbol(term.getConstant()));
+		catch (DifferenceArithmeticLiteralSideException exception) {
+			result = expression;
 		}
-		else {
-			rightHandSideArguments.add(makeSymbol(-term.getConstant()));
-		}
-		Expression result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
-		if (result.equals(expression)) {
-			result = expression; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
-		}
+
 		return result;
 	}
 
@@ -99,59 +110,64 @@ public class DifferenceArithmeticUtil {
 	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
 		Expression result;
 
-		DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(numericalComparison);
+		try {
+			DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(numericalComparison);
 
-		Set<Expression> positiveVariables = term.getPositives();
-		Set<Expression> negativeVariables = term.getNegatives();
-		int constant = term.getConstant();
+			Set<Expression> positiveVariables = term.getPositives();
+			Set<Expression> negativeVariables = term.getNegatives();
+			int constant = term.getConstant();
 
-		// now isolate variable:
+			// now isolate variable:
 
-		// create array for all the arguments of the sum that is going to be on the side opposite to the variable
-		ArrayList<Expression> sumArguments = new ArrayList<Expression>(positiveVariables.size() + negativeVariables.size() -1 + 1); // minus variable, plus constant
-		if (positiveVariables.contains(variable)) {
-			for (Expression positiveVariable : positiveVariables) { // variable will be on left-hand side: invert signs of everybody else (negative variables become positive)
-				if ( ! positiveVariable.equals(variable)) {
-					sumArguments.add(Expressions.apply(MINUS, positiveVariable));
+			// create array for all the arguments of the sum that is going to be on the side opposite to the variable
+			ArrayList<Expression> sumArguments = new ArrayList<Expression>(positiveVariables.size() + negativeVariables.size() -1 + 1); // minus variable, plus constant
+			if (positiveVariables.contains(variable)) {
+				for (Expression positiveVariable : positiveVariables) { // variable will be on left-hand side: invert signs of everybody else (negative variables become positive)
+					if ( ! positiveVariable.equals(variable)) {
+						sumArguments.add(Expressions.apply(MINUS, positiveVariable));
+					}
+				}
+				for (Expression negativeVariable : negativeVariables) {
+					sumArguments.add(negativeVariable);
+				}
+				sumArguments.add(makeSymbol(-constant));
+
+				if (positiveVariables.contains(variable)) { // check again, since variable may have been canceled out
+					Expression oppositeSide = Plus.make(sumArguments);
+					result = Expressions.apply(numericalComparison.getFunctor(), variable, oppositeSide);
+				}
+				else {
+					throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
 				}
 			}
-			for (Expression negativeVariable : negativeVariables) {
-				sumArguments.add(negativeVariable);
-			}
-			sumArguments.add(makeSymbol(-constant));
-
-			if (positiveVariables.contains(variable)) { // check again, since variable may have been canceled out
-				Expression oppositeSide = Plus.make(sumArguments);
-				result = Expressions.apply(numericalComparison.getFunctor(), variable, oppositeSide);
-			}
 			else {
-				throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
-			}
-		}
-		else {
-			for (Expression positiveVariable : positiveVariables) { // variable will be on right-hand side: everybody else stays on left-hand side and keeps their sign (negative variables get the negative sign in their representation)
-				sumArguments.add(positiveVariable);
-			}
-			for (Expression negativeVariable : negativeVariables) {
-				if ( ! negativeVariable.equals(variable)) {
-					sumArguments.add(Expressions.apply(MINUS, negativeVariable));
+				for (Expression positiveVariable : positiveVariables) { // variable will be on right-hand side: everybody else stays on left-hand side and keeps their sign (negative variables get the negative sign in their representation)
+					sumArguments.add(positiveVariable);
+				}
+				for (Expression negativeVariable : negativeVariables) {
+					if ( ! negativeVariable.equals(variable)) {
+						sumArguments.add(Expressions.apply(MINUS, negativeVariable));
+					}
+				}
+				sumArguments.add(makeSymbol(constant));
+
+				Collections.sort(sumArguments); // this increases readability and normalization.
+
+				if (negativeVariables.contains(variable)) { // check again, since variable may have been canceled out
+					Expression oppositeSide = Plus.make(sumArguments);
+					result = Expressions.apply(numericalComparison.getFunctor(), oppositeSide, variable);
+				}
+				else {
+					throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
 				}
 			}
-			sumArguments.add(makeSymbol(constant));
 
-			Collections.sort(sumArguments); // this increases readability and normalization.
-			
-			if (negativeVariables.contains(variable)) { // check again, since variable may have been canceled out
-				Expression oppositeSide = Plus.make(sumArguments);
-				result = Expressions.apply(numericalComparison.getFunctor(), oppositeSide, variable);
-			}
-			else {
-				throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
+			if (result.equals(numericalComparison)) {
+				result = numericalComparison; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
 			}
 		}
-		
-		if (result.equals(numericalComparison)) {
-			result = numericalComparison; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
+		catch (DifferenceArithmeticLiteralSideException exception) {
+			throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but the latter is not a valid difference arithmetic literal");
 		}
 
 		return result;
@@ -165,9 +181,10 @@ public class DifferenceArithmeticUtil {
 	 * will throw the Error provided by that function.
 	 * @param numericalComparison
 	 * @return
-	 * @throws Error
+	 * @throws DifferenceArithmeticLiteralSideException
 	 */
-	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralNonZeroSide(Expression numericalComparison) {
+	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralNonZeroSide(Expression numericalComparison) 
+	throws DifferenceArithmeticLiteralSideException {
 		
 		DifferenceArithmeticLiteralSide
 		leftHandSide = new DifferenceArithmeticLiteralSide(numericalComparison.get(0));
