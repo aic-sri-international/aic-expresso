@@ -189,7 +189,7 @@ public class FirstOfTest {
 	private void runTest(List<Rewriter> rewriters, Expression initial, Expression expected, Map<Expression, Expression> symbolsAndTypes) {
 		CompoundTheory theory = new CompoundTheory(new PropositionalTheory(), new DifferenceArithmeticTheory(false, true));
 		Context context = new TrueContext(theory);
-		context = context.registerAdditionalSymbolsAndTypes(symbolsAndTypes);
+		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(symbolsAndTypes);
 		Rewriter firstOf = new FirstOf(rewriters);
 		Expression solution = firstOf.apply(initial, context);
 		System.out.println("Solution: " + solution);	

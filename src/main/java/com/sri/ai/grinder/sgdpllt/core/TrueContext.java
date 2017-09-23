@@ -39,13 +39,10 @@ package com.sri.ai.grinder.sgdpllt.core;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -85,8 +82,6 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 
 	private Registry registry;
 	
-	private Map<Expression, Type> fromTypeExpressionToType;
-
 	//
 	// START - Constructors
 
@@ -126,8 +121,6 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 						symbolsAndTypes,
 						isUniquelyNamedConstantPredicate,
 						globalObjects);
-		//
-		this.fromTypeExpressionToType = map();
 	}
 	
 	/**
@@ -194,7 +187,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public TrueContext setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		TrueContext result = clone();
-		result.registry = registry.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
+		result.registry = result.registry.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
@@ -211,7 +204,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Registry setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
 		TrueContext result = clone();
-		result.registry = registry.setSymbolsAndTypes(newSymbolsAndTypes);
+		result.registry = result.registry.setSymbolsAndTypes(newSymbolsAndTypes);
 		return result;
 	}
 
@@ -233,14 +226,14 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public TrueContext putAllGlobalObjects(Map<Object, Object> objects) {
 		TrueContext result = clone();
-		result.registry = registry.putAllGlobalObjects(objects);
+		result.registry = result.registry.putAllGlobalObjects(objects);
 		return result;
 	}
 
 	@Override
 	public TrueContext putGlobalObject(Object key, Object value) {
 		TrueContext result = clone();
-		result.registry = registry.putGlobalObject(key, value);
+		result.registry = result.registry.putGlobalObject(key, value);
 		return result;
 	}
 
@@ -273,10 +266,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public TrueContext add(Type type) {
 		TrueContext result = clone();
-		String name = type.getName();
-		Expression typeExpression = parse(name);
-		LinkedHashMap<Expression, Type> additionalTypeMap = map(typeExpression, type);
-		result.fromTypeExpressionToType = new StackedHashMap<>(additionalTypeMap, fromTypeExpressionToType);
+		result.registry = result.registry.add(type);
 		return result;
 	}
 
@@ -289,20 +279,17 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 
 	@Override
 	public Type getType(Expression typeExpression) {
-		Type result = fromTypeExpressionToType.get(typeExpression);
-		if (result == null) {
-			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression, this);
-		}
+		Type result = registry.getType(typeExpression);
 		return result;
 	}
 
 	@Override
 	public Collection<Type> getTypes() {
-		return Collections.unmodifiableCollection(fromTypeExpressionToType.values());
+		return registry.getTypes();
 	}
 
 	@Override
-	public TrueContext registerAdditionalSymbolsAndTypes(
+	public TrueContext makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
 			Map<Expression, Expression> symbolsAndTypes) {
 		if (symbolsAndTypes.isEmpty()) { // nothing to do
 			return this;
@@ -312,7 +299,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 				createAugmentedSymbolsAndTypes(symbolsAndTypes);
 		
 		TrueContext result = clone();
-		result.registry = registry.setSymbolsAndTypes(newSymbolsAndTypes);
+		result.registry = result.registry.setSymbolsAndTypes(newSymbolsAndTypes);
 		
 		return result;
 	}

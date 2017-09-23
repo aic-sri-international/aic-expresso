@@ -75,7 +75,7 @@ public class GrinderUtilTest {
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
 		registry = registry.add(peopleType);
 		registry = registry.add(petsType);
-		registry = registry.registerAdditionalSymbolsAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
+		registry = registry.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
 	}
 	
 	@Test

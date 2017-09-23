@@ -139,7 +139,7 @@ public class RecursiveTest {
 	private void runTest(Rewriter rewriter, Expression initial, Expression expected, Map<Expression, Expression> symbolsAndTypes) {
 		CompoundTheory theory = new CompoundTheory(new PropositionalTheory(), new DifferenceArithmeticTheory(false, true));
 		Context context = new TrueContext(theory);
-		context = context.registerAdditionalSymbolsAndTypes(symbolsAndTypes);
+		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(symbolsAndTypes);
 		Rewriter recursive = new Recursive(rewriter);
 		Expression solution = recursive.apply(initial, context);
 		System.out.println("Solution: " + solution);	

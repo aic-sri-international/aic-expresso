@@ -83,7 +83,7 @@ public class AssignmentsIteratorTest  {
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
 		registry = registry.add(myType);
-		registry = registry.registerAdditionalSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
+		registry = registry.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
 		
@@ -107,7 +107,7 @@ public class AssignmentsIteratorTest  {
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
 		registry = registry.add(myType);
-		registry = registry.registerAdditionalSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
+		registry = registry.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
 		
@@ -142,7 +142,7 @@ public class AssignmentsIteratorTest  {
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
 		registry = registry.add(peopleType);
 		registry = registry.add(petsType);
-		registry = registry.registerAdditionalSymbolsAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
+		registry = registry.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
 		

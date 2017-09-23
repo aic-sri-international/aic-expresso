@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticLiteralSide.subtractDifferenceArithmeticLiteralSides;
+import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticLiteralSide.makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,14 +73,14 @@ public class DifferenceArithmeticUtil {
 		
 		try {
 			if (theory.isLiteralOrBooleanConstant(expression, context)) {
-				DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(expression);
-				ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(term.getPositives());
-				ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(term.getNegatives()); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
-				if (term.getConstant() >= 0) {
-					leftHandSideArguments.add(makeSymbol(term.getConstant()));
+				DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo(expression);
+				ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(literalSide.getPositives());
+				ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(literalSide.getNegatives()); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
+				if (literalSide.getConstant() >= 0) {
+					leftHandSideArguments.add(makeSymbol(literalSide.getConstant()));
 				}
 				else {
-					rightHandSideArguments.add(makeSymbol(-term.getConstant()));
+					rightHandSideArguments.add(makeSymbol(-literalSide.getConstant()));
 				}
 				result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
 				if (result.equals(expression)) {
@@ -111,11 +111,11 @@ public class DifferenceArithmeticUtil {
 		Expression result;
 
 		try {
-			DifferenceArithmeticLiteralSide term = makeDifferenceArithmeticLiteralNonZeroSide(numericalComparison);
+			DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo(numericalComparison);
 
-			Set<Expression> positiveVariables = term.getPositives();
-			Set<Expression> negativeVariables = term.getNegatives();
-			int constant = term.getConstant();
+			Set<Expression> positiveVariables = literalSide.getPositives();
+			Set<Expression> negativeVariables = literalSide.getNegatives();
+			int constant = literalSide.getConstant();
 
 			// now isolate variable:
 
@@ -169,31 +169,6 @@ public class DifferenceArithmeticUtil {
 		catch (DifferenceArithmeticLiteralSideException exception) {
 			throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but the latter is not a valid difference arithmetic literal");
 		}
-
-		return result;
-	}
-
-	/**
-	 * Given a numerical comparison expression,
-	 * provides a {@link DifferenceArithmeticLiteralSide} representing the non-zero side of an equivalent
-	 * difference arithmetic literal in which the other size is 0.
-	 * If the <code>makeDuplicateError</code> function is not null, the detection of two terms with the same sign
-	 * will throw the Error provided by that function.
-	 * @param numericalComparison
-	 * @return
-	 * @throws DifferenceArithmeticLiteralSideException
-	 */
-	private static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralNonZeroSide(Expression numericalComparison) 
-	throws DifferenceArithmeticLiteralSideException {
-		
-		DifferenceArithmeticLiteralSide
-		leftHandSide = new DifferenceArithmeticLiteralSide(numericalComparison.get(0));
-
-		DifferenceArithmeticLiteralSide
-		rightHandSide = new DifferenceArithmeticLiteralSide(numericalComparison.get(1));
-
-		DifferenceArithmeticLiteralSide
-		result = subtractDifferenceArithmeticLiteralSides(numericalComparison, leftHandSide, rightHandSide);
 
 		return result;
 	}

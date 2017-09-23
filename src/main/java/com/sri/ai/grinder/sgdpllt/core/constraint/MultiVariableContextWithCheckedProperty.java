@@ -411,9 +411,9 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty registerAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes) {
+	public MultiVariableContextWithCheckedProperty makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes) {
 		MultiVariableContextWithCheckedProperty result = clone();
-		Context newTail = tail.registerAdditionalSymbolsAndTypes(indicesAndTypes);
+		Context newTail = tail.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(indicesAndTypes);
 		result.tail = newTail;
 		return result;
 	}

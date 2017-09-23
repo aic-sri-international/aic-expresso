@@ -45,6 +45,8 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_O
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
+import static com.sri.ai.util.Util.forAll;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
@@ -57,6 +59,9 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.polynomial.api.Polynomial;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
@@ -67,6 +72,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhich
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.Minus;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -201,9 +207,37 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		return list(INTEGER_TYPE);
 	}
 	
-//	public boolean isAtom2(Expression expression, Context context) {
-//		if (isApplicationOfLiteralFunctor(expression)) {
-//			
-//		}
-//	}
+	public boolean isLiteral2(Expression expression, Context context) {
+		boolean result;
+		if (isApplicationOfLiteralFunctor(expression)) {
+			Expression leftHandSideMinusRightHandSide = Minus.make(expression.get(0), expression.get(1));
+			Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
+			result = forAll(polynomial.getMonomials(), m -> isDifferenceArithmeticTerm(m, context));
+		}
+		else {
+			result = false;
+		}
+		return result;
+	}
+
+	private boolean isDifferenceArithmeticTerm(Monomial monomial, Context context) {
+		boolean result;
+		if (monomial.degree() == 0) {
+			result = true;
+		}
+		else if (monomial.degree() == 1) {
+			Expression variable = getFirst(monomial.getOrderedNonNumericFactors());
+			result = variableIsInteger(variable, context);
+		}
+		else {
+			result = false;
+		}
+		return result;
+	}
+
+	private static boolean variableIsInteger(Expression variable, Context context) {
+		Type variableType = context.getType(variable);
+		boolean variableIsInteger = variableType instanceof IntegerExpressoType || variableType instanceof IntegerInterval;
+		return variableIsInteger;
+	}
 }

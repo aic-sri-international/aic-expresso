@@ -43,6 +43,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.arrayList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -116,6 +117,13 @@ public class Plus extends CommutativeAssociativeWithOperationOnJavaConstantsOnly
 	 */
 	public static Expression make(List<Expression> arguments) {
 		return CommutativeAssociative.make(PLUS, arguments, ZERO, false);
+	}
+
+	/**
+	 * Makes an addition, automatically accounting for neutral element occurrences.
+	 */
+	public static Expression make(Expression... arguments) {
+		return CommutativeAssociative.make(PLUS, Arrays.asList(arguments), ZERO, false);
 	}
 
 	/**

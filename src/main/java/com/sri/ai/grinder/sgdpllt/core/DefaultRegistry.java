@@ -281,7 +281,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
-	public DefaultRegistry registerAdditionalSymbolsAndTypes(
+	public DefaultRegistry makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
 			Map<Expression, Expression> symbolsAndTypes) {
 		if (symbolsAndTypes.isEmpty()) { // nothing to do
 			return this;

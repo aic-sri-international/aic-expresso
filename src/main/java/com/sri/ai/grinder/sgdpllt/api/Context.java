@@ -78,7 +78,7 @@ public interface Context extends Registry, Constraint {
 	Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	@Override
-	Context registerAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
+	Context makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	@Override
 	Context putAllGlobalObjects(Map<Object, Object> objects);

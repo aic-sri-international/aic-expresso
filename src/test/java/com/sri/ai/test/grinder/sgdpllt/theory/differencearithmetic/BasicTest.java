@@ -39,7 +39,9 @@ package com.sri.ai.test.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver.BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS;
+import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.println;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,6 +58,25 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 @Beta
 public class BasicTest {
 
+//	@Test
+//	public void isLiteralTests() {
+//		Expression expression;
+//		boolean expected;
+//		Context context = new TrueContext();
+//		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
+//				map(
+//						parse("X"), parse("Integer"),
+//						parse("Y"), parse("Integer"),
+//						parse("Z"), parse("Integer")
+//						));
+//		
+//		expression = parse("X - X + X - Y + Y - Z + 1 - 5 >= 0");
+//		expected = true;
+//		DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(true, true);
+//		boolean isLiteral = theory.isLiteral2(expression, context);
+//		assertEquals(expected, isLiteral);
+//	}
+	
 	@Test
 	public void debuggingTests() {
 		// Problems that revealed bugs in the past.
