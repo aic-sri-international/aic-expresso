@@ -112,7 +112,7 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 		if (typeExpression == null) {
 			throw new Error("Variable " + variable + " is not registered in registry (has no type).");
 		}
-		Type type = registry.getType(typeExpression);
+		Type type = registry.getTypeFromTypeExpression(typeExpression);
 		if (type == null) {
 			throw new Error("Variable " + variable + " has type " + typeExpression + " but registry contains no type with this name.");
 		}

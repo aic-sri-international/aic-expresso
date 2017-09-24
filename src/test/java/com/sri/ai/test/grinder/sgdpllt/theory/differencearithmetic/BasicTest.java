@@ -58,24 +58,140 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmet
 @Beta
 public class BasicTest {
 
-//	@Test
-//	public void isLiteralTests() {
-//		Expression expression;
-//		boolean expected;
-//		Context context = new TrueContext();
-//		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
-//				map(
-//						parse("X"), parse("Integer"),
-//						parse("Y"), parse("Integer"),
-//						parse("Z"), parse("Integer")
-//						));
-//		
-//		expression = parse("X - X + X - Y + Y - Z + 1 - 5 >= 0");
-//		expected = true;
-//		DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(true, true);
-//		boolean isLiteral = theory.isLiteral2(expression, context);
-//		assertEquals(expected, isLiteral);
-//	}
+	@Test
+	public void isLiteralTests() {
+		Expression expression;
+		boolean expected;
+		Context context = new TrueContext();
+		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
+				map(
+						parse("X"), parse("Integer"),
+						parse("Y"), parse("Integer"),
+						parse("Z"), parse("Integer"),
+						parse("W"), parse("Real")
+						));
+
+		// Different arithmetic literals include up to two integer variables with coefficient 
+		// -1 or +1 (each no more than once) and an optional numeric constant.
+		expression = parse("1 >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("-X >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X + Y >= 0");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y + 3 >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y + 3 + Z >= Z");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - X + X - Y + Y - Z + 1 - 5 >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+
+	
+
+		
+		// Final variables coefficients must be 1 or -1
+		expression = parse("X >= -X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y >= -X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X + Y >= -X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y + 3 >= -X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y + 3 + Z >= Z - X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - X + X - Y + Y - Z + 1 - 5 >= -X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+
+	
+	
+		// Final variables coefficients must be 1 or -1
+		// Coefficients may be present in the initial expression
+		expression = parse("X*2 >= 0");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("2*X - Y >= 0");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("2*X - Y - X >= 0");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("2*X - Y >= X");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X + Y >= 2*Y");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("3*X - Y + 3 >= X");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("X - Y + 3 + 2*Z >= 2*Z");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+		
+		expression = parse("2*X - 2*X + X - 2*Y + 2*Y - 2*Z + 1 - 5 >= -Z");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+
+	
+	
+	
+		// Variables must be integer
+		expression = parse("2*X - 2*X + X - 2*W + 2*W - 2*Z + 1 - 5 >= -Z");
+		expected = true;
+		runIsLiteralTest(expression, expected, context);
+
+		expression = parse("W - X >= 0");
+		expected = false;
+		runIsLiteralTest(expression, expected, context);
+}
+
+	/**
+	 * @param expression
+	 * @param expected
+	 * @param context
+	 */
+	public void runIsLiteralTest(Expression expression, boolean expected, Context context) {
+		DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(true, true);
+		boolean isLiteral = theory.isLiteral2(expression, context);
+		assertEquals(expected, isLiteral);
+	}
 	
 	@Test
 	public void debuggingTests() {

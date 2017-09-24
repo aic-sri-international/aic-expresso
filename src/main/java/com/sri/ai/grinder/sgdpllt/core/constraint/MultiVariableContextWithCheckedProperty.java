@@ -463,8 +463,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public Type getType(Expression typeExpression) {
-		return tail.getType(typeExpression);
+	public Type getTypeFromTypeExpression(Expression typeExpression) {
+		return tail.getTypeFromTypeExpression(typeExpression);
 	}
 
 	@Override

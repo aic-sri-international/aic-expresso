@@ -169,7 +169,7 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 	public RealInterval getType(Context context) {
 		if (cachedType == null) {
 			Expression variableTypeExpression = getVariableTypeExpression(context);
-			Type type = context.getType(variableTypeExpression);
+			Type type = context.getTypeFromTypeExpression(variableTypeExpression);
 			if (type instanceof RealExpressoType) {
 				cachedType = new RealInterval("]-infinity;infinity[");
 				// represents Real as real interval for uniformity

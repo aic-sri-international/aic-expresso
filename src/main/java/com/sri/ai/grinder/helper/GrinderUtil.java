@@ -552,7 +552,7 @@ public class GrinderUtil {
 			for (int idx = 0; idx < expression.getArguments().size(); idx++) {
 				Expression arg         = expression.get(idx);
 				Expression argExprType = argumentsTypesList.get(idx);
-				Type       argType     = registry.getType(argExprType);
+				Type       argType     = registry.getTypeFromTypeExpression(argExprType);
 				if (!isSubtypeOf(arg, argType, registry)) {
 					throw new Error("Function " + expression.getFunctor() + " is of type " + functionType + " but has arguments that are not legal subtypes [#"+idx+"] = "+ expression.getArguments());
 				}
@@ -720,7 +720,7 @@ public class GrinderUtil {
 		if (result == -1) {
 			variableType = registry.getTypeExpressionOfRegisteredSymbol(symbol);
 			if (variableType != null) {
-				Type type = registry.getType(variableType);
+				Type type = registry.getTypeFromTypeExpression(variableType);
 				if (type != null) {
 					Expression sizeExpression = type.cardinality();
 					if (sizeExpression.equals(apply(CARDINALITY, type.getName()))) {
@@ -806,7 +806,7 @@ public class GrinderUtil {
 			type = new RealInterval(typeExpression.toString());
 		}
 		else if (FunctionType.isFunctionType(typeExpression)) {
-			Function<Expression, Type> getType = e -> registry.getType(e);
+			Function<Expression, Type> getType = e -> registry.getTypeFromTypeExpression(e);
 			
 			Type codomain = getType.apply(FunctionType.getCodomain(typeExpression));
 			
@@ -819,7 +819,7 @@ public class GrinderUtil {
 		}
 		else if (TupleType.isTupleType(typeExpression)) {
 			List<Type> elementTypes = typeExpression.getArguments().stream()
-				.map(elementTypeExpression -> registry.getType(elementTypeExpression))
+				.map(elementTypeExpression -> registry.getTypeFromTypeExpression(elementTypeExpression))
 				.collect(Collectors.toList());
 			type = new TupleType(elementTypes);
 		}
@@ -923,7 +923,7 @@ public class GrinderUtil {
 			result = true;
 		}
 		else {
-			result = isTypeSubtypeOf(registry.getType(getTypeExpression(expression, registry)), ofType);
+			result = isTypeSubtypeOf(registry.getTypeFromTypeExpression(getTypeExpression(expression, registry)), ofType);
 		}
 		
 		return result;

@@ -53,6 +53,7 @@ import static com.sri.ai.util.Util.map;
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.IntegerExpressoType;
@@ -82,6 +83,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheory;
+import com.sri.ai.util.math.Rational;
 
 /** 
  * A {@link Theory} for difference arithmetic literals, with quantifier elimination over polynomials.
@@ -210,9 +212,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	public boolean isLiteral2(Expression expression, Context context) {
 		boolean result;
 		if (isApplicationOfLiteralFunctor(expression)) {
-			Expression leftHandSideMinusRightHandSide = Minus.make(expression.get(0), expression.get(1));
-			Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
-			result = forAll(polynomial.getMonomials(), m -> isDifferenceArithmeticTerm(m, context));
+			result = checkIfComparisonIsDifferenceArithmeticLiteral(expression, context);
 		}
 		else {
 			result = false;
@@ -220,14 +220,28 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		return result;
 	}
 
-	private boolean isDifferenceArithmeticTerm(Monomial monomial, Context context) {
+	private static boolean checkIfComparisonIsDifferenceArithmeticLiteral(Expression expression, Context context) {
+		boolean result;
+		Expression leftHandSideMinusRightHandSide = Minus.make(expression.get(0), expression.get(1));
+		Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
+		result =
+				forAll(polynomial.getMonomials(), isDifferenceArithmeticTerm(context))
+				&&
+				thereIsAtMostOnePositiveAndOneNegativeVariableMonomial(polynomial);
+		return result;
+	}
+
+	private static Predicate<Monomial> isDifferenceArithmeticTerm(Context context) {
+		return m -> isDifferenceArithmeticTerm(m, context);
+	}
+
+	private static boolean isDifferenceArithmeticTerm(Monomial monomial, Context context) {
 		boolean result;
 		if (monomial.degree() == 0) {
 			result = true;
 		}
 		else if (monomial.degree() == 1) {
-			Expression variable = getFirst(monomial.getOrderedNonNumericFactors());
-			result = variableIsInteger(variable, context);
+			result = monomialOfDegreeOneIsDifferenceArithmeticTerm(monomial, context);
 		}
 		else {
 			result = false;
@@ -235,9 +249,50 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		return result;
 	}
 
+	private static boolean monomialOfDegreeOneIsDifferenceArithmeticTerm(Monomial monomial, Context context) {
+		boolean result;
+		Rational coefficient = monomial.getNumericFactor();
+		boolean coefficientIsEitherOneOrMinusOne = 
+				coefficient.equals(Rational.ONE) || coefficient.equals(Rational.MINUS_ONE);
+		if ( ! coefficientIsEitherOneOrMinusOne) {
+			result = false;
+		}
+		else {
+			Expression variable = getFirst(monomial.getOrderedNonNumericFactors());
+			result = variableIsInteger(variable, context);
+		}
+		return result;
+	}
+
 	private static boolean variableIsInteger(Expression variable, Context context) {
-		Type variableType = context.getType(variable);
+		Type variableType = context.getTypeOfRegisteredSymbol(variable);
 		boolean variableIsInteger = variableType instanceof IntegerExpressoType || variableType instanceof IntegerInterval;
 		return variableIsInteger;
+	}
+
+	private static boolean thereIsAtMostOnePositiveAndOneNegativeVariableMonomial(Polynomial polynomial) {
+		
+		boolean result = true;
+		int numberOfPositiveVariableTerms = 0;
+		int numberOfNegativeVariableTerms = 0;
+		for (Monomial monomial : polynomial.getMonomials()) {
+			if (monomial.degree() == 1) {
+				Rational coefficient = monomial.getNumericFactor();
+				if (coefficient.isPositive()) {
+					numberOfPositiveVariableTerms++;
+				}
+				else if (coefficient.isNegative()) {
+					numberOfNegativeVariableTerms++;
+				}
+				else {
+					throw new Error("Monomial with zero coefficient should not be present: " + monomial);
+				}
+			}
+			if (numberOfPositiveVariableTerms > 1 || numberOfNegativeVariableTerms > 1) {
+				result = false;
+				break;
+			}
+		}
+		return result;
 	}
 }

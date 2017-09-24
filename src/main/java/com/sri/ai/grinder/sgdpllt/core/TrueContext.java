@@ -273,13 +273,13 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Type getType(String name) {
 		Expression typeExpression = parse(name);
-		Type result = getType(typeExpression);
+		Type result = getTypeFromTypeExpression(typeExpression);
 		return result;
 	}
 
 	@Override
-	public Type getType(Expression typeExpression) {
-		Type result = registry.getType(typeExpression);
+	public Type getTypeFromTypeExpression(Expression typeExpression) {
+		Type result = registry.getTypeFromTypeExpression(typeExpression);
 		return result;
 	}
 

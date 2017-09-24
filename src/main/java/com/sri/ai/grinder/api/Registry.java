@@ -112,7 +112,7 @@ public interface Registry extends Cloneable {
 	 */
 	default Type getTypeOfRegisteredSymbol(Expression symbol) {
 		Expression typeExpression = getTypeExpressionOfRegisteredSymbol(symbol);
-		Type result = getType(typeExpression);
+		Type result = getTypeFromTypeExpression(typeExpression);
 		return result;
 	}
 	
@@ -171,7 +171,7 @@ public interface Registry extends Cloneable {
 	 * @param typeExpression
 	 * @return
 	 */
-	Type getType(Expression typeExpression);
+	Type getTypeFromTypeExpression(Expression typeExpression);
 	
 	Collection<Type> getTypes();
 	

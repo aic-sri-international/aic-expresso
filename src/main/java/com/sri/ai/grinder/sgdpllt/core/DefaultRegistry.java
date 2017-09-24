@@ -262,12 +262,12 @@ public class DefaultRegistry implements Registry, Serializable {
 	@Override
 	public Type getType(String name) {
 		Expression typeExpression = parse(name);
-		Type result = getType(typeExpression);
+		Type result = getTypeFromTypeExpression(typeExpression);
 		return result;
 	}
 
 	@Override
-	public Type getType(Expression typeExpression) {
+	public Type getTypeFromTypeExpression(Expression typeExpression) {
 		Type result = fromTypeExpressionToType.get(typeExpression);
 		if (result == null) {
 			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression, this);

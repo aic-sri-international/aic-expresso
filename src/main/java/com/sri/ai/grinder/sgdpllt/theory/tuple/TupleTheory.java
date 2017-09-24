@@ -88,7 +88,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 		//            to create E
 		Expression variable = constraint.getVariable();
 		Expression typeExpression = GrinderUtil.getTypeExpression(variable, context);
-		Type type = context.getType(typeExpression);
+		Type type = context.getTypeFromTypeExpression(typeExpression);
 		if (!isSuitableFor(variable, type)) {
 			throw new Error("Theory " + this + " asked to eliminate quantifier indexed by " + variable + " in " + typeExpression + ", but this theory is not suitable for this type.");
 		}
