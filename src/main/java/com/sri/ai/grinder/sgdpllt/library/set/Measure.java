@@ -104,7 +104,7 @@ public class Measure {
 				}
 				Expression intensionalSetCondition = intensionalSet.getCondition();
 				Context intensionalSetContext      = context.extendWith(indexExpressionsSet);
-				Type indexType                     = GrinderUtil.getType(intensionalSetIndex, intensionalSetContext);
+				Type indexType                     = GrinderUtil.getTypeOfExpression(intensionalSetIndex, intensionalSetContext);
 				
 				if (intensionalSetCondition.equals(false)) {
 					evaluatedResult = Expressions.ZERO; // short circuit known empty sets up front.

@@ -104,7 +104,7 @@ public class CompoundTheory extends AbstractTheory {
 
 	// NOTE: package protected so TestingSupport can utilize.
 	Theory getTheory(Expression variable, Context context) {
-		Type type = GrinderUtil.getType(variable, context);
+		Type type = GrinderUtil.getTypeOfExpression(variable, context);
 		Theory result = getTheory(variable, type);
 		return result;
 	}

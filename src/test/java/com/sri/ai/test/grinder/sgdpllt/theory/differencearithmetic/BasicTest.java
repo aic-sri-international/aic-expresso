@@ -189,7 +189,7 @@ public class BasicTest {
 	 */
 	public void runIsLiteralTest(Expression expression, boolean expected, Context context) {
 		DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(true, true);
-		boolean isLiteral = theory.isLiteral2(expression, context);
+		boolean isLiteral = theory.isLiteral(expression, context);
 		assertEquals(expected, isLiteral);
 	}
 	

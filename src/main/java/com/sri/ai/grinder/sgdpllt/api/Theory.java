@@ -352,7 +352,7 @@ public interface Theory extends Cloneable {
 				&& !(expression instanceof QuantifiedExpression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
-				&& (typeExpression = GrinderUtil.getTypeExpression(expression, context)) != null
+				&& (typeExpression = GrinderUtil.getTypeExpressionOfExpression(expression, context)) != null
 				&& (type = context.getTypeFromTypeExpression(typeExpression)) != null
 				&& isSuitableFor(expression, type)
 				&& !thereExists(context.getTypes(), t -> t.contains(expression));		

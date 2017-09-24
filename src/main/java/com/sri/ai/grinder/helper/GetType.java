@@ -18,7 +18,7 @@ public class GetType implements Function<Expression, Expression> {
 
 	@Override
 	public Expression apply(Expression input) {
-		Expression result = GrinderUtil.getTypeExpression(input, registry);
+		Expression result = GrinderUtil.getTypeExpressionOfExpression(input, registry);
 		return result;
 	}
 }

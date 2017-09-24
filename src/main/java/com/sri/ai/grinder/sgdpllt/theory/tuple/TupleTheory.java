@@ -87,7 +87,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
 		//            to create E
 		Expression variable = constraint.getVariable();
-		Expression typeExpression = GrinderUtil.getTypeExpression(variable, context);
+		Expression typeExpression = GrinderUtil.getTypeExpressionOfExpression(variable, context);
 		Type type = context.getTypeFromTypeExpression(typeExpression);
 		if (!isSuitableFor(variable, type)) {
 			throw new Error("Theory " + this + " asked to eliminate quantifier indexed by " + variable + " in " + typeExpression + ", but this theory is not suitable for this type.");

@@ -155,7 +155,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 	private Pair<Rational, Boolean> computeMeasureAndDetermineIfShouldSample(Expression index, Expression indexCondition, Expression additiveIdentityElement, Context context) {
 		Pair<Rational, Boolean> result;
 		
-		Expression indexType = GrinderUtil.getTypeExpression(index, context);
+		Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
 		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
 		
 		Expression intensionalSet = IntensionalSet.intensionalMultiSet(indexExpressionsSet, index, indexCondition);
@@ -164,7 +164,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		
 		boolean sample = true;
 		if (!alwaysSample) {			
-			Type type = GrinderUtil.getType(index, context);
+			Type type = GrinderUtil.getTypeOfExpression(index, context);
 			// NOTE: We always sample from continuous domains
 			if (type != null && type.isDiscrete()) {
 				if (measureSetOfI.compareTo(sampleSizeN) <= 0) {

@@ -117,7 +117,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 	}
 	
 	public static Type getTypeToSampleFrom(Expression variable, Expression condition, Context context) {
-		Type result = GrinderUtil.getType(variable, context);
+		Type result = GrinderUtil.getTypeOfExpression(variable, context);
 		
 		if (result instanceof FunctionType) {
 			FunctionType functionType = (FunctionType) result;

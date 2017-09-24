@@ -371,7 +371,7 @@ public class SampleCommonInterpreterTest {
 				Expression index = indices.get(0);
 				Context intensionalSetContext = context.extendWith(indexExpressions);			
 				// Ensure condition of correct type is created
-				Type indexType = GrinderUtil.getType(index, intensionalSetContext);
+				Type indexType = GrinderUtil.getTypeOfExpression(index, intensionalSetContext);
 				
 				SingleVariableConstraint singleVariableConstraint = null;
 				if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {

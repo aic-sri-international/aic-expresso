@@ -465,7 +465,7 @@ public class InversionSimplifier implements Simplifier {
 		}
 		Expression index              = indices.get(0);
 		Context intensionalSetContext = context.extendWith(indexExpressionsSet);
-		Type type                     = GrinderUtil.getType(index, intensionalSetContext);
+		Type type                     = GrinderUtil.getTypeOfExpression(index, intensionalSetContext);
 		
 		FunctionType functionType = null;
 		if (type instanceof FunctionType) {

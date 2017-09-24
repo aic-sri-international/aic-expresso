@@ -200,7 +200,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	 * This is overridden to
 	 * add an instance of {@link IntegerExpressoType} to testing types as well.
 	 * This is needed because arithmetic expressions such as J + 5 are determined to be of
-	 * type name "Integer" by {@link GrinderUtil#getTypeExpression(Expression expression, Registry registry)},
+	 * type name "Integer" by {@link GrinderUtil#getTypeExpressionOfExpression(Expression expression, Registry registry)},
 	 * so a type with this name is needed by the default implementation of {@link #isAtom(Expression, Context)}
 	 * if the flag for analyzing the types of arguments to equalities is true.
 	 */
@@ -209,9 +209,10 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		return list(INTEGER_TYPE);
 	}
 	
-	public boolean isLiteral2(Expression expression, Context context) {
+	@Override
+	public boolean isAtom(Expression expression, Context context) {
 		boolean result;
-		if (isApplicationOfLiteralFunctor(expression)) {
+		if (isApplicationOfAtomFunctor(expression)) {
 			result = checkIfComparisonIsDifferenceArithmeticLiteral(expression, context);
 		}
 		else {
@@ -220,7 +221,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		return result;
 	}
 
-	private static boolean checkIfComparisonIsDifferenceArithmeticLiteral(Expression expression, Context context) {
+	private boolean checkIfComparisonIsDifferenceArithmeticLiteral(Expression expression, Context context) {
 		boolean result;
 		Expression leftHandSideMinusRightHandSide = Minus.make(expression.get(0), expression.get(1));
 		Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
@@ -259,12 +260,13 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		}
 		else {
 			Expression variable = getFirst(monomial.getOrderedNonNumericFactors());
-			result = variableIsInteger(variable, context);
+			boolean variableIsSymbol = variable.getSyntacticFormType().equals("Symbol");
+			result = variableIsSymbol && symbolIsIntegerTyped(variable, context);
 		}
 		return result;
 	}
 
-	private static boolean variableIsInteger(Expression variable, Context context) {
+	private static boolean symbolIsIntegerTyped(Expression variable, Context context) {
 		Type variableType = context.getTypeOfRegisteredSymbol(variable);
 		boolean variableIsInteger = variableType instanceof IntegerExpressoType || variableType instanceof IntegerInterval;
 		return variableIsInteger;

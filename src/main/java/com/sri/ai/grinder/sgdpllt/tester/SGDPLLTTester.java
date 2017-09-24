@@ -712,7 +712,7 @@ public class SGDPLLTTester {
 		Expression problem = body;
 		boolean firstIndex = true;
 		for (Expression index : indices) {
-			Expression indexType = GrinderUtil.getTypeExpression(index, context);
+			Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
 			Expression constraintOnThisIndex = firstIndex? constraint : TRUE;
 			problem = group.makeProblemExpression(index, indexType, constraintOnThisIndex, problem);
 			firstIndex = false;

@@ -128,7 +128,7 @@ public class AssignmentsSamplingIteratorTest {
 		Expression condition = parse(conditionString);
 		
 		// Ensure condition of correct type is created
-		Type indexType = GrinderUtil.getType(index, context);
+		Type indexType = GrinderUtil.getTypeOfExpression(index, context);
 		if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {
 			SingleVariableLinearRealArithmeticConstraint svlraConstraint = new SingleVariableLinearRealArithmeticConstraint(index, true, context.getTheory());
 			

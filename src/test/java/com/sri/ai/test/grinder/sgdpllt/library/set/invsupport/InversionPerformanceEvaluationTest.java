@@ -202,7 +202,7 @@ public class InversionPerformanceEvaluationTest {
 		}
 		Expression index              = indices.get(0);
 		Context intensionalSetContext = context.extendWith(indexExpressionsSet);
-		Type type                     = GrinderUtil.getType(index, intensionalSetContext);
+		Type type                     = GrinderUtil.getTypeOfExpression(index, intensionalSetContext);
 		
 		Rational result = resultSoFar.multiply(type.cardinality().rationalValue());
 		
