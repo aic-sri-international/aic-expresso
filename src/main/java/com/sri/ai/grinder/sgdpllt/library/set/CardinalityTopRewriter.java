@@ -67,6 +67,7 @@ public class CardinalityTopRewriter extends CombiningTopRewriter {
 	public CardinalityTopRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
 		
 		super(
+				"Cardinality",
 				new Switch<>(
 				Switch.FUNCTOR,
 				map(

@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.REAL_TYPE;
-import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfExpression;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
@@ -48,20 +47,23 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_E
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
 import static com.sri.ai.util.Util.forAll;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.IntegerExpressoType;
-import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.polynomial.api.Monomial;
+import com.sri.ai.grinder.polynomial.api.Polynomial;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
@@ -71,6 +73,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
+import com.sri.ai.grinder.sgdpllt.library.number.Minus;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
@@ -134,29 +137,6 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
-		boolean result = forAll(applicationOfAtomFunctor.getArguments(), e -> argumentIsValid(e, context));
-		return result;
-	}
-
-	private boolean argumentIsValid(Expression argumentOfAtomFunctor, Context context) {
-		Type eType = getTypeOfExpression(argumentOfAtomFunctor, context);
-		boolean result = isValidArgument(argumentOfAtomFunctor, eType, context);
-		return result;
-	}
-
-	protected boolean isValidArgument(Expression expression, Type type, Context context) {
-		boolean result = 
-				type instanceof RealExpressoType || 
-				type instanceof RealInterval ||
-				((type instanceof IntegerExpressoType || type instanceof IntegerInterval)
-						&&
-						getVariablesIn(expression, context).isEmpty()
-						);
-		return result;
-	}
-
-	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
 		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), theory);
 	}
@@ -214,5 +194,47 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 				|| expression.equals(TIMES)
 				|| expression.hasFunctor(TIMES); 
 		return result;
+	}
+	
+	@Override
+	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
+		boolean result;
+		Expression leftHandSideMinusRightHandSide = 
+				Minus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
+		Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
+		result = forAll(polynomial.getMonomials(), isLinearRealArithmeticTerm(context));
+		return result;
+	}
+
+	private static Predicate<Monomial> isLinearRealArithmeticTerm(Context context) {
+		return m -> isLinearRealArithmeticTerm(m, context);
+	}
+
+	private static boolean isLinearRealArithmeticTerm(Monomial monomial, Context context) {
+		boolean result;
+		if (monomial.degree() == 0) {
+			result = true;
+		}
+		else if (monomial.degree() == 1) {
+			result = monomialOfDegreeOneIsLinearRealArithmeticTerm(monomial, context);
+		}
+		else {
+			result = false;
+		}
+		return result;
+	}
+
+	private static boolean monomialOfDegreeOneIsLinearRealArithmeticTerm(Monomial monomial, Context context) {
+		boolean result;
+		Expression variable = getFirst(monomial.getOrderedNonNumericFactors());
+		boolean variableIsSymbol = variable.getSyntacticFormType().equals("Symbol");
+		result = variableIsSymbol && symbolIsRealTyped(variable, context);
+		return result;
+	}
+
+	private static boolean symbolIsRealTyped(Expression variable, Context context) {
+		Type variableType = context.getTypeOfRegisteredSymbol(variable);
+		boolean variableIsInteger = variableType instanceof RealExpressoType || variableType instanceof RealInterval;
+		return variableIsInteger;
 	}
 }

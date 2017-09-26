@@ -61,10 +61,9 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 @Beta
 public class BasicTest {
 
-	//@Test
+	@Test
 	public void debuggingTests() {
 		// Problems that revealed bugs in the past.
-		// Running them in debug mode that compares not only final result, but all non-conditional sub-problem results.
 		
 		Expression problem;
 		

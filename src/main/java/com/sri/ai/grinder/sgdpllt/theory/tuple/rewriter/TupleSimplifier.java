@@ -57,6 +57,7 @@ public class TupleSimplifier extends CombiningTopRewriter {
 	
 	public TupleSimplifier() {
 		super(
+				"Tuple",
 				new TupleEqualityTopRewriter(),
 				new TupleGetSetTopRewriter()
 				);

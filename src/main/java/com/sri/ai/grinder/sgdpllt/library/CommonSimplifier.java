@@ -75,6 +75,7 @@ public class CommonSimplifier extends CombiningTopRewriter {
 	
 	public CommonSimplifier() {
 		super(
+				"Common operations",
 				new BindingTopSimplifier(),
 				new BooleanSimplifier(),
 				new NumericSimplifier(),

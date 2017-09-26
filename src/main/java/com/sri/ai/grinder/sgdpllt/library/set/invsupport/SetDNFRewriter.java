@@ -53,7 +53,8 @@ public class SetDNFRewriter extends Recursive {
 	
 	private static Rewriter createBaseRewriter() {
 		// Original Rewriters		
-		TopRewriter topRewriter = new CombiningTopRewriter(  
+		TopRewriter topRewriter = new CombiningTopRewriter(
+				"SetDNF",
 				new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
 				new BooleanSimplifier(), // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
 				new UnionEmptySetTopRewriter(),

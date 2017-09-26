@@ -108,7 +108,7 @@ public interface TopRewriter extends Rewriter {
 			result = mergedSwitches.get(0);
 		}
 		else {
-			result = combineAlreadyMergedSwitches(mergedSwitches);
+			result = combineAlreadyMergedSwitches("Various simplifiers", mergedSwitches);
 		}
 		return result;
 	}
