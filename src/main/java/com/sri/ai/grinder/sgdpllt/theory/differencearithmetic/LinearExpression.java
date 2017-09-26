@@ -5,7 +5,7 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.accumulateMapValues;
-import static com.sri.ai.util.Util.applyFunctionToValuesOf;
+import static com.sri.ai.util.Util.applyFunctionToValuesOfMap;
 import static com.sri.ai.util.Util.getValueOrDefault;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -119,7 +119,7 @@ public class LinearExpression extends AbstractExpressionWrapper {
 	 */
 	public LinearExpression negate() {
 		Map<Expression, Number> fromVariablesAndConstantOneToCoefficients = 
-				applyFunctionToValuesOf(this.fromVariablesAndConstantOneToCoefficients, negate);
+				applyFunctionToValuesOfMap(this.fromVariablesAndConstantOneToCoefficients, negate);
 		LinearExpression result = new LinearExpression(fromVariablesAndConstantOneToCoefficients);
 		return result;
 	}

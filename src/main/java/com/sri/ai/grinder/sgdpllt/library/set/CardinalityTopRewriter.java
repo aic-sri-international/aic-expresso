@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
@@ -62,7 +62,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
  *
  */
 @Beta
-public class CardinalityTopRewriter extends DefaultTopRewriter {
+public class CardinalityTopRewriter extends CombiningTopRewriter {
 
 	public CardinalityTopRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
 		

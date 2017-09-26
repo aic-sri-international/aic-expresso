@@ -41,37 +41,17 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
-import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.AND;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.OR;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
-import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.println;
-import static com.sri.ai.util.Util.set;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
-import com.sri.ai.expresso.core.DefaultFunctionApplication;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.helper.UniquelyNamedConstantAreAllSymbolsNotIn;
-import com.sri.ai.grinder.helper.UniquelyNamedConstantIncludingBooleansAndNumbersPredicate;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.Equality;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 // import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -111,7 +91,7 @@ public class ClearExampleEvaluation {
 
 		Context context = new TrueContext(theory); // true context: all assignments to free variables are of interest
 		// We will later see how we can use contexts that restrict the free variable assignments of interest.
-		context = context.add(BOOLEAN_TYPE);
+		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
 		context=context.extendWithSymbolsAndTypes("B", "Integer");
 		context=context.extendWithSymbolsAndTypes("J", "Integer");
 		

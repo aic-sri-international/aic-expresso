@@ -84,8 +84,8 @@ public class BasicTest {
 				);
 		
 		Context context = new TrueContext(theory);
-		context = context.add(BOOLEAN_TYPE);
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
+		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
 		
 		Expression symbolicSolution = theory.evaluate(problem, context);
 		

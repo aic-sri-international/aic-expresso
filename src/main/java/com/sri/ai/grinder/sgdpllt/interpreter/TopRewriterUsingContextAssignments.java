@@ -35,6 +35,6 @@ public class TopRewriterUsingContextAssignments extends RedirectingRewriter {
 
 	@Override
 	public void setBaseRewriter(Rewriter baseTopRewriter) {
-		super.setBaseRewriter(new FirstOf(valueReplacer, baseTopRewriter));
+		super.setBaseRewriter(new FirstOf("Replacer of assigned value or " + baseTopRewriter, valueReplacer, baseTopRewriter));
 	}
 }

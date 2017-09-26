@@ -40,12 +40,14 @@ package com.sri.ai.grinder.sgdpllt.theory.equality;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
+import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
@@ -72,15 +74,15 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.
-	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
+	 * @param atomFunctorsAreUniqueToThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound TODO
 	 */
-	public EqualityTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public EqualityTheory(boolean atomFunctorsAreUniqueToThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				set(EQUALITY, DISEQUALITY),
-				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				atomFunctorsAreUniqueToThisTheory,
 				propagateAllLiteralsWhenVariableIsBound);
 	}
 	
@@ -96,11 +98,17 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	}
 
 	@Override
-	protected boolean isValidArgument(Expression expression, Type type, Context context) {
-		boolean result = isNonBooleanCategoricalType(type);
+	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
+		boolean result = forAll(applicationOfAtomFunctor.getArguments(), e -> argumentIsValid(e, context));
 		return result;
 	}
-	
+
+	private boolean argumentIsValid(Expression argumentOfAtomFunctor, Context context) {
+		Type eType = GrinderUtil.getTypeOfExpression(argumentOfAtomFunctor, context);
+		boolean result = isNonBooleanCategoricalType(eType);
+		return result;
+	}
+
 	private boolean isNonBooleanCategoricalType(Type type) {
 		boolean result = !type.getName().equals("Boolean") && type instanceof Categorical;
 		return result;

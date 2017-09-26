@@ -137,5 +137,10 @@ public class Exhaustive implements Rewriter {
 			
 			return result;
 		}
+		
+		@Override
+		public String toString() {
+			return "Exhaustive step solver based on " + baseStepSolver;
+		}
 	}
 }

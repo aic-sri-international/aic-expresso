@@ -131,7 +131,7 @@ public class ExhaustiveTest {
 	private void runTest(Rewriter rewriter, Expression initial, Expression expected, Map<Expression, Expression> symbolsAndTypes) {
 		CompoundTheory theory = new CompoundTheory(new PropositionalTheory(), new DifferenceArithmeticTheory(false, true));
 		Context context = new TrueContext(theory);
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(symbolsAndTypes);
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(symbolsAndTypes);
 		Rewriter exhaustive = new Exhaustive(rewriter);
 		Expression solution = exhaustive.apply(initial, context);
 		System.out.println("Solution: " + solution);	

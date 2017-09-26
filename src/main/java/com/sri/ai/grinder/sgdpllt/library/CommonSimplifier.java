@@ -48,7 +48,7 @@ import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetConditionTopRewriter
 import com.sri.ai.grinder.sgdpllt.library.set.IntensionalSetFalseConditionToEmptySetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetExpressionIsEqualToEmptySetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSimplifier;
 
 /**
@@ -71,7 +71,7 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleSimplifier;
  *
  */
 @Beta
-public class CommonSimplifier extends DefaultTopRewriter {
+public class CommonSimplifier extends CombiningTopRewriter {
 	
 	public CommonSimplifier() {
 		super(

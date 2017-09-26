@@ -37,7 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpllt.rewriter.api;
 
-import static com.sri.ai.util.Util.getFirst;
+import static com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter.combineAlreadyMergedSwitches;
+import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.mergeSwitchesWithTheSameKeyMakerIntoASingleOne;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
@@ -48,7 +49,7 @@ import java.util.Map;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.util.Util;
@@ -56,7 +57,8 @@ import com.sri.ai.util.Util;
 
 /**
  * An indicator interface for rewriters that are either a {@link Switch} rewriter,
- * or a {@link DefaultTopRewriter} (an extension of {@link FirstOf}) rewriter with base top rewriters.
+ * or a {@link CombiningTopRewriter} (an extension of {@link FirstOf}) rewriter with base top rewriters,
+ * or a basic rewriter that typically will not recurse.
  * 
  * The name "top rewriter" comes from the fact that these only apply once to the "top expression" of an expression;
  * that is, they do no recurse, and do not apply multiple times, automatically
@@ -70,13 +72,13 @@ import com.sri.ai.util.Util;
 public interface TopRewriter extends Rewriter {
 
 	/**
-	 * Varargs version of {@link #merge(List)}.
+	 * Varargs version of {@link #makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches(List)}.
 	 * @param topRewriters
 	 * @param <T> the type of keys in the switch rewriters.
 	 * @return
 	 */
 	public static <T> TopRewriter merge(TopRewriter... topRewriters) {
-		return merge(Arrays.asList(topRewriters));
+		return makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches(Arrays.asList(topRewriters));
 	}
 
 	/**
@@ -85,58 +87,69 @@ public interface TopRewriter extends Rewriter {
 	 * each of them the merge of all {@link Switch<T>} rewriters with the same key maker
 	 * (from {@link Switch.merge(List<Rewriter>)}.
 	 * If this list contains more than one {@link Switch<T>} rewriter,
-	 * returns a {@link DefaultTopRewriter} rewriter with them as base rewriters.
+	 * returns a {@link CombiningTopRewriter} rewriter with them as base rewriters.
 	 * If this list contains only one {@link Switch<T>} rewriter, returns it.
-	 * @param topRewriters
+	 * @param topRewritersThatAreEitherFirstOfOrSwitches
 	 * @param <T> the type of keys in the switch rewriters.
 	 * @return
 	 */
-	public static <T> TopRewriter merge(List<? extends TopRewriter> topRewriters) {
+	public static <T> TopRewriter makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches(List<? extends TopRewriter> topRewritersThatAreEitherFirstOfOrSwitches) {
 		
-		List<Switch<T>> mergedTopRewriters = makeMergedSwitches(topRewriters);
+		List<Switch<T>> mergedSwitches = makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches(topRewritersThatAreEitherFirstOfOrSwitches);
 		
-		TopRewriter result;
-		if (mergedTopRewriters.size() == 1) {
-			result = getFirst(mergedTopRewriters);
-		}
-		else {
-			result = new DefaultTopRewriter(mergedTopRewriters, true);
-		}
+		TopRewriter result = makeTopRewriterFromAlreadyMergedSwitches(mergedSwitches);
 		
 		return result;
 	}
 
-	public static <T> List<Switch<T>> makeMergedSwitches(TopRewriter... topRewriters) throws Error {
-		return makeMergedSwitches(Arrays.asList(topRewriters));
+	public static <T> TopRewriter makeTopRewriterFromAlreadyMergedSwitches(List<Switch<T>> mergedSwitches) {
+		TopRewriter result;
+		if (mergedSwitches.size() == 1) {
+			result = mergedSwitches.get(0);
+		}
+		else {
+			result = combineAlreadyMergedSwitches(mergedSwitches);
+		}
+		return result;
 	}
 
-	public static <T> List<Switch<T>> makeMergedSwitches(List<? extends TopRewriter> topRewriters) throws Error {
-		List<Rewriter> flattenedRewriters = FirstOf.flatten(topRewriters);
+	public static <T> List<Switch<T>> makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches(
+			TopRewriter... topRewritersThatAreEitherFirstOfOrSwitches) throws Error {
+		
+		return makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches(Arrays.asList(topRewritersThatAreEitherFirstOfOrSwitches));
+	}
+
+	public static <T> List<Switch<T>> makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches(
+			List<? extends TopRewriter> topRewritersThatAreEitherFirstOfOrSwitches) throws Error {
+		
+		List<Rewriter> switchRewriters = FirstOf.flattenListOfRewritersWithRespectToFirstOfToANewList(topRewritersThatAreEitherFirstOfOrSwitches);
 	
-		Map<Function<Expression, T>, List<Switch<T>>> switchRewritersSeparatedByKeyMaker = map();
-		for (Rewriter switchRewriterAsRewriter : flattenedRewriters) {
-			if ( ! (switchRewriterAsRewriter instanceof Switch)) {
-				throw new Error(DefaultTopRewriter.class + " merge must be applied only to lists of rewriters that, once flattened with regard to " + FirstOf.class + ", are composed only of " + Switch.class + " rewriters. This is requires because the final product must be a " + Switch.class + " rewriter, and it needs each basic rewriter to be associated with a key value, and only other " + Switch.class + "rewriters provide those.");
-			}
-			else {
-				@SuppressWarnings("unchecked")
-				Switch<T> switchRewriter = (Switch<T>) switchRewriterAsRewriter;
-				Util.addToCollectionValuePossiblyCreatingIt(
-						switchRewritersSeparatedByKeyMaker,
-						switchRewriter.getKeyMaker(),
-						switchRewriter,
-						LinkedList.class);
-			}
-		}
+		Map<Function<Expression, T>, List<Rewriter>> fromKeyMakerToSwitches = gatherListsOfSwitchesSharingKeyMaker(switchRewriters);
 	
-		List<Switch<T>> mergedRewriters = list();
-		for (Map.Entry<Function<Expression, T>, List<Switch<T>>> entry : switchRewritersSeparatedByKeyMaker.entrySet()) {
-			Switch<T> mergedForEntry = Switch.merge(entry.getValue());
-			mergedRewriters.add(mergedForEntry);
+		List<Switch<T>> mergedSwitchRewriters = list();
+		for (Map.Entry<Function<Expression, T>, List<Rewriter>> entry : fromKeyMakerToSwitches.entrySet()) {
+			List<Rewriter> listOfSwitchRewritersWithTheSameKeyMaker = entry.getValue();
+			Switch<T> mergedSwitchRewriterForListAtThisEntry = mergeSwitchesWithTheSameKeyMakerIntoASingleOne(listOfSwitchRewritersWithTheSameKeyMaker);
+			mergedSwitchRewriters.add(mergedSwitchRewriterForListAtThisEntry);
 			// we don't need to use entry.getKey() because that's the keyMaker, which is also present in the values ({@link Switch} rewriters).
 			// The entry.getKey()s are only needed to make sure the rewriters being merged share the same keyMaker.
 		}
-		return mergedRewriters;
+		return mergedSwitchRewriters;
+	}
+
+	public static <T> Map<Function<Expression, T>, List<Rewriter>> gatherListsOfSwitchesSharingKeyMaker(List<Rewriter> switches) throws Error {
+		Map<Function<Expression, T>, List<Rewriter>> fromKeyMakerToSwitches = map();
+		
+		for (Rewriter switchAsRewriter : switches) {
+			@SuppressWarnings("unchecked")
+			Switch<T> switchObject = (Switch<T>) switchAsRewriter;
+			Util.addToCollectionValuePossiblyCreatingIt(
+					fromKeyMakerToSwitches,
+					switchObject.getKeyMaker(),
+					switchObject,
+					LinkedList.class);
+		}
+		return fromKeyMakerToSwitches;
 	}
 	
 }

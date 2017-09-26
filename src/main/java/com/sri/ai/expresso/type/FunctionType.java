@@ -122,7 +122,7 @@ public class FunctionType extends AbstractType {
 					.map(Expression::rationalValue)						
 					.reduce(Rational.ONE, Rational::multiply)
 					.intValue();
-			cachedIterateRegistry = cachedIterateRegistry.add(getCodomain());
+			cachedIterateRegistry = cachedIterateRegistry.makeCloneWithAddedType(getCodomain());
 			
 			Expression codomainTypeExpression = parse(getCodomain().getName());
 			codomainVariables = new ArrayList<>(numCodomainValues);
@@ -135,7 +135,7 @@ public class FunctionType extends AbstractType {
 			
 			List<Expression> argVariables = new ArrayList<>();
 			for (int i = 0; i < getArgumentTypes().size(); i++) {
-				cachedIterateRegistry = cachedIterateRegistry.add(getArgumentTypes().get(i));
+				cachedIterateRegistry = cachedIterateRegistry.makeCloneWithAddedType(getArgumentTypes().get(i));
 				argVariables.add(makeSymbol("A" + (i + 1)));
 				symbolsAndTypes.put(argVariables.get(i), parse(getArgumentTypes().get(i).getName()));
 			}

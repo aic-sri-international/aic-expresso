@@ -95,29 +95,29 @@ public class SymbolicShell {
 				);
 		
 		Context context = new TrueContext(theory);
-		context = context.add(BOOLEAN_TYPE);
-		context = context.add(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
-		context = context.add(new IntegerInterval("Integer"));
-		context = context.add(new RealInterval("Real"));
+		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
+		context = context.makeCloneWithAddedType(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
+		context = context.makeCloneWithAddedType(new IntegerInterval("Integer"));
+		context = context.makeCloneWithAddedType(new RealInterval("Real"));
 		
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("S"), makeSymbol("Boolean")));
 
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("C"), makeSymbol("People")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("D"), makeSymbol("People")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("E"), makeSymbol("People")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("C"), makeSymbol("People")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("D"), makeSymbol("People")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("E"), makeSymbol("People")));
 
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("I"), makeSymbol("Integer")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("J"), makeSymbol("Integer")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("K"), makeSymbol("Integer")));
 
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("X"), makeSymbol("Real")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("Y"), makeSymbol("Real")));
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("Z"), makeSymbol("Real")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("X"), makeSymbol("Real")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("Y"), makeSymbol("Real")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("Z"), makeSymbol("Real")));
 		
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(makeSymbol("T"), parse("(1..5 x 1..5)")));
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("T"), parse("(1..5 x 1..5)")));
 
 		ConsoleIterator consoleIterator = getConsole(args);
 		
@@ -209,7 +209,7 @@ public class SymbolicShell {
 			if (input.hasFunctor("var")) {
 				Expression variable = input.get(0);
 				Expression type = input.get(1);
-				context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(map(variable, type));
+				context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(variable, type));
 				consoleIterator.getOutputWriter().println();	
 				return context;
 			}

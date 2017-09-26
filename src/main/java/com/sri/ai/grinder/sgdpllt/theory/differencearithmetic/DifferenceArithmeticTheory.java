@@ -72,14 +72,9 @@ import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplit
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
 import com.sri.ai.grinder.sgdpllt.library.number.Minus;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractNumericTheory;
@@ -99,14 +94,14 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	 * <p>
 	 * Testing information is initialized to variables <code>I</code>, <code>J</code>, <code>K</code> in <code>0..4</code>.
      *
-	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
+	 * @param atomFunctorsAreUniqueToThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 */
-	public DifferenceArithmeticTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public DifferenceArithmeticTheory(boolean atomFunctorsAreUniqueToThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
-				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				atomFunctorsAreUniqueToThisTheory,
 				propagateAllLiteralsWhenVariableIsBound);
 	}
 
@@ -134,28 +129,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
-
-		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(getTopRewriter())));
-
-		ExpressionLiteralSplitterStepSolver result =
-				new Recursive(new Exhaustive(
-						new FirstOf(
-								getTopRewriter(), 
-								literalExternalizer)))
-				.makeStepSolver(expression);
-		
-		return result;
-	}
-
-	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = type instanceof IntegerExpressoType || type instanceof IntegerInterval;
-		return result;
-	}
-
-	@Override
-	protected boolean isValidArgument(Expression expression, Type type, Context context) {
 		boolean result = type instanceof IntegerExpressoType || type instanceof IntegerInterval;
 		return result;
 	}
@@ -210,20 +184,10 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 	
 	@Override
-	public boolean isAtom(Expression expression, Context context) {
+	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
 		boolean result;
-		if (isApplicationOfAtomFunctor(expression)) {
-			result = checkIfComparisonIsDifferenceArithmeticLiteral(expression, context);
-		}
-		else {
-			result = false;
-		}
-		return result;
-	}
-
-	private boolean checkIfComparisonIsDifferenceArithmeticLiteral(Expression expression, Context context) {
-		boolean result;
-		Expression leftHandSideMinusRightHandSide = Minus.make(expression.get(0), expression.get(1));
+		Expression leftHandSideMinusRightHandSide = 
+				Minus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
 		Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
 		result =
 				forAll(polynomial.getMonomials(), isDifferenceArithmeticTerm(context))

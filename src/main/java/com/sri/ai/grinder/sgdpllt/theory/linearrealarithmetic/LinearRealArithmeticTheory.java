@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.REAL_TYPE;
+import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfExpression;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
@@ -46,6 +47,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
+import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
@@ -89,14 +91,14 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	 * <p>
 	 * Testing information is initialized to variables <code>X</code>, <code>Y</code>, <code>Z</code> in interval <code>[0;4]</code>.
 	 * 
-	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
+	 * @param atomFunctorsAreUniqueToThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 */
-	public LinearRealArithmeticTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
+	public LinearRealArithmeticTheory(boolean atomFunctorsAreUniqueToThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
-				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, 
+				atomFunctorsAreUniqueToThisTheory, 
 				propagateAllLiteralsWhenVariableIsBound);
 	}
 	
@@ -132,6 +134,17 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
+	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
+		boolean result = forAll(applicationOfAtomFunctor.getArguments(), e -> argumentIsValid(e, context));
+		return result;
+	}
+
+	private boolean argumentIsValid(Expression argumentOfAtomFunctor, Context context) {
+		Type eType = getTypeOfExpression(argumentOfAtomFunctor, context);
+		boolean result = isValidArgument(argumentOfAtomFunctor, eType, context);
+		return result;
+	}
+
 	protected boolean isValidArgument(Expression expression, Type type, Context context) {
 		boolean result = 
 				type instanceof RealExpressoType || 

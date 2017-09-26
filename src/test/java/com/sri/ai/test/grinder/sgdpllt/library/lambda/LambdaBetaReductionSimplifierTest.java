@@ -59,7 +59,7 @@ public class LambdaBetaReductionSimplifierTest {
 	public void testSimpleReduction() {
 		Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("ann"), makeSymbol("bob")));
 		Context context = new TrueContext();
-		context = context.add(peopleType);
+		context = context.makeCloneWithAddedType(peopleType);
 		
 		Assert.assertEquals(
 			parse("if X = ann then 0 else if X = bob then 0 else 0"), 
@@ -78,7 +78,7 @@ public class LambdaBetaReductionSimplifierTest {
 	public void testNoReduction() {
 		Type peopleType = new Categorical("People", 4, arrayList(makeSymbol("ann"), makeSymbol("bob"), makeSymbol("tom")));
 		Context context = new TrueContext();
-		context = context.add(peopleType);
+		context = context.makeCloneWithAddedType(peopleType);
 		
 		Assert.assertEquals(
 			parse("(lambda X in People : if X = ann then 0 else if X = bob then 0 else 0)()"), 

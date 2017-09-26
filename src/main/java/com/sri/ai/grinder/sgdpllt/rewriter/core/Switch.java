@@ -37,10 +37,13 @@
  */
 package com.sri.ai.grinder.sgdpllt.rewriter.core;
 
-import static com.sri.ai.util.Util.applyFunctionToValuesOf;
+import static com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf.flattenListOfRewritersWithRespectToFirstOfToANewList;
+import static com.sri.ai.util.Util.applyFunctionToValuesOfMap;
+import static com.sri.ai.util.Util.combineMapsIntoNewMapGroupingValuesUnderTheSameKey;
+import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirst;
-import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
-import static com.sri.ai.util.Util.mapWithValuesEqualToListOfValuesOfTheseMapsUnderSameKey;
+import static com.sri.ai.util.Util.join;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
 import java.util.LinkedList;
@@ -53,7 +56,6 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver;
-import com.sri.ai.util.Util;
 
 /**
  * A rewriter that stores a map from keys in some type to base {@link Rewriter}s
@@ -78,13 +80,13 @@ import com.sri.ai.util.Util;
 public class Switch<T> implements TopRewriter {
 
 	private Function<Expression, T> keyMaker;
-	private Map<T, ? extends Rewriter> fromKeyToRewriter;
+	private Map<T, ? extends Rewriter> fromKeyValueToRewriter;
 
 	/**
 	 * A standard key maker mapping expressions to their functors's string value
 	 * (unfortunately, this is different from their toString() output -- for example, the functor of 'if p then 1 else 0' has string value "if . then . else ." but toString returns "'if . then . else .'").
 	 * Using standard key makers minimizes search cost in merged {@link Switch} rewriters
-	 * because merging uses instance identity of key makers (see {@link #merge(List)}.
+	 * because merging uses instance identity of key makers (see {@link #mergeSwitchesWithTheSameKeyMakerIntoASingleOne(List)}.
 	 */
 	public final static Function<Expression, String> FUNCTOR = 
 			e -> e.getFunctor() == null || !(e.getFunctor().getValue() instanceof String)? "" : (String) e.getFunctor().getValue();
@@ -92,21 +94,21 @@ public class Switch<T> implements TopRewriter {
 	/**
 	 * A standard key maker mapping expressions to the syntactic form types.
 	 * Using standard key makers minimizes search cost in merged {@link Switch} rewriters
-	 * because merging uses instance identity of key makers (see {@link #merge(List)}.
+	 * because merging uses instance identity of key makers (see {@link #mergeSwitchesWithTheSameKeyMakerIntoASingleOne(List)}.
 	 */
 	public final static Function<Expression, Object> SYNTACTIC_FORM_TYPE = e -> e.getSyntacticFormType();
 	
 	public Switch(Function<Expression, T> keyMaker, Map<T, ? extends Rewriter> fromKeyToRewriter) {
 		super();
 		this.keyMaker = keyMaker;
-		this.fromKeyToRewriter = fromKeyToRewriter;
+		this.fromKeyValueToRewriter = fromKeyToRewriter;
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 		ExpressionLiteralSplitterStepSolver result;
 		T key = keyMaker.apply(expression);
-		Rewriter baseRewriter = fromKeyToRewriter.get(key);
+		Rewriter baseRewriter = fromKeyValueToRewriter.get(key);
 		if (baseRewriter != null) {
 			result = baseRewriter.makeStepSolver(expression);
 		}
@@ -121,12 +123,12 @@ public class Switch<T> implements TopRewriter {
 	}
 
 	public Map<T, ? extends Rewriter> getMapFromKeyToRewriter() {
-		return fromKeyToRewriter;
+		return fromKeyValueToRewriter;
 	}
 
 	@Override
 	public String toString() {
-		return "Switch rewriter with key maker " + keyMaker + " and map " + fromKeyToRewriter;
+		return "Switch rewriter with key maker " + keyMaker + " and map " + fromKeyValueToRewriter;
 	}
 	
 	@Override
@@ -134,44 +136,78 @@ public class Switch<T> implements TopRewriter {
 		boolean result =
 				another instanceof Switch
 				&& ((Switch) another).keyMaker == keyMaker
-				&& ((Switch) another).fromKeyToRewriter.equals(fromKeyToRewriter);
+				&& ((Switch) another).fromKeyValueToRewriter.equals(fromKeyValueToRewriter);
 		return result;
 	}
 	
 	@Override
 	public int hashCode() {
-		return keyMaker.hashCode() + fromKeyToRewriter.hashCode();
+		return keyMaker.hashCode() + fromKeyValueToRewriter.hashCode();
 	}
 	
-	public static <T> Switch<T> merge(List<Switch<T>> switchRewriters) {
-		if (switchRewriters.size() == 0) {
-			throw new Error("Only a non-empty set of switch rewriters can be merged.");
-		}
-		Switch<T> first = getFirst(switchRewriters);
-		Function<Expression, T> keyMaker = first.keyMaker;
-		Switch doesNotHaveSameKeyMaker = 
-				getFirstSatisfyingPredicateOrNull(switchRewriters, s -> s.keyMaker != keyMaker);
-		if (doesNotHaveSameKeyMaker != null) {
-			throw new Error(
-					"Set of switch rewriters to be merged must all have the same instance of key maker, but " + 
-							doesNotHaveSameKeyMaker + " has a different key maker from the first switch rewriter " + first);
-		}
-		Map<T, LinkedList<Rewriter>> union = 
-				mapWithValuesEqualToListOfValuesOfTheseMapsUnderSameKey(
-						functionIterator(switchRewriters, s -> s.fromKeyToRewriter));
-
-		Function<List<Rewriter>, List<Rewriter>> makeFlatListOfRewriters = list -> FirstOf.flatten(list);
-		Map<T, List<Rewriter>> flattenedUnion = applyFunctionToValuesOf(union, makeFlatListOfRewriters);
-
-		Function<List<Rewriter>, Rewriter> makeRewriterFromListOfRewriters =
-				c -> {
-					if (c.size() == 1) {
-						return Util.getFirst(c);
-					}
-					return new FirstOf(c);
-				};
-		Map<T, Rewriter> fromKeyToRewriter = applyFunctionToValuesOf(flattenedUnion, makeRewriterFromListOfRewriters);
-		Switch<T> result = new Switch<T>(keyMaker, fromKeyToRewriter);
+	public static <T> Switch<T> mergeSwitchesWithTheSameKeyMakerIntoASingleOne(List<Rewriter> switches) {
+		
+		checkMergingConditions(switches);
+		
+		Function<Expression, T> keyMaker = getSharedKeyMaker(switches);
+		
+		Map<T, Rewriter> fromKeyValueToRewriter = makeMapFromKeyValueToSingleRewriter(switches);
+		
+		Switch<T> result = new Switch<T>(keyMaker, fromKeyValueToRewriter);
+		
 		return result;
 	}
+
+	private static <T> Map<T, Rewriter> makeMapFromKeyValueToSingleRewriter(List<Rewriter> switches) {
+		
+		Map<T, LinkedList<Rewriter>> fromKeyValueToRewritersUnderSameKeyValue = groupRewritersUnderSwitchesByKeyValue(switches);
+
+		Map<T, List<Rewriter>> fromKeyValueToFlattenedRewritersUnderSameKeyValue = flattenEachKeyValueGroup(fromKeyValueToRewritersUnderSameKeyValue);
+
+		Map<T, Rewriter> fromKeyValueToRewriter = combineEachFlattenedKeyValueGroupIntoASingleRewriter(fromKeyValueToFlattenedRewritersUnderSameKeyValue);
+		
+		return fromKeyValueToRewriter;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> void checkMergingConditions(List<Rewriter> switches) throws Error {
+		
+		myAssert(switches.size() != 0, () -> "Only a non-empty set of switch rewriters can be merged.");
+		
+		Function<Expression, T> keyMaker = getSharedKeyMaker(switches);
+		
+		boolean allSwitchesHaveTheSameKeyMaker = forAll(switches, s -> ((Switch<T>)s).keyMaker == keyMaker);
+		
+		myAssert(allSwitchesHaveTheSameKeyMaker, () ->
+                 "Set of switches to be merged must all have the same instance of key maker, but " + join(switches) + " does not"); 
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Function<Expression, T> getSharedKeyMaker(List<Rewriter> switches) throws Error {
+		Switch<T> first = (Switch<T>) getFirst(switches);
+		Function<Expression, T> keyMaker = first.keyMaker;
+		return keyMaker;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> Map<T, LinkedList<Rewriter>> groupRewritersUnderSwitchesByKeyValue(List<Rewriter> switches) {
+		Map<T, LinkedList<Rewriter>> fromKeyValueToRewritersUnderSameKeyValue = 
+				combineMapsIntoNewMapGroupingValuesUnderTheSameKey(
+						functionIterator(switches, s -> ((Switch<T>)s).fromKeyValueToRewriter));
+		return fromKeyValueToRewritersUnderSameKeyValue;
+	}
+
+	private static <T> Map<T, List<Rewriter>> flattenEachKeyValueGroup(Map<T, LinkedList<Rewriter>> fromKeyValueToRewritersUnderSameKeyValue) {
+		Function<List<Rewriter>, List<Rewriter>> makeFlatListOfSwitches = l -> flattenListOfRewritersWithRespectToFirstOfToANewList(l);
+		Map<T, List<Rewriter>> fromKeyValueToFlattenedRewritersUnderSameKeyValue = 
+				applyFunctionToValuesOfMap(fromKeyValueToRewritersUnderSameKeyValue, makeFlatListOfSwitches);
+		return fromKeyValueToFlattenedRewritersUnderSameKeyValue;
+	}
+
+	private static <T> Map<T, Rewriter> combineEachFlattenedKeyValueGroupIntoASingleRewriter(Map<T, List<Rewriter>> fromKeyValueToFlattenedRewritersUnderSameKeyValue) {
+		Map<T, Rewriter> fromKeyToRewriter = applyFunctionToValuesOfMap(fromKeyValueToFlattenedRewritersUnderSameKeyValue, makeFirstOfRewriterFromListOfRewriters);
+		return fromKeyToRewriter;
+	}
+
+	private static final Function<List<Rewriter>, Rewriter> makeFirstOfRewriterFromListOfRewriters = list -> list.size() == 1? list.get(0) : new FirstOf(list);
 }

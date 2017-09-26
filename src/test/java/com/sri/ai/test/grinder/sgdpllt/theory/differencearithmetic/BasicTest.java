@@ -63,7 +63,7 @@ public class BasicTest {
 		Expression expression;
 		boolean expected;
 		Context context = new TrueContext();
-		context = context.makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(
 				map(
 						parse("X"), parse("Integer"),
 						parse("Y"), parse("Integer"),
@@ -188,7 +188,7 @@ public class BasicTest {
 	 * @param context
 	 */
 	public void runIsLiteralTest(Expression expression, boolean expected, Context context) {
-		DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(true, true);
+		DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(false, true);
 		boolean isLiteral = theory.isLiteral(expression, context);
 		assertEquals(expected, isLiteral);
 	}

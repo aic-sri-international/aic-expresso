@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 /**
  * A {@link TopRewriter} aggregating:
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
  *
  */
 @Beta
-public class TupleSimplifier extends DefaultTopRewriter {
+public class TupleSimplifier extends CombiningTopRewriter {
 	
 	public TupleSimplifier() {
 		super(

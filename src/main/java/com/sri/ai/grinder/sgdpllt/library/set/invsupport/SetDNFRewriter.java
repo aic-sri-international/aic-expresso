@@ -41,11 +41,10 @@ import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.DefaultTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.rewriter.TupleEqualityTopRewriter;
 
 public class SetDNFRewriter extends Recursive {
 	public SetDNFRewriter() {
@@ -54,7 +53,7 @@ public class SetDNFRewriter extends Recursive {
 	
 	private static Rewriter createBaseRewriter() {
 		// Original Rewriters		
-		TopRewriter topRewriter = new DefaultTopRewriter(  
+		TopRewriter topRewriter = new CombiningTopRewriter(  
 				new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
 				new BooleanSimplifier(), // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
 				new UnionEmptySetTopRewriter(),
@@ -81,7 +80,7 @@ public class SetDNFRewriter extends Recursive {
 //			);		
 		
 		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(topRewriter)));
-		Rewriter result = new Exhaustive(new FirstOf(topRewriter, literalExternalizer));
+		Rewriter result = new Exhaustive(new FirstOf(topRewriter + " with externalization", topRewriter, literalExternalizer));
 		
 		return result;
 	}

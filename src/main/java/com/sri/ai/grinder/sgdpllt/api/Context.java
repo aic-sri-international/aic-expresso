@@ -78,7 +78,7 @@ public interface Context extends Registry, Constraint {
 	Context setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	@Override
-	Context makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
+	Context makeCloneWithAdditionalRegisteredSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	@Override
 	Context putAllGlobalObjects(Map<Object, Object> objects);
@@ -87,7 +87,7 @@ public interface Context extends Registry, Constraint {
 	Context putGlobalObject(Object key, Object value);
 	
 	@Override
-	Context add(Type type);
+	Context makeCloneWithAddedType(Type type);
 
 	@Override
 	default Context addAll(Collection<Type> types) {

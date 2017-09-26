@@ -120,7 +120,7 @@ public interface Registry extends Cloneable {
 	 * Create a new sub-registry and registers the symbols
 	 * in the indices-and-types map (an index can be a symbol or a function application).
 	 */
-	Registry makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
+	Registry makeCloneWithAdditionalRegisteredSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes);
 
 	/**
 	 * Creates a new registry identical to a given one but for additional global objects.
@@ -149,12 +149,12 @@ public interface Registry extends Cloneable {
 	 */
 	Object getGlobalObject(Object key);
 	
-	Registry add(Type type);
+	Registry makeCloneWithAddedType(Type type);
 
 	default Registry addAll(Collection<Type> types) {
 		Registry result = this;
 		for (Type type : types) {
-			result = result.add(type);
+			result = result.makeCloneWithAddedType(type);
 		}
 		return result;
 	}
@@ -205,7 +205,7 @@ public interface Registry extends Cloneable {
 	 */
 	default Registry extendWith(IndexExpressionsSet indexExpressions) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		Registry result = makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(indexToTypeMap);
+		Registry result = makeCloneWithAdditionalRegisteredSymbolsAndTypes(indexToTypeMap);
 		return result;
 	}
 }

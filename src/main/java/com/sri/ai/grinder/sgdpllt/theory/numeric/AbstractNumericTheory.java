@@ -76,18 +76,18 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.
-	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
+	 * @param atomFunctorsAreUniqueToThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 * @param propagateAllLiteralsWhenVariableIsBound whether literals on a variable bound to a term should be immediately replaced by a literal on that term instead.
 	 * @param extraTopRewriter an extra {@link TopRewriter} containing extra elementary operations besides the basic numeric ones.
 	 */
 	public AbstractNumericTheory(
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+			boolean atomFunctorsAreUniqueToThisTheory,
 			boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				negationFunctor.keySet(),
-				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				atomFunctorsAreUniqueToThisTheory,
 				propagateAllLiteralsWhenVariableIsBound);
 	}
 

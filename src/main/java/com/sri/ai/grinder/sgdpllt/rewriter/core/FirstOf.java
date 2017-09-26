@@ -64,20 +64,35 @@ import com.sri.ai.util.Util;
  */
 public class FirstOf implements Rewriter {
 	
+	private String name;
 	private List<? extends Rewriter> baseRewriters;
 	
-	public FirstOf(List<? extends Rewriter> baseRewriters) {
+	/**
+	 * Constructor taking a name and base rewriters. If name is empty string, a general description will be provided.
+	 * @param name
+	 * @param baseRewriters
+	 */
+	public FirstOf(String name, List<? extends Rewriter> baseRewriters) {
 		super();
 		this.baseRewriters = baseRewriters;
+		this.name = name.equals("")? "FirstOf rewriter on " + join(baseRewriters) : name;
+	}
+	
+	public FirstOf(String name, Rewriter... baseRewriters) {
+		this(name, Arrays.asList(baseRewriters));
+	}
+
+	public FirstOf(List<? extends Rewriter> baseRewriters) {
+		this("", baseRewriters);
 	}
 	
 	public FirstOf(Rewriter... baseRewriters) {
-		this(Arrays.asList(baseRewriters));
+		this("", Arrays.asList(baseRewriters));
 	}
 
 	@Override
 	public FirstOfStepSolver makeStepSolver(Expression expression) {
-		FirstOfStepSolver stepSolver = new FirstOfStepSolver(expression, baseRewriters);
+		FirstOfStepSolver stepSolver = new FirstOfStepSolver(name + " step solver", expression, baseRewriters);
 		return stepSolver;
 	}
 	
@@ -97,11 +112,6 @@ public class FirstOf implements Rewriter {
 	}
 
 	@Override
-	public String toString() {
-		return "FirstOf rewriter on " + join(baseRewriters);
-	}
-
-	@Override
 	public boolean equals(Object another) {
 		boolean result =
 				another instanceof FirstOf
@@ -114,6 +124,11 @@ public class FirstOf implements Rewriter {
 		return baseRewriters.hashCode();
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+	
 	/**
 	 * Implements a step solver for {@link FirstOf} rewriter.
 	 * 
@@ -136,13 +151,15 @@ public class FirstOf implements Rewriter {
 	 */
 	private static class FirstOfStepSolver implements ExpressionLiteralSplitterStepSolver {
 		
+		private String name;
 		private Expression expression;
 		private List<? extends Rewriter> baseRewriters;
 		private int currentBaseRewriterIndex;
 		private ExpressionLiteralSplitterStepSolver currentBaseStepSolver;
 		
-		public FirstOfStepSolver(Expression expression, List<? extends Rewriter> baseRewriters) {
+		public FirstOfStepSolver(String name, Expression expression, List<? extends Rewriter> baseRewriters) {
 			super();
+			this.name = name.equals("")? "Step solver for FirstOf rewriter based on " + Util.join(baseRewriters) : name;
 			this.expression = expression;
 			this.baseRewriters = baseRewriters;
 			setCurrentBaseRewriterIndex(0);
@@ -208,17 +225,24 @@ public class FirstOf implements Rewriter {
 			
 			return result;
 		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 	
 	/**
-	 * Flattens origin list of rewriters by adding them to destination while replacing {@link FirstOf} rewriters by the flattened versions of their base rewriters.
+	 * Flattens origin list of rewriters by adding each of them to destination,
+	 * with the exception of {@link FirstOf} rewriters,
+	 * adding instead each of the (recursively flattened) version of its base rewriters.
 	 * @param origin
 	 * @param destination
 	 */
-	private static void flatten(List<? extends Rewriter> origin, Collection<Rewriter> destination) {
+	private static <T> void flattenListOfRewritersWithRespectToFirstOfToGivenCollection(List<? extends Rewriter> origin, Collection<Rewriter> destination) {
 		for (Rewriter rewriter : origin) {
 			if (rewriter instanceof FirstOf) {
-				flatten(((FirstOf) rewriter).baseRewriters, destination);
+				flattenListOfRewritersWithRespectToFirstOfToGivenCollection(((FirstOf) rewriter).baseRewriters, destination);
 			}
 			else {
 				destination.add(rewriter);
@@ -228,12 +252,14 @@ public class FirstOf implements Rewriter {
 
 	/**
 	 * Flattens origin list of rewriters by adding them to a returned list without duplicates while replacing {@link FirstOf} rewriters by the flattened versions of their base rewriters.
-	 * @param list
+	 * @param topRewritersThatAreEitherFirstOfOrSwitches
 	 * @return a flattened list of rewriters
 	 */
-	public static LinkedList<Rewriter> flatten(List<? extends Rewriter> list) {
-		LinkedHashSet<Rewriter> set = Util.set();
-		flatten(list, set);
+	public static <T> LinkedList<Rewriter> flattenListOfRewritersWithRespectToFirstOfToANewList(
+			List<? extends Rewriter> topRewritersThatAreEitherFirstOfOrSwitches) {
+		
+		LinkedHashSet<Rewriter> set = Util.set(); // using set to eliminate duplicates
+		flattenListOfRewritersWithRespectToFirstOfToGivenCollection(topRewritersThatAreEitherFirstOfOrSwitches, set);
 		LinkedList<Rewriter> result = new LinkedList<>(set);
 		return result;
 	}

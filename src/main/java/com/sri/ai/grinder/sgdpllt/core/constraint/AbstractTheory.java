@@ -181,6 +181,7 @@ abstract public class AbstractTheory implements Theory {
 				new Recursive(
 						new Exhaustive(
 								new FirstOf(
+										getTopRewriter() + " with literal externalization",
 										getTopRewriter(), 
 										literalExternalizer)));
 		// it is a good idea to leave the literal externalizer at the end,

@@ -264,9 +264,9 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TrueContext add(Type type) {
+	public TrueContext makeCloneWithAddedType(Type type) {
 		TrueContext result = clone();
-		result.registry = result.registry.add(type);
+		result.registry = result.registry.makeCloneWithAddedType(type);
 		return result;
 	}
 
@@ -289,7 +289,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TrueContext makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
+	public TrueContext makeCloneWithAdditionalRegisteredSymbolsAndTypes(
 			Map<Expression, Expression> symbolsAndTypes) {
 		if (symbolsAndTypes.isEmpty()) { // nothing to do
 			return this;

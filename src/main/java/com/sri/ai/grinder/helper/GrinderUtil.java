@@ -215,7 +215,7 @@ public class GrinderUtil {
 		registry = result;
 					
 		for (Type type : types) {
-			registry = registry.add(type);
+			registry = registry.makeCloneWithAddedType(type);
 			// System.out.println("Cardinality of type being computed: " + type);
 			Expression cardinality = type.cardinality();
 			registry = registry.putGlobalObject(parse("|" + type.getName() + "|"), cardinality);

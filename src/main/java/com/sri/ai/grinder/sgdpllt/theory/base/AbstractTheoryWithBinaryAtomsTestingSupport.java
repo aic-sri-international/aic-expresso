@@ -85,6 +85,6 @@ abstract public class AbstractTheoryWithBinaryAtomsTestingSupport extends Abstra
 	}
 	
 	protected Collection<String> getTheoryFunctors() {
-		return getTheory().theoryFunctors;
+		return getTheory().atomFunctors;
 	}
 }

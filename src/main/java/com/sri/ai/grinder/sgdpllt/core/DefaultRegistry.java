@@ -250,7 +250,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
-	public DefaultRegistry add(Type type) {
+	public DefaultRegistry makeCloneWithAddedType(Type type) {
 		DefaultRegistry result = clone();
 		String name = type.getName();
 		Expression typeExpression = parse(name);
@@ -281,7 +281,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
-	public DefaultRegistry makeNewRegistryWithRegisteredAdditionalSymbolsAndTypes(
+	public DefaultRegistry makeCloneWithAdditionalRegisteredSymbolsAndTypes(
 			Map<Expression, Expression> symbolsAndTypes) {
 		if (symbolsAndTypes.isEmpty()) { // nothing to do
 			return this;

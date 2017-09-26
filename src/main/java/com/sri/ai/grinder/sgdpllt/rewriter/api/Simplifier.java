@@ -42,7 +42,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
-import com.sri.ai.grinder.sgdpllt.theory.base.FunctionExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.base.FunctionOnContextExpressionStepSolver;
 
 /**
  * A Simplifier knows just enough about the symbols in a language to simplify it in a shallow way,
@@ -73,7 +73,7 @@ public interface Simplifier extends TopRewriter {
 	}
 	
 	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
-		return new FunctionExpressionStepSolver(c -> apply(expression, c));
+		return new FunctionOnContextExpressionStepSolver(c -> apply(expression, c));
 	}
 	
 	default Step step(Expression expression, Context context) { // optimized version

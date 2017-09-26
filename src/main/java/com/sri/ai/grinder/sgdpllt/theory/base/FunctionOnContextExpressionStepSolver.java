@@ -35,45 +35,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.rewriter.core;
+package com.sri.ai.grinder.sgdpllt.theory.base;
 
-import static com.sri.ai.util.Util.join;
-
-import java.util.List;
-
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-
+import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 
 /**
- * A top rewriter combining a list of given top rewriters.
- * 
+ * A step solver always returning the result of a function (on the context) as a {@link Solution}.
+ *
  * @author braz
  *
  */
-public class DefaultTopRewriter extends FirstOf implements TopRewriter {
-	
-	/**
-	 * Creates a {@link FirstOf} rewriter containing {@link Switch} rewriters
-	 * merging all {@link Switch} rewriters embedded in input top rewriters.
-	 * @param topRewriters
-	 */
-	public DefaultTopRewriter(TopRewriter... topRewriters) {
-		super(TopRewriter.makeMergedSwitches(topRewriters));
+@Beta
+public class FunctionOnContextExpressionStepSolver implements ExpressionLiteralSplitterStepSolver {
+
+	private Function<Context, Expression> function;
+
+	public FunctionOnContextExpressionStepSolver(Function<Context, Expression> function) {
+		this.function = function;
 	}
 	
-	public DefaultTopRewriter(List<? extends TopRewriter> topRewriters) {
-		super(TopRewriter.makeMergedSwitches(topRewriters));
+	public static FunctionOnContextExpressionStepSolver functionExpressionStepSolver(Function<Context, Expression> function) {
+		return new FunctionOnContextExpressionStepSolver(function);
 	}
 	
-	public <T> DefaultTopRewriter(List<? extends Switch<T>> alreadyMergedTopRewriters, boolean doNotMerge) {
-		super(alreadyMergedTopRewriters);
-		if ( ! doNotMerge) {
-			throw new Error("Use other " + DefaultTopRewriter.class + " if you do want to merge top rewriters.");
-		}
+	@Override
+	public FunctionOnContextExpressionStepSolver clone() {
+		return this; // this is immutable, it is ok to re-use it as its own clone
 	}
 
 	@Override
+	public Step step(Context context) {
+		return new Solution(function.apply(context));
+	}
+	
+	@Override
 	public String toString() {
-		return "DefaultTopRewriter on " + join(getBaseRewriters());
+		return "Function step solver based on function " + function;
 	}
 }
