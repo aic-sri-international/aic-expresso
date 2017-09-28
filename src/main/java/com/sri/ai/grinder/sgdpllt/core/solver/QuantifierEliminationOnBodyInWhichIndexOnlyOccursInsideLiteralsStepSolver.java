@@ -90,27 +90,64 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
+			SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context)
+		throws IndexOccursInBodyException {
+		
 		Expression result;
 		
 		Expression index = indexConstraint.getVariable();
-		if (thereExists(new SubExpressionsDepthFirstIterator(literalFreeBody), s -> s.equals(index))) {
-			Expression problemExpression = group.makeProblemExpression(index, context.getTypeExpressionOfRegisteredSymbol(index), indexConstraint, literalFreeBody);
-			throw new Error("Problem " + problemExpression + " has index that is not in a literal but is in body, and current solver does not support that.");
+		SubExpressionsDepthFirstIterator allSubExpressions = new SubExpressionsDepthFirstIterator(literalFreeBody);
+		
+		if (thereExists(allSubExpressions, s -> s.equals(index))) {
+			throwExceptionIndicatingIndexIsInBodyButNotInLiteral(index, indexConstraint, literalFreeBody, context);
+			result = null; // never runs; making compiler happy about uninitialized 'result'
 		}
 		else if (getGroup().isIdempotent()) {
-			Expression conditionForSatisfiability = indexConstraint.satisfiability(context);
-			if (conditionForSatisfiability == null) {
-				throw new Error("No satisfiability solver present for " + index + ". Need to implement re-construction of original expression");
-			}
-			result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
+			result = resultForIdempotentGroup(index, indexConstraint, literalFreeBody, context);
 		}
 		else {
-			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(context), context);
-			result = getTheory().simplify(result, context);
+			result = resultIsBodyTimesNumberOfIndexValues(indexConstraint, literalFreeBody, context);
 		}
 		
 		return new Solution(result);
+	}
+
+	public static class IndexOccursInBodyException extends IllegalArgumentException {
+		private static final long serialVersionUID = 1L;
+		public IndexOccursInBodyException(String message) {
+			super(message);
+		}
+	}
+	
+	private void throwExceptionIndicatingIndexIsInBodyButNotInLiteral(
+			Expression index, 
+			SingleVariableConstraint indexConstraint, 
+			Expression literalFreeBody, 
+			Context context)
+		throws IndexOccursInBodyException {
+		
+		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
+		Expression problemExpression = group.makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, literalFreeBody);
+		throw new IndexOccursInBodyException(
+				QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver.class +
+				": Index occurs in body: " + problemExpression);
+	}
+
+	private Expression resultForIdempotentGroup(Expression index, SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) throws Error {
+		Expression result;
+		Expression conditionForSatisfiability = indexConstraint.satisfiability(context);
+		if (conditionForSatisfiability == null) {
+			throw new Error("No satisfiability solver present for " + index + ". Need to implement re-construction of original expression");
+		}
+		result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
+		return result;
+	}
+
+	private Expression resultIsBodyTimesNumberOfIndexValues(SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
+		Expression result;
+		result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(context), context);
+		result = getTheory().simplify(result, context);
+		return result;
 	}
 
 	@Override

@@ -45,7 +45,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 
 /**
- * A {@link TopRewriter} extension of {@link FirstOf}
+ * An extension of {@link FirstOf}
  * that consolidates a list of {@link TopRewriter}s
  * by merging {@link Switch} rewriters based on the same key maker,
  * and flattening {@link TopRewriters}.
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  * @author braz
  *
  */
-public class CombiningTopRewriter extends FirstOf implements TopRewriter {
+public class CombiningTopRewriter extends FirstOf {
 	
 	/**
 	 * Creates a {@link FirstOf} rewriter containing {@link Switch} rewriters

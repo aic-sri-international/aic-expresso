@@ -79,20 +79,25 @@ public class QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter extends S
 		
 		return (e, c) -> {
 			Expression result;
-			if (Sets.isIntensionalMultiSet(e.get(0))) {
-				IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
-				ExtensionalIndexExpressionsSet indexExpressions = 
-						(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
-				// the set is intensional, but not the set of index expressions!
-				result =
-						quantifierEliminator.solve(
-								group,
-								indexExpressions,
-								intensionalSet.getCondition(),
-								intensionalSet.getHead(),
-								c);
+			try {
+				if (Sets.isIntensionalMultiSet(e.get(0))) {
+					IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
+					ExtensionalIndexExpressionsSet indexExpressions = 
+							(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
+					// the set is intensional, but not the set of index expressions!
+					result =
+							quantifierEliminator.solve(
+									group,
+									indexExpressions,
+									intensionalSet.getCondition(),
+									intensionalSet.getHead(),
+									c);
+				}
+				else {
+					result = e;
+				}
 			}
-			else {
+			catch (IllegalArgumentException exception) {
 				result = e;
 			}
 			return result;

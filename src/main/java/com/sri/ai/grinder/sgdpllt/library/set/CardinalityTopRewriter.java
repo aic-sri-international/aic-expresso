@@ -87,18 +87,23 @@ public class CardinalityTopRewriter extends CombiningTopRewriter {
 	private static Simplifier simplifierForCountingFormulaEquivalentExpression(MultiIndexQuantifierEliminator quantifierEliminator) {
 		return (e, p) -> {
 			Expression result;
-			if (isCountingFormulaEquivalentExpression(e)) {
-				ExtensionalIndexExpressionsSet indexExpressions =
-						(ExtensionalIndexExpressionsSet) getIndexExpressions(e);
-				result =
-						quantifierEliminator.solve(
-								new Sum(),
-								indexExpressions,
-								getCondition(e),
-								ONE,
-								p);
+			try {
+				if (isCountingFormulaEquivalentExpression(e)) {
+					ExtensionalIndexExpressionsSet indexExpressions =
+							(ExtensionalIndexExpressionsSet) getIndexExpressions(e);
+					result =
+							quantifierEliminator.solve(
+									new Sum(),
+									indexExpressions,
+									getCondition(e),
+									ONE,
+									p);
+				}
+				else {
+					result = e;
+				}
 			}
-			else {
+			catch (IllegalArgumentException exception) {
 				result = e;
 			}
 

@@ -76,12 +76,18 @@ public class QuantifierTopRewriter extends Switch<Object> {
 
 	private static Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group, MultiIndexQuantifierEliminator quantifierEliminator) {
 		return (e, c) -> {
-			QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) e;
-			Expression body = quantifiedExpression.getBody();
-			ExtensionalIndexExpressionsSet indexExpressions = 
-					(ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
-			// the set is intensional, but not the set of index expressions!
-			Expression result = quantifierEliminator.solve(group, indexExpressions, TRUE, body, c);
+			Expression result;
+			try {
+				QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) e;
+				Expression body = quantifiedExpression.getBody();
+				ExtensionalIndexExpressionsSet indexExpressions = 
+						(ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
+				// the set is intensional, but not the set of index expressions!
+				result = quantifierEliminator.solve(group, indexExpressions, TRUE, body, c);
+			}
+			catch (IllegalArgumentException exception) {
+				result = e;
+			}
 			return result;
 		};
 	}

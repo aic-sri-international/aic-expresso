@@ -50,6 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.util.Util;
 
 /**
@@ -62,7 +63,7 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public class FirstOf implements Rewriter {
+public class FirstOf implements TopRewriter {
 	
 	private String name;
 	private List<? extends Rewriter> baseRewriters;
