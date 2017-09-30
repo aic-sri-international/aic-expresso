@@ -77,7 +77,7 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public TopRewriter getDefaultTopRewriter() {
+	public TopRewriter makeTopRewriter() {
 		List<TopRewriter> subRewriters = mapIntoList(subTheories, t -> t.getTopRewriter());
 		TopRewriter topRewriter = TopRewriter.makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches(subRewriters);
 		return topRewriter;

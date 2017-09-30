@@ -196,13 +196,7 @@ public interface Polynomial extends Expression {
 	 * 
 	 * @return the degree of the polynomial.
 	 */
-	default int degree() {
-		// Default implementation makes assumption that the polynomial
-		// is represented in canonical form with terms with the highest
-		// degree listed first.
-		int result = getMonomials().get(0).degree();
-		return result;
-	}
+	int degree();
 
 	/**
 	 * Add this polynomial to another polynomial and return a new Polynomial

@@ -223,6 +223,15 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	}
 
 	@Override
+	public int degree() {
+		// Uses assumption that the polynomial
+		// is represented in canonical form with terms with the highest
+		// degree listed first.
+		int result = getMonomials().get(0).degree();
+		return result;
+	}
+
+	@Override
 	public Polynomial add(Polynomial summand) throws IllegalArgumentException {
 		assertSameVariables(summand);
 		

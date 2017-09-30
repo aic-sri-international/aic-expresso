@@ -46,7 +46,6 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -72,36 +71,22 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  */
 abstract public class AbstractTheory implements Theory {
 
-	protected TopRewriter topRewriter;
-	protected TopRewriter quantifierEliminationTopRewriter;
+	private TopRewriter topRewriter;
+	private Rewriter rewriter;
 	
-	/**
-	 * Initializes types for testing to be the collection of a single type,
-	 * a {@link Categorical} {@link Type} named <code>SomeType</code>
-	 * with domain size 5 and known constants <code>a, b, c, d</code>,
-	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
-	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
-	 * @param topRewriter a source of elementary simplifiers for this theory
-	 */
 	public AbstractTheory() {
 		super();
 	}
 
-	private Rewriter cachedRecursiveExhaustiveTopRewriter;
-	
-	/**
-	 * Sets the theory's rewriter.
-	 * @param topRewriter
-	 */
-	protected void setTopRewriter(TopRewriter topRewriter) {
+	private void setTopRewriterAndRewriter(TopRewriter topRewriter) {
 		this.topRewriter = topRewriter;
-		this.cachedRecursiveExhaustiveTopRewriter = new Recursive(new Exhaustive(topRewriter));
+		this.rewriter = new Recursive(new Exhaustive(topRewriter));
 	}
 	
 	@Override
 	public TopRewriter getTopRewriter() {
 		if (topRewriter == null) {
-			setTopRewriter(getDefaultTopRewriter());
+			setTopRewriterAndRewriter(makeTopRewriter());
 		}
 		return topRewriter;
 	}
@@ -109,49 +94,45 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public Rewriter getRewriter() {
 		if (topRewriter == null) {
-			setTopRewriter(getDefaultTopRewriter());
+			setTopRewriterAndRewriter(makeTopRewriter());
 		}
-		return cachedRecursiveExhaustiveTopRewriter;
+		return rewriter;
+	}
+	
+	protected TopRewriter makeTopRewriter() {
+		return getBaseTopRewriter();
 	}
 
 	/**
 	 * We keep a static cached version of the default top rewriter
-	 * so that all theories share the same instances of top rewriters.
+	 * so that all theories share the same instances.
 	 * This way, if they are all merged, their shared instances
 	 * will be recognized as the same by {@link TopRewriter#merge}
 	 * and be used only once.
 	 * This may become obsolete once Rewriter.equals can recognize
 	 * equal rewriters that are not the same instance (May 2017).
 	 */
-	private static TopRewriter staticCachedDefaultTopRewriter = null;
+	private static TopRewriter staticCachedBaseTopRewriter = null;
 
 	/**
-	 * Get (possibly cached) default top rewriter.
+	 * Get (possibly cached) top rewriter to be used as a basis for top rewriters of classes extending this one. 
 	 * @return
 	 */
-	public TopRewriter getDefaultTopRewriter() {
-		if (staticCachedDefaultTopRewriter == null) {
-			staticCachedDefaultTopRewriter = makeDefaultTopRewriter();
+	protected static TopRewriter getBaseTopRewriter() {
+		if (staticCachedBaseTopRewriter == null) {
+			staticCachedBaseTopRewriter = makeBaseTopRewriter();
 		}
-		return staticCachedDefaultTopRewriter;
+		return staticCachedBaseTopRewriter;
 	}
 
-	/**
-	 * A {@link TopRewriter} combining basic simplifications and quantifier elimination rewriters.
-	 * @return
-	 */
-	public TopRewriter makeDefaultTopRewriter() {
+	private static TopRewriter makeBaseTopRewriter() {
 		return merge(
 				// basic simplifications
 				new CommonSimplifier(),
-											
 				makeSymbolicQuantifierEliminationRewriters());
 	}
 
-	/**
-	 * @return
-	 */
-	public TopRewriter makeSymbolicQuantifierEliminationRewriters() {
+	private static TopRewriter makeSymbolicQuantifierEliminationRewriters() {
 		return merge(
 		new SummationRewriter(new SGVET())
 		,

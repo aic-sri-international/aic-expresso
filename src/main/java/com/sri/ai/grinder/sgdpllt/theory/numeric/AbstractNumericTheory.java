@@ -97,9 +97,9 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	 * @return
 	 */
 	@Override
-	public TopRewriter getDefaultTopRewriter() {
+	public TopRewriter makeTopRewriter() {
 		return merge(
-				super.getDefaultTopRewriter(),
+				super.getBaseTopRewriter(),
 				// basic simplification of involved interpreted functions in this theory:
 				new BindingTopSimplifier(),
 				new EqualitySimplifier(),
