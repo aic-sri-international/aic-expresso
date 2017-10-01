@@ -38,22 +38,18 @@
 package com.sri.ai.grinder.sgdpllt.library.set.invsupport;
 
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.boole.LiteralRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.grinder.sgdpllt.rewriter.help.CompleteRewriter;
 
-public class SetDNFRewriter extends Recursive {
+public class SetDNFRewriter extends CompleteRewriter {
 	public SetDNFRewriter() {
-		super(createBaseRewriter());
+		super(createTopRewriter());
 	}
 	
-	private static Rewriter createBaseRewriter() {
+	private static TopRewriter createTopRewriter() {
 		// Original Rewriters		
-		TopRewriter topRewriter = new CombiningTopRewriter(
+		TopRewriter result = new CombiningTopRewriter(
 				"SetDNF",
 				new IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeTopRewriter(),
 				new BooleanSimplifier(), // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
@@ -79,9 +75,6 @@ public class SetDNFRewriter extends Recursive {
 //			new ExtensionalSetEqualEmptySetTopRewriter(),                 // Rule 11
 //			new BooleanSimplifier() // NOTE: added to simplify expressions like `if true then { (2, 2) } else {  }', which are common in this setup
 //			);		
-		
-		Rewriter literalExternalizer = new LiteralRewriter(new Recursive(new Exhaustive(topRewriter)));
-		Rewriter result = new Exhaustive(new FirstOf(topRewriter + " with externalization", topRewriter, literalExternalizer));
 		
 		return result;
 	}

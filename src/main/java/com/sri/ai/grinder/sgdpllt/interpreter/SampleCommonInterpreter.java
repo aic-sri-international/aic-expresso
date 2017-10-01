@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import java.util.Random;
 
-import com.sri.ai.grinder.sgdpllt.library.CommonSimplifier;
+import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifier;
 
 /**
  * An extension of {@link SampleInterpreter}

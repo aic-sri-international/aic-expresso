@@ -35,22 +35,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.interpreter;
+package com.sri.ai.grinder.sgdpllt.rewriter.help;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 /**
- * An extension of {@link BruteForceInterpreter}
- * using {@link CommonSimplifier}.
- *
+ * A {@link Rewriter} that takes a base {@link TopRewriter}
+ * and applies it recursively, exhaustively, and with literal externalization.
+ * 
  * @author braz
  *
  */
-@Beta
-public class BruteForceCommonInterpreter extends BruteForceInterpreter {
-
-	public BruteForceCommonInterpreter() {
-		super(new CommonSimplifier());
+public class CompleteRewriter extends Recursive {
+	
+	public CompleteRewriter(TopRewriter topRewriter) {
+		super(
+				new Exhaustive(
+						new FirstOf(
+								topRewriter + " with literal externalization",
+								topRewriter, 
+								new LiteralRewriter(new Recursive(new Exhaustive(topRewriter))))));
 	}
 }

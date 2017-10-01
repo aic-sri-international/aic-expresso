@@ -35,22 +35,57 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.interpreter;
+package com.sri.ai.grinder.sgdpllt.library.commonrewriters;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifier;
+import com.sri.ai.grinder.sgdpllt.core.solver.SGDPLLT;
+import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 /**
- * An extension of {@link BruteForceInterpreter}
- * using {@link CommonSimplifier}.
- *
+ * A {@link TopRewriter} aggregating:
+ * 
+ * <ul>
+ * <li> {@link CommonSimplifier}
+ * <li> Symbolic quantifier eliminators for +, *, max, cardinality, for all and there exists
+ *      using {@link SGDPLLT} ({@link SGVET} for summations).
+ * </ul>
+ * 
  * @author braz
  *
  */
 @Beta
-public class BruteForceCommonInterpreter extends BruteForceInterpreter {
-
-	public BruteForceCommonInterpreter() {
-		super(new CommonSimplifier());
+public class CommonTopRewriter extends CombiningTopRewriter {
+	
+	/**
+	 * It is useful to always use the same instance of this class
+	 * so that basic simplifiers used in it are always the same instance,
+	 * which makes it easier to avoid their duplication when merging.
+	 */
+	public static final CommonTopRewriter COMMON_TOP_REWRITER = new CommonTopRewriter();
+	
+	private CommonTopRewriter() {
+		super(
+				new CommonSimplifier(),
+				
+				new SummationRewriter(new SGVET())
+				,
+				new ProductRewriter(new SGDPLLT())
+				,
+				new MaxRewriter(new SGDPLLT())
+				,
+				new CardinalityTopRewriter(new SGDPLLT())
+				,
+				new ForAllRewriter(new SGDPLLT())
+				,
+				new ThereExistsRewriter(new SGDPLLT())
+				);
 	}
 }

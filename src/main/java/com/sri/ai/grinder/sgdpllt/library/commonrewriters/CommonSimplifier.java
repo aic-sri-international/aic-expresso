@@ -35,9 +35,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library;
+package com.sri.ai.grinder.sgdpllt.library.commonrewriters;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.sgdpllt.library.BindingTopSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.sgdpllt.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier;

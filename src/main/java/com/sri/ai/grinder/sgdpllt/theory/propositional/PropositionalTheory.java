@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.propositional;
 
 import static com.sri.ai.grinder.sgdpllt.library.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -71,7 +72,7 @@ public class PropositionalTheory extends AbstractTheory {
 
 	@Override
 	public TopRewriter makeTopRewriter() {
-		return TopRewriter.merge(super.getBaseTopRewriter(), new BooleanSimplifier());
+		return TopRewriter.merge(COMMON_TOP_REWRITER, new BooleanSimplifier());
 	}
 
 	@Override

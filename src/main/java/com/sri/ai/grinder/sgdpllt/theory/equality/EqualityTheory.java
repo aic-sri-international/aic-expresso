@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.equality;
 
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.set;
@@ -88,7 +89,7 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	
 	@Override
 	public TopRewriter makeTopRewriter() {
-		return merge(super.getBaseTopRewriter(), new EqualitySimplifier(), new BooleanSimplifier());
+		return merge(COMMON_TOP_REWRITER, new EqualitySimplifier(), new BooleanSimplifier());
 	}
 
 	@Override

@@ -62,7 +62,6 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -141,12 +140,6 @@ public interface Theory extends Cloneable {
 	 * @return
 	 */
 	TopRewriter getTopRewriter();
-	
-	/**
-	 * Returns a cached version of a recursive exhaustive rewriter based on {@link getTopRewriter()}.
-	 * @return
-	 */
-	Rewriter getRewriter();
 	
 	/**
 	 * Provides an evaluator step solver that must be based on a recursive exhaustive

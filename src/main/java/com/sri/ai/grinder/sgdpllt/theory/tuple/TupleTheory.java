@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import com.google.common.annotations.Beta;
@@ -71,7 +72,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 
 	@Override
 	public TopRewriter makeTopRewriter() {
-		return merge(new TupleValuedFreeVariablesTopRewriter(), super.getBaseTopRewriter(), new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
+		return merge(new TupleValuedFreeVariablesTopRewriter(), COMMON_TOP_REWRITER, new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
 	}
 
 	@Override
@@ -92,11 +93,11 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 		if (!isSuitableFor(variable, type)) {
 			throw new Error("Theory " + this + " asked to eliminate quantifier indexed by " + variable + " in " + typeExpression + ", but this theory is not suitable for this type.");
 		}
-		Expression exprE = group.makeProblemExpression(variable, typeExpression, constraint, body);
+		Expression expression = group.makeProblemExpression(variable, typeExpression, constraint, body);
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
-		Expression exprEPrime      = tupleQuantifierSimplifier.apply(exprE, context);
+		Expression expressionWithoutQuantificationOnTuples      = tupleQuantifierSimplifier.apply(expression, context);
 		// - return context.getTheory().getRewriter().makeStepSolver(E')
-		ExpressionLiteralSplitterStepSolver result  = context.getTheory().getRewriter().makeStepSolver(exprEPrime);
+		ExpressionLiteralSplitterStepSolver result  = context.getTheory().makeEvaluatorStepSolver(expressionWithoutQuantificationOnTuples);
 		
 		return result;
 	}

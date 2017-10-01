@@ -46,6 +46,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import java.util.Map;
@@ -99,7 +100,7 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 	@Override
 	public TopRewriter makeTopRewriter() {
 		return merge(
-				super.getBaseTopRewriter(),
+				COMMON_TOP_REWRITER,
 				// basic simplification of involved interpreted functions in this theory:
 				new BindingTopSimplifier(),
 				new EqualitySimplifier(),

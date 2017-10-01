@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.function;
 
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import com.google.common.annotations.Beta;
@@ -68,7 +69,7 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	
 	@Override
 	public TopRewriter makeTopRewriter() {
-		return merge(super.getBaseTopRewriter(), new LambdaBetaReductionSimplifier());
+		return merge(COMMON_TOP_REWRITER, new LambdaBetaReductionSimplifier());
 	}
 
 	@Override

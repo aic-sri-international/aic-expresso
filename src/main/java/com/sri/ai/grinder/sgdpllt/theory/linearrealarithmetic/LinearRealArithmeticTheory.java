@@ -45,6 +45,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_O
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirst;
@@ -113,7 +114,7 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 		Simplifier linearRealArithmeticSimplifier = new LinearRealArithmeticSimplifier(this);
 		return 
 				TopRewriter.merge(
-						super.getBaseTopRewriter(),
+						COMMON_TOP_REWRITER,
 						new Switch<>(
 								FUNCTOR,
 								map(
