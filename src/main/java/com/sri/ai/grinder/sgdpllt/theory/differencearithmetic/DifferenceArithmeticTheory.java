@@ -44,7 +44,7 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 import static com.sri.ai.grinder.sgdpllt.rewriter.core.Switch.FUNCTOR;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirst;
@@ -114,7 +114,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier(this);
 		return 
 				TopRewriter.merge(
-						COMMON_TOP_REWRITER,
+						INSTANCE,
 						new Switch<>(
 								FUNCTOR,
 								map(

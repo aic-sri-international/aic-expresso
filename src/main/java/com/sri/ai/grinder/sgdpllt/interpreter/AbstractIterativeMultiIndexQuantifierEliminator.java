@@ -32,7 +32,7 @@ import com.sri.ai.util.collect.StackedHashMap;
  * @author braz
  *
  */
-public abstract class AbstractIterativeMultiIndexQuantifierElimination extends AbstractMultiIndexQuantifierEliminator {
+public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends AbstractMultiIndexQuantifierEliminator {
 
 	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
 
@@ -57,11 +57,11 @@ public abstract class AbstractIterativeMultiIndexQuantifierElimination extends A
 	 */
 	public abstract Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context);
 
-	public AbstractIterativeMultiIndexQuantifierElimination(TopRewriter topRewriter) {
+	public AbstractIterativeMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
 		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
 	}
 
-	public AbstractIterativeMultiIndexQuantifierElimination(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
+	public AbstractIterativeMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
 		super();
 		this.topRewriterUsingContextAssignments = topRewriterUsingContextAssignments;
 	}

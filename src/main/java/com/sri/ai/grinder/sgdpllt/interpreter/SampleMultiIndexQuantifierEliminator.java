@@ -70,7 +70,7 @@ import com.sri.ai.util.math.Rational;
  * @author oreilly
  *
  */
-public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierElimination {
+public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
 	private int sampleSizeN;
 	private boolean alwaysSample;
 	private Rewriter indicesConditionRewriter;

@@ -35,54 +35,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.interpreter;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+package com.sri.ai.grinder.sgdpllt.library.commonrewriters;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 /**
- * An extension of {@link AbstractMultiIndexQuantifierEliminator}
- * that solves quantified expressions by brute force.
- * <p>
- * Additionally, it takes an assignment to symbols as a constructing parameter,
- * and throws an error when a symbol with unassigned value is found.
- * <p>
- * The reason this quantifier eliminator uses an assignment to keep a binding to variables,
- * as opposed to using equalities in the context, is that
- * the context can only deal with variables for which we have a satisfiability solver,
- * whereas an assignment can be used for any variables.
- *
+ * A {@link TopRewriter} aggregating:
+ * 
+ * <ul>
+ * <li> {@link CommonSimplifier}
+ * <li> {@link SymbolicQuantifierEliminatorRewritersTopRewriter}.
+ * </ul>
+ * 
  * @author braz
  *
  */
 @Beta
-public class BruteForceMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
-
-	public BruteForceMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
-		super(topRewriter);
-	}
+public class CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter extends CombiningTopRewriter {
 	
-	public BruteForceMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment) {
-		super(topRewriterWithBaseAssignment);
-	}
+	/**
+	 * It is useful to always use the same instance of this class
+	 * so that basic simplifiers used in it are always the same instance,
+	 * which makes it easier to avoid their duplication when merging.
+	 */
+	public static final CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter INSTANCE = 
+			new CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter();
 	
-	@Override
-	public Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
-		return new AssignmentsIterator(indices, context);
-	}
-
-	@Override
-	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		return IfThenElse.make(indicesCondition, body, group.additiveIdentityElement());
+	private CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter() {
+		super(
+				new CommonSimplifier(),
+				new SymbolicQuantifierEliminatorRewritersTopRewriter()
+				);
 	}
 }

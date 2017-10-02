@@ -50,31 +50,17 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 /**
- * A {@link TopRewriter} aggregating:
- * 
- * <ul>
- * <li> {@link CommonSimplifier}
- * <li> Symbolic quantifier eliminators for +, *, max, cardinality, for all and there exists
- *      using {@link SGDPLLT} ({@link SGVET} for summations).
- * </ul>
+ * A {@link TopRewriter} aggregating symbolic quantifier eliminators for +, *, max, cardinality, for all and there exists
+ * using {@link SGDPLLT} ({@link SGVET} for summations).
  * 
  * @author braz
  *
  */
 @Beta
-public class CommonTopRewriter extends CombiningTopRewriter {
+public class SymbolicQuantifierEliminatorRewritersTopRewriter extends CombiningTopRewriter {
 	
-	/**
-	 * It is useful to always use the same instance of this class
-	 * so that basic simplifiers used in it are always the same instance,
-	 * which makes it easier to avoid their duplication when merging.
-	 */
-	public static final CommonTopRewriter COMMON_TOP_REWRITER = new CommonTopRewriter();
-	
-	private CommonTopRewriter() {
+	public SymbolicQuantifierEliminatorRewritersTopRewriter() {
 		super(
-				new CommonSimplifier(),
-				
 				new SummationRewriter(new SGVET())
 				,
 				new ProductRewriter(new SGDPLLT())

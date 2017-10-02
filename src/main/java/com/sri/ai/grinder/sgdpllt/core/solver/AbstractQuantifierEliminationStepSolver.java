@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
+import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
@@ -249,7 +249,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			// not exhaustive solving).
 			// Check (**) in this file to see where this happens
 			if ( ! bodyStep.itDepends()) {
-				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
+				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
 				bodyStep = evaluatorStepSolver.step(context);
 			}
 			
@@ -294,7 +294,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				AssignmentsIterator assignments = new AssignmentsIterator(freeVariables, context);
 				for (Map<Expression, Expression> assignment : in(assignments)) {
 					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
-					Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
+					Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
 					// Only go on if the assignment satisfies the context:
 					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
 						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problem, extendedContext);

@@ -26,7 +26,7 @@ public class TopRewriterUsingContextAssignments extends RedirectingRewriter {
 			map(
 					Symbol.SYNTACTIC_FORM_TYPE,
 					(Simplifier) (e, c) -> {
-						Expression result = AbstractIterativeMultiIndexQuantifierElimination.getAssignedValue(e, c);
+						Expression result = AbstractIterativeMultiIndexQuantifierEliminator.getAssignedValue(e, c);
 						if (result == null) {
 							result = e;
 						}

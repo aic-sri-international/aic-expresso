@@ -111,7 +111,7 @@ public class FunctionType extends AbstractType {
 	@Override
 	public Iterator<Expression> iterator() {
 		if (!(getCodomain().isDiscrete() && getArgumentTypes().stream().allMatch(Type::isFinite))) {
-			throw new Error("Only function types with finite argument types and a discrete codomain can be enumerated.");
+			throw new Error("Only function types with left-finite argument types and a discrete codomain can be enumerated.");
 		}
 		
 		if (cachedIterateRegistry == null) {

@@ -38,10 +38,6 @@
 package com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.grinder.polynomial.api.Polynomial.makeRandomPolynomial;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -55,7 +51,6 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 /**
  * A step solver for a summation with an real index constrained by linear real arithmetic literals,
@@ -142,24 +137,6 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
 			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, variable, lowerBound, upperBound);
 		}
-		return result;
-	}
-
-	@Override
-	public Expression makeRandomUnconditionalBody(Random random) {
-		// unconditional body class is polynomials
-		ArrayList<Expression> freeVariables = TheoryTestingSupport.make(random, getTheory()).getVariablesForTesting();
-		int degree = random.nextInt(3);
-		int maximumNumberOfFreeVariablesInEach = 2;
-		int maximumConstant = 10;
-		Expression result =
-				makeRandomPolynomial(
-						random, 
-						getIndex(), 
-						degree, 
-						freeVariables, 
-						maximumNumberOfFreeVariablesInEach,
-						maximumConstant);
 		return result;
 	}
 }

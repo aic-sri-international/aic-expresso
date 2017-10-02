@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.constraint;
 
-import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
 import static com.sri.ai.util.Util.camelCaseToSpacedString;
 import static com.sri.ai.util.Util.list;
 
@@ -49,6 +48,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -104,7 +104,7 @@ abstract public class AbstractTheory implements Theory {
 	}
 	
 	protected TopRewriter makeTopRewriter() {
-		return COMMON_TOP_REWRITER;
+		return CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 	}
 
 	@Override

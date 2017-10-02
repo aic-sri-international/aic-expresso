@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
-import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonTopRewriter.COMMON_TOP_REWRITER;
+import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import com.google.common.annotations.Beta;
@@ -72,7 +72,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 
 	@Override
 	public TopRewriter makeTopRewriter() {
-		return merge(new TupleValuedFreeVariablesTopRewriter(), COMMON_TOP_REWRITER, new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
+		return merge(new TupleValuedFreeVariablesTopRewriter(), INSTANCE, new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
 	}
 
 	@Override

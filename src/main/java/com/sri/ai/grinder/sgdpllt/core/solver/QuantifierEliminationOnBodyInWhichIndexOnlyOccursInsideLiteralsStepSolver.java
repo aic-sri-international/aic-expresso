@@ -39,8 +39,6 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import static com.sri.ai.util.Util.thereExists;
 
-import java.util.Random;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
@@ -146,13 +144,7 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 	private Expression resultIsBodyTimesNumberOfIndexValues(SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
 		Expression result;
 		result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(context), context);
-		result = getTheory().simplify(result, context);
-		return result;
-	}
-
-	@Override
-	public Expression makeRandomUnconditionalBody(Random random) {
-		Expression result = getGroup().makeRandomConstant(random);
+		result = context.getTheory().simplify(result, context);
 		return result;
 	}
 }

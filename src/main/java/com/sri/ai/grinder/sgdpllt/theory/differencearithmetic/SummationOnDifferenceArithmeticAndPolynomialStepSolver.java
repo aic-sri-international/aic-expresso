@@ -39,14 +39,12 @@ package com.sri.ai.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.polynomial.api.Polynomial.makeRandomPolynomial;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -59,7 +57,6 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 
 /**
  * A step solver for a summation with an integer index constrained by difference arithmetic literals,
@@ -194,23 +191,5 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 		Expression newBody = literalFreeBody.replaceAllOccurrences(variable, value, context);
 		Expression valueAtPoint = theory.simplify(newBody, context);
 		return valueAtPoint;
-	}
-
-	@Override
-	public Expression makeRandomUnconditionalBody(Random random) {
-		// unconditional body class is polynomials
-		ArrayList<Expression> freeVariables = TheoryTestingSupport.make(random, getTheory()).getVariablesForTesting();
-		int degree = random.nextInt(3);
-		int maximumNumberOfFreeVariablesInEach = 2;
-		int maximumConstant = 10;
-		Expression result =
-				makeRandomPolynomial(
-						random, 
-						getIndex(), 
-						degree, 
-						freeVariables, 
-						maximumNumberOfFreeVariablesInEach,
-						maximumConstant);
-		return result;
 	}
 }

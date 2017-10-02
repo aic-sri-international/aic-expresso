@@ -68,7 +68,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
+import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
@@ -459,7 +459,7 @@ public class SGDPLLTTester {
 		Expression testingVariable = variable;
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), context);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(testingVariableAssignment, context);
+			Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(testingVariableAssignment, context);
 			Expression value = interpreter.apply(conjunction, extendedContext);
 			if (value.equals(TRUE)) {
 				modelCount++;
@@ -759,7 +759,7 @@ public class SGDPLLTTester {
 
 	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, Theory theory, String problemDescription, Expression symbolicSolution, BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToBruteForceSolution, Context context) throws Error {
 		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter();
-		Context extendedContext = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(assignment, context);
+		Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
 		Expression bruteForceResultUnderAssignment = fromInterpreterAndContextWithAssignmentToBruteForceSolution.apply(interpreter, extendedContext);
 		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, extendedContext);
 		output("Under free variables assignment " + assignment);

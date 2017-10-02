@@ -52,7 +52,7 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierElimination;
+import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
@@ -105,7 +105,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 			currentN++;
 			do {
 				Expression assignment         = typeToSampleFrom.sampleUniquelyNamedConstant(random);
-				Context contextWithAssignment = AbstractIterativeMultiIndexQuantifierElimination.extendAssignments(map(index, assignment), context);
+				Context contextWithAssignment = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(map(index, assignment), context);
 				Expression conditionValue     = conditionRewriter.apply(condition, contextWithAssignment);
 				if (conditionValue.equals(Expressions.TRUE)) {
 					result = map(index, assignment);
