@@ -35,43 +35,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library.commonrewriters;
+package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 /**
- * A {@link TopRewriter} aggregating symbolic quantifier eliminators for +, *, max, cardinality, for all and there exists
- * using {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator} ({@link SGVET} for summations).
- * 
+ * An implementation of {@link AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator}
+ * obtaining the {@link QuantifierEliminationStepSolver} from the context's theory.
+ *
  * @author braz
  *
  */
 @Beta
-public class SymbolicQuantifierEliminatorRewritersTopRewriter extends CombiningTopRewriter {
-	
-	public SymbolicQuantifierEliminatorRewritersTopRewriter() {
-		super(
-				new SummationRewriter(new SGVET())
-				,
-				new ProductRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
-				,
-				new MaxRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
-				,
-				new CardinalityTopRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
-				,
-				new ForAllRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
-				,
-				new ThereExistsRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
-				);
+public class MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator 
+extends AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator {
+
+	@Override
+	protected ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context) {
+		ExpressionLiteralSplitterStepSolver result = 
+				context.getTheory()
+				.getSingleVariableConstraintQuantifierEliminatorStepSolver(
+						group, constraintForThisIndex, currentBody, context);
+		return result;
 	}
 }

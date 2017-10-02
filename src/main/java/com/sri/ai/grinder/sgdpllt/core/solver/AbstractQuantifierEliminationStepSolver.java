@@ -175,15 +175,6 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return indexConstraint;
 	}
 	
-	/**
-	 * Convenience method for <code>indexConstraint.getTheory()</code>.
-	 * @return
-	 */
-	@Override
-	public Theory getTheory() {
-		return indexConstraint.getTheory();
-	}
-	
 	@Override
 	public Expression getIndex() {
 		return indexConstraint.getVariable();

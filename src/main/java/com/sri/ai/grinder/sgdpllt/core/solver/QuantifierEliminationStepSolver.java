@@ -4,7 +4,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 /**
@@ -20,12 +19,6 @@ public interface QuantifierEliminationStepSolver extends ExpressionStepSolver, C
 	AssociativeCommutativeGroup getGroup();
 	
 	SingleVariableConstraint getIndexConstraint();
-	
-	/**
-	 * Convenience method for <code>getIndexConstraint().getTheory()</code>.
-	 * @return
-	 */
-	Theory getTheory();
 	
 	Expression getIndex();
 	

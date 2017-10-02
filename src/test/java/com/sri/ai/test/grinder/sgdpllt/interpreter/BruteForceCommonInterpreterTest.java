@@ -16,68 +16,76 @@ import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantif
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 
 public class BruteForceCommonInterpreterTest {
-	@Test
-	public void test() {
+	
+	/**
+	 * Pairs of input-output string tests.
+	 * This has been made public so other tests can just re-use them.
+	 */
+	public static final String[] tests = new String[]{
+
+		"max({{ (on I in 0..3) max( {{ (on J in 0..3) I + J : I != J }} ) }})",
+		"5",
+		
+		"3 * (Two + 5 - 3)*(-10)",
+		"-120",
+		
+		"3 * (2 + 5 - 3)*(-10)",
+		"-120",
+		
+		"sum({{ (on x in 0..2)  x }} )",
+		"3",
+		
+		"sum({{ (on f in 0..2 -> Boolean)  if f(0) then 2 else 3 }} )",
+		"20",
+		
+		"sum({{ (on f in 0..2 -> Boolean)  if f(0) and f(1) then 2 else 3  :  f(2) }} )",
+		"11",
+		
+		"sum({{ (on f in 0..2 -> Boolean)  "
+				+ "if f(0) and f(1) then 2 else | f in 0..2 x 0..2 -> Boolean : f(0, 0) |  "
+				+ ":  f(2) }} )",
+		"770",
+		
+		"sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3  :  f(2) }} )",
+		"22",
+		
+		"| f in '->'(x(0..2, 0..2), Boolean) : f(0, 0) |",
+		"256",
+		
+		"| f in 0..2 x 0..2 -> Boolean : f(0, 0) |",
+		"256",
+		
+		"| f in 0..2 x 0..2 -> Boolean, g in 0..2 -> Boolean : f(0, 0) |",
+		"2048",
+		
+		"sum( {{ (on p in Boolean) if p then 1 else 2 }} )",
+		"3",
+	};
+	
+	/**
+	 * Makes context with initializations necessary for these tests. 
+	 * @return
+	 */
+	public Context makeContext() {
 		LinkedHashMap<Expression, Expression> assignment = map(parse("Two"), Expressions.TWO);
-		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter();
 		Context context = new TrueContext();
 		context = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
-		
-		String expression;
-		String expected;
-		
-		expression = "max({{ (on I in 0..3) max( {{ (on J in 0..3) I + J : I != J }} ) }})";
-		expected = "5";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "3 * (Two + 5 - 3)*(-10)";
-		expected = "-120";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "3 * (2 + 5 - 3)*(-10)";
-		expected = "-120";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "sum({{ (on x in 0..2)  x }} )";
-		expected = "3";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "sum({{ (on f in 0..2 -> Boolean)  if f(0) then 2 else 3 }} )";
-		expected = "20";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "sum({{ (on f in 0..2 -> Boolean)  if f(0) and f(1) then 2 else 3  :  f(2) }} )";
-		expected = "11";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "sum({{ (on f in 0..2 -> Boolean)  "
-				+ "if f(0) and f(1) then 2 else | f in 0..2 x 0..2 -> Boolean : f(0, 0) |  "
-				+ ":  f(2) }} )";
-		expected = "770";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "sum({{ (on f in '->'(x(1..2), Boolean), g in '->'(x(1..2), Boolean))  if f(1) and g(2) then 2 else 3  :  f(2) }} )";
-		expected = "22";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "| f in '->'(x(0..2, 0..2), Boolean) : f(0, 0) |";
-		expected = "256";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "| f in 0..2 x 0..2 -> Boolean : f(0, 0) |";
-		expected = "256";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "| f in 0..2 x 0..2 -> Boolean, g in 0..2 -> Boolean : f(0, 0) |";
-		expected = "2048";
-		runTest(expression, expected, interpreter, context);
-		
-		expression = "sum( {{ (on p in Boolean) if p then 1 else 2 }} )";
-		expected = "3";
-		runTest(expression, expected, interpreter, context);
+		return context;
 	}
 
-	public void runTest(String expression, String expected, BruteForceCommonInterpreter interpreter, Context context) {
+	@Test
+	public void test() {
+		Context context = makeContext();
+		
+		for(int i = 0; i != tests.length; i += 2) {
+			String expression = tests[i];
+			String expected = tests[i + 1];
+			runTest(expression, expected, context);
+		}
+	}
+
+	public void runTest(String expression, String expected, Context context) {
+		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter();
 		Expression result = interpreter.apply(parse(expression), context);
 		Assert.assertEquals(parse(expected), result);
 	}

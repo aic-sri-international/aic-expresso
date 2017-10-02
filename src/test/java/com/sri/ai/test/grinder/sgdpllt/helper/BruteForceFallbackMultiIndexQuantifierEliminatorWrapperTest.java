@@ -35,18 +35,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
+package com.sri.ai.test.grinder.sgdpllt.helper;
 
+import org.junit.Test;
 
-/**
- * A {@link AbstractSGVET} using {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator} as the eliminator for single quantifiers.
- * 
- * @author braz
- *
- */
-public class SGVET extends AbstractSGVET {
+import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
-	public SGVET() {
-		super(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator());
+@Beta
+public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapperTest {
+
+	private static class DummyQuantifierEliminatorStepSolver extends AbstractQuantifierEliminationStepSolver {
+
+		public DummyQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
+			super(group, indexConstraint, body);
+		}
+
+		@Override
+		protected Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint indexConstraint, Expression literalFreeBody, Context context) {
+			throw new IllegalArgumentException();
+		}
+
+		@Override
+		protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+			return new DummyQuantifierEliminatorStepSolver(group, newIndexConstraint, body);
+		}
+	}
+	
+	@Test
+	public void test() {
+		
 	}
 }
