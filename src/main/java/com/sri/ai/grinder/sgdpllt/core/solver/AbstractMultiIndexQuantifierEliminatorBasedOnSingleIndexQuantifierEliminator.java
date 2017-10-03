@@ -49,10 +49,6 @@ public abstract class AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQu
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
 
-			if (lastIndexConstraint.isContradiction()) {
-				return group.additiveIdentityElement();
-			}
-
 			for (int i = numberOfIndices - 1; i >= 0; i--) { // evaluate from inside out; this may change in the future
 				currentBody = eliminateNextQuantifier(i, group, indices, numberOfIndices, lastIndexConstraint, currentBody, context);
 			}
