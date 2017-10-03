@@ -73,7 +73,7 @@ import com.sri.ai.util.base.PairOf;
 
 /**
  * A {@link MultiIndexQuantifierEliminator} generalizing the Variable Elimination algorithm in the same manner
- * {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator} is generalized from DPLL,
+ * {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver} is generalized from DPLL,
  * that is, it can produce symbolic answers and it does not need
  * to only solve problems with the operations from its classic version
  * (for the case of VE, sum and product, or max and product).
@@ -89,7 +89,7 @@ import com.sri.ai.util.base.PairOf;
  * <pre>
  * sum_{i_n} prod_{j : args_j contains i_n} f_j(args_j)
  * </pre>
- * with {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator}.
+ * with {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver}.
  * Note that the symbolic capability of <code>SGDPLL(T)</code> is crucial here, as
  * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.

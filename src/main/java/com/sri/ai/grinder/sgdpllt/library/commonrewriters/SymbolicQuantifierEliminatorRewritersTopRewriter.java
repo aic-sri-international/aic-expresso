@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.library.commonrewriters;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver;
 import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 /**
  * A {@link TopRewriter} aggregating symbolic quantifier eliminators for +, *, max, cardinality, for all and there exists
- * using {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator} ({@link SGVET} for summations).
+ * using {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver} ({@link SGVET} for summations).
  * 
  * @author braz
  *
@@ -63,15 +63,15 @@ public class SymbolicQuantifierEliminatorRewritersTopRewriter extends CombiningT
 		super(
 				new SummationRewriter(new SGVET())
 				,
-				new ProductRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
+				new ProductRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver())
 				,
-				new MaxRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
+				new MaxRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver())
 				,
-				new CardinalityTopRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
+				new CardinalityTopRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver())
 				,
-				new ForAllRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
+				new ForAllRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver())
 				,
-				new ThereExistsRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator())
+				new ThereExistsRewriter(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver())
 				);
 	}
 }

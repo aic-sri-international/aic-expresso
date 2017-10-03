@@ -37,14 +37,32 @@
  */
 package com.sri.ai.test.grinder.sgdpllt.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.println;
+
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
+import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackMultiIndexQuantifierEliminatorWrapper;
+import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
+import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
+import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
+import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 @Beta
 public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapperTest {
@@ -66,8 +84,41 @@ public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapperTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void test() {
+		MultiIndexQuantifierEliminator multiIndexQuantifierEliminator =
+				new AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator() {
+
+			@Override
+			protected ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body, Context context) {
+
+				QuantifierEliminationStepSolver stepSolver = 
+						new DummyQuantifierEliminatorStepSolver(group, indexConstraint, body);
+				
+				stepSolver = new BruteForceFallbackMultiIndexQuantifierEliminatorWrapper(stepSolver);
+				
+				ExpressionStepSolverToLiteralSplitterStepSolverAdapter result = 
+						new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(stepSolver);
+				
+				return result;
+			}
+		};
+
+		Rewriter symbolicQuantifierEliminators = 
+				new CombiningTopRewriter(
+						new SummationRewriter(multiIndexQuantifierEliminator)
+						,
+						new ProductRewriter(multiIndexQuantifierEliminator)
+						,
+						new MaxRewriter(multiIndexQuantifierEliminator)
+						,
+						new CardinalityTopRewriter(multiIndexQuantifierEliminator)
+						,
+						new ForAllRewriter(multiIndexQuantifierEliminator)
+						,
+						new ThereExistsRewriter(multiIndexQuantifierEliminator)
+						);
 		
+		println(symbolicQuantifierEliminators.apply(parse("sum({{(on I in 1..4) I}})"), new TrueContext()));
 	}
 }

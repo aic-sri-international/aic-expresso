@@ -18,7 +18,11 @@ public abstract class AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQu
 		super();
 	}
 
-	protected abstract ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context);
+	protected abstract ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(
+			AssociativeCommutativeGroup group, 
+			SingleVariableConstraint indexConstraint, 
+			Expression body, 
+			Context context);
 
 
 	@Override
@@ -27,7 +31,13 @@ public abstract class AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQu
 		
 		int numberOfIndices = indices.size();
 		
-		if (numberOfIndices != 0) {
+		if (numberOfIndices == 0) {
+			currentBody = IfThenElse.make(indicesCondition, currentBody, group.additiveIdentityElement());
+			// Normalize final result.
+			ExpressionLiteralSplitterStepSolver evaluator = context.getTheory().makeEvaluatorStepSolver(currentBody);
+			currentBody = evaluator.solve(context);
+		}
+		else {
 			// Re-use {@link SingleVariableConstraint} if condition is one.
 			// TODO: eventually we want the algorithm to work so that splitters may be entire constraints,
 			// if they are found. Then this encoding would become superfluous,
@@ -47,13 +57,6 @@ public abstract class AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQu
 				currentBody = eliminateNextQuantifier(i, group, indices, numberOfIndices, lastIndexConstraint, currentBody, context);
 			}
 		}
-		else {
-			currentBody = IfThenElse.make(indicesCondition, currentBody, group.additiveIdentityElement());
-		}
-		
-		// Normalize final result.
-		ExpressionLiteralSplitterStepSolver evaluator = context.getTheory().makeEvaluatorStepSolver(currentBody);
-		currentBody = evaluator.solve(context);
 		
 		return currentBody;
 	}

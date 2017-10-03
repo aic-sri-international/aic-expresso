@@ -52,15 +52,19 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
  *
  */
 @Beta
-public class MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminator 
+public class MultiIndexQuantifierEliminatorBasedOnGivenSingleIndexQuantifierEliminatorStepSolver 
 extends AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator {
+
+	private QuantifierEliminationStepSolver stepSolver;
+	
+	public MultiIndexQuantifierEliminatorBasedOnGivenSingleIndexQuantifierEliminatorStepSolver(QuantifierEliminationStepSolver stepSolver) {
+		super();
+		this.stepSolver = stepSolver;
+	}
 
 	@Override
 	protected ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context) {
-		ExpressionLiteralSplitterStepSolver result = 
-				context.getTheory()
-				.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-						group, constraintForThisIndex, currentBody, context);
+		ExpressionStepSolverToLiteralSplitterStepSolverAdapter result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(stepSolver);
 		return result;
 	}
 }

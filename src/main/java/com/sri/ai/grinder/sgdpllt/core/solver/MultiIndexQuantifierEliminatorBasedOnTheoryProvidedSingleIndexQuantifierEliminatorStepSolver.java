@@ -37,16 +37,30 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
+import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 /**
- * A {@link AbstractSGVET} using {@link MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver} as the eliminator for single quantifiers.
- * 
+ * An implementation of {@link AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator}
+ * obtaining the {@link QuantifierEliminationStepSolver} from the context's theory.
+ *
  * @author braz
  *
  */
-public class SGVET extends AbstractSGVET {
+@Beta
+public class MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver 
+extends AbstractMultiIndexQuantifierEliminatorBasedOnSingleIndexQuantifierEliminator {
 
-	public SGVET() {
-		super(new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver());
+	@Override
+	protected ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraintForThisIndex, Expression currentBody, Context context) {
+		ExpressionLiteralSplitterStepSolver result = 
+				context.getTheory()
+				.getSingleVariableConstraintQuantifierEliminatorStepSolver(
+						group, constraintForThisIndex, currentBody, context);
+		return result;
 	}
 }
