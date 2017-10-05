@@ -111,7 +111,7 @@ public class CompoundTheory extends AbstractTheory {
 
 	Theory getTheory(Expression variable, Type variableType) {		
 		if (variableType == null) {
-			throw new Error("Cannot decide which theory to use for variable " + variable + " because it does not have a registered type.");
+			throw new IllegalArgumentException("Cannot decide which theory to use for variable " + variable + " because it does not have a registered type.");
 		}
 		
 		Theory result =
@@ -129,6 +129,10 @@ public class CompoundTheory extends AbstractTheory {
 		// an error will be thrown at that point.
 		// check(() -> result != null, () -> "There is no sub-theory suitable for " + variable + ", which has type " + variableType);
 		
+		if (result == null) {
+			throw new IllegalArgumentException("No theory for " + variable + " of type " + variableType);
+		}
+		
 		return result;
 	}
 	
@@ -139,11 +143,11 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
 		Theory theoryForVariable = getTheory(variable, context);
 		SingleVariableConstraint result;
 		if (theoryForVariable != null) {
-			result = theoryForVariable.makeSingleVariableConstraint(variable, theory, context);
+			result = theoryForVariable.makeSingleVariableConstraint(variable, context);
 		}
 		else {
 			result = null;
@@ -200,15 +204,9 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionLiteralSplitterStepSolver result;
-		if (theory != null) {
-			result = theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(group, constraint, body, context);
-		}
-		else {
-			result = null;
-		}
+		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(group, constraint, body, context);
 		return result;
 	}
 

@@ -130,7 +130,7 @@ public class SGDPLLTTester {
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), context);
 
@@ -392,7 +392,7 @@ public class SGDPLLTTester {
 		
 		Expression variable = parse(theoryTestingSupport.pickTestingVariableAtRandom());
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(variable, theoryTestingSupport.getTheory(), context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(variable, context);
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), context);
 
@@ -612,7 +612,7 @@ public class SGDPLLTTester {
 	private static void runGroupProblemSolvingTesterForSuccessiveConstraints(String problemName, TestRunner tester, boolean testAgainstBruteForce, AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) throws Error {
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> theoryTestingSupport.getTheory().makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), context);
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), context);
 		
@@ -636,7 +636,7 @@ public class SGDPLLTTester {
 		
 		SingleVariableConstraint emptyConstraint = 
 				theoryTestingSupport.getTheory()
-				.makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), theoryTestingSupport.getTheory(), context);
+				.makeSingleVariableConstraint(parse(theoryTestingSupport.pickTestingVariableAtRandom()), context);
 		
 		for (int i = 1; i != numberOfTests + 1; i++) {
 			tester.runOneTest(list(), emptyConstraint, testAgainstBruteForce, theoryTestingSupport, context);

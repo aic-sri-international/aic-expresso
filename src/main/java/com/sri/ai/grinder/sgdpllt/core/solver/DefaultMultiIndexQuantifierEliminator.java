@@ -5,7 +5,7 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
@@ -25,29 +25,26 @@ public class DefaultMultiIndexQuantifierEliminator extends AbstractMultiIndexQua
 		Expression bodyWithCondition = IfThenElse.make(condition, body, group.additiveIdentityElement());
 		Expression currentNormalizedExpression = context.getTheory().evaluate(bodyWithCondition, context);
 		for (int i = indices.size() - 1; i >= 0; i--) {
-			currentNormalizedExpression = eliminateNextQuantifier(group, indices.get(i), currentNormalizedExpression, context);
+			QuantifierEliminationProblem nextProblem = makeProblem(group, indices.get(i), currentNormalizedExpression, context);
+			currentNormalizedExpression = solve(nextProblem, context);
 		}
 		return currentNormalizedExpression;
 	}
 
-	private Expression eliminateNextQuantifier(AssociativeCommutativeGroup group, Expression index, Expression body, Context context) throws Error {
+	private QuantifierEliminationProblem makeProblem(
+			AssociativeCommutativeGroup group, Expression index, Expression body, Context context) {
+		return new QuantifierEliminationProblem(group, index, body, context);
+	}
 
+	private Expression solve(QuantifierEliminationProblem problem, Context context) {
+		ExpressionLiteralSplitterStepSolver quantifierEliminatorStepSolver = makeStepSolver(problem, context);
+		Expression result = quantifierEliminatorStepSolver.solve(context);
+		return result;
+	}
+
+	private ExpressionLiteralSplitterStepSolver makeStepSolver(QuantifierEliminationProblem problem, Context context) {
 		Theory theory = context.getTheory();
-		
-		SingleVariableConstraint trueConstraint = theory.makeSingleVariableConstraint(index, theory, context);
-
-		ExpressionLiteralSplitterStepSolver quantifierEliminatorStepSolver = 
-				theory.getSingleVariableConstraintQuantifierEliminatorStepSolver(
-						group, trueConstraint, body, context);
-		
-		if (quantifierEliminatorStepSolver != null) {
-			body = quantifierEliminatorStepSolver.solve(context);
-		}
-		else {
-			// cannot eliminate this level, so reconstruct original expression up to this index
-			throw new Error("Reconstruction of quantifier not yet eliminable not yet implemented.");
-			// once implemented, must return original expression.
-		}
-		return body;
+		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(problem, context);
+		return result;
 	}
 }

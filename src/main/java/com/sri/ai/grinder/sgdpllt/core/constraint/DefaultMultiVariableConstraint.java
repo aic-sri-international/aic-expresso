@@ -97,7 +97,7 @@ public class DefaultMultiVariableConstraint extends AbstractConstraint {
 	protected SingleVariableConstraint getConstraintFor(Expression variable, Context context) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = getTheory().makeSingleVariableConstraint(variable, getTheory(), context);
+			result = getTheory().makeSingleVariableConstraint(variable, context);
 		}
 		return result;
 	}

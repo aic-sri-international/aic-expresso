@@ -60,6 +60,7 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -245,11 +246,10 @@ public interface Theory extends Cloneable {
 	/**
 	 * Make a new single-variable constraint for this theory.
 	 * @param variable 
-	 * @param theory the theory of the application (not necessarily <code>this</code> because <code>this</code> may be a sub-theory in a compound one
 	 * @param context
 	 * @return the constraint, or null if there is no theory for the variable.
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context);
 	
 	/**
 	 * Returns a new true (empty conjunction) constraint for this theory.
@@ -297,8 +297,12 @@ public interface Theory extends Cloneable {
 	 * @param context
 	 * @return
 	 */
-	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
+	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
 
+	default ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+		return getQuantifierEliminatorStepSolver(problem.group, problem.constraint, problem.body, context);
+	}
+	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
 	 * where a generalized variable is an expression that is not a boolean connective or an interpreted element in this theory

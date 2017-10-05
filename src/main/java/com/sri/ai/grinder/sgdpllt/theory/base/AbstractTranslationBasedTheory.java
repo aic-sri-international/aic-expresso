@@ -45,7 +45,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Disjunction;
@@ -74,8 +73,8 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
-		return new SingleVariableConstraintForTheoryWithoutAtoms(variable, theory);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+		return new SingleVariableConstraintForTheoryWithoutAtoms(variable, context.getTheory());
 	}
 
 	@Override
@@ -86,14 +85,14 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return getSingleVariableConstraintQuantifierEliminatorStepSolver(new Disjunction(), constraint, TRUE, context);
+		return getQuantifierEliminatorStepSolver(new Disjunction(), constraint, TRUE, context);
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return getSingleVariableConstraintQuantifierEliminatorStepSolver(new Sum(), constraint, ONE, context);
+		return getQuantifierEliminatorStepSolver(new Sum(), constraint, ONE, context);
 	}
 
 	@Override
-	public abstract	ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
+	public abstract	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
 }

@@ -138,8 +138,8 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
-		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), theory);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), context.getTheory());
 	}
 
 	@Override
@@ -160,7 +160,7 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
+	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		ExpressionStepSolver formulaSplitterStepSolver;
 		if (group instanceof Sum) {
 			formulaSplitterStepSolver = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(constraint, body);

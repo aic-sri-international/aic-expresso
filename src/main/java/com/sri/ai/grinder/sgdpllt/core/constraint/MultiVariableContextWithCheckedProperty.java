@@ -285,7 +285,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			}
 			else {
 				Expression firstVariable = getFirstOrNull(variablesInLiteral);
-				SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, getTheory(), context);
+				SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, context);
 				newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
 				result = 
 						makeAndCheck(

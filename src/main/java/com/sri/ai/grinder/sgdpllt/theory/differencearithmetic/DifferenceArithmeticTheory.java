@@ -136,8 +136,8 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Theory theory, Context context) {
-		return new SingleVariableDifferenceArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), theory);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+		return new SingleVariableDifferenceArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), context.getTheory());
 	}
 
 	@Override
@@ -158,14 +158,13 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
+	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
 		ExpressionStepSolver formulaSplitterStepSolver;		
 		if (group instanceof Sum) {
 			formulaSplitterStepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(constraint, body);
 		}
 		else {
-			formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver
-					(group, constraint, body);
+			formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(group, constraint, body);
 		}
 		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
 		return result;

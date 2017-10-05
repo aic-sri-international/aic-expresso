@@ -105,6 +105,22 @@ public interface SingleVariableConstraint extends Constraint {
 			Context context) {
 		
 		SingleVariableConstraint result = null;
+		result = useFormulaIfItIsASingleVariableConstraintForTheRightTheory(variable, formula, theory);
+		
+		if (result == null) {
+			result = makeSingleVariableConstraintFromFormula(variable, formula, context);
+		}
+		
+		return result;
+	}
+
+	public static SingleVariableConstraint useFormulaIfItIsASingleVariableConstraintForTheRightTheory(
+			Expression variable, 
+			Expression formula,
+			Theory theory) {
+		
+		SingleVariableConstraint result = null;
+		
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulasAsConstraint = (SingleVariableConstraint) formula;
 			if (formulasAsConstraint.getVariable().equals(variable) &&
@@ -112,16 +128,16 @@ public interface SingleVariableConstraint extends Constraint {
 				result = formulasAsConstraint;
 			}
 		}
-		
-		// if formula is not appropriate constraint, create a new one and conjoin with formula
-		if (result == null) {
-			SingleVariableConstraint singleVariableConstraint = theory.makeSingleVariableConstraint(variable, theory, context);
-			if (singleVariableConstraint == null) {
-				throw new Error("The current theory does not know how to manipulate constraints on " + variable + " (type " + context.getTypeOfRegisteredSymbol(variable) + ").");
-			}
-			result = singleVariableConstraint.conjoin(formula, context);
+		return result;
+	}
+
+	public static SingleVariableConstraint makeSingleVariableConstraintFromFormula(Expression variable, Expression formula, Context context) throws Error {
+		SingleVariableConstraint result;
+		SingleVariableConstraint singleVariableConstraint = context.getTheory().makeSingleVariableConstraint(variable, context);
+		if (singleVariableConstraint == null) {
+			throw new Error("The current theory does not know how to manipulate constraints on " + variable + " (type " + context.getTypeOfRegisteredSymbol(variable) + ").");
 		}
-		
+		result = singleVariableConstraint.conjoin(formula, context);
 		return result;
 	}
 	
