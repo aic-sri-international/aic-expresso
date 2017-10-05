@@ -60,7 +60,6 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -300,7 +299,7 @@ public interface Theory extends Cloneable {
 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
 
 	default ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
-		return getQuantifierEliminatorStepSolver(problem.group, problem.constraint, problem.body, context);
+		return getQuantifierEliminatorStepSolver(problem.getGroup(), problem.getConstraint(), problem.getBody(), context);
 	}
 	
 	/**

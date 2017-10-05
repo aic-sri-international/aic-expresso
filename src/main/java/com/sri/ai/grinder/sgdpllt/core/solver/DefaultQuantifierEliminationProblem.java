@@ -40,35 +40,36 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
-public class QuantifierEliminationProblem {
+/**
+ * A {@link QuantifierEliminationProblem} solved by using quantifier eliminators from context's theory.
+ * @author braz
+ *
+ */
+public class DefaultQuantifierEliminationProblem extends AbstractQuantifierEliminationProblem {
 	
-	final public AssociativeCommutativeGroup group;
-	final public Expression index;
-	final public SingleVariableConstraint constraint;
-	final public Expression body;
+	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body) {
+		super(group, constraint, body);
+	}
+	
+	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression body, Context context) {
+		super(group, index, body, context);
+	}
 
-	public QuantifierEliminationProblem(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body) {
-		super();
-		this.group = group;
-		this.index = constraint.getVariable();
-		this.constraint = constraint;
-		this.body = body;
+	public Expression solve(Context context) {
+		ExpressionLiteralSplitterStepSolver quantifierEliminatorStepSolver = makeStepSolver(context);
+		Expression result = quantifierEliminatorStepSolver.solve(context);
+		return result;
 	}
-	
-	public QuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression body, Context context) {
-		super();
-		this.group = group;
-		this.index = index;
-		this.constraint = context.getTheory().makeSingleVariableConstraint(index, context);
-		this.body = body;
-	}
-	
-	@Override
-	public String toString() {
-		return "Quantifier elimination problem on " + group + ", " + index + ", " + constraint + ", " + body;
+
+	private ExpressionLiteralSplitterStepSolver makeStepSolver(Context context) {
+		Theory theory = context.getTheory();
+		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(this, context);
+		return result;
 	}
 }
