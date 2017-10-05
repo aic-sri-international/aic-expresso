@@ -88,23 +88,23 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	public TrueContext() {
 		this(
 				null,
-				new LinkedHashMap<Expression, Expression>(),
-				new PrologConstantPredicate(), // symbolsAndTypes
+				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
+				new PrologConstantPredicate(), 
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 
 	public TrueContext(Theory theory) {
 		this(
 				theory,
-				new LinkedHashMap<Expression, Expression>(),
-				new PrologConstantPredicate(), // symbolsAndTypes
+				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
+				new PrologConstantPredicate(),
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 	
 	public TrueContext(Theory theory, Map<Object, Object> globalObjects) {
 		this(
 				theory,
-				new LinkedHashMap<Expression, Expression>(),
+				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}

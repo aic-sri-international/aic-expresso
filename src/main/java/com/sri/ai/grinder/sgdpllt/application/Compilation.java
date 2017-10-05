@@ -49,7 +49,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.util.Util;
@@ -74,7 +74,7 @@ public class Compilation {
 		AssociativeCommutativeGroup group = new Max(); // the group actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		MultiIndexQuantifierEliminator solver = new MultiIndexQuantifierEliminatorBasedOnTheoryProvidedSingleIndexQuantifierEliminatorStepSolver();
+		MultiIndexQuantifierEliminator solver = new DefaultMultiIndexQuantifierEliminator();
 		if (solverListener != null) {
 			solver = solverListener.apply(solver);
 		}
