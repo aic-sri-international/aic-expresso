@@ -50,10 +50,12 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
@@ -211,15 +213,14 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 
 	private void runTest(Expression variable, String constraintString, Expression body, Expression expected, Context context) {
 		Theory theory = context.getTheory();
-		Constraint constraint
+		SingleVariableDifferenceArithmeticConstraint constraint
 		= new SingleVariableDifferenceArithmeticConstraint(
 				variable, true, theory);
-		constraint = constraint.conjoin(parse(constraintString), context);
+		constraint = (SingleVariableDifferenceArithmeticConstraint) constraint.conjoin(parse(constraintString), context);
 		
-		ExpressionStepSolver stepSolver =
-				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
-						(SingleVariableDifferenceArithmeticConstraint) constraint,
-						body);
+		QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), constraint, body);
+		
+		ExpressionStepSolver stepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(problem);
 		
 		Expression actual = stepSolver.solve(context);
 

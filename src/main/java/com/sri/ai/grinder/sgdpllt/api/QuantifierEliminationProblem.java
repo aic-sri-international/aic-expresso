@@ -12,4 +12,6 @@ public interface QuantifierEliminationProblem {
 	SingleVariableConstraint getConstraint();
 
 	Expression getBody();
+	
+	QuantifierEliminationProblem makeWithNewIndexConstraint(SingleVariableConstraint newConstraint);
 }

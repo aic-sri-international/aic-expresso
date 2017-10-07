@@ -49,8 +49,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
@@ -73,15 +72,15 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	}
 
 	@Override
-	public boolean isSuitableFor(Expression variable, Type type) {
+	public boolean isSuitableFor(Type type) {
 		boolean result = type instanceof FunctionType;
 		return result;
 	}
 	
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
 		
-		Expression variable = constraint.getVariable();
+		Expression variable = problem.getConstraint().getVariable();
 		Expression type = GrinderUtil.getTypeExpressionOfExpression(variable, context);
 		Expression indexExpression = IndexExpressions.makeIndexExpression(variable, type);
 		ExtensionalIndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression);
@@ -89,7 +88,7 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 		MultiIndexQuantifierEliminator quantifierEliminator =
 				new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
 		
-		Expression solution = quantifierEliminator.solve(group, indexExpressionsSet, constraint, body, context);
+		Expression solution = quantifierEliminator.solve(problem.getGroup(), indexExpressionsSet, problem.getConstraint(), problem.getBody(), context);
 		
 		return new ConstantExpressionStepSolver(solution);
 	}

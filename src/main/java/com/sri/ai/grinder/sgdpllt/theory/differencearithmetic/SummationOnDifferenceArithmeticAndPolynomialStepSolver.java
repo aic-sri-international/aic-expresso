@@ -53,10 +53,10 @@ import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
 
 /**
  * A step solver for a summation with an integer index constrained by difference arithmetic literals,
@@ -79,11 +79,11 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	
 	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
-	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
-		super(new Sum(), indexConstraint, body);
+	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(QuantifierEliminationProblem problem) {
+		super(problem);
 		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
 				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(
-						(SingleVariableDifferenceArithmeticConstraint) indexConstraint);
+						(SingleVariableDifferenceArithmeticConstraint) getIndexConstraint());
 	}
 
 	@Override
@@ -92,10 +92,10 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	}
 	
 	@Override
-	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		AbstractQuantifierEliminationStepSolver result = 
+	protected SummationOnDifferenceArithmeticAndPolynomialStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+		SummationOnDifferenceArithmeticAndPolynomialStepSolver result = 
 				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
-						newIndexConstraint, body);
+						problem.makeWithNewIndexConstraint(newIndexConstraint));
 		return result;
 	}
 

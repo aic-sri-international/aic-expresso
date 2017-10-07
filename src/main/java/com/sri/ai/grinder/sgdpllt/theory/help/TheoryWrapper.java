@@ -35,103 +35,104 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.propositional;
+package com.sri.ai.grinder.sgdpllt.theory.help;
 
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
-import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
-import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
-import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
-import com.sri.ai.grinder.sgdpllt.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.sgdpllt.library.boole.Not;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
-@Beta
 /** 
- * A {@link Theory} for propositional logic.
+ * A {@link Theory} that passes all methods through to a base theory.
+ * It is useful as a basis for other classes that modify some behaviors of a base theory.
  */
-public class PropositionalTheory extends AbstractTheory {
+@Beta
+public class TheoryWrapper implements Theory {
 
-	public PropositionalTheory() {
-		super();
+	private Theory base;
+	
+	public TheoryWrapper(Theory base) {
+		this.base = base;
+	}
+	
+	public Theory getBase() {
+		return base;
+	}
+	
+	@Override
+	public Expression simplify(Expression expression, Context context) {
+		return base.simplify(expression, context);
 	}
 
 	@Override
-	public TopRewriter makeTopRewriter() {
-		return TopRewriter.merge(INSTANCE, new BooleanSimplifier());
+	public TopRewriter getTopRewriter() {
+		return base.getTopRewriter();
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression) {
+		return base.makeEvaluatorStepSolver(expression);
 	}
 
 	@Override
 	public boolean isSuitableFor(Type type) {
-		boolean result = type.getName().equals("Boolean");
-		return result;
+		return base.isSuitableFor(type);
 	}
-	
+
 	@Override
 	public boolean isAtom(Expression expression, Context context) {
-		Object syntacticFormType = expression.getSyntacticFormType();
-		boolean result = 
-				syntacticFormType.equals(Symbol.SYNTACTIC_FORM_TYPE) &&
-				GrinderUtil.isBooleanTyped(expression, context);
-		return result;
+		return base.isAtom(expression, context);
 	}
-	
+
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
-		return new SingleVariablePropositionalConstraint(variable, context.getTheory());
-	}
-
-	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
-		return false; // nothing else is interpreted
-	}
-
-	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		ExpressionLiteralSplitterStepSolver result = new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
-		return result;
-	}
-
-	@Override
-	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		ExpressionLiteralSplitterStepSolver result = new ModelCountingOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
-		return result;
-	}
-
-	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
-		ExpressionStepSolver formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(problem);
-		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
-		return result;
+		return base.makeSingleVariableConstraint(variable, context);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true;
+		return base.singleVariableConstraintIsCompleteWithRespectToItsVariable();
 	}
 
-	/**
-	 * An overriding more efficient implementation.
-	 */
 	@Override
-	public Expression getLiteralNegation(Expression literal, Context context) {
-		Expression result;
-		if (literal.hasFunctor(NOT)) {
-			result = literal.get(0);
-		}
-		else {
-			result = Not.make(literal);
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
+		return base.isInterpretedInThisTheoryBesidesBooleanConnectives(expression);
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		return base.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		return base.getSingleVariableConstraintModelCountingStepSolver(constraint, context);
+	}
+
+	@Override
+	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+		return base.getQuantifierEliminatorStepSolver(problem, context);
+	}
+
+	@Override
+	public Collection<Type> getNativeTypes() {
+		return base.getNativeTypes();
+	}
+
+	@Override
+	public TheoryWrapper clone() {
+		TheoryWrapper result = null;
+		try {
+			result = (TheoryWrapper) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
 		}
 		return result;
 	}

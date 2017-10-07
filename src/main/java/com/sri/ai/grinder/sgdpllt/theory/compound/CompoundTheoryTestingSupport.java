@@ -93,7 +93,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 	
 	/**
 	 * This is overridden so that given variables and types for testing are distributed to their
-	 * respective theories according to {@link #isSuitableFor(Expression, Type)}.
+	 * respective theories according to {@link #isSuitableFor(Type)}.
 	 */
 	@Override
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
@@ -112,7 +112,7 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 			Expression variable = Expressions.parse(variableName);
 			Type type = variableNameAndType.getValue();
 			for (Theory subTheory : getTheory().getSubTheories()) {
-				if (subTheory.isSuitableFor(variable, type) || (type instanceof FunctionType && subTheory.isSuitableFor(variable, ((FunctionType)type).getCodomain()))) {
+				if (subTheory.isSuitableFor(type) || (type instanceof FunctionType && subTheory.isSuitableFor(((FunctionType)type).getCodomain()))) {
 					mapForSubTheory.get(subTheory).put(variableName, type);
 				}
 			}

@@ -60,7 +60,6 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -159,7 +158,7 @@ public interface Theory extends Cloneable {
 		return result;
 	}
 	
-	boolean isSuitableFor(Expression variable, Type type);
+	boolean isSuitableFor(Type type);
 	
 	default boolean isConjunctiveClause(Expression formula, Context context) {
 		boolean result = forAll(getConjuncts(formula), c -> isLiteralOrBooleanConstant(c, context));
@@ -290,17 +289,8 @@ public interface Theory extends Cloneable {
 
 	/**
 	 * Provides a quantifier eliminator step solver for use with given single-variable constraint and body, or null if there is no appropriate theory.
-	 * @param group
-	 * @param constraint
-	 * @param body
-	 * @param context
-	 * @return
 	 */
-	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
-
-	default ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
-		return getQuantifierEliminatorStepSolver(problem.getGroup(), problem.getConstraint(), problem.getBody(), context);
-	}
+	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context);
 	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
@@ -350,7 +340,7 @@ public interface Theory extends Cloneable {
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
 				&& (typeExpression = GrinderUtil.getTypeExpressionOfExpression(expression, context)) != null
 				&& (type = context.getTypeFromTypeExpression(typeExpression)) != null
-				&& isSuitableFor(expression, type)
+				&& isSuitableFor(type)
 				&& !thereExists(context.getTypes(), t -> t.contains(expression));		
 		return result;
 	}

@@ -23,15 +23,15 @@ public class DefaultMultiIndexQuantifierEliminator extends AbstractMultiIndexQua
 		Expression bodyWithCondition = IfThenElse.make(condition, body, group.additiveIdentityElement());
 		Expression currentNormalizedExpression = context.getTheory().evaluate(bodyWithCondition, context);
 		for (int i = indices.size() - 1; i >= 0; i--) {
-			DefaultQuantifierEliminationProblem nextProblem = makeProblem(group, indices.get(i), currentNormalizedExpression, context);
+			TheorySolvedQuantifierEliminationProblem nextProblem = makeProblem(group, indices.get(i), currentNormalizedExpression, context);
 			currentNormalizedExpression = nextProblem.solve(context);
 		}
 		return currentNormalizedExpression;
 	}
 
-	private DefaultQuantifierEliminationProblem makeProblem(
+	private TheorySolvedQuantifierEliminationProblem makeProblem(
 			AssociativeCommutativeGroup group, Expression index, Expression body, Context context) {
 
-		return new DefaultQuantifierEliminationProblem(group, index, body, context);
+		return new TheorySolvedQuantifierEliminationProblem(group, index, body, context);
 	}
 }

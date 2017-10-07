@@ -35,66 +35,51 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
+package com.sri.ai.grinder.sgdpllt.theory.help;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.api.StepSolver;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackQuantifierEliminationStepSolverWrapper;
 
+/** 
+ * A {@link Theory} that passes all methods through to a base theory,
+ * but wraps {@link StepSolver}s in {@link BruteForceFallbackQuantifierEliminationStepSolverWrapper}.
+ */
 @Beta
-public class DefaultQuantifierEliminationProblem implements QuantifierEliminationProblem {
-	
-	final public AssociativeCommutativeGroup group;
-	final public Expression index;
-	final public SingleVariableConstraint constraint;
-	final public Expression body;
+public class BruteForceFallbackTheory extends TheoryWrapper {
 
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body) {
-		super();
-		this.group = group;
-		this.index = constraint.getVariable();
-		this.constraint = constraint;
-		this.body = body;
-	}
-	
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression body, Context context) {
-		super();
-		this.group = group;
-		this.index = index;
-		this.constraint = context.getTheory().makeSingleVariableConstraint(index, context);
-		this.body = body;
+	public BruteForceFallbackTheory(Theory base) {
+		super(base);
 	}
 	
 	@Override
-	public AssociativeCommutativeGroup getGroup() {
-		return group;
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		return getBase().getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 	}
 
 	@Override
-	public Expression getIndex() {
-		return index;
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		return getBase().getSingleVariableConstraintModelCountingStepSolver(constraint, context);
 	}
 
 	@Override
-	public SingleVariableConstraint getConstraint() {
-		return constraint;
+	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+		
+		ExpressionLiteralSplitterStepSolver quantifierEliminatorStepSolver = getBase().getQuantifierEliminatorStepSolver(problem, context);
+		
+		ExpressionLiteralSplitterStepSolver result = new BruteForceFallbackQuantifierEliminationStepSolverWrapper(problem, quantifierEliminatorStepSolver);
+		
+		return result;
 	}
 
 	@Override
-	public Expression getBody() {
-		return body;
-	}
-	
-	@Override
-	public DefaultQuantifierEliminationProblem makeWithNewIndexConstraint(SingleVariableConstraint newConstraint) {
-		return new DefaultQuantifierEliminationProblem(group, newConstraint, body);
-	}
-
-	@Override
-	public String toString() {
-		return "Quantifier elimination problem on " + group + ", " + index + ", " + constraint + ", " + body;
+	public BruteForceFallbackTheory clone() {
+		BruteForceFallbackTheory result = (BruteForceFallbackTheory) super.clone();
+		return result;
 	}
 }

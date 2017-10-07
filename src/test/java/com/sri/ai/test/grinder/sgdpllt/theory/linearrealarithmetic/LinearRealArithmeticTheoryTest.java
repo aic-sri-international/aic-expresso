@@ -47,13 +47,15 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
@@ -784,16 +786,16 @@ public class LinearRealArithmeticTheoryTest {
 				bodyString,
 				expected, 
 				"summation for " + bodyString, 
-				(Constraint c, Expression b) -> 
+				(SingleVariableConstraint c, Expression b) -> 
 				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						(SingleVariableLinearRealArithmeticConstraint) c, b),
+						new DefaultQuantifierEliminationProblem(new Sum(), c, b)),
 				context);
 	}
 
-	private void runQuantifierTest(Expression variable, String constraintString, String bodyString, Expression expected, String computedFunction, BinaryFunction<Constraint, Expression, ExpressionStepSolver> stepSolverMaker, Context context) {
+	private void runQuantifierTest(Expression variable, String constraintString, String bodyString, Expression expected, String computedFunction, BinaryFunction<SingleVariableConstraint, Expression, ExpressionStepSolver> stepSolverMaker, Context context) {
 		Expression body = parse(bodyString);
 		
-		Function<Constraint, ExpressionStepSolver> stepSolverMakerFromConstraint =
+		Function<SingleVariableConstraint, ExpressionStepSolver> stepSolverMakerFromConstraint =
 				c -> stepSolverMaker.apply(c, body);
 	
 		runTest(variable, constraintString, expected, computedFunction, stepSolverMakerFromConstraint, context);
@@ -807,10 +809,10 @@ public class LinearRealArithmeticTheoryTest {
 	 * @param stepSolverMaker
 	 * @param context
 	 */
-	private void runTest(Expression variable, String constraintString, Expression expected, String computedFunction, Function<Constraint, ExpressionStepSolver> stepSolverMaker, Context context) {
+	private void runTest(Expression variable, String constraintString, Expression expected, String computedFunction, Function<SingleVariableConstraint, ExpressionStepSolver> stepSolverMaker, Context context) {
 		System.out.println("Solving " + computedFunction + " for " + variable + " in " + constraintString);
 	
-		Constraint constraint
+		SingleVariableConstraint constraint
 		= new SingleVariableLinearRealArithmeticConstraint(
 				variable, true, context.getTheory());
 	

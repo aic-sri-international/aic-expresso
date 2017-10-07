@@ -54,10 +54,10 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.boole.Not;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.util.Util;
@@ -93,8 +93,8 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = thereExists(getSubTheories(), t -> t.isSuitableFor(variable, type));
+	public boolean isSuitableFor(Type type) {
+		boolean result = thereExists(getSubTheories(), t -> t.isSuitableFor(type));
 		return result;
 	}
 	
@@ -117,7 +117,7 @@ public class CompoundTheory extends AbstractTheory {
 		Theory result =
 				getFirstSatisfyingPredicateOrNull(
 						getSubTheories(),
-						t -> t.isSuitableFor(variable, variableType));
+						t -> t.isSuitableFor(variableType));
 
 		// Used to enforce presence of theory here,
 		// but we are now more flexible,
@@ -204,9 +204,9 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
-		Theory theory = getTheory(constraint.getVariable(), context);
-		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(group, constraint, body, context);
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+		Theory theory = getTheory(problem.getConstraint().getVariable(), context);
+		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(problem, context);
 		return result;
 	}
 

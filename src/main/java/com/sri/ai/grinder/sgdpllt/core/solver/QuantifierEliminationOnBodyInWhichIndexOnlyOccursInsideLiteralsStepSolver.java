@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -70,8 +71,8 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 @Beta
 public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
-		super(group, indexConstraint, body);
+	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(QuantifierEliminationProblem problem) {
+		super(problem);
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 		QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver result = 
 				(QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver)
 				clone();
-		result.indexConstraint = newIndexConstraint;
+		result.problem = problem.makeWithNewIndexConstraint(newIndexConstraint);
 		return result;
 	}
 
@@ -125,7 +126,7 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 		throws IndexOccursInBodyException {
 		
 		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
-		Expression problemExpression = group.makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, literalFreeBody);
+		Expression problemExpression = getGroup().makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, literalFreeBody);
 		throw new IndexOccursInBodyException(
 				QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver.class +
 				": Index occurs in body: " + problemExpression);

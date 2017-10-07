@@ -44,9 +44,10 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.Disjunction;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 
@@ -85,14 +86,16 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		return getQuantifierEliminatorStepSolver(new Disjunction(), constraint, TRUE, context);
+		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Disjunction(), constraint, TRUE);
+		return getQuantifierEliminatorStepSolver(problem, context);
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		return getQuantifierEliminatorStepSolver(new Sum(), constraint, ONE, context);
+		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), constraint, ONE);
+		return getQuantifierEliminatorStepSolver(problem, context);
 	}
 
 	@Override
-	public abstract	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context);
+	public abstract	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context);
 }

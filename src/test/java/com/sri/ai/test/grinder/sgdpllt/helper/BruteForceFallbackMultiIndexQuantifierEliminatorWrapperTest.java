@@ -45,32 +45,23 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
-import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackMultiIndexQuantifierEliminatorWrapper;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.ProductRewriter;
-import com.sri.ai.grinder.sgdpllt.library.number.SummationRewriter;
-import com.sri.ai.grinder.sgdpllt.library.set.CardinalityTopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.theory.help.BruteForceFallbackTheory;
+import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 
 @Beta
 public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapperTest {
 
 	private static class DummyQuantifierEliminatorStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-		public DummyQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
-			super(group, indexConstraint, body);
+		public DummyQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem) {
+			super(problem);
 		}
 
 		@Override
@@ -80,12 +71,24 @@ public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapperTest {
 
 		@Override
 		protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-			return new DummyQuantifierEliminatorStepSolver(group, newIndexConstraint, body);
+			return new DummyQuantifierEliminatorStepSolver(problem.makeWithNewIndexConstraint(newIndexConstraint));
 		}
 	}
 	
-	//@Test
+	@Test
 	public void test() {
+//		Theory theory;
+//		Expression expression;
+//		Context context;
+//		
+//		theory = new BruteForceFallbackTheory(new LinearRealArithmeticTheory(false, true));
+//		context = new TrueContext(theory);
+//		expression = parse("sum({{ (on X in 1..3) 2^X }})");
+//		println(theory.evaluate(expression, context));
+//		
+//		MultiIndexQuantifierEliminator base = new DefaultMultiIndexQuantifierEliminator();
+		// MultiIndexQuantifierEliminator baseWithFallBack = new BruteForceFallbackQuantifierEliminationStepSolverWrapper(base);
+		
 //		MultiIndexQuantifierEliminator multiIndexQuantifierEliminator =
 //				new DefaultMultiIndexQuantifierEliminator() {
 //

@@ -44,7 +44,9 @@ import java.util.LinkedList;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -58,11 +60,13 @@ import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierElim
  *
  */
 @Beta
-public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapper implements QuantifierEliminationStepSolver {
+public class BruteForceFallbackQuantifierEliminationStepSolverWrapper implements ExpressionLiteralSplitterStepSolver {
 	
-	private QuantifierEliminationStepSolver base;
+	private QuantifierEliminationProblem problem;
+	private ExpressionLiteralSplitterStepSolver base;
 	
-	public BruteForceFallbackMultiIndexQuantifierEliminatorWrapper(QuantifierEliminationStepSolver base) {
+	public BruteForceFallbackQuantifierEliminationStepSolverWrapper(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
+		this.problem = problem;
 		this.base = base;
 	}
 
@@ -73,11 +77,21 @@ public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapper implements 
 			result = base.step(context);
 		}
 		catch (IllegalArgumentException exception) {
-			MultiIndexQuantifierEliminator bruteForceMultiIndexQuantifierEliminator = makeBruteForceQuantifierEliminator(context);
-			Expression resultExpression = solveByBruteForce(bruteForceMultiIndexQuantifierEliminator, context);
-			result = new Solution(resultExpression);
+			result = useBruteForceInstead(context);
 		}
 		return result;
+	}
+
+	private Step useBruteForceInstead(Context context) {
+		Expression resultExpression = solveByBruteForceAndReturnExpression(context);
+		Step result = new Solution(resultExpression);
+		return result;
+	}
+
+	private Expression solveByBruteForceAndReturnExpression(Context context) {
+		MultiIndexQuantifierEliminator bruteForceMultiIndexQuantifierEliminator = makeBruteForceQuantifierEliminator(context);
+		Expression resultExpression = solveByBruteForceUsingMultiIndexQuantifierEliminator(bruteForceMultiIndexQuantifierEliminator, context);
+		return resultExpression;
 	}
 
 	private MultiIndexQuantifierEliminator makeBruteForceQuantifierEliminator(Context context) {
@@ -85,42 +99,23 @@ public class BruteForceFallbackMultiIndexQuantifierEliminatorWrapper implements 
 		return result;
 	}
 
-	private Expression solveByBruteForce(MultiIndexQuantifierEliminator multiIndexQuantifierEliminator, Context context) {
+	private Expression solveByBruteForceUsingMultiIndexQuantifierEliminator(MultiIndexQuantifierEliminator multiIndexQuantifierEliminator, Context context) {
 		
-		AssociativeCommutativeGroup group = getGroup();
-		LinkedList<Expression> indices = list(getIndex());
-		SingleVariableConstraint indicesCondition = getIndexConstraint();
-		Expression body = getBody();
+		AssociativeCommutativeGroup group = problem.getGroup();
+		LinkedList<Expression> indices = list(problem.getIndex());
+		SingleVariableConstraint indicesCondition = problem.getConstraint();
+		Expression body = problem.getBody();
 		
-		Expression resultExpression = multiIndexQuantifierEliminator.solve(group, indices, indicesCondition, body, context);
-		return resultExpression;
+		Expression result = multiIndexQuantifierEliminator.solve(group, indices, indicesCondition, body, context);
+		
+		return result;
 	}
 
 	@Override
-	public AssociativeCommutativeGroup getGroup() {
-		return base.getGroup();
-	}
-
-	@Override
-	public SingleVariableConstraint getIndexConstraint() {
-		return base.getIndexConstraint();
-	}
-
-	@Override
-	public Expression getIndex() {
-		return base.getIndex();
-	}
-
-	@Override
-	public Expression getBody() {
-		return base.getBody();
-	}
-
-	@Override
-	public BruteForceFallbackMultiIndexQuantifierEliminatorWrapper clone() {
-		BruteForceFallbackMultiIndexQuantifierEliminatorWrapper result;
+	public BruteForceFallbackQuantifierEliminationStepSolverWrapper clone() {
+		BruteForceFallbackQuantifierEliminationStepSolverWrapper result;
 		try {
-			result = (BruteForceFallbackMultiIndexQuantifierEliminatorWrapper) super.clone();
+			result = (BruteForceFallbackQuantifierEliminationStepSolverWrapper) super.clone();
 		}
 		catch (CloneNotSupportedException exception) {
 			throw new RuntimeException(exception);

@@ -47,8 +47,7 @@ import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -76,24 +75,24 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 	}
 
 	@Override
-	public boolean isSuitableFor(Expression variable, Type type) {
+	public boolean isSuitableFor(Type type) {
 		boolean result = type instanceof TupleType;
 		return result;
 	}
 	
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
 		// The tuple-specific version will do the following:
 		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
 		//            to create E
-		Expression variable = constraint.getVariable();
+		Expression variable = problem.getConstraint().getVariable();
 		Expression typeExpression = GrinderUtil.getTypeExpressionOfExpression(variable, context);
 		Type type = context.getTypeFromTypeExpression(typeExpression);
-		if (!isSuitableFor(variable, type)) {
+		if (!isSuitableFor(type)) {
 			throw new Error("Theory " + this + " asked to eliminate quantifier indexed by " + variable + " in " + typeExpression + ", but this theory is not suitable for this type.");
 		}
-		Expression expression = group.makeProblemExpression(variable, typeExpression, constraint, body);
+		Expression expression = problem.getGroup().makeProblemExpression(variable, typeExpression, problem.getConstraint(), problem.getBody());
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
 		Expression expressionWithoutQuantificationOnTuples      = tupleQuantifierSimplifier.apply(expression, context);
 		// - return context.getTheory().getRewriter().makeStepSolver(E')

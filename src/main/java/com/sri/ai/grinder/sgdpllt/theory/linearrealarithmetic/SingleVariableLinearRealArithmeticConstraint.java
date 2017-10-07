@@ -50,7 +50,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -162,7 +161,7 @@ public class SingleVariableLinearRealArithmeticConstraint extends AbstractSingle
 	private RealInterval cachedType;
 	
 	/**
-	 * Returns the {@link IntegerInterval} type of the constraint's variable.
+	 * Returns the {@link RealInterval} type of the constraint's variable.
 	 * @param context
 	 * @return
 	 */

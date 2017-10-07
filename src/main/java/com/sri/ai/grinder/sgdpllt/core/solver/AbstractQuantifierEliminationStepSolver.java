@@ -55,6 +55,7 @@ import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
@@ -115,11 +116,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
 	
-	protected AssociativeCommutativeGroup group;
-	
-	protected SingleVariableConstraint indexConstraint;
-
-	protected Expression body;
+	protected QuantifierEliminationProblem problem;
 	
 	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
 	
@@ -131,10 +128,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 */
 	public static final String BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS = "Brute force checking of non-conditional problems";
 
-	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
-		this.group = group;
-		this.indexConstraint = indexConstraint;
-		this.body = body;
+	public AbstractQuantifierEliminationStepSolver(QuantifierEliminationProblem problem) {
+		this.problem = problem;
 	}
 
 	/**
@@ -167,28 +162,28 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	
 	@Override
 	public AssociativeCommutativeGroup getGroup() {
-		return group;
+		return problem.getGroup();
 	}
 	
 	@Override
 	public SingleVariableConstraint getIndexConstraint() {
-		return indexConstraint;
+		return problem.getConstraint();
 	}
 	
 	@Override
 	public Expression getIndex() {
-		return indexConstraint.getVariable();
+		return problem.getConstraint().getVariable();
 	}
 	
 	@Override
 	public Expression getBody() {
-		return body;
+		return problem.getBody();
 	}
 	
 	private ExpressionLiteralSplitterStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
-			= theory.makeEvaluatorStepSolver(body);
+			= theory.makeEvaluatorStepSolver(getBody());
 		}
 		return initialBodyEvaluationStepSolver;
 	}
@@ -212,7 +207,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		Context contextForBody = getContextForBody(context);
 		
 		if (contextForBody.isContradiction()) {
-			result = new Solution(group.additiveIdentityElement());
+			result = new Solution(getGroup().additiveIdentityElement());
 		}
 		else {
 			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
@@ -274,13 +269,13 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			else { // body is already literal free
 				result
 				= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-						indexConstraint, bodyStep.getValue(), context);
+						getIndexConstraint(), bodyStep.getValue(), context);
 			}
 		}
 		
 		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
 			if ( ! result.itDepends()) {
-				Expression problem = group.makeProblemExpression(getIndex(), context.getTypeExpressionOfRegisteredSymbol(getIndex()), getIndexConstraint(), getBody());
+				Expression problem = getGroup().makeProblemExpression(getIndex(), context.getTypeExpressionOfRegisteredSymbol(getIndex()), getIndexConstraint(), getBody());
 				Set<Expression> freeVariables = Expressions.freeVariables(problem, context);
 				AssignmentsIterator assignments = new AssignmentsIterator(freeVariables, context);
 				for (Map<Expression, Expression> assignment : in(assignments)) {
@@ -441,7 +436,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			}
 		}
 		else {
-			result = group.add(solution1, solution2, context);
+			result = getGroup().add(solution1, solution2, context);
 		}
 		return result;
 	}
