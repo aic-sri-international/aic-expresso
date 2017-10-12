@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.tryToNormalizeAsPolynomial;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.list;
@@ -50,7 +51,6 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.number.Plus;
 import com.sri.ai.grinder.sgdpllt.library.number.Times;
@@ -84,7 +84,7 @@ public class Sum extends AbstractFunctionBasedGroup {
 		}
 		else {
 			Expression sum = Plus.make(arrayList(value1, value2));
-			result = DefaultPolynomial.make(sum);
+			result = tryToNormalizeAsPolynomial(sum);
 		}
 		return result;
 	}

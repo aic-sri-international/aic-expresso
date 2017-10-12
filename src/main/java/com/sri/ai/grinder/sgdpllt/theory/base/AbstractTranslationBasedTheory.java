@@ -74,7 +74,7 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return new SingleVariableConstraintForTheoryWithoutAtoms(variable, context.getTheory());
 	}
 

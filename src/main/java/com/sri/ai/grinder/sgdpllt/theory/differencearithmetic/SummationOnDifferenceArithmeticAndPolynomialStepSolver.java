@@ -158,7 +158,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 				}
 				Expression strictLowerBound = interval.get(0);
 				Expression nonStrictUpperBound = interval.get(1);
-				Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
+				Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody, list(variable));
 				Expression intervalSummation =
 						PolynomialSummation.sum(
 								variable,

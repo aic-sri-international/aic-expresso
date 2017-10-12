@@ -122,4 +122,9 @@ public class BruteForceFallbackQuantifierEliminationStepSolverWrapper implements
 		}
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return "Brute-force quantifier eliminator step solver for " + base;
+	}
 }

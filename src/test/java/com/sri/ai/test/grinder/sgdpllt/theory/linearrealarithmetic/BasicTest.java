@@ -131,7 +131,7 @@ public class BasicTest {
 		
 		
 		// Sides should be polynomials
-		expression = parse("f()*2 > 0");
+		expression = parse("2*f() > 0");
 		expected = false;
 		runIsLiteralTest(expression, expected, context);
 	}

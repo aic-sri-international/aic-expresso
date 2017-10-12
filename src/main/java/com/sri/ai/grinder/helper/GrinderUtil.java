@@ -107,6 +107,7 @@ import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.library.Disequality;
 import com.sri.ai.grinder.sgdpllt.library.Equality;
@@ -540,7 +541,7 @@ public class GrinderUtil {
 		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			Expression functionType = getTypeExpressionOfExpression(expression.getFunctor(), registry);
 			if (functionType == null) {
-				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to registry.");
+				throw new Error("Type of '" + expression.getFunctor() + "' required but unknown.");
 			}
 			
 			Expression coDomain = FunctionType.getCodomain(functionType);
@@ -936,5 +937,22 @@ public class GrinderUtil {
 		}
 		Type type = context.getTypeFromTypeExpression(typeExpression);
 		return type;
+	}
+
+	/**
+	 * Return a {@link DefaultPolynomial} equivalent to given expression,
+	 * or the expression itself if that is not possible.
+	 * @param expression
+	 * @return
+	 */
+	public static Expression tryToNormalizeAsPolynomial(Expression expression) {
+		Expression result;
+		try {
+			result = DefaultPolynomial.make(expression);
+		}
+		catch (IllegalArgumentException exception) {
+			result = expression;
+		}
+		return result;
 	}
 }

@@ -1,5 +1,8 @@
 package com.sri.ai.grinder.polynomial.core;
 
+import static com.sri.ai.expresso.helper.Expressions.isNumber;
+import static com.sri.ai.expresso.helper.Expressions.isPositiveOrNegativeInfinity;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +51,12 @@ public class PolynomialIntegration {
 			variables.add(variable);
 			// Ensure the variable we are integrating with respect to is 
 			// recognized by the polynomial as being one (this is implied).
+			try {
 			polynomial = DefaultPolynomial.make(polynomial, variables);
+			}
+			catch(IllegalArgumentException exception) {
+				throw new IllegalArgumentException("Integrating " + polynomial + " requires it to be an integral in the integral variable " + variable + " but it is not because " + exception);
+			}
 		}		
 		
 		// Get the integrals of its terms
@@ -107,10 +115,10 @@ public class PolynomialIntegration {
 		Polynomial q = indefiniteIntegral(polynomial, variable);
 		
 		Set<Expression> variableSet = new LinkedHashSet<>(q.getVariables()); // Note: will include variable due to calling indefiniteIntegral
-		if (!Expressions.isNumber(start)) {
+		if (!isNumber(start) && !isPositiveOrNegativeInfinity(start)) {
 			variableSet.add(start);
 		}
-		if (!Expressions.isNumber(end)) {
+		if (!isNumber(end) && !isPositiveOrNegativeInfinity(end)) {
 			variableSet.add(end);
 		}		
 		List<Expression> variables = new ArrayList<>(variableSet);

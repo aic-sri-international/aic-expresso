@@ -15,7 +15,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public abstract class AbstractQuantifierBasedGroup implements AssociativeCommutativeGroup {
+public abstract class AbstractQuantifierBasedGroup extends AbstractAssociativeCommutativeGroup {
 
 	/**
 	 * Provides a quantified expression based on index expression and body.

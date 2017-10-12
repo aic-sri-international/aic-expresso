@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.help;
+package com.sri.ai.grinder.sgdpllt.theory.bruteforce;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -45,6 +45,7 @@ import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackQuantifierEliminationStepSolverWrapper;
+import com.sri.ai.grinder.sgdpllt.theory.help.TheoryWrapper;
 
 /** 
  * A {@link Theory} that passes all methods through to a base theory,
@@ -81,5 +82,10 @@ public class BruteForceFallbackTheory extends TheoryWrapper {
 	public BruteForceFallbackTheory clone() {
 		BruteForceFallbackTheory result = (BruteForceFallbackTheory) super.clone();
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Brute-force theory wrapper for " + getBase();
 	}
 }

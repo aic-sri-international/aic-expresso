@@ -41,8 +41,8 @@ public class IsolateUtilTest {
 				IsolateUtil.isolate(Expressions.parse("(20 - x) = (-2*x + y*x + 3*z + 18)"), Expressions.parse("x")));
 
 		Assert.assertEquals(
-				Expressions.parse("age(bob) >= age(beth)"), 
-				IsolateUtil.isolate(Expressions.parse("age(bob) <= 2*age(bob) - age(beth)"), Expressions.parse("age(bob)")));
+				Expressions.parse("x >= y"), 
+				IsolateUtil.isolate(Expressions.parse("x <= 2*x - y"), Expressions.parse("x")));
 	}
 	
 	@Test

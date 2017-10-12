@@ -163,4 +163,9 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		}
 		return _someType;
 	}
+	
+	@Override
+	public String toString() {
+		return theory.toString();
+	}
 }

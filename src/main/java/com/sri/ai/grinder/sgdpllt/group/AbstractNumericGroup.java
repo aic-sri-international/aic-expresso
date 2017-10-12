@@ -13,7 +13,7 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * @author braz
  *
  */
-public abstract class AbstractNumericGroup implements AssociativeCommutativeGroup {
+public abstract class AbstractNumericGroup extends AbstractAssociativeCommutativeGroup {
 
 	public AbstractNumericGroup() {
 		super();

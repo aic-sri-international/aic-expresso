@@ -249,11 +249,6 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(localTestContext);
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
-		
-		unificationStepSolver = new UnificationStepSolver(parse("binary_dar(I, unary_dar(I))"), parse("binary_dar(unary_dar(J), J)"));
-		step = unificationStepSolver.step(rootContext);
-		Assert.assertEquals(true, step.itDepends());		
-		Assert.assertEquals(Expressions.parse("I = unary_dar(J)"), step.getSplitter());
 	}
 	
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
@@ -320,11 +315,6 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(localTestContext);
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
-		
-		unificationStepSolver = new UnificationStepSolver(parse("binary_lra(X, unary_lra(X))"), parse("binary_lra(unary_lra(Y), Y)"));
-		step = unificationStepSolver.step(rootContext);
-		Assert.assertEquals(true, step.itDepends());		
-		Assert.assertEquals(Expressions.parse("X = unary_lra(Y)"), step.getSplitter());
 	}
 	
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")
@@ -355,7 +345,7 @@ public class UnificationStepSolverTest {
 	}
 	
 	@Test
-	public void compundTest() {
+	public void compoundTest() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(seededRandom, 
 														new CompoundTheory(
 															new EqualityTheory(false, true),
@@ -408,11 +398,6 @@ public class UnificationStepSolverTest {
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
 		
-		unificationStepSolver = new UnificationStepSolver(parse("binary_prop(P, unary_prop(P))"), parse("binary_prop(unary_prop(Q), Q)"));
-		step = unificationStepSolver.step(rootContext);
-		Assert.assertEquals(true, step.itDepends());		
-		Assert.assertEquals(Expressions.parse("P = unary_prop(Q)"), step.getSplitter());
-		
 		//
 		//
 		unificationStepSolver = new UnificationStepSolver(parse("unary_eq(S)"), parse("unary_eq(S)"));
@@ -445,11 +430,6 @@ public class UnificationStepSolverTest {
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
 		
-		unificationStepSolver = new UnificationStepSolver(parse("binary_eq(S, unary_eq(S))"), parse("binary_eq(unary_eq(T), T)"));
-		step = unificationStepSolver.step(rootContext);
-		Assert.assertEquals(true, step.itDepends());		
-		Assert.assertEquals(Expressions.parse("S = unary_eq(T)"), step.getSplitter());
-		
 		//
 		//
 		unificationStepSolver = new UnificationStepSolver(parse("unary_dar(I)"), parse("unary_dar(I)"));
@@ -481,11 +461,6 @@ public class UnificationStepSolverTest {
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
 		
-		unificationStepSolver = new UnificationStepSolver(parse("binary_dar(I, unary_dar(I))"), parse("binary_dar(unary_dar(J), J)"));
-		step = unificationStepSolver.step(rootContext);
-		Assert.assertEquals(true, step.itDepends());		
-		Assert.assertEquals(Expressions.parse("I = unary_dar(J)"), step.getSplitter());
-		
 		//
 		//
 		unificationStepSolver = new UnificationStepSolver(parse("unary_lra(X)"), parse("unary_lra(X)"));
@@ -516,11 +491,6 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(localTestContext);
 		Assert.assertEquals(false,  step.itDepends());
 		Assert.assertEquals(false, step.getValue());
-		
-		unificationStepSolver = new UnificationStepSolver(parse("binary_lra(X, unary_lra(X))"), parse("binary_lra(unary_lra(Y), Y)"));
-		step = unificationStepSolver.step(rootContext);
-		Assert.assertEquals(true, step.itDepends());		
-		Assert.assertEquals(Expressions.parse("X = unary_lra(Y)"), step.getSplitter());
 	}
 	
 	@Ignore("TODO - context implementation currently does not support these more advanced/indirect comparisons")

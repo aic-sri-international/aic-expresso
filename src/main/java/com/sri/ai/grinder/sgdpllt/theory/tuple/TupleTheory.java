@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.tuple;
 
-import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 import static com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter.merge;
 
 import com.google.common.annotations.Beta;
@@ -48,6 +47,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -71,7 +71,11 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 
 	@Override
 	public TopRewriter makeTopRewriter() {
-		return merge(new TupleValuedFreeVariablesTopRewriter(), INSTANCE, new TupleEqualityTopRewriter(), new TupleGetSetTopRewriter());
+		return merge(
+				new TupleValuedFreeVariablesTopRewriter(), 
+				CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE, 
+				new TupleEqualityTopRewriter(), 
+				new TupleGetSetTopRewriter());
 	}
 
 	@Override

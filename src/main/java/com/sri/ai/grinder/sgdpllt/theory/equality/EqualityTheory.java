@@ -105,8 +105,14 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	}
 
 	private boolean argumentIsValid(Expression argumentOfAtomFunctor, Context context) {
-		Type eType = GrinderUtil.getTypeOfExpression(argumentOfAtomFunctor, context);
-		boolean result = isNonBooleanCategoricalType(eType);
+		boolean result;
+		if (argumentOfAtomFunctor.getSyntacticFormType().equals("Symbol")) {
+			Type eType = GrinderUtil.getTypeOfExpression(argumentOfAtomFunctor, context);
+			result = isNonBooleanCategoricalType(eType);
+		}
+		else {
+			result = false;
+		}
 		return result;
 	}
 
@@ -116,7 +122,7 @@ public class EqualityTheory extends AbstractTheoryWithBinaryAtomsIncludingEquali
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return new SingleVariableEqualityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), context.getTheory());
 	}
 

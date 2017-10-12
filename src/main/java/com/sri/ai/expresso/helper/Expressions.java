@@ -1117,4 +1117,12 @@ public class Expressions {
 		PairOf<Expression> result = pairOf(newSymbol, newExpressionContainingSymbol);
 		return result;
 	}
+
+	public static boolean isPositiveOrNegativeInfinity(Expression expression) {
+		boolean result = 
+				expression.equals(INFINITY)
+				||
+				expression.equals(MINUS_INFINITY);
+		return result;
+	}
 }

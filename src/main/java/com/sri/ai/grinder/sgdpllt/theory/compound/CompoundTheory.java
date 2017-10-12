@@ -143,11 +143,11 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		Theory theoryForVariable = getTheory(variable, context);
 		SingleVariableConstraint result;
 		if (theoryForVariable != null) {
-			result = theoryForVariable.makeSingleVariableConstraint(variable, context);
+			result = theoryForVariable.makeSingleVariableConstraintAfterBookkeeping(variable, context);
 		}
 		else {
 			result = null;

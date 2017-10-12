@@ -38,7 +38,9 @@
 package com.sri.ai.test.grinder.polynomial;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.join;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,6 +62,54 @@ import com.sri.ai.util.math.Rational;
 
 public class DefaultPolynomialTest {
 
+	@Test
+	public void testInvalidPolynomials() {			
+		String expressionString;
+		String tupleVariablesString;
+		
+		expressionString = "2^x";
+		tupleVariablesString = "tuple(x)";
+		runTestInvalidPolynomials(expressionString, tupleVariablesString);
+
+		expressionString = "2^(x + 1)";
+		tupleVariablesString = "tuple(x)";
+		runTestInvalidPolynomials(expressionString, tupleVariablesString);
+		assertEquals(parse(expressionString), makePolynomial(expressionString, "tuple()"));
+
+		expressionString = "f(x)";
+		tupleVariablesString = "tuple(x)";
+		runTestInvalidPolynomials(expressionString, tupleVariablesString);
+		assertEquals(parse(expressionString), makePolynomial(expressionString, "tuple()"));
+
+		expressionString = "2^x^4";
+		tupleVariablesString = "tuple(x)";
+		runTestInvalidPolynomials(expressionString, tupleVariablesString);
+		assertEquals(parse(expressionString), makePolynomial(expressionString, "tuple()"));
+
+		expressionString = "1/x";
+		tupleVariablesString = "tuple(x)";
+		runTestInvalidPolynomials(expressionString, tupleVariablesString);
+		assertEquals(parse(expressionString), makePolynomial(expressionString, "tuple()"));
+
+		expressionString = "(x^2 - x)/x"; // it is a polynomial due to simplification
+		tupleVariablesString = "tuple(x)";
+		assertEquals(parse("x + (-1)"), makePolynomial(expressionString, tupleVariablesString));
+		assertEquals(parse("(x^2 + -1*x)/x"), makePolynomial(expressionString, "tuple()"));
+	}
+
+	private void runTestInvalidPolynomials(String expressionString, String tupleVariablesString) {
+		Expression tuple = parse(tupleVariablesString);
+		Expression expression = parse(expressionString);
+		List<Expression> variables = tuple.getArguments();
+		try {
+			Polynomial polynomial = DefaultPolynomial.make(expression, variables);
+			fail("Should not have been able to turn " + expressionString + " into a polynomial of " + join(variables) + " but made " + polynomial);
+		}
+		catch (IllegalArgumentException e) {
+			
+		}
+	}
+	
 	@Test
 	public void testMakeExplicitSignatureOfFactors() {			
 		//
@@ -105,11 +155,11 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("(16*x)"), makePolynomial("2^2^2*x", "tuple()"));
 		assertEquals(parse("(16*x)"), makePolynomial("2^2^2*x", "tuple(z)"));
 		
-		assertEquals(parse("2^x^4"), makePolynomial("2^x^2^2", "tuple(x)"));
+		runTestInvalidPolynomials("2^x^4", "tuple(x)");
 		assertEquals(parse("2^x^4"), makePolynomial("2^x^2^2", "tuple()"));
 		assertEquals(parse("2^x^4"), makePolynomial("2^x^2^2", "tuple(z)"));
 		
-		assertEquals(parse("2^2^x^4"), makePolynomial("2^2^x^2^2", "tuple(x)"));
+		runTestInvalidPolynomials("2^2^x^4", "tuple(x)");
 		assertEquals(parse("2^2^x^4"), makePolynomial("2^2^x^2^2", "tuple()"));
 		assertEquals(parse("2^2^x^4"), makePolynomial("2^2^x^2^2", "tuple(z)"));
 
@@ -193,15 +243,11 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("1.5"), makePolynomial("3 / 2", "tuple(x)"));
 		assertEquals(parse("x^2 + 1.5*x + 3"), makePolynomial("(2*x^2 + 3*x + 6) / 2", "tuple(x)"));
 		assertEquals(parse("x + -5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)", "tuple(x)"));
-		assertEquals(parse("x^2 + -2*x + (4 + -9/(x + 2))"), makePolynomial("(x^3 - 1) / (x + 2)", "tuple(x)"));
-		assertEquals(parse("3*x + (-11 + (28*x + 30)/(x^2 + 3*x + 3))"), makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)", "tuple(x)"));	
 	}
 	
 	@Test
 	public void testMakeVariablesFromExtractedGeneralizedVariables() {
 		assertEquals(parse("16*x"), makePolynomial("2^2^2*x"));
-		assertEquals(parse("2^x^4"), makePolynomial("2^x^2^2"));
-		assertEquals(parse("2^2^x^4"), makePolynomial("2^2^x^2^2"));
 		assertEquals(parse("2*x*y"), makePolynomial("2*x*y"));
 		assertEquals(parse("16*x"), makePolynomial("*(2*4*(2*x))"));
 		assertEquals(parse("-16*x"), makePolynomial("*(2*4*-(2*x))"));		
@@ -235,8 +281,6 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("1.5"), makePolynomial("3 / 2"));
 		assertEquals(parse("x^2 + 1.5*x + 3"), makePolynomial("(2*x^2 + 3*x + 6) / 2"));
 		assertEquals(parse("x + -5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)"));
-		assertEquals(parse("x^2 + -2*x + (4 + -9/(x + 2))"), makePolynomial("(x^3 - 1) / (x + 2)"));
-		assertEquals(parse("3*x + (-11 + (28*x + 30)/(x^2 + 3*x + 3))"), makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)"));			
 	}
 	
 	@Test
@@ -509,14 +553,6 @@ public class DefaultPolynomialTest {
 		quotientAndRemainder = dividend.divide(divisor);
 		assertEquals(parse("3*x + -11"), quotientAndRemainder.first);
 		assertEquals(parse("28*x + 30"), quotientAndRemainder.second);
-		
-		Polynomial p = makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)", "tuple(x)");
-		assertEquals(parse("3*x + (-11 + ((28*x + 30) / (x^2 + 3*x + 3)))"), p);
-		// Note: the -11 from the quotient gets absorbed into the remainder/divisor term 
-		// as they are like terms under the variables [x]
-		assertEquals(2, p.numberOfTerms());
-		assertEquals(parse("3*x"), p.getMonomials().get(0));
-		assertEquals(parse("-11 + ((28*x + 30) / (x^2 + 3*x + 3))"), p.getMonomials().get(1));
 	}
 	
 	@Test

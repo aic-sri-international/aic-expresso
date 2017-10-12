@@ -45,6 +45,7 @@ import static com.sri.ai.grinder.sgdpllt.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.sgdpllt.library.boole.Not.not;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
@@ -243,11 +244,25 @@ public interface Theory extends Cloneable {
 
 	/**
 	 * Make a new single-variable constraint for this theory.
+	 * Default implementation checks suitability of type and invokes {@link #makeSingleVariableConstraint(Expression, Context)}.
 	 * @param variable 
 	 * @param context
 	 * @return the constraint, or null if there is no theory for the variable.
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context);
+	default SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+		Type variableType = context.getTypeOfRegisteredSymbol(variable);
+		myAssert(context.getTheory().isSuitableFor(variableType), () -> this + " does not know how to make constraints for variable " + variable + " of type " + variableType);
+		SingleVariableConstraint result = makeSingleVariableConstraintAfterBookkeeping(variable, context);
+		return result;
+	}
+	
+	/**
+	 * Implements how to make a new single-variable constraint for this theory after bookeeping.
+	 * @param variable 
+	 * @param context
+	 * @return the constraint, or null if there is no theory for the variable.
+	 */
+	SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context);
 	
 	/**
 	 * Returns a new true (empty conjunction) constraint for this theory.
@@ -335,6 +350,7 @@ public interface Theory extends Cloneable {
 		Type type;
 		boolean result =
 				!context.isUniquelyNamedConstant(expression)
+				&& expression.getSyntacticFormType().equals("Symbol")
 				&& !(expression instanceof QuantifiedExpression)
 				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)

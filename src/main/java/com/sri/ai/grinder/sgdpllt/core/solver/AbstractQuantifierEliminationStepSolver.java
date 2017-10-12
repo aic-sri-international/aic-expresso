@@ -440,4 +440,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		}
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " on " + problem;
+	}
 }

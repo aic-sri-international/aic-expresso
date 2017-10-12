@@ -92,8 +92,8 @@ public class TheoryWrapper implements Theory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
-		return base.makeSingleVariableConstraint(variable, context);
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
+		return base.makeSingleVariableConstraintAfterBookkeeping(variable, context);
 	}
 
 	@Override

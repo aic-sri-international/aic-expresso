@@ -37,8 +37,11 @@
  */
 package com.sri.ai.grinder.polynomial.core;
 
+import static com.sri.ai.expresso.helper.Expressions.containsAnyOfGivenCollectionAsSubExpression;
 import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.isLegalExponent;
 import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.simplifyExponentIfPossible;
+import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
@@ -105,8 +108,13 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		return result;
 	}
 			
-	public static Polynomial make(Expression expression,
-			List<Expression> variables) {
+	public static Polynomial make(Expression expression, List<Expression> variables) {
+		
+		Expression nonSymbolVariable = getFirstSatisfyingPredicateOrNull(variables, v -> !v.getSyntacticFormType().equals("Symbol"));
+		if (nonSymbolVariable != null) {
+			throw new IllegalArgumentException("Non-symbol variables in DefaultPolynomial no longer supported, but got " + nonSymbolVariable);
+		}
+		
 		Polynomial result = null;
 		if (expression.hasFunctor(PLUS_FUNCTOR)) {
 			// E1 + E2 --> make(E1, F).add(make(E2, F))
@@ -141,11 +149,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			result = makeFromMonomial(Expressions.ONE, variables);
 			// Note: handle case when one of the multipliers is 0 (i.e. an
 			// absorbing element).
-			Polynomial absorbingElement = makeFromMonomial(Expressions.ZERO,
-					variables);
+			Polynomial absorbingElement = makeFromMonomial(Expressions.ZERO, variables);
 			for (Expression multiplierExpression : expression.getArguments()) {
-				Polynomial multiplier = make(multiplierExpression,
-						variables);
+				Polynomial multiplier = make(multiplierExpression, variables);
 				if (multiplier.equals(absorbingElement)) {
 					// * by 0 so answer is 0, no need to worry about any other
 					// multipliers.
@@ -169,6 +175,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				//    f(x)                      remainder(x)
 				// ----------  =  quotient(x) + ------------
 				// divisor(x)                    divisor(x)
+				if (containsAnyOfGivenCollectionAsSubExpression(divisor, variables)) {
+					throw new IllegalArgumentException(expression + " is not a polynomial because it has divisor " + divisor);
+				}
 				Expression remainderDividedByDivisor = new DefaultFunctionApplication(DIVISION_FUNCTOR, Arrays.asList(remainder, divisor));
 				result = quotient.add(makeFromMonomial(remainderDividedByDivisor, variables));
 			}
@@ -179,14 +188,27 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			// E1 ^ m with m an integer constant --> make(E1).exponentiate(m)
 			Expression base  = expression.get(0);
 			Expression power = simplifyExponentIfPossible(expression.get(1));
+			if (containsAnyOfGivenCollectionAsSubExpression(power, variables)) {
+				throw new IllegalArgumentException("Polynomial variables cannot appear in exponent, but some of " + join(variables) + " appear in an exponent in " + expression);
+			}
 			if (isLegalExponent(power)) {
 				Polynomial p1 = make(base, variables);
 				result = p1.exponentiate(power.intValue());
 			}
+			else if (containsAnyOfGivenCollectionAsSubExpression(base, variables)) {
+				throw new IllegalArgumentException("Exponents of the type " + power + " not recognized yet in " + DefaultPolynomial.class);
+			}
+			else { // constant multinomial
+				result = makeFromMonomial(expression, variables);
+			}
 		}
-
-		// E is a single-factor Monomial.
-		if (result == null) {
+		else if (variables.contains(expression)) { // single variable monomial
+			result = makeFromMonomial(expression, variables);
+		}
+		else if (containsAnyOfGivenCollectionAsSubExpression(expression, variables)) { // contains variables but is none of recognized types of expressions
+			throw new IllegalArgumentException("Polynomial variables " + join(variables) + " appear in illegal positions in " + expression);
+		}
+		else { // is constant monomial
 			result = makeFromMonomial(expression, variables);
 		}
 

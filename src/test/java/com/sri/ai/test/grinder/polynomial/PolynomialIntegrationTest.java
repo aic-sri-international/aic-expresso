@@ -1,5 +1,7 @@
 package com.sri.ai.test.grinder.polynomial;
 
+import static org.junit.Assert.fail;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -94,13 +96,23 @@ public class PolynomialIntegrationTest {
 				makePolynomial("sin(a)*x", "tuple(x)"), 
 				PolynomialIntegration.indefiniteIntegral(makePolynomial("sin(a)", "tuple()"), Expressions.parse("x")));		
 
-		Assert.assertEquals(
-				makePolynomial("sin(x)*x", "tuple(x)"), 
-				PolynomialIntegration.indefiniteIntegral(makePolynomial("sin(x)", "tuple()"), Expressions.parse("x")));		
+		try {
+			Assert.assertEquals(
+					makePolynomial("sin(x)*x", "tuple(x)"), 
+					PolynomialIntegration.indefiniteIntegral(makePolynomial("sin(x)", "tuple()"), Expressions.parse("x")));		
+			fail("sin(x) is not a polynomial of x.");
+		}
+		catch (IllegalArgumentException exception) {
+		}
 
-		Assert.assertEquals(
-				makePolynomial("sin(x)*x^2/2", "tuple(sin(x), x)"), 
-				PolynomialIntegration.indefiniteIntegral(makePolynomial("sin(x)*x", "tuple(sin(x))"), Expressions.parse("x")));		
+		try {
+			Assert.assertEquals(
+					makePolynomial("sin(x)*x^2/2", "tuple(sin(x), x)"), 
+					PolynomialIntegration.indefiniteIntegral(makePolynomial("sin(x)*x", "tuple(sin(x))"), Expressions.parse("x")));		
+			fail("sin(x) is not a polynomial of x.");
+		}
+		catch (IllegalArgumentException exception) {
+		}
 		
 		// NOTE: as you are integrating in terms of x even though
 		// x is not marked as a variable in the original polynomial
@@ -116,13 +128,20 @@ public class PolynomialIntegrationTest {
 	
 	@Test
 	public void testIndefiniteIntegralOfMinusPower() {
-		// NOTE: as the Polynomial API only support positive integer exponents the
-		// implementations treats expressions like 'x^(a negative value)' 
-		// as a single atomic factor
-		Assert.assertEquals(
-				makePolynomial("x*x^-1"), 
-				PolynomialIntegration.indefiniteIntegral(makePolynomial("x^-1"), Expressions.parse("x")));
+		try {
+			// NO LONGER SUPPORTED
+			// NOTE: as the Polynomial API only support positive integer exponents the
+			// implementations treats expressions like 'x^(a negative value)' 
+			// as a single atomic factor
+			Assert.assertEquals(
+					makePolynomial("x*x^-1"), 
+					PolynomialIntegration.indefiniteIntegral(makePolynomial("x^-1"), Expressions.parse("x")));
+			fail("No longer supported.");
+		}
+		catch (IllegalArgumentException exception) {
+		}
 	}
+		
 	
 	@Test
 	public void testDefiniteIntegralsOfSingleTermPolynomials() {
@@ -201,20 +220,30 @@ public class PolynomialIntegrationTest {
 	@Test
 	public void testDefiniteIntegralsOfGeneralFactorsInPolynomials() {
 		Assert.assertEquals(
-				makePolynomial("a*c - a*b", "tuple(x, b, c)"), 
+				makePolynomial("a*c - a*b", "tuple(b, c)"), 
 				PolynomialIntegration.definiteIntegral(makePolynomial("a", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
 
 		Assert.assertEquals(
-				makePolynomial("sin(a)*c - sin(a)*b", "tuple(x, b, c)"), 
+				makePolynomial("sin(a)*c - sin(a)*b", "tuple(b, c)"), 
 				PolynomialIntegration.definiteIntegral(makePolynomial("sin(a)", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
 
-		Assert.assertEquals(
-				makePolynomial("sin(x)*c - sin(x)*b", "tuple(x, b, c)"), 
-				PolynomialIntegration.definiteIntegral(makePolynomial("sin(x)", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+		try {
+			Assert.assertEquals(
+					makePolynomial("sin(x)*c - sin(x)*b", "tuple(b, c)"), 
+					PolynomialIntegration.definiteIntegral(makePolynomial("sin(x)", "tuple()"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));
+			fail("Should have failed because x appears inside sin(x)");
+		}
+		catch (IllegalArgumentException exception) {
+		}
 
-		Assert.assertEquals(
-				makePolynomial("sin(x)*c^2/2 - sin(x)*b^2/2", "tuple(sin(x), x, b, c)"), 
-				PolynomialIntegration.definiteIntegral(makePolynomial("sin(x)*x", "tuple(sin(x))"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+		try {
+			Assert.assertEquals(
+					makePolynomial("sin(x)*c^2/2 - sin(x)*b^2/2", "tuple(sin(x), x, b, c)"), 
+					PolynomialIntegration.definiteIntegral(makePolynomial("sin(a)*x", "tuple(sin(x))"), Expressions.parse("x"), Expressions.parse("b"), Expressions.parse("c")));		
+			fail("Should have failed because sin(x) is not a symbol and that is no longer supported");
+		}
+		catch (IllegalArgumentException exception) {
+		}
 		
 		// NOTE: as you are integrating in terms of x even though
 		// x is not marked as a variable in the original polynomial
@@ -230,12 +259,18 @@ public class PolynomialIntegrationTest {
 	
 	@Test
 	public void testDefiniteIntegralOfMinusPower() {
-		// NOTE: as the Polynomial API only support positive integer exponents the
-		// implementations treats expressions like 'x^(a negative value)' 
-		// as a single atomic factor
-		Assert.assertEquals(
-				makePolynomial("c*x^-1 + -1*b*x^-1", "tuple(b, c, x, x^-1)"), 
-				PolynomialIntegration.definiteIntegral(makePolynomial("x^-1"), Expressions.parse("x"),  Expressions.parse("b"),  Expressions.parse("c")));
+		try {
+			// NO LONGER SUPPORTED
+			// NOTE: as the Polynomial API only support positive integer exponents the
+			// implementations treats expressions like 'x^(a negative value)' 
+			// as a single atomic factor
+			Assert.assertEquals(
+					makePolynomial("c*x^-1 + -1*b*x^-1", "tuple(b, c, x, x^-1)"), 
+					PolynomialIntegration.definiteIntegral(makePolynomial("x^-1"), Expressions.parse("x"),  Expressions.parse("b"),  Expressions.parse("c")));
+			fail("No longer supported.");
+		}
+		catch (IllegalArgumentException exception) {
+		}
 	}
 	
 	@Test

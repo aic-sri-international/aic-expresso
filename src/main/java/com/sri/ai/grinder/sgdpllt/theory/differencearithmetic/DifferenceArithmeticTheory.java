@@ -136,7 +136,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return new SingleVariableDifferenceArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), context.getTheory());
 	}
 
@@ -186,13 +186,18 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	@Override
 	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
 		boolean result;
-		Expression leftHandSideMinusRightHandSide = 
-				Minus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
-		Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
-		result =
-				forAll(polynomial.getMonomials(), isDifferenceArithmeticTerm(context))
-				&&
-				thereIsAtMostOnePositiveAndOneNegativeVariableMonomial(polynomial);
+		try {
+			Expression leftHandSideMinusRightHandSide = 
+					Minus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
+			Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
+			result =
+					forAll(polynomial.getMonomials(), isDifferenceArithmeticTerm(context))
+					&&
+					thereIsAtMostOnePositiveAndOneNegativeVariableMonomial(polynomial);
+		}
+		catch (IllegalArgumentException exception) {
+			result = false;
+		}
 		return result;
 	}
 

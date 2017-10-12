@@ -88,7 +88,7 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return new SingleVariablePropositionalConstraint(variable, context.getTheory());
 	}
 

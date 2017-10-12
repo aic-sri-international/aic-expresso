@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2017, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -35,57 +35,26 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.theory.base;
+package com.sri.ai.test.grinder.sgdpllt.theory.tuple;
 
-import static com.sri.ai.grinder.sgdpllt.theory.base.ConstantExpressionStepSolver.constantExpressionStepSolver;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.StepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.ItDependsOn;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
 
 /**
- * Provides a static method for generating {@link Expression}-valued solver steps based on a literal.
- *
- * @author braz
- *
+ * 
+ * @author oreilly
  */
 @Beta
-public class ExpressionConditionedOnLiteralSolutionStep {
+public class TupleTheoryBenchmark extends AbstractTupleTheoryTest {
 
-	/**
-	 * Produces a solver step based on value of literal, with corresponding given solutions
-	 * (if literal is not defined by context, a {@link ItDependsOn} step is returned).
-	 * @param literal
-	 * @param solutionIfTrue
-	 * @param solutionIfFalse
-	 * @param context
-	 * @return
-	 */
-	public static Step
-	stepDependingOnLiteral(
-			Expression literal, 
-			Expression solutionIfTrue, 
-			Expression solutionIfFalse, 
-			Context context) {
-		
-		Step result;
-		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
-		StepSolver.Step<Boolean> step = literalStepSolver.step(context);
-		if (step.itDepends()) {
-			result =
-					new ItDependsOn(
-							step.getSplitter(),
-							step.getContextSplittingWhenSplitterIsLiteral(),
-							constantExpressionStepSolver(solutionIfTrue),
-							constantExpressionStepSolver(solutionIfFalse));
-		}
-		else {
-			result = new Solution(step.getValue()? solutionIfTrue : solutionIfFalse);
-		}
-		return result;
+	@Override
+	protected boolean getTestAgainstBruteForce() {
+		return false;
+	}
+
+	@Override
+	public Random makeRandom() {
+		return new Random(0);
 	}
 }

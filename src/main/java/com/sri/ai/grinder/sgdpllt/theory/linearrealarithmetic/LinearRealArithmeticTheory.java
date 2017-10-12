@@ -138,7 +138,7 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
+	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return new SingleVariableLinearRealArithmeticConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), context.getTheory());
 	}
 
@@ -199,10 +199,15 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 	@Override
 	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
 		boolean result;
+		try {
 		Expression leftHandSideMinusRightHandSide = 
 				Minus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
 		Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
 		result = forAll(polynomial.getMonomials(), isLinearRealArithmeticTerm(context));
+		}
+		catch (IllegalArgumentException exception) {
+			result = false; // leftHandSideMinusRightHandSide is not polynomial
+		}
 		return result;
 	}
 
