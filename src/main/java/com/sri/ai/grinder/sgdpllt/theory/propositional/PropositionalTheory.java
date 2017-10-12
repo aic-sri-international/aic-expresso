@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.theory.propositional;
 
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.sgdpllt.library.boole.Not.not;
 import static com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 
 import com.google.common.annotations.Beta;
@@ -87,6 +88,11 @@ public class PropositionalTheory extends AbstractTheory {
 		return result;
 	}
 	
+	@Override
+	public Expression getAtomNegation(Expression atom, Context context) {
+		return not(atom);
+	}
+
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return new SingleVariablePropositionalConstraint(variable, context.getTheory());

@@ -61,6 +61,7 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.theory.bruteforce.BruteForceFallbackTheory;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -85,7 +86,7 @@ public class SymbolicShell {
 	
 	public static void main(String[] args) {
 
-		CompoundTheory theory = new CompoundTheory(
+		Theory theory = new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, false),
 				new LinearRealArithmeticTheory(false, false),
@@ -93,6 +94,8 @@ public class SymbolicShell {
 				new PropositionalTheory(),
 				new BruteForceFunctionTheory()
 				);
+		
+		theory = new BruteForceFallbackTheory(theory);
 		
 		Context context = new TrueContext(theory);
 		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
@@ -169,7 +172,7 @@ public class SymbolicShell {
 		
 		for (String example : examples) {
 			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
-			interpretedInputParsedAsExpression(consoleIterator, theory, example, context);
+			interpretInputParsedAsExpression(example, consoleIterator, theory, context);
 		}
 
 		while (consoleIterator.hasNext()) {
@@ -189,20 +192,14 @@ public class SymbolicShell {
 				help(consoleIterator);
 			}
 			else {
-				context = interpretedInputParsedAsExpression(consoleIterator, theory, input, context);
+				context = interpretInputParsedAsExpression(input, consoleIterator, theory, context);
 			}
 		}
 		
 		consoleIterator.getOutputWriter().println("\nGoodbye.");	
 	}
 
-	/**
-	 * @param theory TODO
-	 * @param inputString
-	 * @param context
-	 * @return 
-	 */
-	private static Context interpretedInputParsedAsExpression(ConsoleIterator consoleIterator, Theory theory, String inputString, Context context) {
+	private static Context interpretInputParsedAsExpression(String inputString, ConsoleIterator consoleIterator, Theory theory, Context context) {
 		
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});

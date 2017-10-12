@@ -541,13 +541,15 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			Iterator<Expression> fromPositiveNormalizedAtoms =
 					predicateIterator(
 							abstractSingleVariableConstraint.getPositiveNormalizedAtoms(),
-							e -> ! e.hasFunctor(FunctorConstants.EQUALITY)
+							e ->
+							! e.hasFunctor(FunctorConstants.EQUALITY)
 							);
 
 			Iterator<Expression> fromNegativeNormalizedAtoms =
 					functionIterator(
 							abstractSingleVariableConstraint.getNegativeNormalizedAtoms(), // negative normalized atom is never an equality
-							e -> abstractSingleVariableConstraint.getTheory().getLiteralNegation(e, context)
+							e -> 
+							abstractSingleVariableConstraint.getTheory().getLiteralNegation(e, context)
 							);
 
 			Pair<Expression, Boolean> typeLowerBoundAndStrictness = getTypeLowerBoundAndStrictness(context);

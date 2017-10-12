@@ -42,7 +42,6 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.sgdpllt.library.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.sgdpllt.library.boole.And.getConjuncts;
-import static com.sri.ai.grinder.sgdpllt.library.boole.Not.not;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.myAssert;
@@ -63,6 +62,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint
 import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpllt.library.FormulaUtil;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.theory.help.TheoryWrapper;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -232,15 +232,17 @@ public interface Theory extends Cloneable {
 
 	/**
 	 * Returns the negation of an atom.
-	 * Default implementation applies 'not' to it,
-	 * but some theories may want to be more specific, such as replacing equality by disequality.
+	 * Used to have a default implementation applying 'not' to it,
+	 * but this may not be correct to all theories (some may choose a more compact representation, such as x = y ---> x != y).
+	 * Just leaving the default implementation to be overridden sounds like a good idea but upon creating {@link TheoryWrapper}
+	 * I realized that default methods that are not correct for all implementations are dangerous.
+	 * In this case, the wrapper kept the default implementation and stopped behaving like base theories it wrapped
+	 * if they did not follow the default implementation.
 	 * @param atom
 	 * @param context
 	 * @return
 	 */
-	default Expression getAtomNegation(Expression atom, Context context) {
-		return not(atom);
-	}
+	Expression getAtomNegation(Expression atom, Context context);
 
 	/**
 	 * Make a new single-variable constraint for this theory.

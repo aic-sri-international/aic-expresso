@@ -216,7 +216,6 @@ public class CompoundTheory extends AbstractTheory {
 				getFirstSatisfyingPredicateOrNull(getSubTheories(), t -> t.isLiteralOrBooleanConstant(atom, context));
 		Expression result;
 		if (theory == null) {
-			// this covers cases in which the theory has testing literals, but not constraint literals
 			result = Not.make(atom);
 		}
 		else {

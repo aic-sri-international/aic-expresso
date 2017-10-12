@@ -92,6 +92,11 @@ public class TheoryWrapper implements Theory {
 	}
 
 	@Override
+	public Expression getAtomNegation(Expression atom, Context context) {
+		return base.getAtomNegation(atom, context);
+	}
+
+	@Override
 	public SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context) {
 		return base.makeSingleVariableConstraintAfterBookkeeping(variable, context);
 	}

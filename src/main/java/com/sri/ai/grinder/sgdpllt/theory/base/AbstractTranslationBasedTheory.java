@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.base;
 
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.sgdpllt.library.boole.Not.not;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -66,6 +67,13 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 	@Override
 	public boolean isAtom(Expression expression, Context context) {
 		return false;
+	}
+	
+	@Override
+	public Expression getAtomNegation(Expression atom, Context context) {
+		return not(atom);
+		// even though this theory does not have atoms, it may generate atoms for testing.
+		// This probably needs to change, and theory testing support classes should be able to indicate that a theory does not have atoms.
 	}
 
 	@Override
