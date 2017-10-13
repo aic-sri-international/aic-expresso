@@ -3,6 +3,7 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
@@ -16,6 +17,8 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 @Beta
 public interface QuantifierEliminationStepSolver extends ExpressionStepSolver, Cloneable {
 
+	QuantifierEliminationProblem getProblem();
+	
 	AssociativeCommutativeGroup getGroup();
 	
 	SingleVariableConstraint getIndexConstraint();

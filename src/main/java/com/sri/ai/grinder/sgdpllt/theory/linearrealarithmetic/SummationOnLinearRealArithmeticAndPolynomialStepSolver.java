@@ -86,16 +86,14 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	}
 	
 	@Override
-	protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		AbstractQuantifierEliminationStepSolver result = 
-				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						problem.makeWithNewIndexConstraint(newIndexConstraint));
+	protected SummationOnLinearRealArithmeticAndPolynomialStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+		QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
+		SummationOnLinearRealArithmeticAndPolynomialStepSolver result = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(newProblem);
 		return result;
 	}
 
 	@Override
-	protected Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			SingleVariableConstraint indexConstraint,
+	protected Step eliminateQuantifierForLiteralFreeBody(
 			Expression literalFreeBody,
 			Context context) {
 
@@ -117,12 +115,11 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 		}
 		Expression values = step.getValue();
 		
-		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, context);
+		Expression result = computeSummationGivenValues(literalFreeBody, values, context);
 		return new Solution(result);
 	}
 
 	private Expression computeSummationGivenValues(
-			Expression variable,
 			Expression literalFreeBody,
 			Expression values,
 			Context context) {
@@ -135,7 +132,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Expression lowerBound = values.get(0);
 			Expression upperBound = values.get(1);
 			Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
-			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, variable, lowerBound, upperBound);
+			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, getIndex(), lowerBound, upperBound);
 		}
 		return result;
 	}

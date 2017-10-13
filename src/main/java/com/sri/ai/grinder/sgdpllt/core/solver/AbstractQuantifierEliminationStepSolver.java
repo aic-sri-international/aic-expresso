@@ -89,12 +89,12 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  * <p>
  * Because these two sub-problems have literal-free bodies <code>2</code> and <code>3</code>,
  * they will be solved by the extension's
- * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint, Expression, Context)}
+ * {@link #eliminateQuantifierForLiteralFreeBody(Expression, Context)}
  * (which for sums with constant bodies will be equal to the model count of the index constraint
  * under the context times the constant).
  * <p>
  * Extending classes must define method
- * {@link #eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(SingleVariableConstraint, Expression, Context)
+ * {@link #eliminateQuantifierForLiteralFreeBody(Expression, Context)
  * to solve the case in which the body is its given literal-free version,
  * for the given context and index constraint.
  * <p>
@@ -116,7 +116,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
 	
-	protected QuantifierEliminationProblem problem;
+	private QuantifierEliminationProblem problem;
 	
 	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
 	
@@ -134,52 +134,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	/**
 	 * Abstract method defining a quantified expression with a given index constraint and literal-free body is to be solved.
-	 * @param indexConstraint the index constraint
 	 * @param literalFreeBody literal-free body
 	 */
-	protected abstract Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			SingleVariableConstraint indexConstraint,
+	protected abstract Step eliminateQuantifierForLiteralFreeBody(
 			Expression literalFreeBody,
 			Context context);
 
-	@Override
-	public AbstractQuantifierEliminationStepSolver clone() {
-		AbstractQuantifierEliminationStepSolver result = null;
-		try {
-			result = (AbstractQuantifierEliminationStepSolver) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-	
-	/**
-	 * Creates a new version of this object with a new index constraint.
-	 * @param newIndexConstraint
-	 * @return
-	 */
-	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
-	
-	@Override
-	public AssociativeCommutativeGroup getGroup() {
-		return problem.getGroup();
-	}
-	
-	@Override
-	public SingleVariableConstraint getIndexConstraint() {
-		return problem.getConstraint();
-	}
-	
-	@Override
-	public Expression getIndex() {
-		return problem.getConstraint().getVariable();
-	}
-	
-	@Override
-	public Expression getBody() {
-		return problem.getBody();
-	}
-	
 	private ExpressionLiteralSplitterStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
 			initialBodyEvaluationStepSolver
@@ -267,9 +227,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				}
 			}
 			else { // body is already literal free
-				result
-				= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-						getIndexConstraint(), bodyStep.getValue(), context);
+				Expression literalFreeBody = bodyStep.getValue();
+				result = eliminateQuantifierForLiteralFreeBody(literalFreeBody, context);
 			}
 		}
 		
@@ -439,6 +398,49 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			result = getGroup().add(solution1, solution2, context);
 		}
 		return result;
+	}
+
+	@Override
+	public AbstractQuantifierEliminationStepSolver clone() {
+		AbstractQuantifierEliminationStepSolver result = null;
+		try {
+			result = (AbstractQuantifierEliminationStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
+	 * Creates a new version of this object with a new index constraint.
+	 * @param newIndexConstraint
+	 * @return
+	 */
+	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
+
+	@Override
+	public QuantifierEliminationProblem getProblem() {
+		return problem;
+	}
+
+	@Override
+	public AssociativeCommutativeGroup getGroup() {
+		return problem.getGroup();
+	}
+
+	@Override
+	public SingleVariableConstraint getIndexConstraint() {
+		return problem.getConstraint();
+	}
+
+	@Override
+	public Expression getIndex() {
+		return problem.getConstraint().getVariable();
+	}
+
+	@Override
+	public Expression getBody() {
+		return problem.getBody();
 	}
 
 	@Override

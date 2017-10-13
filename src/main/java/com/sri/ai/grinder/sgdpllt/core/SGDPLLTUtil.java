@@ -46,7 +46,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 /**
  * Utility methods for the sgdpllt package.
@@ -60,5 +62,12 @@ public class SGDPLLTUtil {
 		Context result = (Context) GrinderUtil.extendRegistryWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TrueContext(theory));			
 		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
+	}
+
+	public static Expression makeProblemExpression(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body, Context context) {
+		Expression index = indexConstraint.getVariable();
+		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
+		Expression problemExpression = group.makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, body);
+		return problemExpression;
 	}
 }

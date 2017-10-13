@@ -93,15 +93,13 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	
 	@Override
 	protected SummationOnDifferenceArithmeticAndPolynomialStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		SummationOnDifferenceArithmeticAndPolynomialStepSolver result = 
-				new SummationOnDifferenceArithmeticAndPolynomialStepSolver(
-						problem.makeWithNewIndexConstraint(newIndexConstraint));
+		QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
+		SummationOnDifferenceArithmeticAndPolynomialStepSolver result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(newProblem);
 		return result;
 	}
 
 	@Override
-	protected Step eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-			SingleVariableConstraint indexConstraint,
+	protected Step eliminateQuantifierForLiteralFreeBody(
 			Expression literalFreeBody,
 			Context context) {
 
@@ -123,7 +121,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 		}
 		RangeAndExceptionsSet values = (RangeAndExceptionsSet) step.getValue();
 		
-		Expression result = computeSummationGivenValues(indexConstraint.getVariable(), literalFreeBody, values, context);
+		Expression result = computeSummationGivenValues(getIndexConstraint().getVariable(), literalFreeBody, values, context);
 		return new Solution(result);
 	}
 
