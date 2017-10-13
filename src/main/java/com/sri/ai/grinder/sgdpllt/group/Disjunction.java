@@ -95,7 +95,7 @@ public class Disjunction extends AbstractQuantifierBasedGroup {
 			Expression elseBranch = IfThenElse.elseBranch(n);
 			Expression newThenBranch = addNTimes(value, thenBranch, context);
 			Expression newElseBranch = addNTimes(value, elseBranch, context);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is normalized
 		}
 		else {
 			result = apply(GREATER_THAN, n, Expressions.ZERO);

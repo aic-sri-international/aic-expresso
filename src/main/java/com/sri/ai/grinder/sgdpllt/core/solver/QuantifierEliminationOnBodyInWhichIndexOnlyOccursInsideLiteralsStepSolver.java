@@ -37,18 +37,11 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.util.Util.requires;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 /**
  * A {@link AbstractQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
@@ -56,14 +49,7 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
  * (the above is all done by {@link AbstractQuantifierEliminationStepSolver}.
  * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
- * one of two things happens:
- * <ul>
- * <li> if the group is idempotent, simplify to <code>if condition for satisfiability of constraint then body else group's identity</code>.
- * <li> if the group is not idempotent, 
- * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, Context)} to
- * the literal-free body and {@link SingleVariableConstraint#modelCount(Context)},
- * followed by {@link Theory#simplify(Expression, Context)}.
- * </ul>
+ * {@link QuantifierEliminatorForIndexFreeBody}.
  * 
  * @author braz
  *
@@ -77,65 +63,14 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected Step eliminateQuantifierForLiteralFreeBody(Expression literalFreeBody, Context context) {
-		QuantifierEliminationProblem problemWithLiteralFreeBody = getProblem().makeWithNewBody(literalFreeBody);
-		Solver solver = new Solver(problemWithLiteralFreeBody, context);
+		QuantifierEliminatorForIndexFreeBody solver = makeSolver(literalFreeBody, context);
 		Expression result = solver.eliminateQuantifierForLiteralFreeBody();
 		return new Solution(result);
 	}
 
-	/** Convenience class to minimize number of method parameters. */
-	private static class Solver extends QuantifierEliminationProblemWrapper {
-
-		private Context context;
-		
-		public Solver(QuantifierEliminationProblem problem, Context context) {
-			super(problem);
-			this.context = context;
-		}
-
-		public Expression eliminateQuantifierForLiteralFreeBody() {
-			checkThatIndexDoesNotAppearInBody();
-			Expression result = eliminateQuantifier();
-			return result;
-		}
-
-		private Expression eliminateQuantifier() {
-			Expression result;
-			if (getGroup().isIdempotent()) {
-				result = resultForIdempotentGroup();
-			}
-			else {
-				result = resultIsBodyTimesNumberOfIndexValues();
-			}
-			return result;
-		}
-
-		private Expression resultForIdempotentGroup() throws Error {
-			Expression conditionForSatisfiability = computerConstraintSatisfiability();
-			Expression identityElement = getGroup().additiveIdentityElement();
-			Expression result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, getBody(), identityElement);
-			return result;
-		}
-
-		private Expression computerConstraintSatisfiability() {
-			Expression conditionForSatisfiability = getConstraint().satisfiability(context);
-			checkWeCanSolveSatisfiabilityOfConstraint(conditionForSatisfiability);
-			return conditionForSatisfiability;
-		}
-
-		private Expression resultIsBodyTimesNumberOfIndexValues() {
-			Expression modelCount = getConstraint().modelCount(context);
-			Expression result = getGroup().addNTimes(getBody(), modelCount, context);
-			result = context.getTheory().simplify(result, context);
-			return result;
-		}
-
-		private void checkThatIndexDoesNotAppearInBody() {
-			requires( !isSubExpressionOf(getIndex(), getBody()), () -> getClass() + ": index occurs in body: " + toExpression(context));
-		}
-
-		private void checkWeCanSolveSatisfiabilityOfConstraint(Expression conditionForSatisfiability) throws Error {
-			requires(conditionForSatisfiability != null, () -> "No satisfiability solver present for " + getIndex() + " while solving " + problem);
-		}
+	private QuantifierEliminatorForIndexFreeBody makeSolver(Expression literalFreeBody, Context context) {
+		QuantifierEliminationProblem problemWithLiteralFreeBody = getProblem().makeWithNewBody(literalFreeBody);
+		QuantifierEliminatorForIndexFreeBody solver = new QuantifierEliminatorForIndexFreeBody(problemWithLiteralFreeBody, context);
+		return solver;
 	}	
 }

@@ -31,6 +31,7 @@ public abstract class AbstractNumericGroup extends AbstractAssociativeCommutativ
 	/**
 	 * Implements the addition of an element to itself n times,
 	 * assuming that neither the element or n are conditional, and that n is not the constant zero.
+	 * Result does not need to be normalized.
 	 * @param valueToBeAdded
 	 * @param n
 	 * @return
@@ -49,7 +50,7 @@ public abstract class AbstractNumericGroup extends AbstractAssociativeCommutativ
 			Expression elseBranch = IfThenElse.elseBranch(n);
 			Expression newThenBranch = addNTimes(valueToBeAdded, thenBranch, context);
 			Expression newElseBranch = addNTimes(valueToBeAdded, elseBranch, context);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is normalized
 		}
 		else if (IfThenElse.isIfThenElse(valueToBeAdded)) {
 			Expression condition = IfThenElse.condition(valueToBeAdded);
@@ -62,7 +63,8 @@ public abstract class AbstractNumericGroup extends AbstractAssociativeCommutativ
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		}
 		else {
-			result = addNTimesWithUnconditionalValueAndNDistinctFromZero(valueToBeAdded, n);
+			Expression valueToThePowerOfN = addNTimesWithUnconditionalValueAndNDistinctFromZero(valueToBeAdded, n);
+			result = context.getTheory().evaluate(valueToThePowerOfN, context);
 		}
 		return result;
 	}
