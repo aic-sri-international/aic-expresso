@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.grinder.sgdpllt.core.SGDPLLTUtil.makeProblemExpression;
+import static com.sri.ai.util.Util.requires;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -77,63 +77,65 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected Step eliminateQuantifierForLiteralFreeBody(Expression literalFreeBody, Context context) {
-		
-		checkThatIndexDoesNotAppearInBody(literalFreeBody, context);
-		Expression result = eliminateQuantifier(literalFreeBody, context);
+		QuantifierEliminationProblem problemWithLiteralFreeBody = getProblem().makeWithNewBody(literalFreeBody);
+		Solver solver = new Solver(problemWithLiteralFreeBody, context);
+		Expression result = solver.eliminateQuantifierForLiteralFreeBody();
 		return new Solution(result);
 	}
 
-	private void checkThatIndexDoesNotAppearInBody(Expression literalFreeBody, Context context) {
-		if (isSubExpressionOf(getIndex(), literalFreeBody)) {
-			Expression problemExpression = makeProblemExpression(getGroup(), getIndexConstraint(), literalFreeBody, context);
-			throw new IllegalArgumentException(getClass() + ": Index occurs in body: " + problemExpression);
+	/** Convenience class to minimize number of method parameters. */
+	private static class Solver extends QuantifierEliminationProblemWrapper {
+
+		private Context context;
+		
+		public Solver(QuantifierEliminationProblem problem, Context context) {
+			super(problem);
+			this.context = context;
 		}
-	}
 
-	private Expression eliminateQuantifier(Expression literalFreeBody, Context context) throws Error {
-		Expression result;
-		if (getGroup().isIdempotent()) {
-			result = resultForIdempotentGroup(literalFreeBody, context);
+		public Expression eliminateQuantifierForLiteralFreeBody() {
+			checkThatIndexDoesNotAppearInBody();
+			Expression result = eliminateQuantifier();
+			return result;
 		}
-		else {
-			result = resultIsBodyTimesNumberOfIndexValues(literalFreeBody, context);
+
+		private Expression eliminateQuantifier() {
+			Expression result;
+			if (getGroup().isIdempotent()) {
+				result = resultForIdempotentGroup();
+			}
+			else {
+				result = resultIsBodyTimesNumberOfIndexValues();
+			}
+			return result;
 		}
-		return result;
-	}
 
-	private Expression resultForIdempotentGroup(Expression literalFreeBody, Context context) throws Error {
-		Expression result;
-		Expression conditionForSatisfiability = getIndexConstraint().satisfiability(context);
-		if (conditionForSatisfiability == null) {
-			throw new Error("No satisfiability solver present for " + getIndex() + ". Need to implement re-construction of original expression");
+		private Expression resultForIdempotentGroup() throws Error {
+			Expression conditionForSatisfiability = computerConstraintSatisfiability();
+			Expression identityElement = getGroup().additiveIdentityElement();
+			Expression result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, getBody(), identityElement);
+			return result;
 		}
-		result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
-		return result;
-	}
 
-	private Expression resultIsBodyTimesNumberOfIndexValues(Expression literalFreeBody, Context context) {
-		Expression result;
-		Expression modelCount = getIndexConstraint().modelCount(context);
-		result = getGroup().addNTimes(literalFreeBody, modelCount, context);
-		result = context.getTheory().simplify(result, context);
-		return result;
-	}
+		private Expression computerConstraintSatisfiability() {
+			Expression conditionForSatisfiability = getConstraint().satisfiability(context);
+			checkWeCanSolveSatisfiabilityOfConstraint(conditionForSatisfiability);
+			return conditionForSatisfiability;
+		}
 
-	@Override
-	protected
-	QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
-		QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver result = 
-				new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(
-						newProblem);
-		return result;
-	}
+		private Expression resultIsBodyTimesNumberOfIndexValues() {
+			Expression modelCount = getConstraint().modelCount(context);
+			Expression result = getGroup().addNTimes(getBody(), modelCount, context);
+			result = context.getTheory().simplify(result, context);
+			return result;
+		}
 
-	@Override
-	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver clone() {
-		QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver result = 
-				(QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver)
-				super.clone();
-		return result;
-	}
+		private void checkThatIndexDoesNotAppearInBody() {
+			requires( !isSubExpressionOf(getIndex(), getBody()), () -> getClass() + ": index occurs in body: " + toExpression(context));
+		}
+
+		private void checkWeCanSolveSatisfiabilityOfConstraint(Expression conditionForSatisfiability) throws Error {
+			requires(conditionForSatisfiability != null, () -> "No satisfiability solver present for " + getIndex() + " while solving " + problem);
+		}
+	}	
 }

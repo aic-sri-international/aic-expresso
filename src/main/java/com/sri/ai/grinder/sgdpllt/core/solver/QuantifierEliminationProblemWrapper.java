@@ -35,41 +35,61 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core;
-
-import java.util.Collection;
-import java.util.Map;
+package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
-/**
- * Utility methods for the sgdpllt package.
- * 
- * @author braz
- */
 @Beta
-public class SGDPLLTUtil {
+public class QuantifierEliminationProblemWrapper implements QuantifierEliminationProblem {
+	
+	final public QuantifierEliminationProblem problem;
 
-	public static Context makeContext(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
-		Context result = (Context) GrinderUtil.extendRegistryWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TrueContext(theory));			
-		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-		return result;
+	public QuantifierEliminationProblemWrapper(QuantifierEliminationProblem problem) {
+		this.problem = problem;
+	}
+	
+	@Override
+	public AssociativeCommutativeGroup getGroup() {
+		return problem.getGroup();
 	}
 
-	public static Expression makeProblemExpression(QuantifierEliminationProblem problem, Context context) {
-		SingleVariableConstraint indexConstraint = problem.getConstraint();
-		Expression index = indexConstraint.getVariable();
-		Expression body = problem.getBody();
-		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
-		Expression problemExpression = problem.getGroup().makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, body);
-		return problemExpression;
+	@Override
+	public Expression getIndex() {
+		return problem.getIndex();
+	}
+
+	@Override
+	public SingleVariableConstraint getConstraint() {
+		return problem.getConstraint();
+	}
+
+	@Override
+	public Expression getBody() {
+		return problem.getBody();
+	}
+	
+	@Override
+	public QuantifierEliminationProblem makeWithNewIndexConstraint(SingleVariableConstraint newConstraint) {
+		return problem.makeWithNewIndexConstraint(newConstraint);
+	}
+
+	@Override
+	public QuantifierEliminationProblem makeWithNewBody(Expression newBody) {
+		return problem.makeWithNewBody(newBody);
+	}
+
+	@Override
+	public String toString() {
+		return problem.toString();
+	}
+
+	@Override
+	public Expression toExpression(Context context) {
+		return problem.toExpression(context);
 	}
 }

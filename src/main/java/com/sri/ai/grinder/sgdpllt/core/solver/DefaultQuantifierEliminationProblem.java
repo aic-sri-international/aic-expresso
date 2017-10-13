@@ -94,7 +94,22 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	}
 
 	@Override
+	public DefaultQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
+		return new DefaultQuantifierEliminationProblem(group, constraint, newBody);
+	}
+
+	@Override
 	public String toString() {
 		return "Quantifier elimination problem on " + group + ", " + index + ", " + constraint + ", " + body;
+	}
+
+	@Override
+	public Expression toExpression(Context context) {
+		SingleVariableConstraint indexConstraint = getConstraint();
+		Expression index = indexConstraint.getVariable();
+		Expression body = getBody();
+		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
+		Expression result = getGroup().makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, body);
+		return result;
 	}
 }

@@ -45,6 +45,7 @@ import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.thenBran
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Set;
 
@@ -411,12 +412,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	/**
-	 * Creates a new version of this object with a new index constraint.
-	 * @param newIndexConstraint
-	 * @return
-	 */
-	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
+//	/**
+//	 * Creates a new version of this object with a new index constraint.
+//	 * @param newIndexConstraint
+//	 * @return
+//	 */
+//	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
 
 	@Override
 	public QuantifierEliminationProblem getProblem() {
@@ -446,5 +447,16 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + " on " + problem;
+	}
+
+	protected
+	AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+		try {
+			QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
+			AbstractQuantifierEliminationStepSolver result = getClass().getConstructor(QuantifierEliminationProblem.class).newInstance(newProblem);
+			return result;
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			throw new Error(e);
+		} 
 	}
 }
