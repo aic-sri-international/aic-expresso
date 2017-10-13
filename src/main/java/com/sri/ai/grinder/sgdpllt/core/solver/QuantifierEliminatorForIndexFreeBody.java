@@ -42,7 +42,7 @@ public class QuantifierEliminatorForIndexFreeBody extends QuantifierEliminationP
 	private Expression eliminateQuantifier() {
 		Expression result;
 		if (getGroup().isIdempotent()) {
-			result = resultForIdempotentGroup();
+			result = makeIfIndexConstraintIsSatisfiableThenBodyElseNothing();
 		}
 		else {
 			result = bodyTimesNumberOfIndexValues();
@@ -50,7 +50,7 @@ public class QuantifierEliminatorForIndexFreeBody extends QuantifierEliminationP
 		return result;
 	}
 
-	private Expression resultForIdempotentGroup() {
+	private Expression makeIfIndexConstraintIsSatisfiableThenBodyElseNothing() {
 		Expression conditionForSatisfiability = computerConstraintSatisfiability();
 		Expression result = makeIfConditionThenBodyElseNothing(conditionForSatisfiability);
 		return result;
