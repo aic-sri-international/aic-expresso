@@ -709,15 +709,15 @@ public class SGDPLLTTester {
 	}
 
 	private static Expression makeProblem(Collection<Expression> indices, Constraint constraint, Expression body, AssociativeCommutativeGroup group, Context context) {
-		Expression problem = body;
+		Expression currentBody = body;
 		boolean firstIndex = true;
 		for (Expression index : indices) {
 			Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
 			Expression constraintOnThisIndex = firstIndex? constraint : TRUE;
-			problem = group.makeProblemExpression(index, indexType, constraintOnThisIndex, problem);
+			currentBody = group.makeProblemExpression(index, indexType, constraintOnThisIndex, currentBody);
 			firstIndex = false;
 		}
-		return problem;
+		return currentBody;
 	}
 
 	private static Expression makeBody(AssociativeCommutativeGroup group, TheoryTestingSupport theoryTestingSupport, int bodyDepth, Context context) {

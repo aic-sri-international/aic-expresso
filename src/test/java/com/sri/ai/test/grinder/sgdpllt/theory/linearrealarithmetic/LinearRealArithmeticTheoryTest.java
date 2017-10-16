@@ -780,6 +780,7 @@ public class LinearRealArithmeticTheoryTest {
 }
 
 	private void runSummationTest(Expression variable, String constraintString, String bodyString, Expression expected, Simplifier simplifier, Context context) {
+		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(variable);
 		runQuantifierTest(
 				variable, 
 				constraintString, 
@@ -788,7 +789,7 @@ public class LinearRealArithmeticTheoryTest {
 				"summation for " + bodyString, 
 				(SingleVariableConstraint c, Expression b) -> 
 				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						new DefaultQuantifierEliminationProblem(new Sum(), c, b)),
+						new DefaultQuantifierEliminationProblem(new Sum(), c, typeExpression, b)),
 				context);
 	}
 

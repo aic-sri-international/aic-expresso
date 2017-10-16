@@ -49,21 +49,24 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	
 	final public AssociativeCommutativeGroup group;
 	final public Expression index;
+	final public Expression indexType;
 	final public SingleVariableConstraint constraint;
 	final public Expression body;
 
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression body) {
+	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression indexType, Expression body) {
 		super();
 		this.group = group;
 		this.index = constraint.getVariable();
+		this.indexType = indexType;
 		this.constraint = constraint;
 		this.body = body;
 	}
 	
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression body, Context context) {
+	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression body, Context context) {
 		super();
 		this.group = group;
 		this.index = index;
+		this.indexType = indexType;
 		this.constraint = context.getTheory().makeSingleVariableConstraint(index, context);
 		this.body = body;
 	}
@@ -79,6 +82,11 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	}
 
 	@Override
+	public Expression getIndexType() {
+		return indexType;
+	}
+
+	@Override
 	public SingleVariableConstraint getConstraint() {
 		return constraint;
 	}
@@ -90,12 +98,12 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	
 	@Override
 	public DefaultQuantifierEliminationProblem makeWithNewIndexConstraint(SingleVariableConstraint newConstraint) {
-		return new DefaultQuantifierEliminationProblem(group, newConstraint, body);
+		return new DefaultQuantifierEliminationProblem(group, newConstraint, indexType, body);
 	}
 
 	@Override
 	public DefaultQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
-		return new DefaultQuantifierEliminationProblem(group, constraint, newBody);
+		return new DefaultQuantifierEliminationProblem(group, constraint, indexType, newBody);
 	}
 
 	@Override
@@ -104,12 +112,12 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	}
 
 	@Override
-	public Expression toExpression(Context context) {
+	public Expression toExpression() {
 		SingleVariableConstraint indexConstraint = getConstraint();
 		Expression index = indexConstraint.getVariable();
+		Expression indexType = getIndexType();
 		Expression body = getBody();
-		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
-		Expression result = getGroup().makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, body);
+		Expression result = getGroup().makeProblemExpression(index, indexType, indexConstraint, body);
 		return result;
 	}
 }

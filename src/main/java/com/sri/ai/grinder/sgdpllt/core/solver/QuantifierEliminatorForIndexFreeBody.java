@@ -79,7 +79,7 @@ public class QuantifierEliminatorForIndexFreeBody extends QuantifierEliminationP
 	}
 
 	private void checkThatIndexDoesNotAppearInBody() {
-		requires( !isSubExpressionOf(getIndex(), getBody()), () -> getClass() + ": index occurs in body: " + toExpression(context));
+		requires( !isSubExpressionOf(getIndex(), getBody()), () -> getClass() + ": index occurs in body: " + toExpression());
 	}
 
 	private void checkWeCanSolveSatisfiabilityOfConstraint(Expression conditionForSatisfiability) throws Error {

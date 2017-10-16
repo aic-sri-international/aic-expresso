@@ -218,7 +218,9 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 				variable, true, theory);
 		constraint = (SingleVariableDifferenceArithmeticConstraint) constraint.conjoin(parse(constraintString), context);
 		
-		QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), constraint, body);
+		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(variable);
+		
+		QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), constraint, typeExpression, body);
 		
 		ExpressionStepSolver stepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(problem);
 		

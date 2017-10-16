@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -61,6 +60,11 @@ public class QuantifierEliminationProblemWrapper implements QuantifierEliminatio
 	@Override
 	public Expression getIndex() {
 		return problem.getIndex();
+	}
+
+	@Override
+	public Expression getIndexType() {
+		return problem.getIndexType();
 	}
 
 	@Override
@@ -89,7 +93,7 @@ public class QuantifierEliminationProblemWrapper implements QuantifierEliminatio
 	}
 
 	@Override
-	public Expression toExpression(Context context) {
-		return problem.toExpression(context);
+	public Expression toExpression() {
+		return problem.toExpression();
 	}
 }

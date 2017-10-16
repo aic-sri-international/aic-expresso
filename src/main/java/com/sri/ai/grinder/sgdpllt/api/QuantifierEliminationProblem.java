@@ -9,6 +9,8 @@ public interface QuantifierEliminationProblem {
 
 	Expression getIndex();
 
+	Expression getIndexType();
+
 	SingleVariableConstraint getConstraint();
 
 	Expression getBody();
@@ -17,5 +19,5 @@ public interface QuantifierEliminationProblem {
 	
 	QuantifierEliminationProblem makeWithNewBody(Expression newBody);
 	
-	Expression toExpression(Context context);
+	Expression toExpression();
 }
