@@ -63,10 +63,12 @@ import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
@@ -714,7 +716,8 @@ public class SGDPLLTTester {
 		for (Expression index : indices) {
 			Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
 			Expression constraintOnThisIndex = firstIndex? constraint : TRUE;
-			currentBody = group.makeProblemExpression(index, indexType, constraintOnThisIndex, currentBody);
+			QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(group, index, indexType, constraintOnThisIndex, currentBody);
+			currentBody = problem.toExpression();
 			firstIndex = false;
 		}
 		return currentBody;

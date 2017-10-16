@@ -90,13 +90,13 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)
 		//            to create E
-		Expression variable = problem.getConstraint().getVariable();
+		Expression variable = problem.getIndex();
 		Expression typeExpression = GrinderUtil.getTypeExpressionOfExpression(variable, context);
 		Type type = context.getTypeFromTypeExpression(typeExpression);
 		if (!isSuitableFor(type)) {
 			throw new Error("Theory " + this + " asked to eliminate quantifier indexed by " + variable + " in " + typeExpression + ", but this theory is not suitable for this type.");
 		}
-		Expression expression = problem.getGroup().makeProblemExpression(variable, typeExpression, problem.getConstraint(), problem.getBody());
+		Expression expression = problem.toExpression();
 		// - use TupleQuantifierSimplifier to transform it to another expression E' without quantification on tuples
 		Expression expressionWithoutQuantificationOnTuples      = tupleQuantifierSimplifier.apply(expression, context);
 		// - return context.getTheory().getRewriter().makeStepSolver(E')

@@ -11,11 +11,11 @@ public interface QuantifierEliminationProblem {
 
 	Expression getIndexType();
 
-	SingleVariableConstraint getConstraint();
+	Expression getConstraint();
 
 	Expression getBody();
 	
-	QuantifierEliminationProblem makeWithNewIndexConstraint(SingleVariableConstraint newConstraint);
+	QuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint);
 	
 	QuantifierEliminationProblem makeWithNewBody(Expression newBody);
 	

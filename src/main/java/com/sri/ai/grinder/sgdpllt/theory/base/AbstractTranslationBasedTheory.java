@@ -94,15 +94,17 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
-		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(constraint.getVariable());
-		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Disjunction(), constraint, indexType, TRUE);
+		Expression index = constraint.getVariable();
+		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
+		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Disjunction(), index, indexType, constraint, TRUE);
 		return getQuantifierEliminatorStepSolver(problem, context);
 	}
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
-		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(constraint.getVariable());
-		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), constraint, indexType, ONE);
+		Expression index = constraint.getVariable();
+		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
+		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), index, indexType, constraint, ONE);
 		return getQuantifierEliminatorStepSolver(problem, context);
 	}
 

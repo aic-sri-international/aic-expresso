@@ -63,13 +63,15 @@ public class QuantifierEliminatorForIndexFreeBody extends QuantifierEliminationP
 	}
 
 	private Expression computerConstraintSatisfiability() {
-		Expression conditionForSatisfiability = getConstraint().satisfiability(context);
+		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) getConstraint();
+		Expression conditionForSatisfiability = singleVariableConstraint.satisfiability(context);
 		checkWeCanSolveSatisfiabilityOfConstraint(conditionForSatisfiability);
 		return conditionForSatisfiability;
 	}
 
 	private Expression bodyTimesNumberOfIndexValues() {
-		Expression modelCount = getConstraint().modelCount(context);
+		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) getConstraint();
+		Expression modelCount = singleVariableConstraint.modelCount(context);
 		Expression result = bodyTimes(modelCount);
 		return result;
 	}

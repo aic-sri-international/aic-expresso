@@ -789,7 +789,7 @@ public class LinearRealArithmeticTheoryTest {
 				"summation for " + bodyString, 
 				(SingleVariableConstraint c, Expression b) -> 
 				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						new DefaultQuantifierEliminationProblem(new Sum(), c, typeExpression, b)),
+						new DefaultQuantifierEliminationProblem(new Sum(), variable, typeExpression, c, b)),
 				context);
 	}
 

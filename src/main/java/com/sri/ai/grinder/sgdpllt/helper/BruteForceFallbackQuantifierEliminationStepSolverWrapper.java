@@ -47,7 +47,6 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
@@ -103,7 +102,7 @@ public class BruteForceFallbackQuantifierEliminationStepSolverWrapper implements
 		
 		AssociativeCommutativeGroup group = problem.getGroup();
 		LinkedList<Expression> indices = list(problem.getIndex());
-		SingleVariableConstraint indicesCondition = problem.getConstraint();
+		Expression indicesCondition = problem.getConstraint();
 		Expression body = problem.getBody();
 		
 		Expression result = multiIndexQuantifierEliminator.solve(group, indices, indicesCondition, body, context);

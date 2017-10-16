@@ -235,20 +235,22 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		
 		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
 			if ( ! result.itDepends()) {
-				Expression problem = getGroup().makeProblemExpression(getIndex(), context.getTypeExpressionOfRegisteredSymbol(getIndex()), getIndexConstraint(), getBody());
-				Set<Expression> freeVariables = Expressions.freeVariables(problem, context);
+				Expression indexType = context.getTypeExpressionOfRegisteredSymbol(getIndex());
+				QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
+				Expression problemExpression = problem.toExpression();
+				Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
 				AssignmentsIterator assignments = new AssignmentsIterator(freeVariables, context);
 				for (Map<Expression, Expression> assignment : in(assignments)) {
 					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
 					Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
 					// Only go on if the assignment satisfies the context:
 					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
-						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problem, extendedContext);
+						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
 						Expression resultGivenAssignment = bruteForceCommonInterpreter.apply(result.getValue(), extendedContext);
-						Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problem, extendedContext);
+						Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
 						if ( ! bruteForceResult.equals(resultGivenAssignment)) {
 							String message = 
-									"Disagreement on " + problem + "\nunder " + assignment + ".\n"
+									"Disagreement on " + problemExpression + "\nunder " + assignment + ".\n"
 											+ "Context: " + context + ".\n"
 											+ "Evaluated problem: " + evaluatedProblem + ".\n"
 											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
@@ -257,7 +259,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 						}
 						else {
 							String message = 
-									"Agreement on " + problem + "\nunder " + assignment + ".\n"
+									"Agreement on " + problemExpression + "\nunder " + assignment + ".\n"
 											+ "Context: " + context + ".\n"
 											+ "Evaluated problem: " + evaluatedProblem + ".\n"
 											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
@@ -431,12 +433,12 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 
 	@Override
 	public SingleVariableConstraint getIndexConstraint() {
-		return problem.getConstraint();
+		return (SingleVariableConstraint) problem.getConstraint();
 	}
 
 	@Override
 	public Expression getIndex() {
-		return problem.getConstraint().getVariable();
+		return problem.getIndex();
 	}
 
 	@Override

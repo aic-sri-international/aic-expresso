@@ -102,14 +102,4 @@ public interface AssociativeCommutativeGroup {
 	 * Generates an expression representing of problem in this group (problem's own group is ignored). 
 	 */
 	Expression makeProblemExpression(QuantifierEliminationProblem problem);
-
-	/**
-	 * Generates an expression representing of problem of this type, given its components. 
-	 * @param index
-	 * @param indexTypeExpression
-	 * @param constraint
-	 * @param body
-	 * @return
-	 */
-	Expression makeProblemExpression(Expression index, Expression indexTypeExpression, Expression constraint, Expression body);
 }

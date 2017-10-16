@@ -41,7 +41,7 @@ public abstract class AbstractQuantifierBasedGroup extends AbstractAssociativeCo
 		return result;
 	}
 
-	@Override
+	//@Override
 	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
 		Expression indexExpression = IndexExpressions.makeIndexExpression(index, indexType);
 		Expression bodyEncodingConstraint = IfThenElse.make(constraint, body, additiveIdentityElement());

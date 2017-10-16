@@ -41,7 +41,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
@@ -50,13 +49,13 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	final public AssociativeCommutativeGroup group;
 	final public Expression index;
 	final public Expression indexType;
-	final public SingleVariableConstraint constraint;
+	final public Expression constraint;
 	final public Expression body;
 
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, SingleVariableConstraint constraint, Expression indexType, Expression body) {
+	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression constraint, Expression body) {
 		super();
 		this.group = group;
-		this.index = constraint.getVariable();
+		this.index = index;
 		this.indexType = indexType;
 		this.constraint = constraint;
 		this.body = body;
@@ -87,7 +86,7 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	}
 
 	@Override
-	public SingleVariableConstraint getConstraint() {
+	public Expression getConstraint() {
 		return constraint;
 	}
 
@@ -97,13 +96,13 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	}
 	
 	@Override
-	public DefaultQuantifierEliminationProblem makeWithNewIndexConstraint(SingleVariableConstraint newConstraint) {
-		return new DefaultQuantifierEliminationProblem(group, newConstraint, indexType, body);
+	public DefaultQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint) {
+		return new DefaultQuantifierEliminationProblem(group, index, indexType, newConstraint, body);
 	}
 
 	@Override
 	public DefaultQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
-		return new DefaultQuantifierEliminationProblem(group, constraint, indexType, newBody);
+		return new DefaultQuantifierEliminationProblem(group, index, indexType, constraint, newBody);
 	}
 
 	@Override
@@ -113,11 +112,7 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 
 	@Override
 	public Expression toExpression() {
-		SingleVariableConstraint indexConstraint = getConstraint();
-		Expression index = indexConstraint.getVariable();
-		Expression indexType = getIndexType();
-		Expression body = getBody();
-		Expression result = getGroup().makeProblemExpression(index, indexType, indexConstraint, body);
+		Expression result = getGroup().makeProblemExpression(this);
 		return result;
 	}
 }

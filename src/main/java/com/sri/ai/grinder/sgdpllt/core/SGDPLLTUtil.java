@@ -46,8 +46,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 
 /**
@@ -62,14 +60,5 @@ public class SGDPLLTUtil {
 		Context result = (Context) GrinderUtil.extendRegistryWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TrueContext(theory));			
 		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
-	}
-
-	public static Expression makeProblemExpression(QuantifierEliminationProblem problem, Context context) {
-		SingleVariableConstraint indexConstraint = problem.getConstraint();
-		Expression index = indexConstraint.getVariable();
-		Expression body = problem.getBody();
-		Expression typeExpressionOfIndex = context.getTypeExpressionOfRegisteredSymbol(index);
-		Expression problemExpression = problem.getGroup().makeProblemExpression(index, typeExpressionOfIndex, indexConstraint, body);
-		return problemExpression;
 	}
 }

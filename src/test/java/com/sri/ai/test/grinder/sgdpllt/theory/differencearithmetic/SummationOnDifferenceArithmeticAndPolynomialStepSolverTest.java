@@ -220,7 +220,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 		
 		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(variable);
 		
-		QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), constraint, typeExpression, body);
+		QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), variable, typeExpression, constraint, body);
 		
 		ExpressionStepSolver stepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(problem);
 		
