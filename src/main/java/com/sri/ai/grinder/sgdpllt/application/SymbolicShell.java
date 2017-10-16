@@ -91,7 +91,8 @@ public class SymbolicShell {
 				new DifferenceArithmeticTheory(false, false),
 				new LinearRealArithmeticTheory(false, false),
 				new TupleTheory(),
-				new PropositionalTheory(),
+				new PropositionalTheory()
+				,
 				new BruteForceFunctionTheory()
 				);
 		
@@ -168,6 +169,8 @@ public class SymbolicShell {
 				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (2, 3) }})"
 				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (I, J) }})"
 				, "sum( {{ (on T in (1..4 x 1..4)) 10 : get(T, 1) != 2 }})"
+				
+				, "sum( {{ (on F in 1..2 -> 3..4) F(1) }})"
 				);
 		
 		for (String example : examples) {
@@ -280,6 +283,8 @@ public class SymbolicShell {
 				"                                       pre-defined variables C, D, E",
 				"- tuples (for example, (Integer x Integer), (1..2 x Boolean x Real) etc -- parentheses around tuples are required",
 				"  There is a pre-defined variable T in (1..5 x 1..5)",
+				"- uninterpreted functions (for example, Integer -> Integer, 1..2 x Boolean -> Real etc",
+				"  Currently there are no pre-defined uninterpreted function variables",
 				"",
 				"Capitalized symbols (other than types) are considered variables",
 				"",
