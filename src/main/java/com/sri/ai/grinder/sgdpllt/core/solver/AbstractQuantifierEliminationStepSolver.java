@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.elseBranch;
@@ -118,22 +119,37 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 @Beta
 public abstract class AbstractQuantifierEliminationStepSolver implements QuantifierEliminationStepSolver {
 
-	public static Collection<AssociativeCommutativeGroup> groupsToCountIntegrationsOver = null;
+	public static boolean keepTrackOfNumberOfIntegrationsOverGroup = false;
+	public static Collection<? extends AssociativeCommutativeGroup> groupsToCountIntegrationsOver = null;
 	public static Map<AssociativeCommutativeGroup, Integer> numberOfIntegrationsOverGroup = null;
 	
-	public static void setGroupsToCountIntegrationsOver(Collection<AssociativeCommutativeGroup> groupsToCountIntegrationsOver) {
+	public static void setGroupsToCountIntegrationsOver(Collection<? extends AssociativeCommutativeGroup> groupsToCountIntegrationsOver) {
 		AbstractQuantifierEliminationStepSolver.groupsToCountIntegrationsOver = groupsToCountIntegrationsOver;
 		numberOfIntegrationsOverGroup = mapWithTheseKeysMappedTo(groupsToCountIntegrationsOver, 0);
+		keepTrackOfNumberOfIntegrationsOverGroup = true;
+	}
+	
+	public static void turnCountingOfIntegrationsOverGroupsOff() {
+		keepTrackOfNumberOfIntegrationsOverGroup = false;
 	}
 	
 	public static Map<AssociativeCommutativeGroup, Integer> getNumberOfIntegrationsOverGroup() {
 		return numberOfIntegrationsOverGroup;
 	}
 
-	private static void incrementGroup(AssociativeCommutativeGroup group) {
-		incrementValue(numberOfIntegrationsOverGroup, group);
+	private void registerGroupIntegration(Expression literalFreeBody, Step result, Context context) {
+		if (keepTrackOfNumberOfIntegrationsOverGroup) {
+			QuantifierEliminationProblem problemWithNewBody = problem.makeWithNewBody(literalFreeBody);
+			println("Summing over  " + problem.toExpression());
+			println("simplified to " + problemWithNewBody.toExpression());
+			if (!context.equals(TRUE)) { 
+				println("under context: " + context);
+			}
+			println("   ---------> " + result + "\n");
+			incrementValue(numberOfIntegrationsOverGroup, getGroup());
+		}
 	}
-	
+
 	private QuantifierEliminationProblem problem;
 	
 	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
@@ -247,7 +263,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			else { // body is already literal free
 				Expression literalFreeBody = bodyStep.getValue();
 				result = eliminateQuantifierForLiteralFreeBody(literalFreeBody, context);
-				incrementGroup(getGroup());
+				registerGroupIntegration(literalFreeBody, result, context);
 			}
 		}
 		

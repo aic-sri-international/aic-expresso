@@ -14,4 +14,15 @@ public abstract class AbstractAssociativeCommutativeGroup implements Associative
 	public String toString() {
 		return Util.camelCaseToSpacedString(getClass().getSimpleName());
 	}
+	
+	@Override
+	public boolean equals(Object another) {
+		boolean result = getClass().isInstance(another);
+		return result;
+	}
+	
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
 }
