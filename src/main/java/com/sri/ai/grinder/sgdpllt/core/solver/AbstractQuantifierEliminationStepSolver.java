@@ -43,9 +43,12 @@ import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.elseBran
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.isIfThenElse;
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.thenBranch;
 import static com.sri.ai.util.Util.in;
+import static com.sri.ai.util.Util.incrementValue;
+import static com.sri.ai.util.Util.mapWithTheseKeysMappedTo;
 import static com.sri.ai.util.Util.println;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,7 +118,21 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 @Beta
 public abstract class AbstractQuantifierEliminationStepSolver implements QuantifierEliminationStepSolver {
 
-	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
+	public static Collection<AssociativeCommutativeGroup> groupsToCountIntegrationsOver = null;
+	public static Map<AssociativeCommutativeGroup, Integer> numberOfIntegrationsOverGroup = null;
+	
+	public static void setGroupsToCountIntegrationsOver(Collection<AssociativeCommutativeGroup> groupsToCountIntegrationsOver) {
+		AbstractQuantifierEliminationStepSolver.groupsToCountIntegrationsOver = groupsToCountIntegrationsOver;
+		numberOfIntegrationsOverGroup = mapWithTheseKeysMappedTo(groupsToCountIntegrationsOver, 0);
+	}
+	
+	public static Map<AssociativeCommutativeGroup, Integer> getNumberOfIntegrationsOverGroup() {
+		return numberOfIntegrationsOverGroup;
+	}
+
+	private static void incrementGroup(AssociativeCommutativeGroup group) {
+		incrementValue(numberOfIntegrationsOverGroup, group);
+	}
 	
 	private QuantifierEliminationProblem problem;
 	
@@ -230,6 +247,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 			else { // body is already literal free
 				Expression literalFreeBody = bodyStep.getValue();
 				result = eliminateQuantifierForLiteralFreeBody(literalFreeBody, context);
+				incrementGroup(getGroup());
 			}
 		}
 		
