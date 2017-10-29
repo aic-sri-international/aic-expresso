@@ -45,11 +45,10 @@ import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.isIfThen
 import static com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse.thenBranch;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.incrementValue;
-import static com.sri.ai.util.Util.mapWithTheseKeysMappedTo;
+import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.println;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -119,26 +118,38 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 @Beta
 public abstract class AbstractQuantifierEliminationStepSolver implements QuantifierEliminationStepSolver {
 
-	public static boolean keepTrackOfNumberOfIntegrationsOverGroup = false;
-	public static Collection<? extends AssociativeCommutativeGroup> groupsToCountIntegrationsOver = null;
-	public static Map<AssociativeCommutativeGroup, Integer> numberOfIntegrationsOverGroup = null;
+	private static boolean countingIntegrationsOverGroups = false;
+	private static Map<AssociativeCommutativeGroup, Integer> numberOfIntegrationsOverGroup = map();
 	
-	public static void setGroupsToCountIntegrationsOver(Collection<? extends AssociativeCommutativeGroup> groupsToCountIntegrationsOver) {
-		AbstractQuantifierEliminationStepSolver.groupsToCountIntegrationsOver = groupsToCountIntegrationsOver;
-		numberOfIntegrationsOverGroup = mapWithTheseKeysMappedTo(groupsToCountIntegrationsOver, 0);
-		keepTrackOfNumberOfIntegrationsOverGroup = true;
+	public static void startCountingOfIntegrationsOverGroups() {
+		resetCountingOfIntegrationsOverGroups();
+		turnCountingOfIntegrationsOverGroupsOn();
+	}
+	
+	public static void resetCountingOfIntegrationsOverGroups() {
+		numberOfIntegrationsOverGroup = map();
+	}
+	
+	public static void turnCountingOfIntegrationsOverGroupsOn() {
+		countingIntegrationsOverGroups = true;
 	}
 	
 	public static void turnCountingOfIntegrationsOverGroupsOff() {
-		keepTrackOfNumberOfIntegrationsOverGroup = false;
+		countingIntegrationsOverGroups = false;
 	}
 	
-	public static Map<AssociativeCommutativeGroup, Integer> getNumberOfIntegrationsOverGroup() {
-		return numberOfIntegrationsOverGroup;
+	public static boolean isCountingIntegrationsOverGroups() {
+		return countingIntegrationsOverGroups;
+	}
+	
+	public static int getNumberOfIntegrationsOverGroup(AssociativeCommutativeGroup group) {
+		Integer value = numberOfIntegrationsOverGroup.get(group);
+		int result = value == null? 0 : value.intValue();
+		return result;
 	}
 
 	private void registerGroupIntegration(Expression literalFreeBody, Step result, Context context) {
-		if (keepTrackOfNumberOfIntegrationsOverGroup) {
+		if (countingIntegrationsOverGroups) {
 			QuantifierEliminationProblem problemWithNewBody = problem.makeWithNewBody(literalFreeBody);
 			println("Summing over  " + problem.toExpression());
 			println("simplified to " + problemWithNewBody.toExpression());
