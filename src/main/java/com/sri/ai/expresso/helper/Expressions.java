@@ -481,8 +481,8 @@ public class Expressions {
 	 * to make it unique in a given expression.
 	 */
 	public static Expression primedUntilUnique(Expression symbol, Expression expression, Registry registry) {
-		LinkedHashSet<Expression> variables = Expressions.getVariableReferences(expression, registry.getIsUniquelyNamedConstantPredicate());
-		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
+		LinkedHashSet<Expression> variableBeingReferenced = Expressions.getVariablesBeingReferenced(expression, registry.getIsUniquelyNamedConstantPredicate());
+		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variableBeingReferenced);
 		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
 		return result;
 	}
@@ -787,33 +787,39 @@ public class Expressions {
 	}
 
 	/**
-	 * A static method returning the variable references
-	 * in a given expression, for a certain predicate indicating uniquely named constants.
-	 * By reference, we mean points in which a variable is used, not declared.
-	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
-	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
-	 */
-	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return Expressions.getSubExpressionsSatisfying(expression, new IsVariable(isUniquelyNamedConstantPredicate));
-	}
-
-	/**
-	 * A static method returning the variable references
+	 * A static method returning the variables being referenced, as opposed to being merely declared,
 	 * in a given expression, in a certain context.
 	 * By reference, we mean points in which a variable is used, not declared.
 	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
 	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariableReferences(Expression expression, Registry registry) {
-		return getVariableReferences(expression, registry.getIsUniquelyNamedConstantPredicate());
+	public static LinkedHashSet<Expression> getVariablesBeingReferenced(Expression expression, Registry registry) {
+		return getVariablesBeingReferenced(expression, registry.getIsUniquelyNamedConstantPredicate());
+	}
+
+	/**
+	 * A static method returning the variables being referenced, as opposed to being merely declared,
+	 * in a given expression, for a certain predicate indicating uniquely named constants.
+	 * By reference, we mean points in which a variable is used, not declared.
+	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
+	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
+	 */
+	public static LinkedHashSet<Expression> getVariablesBeingReferenced(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return Expressions.getSubExpressionsSatisfying(expression, new IsVariable(isUniquelyNamedConstantPredicate));
 	}
 
 	/** Returns the set of free variables in an expression, according to a given context. */
 	public static Set<Expression> freeVariables(Expression expression, Registry registry) {
+		Predicate<Expression> isVariable = e -> registry.isVariable(e);
+		return freeVariables(expression, isVariable);
+	}
+
+	/** Returns the set of free variables in an expression, according to a given predicate indicating which symbols are variables. */
+	public static Set<Expression> freeVariables(Expression expression, Predicate<Expression> isVariable) {
 		Set<Expression> freeVariables       = new LinkedHashSet<Expression>(); 
 		Set<Expression> quantifiedVariables = new LinkedHashSet<Expression>();
 		
-		Expressions.freeVariables(expression, freeVariables, quantifiedVariables, registry);
+		freeVariables(expression, freeVariables, quantifiedVariables, isVariable);
 		
 		return freeVariables;
 	}
@@ -828,10 +834,7 @@ public class Expressions {
 		return freeSymbols;
 	}
 
-	//
-	// PRIVATE METHODS
-	//
-	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, Registry registry) {
+	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, Predicate<Expression> isVariable) {
 		// Note: this used to be duplicating Expression.replace a bit, although in a lighter-weight, more efficient manner.
 		// However, since the changes that include a check against unregistered variables during contextual expansion
 		// (that is, constraints expanding the contextual expansion cannot contains variables that are not already in the contextual symbols),
@@ -839,7 +842,7 @@ public class Expressions {
 		// while this method here does not perform such checks.
 		
 		if (expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
-			if (registry.isVariable(expression)) {
+			if (isVariable.apply(expression)) {
 				if (!quantifiedVariables.contains(expression)) {
 					freeVariables.add(expression);
 				}
@@ -867,7 +870,7 @@ public class Expressions {
 					}
 				}
 	
-				freeVariables(subExpressionAndSyntacticContext.getExpression(), freeVariables, quantifiedVariables, registry);
+				freeVariables(subExpressionAndSyntacticContext.getExpression(), freeVariables, quantifiedVariables, isVariable);
 				
 				// Backtrack to what quantifiedVariables was at the beginning of this call; perhaps it would be more efficient to keep this on a stack?
 				quantifiedVariables.removeAll(newLocalQuantifiedVariables);

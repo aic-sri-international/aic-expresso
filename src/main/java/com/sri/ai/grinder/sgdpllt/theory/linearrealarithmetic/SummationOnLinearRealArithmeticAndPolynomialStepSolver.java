@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
@@ -50,6 +51,7 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
+import com.sri.ai.grinder.sgdpllt.library.IsVariable;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 
 /**
@@ -132,7 +134,8 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Expression lowerBound = values.get(0);
 			Expression upperBound = values.get(1);
 			Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
-			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, getIndex(), lowerBound, upperBound);
+			Predicate<Expression> isVariable = new IsVariable(context.getIsUniquelyNamedConstantPredicate());
+			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, getIndex(), lowerBound, upperBound, isVariable);
 		}
 		return result;
 	}

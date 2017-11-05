@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.tester;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.expresso.helper.Expressions.getVariableReferences;
+import static com.sri.ai.expresso.helper.Expressions.getVariablesBeingReferenced;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.in;
@@ -433,7 +433,7 @@ public class SGDPLLTTester {
 			}
 			else {
 				Expression testingVariable = singleVariableConstraint.getVariable();
-				Set<Expression> allVariables = getVariableReferences(singleVariableConstraint, context);
+				Set<Expression> allVariables = getVariablesBeingReferenced(singleVariableConstraint, context);
 				Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
 				BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToOtherVariablesToBruteForceSolution =
 						(interpreter, contextWithAssignmentToOtherVariables)
@@ -730,8 +730,8 @@ public class SGDPLLTTester {
 	}
 
 	private static Collection<Expression> getFreeVariableMinusIndices(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
-		Set<Expression> allVariables = getVariableReferences(constraint, context);
-		allVariables.addAll(getVariableReferences(body, context));
+		Set<Expression> allVariables = getVariablesBeingReferenced(constraint, context);
+		allVariables.addAll(getVariablesBeingReferenced(body, context));
 		Collection<Expression> freeVariablesMinusIndex = removeFromSetNonDestructively(allVariables, v -> indices.contains(v));
 		return freeVariablesMinusIndex;
 	}

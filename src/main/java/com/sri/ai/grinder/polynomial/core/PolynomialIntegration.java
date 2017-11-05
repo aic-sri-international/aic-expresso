@@ -1,14 +1,12 @@
 package com.sri.ai.grinder.polynomial.core;
 
-import static com.sri.ai.expresso.helper.Expressions.isNumber;
-import static com.sri.ai.expresso.helper.Expressions.isPositiveOrNegativeInfinity;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.polynomial.api.Monomial;
@@ -111,16 +109,18 @@ public class PolynomialIntegration {
 	 *        the ending limit of the integral.
 	 * @return the definite integral of the polynomial for the given limits.
 	 */
-	public static Polynomial definiteIntegral(Polynomial polynomial, Expression variable, Expression start, Expression end) {
+	public static Polynomial definiteIntegral(Polynomial polynomial, Expression variable, Expression start, Expression end, Predicate<Expression> isVariable) {
 		Polynomial q = indefiniteIntegral(polynomial, variable);
 		
 		Set<Expression> variableSet = new LinkedHashSet<>(q.getVariables()); // Note: will include variable due to calling indefiniteIntegral
-		if (!isNumber(start) && !isPositiveOrNegativeInfinity(start)) {
-			variableSet.add(start);
-		}
-		if (!isNumber(end) && !isPositiveOrNegativeInfinity(end)) {
-			variableSet.add(end);
-		}		
+		variableSet.addAll(Expressions.freeVariables(start, isVariable));
+		variableSet.addAll(Expressions.freeVariables(end, isVariable));
+//		if (!isNumber(start) && !isPositiveOrNegativeInfinity(start)) {
+//			variableSet.add(start);
+//		}
+//		if (!isNumber(end) && !isPositiveOrNegativeInfinity(end)) {
+//			variableSet.add(end);
+//		}		
 		List<Expression> variables = new ArrayList<>(variableSet);
 		
 		Polynomial minuendPolynomial    = replaceFactor(q, variable, end, variables);
@@ -131,25 +131,36 @@ public class PolynomialIntegration {
 		return result;
 	}
 	
-	private static Polynomial replaceFactor(Polynomial q, Expression variable, Expression limit, List<Expression> variablesToIncludeInResult) {
+	private static Polynomial replaceFactor(Polynomial q, Expression variable, Expression value, List<Expression> variablesToIncludeInResult) {
+		List<Expression> replacedTerms = replaceVariableByValueInTerms(q, variable, value);
+		Polynomial result = DefaultPolynomial.make(Plus.make(replacedTerms), variablesToIncludeInResult);
+		return result;
+	}
+
+	private static List<Expression> replaceVariableByValueInTerms(Polynomial q, Expression variable, Expression value) {
 		List<Expression> replacedTerms = new ArrayList<>();
-		
 		for (Monomial term : q.getMonomials()) {
-			List<Expression> replacedFactorsInTerm = new ArrayList<>();
-			for (Expression factor : term.getFactors()) {
-				Rational powerOfFactor = term.getPowerOfFactor(factor);
-				if (factor.equals(variable)) {					
-					replacedFactorsInTerm.add(Exponentiation.make(limit, powerOfFactor));
-				}
-				else {
-					replacedFactorsInTerm.add(Exponentiation.make(factor, powerOfFactor));
-				}
-			}			
+			List<Expression> replacedFactorsInTerm = replaceVariableByValueInTerm(term, variable, value);			
 			replacedTerms.add(DefaultMonomial.make(Times.make(replacedFactorsInTerm)));
 		}
-		
-		Polynomial result = DefaultPolynomial.make(Plus.make(replacedTerms), variablesToIncludeInResult);
-		
-		return result;
+		return replacedTerms;
+	}
+
+	private static List<Expression> replaceVariableByValueInTerm(Monomial term, Expression variable, Expression value) {
+		List<Expression> replacedFactorsInTerm = new ArrayList<>();
+		for (Expression factor : term.getFactors()) {
+			replaceFactor(factor, variable, value, term, replacedFactorsInTerm);
+		}
+		return replacedFactorsInTerm;
+	}
+
+	private static void replaceFactor(Expression factor, Expression variable, Expression value, Monomial term, List<Expression> replacedFactorsInTerm) {
+		Rational powerOfFactor = term.getPowerOfFactor(factor);
+		if (factor.equals(variable)) {					
+			replacedFactorsInTerm.add(Exponentiation.make(value, powerOfFactor));
+		}
+		else {
+			replacedFactorsInTerm.add(Exponentiation.make(factor, powerOfFactor));
+		}
 	}
 }
