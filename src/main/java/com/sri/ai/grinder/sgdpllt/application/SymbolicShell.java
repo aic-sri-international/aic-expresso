@@ -248,7 +248,7 @@ public class SymbolicShell {
 		
 		OptionParser parser = new OptionParser();
 		
-		OptionSpec<String> consoleType = parser.accepts("console", "Console type <gui or default>").withRequiredArg().ofType(String.class);
+		OptionSpec<String> consoleType = parser.accepts("console", "Console type <gui> or <default>").withRequiredArg().ofType(String.class);
 		OptionSet options = parser.parse(args);
 		if (options.has(consoleType)) {
 			if ("gui".equalsIgnoreCase(options.valueOf(consoleType))) {
