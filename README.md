@@ -9,7 +9,7 @@ SRI International's AIC Symbolic Manipulation and Evaluation Library (for Java 1
       <dependency>
           <groupId>com.googlecode.aic-expresso</groupId>
           <artifactId>aic-expresso</artifactId>
-          <version>1.3.0</version>
+          <version>1.3.3</version>
       </dependency>
       ```
 * [Latest Release](https://github.com/aic-sri-international/aic-expresso/releases)
