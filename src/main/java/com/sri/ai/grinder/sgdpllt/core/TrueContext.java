@@ -40,7 +40,6 @@ package com.sri.ai.grinder.sgdpllt.core;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -340,9 +339,6 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 
 	@Override
 	public Theory getTheory() {
-		myAssert( 
-				() -> theory != null, 
-				() -> "Trying to obtain a theory from a " + TrueContext.class + " instance without one.");
 		return theory;
 	}
 

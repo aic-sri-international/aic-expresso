@@ -73,6 +73,6 @@ public class ConstantExpressionStepSolver implements ExpressionLiteralSplitterSt
 	
 	@Override
 	public String toString() {
-		return "Constant " + solution;
+		return "Constant step solver for " + solution;
 	}
 }

@@ -93,7 +93,7 @@ public class FirstOf implements TopRewriter {
 
 	@Override
 	public FirstOfStepSolver makeStepSolver(Expression expression) {
-		FirstOfStepSolver stepSolver = new FirstOfStepSolver(name + " step solver", expression, baseRewriters);
+		FirstOfStepSolver stepSolver = new FirstOfStepSolver(name + " step solver for " + expression, expression, baseRewriters);
 		return stepSolver;
 	}
 	
@@ -160,7 +160,7 @@ public class FirstOf implements TopRewriter {
 		
 		public FirstOfStepSolver(String name, Expression expression, List<? extends Rewriter> baseRewriters) {
 			super();
-			this.name = name.equals("")? "Step solver for FirstOf rewriter based on " + Util.join(baseRewriters) : name;
+			this.name = name.equals("")? "Step solver for FirstOf rewriter based on " + Util.join(baseRewriters) + " for " + expression : name;
 			this.expression = expression;
 			this.baseRewriters = baseRewriters;
 			setCurrentBaseRewriterIndex(0);

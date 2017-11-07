@@ -19,16 +19,33 @@ public class DefaultMultiIndexQuantifierEliminator extends AbstractMultiIndexQua
 
 	@Override
 	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression condition, Expression body, Context context) {
-		
 		Expression bodyWithCondition = IfThenElse.make(condition, body, group.additiveIdentityElement());
-		Expression currentNormalizedExpression = context.getTheory().evaluate(bodyWithCondition, context);
+		Expression eliminationResult = eliminateAllQuantifiers(group, indices, bodyWithCondition, context);
+		Expression normalizedResult = makeSureResultIsNormalized(eliminationResult, indices, context);
+		return normalizedResult;
+	}
+
+	private Expression eliminateAllQuantifiers(AssociativeCommutativeGroup group, List<Expression> indices, Expression bodyWithCondition, Context context) {
+		Expression currentExpression = bodyWithCondition;
 		for (int i = indices.size() - 1; i >= 0; i--) {
 			Expression index = indices.get(i);
 			Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
-			TheorySolvedQuantifierEliminationProblem nextProblem = makeProblem(group, index, indexType, currentNormalizedExpression, context);
-			currentNormalizedExpression = nextProblem.solve(context);
+			TheorySolvedQuantifierEliminationProblem nextProblem = makeProblem(group, index, indexType, currentExpression, context);
+			currentExpression = nextProblem.solve(context);
 		}
-		return currentNormalizedExpression;
+		return currentExpression;
+	}
+
+	private Expression makeSureResultIsNormalized(Expression currentExpression, List<Expression> indices, Context context) {
+		Expression result;
+		boolean currentExpressionIsAlreadyNormalizedBecauseItResultedFromAQuantifierElimination = !indices.isEmpty();
+		if (currentExpressionIsAlreadyNormalizedBecauseItResultedFromAQuantifierElimination) {
+			result = currentExpression;
+		}
+		else {
+			result = context.getTheory().evaluate(currentExpression, context);
+		}
+		return result;
 	}
 
 	private TheorySolvedQuantifierEliminationProblem makeProblem(

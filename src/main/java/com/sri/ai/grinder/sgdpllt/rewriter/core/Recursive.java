@@ -82,10 +82,12 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 public class Recursive implements Rewriter {
 	
 	private Rewriter baseRewriter;
+	private String name;
 	
 	public Recursive(Rewriter baseRewriter) {
 		super();
 		this.baseRewriter = baseRewriter;
+		this.name = "Recursive for " + baseRewriter;
 	}
 
 	private final static List<String> syntacticFormTypesToRecurse = list("Function application", "Tuple");
@@ -104,6 +106,11 @@ public class Recursive implements Rewriter {
 			result = baseRewriter.makeStepSolver(expression);
 		}
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 	/**
@@ -130,6 +137,7 @@ public class Recursive implements Rewriter {
 	 */
 	private static class RecursiveStepSolver implements ExpressionLiteralSplitterStepSolver {
 		
+		private String name;
 		private Rewriter baseRewriter;
 		private Expression currentExpression;
 		private ArrayList<ExpressionAndSyntacticContext> subExpressions;
@@ -150,6 +158,7 @@ public class Recursive implements Rewriter {
 		}
 
 		public RecursiveStepSolver(Rewriter baseRewriter, Expression currentExpression, boolean topExpressionIsNextForUsToTakeAStepOn) {
+			this.name = "Recursive step solver based on " + baseRewriter + " for " + currentExpression;
 			this.baseRewriter = baseRewriter;
 			this.topExpressionIsNextForUsToTakeAStepOn = topExpressionIsNextForUsToTakeAStepOn;
 			this.currentExpression = currentExpression;
@@ -258,6 +267,10 @@ public class Recursive implements Rewriter {
 
 			return result;
 		}
-
+		
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 }

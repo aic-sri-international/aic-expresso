@@ -123,6 +123,8 @@ public class SymbolicShell {
 		
 		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("T"), parse("(1..5 x 1..5)")));
 
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("F"), parse("(1..5 -> 10..15)")));
+
 		ConsoleIterator consoleIterator = getConsole(args);
 		
 		help(consoleIterator);

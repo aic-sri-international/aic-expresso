@@ -320,7 +320,7 @@ public class IfThenElse implements Simplifier {
 		Expression condition  = condition(ifThenElse);
 		Expression thenBranch = thenBranch(ifThenElse);
 		Expression elseBranch = elseBranch(ifThenElse);
-		Expression result = IfThenElse.make(condition, thenBranch, elseBranch);
+		Expression result = IfThenElse.make(condition, thenBranch, elseBranch, true);
 		if (ifThenElse.equals(result)) {
 			result = ifThenElse; // make sure to return same instance if there were no changes 
 		}

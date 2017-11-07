@@ -49,12 +49,14 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
  *
  */
 public class Exhaustive implements Rewriter {
-	
+
 	private Rewriter baseRewriter;
+	private String name;
 	
 	public Exhaustive(Rewriter baseRewriter) {
 		super();
 		this.baseRewriter = baseRewriter;
+		this.name = "Exhaustive for " + baseRewriter;
 	}
 
 	@Override
@@ -64,6 +66,11 @@ public class Exhaustive implements Rewriter {
 		return stepSolver;
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+	
 	/**
 	 * Implements a step solver for {@link Exhaustive} rewriter.
 	 * 
@@ -89,11 +96,13 @@ public class Exhaustive implements Rewriter {
 		private ExpressionLiteralSplitterStepSolver baseStepSolver;
 		private Expression currentExpression;
 		private Rewriter exhaustiveRewriter;
+		private String name;
 		
 		public ExhaustiveStepSolver(ExpressionLiteralSplitterStepSolver baseStepSolver, Expression currentExpression, Rewriter exhaustiveRewriter) {
 			this.exhaustiveRewriter = exhaustiveRewriter;
 			this.currentExpression = currentExpression;
 			this.baseStepSolver = baseStepSolver;
+			this.name = "Exhaustive step solver for " + baseStepSolver;
 		}
 		
 		@Override
@@ -140,7 +149,7 @@ public class Exhaustive implements Rewriter {
 		
 		@Override
 		public String toString() {
-			return "Exhaustive step solver based on " + baseStepSolver;
+			return name;
 		}
 	}
 }

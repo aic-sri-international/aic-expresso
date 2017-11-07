@@ -78,7 +78,7 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 	}
 
 	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		Expression result   = group.additiveIdentityElement();		
+		Expression currentValue = group.additiveIdentityElement();		
 		Expression summand  = makeSummand(group, indices, indicesCondition, body, context);
 		Rewriter   rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
 		Iterator<Map<Expression, Expression>> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
@@ -88,8 +88,14 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;
 			}
-			result = group.add(result, bodyEvaluation, extendedContext);
+			currentValue = group.add(currentValue, bodyEvaluation, extendedContext);
 		}
+		Expression result = normalizeIfThereIsATheoryAvailable(currentValue, context);
+		return result;
+	}
+
+	private Expression normalizeIfThereIsATheoryAvailable(Expression currentValue, Context context) {
+		Expression result = context.getTheory() == null? currentValue : context.getTheory().evaluate(currentValue, context);
 		return result;
 	}
 	
