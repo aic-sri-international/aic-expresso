@@ -46,22 +46,22 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
  * An extension of {@link FirstOf}
- * that consolidates a list of {@link TopRewriter}s
+ * that consolidates a list of {@link TopRewriter}s that are either switches or first of top rewriters,
  * by merging {@link Switch} rewriters based on the same key maker,
- * and flattening {@link TopRewriters}.
+ * and flattening {@link TopRewriters} of switches.
  * 
  * @author braz
  *
  */
 public class CombiningTopRewriter extends FirstOf {
-	
+
 	/**
 	 * Creates a {@link FirstOf} rewriter containing {@link Switch} rewriters
 	 * merging all {@link Switch} rewriters embedded in input top rewriters.
-	 * @param topRewriters
+	 * @param topRewritersThatAreEitherFirstOfOrSwitches
 	 */
-	public CombiningTopRewriter(String name, TopRewriter... topRewriters) {
-		super(name, TopRewriter.makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches(topRewriters));
+	public CombiningTopRewriter(String name, TopRewriter... topRewritersThatAreEitherFirstOfOrSwitches) {
+		super(name, TopRewriter.makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches(topRewritersThatAreEitherFirstOfOrSwitches));
 	}
 	
 	public CombiningTopRewriter(String name, List<? extends TopRewriter> topRewriters) {

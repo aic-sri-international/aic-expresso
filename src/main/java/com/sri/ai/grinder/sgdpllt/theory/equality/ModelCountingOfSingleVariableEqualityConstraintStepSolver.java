@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver;
-import com.sri.ai.grinder.sgdpllt.library.number.Minus;
+import com.sri.ai.grinder.sgdpllt.library.number.BinaryMinus;
 
 /**
  * A {@link AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver}
@@ -101,7 +101,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			if (variableDomainSize == -1) {
 				Expression variableDomain = getConstraint().getVariableTypeExpression(context);
 				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
-				solutionExpression = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
+				solutionExpression = BinaryMinus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
 			}
 			else if (variableDomainSize == -2) {
 				solutionExpression = makeSymbol("infinity");

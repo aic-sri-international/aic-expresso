@@ -39,32 +39,28 @@ package com.sri.ai.grinder.sgdpllt.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 
 /**
- * A simplifier combining unary and binary minus simplifiers.
+ * A {@link Simplifier} that attempts to normalize polynomials.
+ * 
  * @author braz
  *
  */
 @Beta
-public class Minus implements Simplifier {
+public class PolynomialSimplifier implements Simplifier {
 
 	@Override
-	public Expression applySimplifier(Expression f, Context context) {
-
+	public Expression applySimplifier(Expression expression, Context context) {
 		Expression result;
-		
-		if (f.numberOfArguments() == 2) {
-			result = BinaryMinus.simplify(f);
+		try {
+			result = DefaultPolynomial.make(expression);
 		}
-		else if (f.numberOfArguments() == 1) {
-			result = UnaryMinus.simplify(f);
+		catch (IllegalArgumentException exception) {
+			result = expression;
 		}
-		else {
-			result = f;
-		}
-		
 		return result;
 	}
 }

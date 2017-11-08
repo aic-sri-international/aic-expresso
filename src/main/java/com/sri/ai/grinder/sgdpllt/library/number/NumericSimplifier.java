@@ -37,12 +37,21 @@
  */
 package com.sri.ai.grinder.sgdpllt.library.number;
 
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DIVISION;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EXPONENTIATION;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
@@ -61,45 +70,42 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 @Beta
 public class NumericSimplifier extends Switch<String> {
 	
+//	private static final PolynomialSimplifier POLYNOMIAL_SIMPLIFIER = new PolynomialSimplifier();
+
 	public NumericSimplifier() {
 		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
 	}
 	
-	private static Simplifier plus = new Plus();
-	private static Simplifier times = new Times();
-	private static Simplifier max = new Max();
-
 	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
+		Simplifier plus = new Plus();
 		return map(
-				FunctorConstants.TIMES,           (Simplifier) (f, context) ->
-				times.apply(f, context),
+				PLUS,                      plus,
 
-				FunctorConstants.DIVISION,        (Simplifier) (f, context) ->
-				Division.simplify(f),
+				MINUS,                     new Minus(),
 
-				FunctorConstants.PLUS,            (Simplifier) (f, context) ->
-				plus.apply(f, context),
+				TIMES,                     new Times(),
 
-				FunctorConstants.MAX,            (Simplifier) (f, context) ->
-				max.apply(f, context),
+				EXPONENTIATION,            new Exponentiation(),
 
-				FunctorConstants.MINUS,           (Simplifier) (f, context) ->
-				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),
+//				PLUS,                      new FirstOf(plus, POLYNOMIAL_SIMPLIFIER),
+//
+//				MINUS,                     new FirstOf(new Minus(), POLYNOMIAL_SIMPLIFIER),
+//
+//				TIMES,                     new FirstOf(new Times(), POLYNOMIAL_SIMPLIFIER),
+//
+//				EXPONENTIATION,            new FirstOf(new Exponentiation(), POLYNOMIAL_SIMPLIFIER),
+//
+				DIVISION,                  new Division(),
 
-				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, context) ->
-				Exponentiation.simplify(f, context),
+				MAX,                       new Max(),
 
-				FunctorConstants.LESS_THAN,       (Simplifier) (f, context) ->
-				LessThan.simplify(f, context),
+				LESS_THAN,                 new LessThan(),
 
-				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, context) ->
-				LessThanOrEqualTo.simplify(f, context),
+				LESS_THAN_OR_EQUAL_TO,     new LessThanOrEqualTo(),
 
-				FunctorConstants.GREATER_THAN,              (Simplifier) (f, context) ->
-				GreaterThan.simplify(f, context),
+				GREATER_THAN,              new GreaterThan(),
 
-				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, context) ->
-				GreaterThanOrEqualTo.simplify(f, context)
+				GREATER_THAN_OR_EQUAL_TO,  new GreaterThanOrEqualTo()
 				);
 	}
 }

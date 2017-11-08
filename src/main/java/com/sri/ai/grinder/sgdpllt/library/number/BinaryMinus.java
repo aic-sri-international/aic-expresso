@@ -39,32 +39,51 @@ package com.sri.ai.grinder.sgdpllt.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.util.math.Rational;
 
 /**
- * A simplifier combining unary and binary minus simplifiers.
  * @author braz
  *
  */
 @Beta
-public class Minus implements Simplifier {
-
+public class BinaryMinus implements Simplifier {
+	public static String FUNCTOR = FunctorConstants.MINUS;
+	
 	@Override
-	public Expression applySimplifier(Expression f, Context context) {
+	public Expression applySimplifier(Expression expression, Context context) {
+		return simplify(expression);
+	}
+	
+	static public Expression simplify(Expression expression) {
+		Expression result = expression;
+		
+		Expression first = expression.get(0);
+		Expression second = expression.get(1);
 
-		Expression result;
-		
-		if (f.numberOfArguments() == 2) {
-			result = BinaryMinus.simplify(f);
+		if (Expressions.isNumber(first)) {
+			Rational firstValue = first.rationalValue();
+			if (Expressions.isNumber(second)) {
+				Rational secondValue = second.rationalValue();
+				result = Expressions.makeSymbol(firstValue.subtract(secondValue));
+			} 
+			else if (firstValue.isZero()) {
+				result = Expressions.apply("-", second);
+			}
+		} 
+		else if (Expressions.isNumber(second) && second.rationalValue().isZero()) {
+			result = first;
 		}
-		else if (f.numberOfArguments() == 1) {
-			result = UnaryMinus.simplify(f);
-		}
-		else {
-			result = f;
-		}
-		
+			
 		return result;
 	}
+	
+	public static Expression make(Expression e1, Expression e2) {
+		Expression result = Expressions.apply(FUNCTOR, e1, e2);
+		result = simplify(result);
+		return result;
+	}	
 }

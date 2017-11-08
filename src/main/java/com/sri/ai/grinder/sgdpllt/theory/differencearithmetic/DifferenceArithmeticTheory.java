@@ -73,7 +73,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.library.number.Minus;
+import com.sri.ai.grinder.sgdpllt.library.number.BinaryMinus;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
@@ -188,7 +188,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		boolean result;
 		try {
 			Expression leftHandSideMinusRightHandSide = 
-					Minus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
+					BinaryMinus.make(applicationOfAtomFunctor.get(0), applicationOfAtomFunctor.get(1));
 			Polynomial polynomial = DefaultPolynomial.make(leftHandSideMinusRightHandSide);
 			result =
 					forAll(polynomial.getMonomials(), isDifferenceArithmeticTerm(context))

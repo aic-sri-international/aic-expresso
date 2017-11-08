@@ -13,7 +13,7 @@ import java.util.Set;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.library.number.Minus;
+import com.sri.ai.grinder.sgdpllt.library.number.BinaryMinus;
 import com.sri.ai.grinder.sgdpllt.library.number.Plus;
 import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
 import com.sri.ai.util.collect.NestedIterator;
@@ -292,7 +292,7 @@ public class DifferenceArithmeticLiteralSide extends AbstractExpressionWrapper {
 	protected Expression computeInnerExpression() {
 		Expression result;
 		Expression variablesDifference = 
-				Minus.make(
+				BinaryMinus.make(
 						Plus.make(new LinkedList<>(positives)),
 						Plus.make(new LinkedList<>(negatives))
 						);
@@ -300,7 +300,7 @@ public class DifferenceArithmeticLiteralSide extends AbstractExpressionWrapper {
 			result = Plus.make(variablesDifference, Expressions.makeSymbol(constant));
 		}
 		else {
-			result = Minus.make(variablesDifference, Expressions.makeSymbol(-constant));
+			result = BinaryMinus.make(variablesDifference, Expressions.makeSymbol(-constant));
 		}
 		return result;
 	}

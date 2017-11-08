@@ -104,7 +104,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	public static Polynomial make(Expression expression) {
 		List<Expression> generalizedVariables = extractGeneralizedVariables(expression);
 		Polynomial       result               = make(expression, generalizedVariables);
-		
 		return result;
 	}
 			
