@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.PairOf.pairOf;
@@ -93,6 +94,7 @@ import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -1125,7 +1127,135 @@ public class Expressions {
 		boolean result = 
 				expression.equals(INFINITY)
 				||
-				expression.equals(MINUS_INFINITY);
+				isMinusInfinity(expression);
+		return result;
+	}
+
+	public static boolean isMinusOne(Expression expression) {
+		boolean result = 
+				expression.equals(MINUS_ONE)
+				||
+				isUnaryMinusOfOne(expression);
+		return result;
+	}
+
+	public static boolean isMinusInfinity(Expression expression) {
+		boolean result = 
+				expression.equals(MINUS_INFINITY)
+				|| isProductOfMinusOneAndInfinity(expression);
+		return result;
+	}
+
+	public static boolean isUnaryMinusOfOne(Expression expression) {
+		boolean result = 
+				isUnaryMinusApplication(expression) 
+				&& expression.get(0).equals(ONE);
+		return result;
+	}
+
+	public static boolean isUnaryMinusApplication(Expression expression) {
+		boolean result = 
+				expression.hasFunctor(FunctorConstants.MINUS) 
+				&& expression.numberOfArguments() == 1;
+		return result;
+	}
+
+	public static Expression getArgumentBeingMultipliedByMinusOneOrNull(Expression expression) {
+		Expression result;
+		if (isNegativeNumber(expression)) {
+			result = makeSymbol(expression.rationalValue().negate());
+		}
+		else if (isUnaryMinusApplication(expression)) {
+			result = getArgumentBeingMultipliedByOneInUnaryMinusApplicationOrNull(expression);
+		}
+		else if (isBinaryProduct(expression)) { 
+			result = getOneOfTheseTwoSuchThatTheOtherIsMinusOneOrNull(expression.get(0), expression.get(1));
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	private static boolean isProductOfMinusOneAndInfinity(Expression expression) {
+		return isProductOfMinusOneAndGivenArgument(expression, INFINITY);
+	}
+
+	private static boolean isProductOfMinusOneAndGivenArgument(Expression expression, Expression argument) {
+		boolean result = 
+				isBinaryProduct(expression) 
+				&& areMinusOneAndGivenExpressionInEitherOrder(expression.get(0), expression.get(1), argument);
+		return result;
+	}
+
+	private static boolean areMinusOneAndGivenExpressionInEitherOrder(Expression a, Expression b, Expression expression) {
+		boolean result = 
+				areMinusOneAndGivenExpression(a, b, expression)
+				||
+				areMinusOneAndGivenExpression(b, a, INFINITY);
+		return result;
+	}
+
+	private static boolean areMinusOneAndGivenExpression(Expression a, Expression b, Expression expression) {
+		boolean result = isMinusOne(a) && b.equals(expression);
+		return result;
+	}
+
+	private static boolean isBinaryProduct(Expression expression) {
+		return expression.hasFunctor(TIMES) && expression.numberOfArguments() == 2;
+	}
+
+	private static boolean isNegativeNumber(Expression expression) {
+		boolean result = 
+				isNumber(expression)
+				&&
+				isNegative(expression);
+		return result;
+	}
+
+	private static boolean isNegative(Expression expression) {
+		return expression.rationalValue().compareTo(Rational.ZERO) < 0;
+	}
+
+	private static Expression getArgumentBeingMultipliedByOneInUnaryMinusApplicationOrNull(Expression expression) {
+		Expression expressionWithoutDuplicateUnaryMinus = removeDuplicateMinuses(expression);
+		Expression result;
+		if (isUnaryMinusApplication(expressionWithoutDuplicateUnaryMinus)) {
+			result = expressionWithoutDuplicateUnaryMinus.get(0);
+		}
+		else if (isNumber(expressionWithoutDuplicateUnaryMinus)) {
+			Rational value = expressionWithoutDuplicateUnaryMinus.rationalValue();
+			if (value.isNegative()) {
+				result = makeSymbol(value.negate());
+			}
+			else {
+				result = null;
+			}
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	private static Expression removeDuplicateMinuses(Expression unaryMinusApplicationCandidate) {
+		if (isUnaryMinusApplication(unaryMinusApplicationCandidate)) {
+			unaryMinusApplicationCandidate = UnaryMinus.simplify(unaryMinusApplicationCandidate); // removes double minuses
+		}
+		return unaryMinusApplicationCandidate;
+	}
+
+	private static Expression getOneOfTheseTwoSuchThatTheOtherIsMinusOneOrNull(Expression a, Expression b) {
+		Expression result;
+		if (isMinusOne(a)) {
+			result = b;
+		}
+		else if (isMinusOne(b)) {
+			result = a;
+		}
+		else {
+			result = null;
+		}
 		return result;
 	}
 }
