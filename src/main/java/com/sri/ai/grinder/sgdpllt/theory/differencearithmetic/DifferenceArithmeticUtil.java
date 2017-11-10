@@ -83,9 +83,7 @@ public class DifferenceArithmeticUtil {
 					rightHandSideArguments.add(makeSymbol(-literalSide.getConstant()));
 				}
 				result = Expressions.apply(expression.getFunctor(), Plus.make(leftHandSideArguments), Plus.make(rightHandSideArguments));
-				if (result.equals(expression)) {
-					result = expression; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
-				}
+				result = makeSureInstanceIsTheSameIfNotChanged(expression, result);
 			}
 			else {
 				result = expression;
@@ -109,67 +107,115 @@ public class DifferenceArithmeticUtil {
 	 */
 	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
 		Expression result;
-
 		try {
 			DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo(numericalComparison);
-
 			Set<Expression> positiveVariables = literalSide.getPositives();
 			Set<Expression> negativeVariables = literalSide.getNegatives();
 			int constant = literalSide.getConstant();
-
-			// now isolate variable:
-
-			// create array for all the arguments of the sum that is going to be on the side opposite to the variable
-			ArrayList<Expression> sumArguments = new ArrayList<Expression>(positiveVariables.size() + negativeVariables.size() -1 + 1); // minus variable, plus constant
-			if (positiveVariables.contains(variable)) {
-				for (Expression positiveVariable : positiveVariables) { // variable will be on left-hand side: invert signs of everybody else (negative variables become positive)
-					if ( ! positiveVariable.equals(variable)) {
-						sumArguments.add(Expressions.apply(MINUS, positiveVariable));
-					}
-				}
-				for (Expression negativeVariable : negativeVariables) {
-					sumArguments.add(negativeVariable);
-				}
-				sumArguments.add(makeSymbol(-constant));
-
-				if (positiveVariables.contains(variable)) { // check again, since variable may have been canceled out
-					Expression oppositeSide = Plus.make(sumArguments);
-					result = Expressions.apply(numericalComparison.getFunctor(), variable, oppositeSide);
-				}
-				else {
-					throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
-				}
-			}
-			else {
-				for (Expression positiveVariable : positiveVariables) { // variable will be on right-hand side: everybody else stays on left-hand side and keeps their sign (negative variables get the negative sign in their representation)
-					sumArguments.add(positiveVariable);
-				}
-				for (Expression negativeVariable : negativeVariables) {
-					if ( ! negativeVariable.equals(variable)) {
-						sumArguments.add(Expressions.apply(MINUS, negativeVariable));
-					}
-				}
-				sumArguments.add(makeSymbol(constant));
-
-				Collections.sort(sumArguments); // this increases readability and normalization.
-
-				if (negativeVariables.contains(variable)) { // check again, since variable may have been canceled out
-					Expression oppositeSide = Plus.make(sumArguments);
-					result = Expressions.apply(numericalComparison.getFunctor(), oppositeSide, variable);
-				}
-				else {
-					throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
-				}
-			}
-
-			if (result.equals(numericalComparison)) {
-				result = numericalComparison; // make sure to return the same instance if there has been no change, as simplifiers rely on that to know something didn't change
-			}
+			result = isolateDependingOnWhetherMainVariableIsPositiveOrNegative(variable, numericalComparison, positiveVariables, negativeVariables, constant);
+			result = makeSureInstanceIsTheSameIfNotChanged(numericalComparison, result);
 		}
 		catch (DifferenceArithmeticLiteralSideException exception) {
 			throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but the latter is not a valid difference arithmetic literal");
 		}
+		return result;
+	}
 
+	private static Expression isolateDependingOnWhetherMainVariableIsPositiveOrNegative(Expression variable, Expression numericalComparison, Set<Expression> positiveVariables, Set<Expression> negativeVariables, int constant) throws Error {
+		Expression result;
+		if (positiveVariables.contains(variable)) {
+			result = makeComparisonBetweenAllOtherTermsAndPositiveVariableIfNotCanceledOut(variable, numericalComparison, positiveVariables, negativeVariables, constant);
+		}
+		else {
+			result = makeComparisonBetweenAllOtherTermsAndNegativeVariableIfNotCanceledOut(variable, numericalComparison, positiveVariables, negativeVariables, constant);
+		}
+		return result;
+	}
+
+	private static Expression makeSureInstanceIsTheSameIfNotChanged(Expression numericalComparison, Expression result) {
+		if (result.equals(numericalComparison)) {
+			result = numericalComparison;
+		}
+		return result;
+	}
+
+	private static Expression makeComparisonBetweenAllOtherTermsAndPositiveVariableIfNotCanceledOut(Expression variable, Expression numericalComparison, Set<Expression> positiveVariables, Set<Expression> negativeVariables, int constant) throws Error {
+		ArrayList<Expression> oppositeSide = makeOppositeSideBySendingAllTermsOtherThanVariableWithFlippedSign(variable, positiveVariables, negativeVariables, constant);
+		Expression result = makeComparisonBetweenVariableAndOppositeSide(variable, numericalComparison, oppositeSide, positiveVariables);
+		return result;
+	}
+
+	private static ArrayList<Expression> makeOppositeSideBySendingAllTermsOtherThanVariableWithFlippedSign(Expression variable, Set<Expression> positiveVariables, Set<Expression> negativeVariables, int constant) {
+		ArrayList<Expression> oppositeSide = new ArrayList<Expression>(positiveVariables.size() + negativeVariables.size() -1 + 1); // minus variable, plus constant
+		gatherVariablesOtherThanMainVariableWithFlippedSignInOneSide(variable, positiveVariables, oppositeSide);
+		gatherVariablesWithFlippedSignInOneSide(negativeVariables, oppositeSide);
+		sendConstantWithFlippedSignToSide(constant, oppositeSide);
+		return oppositeSide;
+	}
+
+	private static void gatherVariablesOtherThanMainVariableWithFlippedSignInOneSide(Expression mainVariable, Set<Expression> variables, ArrayList<Expression> side) {
+		for (Expression otherVariable : variables) {
+			if ( ! otherVariable.equals(mainVariable)) {
+				side.add(Expressions.apply(MINUS, otherVariable));
+			}
+		}
+	}
+
+	private static void gatherVariablesWithFlippedSignInOneSide(Set<Expression> variables, ArrayList<Expression> side) {
+		for (Expression variable : variables) {
+			side.add(variable);
+		}
+	}
+
+	private static void sendConstantWithFlippedSignToSide(int constant, ArrayList<Expression> side) {
+		side.add(makeSymbol(-constant));
+	}
+
+	private static Expression makeComparisonBetweenVariableAndOppositeSide(Expression variable, Expression numericalComparison, ArrayList<Expression> sumArguments, Set<Expression> positiveVariables) throws Error {
+		Expression result;
+		if (positiveVariables.contains(variable)) { // check again, since variable may have been canceled out
+			Expression oppositeSide = Plus.make(sumArguments);
+			result = Expressions.apply(numericalComparison.getFunctor(), variable, oppositeSide);
+		}
+		else {
+			throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
+		}
+		return result;
+	}
+
+	private static Expression makeComparisonBetweenAllOtherTermsAndNegativeVariableIfNotCanceledOut(Expression variable, Expression numericalComparison, Set<Expression> positiveVariables, Set<Expression> negativeVariables, int constant) throws Error {
+		ArrayList<Expression> thisSide = makeThisSideByKeepingAllTermsOtherThanVariable(variable, positiveVariables, negativeVariables, constant);
+		Expression result = makeComparisonBetweenSideAndVariableIfNotCanceledOut(thisSide, numericalComparison, variable, negativeVariables);
+		return result;
+	}
+
+	private static ArrayList<Expression> makeThisSideByKeepingAllTermsOtherThanVariable(Expression variable, Set<Expression> positiveVariables, Set<Expression> negativeVariables, int constant) {
+		ArrayList<Expression> thisSide = new ArrayList<Expression>(positiveVariables.size() + negativeVariables.size() -1 + 1); // minus variable, plus constant
+		gatherVariablesWithFlippedSignInOneSide(positiveVariables, thisSide);
+		gatherVariablesOtherThanMainVariableWithFlippedSignInOneSide(variable, negativeVariables, thisSide);
+		thisSide.add(makeSymbol(constant));
+		sortForIncreasedReadability(thisSide);
+		return thisSide;
+	}
+
+	private static void sortForIncreasedReadability(ArrayList<Expression> sumArguments) {
+		Collections.sort(sumArguments);
+	}
+
+	private static Expression makeComparisonBetweenSideAndVariableIfNotCanceledOut(ArrayList<Expression> side, Expression numericalComparison, Expression variable, Set<Expression> negativeVariables) throws Error {
+		Expression result;
+		if (negativeVariables.contains(variable)) { // check again, since variable may have been canceled out
+			result = reassembleComparisonWithIsolatedNegativeVariable(variable, numericalComparison, side);
+		}
+		else {
+			throw new Error("Trying to isolate " + variable + " in " + numericalComparison + " but it gets canceled out");
+		}
+		return result;
+	}
+
+	private static Expression reassembleComparisonWithIsolatedNegativeVariable(Expression variable, Expression numericalComparison, ArrayList<Expression> side) {
+		Expression sideSummation = Plus.make(side);
+		Expression result = Expressions.apply(numericalComparison.getFunctor(), sideSummation, variable);
 		return result;
 	}
 }
