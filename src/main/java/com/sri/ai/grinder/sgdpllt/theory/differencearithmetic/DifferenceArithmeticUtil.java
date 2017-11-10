@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticLiteralSide.makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo;
+import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticLiteralSide.makeDifferenceArithmeticNonZeroSideOfLiteralEquivalentTo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,7 +73,7 @@ public class DifferenceArithmeticUtil {
 		
 		try {
 			if (theory.isLiteralOrBooleanConstant(expression, context)) {
-				DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo(expression);
+				DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticNonZeroSideOfLiteralEquivalentTo(expression);
 				ArrayList<Expression> leftHandSideArguments  = new ArrayList<Expression>(literalSide.getPositives());
 				ArrayList<Expression> rightHandSideArguments = new ArrayList<Expression>(literalSide.getNegatives()); // negatives in the left-hand side (all elements in term are supposed to be there) move to right-hand side as positives
 				if (literalSide.getConstant() >= 0) {
@@ -108,7 +108,7 @@ public class DifferenceArithmeticUtil {
 	public static Expression isolateVariable(Expression variable, Expression numericalComparison) throws Error {
 		Expression result;
 		try {
-			DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo(numericalComparison);
+			DifferenceArithmeticLiteralSide literalSide = makeDifferenceArithmeticNonZeroSideOfLiteralEquivalentTo(numericalComparison);
 			Set<Expression> positiveVariables = literalSide.getPositives();
 			Set<Expression> negativeVariables = literalSide.getNegatives();
 			int constant = literalSide.getConstant();

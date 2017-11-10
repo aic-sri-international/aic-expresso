@@ -163,7 +163,7 @@ public class DifferenceArithmeticLiteralSide extends AbstractExpressionWrapper {
 	 * @throws DuplicateTermException thrown when a term appears with the same sign on the same side of a literal, meaning that the comparison cannot be a difference arithmetic literal.
 	 * @throws InvalidLiteralException thrown when the numerical comparison cannot be converted to a difference arithmetic literal.
 	 */
-	public static DifferenceArithmeticLiteralSide makeDifferenceArithmeticLiteralNonZeroSideOfLiteralEquivalentTo(Expression numericalComparison) 
+	public static DifferenceArithmeticLiteralSide makeDifferenceArithmeticNonZeroSideOfLiteralEquivalentTo(Expression numericalComparison) 
 	throws DuplicateTermException, InvalidLiteralException
 	{
 		DifferenceArithmeticLiteralSide leftHandSide = new DifferenceArithmeticLiteralSide(numericalComparison.get(0)); 
