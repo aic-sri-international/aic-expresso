@@ -1,6 +1,5 @@
 package com.sri.ai.grinder.sgdpllt.theory.differencearithmetic;
 
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.join;
 
@@ -61,16 +60,29 @@ public class DifferenceArithmeticLiteralSide extends AbstractExpressionWrapper {
 	}
 
 	private void collectArgument(Expression argument, Expression comparisonSide) throws DuplicateTermException {
-		if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
-			argument = UnaryMinus.simplify(argument); // removes double minuses
-		}
-		if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
-			Expression negativeArgument = argument.get(0);
-			collectNegativeArgument(negativeArgument, comparisonSide);
+		
+		Expression argumentWithoutDuplicatedUnaryMinus = removeDuplicatedUnaryMinus(argument);
+
+		Expression negationArgument = Expressions.getExpressionBeingMultipliedByMinusOneOrNull(argumentWithoutDuplicatedUnaryMinus);
+		boolean isNegation = negationArgument != null;
+
+		if (isNegation) {
+			collectNegativeArgument(negationArgument, comparisonSide);
 		}
 		else {
-			collectPositiveArgument(argument, comparisonSide);
+			collectPositiveArgument(argumentWithoutDuplicatedUnaryMinus, comparisonSide);
 		}
+	}
+
+	private Expression removeDuplicatedUnaryMinus(Expression expression) {
+		Expression expressionWithoutDuplicatedUnaryMinus;
+		if (Expressions.isUnaryMinusApplication(expression)) {
+			expressionWithoutDuplicatedUnaryMinus = UnaryMinus.simplify(expression); // removes double minuses
+		}
+		else {
+			expressionWithoutDuplicatedUnaryMinus = expression;
+		}
+		return expressionWithoutDuplicatedUnaryMinus;
 	}
 
 	private void collectNegativeArgument(Expression negativeArgument, Expression comparisonSide) throws DuplicateTermException {
