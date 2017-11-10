@@ -56,45 +56,73 @@ public class DifferenceArithmeticLiteralSide extends AbstractExpressionWrapper {
 
 		List<Expression> arguments = Plus.getSummands(comparisonSide);
 		for (Expression argument : arguments) {
-			if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
-				argument = UnaryMinus.simplify(argument); // removes double minuses
-			}
-			if (argument.hasFunctor(MINUS)) {
-				Expression negationArgument = argument.get(0);
-				if (negationArgument.getValue() instanceof Number) {
-					constant = constant - ((Number) negationArgument.getValue()).intValue(); // note the -  !
-				}
-				else {
-					if (negatives.contains(negationArgument)) {
-						throw new DuplicateTermException(comparisonSide, negationArgument);
-					}
-					else if (positives.contains(negationArgument)) {
-						positives.remove(negationArgument); // cancel out with the positive one, and don't add it to negatives
-					}
-					else {
-						negatives.add(negationArgument);
-					}
-				}
-			}
-			else {
-				if (argument.getValue() instanceof Number) {
-					constant = constant + ((Number) argument.getValue()).intValue(); // note the +  !
-				}
-				else {
-					if (positives.contains(argument)) {
-						throw new DuplicateTermException(comparisonSide, argument);
-					}
-					else if (negatives.contains(argument)) {
-						negatives.remove(argument); // cancel out with the negative one, and don't add it to positives
-					}
-					else {
-						positives.add(argument);
-					}
-				}
-			}
+			collectArgument(argument, comparisonSide);
+		}
+	}
+
+	private void collectArgument(Expression argument, Expression comparisonSide) throws DuplicateTermException {
+		if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
+			argument = UnaryMinus.simplify(argument); // removes double minuses
+		}
+		if (argument.hasFunctor(MINUS) && argument.numberOfArguments() == 1) {
+			Expression negativeArgument = argument.get(0);
+			collectNegativeArgument(negativeArgument, comparisonSide);
+		}
+		else {
+			collectPositiveArgument(argument, comparisonSide);
+		}
+	}
+
+	private void collectNegativeArgument(Expression negativeArgument, Expression comparisonSide) throws DuplicateTermException {
+		if (negativeArgument.getValue() instanceof Number) {
+			collectNegativeConstant(negativeArgument);
+		}
+		else {
+			collectNegativeVariable(negativeArgument, comparisonSide);
+		}
+	}
+
+	private void collectNegativeConstant(Expression negativeConstant) {
+		constant = constant - ((Number) negativeConstant.getValue()).intValue(); // note the -  !
+	}
+
+	private void collectNegativeVariable(Expression negativeVariable, Expression comparisonSide) throws DuplicateTermException {
+		if (negatives.contains(negativeVariable)) {
+			throw new DuplicateTermException(comparisonSide, negativeVariable);
+		}
+		else if (positives.contains(negativeVariable)) {
+			positives.remove(negativeVariable); // cancel out with the positive one, and don't add it to negatives
+		}
+		else {
+			negatives.add(negativeVariable);
 		}
 	}
 	
+	private void collectPositiveArgument(Expression positiveArgument, Expression comparisonSide) throws DuplicateTermException {
+		if (positiveArgument.getValue() instanceof Number) {
+			collectPositiveConstant(positiveArgument);
+		}
+		else {
+			collectPositiveVariable(positiveArgument, comparisonSide);
+		}
+	}
+
+	private void collectPositiveConstant(Expression positiveConstant) {
+		constant = constant + ((Number) positiveConstant.getValue()).intValue(); // note the +  !
+	}
+
+	private void collectPositiveVariable(Expression positiveVariable, Expression comparisonSide) throws DuplicateTermException {
+		if (positives.contains(positiveVariable)) {
+			throw new DuplicateTermException(comparisonSide, positiveVariable);
+		}
+		else if (negatives.contains(positiveVariable)) {
+			negatives.remove(positiveVariable); // cancel out with the negative one, and don't add it to positives
+		}
+		else {
+			positives.add(positiveVariable);
+		}
+	}
+
 	/** 
 	 * Adds this {@link DifferenceArithmeticLiteralSide} to another,
 	 * or throws an exception if invalid.
