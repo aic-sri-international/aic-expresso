@@ -57,8 +57,16 @@ public class PolynomialSimplifier implements Simplifier {
 		Expression result;
 		try {
 			result = DefaultPolynomial.make(expression);
+			result = keepOriginalInstanceIfEqualBecausePolynomialDoesNotPreserveInstances(expression, result);
 		}
 		catch (IllegalArgumentException exception) {
+			result = expression;
+		}
+		return result;
+	}
+
+	private Expression keepOriginalInstanceIfEqualBecausePolynomialDoesNotPreserveInstances(Expression expression, Expression result) {
+		if (result.equals(expression)) {
 			result = expression;
 		}
 		return result;

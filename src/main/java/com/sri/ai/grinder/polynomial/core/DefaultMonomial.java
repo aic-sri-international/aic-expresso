@@ -174,6 +174,12 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		return degree;
 	}
 
+	public Monomial negate() {
+		DefaultMonomial result = clone();
+		result.numericFactorExpression = Expressions.makeSymbol(getNumericFactor().negate());
+		return result;
+	}
+	
 	@Override
 	public Monomial times(Monomial multiplier) {
 		Monomial result;
@@ -266,8 +272,8 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	// START-Expression
 	@Override
-	public Monomial clone() {
-		Monomial result = make(getNumericFactor(), orderedNonNumericFactors, orderedNonNumericFactorPowers);
+	public DefaultMonomial clone() {
+		DefaultMonomial result = make(getNumericFactor(), orderedNonNumericFactors, orderedNonNumericFactorPowers);
 		return result;
 	}
 	
@@ -337,8 +343,8 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		return result;
 	}
 	
-	static Monomial make(Rational numericFactor, List<Expression> orderedNonNumericFactors, List<Rational> orderedNonNumericPowers) {
-		Monomial result;
+	static DefaultMonomial make(Rational numericFactor, List<Expression> orderedNonNumericFactors, List<Rational> orderedNonNumericPowers) {
+		DefaultMonomial result;
 		
 		// if numeric constant is 0, the whole expression is 0, so reduce to that.
 		if (numericFactor.equals(Rational.ZERO)) {
@@ -378,7 +384,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			result = numericFactorExpression;
 		}
 		else {
-			List<Expression> args = new ArrayList<>(1+orderedNonNumericFactors.size());
+			List<Expression> args = new ArrayList<>(1 + orderedNonNumericFactors.size());
 			if (!getNumericFactor().equals(Rational.ONE)) {
 				args.add(numericFactorExpression);
 			}

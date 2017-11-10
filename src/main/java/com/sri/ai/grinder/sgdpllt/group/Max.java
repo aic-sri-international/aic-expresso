@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpllt.group;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.isMinusInfinity;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
 
@@ -86,10 +87,10 @@ public class Max extends AbstractFunctionBasedGroup {
 		else if (value1.equals(INFINITY) || value2.equals(INFINITY)) {
 			result = INFINITY;
 		}
-		else if (value1.equals(MINUS_INFINITY)) {
+		else if (isMinusInfinity(value1)) {
 			result = value2;
 		}
-		else if (value2.equals(MINUS_INFINITY)) {
+		else if (isMinusInfinity(value2)) {
 			result = value1;
 		}
 		else {

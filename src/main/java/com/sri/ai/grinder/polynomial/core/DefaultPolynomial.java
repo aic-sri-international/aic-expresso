@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.polynomial.core;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.containsAnyOfGivenCollectionAsSubExpression;
 import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.isLegalExponent;
 import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.simplifyExponentIfPossible;
@@ -64,6 +65,8 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.polynomial.api.Monomial;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.sgdpllt.library.number.BinaryMinus;
+import com.sri.ai.grinder.sgdpllt.library.number.Plus;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Multinomial;
 import com.sri.ai.util.math.Rational;
@@ -78,8 +81,7 @@ import com.sri.ai.util.math.Rational;
 public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		Polynomial {
 	//
-	public static final Expression POLYNOMIAL_FUNCTOR = Expressions
-			.makeSymbol(FunctorConstants.PLUS);
+	public static final Expression POLYNOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.PLUS);
 	//
 	private static final long serialVersionUID = 1L;
 	//
@@ -617,9 +619,30 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			result = orderedSummands.get(0);
 		}
 		else {
+//			result = sumOrderedSummands();
+//			println("Polynomial: " + result);
 			result = new DefaultFunctionApplication(POLYNOMIAL_FUNCTOR, new ArrayList<>(orderedSummands));
 		}
 		
+		return result;
+	}
+	
+	private Expression sumOrderedSummands() {
+		Expression result = ZERO;
+		for (Monomial monomial : orderedSummands) {
+			if (isNegative(monomial)) {
+				Monomial positiveMonomial = monomial.negate();
+				result = BinaryMinus.make(result, positiveMonomial);
+			}
+			else {
+				result = Plus.make(result, monomial);
+			}
+		}
+		return result;
+	}
+
+	private boolean isNegative(Monomial monomial) {
+		boolean result = monomial.getNumericFactor().compareTo(Rational.ZERO) < 0;
 		return result;
 	}
 

@@ -269,6 +269,13 @@ public interface Monomial extends Expression {
 	int degree();
 
 	/**
+	 * Negate the multinomial.
+	 * 
+	 * @return a new Monomial representing the negation of this monomial.
+	 */
+	Monomial negate();
+
+	/**
 	 * Multiply this Monomial by another.
 	 * 
 	 * @param multiplier
