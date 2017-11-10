@@ -4,10 +4,11 @@ import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_ONE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.getArgumentBeingMultipliedByMinusOneOrNull;
+import static com.sri.ai.expresso.helper.Expressions.getExpressionBeingMultipliedByMinusOneOrNull;
 import static com.sri.ai.expresso.helper.Expressions.isMinusOne;
 import static com.sri.ai.expresso.helper.Expressions.isPositiveOrNegativeInfinity;
 import static com.sri.ai.expresso.helper.Expressions.isUnaryMinusOfOne;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -58,9 +59,22 @@ public class ExpressionsTest {
 	
 	@Test
 	public void testGetArgumentBeingMultipliedByMinusOneOrNull() {
-		assertEquals(parse("5"), getArgumentBeingMultipliedByMinusOneOrNull(Expressions.makeSymbol(-5)));
-		assertEquals(parse("5"), getArgumentBeingMultipliedByMinusOneOrNull(UnaryMinus.make(parse("5"))));
-		assertEquals(parse("5"), getArgumentBeingMultipliedByMinusOneOrNull(Times.make(UnaryMinus.make(ONE),parse("5"))));
-		assertEquals(parse("5"), getArgumentBeingMultipliedByMinusOneOrNull(Times.make(MINUS_ONE,parse("5"))));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(Expressions.makeSymbol(-5)));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(parse("5"))));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(Times.make(UnaryMinus.make(ONE),parse("5"))));
+		assertEquals(parse("-5"), getExpressionBeingMultipliedByMinusOneOrNull(Times.make(UnaryMinus.make(ONE),parse("-5"))));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(Times.make(MINUS_ONE,parse("5"))));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(Times.make(MINUS_ONE,parse("5"))))));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(UnaryMinus.make(parse("5"))))));
+		assertEquals(parse("5"), getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(makeSymbol(-5)))));
+
+		assertEquals(null, getExpressionBeingMultipliedByMinusOneOrNull(Expressions.makeSymbol(5)));
+		assertEquals(null, getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(parse("-5"))));
+		assertEquals(parse("-5"), getExpressionBeingMultipliedByMinusOneOrNull(Times.make(MINUS_ONE,parse("-5"))));
+		assertEquals(parse("-5"), getExpressionBeingMultipliedByMinusOneOrNull(Times.make(UnaryMinus.make(ONE),parse("-5"))));
+		assertEquals(parse("-5"), getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(Times.make(MINUS_ONE,parse("-5"))))));
+		assertEquals(null, getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(UnaryMinus.make(parse("-5"))))));
+		assertEquals(null, getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(parse("5")))));
+		assertEquals(null, getExpressionBeingMultipliedByMinusOneOrNull(UnaryMinus.make(UnaryMinus.make(makeSymbol(5)))));
 	}
 }

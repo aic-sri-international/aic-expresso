@@ -1160,16 +1160,29 @@ public class Expressions {
 		return result;
 	}
 
-	public static Expression getArgumentBeingMultipliedByMinusOneOrNull(Expression expression) {
+	public static Expression getExpressionBeingMultipliedByMinusOneOrNull(Expression expression) {
+		Expression simplifiedExpression = removeDuplicateMinuses(expression);
 		Expression result;
-		if (isNegativeNumber(expression)) {
-			result = makeSymbol(expression.rationalValue().negate());
+		if (isNumber(simplifiedExpression)) {
+			result = getExpressionBeingMultipliedByMinusOneInNumberOrNull(simplifiedExpression);
 		}
-		else if (isUnaryMinusApplication(expression)) {
-			result = getArgumentBeingMultipliedByOneInUnaryMinusApplicationOrNull(expression);
+		else if (isUnaryMinusApplication(simplifiedExpression)) {
+			result = simplifiedExpression.get(0);
 		}
-		else if (isBinaryProduct(expression)) { 
-			result = getOneOfTheseTwoSuchThatTheOtherIsMinusOneOrNull(expression.get(0), expression.get(1));
+		else if (isBinaryProduct(simplifiedExpression)) { 
+			result = getOneOfTheseTwoSuchThatTheOtherIsMinusOneOrNull(simplifiedExpression.get(0), simplifiedExpression.get(1));
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	private static Expression getExpressionBeingMultipliedByMinusOneInNumberOrNull(Expression expression) {
+		Expression result;
+		Rational value = expression.rationalValue();
+		if (value.isNegative()) {
+			result = makeSymbol(value.negate());
 		}
 		else {
 			result = null;
@@ -1203,39 +1216,6 @@ public class Expressions {
 
 	private static boolean isBinaryProduct(Expression expression) {
 		return expression.hasFunctor(TIMES) && expression.numberOfArguments() == 2;
-	}
-
-	private static boolean isNegativeNumber(Expression expression) {
-		boolean result = 
-				isNumber(expression)
-				&&
-				isNegative(expression);
-		return result;
-	}
-
-	private static boolean isNegative(Expression expression) {
-		return expression.rationalValue().compareTo(Rational.ZERO) < 0;
-	}
-
-	private static Expression getArgumentBeingMultipliedByOneInUnaryMinusApplicationOrNull(Expression expression) {
-		Expression expressionWithoutDuplicateUnaryMinus = removeDuplicateMinuses(expression);
-		Expression result;
-		if (isUnaryMinusApplication(expressionWithoutDuplicateUnaryMinus)) {
-			result = expressionWithoutDuplicateUnaryMinus.get(0);
-		}
-		else if (isNumber(expressionWithoutDuplicateUnaryMinus)) {
-			Rational value = expressionWithoutDuplicateUnaryMinus.rationalValue();
-			if (value.isNegative()) {
-				result = makeSymbol(value.negate());
-			}
-			else {
-				result = null;
-			}
-		}
-		else {
-			result = null;
-		}
-		return result;
 	}
 
 	private static Expression removeDuplicateMinuses(Expression unaryMinusApplicationCandidate) {
