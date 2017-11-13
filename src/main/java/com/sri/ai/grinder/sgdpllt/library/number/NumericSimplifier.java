@@ -53,7 +53,6 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
@@ -77,9 +76,8 @@ public class NumericSimplifier extends Switch<String> {
 	}
 	
 	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
-		Simplifier plus = new Plus();
 		return map(
-				PLUS,                      plus,
+				PLUS,                      new Plus(),
 
 				MINUS,                     new Minus(),
 
@@ -87,14 +85,14 @@ public class NumericSimplifier extends Switch<String> {
 
 				EXPONENTIATION,            new Exponentiation(),
 
-//				PLUS,                      new FirstOf(plus, POLYNOMIAL_SIMPLIFIER),
+//				PLUS,                      new FirstOf(new Plus(), POLYNOMIAL_SIMPLIFIER),
 //
 //				MINUS,                     new FirstOf(new Minus(), POLYNOMIAL_SIMPLIFIER),
 //
 //				TIMES,                     new FirstOf(new Times(), POLYNOMIAL_SIMPLIFIER),
 //
 //				EXPONENTIATION,            new FirstOf(new Exponentiation(), POLYNOMIAL_SIMPLIFIER),
-//
+
 				DIVISION,                  new Division(),
 
 				MAX,                       new Max(),

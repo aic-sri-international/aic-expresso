@@ -37,7 +37,7 @@ public class IsolateUtilTest {
 	@Test
 	public void testBasicExamples() {
 		Assert.assertEquals(
-				Expressions.parse("if (-1*y+1) != 0 then x = (3*z + -2)/(-1*y+1) else 0 = (3*z + -2)"), 
+				Expressions.parse("if (-y + 1) != 0 then x = (3*z - 2)/(-y + 1) else 0 = (3*z - 2)"), 
 				IsolateUtil.isolate(Expressions.parse("(20 - x) = (-2*x + y*x + 3*z + 18)"), Expressions.parse("x")));
 
 		Assert.assertEquals(
@@ -138,7 +138,7 @@ public class IsolateUtilTest {
 	
 		// http://www.wolframalpha.com/widgets/view.jsp?id=4acbedbe977480d19b7b682d4878cae2
 		Assert.assertEquals(
-				Expressions.parse("if -1 * pi * r ^ 2 != 0 then h = (-1 * V) / (-1 * pi * r ^ 2) else 0 = -1 * V"), 
+				Expressions.parse("if -(pi * r ^ 2) != 0 then h = -V / -(pi * r ^ 2) else 0 = -V"), 
 				IsolateUtil.isolate(Expressions.parse("V = pi*r^2*h"), Expressions.parse("h")));		
 	}
 	

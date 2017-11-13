@@ -38,7 +38,9 @@
 package com.sri.ai.grinder.polynomial.core;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.sgdpllt.library.number.Exponentiation.EXPONENTIATION_FUNCTOR;
 import static com.sri.ai.util.Util.zipWith;
 
@@ -58,9 +60,10 @@ import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.polynomial.api.Monomial;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.number.Exponentiation;
 import com.sri.ai.grinder.sgdpllt.library.number.Times;
+import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
+import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -72,8 +75,6 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class DefaultMonomial extends AbstractExpressionWrapper implements Monomial {
-	//
-	public static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
 	//
 	public static final Monomial MINUS_ONE = make(Rational.MINUS_ONE, Collections.emptyList(), Collections.emptyList());
 	public static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
@@ -376,6 +377,8 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	// PROTECTED
 	//
+	private static final BinaryFunction<Expression, Rational, Expression> exponentiation = (base, power) -> Exponentiation.make(base, power);
+
 	@Override
 	protected Expression computeInnerExpression() {
 		Expression result;
@@ -384,36 +387,55 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			result = numericFactorExpression;
 		}
 		else {
-			List<Expression> args = new ArrayList<>(1 + orderedNonNumericFactors.size());
-			if (!getNumericFactor().equals(Rational.ONE)) {
-				args.add(numericFactorExpression);
-			}
-			
-			args.addAll(zipWith((base, power) -> {
-				Expression arg;
-				if (power.equals(Rational.ONE)) {
-					arg = base; // No need to include exponentiation
-				}
-				else {
-					arg = Exponentiation.make(base, power);
-				}
-				return arg;
-			}, orderedNonNumericFactors, orderedNonNumericFactorPowers));
-			
-			if (args.size() == 1) {
-				// simplified to a single argument 
-				// (i.e. numeric constant was 1 as we know we have at least one 
-				//  non-numeric constant term here).
-				result = args.get(0);
-			}
-			else {
-				result = new DefaultFunctionApplication(MONOMIAL_FUNCTOR, args);
-			}
+			List<Expression> arguments = makeListOfArgumentsWithRequiredSize();
+			boolean isNegative = getNumericFactor().isNegative();
+			Rational numericFactorToUse = determineNumericFactorToUse(isNegative);
+			gatherNumericConstantIfNotOne(numericFactorToUse, arguments);
+			gatherFactorsToTheirPowers(arguments);
+			Expression productOfFactors = Times.make(arguments);
+			result = makeResultWithAppropriateSign(isNegative, productOfFactors);
 		}
 		
 		return result;
 	}
+
+	private List<Expression> makeListOfArgumentsWithRequiredSize() {
+		List<Expression> arguments = new ArrayList<>(1 + orderedNonNumericFactors.size());
+		return arguments;
+	}
+
+	private Rational determineNumericFactorToUse(boolean isNegative) {
+		Rational numericFactorToUse;
+		if (isNegative) {
+			numericFactorToUse = getNumericFactor().negate();
+		}
+		else {
+			numericFactorToUse = getNumericFactor();
+		}
+		return numericFactorToUse;
+	}
+
+	private void gatherNumericConstantIfNotOne(Rational numericFactorToUse, List<Expression> arguments) {
+		if (!numericFactorToUse.equals(Rational.ONE)) {
+			arguments.add(makeSymbol(numericFactorToUse));
+		}
+	}
+
+	private void gatherFactorsToTheirPowers(List<Expression> arguments) {
+		arguments.addAll(zipWith(exponentiation, orderedNonNumericFactors, orderedNonNumericFactorPowers));
+	}
 	
+	private Expression makeResultWithAppropriateSign(boolean isNegative, Expression productOfFactors) {
+		Expression result;
+		if (isNegative) {
+			result = UnaryMinus.make(productOfFactors);
+		}
+		else {
+			result = productOfFactors;
+		}
+		return result;
+	}
+
 	//
 	// PRIVATE
 	//
@@ -472,7 +494,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 				}
 				
 				// Handle nested *'s arguments
-				if (factor.hasFunctor(MONOMIAL_FUNCTOR)) {
+				if (factor.hasFunctor(TIMES)) {
 					attemptFlattening = true;
 				}
 				

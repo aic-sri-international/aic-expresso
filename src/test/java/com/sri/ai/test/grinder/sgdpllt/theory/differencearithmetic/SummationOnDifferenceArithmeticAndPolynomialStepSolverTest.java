@@ -161,15 +161,15 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 		body = parse("I^2 - J + 1");
 
 		constraintString = "true";
-		expected = parse("-5*J + 35");
+		expected = parse("-(5*J) + 35");
 		runTest(variable, constraintString, body, expected, context);
 		
 		constraintString = "I != 3";
-		expected = parse("-4*J + 25");
+		expected = parse("-(4*J) + 25");
 		runTest(variable, constraintString, body, expected, context);
 		
 		constraintString = "I < 3";
-		expected = parse("-3*J + 8");
+		expected = parse("-(3*J) + 8");
 		runTest(variable, constraintString, body, expected, context);
 		
 		constraintString = "false";
@@ -199,11 +199,11 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 		body = parse("I^2 - J + 1");
 	
 		constraintString = "I != J";
-		expected = parse("-1*J^2 + -4*J + 34");
+		expected = parse("-(J^2) -(4*J) + 34");
 		runTest(variable, constraintString, body, expected, context);
 		
 		constraintString = "I <= J and I != J";
-		expected = parse("1/3 * J ^ 3 + -1.5 * J ^ 2 + 7/6 * J");
+		expected = parse("(1/3 * J ^ 3 - 1.5 * J ^ 2) + 7/6 * J");
 		runTest(variable, constraintString, body, expected, context);
 		
 		constraintString = "I < J and I > J";
@@ -240,7 +240,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 				System.err.println("Expected: " + expected);
 				System.err.println("Actual: "   + actual);
 				System.err.println("Difference: " + differenceResult);
-				fail("Expressions are not equal and even difference is not zero");
+				fail("Expressions are not equal and even difference is not zero. Expected: " + expected + ", actual: " + actual);
 			}
 		}
 		// TODO: correctness test against grounding

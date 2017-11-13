@@ -64,14 +64,16 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(Expressions.parse("x"), makeMonomial("x"));
 		Assert.assertEquals(Expressions.parse("(-2)"), makeMonomial("-2"));
 		
-		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("-1*x^2"));
+		Assert.assertEquals(Expressions.parse("-(x^2)"), makeMonomial("-1*x^2"));
+		Assert.assertEquals(Expressions.parse("-(2*x^2)"), makeMonomial("-2*x^2"));
+		Assert.assertEquals(Expressions.parse("-(2*x^2)"), makeMonomial("x^2*-2"));
 		
 		Assert.assertEquals(Expressions.parse("x^2"), makeMonomial("-x^2"));
 		Assert.assertEquals(Expressions.parse("x^2"), makeMonomial("(-x)^2"));
 		Assert.assertEquals(Expressions.parse("x^2"), makeMonomial("1*-x^2"));
-		Assert.assertEquals(Expressions.parse("-1*x^3"), makeMonomial("-x^3"));
-		Assert.assertEquals(Expressions.parse("-1*x^3"), makeMonomial("(-x)^3"));
-		Assert.assertEquals(Expressions.parse("-1*x^3"), makeMonomial("1*-x^3"));
+		Assert.assertEquals(Expressions.parse("-(x^3)"), makeMonomial("-x^3"));
+		Assert.assertEquals(Expressions.parse("-(x^3)"), makeMonomial("(-x)^3"));
+		Assert.assertEquals(Expressions.parse("-(x^3)"), makeMonomial("1*-x^3"));
 		
 		Assert.assertEquals(Expressions.parse("x*y"), makeMonomial("x*y"));
 		Assert.assertEquals(Expressions.parse("16"), makeMonomial("2^2^2"));
@@ -80,9 +82,9 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(Expressions.parse("(2^2^x^4)"), makeMonomial("2^2^x^2^2"));
 		Assert.assertEquals(Expressions.parse("2*x*y"), makeMonomial("2*x*y"));
 		Assert.assertEquals(Expressions.parse("16*x"), makeMonomial("*(2*4*(2*x))"));
-		Assert.assertEquals(Expressions.parse("-16*x"), makeMonomial("*(2*4*-(2*x))"));
+		Assert.assertEquals(Expressions.parse("-(16*x)"), makeMonomial("*(2*4*-(2*x))"));
 		Assert.assertEquals(Expressions.parse("(y+10)"), makeMonomial("(y + 10)"));
-		Assert.assertEquals(Expressions.parse("-1*(y+10)"), makeMonomial("-(y + 10)"));
+		Assert.assertEquals(Expressions.parse("-(y+10)"), makeMonomial("-(y + 10)"));
 		Assert.assertEquals(Expressions.parse("x^2*(y^3 + y^4*z)"), makeMonomial("(y^3 + y^4*z)*x^2"));
 	}
 	

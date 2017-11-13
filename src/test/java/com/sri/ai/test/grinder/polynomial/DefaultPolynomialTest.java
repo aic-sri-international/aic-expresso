@@ -93,8 +93,10 @@ public class DefaultPolynomialTest {
 
 		expressionString = "(x^2 - x)/x"; // it is a polynomial due to simplification
 		tupleVariablesString = "tuple(x)";
-		assertEquals(parse("x + (-1)"), makePolynomial(expressionString, tupleVariablesString));
-		assertEquals(parse("(x^2 + -1*x)/x"), makePolynomial(expressionString, "tuple()"));
+		assertEquals(parse("x - 1"), makePolynomial(expressionString, tupleVariablesString));
+		assertEquals(parse("(x^2 + - x)/x"), makePolynomial(expressionString, "tuple()"));
+		// "(x^2 + - x)" has "+ -" in it because its terms are not monomials.
+		// This abnormality will disappear once we remove the capacity of polynomials being defined in arbitrary generalized variables.
 	}
 
 	private void runTestInvalidPolynomials(String expressionString, String tupleVariablesString) {
@@ -125,21 +127,21 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("(x)"), makePolynomial("x", "tuple()"));
 		assertEquals(parse("(x)"), makePolynomial("x", "tuple(z)"));
 		
-		assertEquals(parse("-1*x^2"), makePolynomial("-1*x^2", "tuple(x)"));
-		assertEquals(parse("(-1*x^2)"), makePolynomial("-1*x^2", "tuple()"));
-		assertEquals(parse("(-1*x^2)"), makePolynomial("-1*x^2", "tuple(z)"));
+		assertEquals(parse("-(x^2)"), makePolynomial("-1*x^2", "tuple(x)"));
+		assertEquals(parse("-(x^2)"), makePolynomial("-1*x^2", "tuple()"));
+		assertEquals(parse("-(x^2)"), makePolynomial("-1*x^2", "tuple(z)"));
 		
-		assertEquals(parse("-1*x^2"), makePolynomial("-(x^2)", "tuple(x)"));
-		assertEquals(parse("(-1*x^2)"), makePolynomial("-(x^2)", "tuple()"));
-		assertEquals(parse("(-1*x^2)"), makePolynomial("-(x^2)", "tuple(z)"));
+		assertEquals(parse("-(x^2)"), makePolynomial("-(x^2)", "tuple(x)"));
+		assertEquals(parse("-(x^2)"), makePolynomial("-(x^2)", "tuple()"));
+		assertEquals(parse("-(x^2)"), makePolynomial("-(x^2)", "tuple(z)"));
 		
 		assertEquals(parse("x^2"), makePolynomial("-x^2", "tuple(x)"));
 		assertEquals(parse("(x^2)"), makePolynomial("-x^2", "tuple()"));
 		assertEquals(parse("(x^2)"), makePolynomial("-x^2", "tuple(z)"));
 		
-		assertEquals(parse("-1*x^3"), makePolynomial("-x^3", "tuple(x)"));
-		assertEquals(parse("(-1*x^3)"), makePolynomial("-x^3", "tuple()"));
-		assertEquals(parse("(-1*x^3)"), makePolynomial("-x^3", "tuple(z)"));
+		assertEquals(parse("-(x^3)"), makePolynomial("-x^3", "tuple(x)"));
+		assertEquals(parse("-(x^3)"), makePolynomial("-x^3", "tuple()"));
+		assertEquals(parse("-(x^3)"), makePolynomial("-x^3", "tuple(z)"));
 		
 		assertEquals(parse("x^2"), makePolynomial("x*x", "tuple(x)"));
 
@@ -165,16 +167,16 @@ public class DefaultPolynomialTest {
 
 		assertEquals(parse("2*x*y"), makePolynomial("2*x*y", "(x, y)"));
 		assertEquals(parse("2*x*y"), makePolynomial("2*x*y", "(2, x, y)"));
-		assertEquals(parse("x*(2*y)"), makePolynomial("2*x*y", "tuple(x)"));
-		assertEquals(parse("y*(2*x)"), makePolynomial("2*x*y", "tuple(y)"));
+		assertEquals(parse("x*2*y"), makePolynomial("2*x*y", "tuple(x)"));
+		assertEquals(parse("y*2*x"), makePolynomial("2*x*y", "tuple(y)"));
 
 		assertEquals(parse("16*x"), makePolynomial("*(2*4*(2*x))", "tuple(x)"));
 		assertEquals(parse("16*x"), makePolynomial("*(2*4*(2*x))", "tuple()"));
 		assertEquals(parse("16*x"), makePolynomial("*(2*4*(2*x))", "tuple(z)"));
 		
-		assertEquals(parse("-16*x"), makePolynomial("*(2*4*-(2*x))", "tuple(x)"));
-		assertEquals(parse("-16*x"), makePolynomial("*(2*4*-(2*x))", "tuple()"));
-		assertEquals(parse("-16*x"), makePolynomial("*(2*4*-(2*x))", "tuple(z)"));
+		assertEquals(parse("-(16*x)"), makePolynomial("*(2*4*-(2*x))", "tuple(x)"));
+		assertEquals(parse("-(16*x)"), makePolynomial("*(2*4*-(2*x))", "tuple()"));
+		assertEquals(parse("-(16*x)"), makePolynomial("*(2*4*-(2*x))", "tuple(z)"));
 		
 		assertEquals(parse("3*x^2"), makePolynomial("3*x^2", "tuple(x)"));
 		assertEquals(parse("(3*x^2)"), makePolynomial("3*x^2", "tuple()"));
@@ -184,10 +186,10 @@ public class DefaultPolynomialTest {
 	
 		assertEquals(parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "(x, y)"));
 		assertEquals(parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "(3, x, y)"));
-		assertEquals(parse("x^2*(3*y^4)"), makePolynomial("3*x^2*y^4", "tuple(x)"));
-		assertEquals(parse("3*x^2*(y^4)"), makePolynomial("3*x^2*y^4", "(3, x)"));
-		assertEquals(parse("y^4*(3*x^2)"), makePolynomial("3*x^2*y^4", "tuple(y)"));
-		assertEquals(parse("3*y^4*(x^2)"), makePolynomial("3*x^2*y^4", "(3, y)"));
+		assertEquals(parse("x^2*3*y^4"), makePolynomial("3*x^2*y^4", "tuple(x)"));
+		assertEquals(parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "(3, x)"));
+		assertEquals(parse("y^4*3*x^2"), makePolynomial("3*x^2*y^4", "tuple(y)"));
+		assertEquals(parse("3*y^4*x^2"), makePolynomial("3*x^2*y^4", "(3, y)"));
 		assertEquals(parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "tuple()"));
 
 
@@ -212,12 +214,12 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("0"), makePolynomial("x - x", "tuple(x)"));
 		assertEquals(parse("0"), makePolynomial("2*x - x - x", "tuple(x)"));
 		assertEquals(parse("x"), makePolynomial("x - 0", "tuple(x)"));
-		assertEquals(parse("-1*x"), makePolynomial("0 - x", "tuple(x)"));
-		assertEquals(parse("2*x^3 + -1*x^2 + -1*x"), makePolynomial("2*x^3 - x^2 - x", "tuple(x)"));
+		assertEquals(parse("-x"), makePolynomial("0 - x", "tuple(x)"));
+		assertEquals(parse("2*x^3 -(x^2) - x"), makePolynomial("2*x^3 - x^2 - x", "tuple(x)"));
 		
 		//
 		// Multiplications
-		assertEquals(parse("-1*y + -10"), makePolynomial("-(y + 10)", "tuple(y)"));
+		assertEquals(parse("-y - 10"), makePolynomial("-(y + 10)", "tuple(y)"));
 		assertEquals(parse("x^2*y^4* z + x^2*y^3"), makePolynomial("(y^3 + y^4*z)*x^2", "tuple(x, y, z)"));
 		assertEquals(parse("2*x^2*y + 3*x*y^2 + 4*x^2 + 21*x*y + 15*y^2 + 12*x + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)", "tuple(x, y)"));
 	
@@ -242,7 +244,7 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("0"), makePolynomial("0 / (x^2 + 3)", "tuple(x)"));
 		assertEquals(parse("1.5"), makePolynomial("3 / 2", "tuple(x)"));
 		assertEquals(parse("x^2 + 1.5*x + 3"), makePolynomial("(2*x^2 + 3*x + 6) / 2", "tuple(x)"));
-		assertEquals(parse("x + -5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)", "tuple(x)"));
+		assertEquals(parse("x - 5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)", "tuple(x)"));
 	}
 	
 	@Test
@@ -250,7 +252,7 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("16*x"), makePolynomial("2^2^2*x"));
 		assertEquals(parse("2*x*y"), makePolynomial("2*x*y"));
 		assertEquals(parse("16*x"), makePolynomial("*(2*4*(2*x))"));
-		assertEquals(parse("-16*x"), makePolynomial("*(2*4*-(2*x))"));		
+		assertEquals(parse("-(16*x)"), makePolynomial("*(2*4*-(2*x))"));		
 		assertEquals(parse("3*x^2"), makePolynomial("3*x^2"));
 		assertEquals(parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4"));
 		assertEquals(parse("y + 10"), makePolynomial("y + 10"));
@@ -263,10 +265,10 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("0"), makePolynomial("x - x"));
 		assertEquals(parse("0"), makePolynomial("2*x - x - x"));
 		assertEquals(parse("x"), makePolynomial("x - 0"));
-		assertEquals(parse("-1*x"), makePolynomial("0 - x"));
-		assertEquals(parse("2*x^3 + -1*x^2 + -1*x"), makePolynomial("2*x^3 - x^2 - x"));
+		assertEquals(parse("-x"), makePolynomial("0 - x"));
+		assertEquals(parse("2*x^3 -(x^2) - x"), makePolynomial("2*x^3 - x^2 - x"));
 
-		assertEquals(parse("-1*y + -10"), makePolynomial("-(y + 10)"));
+		assertEquals(parse("-y - 10"), makePolynomial("-(y + 10)"));
 		assertEquals(parse("x^2*y^4* z + x^2*y^3"), makePolynomial("(y^3 + y^4*z)*x^2"));
 		assertEquals(parse("2*x^2*y + 3*x*y^2 + 4*x^2 + 21*x*y + 15*y^2 + 12*x + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)"));
 	
@@ -280,7 +282,7 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("0"), makePolynomial("0 / (x^2 + 3)"));
 		assertEquals(parse("1.5"), makePolynomial("3 / 2"));
 		assertEquals(parse("x^2 + 1.5*x + 3"), makePolynomial("(2*x^2 + 3*x + 6) / 2"));
-		assertEquals(parse("x + -5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)"));
+		assertEquals(parse("x - 5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)"));
 	}
 	
 	@Test
@@ -336,12 +338,12 @@ public class DefaultPolynomialTest {
 		
 		p = makePolynomial("3*x^2*y^4", "tuple(x)");
 		expectedMapFromSignatureToMonomial = new HashMap<>();
-		expectedMapFromSignatureToMonomial.put(Arrays.asList(new Rational(2)), parse("x^2*(3*y^4)"));
+		expectedMapFromSignatureToMonomial.put(Arrays.asList(new Rational(2)), parse("x^2*3*y^4"));
 		assertEquals(expectedMapFromSignatureToMonomial, p.getMapFromSignatureToMonomial());
 		
 		p = makePolynomial("3*x^2*y^4", "tuple(y)");
 		expectedMapFromSignatureToMonomial = new HashMap<>();
-		expectedMapFromSignatureToMonomial.put(Arrays.asList(new Rational(4)), parse("y^4*(3*x^2)"));
+		expectedMapFromSignatureToMonomial.put(Arrays.asList(new Rational(4)), parse("y^4*3*x^2"));
 		assertEquals(expectedMapFromSignatureToMonomial, p.getMapFromSignatureToMonomial());
 		
 		p = makePolynomial("3*x^2*y^4", "tuple(x, y)");
@@ -496,15 +498,15 @@ public class DefaultPolynomialTest {
 		assertEquals(parse("0"), makePolynomial("2*x", "tuple(x)").minus(makePolynomial("x", "tuple(x)"))
 				.minus(makePolynomial("x", "tuple(x)")));
 		assertEquals(parse("x"), makePolynomial("x", "tuple(x)").minus(makePolynomial("0", "tuple(x)")));
-		assertEquals(parse("-1*x"), makePolynomial("0", "tuple(x)").minus(makePolynomial("x", "tuple(x)")));
-		assertEquals(parse("2*x^3 + -1*x^2 + -1*x"), makePolynomial("2*x^3", "tuple(x)")
+		assertEquals(parse("-x"), makePolynomial("0", "tuple(x)").minus(makePolynomial("x", "tuple(x)")));
+		assertEquals(parse("2*x^3 - (x^2) - x"), makePolynomial("2*x^3", "tuple(x)")
 				.minus(makePolynomial("x^2", "tuple(x)"))
 				.minus(makePolynomial("x", "tuple(x)")));
 	}
 	
 	@Test
 	public void testTimes() {
-		assertEquals(parse("-1*y + -10"), makePolynomial("-1", "tuple(y)")
+		assertEquals(parse("-y - 10"), makePolynomial("-1", "tuple(y)")
 				.times(makePolynomial("y + 10", "tuple(y)")));
 		assertEquals(parse("x^2*y^4* z + x^2*y^3"), makePolynomial("y^3 + y^4*z", "tuple(x, y, z)")
 				.times(makePolynomial("x^2", "tuple(x, y, z)")));
@@ -539,19 +541,19 @@ public class DefaultPolynomialTest {
 		dividend             = makePolynomial("x^3 - 5*x^2 + 3*x - 15", "tuple(x)");
 		divisor              = makePolynomial("x^2 + 3", "tuple(x)");
 		quotientAndRemainder = dividend.divide(divisor);
-		assertEquals(parse("x + -5"), quotientAndRemainder.first);
+		assertEquals(parse("x - 5"), quotientAndRemainder.first);
 		assertEquals(parse("0"), quotientAndRemainder.second);
 		
 		dividend             = makePolynomial("x^3 - 1", "tuple(x)");
 		divisor              = makePolynomial("x + 2", "tuple(x)");
 		quotientAndRemainder = dividend.divide(divisor);
-		assertEquals(parse("x^2 + -2*x + 4"), quotientAndRemainder.first);
+		assertEquals(parse("x^2 -2*x + 4"), quotientAndRemainder.first);
 		assertEquals(parse("-9"), quotientAndRemainder.second);
 		
 		dividend             = makePolynomial("3*x^3 - 2*x^2 + 4*x - 3", "tuple(x)");
 		divisor              = makePolynomial("x^2 + 3*x + 3", "tuple(x)");
 		quotientAndRemainder = dividend.divide(divisor);
-		assertEquals(parse("3*x + -11"), quotientAndRemainder.first);
+		assertEquals(parse("3*x - 11"), quotientAndRemainder.first);
 		assertEquals(parse("28*x + 30"), quotientAndRemainder.second);
 	}
 	
@@ -619,7 +621,7 @@ public class DefaultPolynomialTest {
 		// NOTE: of interest as it will cause terms to cancel each other out during computation
 		//       due to the negative values and odd exponent.
 		p = makePolynomial("z^2 + -1*z + -1", "tuple(z)");
-		assertEquals(parse("z^6 + -3*z^5 + 5*z^3 + -3*z + -1"), p.exponentiate(3));
+		assertEquals(parse("z^6 - (3*z^5) + 5*z^3 -(3*z) - 1"), p.exponentiate(3));
 	}
 	
 	//

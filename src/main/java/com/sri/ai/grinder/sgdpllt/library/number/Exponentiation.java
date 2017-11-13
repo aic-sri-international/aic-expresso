@@ -60,7 +60,8 @@ public class Exponentiation implements Simplifier {
 	 * @return the exponentiation function application
 	 */
 	public static Expression make(Expression base, Rational power) {
-		Expression result = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
+		Expression plainForm = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
+		Expression result = simplify(plainForm);
 		return result;
 	}
 
@@ -71,16 +72,17 @@ public class Exponentiation implements Simplifier {
 	 * @return the exponentiation function application
 	 */
 	public static Expression make(Expression base, Expression power) {
-		Expression result = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
+		Expression plainForm = Expressions.apply(EXPONENTIATION_FUNCTOR, base, power);
+		Expression result = simplify(plainForm);
 		return result;
 	}
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
-		return simplify(expression, context);
+		return simplify(expression);
 	}
 	
-	public static Expression simplify(Expression expression, Context context) {
+	public static Expression simplify(Expression expression) {
 		Expression base     = expression.get(0);
 		Expression exponent = expression.get(1);
 

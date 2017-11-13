@@ -104,8 +104,15 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	private Map<List<Rational>, Monomial> signatureTermMap   = null;
 
 	public static Polynomial make(Expression expression) {
-		List<Expression> generalizedVariables = extractGeneralizedVariables(expression);
-		Polynomial       result               = make(expression, generalizedVariables);
+		Polynomial result;
+		boolean expressionAlreadyIsPolynomial = expression instanceof Polynomial;
+		if (expressionAlreadyIsPolynomial) {
+			result = (Polynomial) expression;
+		}
+		else {
+			List<Expression> generalizedVariables = extractGeneralizedVariables(expression);
+			result = make(expression, generalizedVariables);
+		}
 		return result;
 	}
 			
@@ -619,9 +626,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			result = orderedSummands.get(0);
 		}
 		else {
-//			result = sumOrderedSummands();
+			result = sumOrderedSummands();
 //			println("Polynomial: " + result);
-			result = new DefaultFunctionApplication(POLYNOMIAL_FUNCTOR, new ArrayList<>(orderedSummands));
+//			result = new DefaultFunctionApplication(POLYNOMIAL_FUNCTOR, new ArrayList<>(orderedSummands));
 		}
 		
 		return result;

@@ -586,7 +586,7 @@ public class LinearRealArithmeticTheoryTest {
 	
 		variable = parse("X");
 		constraintString = "X < 2 - Y";
-		expected = parse("if Y < 2 then -1*Y + 2 else 0");
+		expected = parse("if Y < 2 then -Y + 2 else 0");
 		runMeasureTest(variable, constraintString, expected, context);
 	
 	
