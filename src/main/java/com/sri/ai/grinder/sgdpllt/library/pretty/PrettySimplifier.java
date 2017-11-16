@@ -35,65 +35,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.library.number;
-
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.DIVISION;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EXPONENTIATION;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.PLUS;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
-import static com.sri.ai.util.Util.map;
-
-import java.util.Map;
+package com.sri.ai.grinder.sgdpllt.library.pretty;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
+import com.sri.ai.grinder.sgdpllt.library.number.PolynomialSimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
 
 /**
- * A {@link Rewriter} with common numeric functions:
+ * A {@link TopRewriter} simplified normalized expressions to more readable ones by combining:
  * 
  * <ul>
- * <li> arithmetic (<code>+, -, *, /</code>)
- * <li> inequalities (<code><, <=, >=, ></code>)
+ * <li> {@link IfThenElseConstantBranchesSimplifier}
+ * <li> {@link PolynomialSimplifier}
  * </ul>
  * 
  * @author braz
  *
  */
 @Beta
-public class NumericSimplifier extends Switch<String> {
+public class PrettySimplifier extends FirstOf {
 	
-	public NumericSimplifier() {
-		super(Switch.FUNCTOR, makeFunctionApplicationSimplifiers());
-	}
-	
-	public static Map<String, Rewriter> makeFunctionApplicationSimplifiers() {
-		return map(
-				PLUS,                      new Plus(),
-
-				MINUS,                     new Minus(),
-
-				TIMES,                     new Times(),
-
-				EXPONENTIATION,            new Exponentiation(),
-
-				DIVISION,                  new Division(),
-
-				MAX,                       new Max(),
-
-				LESS_THAN,                 new LessThan(),
-
-				LESS_THAN_OR_EQUAL_TO,     new LessThanOrEqualTo(),
-
-				GREATER_THAN,              new GreaterThan(),
-
-				GREATER_THAN_OR_EQUAL_TO,  new GreaterThanOrEqualTo()
+	public PrettySimplifier() {
+		super(
+				"Pretty simplifier",
+				new IfThenElseConstantBranchesSimplifier(),
+				new PolynomialSimplifier()
 				);
 	}
 }

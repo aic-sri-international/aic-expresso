@@ -61,6 +61,11 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.library.pretty.PrettySimplifier;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.FirstOf;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 import com.sri.ai.grinder.sgdpllt.theory.bruteforce.BruteForceFallbackTheory;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -84,8 +89,81 @@ public class SymbolicShell {
 
 	private static boolean debug = false;
 	
+	private static final Collection<String> EXAMPLES = list(
+			"sum({{ (on C in People)  3 }})",
+			"sum({{ (on C in People)  3 :  C != D }})",
+			"product({{ (on C in People)  3 :  C != D }})",
+			"| {{ (on C in People)  3 :  C != D }} |",
+			"| { (on C in People)  tuple(C) :  C != D } |",
+			"max({{ (on C in People)  3 :  C != D }})",
+			"sum({{ (on C in People, D in People)  3 :  C != D }})",
+			"sum({{ (on C in People)  3 :  C != D and C != ann }})",
+			"sum({{ (on C in People, P in Boolean)  3 :  C != ann }})",
+			"sum({{ (on C in People, P in Boolean)  3 :  C != ann and not P }})",
+			"sum({{ (on C in People, D in People)  if C = ann and D != bob then 2 else 0  :  for all E in People : E = ann => C = E }})"
+			
+			, "sum({{ (on I in 1..100)  I }})"
+			, "sum({{ (on I in 1..100)  I : I != 3 and I != 5 and I != 500 }})"
+			, "sum({{ (on I in 1..100)  I : I != J and I != 5 and I != 500 }})"
+			, "sum({{ (on I in 1..100)  (I - J)^2 }})"
+			, "sum({{ (on I in 1..100)  if I != K then (I - J)^2 else 0 }})"
+			
+			, "sum({{ (on I in 1..100)  I : I >= 3 and I < 21 }})"
+			, "sum({{ (on I in 1..100)  I : I > J and I < 5 and I < 500 }})"
+			, "sum({{ (on I in 1..100)  (I - J)^2 : I < 50 }})"
+			
+			, "sum({{ (on X in [0;100])  1 }})"
+			, "sum({{ (on X in [0;100[)  1 }})"
+			, "sum({{ (on X in ]0;100])  1 }})"
+			, "sum({{ (on X in [0;100])  Y }})"
+			, "sum({{ (on X in [0;100])  X }})"
+			, "sum({{ (on X in [0;100])  X^2 }})"
+			, "sum({{ (on X in [0;100])  X + Y }})"
+			, "sum({{ (on X in [0;100])  1 : Y < X and X < Z}})"
+			, "sum({{ (on X in Real)  1 : 0 <= X and X <= 100 and Y < X and X < Z}})"
+			, "for all X in Real : X > 0 or X <= 0"
+			, "for all X in ]0;10] : X > 0"
+			, "for all X in [0;10] : X > 0"
+			, "| X in 1..10 : X < 4 or X > 8 |"
+			, "| X in 1..10, Y in 3..5 : (X < 4 or X > 8) and Y != 5 |"
+			
+			, "sum( {{ (on T in (1..4 x 1..4)) 10 }})"
+			, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (2, 3) }})"
+			, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (I, J) }})"
+			, "sum( {{ (on T in (1..4 x 1..4)) 10 : get(T, 1) != 2 }})"
+			
+			, "sum( {{ (on F in 1..2 -> 3..4) F(1) }})"
+			);
+
 	public static void main(String[] args) {
 
+		Theory theory = makeTheory();
+		
+		Context context = makeContext(theory);
+
+		ConsoleIterator consoleIterator = getConsole(args);
+		
+		help(consoleIterator);
+		
+		for (String example : EXAMPLES) {
+			interpretExample(example, consoleIterator, theory, context);
+		}
+
+		while (consoleIterator.hasNext()) {
+			context = interpretConsoleInput(consoleIterator, theory, context);
+		}
+		
+		consoleIterator.getOutputWriter().println("\nGoodbye.");	
+	}
+
+	private static Context makeContext(Theory theory) {
+		Context context = new TrueContext(theory);
+		context = declareTypes(context);
+		context = declareVariables(context);
+		return context;
+	}
+
+	private static Theory makeTheory() {
 		Theory theory = new CompoundTheory(
 				new EqualityTheory(false, true),
 				new DifferenceArithmeticTheory(false, false),
@@ -95,15 +173,19 @@ public class SymbolicShell {
 				,
 				new BruteForceFunctionTheory()
 				);
-		
 		theory = new BruteForceFallbackTheory(theory);
-		
-		Context context = new TrueContext(theory);
+		return theory;
+	}
+
+	private static Context declareTypes(Context context) {
 		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
 		context = context.makeCloneWithAddedType(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		context = context.makeCloneWithAddedType(new IntegerInterval("Integer"));
 		context = context.makeCloneWithAddedType(new RealInterval("Real"));
-		
+		return context;
+	}
+
+	private static Context declareVariables(Context context) {
 		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("P"), makeSymbol("Boolean")));
 		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("Q"), makeSymbol("Boolean")));
 		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("R"), makeSymbol("Boolean")));
@@ -124,84 +206,34 @@ public class SymbolicShell {
 		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("T"), parse("(1..5 x 1..5)")));
 
 		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(makeSymbol("F"), parse("(1..5 -> 10..15)")));
+		return context;
+	}
 
-		ConsoleIterator consoleIterator = getConsole(args);
-		
-		help(consoleIterator);
-		
-		Collection<String> examples = list(
-				"sum({{ (on C in People)  3 }})",
-				"sum({{ (on C in People)  3 :  C != D }})",
-				"product({{ (on C in People)  3 :  C != D }})",
-				"| {{ (on C in People)  3 :  C != D }} |",
-				"| { (on C in People)  tuple(C) :  C != D } |",
-				"max({{ (on C in People)  3 :  C != D }})",
-				"sum({{ (on C in People, D in People)  3 :  C != D }})",
-				"sum({{ (on C in People)  3 :  C != D and C != ann }})",
-				"sum({{ (on C in People, P in Boolean)  3 :  C != ann }})",
-				"sum({{ (on C in People, P in Boolean)  3 :  C != ann and not P }})",
-				"sum({{ (on C in People, D in People)  if C = ann and D != bob then 2 else 0  :  for all E in People : E = ann => C = E }})"
-				
-				, "sum({{ (on I in 1..100)  I }})"
-				, "sum({{ (on I in 1..100)  I : I != 3 and I != 5 and I != 500 }})"
-				, "sum({{ (on I in 1..100)  I : I != J and I != 5 and I != 500 }})"
-				, "sum({{ (on I in 1..100)  (I - J)^2 }})"
-				, "sum({{ (on I in 1..100)  if I != K then (I - J)^2 else 0 }})"
-				
-				, "sum({{ (on I in 1..100)  I : I >= 3 and I < 21 }})"
-				, "sum({{ (on I in 1..100)  I : I > J and I < 5 and I < 500 }})"
-				, "sum({{ (on I in 1..100)  (I - J)^2 : I < 50 }})"
-				
-				, "sum({{ (on X in [0;100])  1 }})"
-				, "sum({{ (on X in [0;100[)  1 }})"
-				, "sum({{ (on X in ]0;100])  1 }})"
-				, "sum({{ (on X in [0;100])  Y }})"
-				, "sum({{ (on X in [0;100])  X }})"
-				, "sum({{ (on X in [0;100])  X^2 }})"
-				, "sum({{ (on X in [0;100])  X + Y }})"
-				, "sum({{ (on X in [0;100])  1 : Y < X and X < Z}})"
-				, "sum({{ (on X in Real)  1 : 0 <= X and X <= 100 and Y < X and X < Z}})"
-				, "for all X in Real : X > 0 or X <= 0"
-				, "for all X in ]0;10] : X > 0"
-				, "for all X in [0;10] : X > 0"
-				, "| X in 1..10 : X < 4 or X > 8 |"
-				, "| X in 1..10, Y in 3..5 : (X < 4 or X > 8) and Y != 5 |"
-				
-				, "sum( {{ (on T in (1..4 x 1..4)) 10 }})"
-				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (2, 3) }})"
-				, "sum( {{ (on T in (1..4 x 1..4)) 10 : T != (I, J) }})"
-				, "sum( {{ (on T in (1..4 x 1..4)) 10 : get(T, 1) != 2 }})"
-				
-				, "sum( {{ (on F in 1..2 -> 3..4) F(1) }})"
-				);
-		
-		for (String example : examples) {
-			consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
-			interpretInputParsedAsExpression(example, consoleIterator, theory, context);
-		}
+	private static void interpretExample(String example, ConsoleIterator consoleIterator, Theory theory, Context context) {
+		consoleIterator.getOutputWriter().println(consoleIterator.getPrompt() + example);
+		interpretInputParsedAsExpression(example, consoleIterator, theory, context);
+	}
 
-		while (consoleIterator.hasNext()) {
-			String input = consoleIterator.next();
-			if (input.equals("")) {
-				consoleIterator.getOutputWriter().println();	
-			}
-			else if (input.startsWith("show")) {
-				consoleIterator.getOutputWriter().println("\n" +
-						join(mapIntoList(context.getSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
-			}
-			else if (input.equals("debug")) {
-				debug = !debug;
-				consoleIterator.getOutputWriter().println("\nDebug toggled to " + debug + "\n");	
-			}
-			else if (input.equals("help")) {
-				help(consoleIterator);
-			}
-			else {
-				context = interpretInputParsedAsExpression(input, consoleIterator, theory, context);
-			}
+	private static Context interpretConsoleInput(ConsoleIterator consoleIterator, Theory theory, Context context) {
+		String input = consoleIterator.next();
+		if (input.equals("")) {
+			consoleIterator.getOutputWriter().println();	
 		}
-		
-		consoleIterator.getOutputWriter().println("\nGoodbye.");	
+		else if (input.startsWith("show")) {
+			consoleIterator.getOutputWriter().println("\n" +
+					join(mapIntoList(context.getSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
+		}
+		else if (input.equals("debug")) {
+			debug = !debug;
+			consoleIterator.getOutputWriter().println("\nDebug toggled to " + debug + "\n");	
+		}
+		else if (input.equals("help")) {
+			help(consoleIterator);
+		}
+		else {
+			context = interpretInputParsedAsExpression(input, consoleIterator, theory, context);
+		}
+		return context;
 	}
 
 	private static Context interpretInputParsedAsExpression(String inputString, ConsoleIterator consoleIterator, Theory theory, Context context) {
@@ -209,19 +241,30 @@ public class SymbolicShell {
 		try {
 			Expression input = parse(inputString, (errorMessage) -> {throw new Error("Syntax error: " + errorMessage);});
 			if (input.hasFunctor("var")) {
-				Expression variable = input.get(0);
-				Expression type = input.get(1);
-				context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(variable, type));
-				consoleIterator.getOutputWriter().println();	
+				context = declareNewVariable(input, consoleIterator, context);	
 				return context;
 			}
-			Expression result = theory.evaluate(input, context);
-			consoleIterator.getOutputWriter().println(result + "\n");
+			evaluate(input, consoleIterator, theory, context);
 		} catch (Error e) {
 			dealWith(consoleIterator, e);
 		} catch (Exception e) {
 			dealWith(consoleIterator, e);
 		}
+		return context;
+	}
+
+	private static void evaluate(Expression input, ConsoleIterator consoleIterator, Theory theory, Context context) {
+		Rewriter prettyRewriter = new Exhaustive(new Recursive(new FirstOf(theory.getTopRewriter(), new PrettySimplifier())));
+		Expression result = theory.evaluate(input, context);
+		result = prettyRewriter.apply(result, context);
+		consoleIterator.getOutputWriter().println(result + "\n");
+	}
+
+	private static Context declareNewVariable(Expression input, ConsoleIterator consoleIterator, Context context) {
+		Expression variable = input.get(0);
+		Expression type = input.get(1);
+		context = context.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(variable, type));
+		consoleIterator.getOutputWriter().println();
 		return context;
 	}
 
