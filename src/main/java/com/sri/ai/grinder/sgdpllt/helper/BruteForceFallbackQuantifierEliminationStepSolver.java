@@ -37,18 +37,12 @@
  */
 package com.sri.ai.grinder.sgdpllt.helper;
 
-import static com.sri.ai.util.Util.list;
-
-import java.util.LinkedList;
-
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
 
 /**
@@ -59,71 +53,27 @@ import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierElim
  *
  */
 @Beta
-public class BruteForceFallbackQuantifierEliminationStepSolverWrapper implements ExpressionLiteralSplitterStepSolver {
+public class BruteForceFallbackQuantifierEliminationStepSolver extends FallbackQuantifierEliminationStepSolver {
 	
-	private QuantifierEliminationProblem problem;
-	private ExpressionLiteralSplitterStepSolver base;
-	
-	public BruteForceFallbackQuantifierEliminationStepSolverWrapper(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
-		this.problem = problem;
-		this.base = base;
+	public BruteForceFallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
+		super(problem, base);
 	}
 
 	@Override
-	public Step step(Context context) {
-		Step result;
-		try {
-			result = base.step(context);
-		}
-		catch (IllegalArgumentException exception) {
-			result = useBruteForceInstead(context);
-		}
-		return result;
-	}
-
-	private Step useBruteForceInstead(Context context) {
-		Expression resultExpression = solveByBruteForceAndReturnExpression(context);
-		Step result = new Solution(resultExpression);
-		return result;
-	}
-
-	private Expression solveByBruteForceAndReturnExpression(Context context) {
-		MultiIndexQuantifierEliminator bruteForceMultiIndexQuantifierEliminator = makeBruteForceQuantifierEliminator(context);
-		Expression resultExpression = solveByBruteForceUsingMultiIndexQuantifierEliminator(bruteForceMultiIndexQuantifierEliminator, context);
-		return resultExpression;
-	}
-
-	private MultiIndexQuantifierEliminator makeBruteForceQuantifierEliminator(Context context) {
+	protected MultiIndexQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context) {
 		MultiIndexQuantifierEliminator result = new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
 		return result;
 	}
 
-	private Expression solveByBruteForceUsingMultiIndexQuantifierEliminator(MultiIndexQuantifierEliminator multiIndexQuantifierEliminator, Context context) {
-		
-		AssociativeCommutativeGroup group = problem.getGroup();
-		LinkedList<Expression> indices = list(problem.getIndex());
-		Expression indicesCondition = problem.getConstraint();
-		Expression body = problem.getBody();
-		
-		Expression result = multiIndexQuantifierEliminator.solve(group, indices, indicesCondition, body, context);
-		
-		return result;
-	}
-
-	@Override
-	public BruteForceFallbackQuantifierEliminationStepSolverWrapper clone() {
-		BruteForceFallbackQuantifierEliminationStepSolverWrapper result;
-		try {
-			result = (BruteForceFallbackQuantifierEliminationStepSolverWrapper) super.clone();
-		}
-		catch (CloneNotSupportedException exception) {
-			throw new RuntimeException(exception);
-		}
-		return result;
-	}
-	
 	@Override
 	public String toString() {
 		return "Brute-force quantifier eliminator step solver for " + base;
+	}
+
+	@Override
+	public BruteForceFallbackQuantifierEliminationStepSolver clone() {
+		BruteForceFallbackQuantifierEliminationStepSolver result;
+		result = (BruteForceFallbackQuantifierEliminationStepSolver) super.clone();
+		return result;
 	}
 }

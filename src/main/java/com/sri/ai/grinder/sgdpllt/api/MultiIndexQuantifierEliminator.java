@@ -1,8 +1,10 @@
 package com.sri.ai.grinder.sgdpllt.api;
 
 import static com.sri.ai.expresso.api.Tuple.tuple;
+import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +67,17 @@ public interface MultiIndexQuantifierEliminator {
 	
 	// Convenience:
 	
+	public default Expression solveSingleIndexQuantifierEliminationProblem(QuantifierEliminationProblem problem, Context context) {
+		AssociativeCommutativeGroup group = problem.getGroup();
+		LinkedList<Expression> indices = list(problem.getIndex());
+		Expression indicesCondition = problem.getConstraint();
+		Expression body = problem.getBody();
+		
+		Expression result = solve(group, indices, indicesCondition, body, context);
+		
+		return result;
+	}
+
 	/**
 	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Collection, Expression, Context)} that takes care of constructing the Context
 	 * given the data required to build it.

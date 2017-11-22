@@ -37,37 +37,47 @@
  */
 package com.sri.ai.grinder.sgdpllt.theory.bruteforce;
 
-import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.StepSolver;
+import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackQuantifierEliminationStepSolver;
+import com.sri.ai.grinder.sgdpllt.theory.help.TheoryWrapper;
 
-/** 
- * A {@link Theory} that passes all methods through to a base theory,
- * but wraps {@link StepSolver}s in {@link BruteForceFallbackQuantifierEliminationStepSolver}.
+/**
+ * An abstract class for {@link TheoryWrapper}s wrapping a base theory's {@link QuantifierEliminationStepSolver}
+ * into a fallback step solver.
+ * @author braz
+ *
  */
-@Beta
-public class BruteForceFallbackTheory extends FallbackTheory {
+public abstract class FallbackTheory extends TheoryWrapper {
 
-	public BruteForceFallbackTheory(Theory base) {
+	public FallbackTheory(Theory base) {
 		super(base);
 	}
-	
+
+	protected abstract ExpressionLiteralSplitterStepSolver makeFallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver);
+
 	@Override
-	protected BruteForceFallbackQuantifierEliminationStepSolver makeFallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver) {
-		return new BruteForceFallbackQuantifierEliminationStepSolver(problem, baseQuantifierEliminatorStepSolver);
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
+		return getBase().getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
 	}
 
 	@Override
-	public String toString() {
-		return "Brute-force theory wrapper for " + getBase();
+	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
+		return getBase().getSingleVariableConstraintModelCountingStepSolver(constraint, context);
 	}
 
 	@Override
-	public BruteForceFallbackTheory clone() {
-		BruteForceFallbackTheory result = (BruteForceFallbackTheory) super.clone();
+	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+		ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver = getBase().getQuantifierEliminatorStepSolver(problem, context);
+		ExpressionLiteralSplitterStepSolver result = makeFallbackQuantifierEliminationStepSolver(problem, baseQuantifierEliminatorStepSolver);
+		return result;
+	}
+
+	@Override
+	public FallbackTheory clone() {
+		FallbackTheory result = (BruteForceFallbackTheory) super.clone();
 		return result;
 	}
 }
