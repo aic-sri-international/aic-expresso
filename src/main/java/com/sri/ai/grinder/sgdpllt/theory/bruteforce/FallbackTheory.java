@@ -77,7 +77,7 @@ public abstract class FallbackTheory extends TheoryWrapper {
 
 	@Override
 	public FallbackTheory clone() {
-		FallbackTheory result = (BruteForceFallbackTheory) super.clone();
+		FallbackTheory result = (FallbackTheory) super.clone();
 		return result;
 	}
 }

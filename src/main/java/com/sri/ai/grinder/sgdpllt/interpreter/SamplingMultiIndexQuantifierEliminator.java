@@ -37,17 +37,19 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import java.util.Arrays;
+import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.list;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -58,10 +60,6 @@ import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.Division;
 import com.sri.ai.grinder.sgdpllt.library.set.Measure;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -73,45 +71,94 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 
 	private int sampleSizeN;
 	private boolean alwaysSample;
-	private Rewriter indicesConditionRewriter;
+	private Rewriter indicesConditionEvaluator;
 	private Random random;
-	
-	public SamplingMultiIndexQuantifierEliminator(
-			TopRewriter topRewriter, 
-			int sampleSizeN, 
-			boolean alwaysSample, 
-			Rewriter indicesConditionRewriter, 
-			Random random) {
-		
-		super(topRewriter);
-		this.sampleSizeN = sampleSizeN;
-		this.alwaysSample = alwaysSample;
-		this.indicesConditionRewriter = new Recursive(new Exhaustive(indicesConditionRewriter));
-		this.random = random;
-	}
+	private boolean sampleSingleIndex;
 	
 	public SamplingMultiIndexQuantifierEliminator(
 			TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, 
 			int sampleSizeN, 
 			boolean alwaysSample, 
-			Rewriter indicesConditionRewriter, 
+			Rewriter indicesConditionEvaluator, 
 			Random random) {
 		
 		super(topRewriterWithBaseAssignment);
 		this.sampleSizeN = sampleSizeN;
 		this.alwaysSample = alwaysSample;
-		this.indicesConditionRewriter = new Recursive(new Exhaustive(indicesConditionRewriter));
+		this.indicesConditionEvaluator = indicesConditionEvaluator;
 		this.random = random;
 	}
 	
+	@Override
+	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
+		Expression result = null;
+		
+		if (indices.size() == 1) {						
+			result = solveBySamplingSingleIndexIfCheaper(group, indices.get(0), indicesCondition, body, context);
+		}
+				
+		if (result == null) {
+			result = super.solve(group, indices, indicesCondition,  body, context);
+		}
+		
+		return result;
+	}
+
+	private Expression solveBySamplingSingleIndexIfCheaper(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Context context) {
+		Expression result = null;
+		Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(index, indicesCondition, context);
+		sampleSingleIndex = decideWhetherToSampleEvenWithSingleIndex(index, measureOfDomainSatisfyingCondition, context);
+		if (sampleSingleIndex) {
+			result = computeResultBasedOnSamples(group, index, indicesCondition, body, measureOfDomainSatisfyingCondition, context);								
+		}
+		return result;
+	}
+
+	private Rational computeMeasureOfDomainSatisfyingCondition(Expression index, Expression indexCondition, Context context) {
+		Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
+		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, index, indexCondition);
+		Rational result = Measure.get(intensionalSet, context);
+		return result;
+	}
+
+	private boolean decideWhetherToSampleEvenWithSingleIndex(Expression index, Rational measureSetOfI, Context context) {
+		boolean result = 
+				alwaysSample
+				||
+				domainIsContinuousOrDiscreteButLargerThanSampleSize(index, measureSetOfI, context);
+		return result;
+	}
+
+	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(Expression index, Rational measureSetOfI, Context context) {
+		Type type = GrinderUtil.getTypeOfExpression(index, context);
+		boolean result = 
+				type == null 
+				|| !type.isDiscrete() 
+				|| measureSetOfI.compareTo(sampleSizeN) > 0;
+		return result;
+	}
+
+	private Expression computeResultBasedOnSamples(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Rational measureSetOfI, Context context) {
+		// Quantifier({{ (on I in Samples) Head }} )							
+		Expression sampleGroupSum = super.solve(group, list(index), indicesCondition, body, context);			
+
+		// Average = Quantifier( {{ (on I in Samples) Head }} ) / n
+		Expression average = group.addNTimes(sampleGroupSum, Division.make(ONE, makeSymbol(sampleSizeN)), context);
+		
+		// return Average * | SetOfI |
+		Expression result = group.addNTimes(average, makeSymbol(measureSetOfI), context);
+		return result;
+	}
+
 	@Override
 	public
 	Iterator<Assignment> 
 	makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
 		
 		Iterator<Assignment> result;
-		if (indices.size() == 2 && indices.get(1).equals(Expressions.TRUE)) {
-			result = new AssignmentsSamplingIterator(indices.subList(0, 1), sampleSizeN, indicesCondition, indicesConditionRewriter, random, context);
+		if (sampleSingleIndex) {
+			result = new AssignmentsSamplingIterator(indices, sampleSizeN, indicesCondition, indicesConditionEvaluator, random, context);
 		}
 		else {
 			result = new AssignmentsIterator(indices, context);
@@ -122,76 +169,14 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 	@Override
 	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Expression result;
-		if (indices.size() == 2 && indices.get(1).equals(Expressions.TRUE)) {
-			// NOTE: the AssignmentsSamplingIterator takes the indicesCondition into account 
-			// so no need to take it into account here (which is the case in BruteForceMultiIndexQuantifierEliminator).
+		if (sampleSingleIndex) {
+			// AssignmentsSamplingIterator takes the indicesCondition into account 
+			// so no need to take it into account in this case
 			result = body;
 		}
 		else {
 			result = IfThenElse.make(indicesCondition, body, group.additiveIdentityElement());
 		}		
-		return result;
-	}
-	
-	@Override
-	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		Expression result = null;
-		
-		// Check if we want to sample		
-		if (indices.size() == 1) {						
-			
-			// SetOfI = {{ (on I in Domain) I : Condition }}
-			Pair<Rational, Boolean> measureSetOfIAndSample = computeMeasureAndDetermineIfShouldSample(indices.get(0), indicesCondition, group.additiveIdentityElement(), context);
-			Rational measureSetOfI = measureSetOfIAndSample.first;
-			Boolean  sample        = measureSetOfIAndSample.second;
-			
-			if (sample) {
-				// Quantifier({{ (on I in Samples) Head }} )							
-
-				// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
-				// in makeAssignmentsIterator() and makeSummand().
-				Expression sampleGroupSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), indicesCondition,  body, context);			
-			
-				// Average = Quantifier( {{ (on I in Samples) Head }}) / n
-				Expression average = group.addNTimes(sampleGroupSum, Division.make(Expressions.ONE, Expressions.makeSymbol(sampleSizeN)), context);
-				
-				// return Average * | SetOfI |
-				result = group.addNTimes(average, Expressions.makeSymbol(measureSetOfI), context);								
-			}
-		}
-				
-		if (result == null) {
-			result = super.solve(group, indices, indicesCondition,  body, context);
-		}
-		
-		return result;
-	}
-	
-	private Pair<Rational, Boolean> computeMeasureAndDetermineIfShouldSample(Expression index, Expression indexCondition, Expression additiveIdentityElement, Context context) {
-		Pair<Rational, Boolean> result;
-		
-		Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
-		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
-		
-		Expression intensionalSet = IntensionalSet.intensionalMultiSet(indexExpressionsSet, index, indexCondition);
-		
-		Rational measureSetOfI = Measure.get(intensionalSet, context);
-		
-		boolean sample = true;
-		if (!alwaysSample) {			
-			Type type = GrinderUtil.getTypeOfExpression(index, context);
-			// NOTE: We always sample from continuous domains
-			if (type != null && type.isDiscrete()) {
-				if (measureSetOfI.compareTo(sampleSizeN) <= 0) {
-					// Domain is discrete and sample size is >= the size of the domain
-					// so we don't want to sample in this instance
-					sample = false;
-				}
-			}			
-		}
-		
-		result = new Pair<>(measureSetOfI, sample);
-		
 		return result;
 	}
 }

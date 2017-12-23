@@ -185,7 +185,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testIntegerIntervalEg1() {
+	public void testIntegerIntervalExample1() {
 		String intensionalSet = "{{(on I in 1..100) I^2 - I + 10 : I > 20 and I < 40 }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
@@ -199,7 +199,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testIntegerIntervalEg2() {
+	public void testIntegerIntervalExample2() {
 		String intensionalSet = "{{(on I in 1..1000000) I^2 - I + 10 : I > 20 and I < 40 }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
@@ -215,7 +215,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testIntegerIntervalEg3() {
+	public void testIntegerIntervalExample3() {
 		String intensionalSet = "{{(on I in 1..1000000) I^2 - I + 10  }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
@@ -232,7 +232,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testRealIntervalEg1() {
+	public void testRealIntervalExample1() {
 		String intensionalSet = "{{(on I in [1;100]) I^2 - I + 10 : I > 20 and I < 40 }}";	
 		String[][] functionNamesAndExactValues = new String[][] {
 			{"sum", "16326"}, // Integrate[i^2 - i + 10, {i, 21, 39}] = integral_21^39 (i^2 - i + 10) di = 16326
@@ -245,7 +245,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testCategoricalEg1() {
+	public void testCategoricalExample1() {
 		updateContextWithIndexAndType("N", 
 				new Categorical("Person", 100));
 		
@@ -261,7 +261,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testCategoricalEg2() {
+	public void testCategoricalExample2() {
 		updateContextWithIndexAndType("N", 
 				new Categorical("Person", 1000000));
 		
@@ -280,7 +280,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	@Test
-	public void testFuncitonEg1() {
+	public void testFunctionExample1() {
 		// measure =  1000000 : 10^6
 		String intensionalSet = "{{(on f in 1..6 -> 1..10) f(1) + f(2) + f(3) + f(4) + f(5) + f(6) }}";
 		
@@ -327,33 +327,32 @@ public class SampleCommonInterpreterTest {
 	
 	public void runSampleCompareToExact(int sampleSizeN, boolean alwaysSample, String intensionalSet, String[][] functionNamesAndExactValues) {
 		for (int i = 0; i < functionNamesAndExactValues.length; i++) {
-			String functionName  = functionNamesAndExactValues[i][0];
-			String exactValueStr  = functionNamesAndExactValues[i][1];
+			String functionName = functionNamesAndExactValues[i][0];
+			String exactValueString = functionNamesAndExactValues[i][1];
 					
-			String functionApplicationToIntensionalSet = functionName+"("+intensionalSet+")";
+			String functionApplicationToIntensionalSet = functionName + "(" + intensionalSet + ")";
 			Expression exactValue;
-			if (exactValueStr == null) {
+			if (exactValueString == null) {
 				long start = System.currentTimeMillis();
 				exactValue = bruteForceResult(functionApplicationToIntensionalSet);
 				long end = System.currentTimeMillis();
-				System.out.println("Brute force computed exact value = "+toString(exactValue)+", took "+(end-start)+"ms. to compute");
+				System.out.println("Brute force computed exact value = " + toString(exactValue)+", took " + (end - start) + " ms to compute");
 			}
 			else {
-				exactValue = Expressions.parse(exactValueStr);
+				exactValue = Expressions.parse(exactValueString);
 			}			
 			long start = System.currentTimeMillis();
 			Expression sampleValue = run(sampleSizeN, alwaysSample, functionApplicationToIntensionalSet);
 			long end = System.currentTimeMillis();
-			System.out.println("Sampled value = "+toString(sampleValue)+", took "+(end-start)+"ms. to compute");
+			System.out.println("Sampled value = " + toString(sampleValue) + ", took " + (end - start) + " ms to compute");
 			
 			// We'll test if the sample value is within an order of magnitude of the exact value
 			Expression upper = Expressions.makeSymbol(exactValue.rationalValue().multiply(10));
 			Expression lower = Expressions.makeSymbol(exactValue.rationalValue().divide(10));
 			
-			
-			Assert.assertTrue("sample ("+toString(sampleValue)+") is not >= lower magnitude bound ("+toString(lower)+") for exact value ("+toString(exactValue)+")", 
+			Assert.assertTrue("sample (" + toString(sampleValue) + ") is not >= lower magnitude bound (" + toString(lower) + ") for exact value (" + toString(exactValue) + ")", 
 					sampleValue.compareTo(lower) >= 0);
-			Assert.assertTrue("sample ("+toString(sampleValue)+") is not <= upper magnitude bound ("+toString(lower)+") for exact value ("+toString(exactValue)+")", 
+			Assert.assertTrue("sample (" + toString(sampleValue)+") is not <= upper magnitude bound (" + toString(lower) + ") for exact value (" + toString(exactValue) + ")", 
 					sampleValue.compareTo(upper) <= 0);			
 		}
 	}

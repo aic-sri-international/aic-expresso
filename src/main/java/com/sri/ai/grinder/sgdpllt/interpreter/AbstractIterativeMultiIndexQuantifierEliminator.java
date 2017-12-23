@@ -58,11 +58,15 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  * An abstract class for quantifier eliminators using a simple (total or sampled)
  * iteration over the domain of the eliminated variables.
  * <p>
+ * This abstract class implements the procedure for group aggregating (for example, summing) over
+ * the values of a summand provided by the extending class,
+ * after it is evaluated under the assignments also provided by the extending class.
+ * <p>
  * The current assignment to the eliminated variables is kept in the {@link Context}'s
  * global object with key {@link #ASSIGNMENTS_GLOBAL_OBJECTS_KEY},
  * which can be extended with {@link Assignment#extendAssignments(Map, Context)}.
  * This same assignment is also used by top rewriters in implementations of
- * {@link AbstractInterpreter} to simplify variables.
+ * {@link AbstractInterpreter} to replace variables by their values.
  * <p>
  * 
  * @author braz
