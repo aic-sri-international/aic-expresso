@@ -52,7 +52,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
@@ -62,7 +62,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
@@ -242,10 +242,10 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 				QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
 				Expression problemExpression = problem.toExpression();
 				Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
-				AssignmentsIterator assignments = new AssignmentsIterator(freeVariables, context);
+				AssignmentMapsIterator assignments = new AssignmentMapsIterator(freeVariables, context);
 				for (Map<Expression, Expression> assignment : in(assignments)) {
 					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
-					Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
+					Context extendedContext = Assignment.extendAssignments(assignment, context);
 					// Only go on if the assignment satisfies the context:
 					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
 						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);

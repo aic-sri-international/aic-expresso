@@ -35,35 +35,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.helper;
+package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.grinder.sgdpllt.interpreter.DefaultAssignment.assignment;
+import static com.sri.ai.util.Util.map;
 
-import java.util.Collection;
 import java.util.Map;
 
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
-import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.util.collect.MapWrapper;
 
 /**
- * An iterator over assignments to expressions according to their {@link Type} as defined
- * in a {@link Registry}.
+ * An default implementation of {@link Assignment} using maps from expressions to expressions.
  * 
  * @author braz
+ *
  */
-@Beta
-public class AssignmentsIterator extends FunctionIterator<Map<Expression, Expression>, Assignment> {
+public class DefaultAssignment extends MapWrapper<Expression, Expression> implements Assignment {
 
-	public AssignmentsIterator(Collection<Expression> variables, Registry registry) {
-		super(new AssignmentMapsIterator(variables, registry), m -> assignment(m));
+	public DefaultAssignment(Map<Expression, Expression> map) {
+		super(map);
 	}
 	
-	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Registry registry) {
-		super(new AssignmentMapsIterator(indexExpressionsSet, registry), m -> assignment(m));
+	public static DefaultAssignment assignment(Expression... expressions) {
+		return new DefaultAssignment(map( (Object[]) expressions));
+	}
+	
+	public static DefaultAssignment assignment(Map<Expression, Expression> map) {
+		return new DefaultAssignment(map);
 	}
 }

@@ -37,22 +37,21 @@
  */
 package com.sri.ai.grinder.helper;
 
-import static com.sri.ai.util.Util.map;
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.grinder.sgdpllt.interpreter.DefaultAssignment.assignment;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
@@ -64,32 +63,33 @@ import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLine
 import com.sri.ai.util.collect.EZIterator;
 
 /**
- * An assignments iterator that samples over a single variables domain.
+ * An assignments iterator that samples over the space of possible assignments.
+ * Currently, only a single variable is supported and an exception is thrown if more than one is received.
  * 
  * @author oreilly
  *
  */
-public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expression>> {
+public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 	private Expression index;
-	private int  sampleSizeN;
-	private int  currentN;
+	private int totalNumberOfSamples;
+	private int samplesSoFar;
 	private Type typeToSampleFrom; 
 	private Expression condition;
 	private Rewriter conditionRewriter;
 	private Random random;
 	private Context context;
 	
-	public AssignmentsSamplingIterator(List<Expression> indices, int sampleSizeN, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
+	public AssignmentsSamplingIterator(List<Expression> indices, int totalNumberOfSamples, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
 		if (indices.size() != 1) {
-			throw new UnsupportedOperationException("Assignment sampling iterator only supports a single index currently, received: "+indices);
+			throw new UnsupportedOperationException("Assignment sampling iterator only supports a single index currently, received: " + indices);
 		}
-		this.index             = indices.get(0);
-		this.sampleSizeN       = sampleSizeN;
-		this.currentN          = 0;
-		this.typeToSampleFrom  = getTypeToSampleFrom(index, condition, context);
+		this.index = indices.get(0);
+		this.totalNumberOfSamples = totalNumberOfSamples;
+		this.samplesSoFar = 0;
+		this.typeToSampleFrom = getTypeToSampleFrom(index, condition, context);
 		if (this.typeToSampleFrom == null) {
 			// Means we have an empty set
-			currentN = sampleSizeN;
+			samplesSoFar = totalNumberOfSamples;
 		}
 		this.condition         = condition;
 		this.conditionRewriter = conditionRewriter;
@@ -98,22 +98,56 @@ public class AssignmentsSamplingIterator extends EZIterator<Map<Expression, Expr
 	}
 	
 	@Override
-	protected Map<Expression, Expression> calculateNext() {
-		Map<Expression, Expression> result = null;
-		
-		if (currentN < sampleSizeN) {
-			currentN++;
-			do {
-				Expression assignment         = typeToSampleFrom.sampleUniquelyNamedConstant(random);
-				Context contextWithAssignment = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(map(index, assignment), context);
-				Expression conditionValue     = conditionRewriter.apply(condition, contextWithAssignment);
-				if (conditionValue.equals(Expressions.TRUE)) {
-					result = map(index, assignment);
-				}				
-			} while (result == null);
+	protected Assignment calculateNext() {
+		Assignment result;
+		if (samplesSoFar < totalNumberOfSamples) {
+			result = sampleAssignmentConsistentWithCondition();
+			samplesSoFar++;
 		}
-		
+		else {
+			result = null;
+		}
 		return result;
+	}
+
+	private Assignment sampleAssignmentConsistentWithCondition() {
+		Expression sampledValue;
+		do {
+			sampledValue = sampleValue();
+		} while (conditionIsNotSatisfied(sampledValue));
+		Assignment result = assignment(index, sampledValue);
+		return result;
+	}
+
+	private Expression sampleValue() {
+		Expression result = typeToSampleFrom.sampleUniquelyNamedConstant(random);
+		return result;
+	}
+
+	private boolean conditionIsNotSatisfied(Expression sampledValue) {
+		Expression conditionValue = evaluateCondition(sampledValue);
+		return conditionValue.equals(FALSE);
+	}
+
+	private Expression evaluateCondition(Expression sampledValue) {
+		Context contextExtendedWithSampledAssignment = makeContextExtendedBySampledValue(sampledValue);
+		Expression conditionValue = evaluateConditionUnder(contextExtendedWithSampledAssignment);
+		return conditionValue;
+	}
+
+	private Context makeContextExtendedBySampledValue(Expression sampledValue) {
+		Assignment sampledAssignment = makeIndexAssignment(sampledValue);
+		Context contextExtendedWithSampledAssignment = sampledAssignment.extend(context);
+		return contextExtendedWithSampledAssignment;
+	}
+
+	private Assignment makeIndexAssignment(Expression sampledValue) {
+		Assignment result = assignment(index, sampledValue);
+		return result;
+	}
+
+	private Expression evaluateConditionUnder(Context contextWithSampledAssignment) {
+		return conditionRewriter.apply(condition, contextWithSampledAssignment);
 	}
 	
 	public static Type getTypeToSampleFrom(Expression variable, Expression condition, Context context) {

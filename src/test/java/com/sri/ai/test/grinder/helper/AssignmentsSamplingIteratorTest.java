@@ -6,7 +6,6 @@ import static com.sri.ai.util.Util.map;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 
 import org.junit.Assert;
@@ -26,6 +25,7 @@ import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
+import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
@@ -123,7 +123,7 @@ public class AssignmentsSamplingIteratorTest {
 		context = (Context) GrinderUtil.extendRegistryWith(map(index, type.toString()), Arrays.asList(type), context);
 	}
 	
-	private Iterator<Map<Expression, Expression>> newSamplingIterator(String indexString, int sampleSize, String conditionString) {
+	private Iterator<Assignment> newSamplingIterator(String indexString, int sampleSize, String conditionString) {
 		Expression index     = parse(indexString);
 		Expression condition = parse(conditionString);
 		
@@ -144,7 +144,7 @@ public class AssignmentsSamplingIteratorTest {
 			condition = svdaConstraint;
 		}		
 		
-		Iterator<Map<Expression, Expression>> result = new AssignmentsSamplingIterator(Arrays.asList(index), sampleSize, condition, conditionRewriter, random, context);
+		Iterator<Assignment> result = new AssignmentsSamplingIterator(Arrays.asList(index), sampleSize, condition, conditionRewriter, random, context);
 		return result;
 	}
 }

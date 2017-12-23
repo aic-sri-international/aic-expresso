@@ -42,14 +42,14 @@ import java.util.Random;
 import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifier;
 
 /**
- * An extension of {@link SampleInterpreter}
+ * An extension of {@link SamplingInterpreter}
  * using {@link CommonSimplifier}.
  *
  * @author oreilly
  *
  */
-public class SampleCommonInterpreter extends SampleInterpreter {
-	public SampleCommonInterpreter(int sampleSizeN, boolean alwaysSample, Random random) {
+public class SamplingCommonInterpreter extends SamplingInterpreter {
+	public SamplingCommonInterpreter(int sampleSizeN, boolean alwaysSample, Random random) {
 		super(new CommonSimplifier(), sampleSizeN, alwaysSample, random);
 	}
 }

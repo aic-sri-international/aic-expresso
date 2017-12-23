@@ -12,7 +12,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 
 public class BruteForceCommonInterpreterTest {
@@ -69,7 +69,7 @@ public class BruteForceCommonInterpreterTest {
 	public Context makeContext() {
 		LinkedHashMap<Expression, Expression> assignment = map(parse("Two"), Expressions.TWO);
 		Context context = new TrueContext();
-		context = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
+		context = Assignment.extendAssignments(assignment, context);
 		return context;
 	}
 

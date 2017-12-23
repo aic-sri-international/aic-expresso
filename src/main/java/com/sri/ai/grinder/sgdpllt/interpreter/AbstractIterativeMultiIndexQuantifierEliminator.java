@@ -1,3 +1,40 @@
+/*
+ * Copyright (c) 2013, SRI International
+ * All rights reserved.
+ * Licensed under the The BSD 3-Clause License;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ * 
+ * http://opensource.org/licenses/BSD-3-Clause
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the aic-expresso nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import static com.sri.ai.util.Util.in;
@@ -16,7 +53,6 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * An abstract class for quantifier eliminators using a simple (total or sampled)
@@ -24,7 +60,7 @@ import com.sri.ai.util.collect.StackedHashMap;
  * <p>
  * The current assignment to the eliminated variables is kept in the {@link Context}'s
  * global object with key {@link #ASSIGNMENTS_GLOBAL_OBJECTS_KEY},
- * which can be extended with {@link #extendAssignments(Map, Context)}.
+ * which can be extended with {@link Assignment#extendAssignments(Map, Context)}.
  * This same assignment is also used by top rewriters in implementations of
  * {@link AbstractInterpreter} to simplify variables.
  * <p>
@@ -55,7 +91,7 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 	 * @param context
 	 * @return
 	 */
-	public abstract Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context);
+	public abstract Iterator<Assignment> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context);
 
 	public AbstractIterativeMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
 		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
@@ -81,9 +117,9 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 		Expression currentValue = group.additiveIdentityElement();		
 		Expression summand  = makeSummand(group, indices, indicesCondition, body, context);
 		Rewriter   rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
-		Iterator<Map<Expression, Expression>> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
+		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
 		for (Map<Expression, Expression> indicesValues : in(assignmentsIterator)) {
-			Context extendedContext = extendAssignments(indicesValues, context);			
+			Context extendedContext = Assignment.extendAssignments(indicesValues, context);			
 			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;
@@ -99,7 +135,7 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 		return result;
 	}
 	
-	private static final String ASSIGNMENTS_GLOBAL_OBJECTS_KEY = "ASSIGNMENTS_GLOBAL_OBJECTS_KEY";
+	static final String ASSIGNMENTS_GLOBAL_OBJECTS_KEY = "ASSIGNMENTS_GLOBAL_OBJECTS_KEY";
 	
 	/**
 	 * Obtains the value assignment to a given expression in the binding mechanism stored in the context.
@@ -111,26 +147,6 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 		@SuppressWarnings("unchecked")
 		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
 		Expression result = assignments == null? null : assignments.get(expression);
-		return result;
-	}
-	
-	/**
-	 * Sets the value assignment to a given expression in the binding mechanism stored in the context.
-	 * @param newAssignment
-	 * @param context
-	 * @return
-	 */
-	public static Context extendAssignments(Map<Expression, Expression> newAssignments, Context context) {
-		@SuppressWarnings("unchecked")
-		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
-		Map<Expression, Expression> extendedAssignments;
-		if (assignments == null) {
-			extendedAssignments = newAssignments;
-		}
-		else {
-			extendedAssignments = new StackedHashMap<>(newAssignments, assignments);
-		}
-		Context result = context.putGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
 		return result;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2017, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -35,35 +35,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.helper;
+package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.grinder.sgdpllt.interpreter.DefaultAssignment.assignment;
+import java.util.Random;
 
-import java.util.Collection;
-import java.util.Map;
-
-import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.Type;
-import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
-import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.grinder.helper.LazySampledFunctionApplicationTopRewriter;
+import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * An iterator over assignments to expressions according to their {@link Type} as defined
- * in a {@link Registry}.
+ * This interpreter will evaluate expressions, but will sample quantifiers instead of using brute force.
  * 
- * @author braz
+ * @author oreilly
+ *
  */
-@Beta
-public class AssignmentsIterator extends FunctionIterator<Map<Expression, Expression>, Assignment> {
+public class SamplingInterpreter extends AbstractInterpreter {
+	
+	private int sampleSizeN;
+	private boolean alwaysSample;
+	private Random random;
 
-	public AssignmentsIterator(Collection<Expression> variables, Registry registry) {
-		super(new AssignmentMapsIterator(variables, registry), m -> assignment(m));
+	public SamplingInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, boolean alwaysSample, Random random) {
+		super();
+		this.sampleSizeN = sampleSizeN;
+		this.alwaysSample = alwaysSample;
+		this.random = random;
+		// it is important that the properties above are settled before invoking the method below
+		// The reason is that setting the base top rewriter invokes {@link #makeQuantifierEliminator(TopRewriterUsingContextAssignments)},
+		// which needs these properties.
+		setBaseTopRewriter(new LazySampledFunctionApplicationTopRewriter(this, baseTopRewriter));
 	}
 	
-	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, Registry registry) {
-		super(new AssignmentMapsIterator(indexExpressionsSet, registry), m -> assignment(m));
+	@Override
+	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
+		return new SamplingMultiIndexQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
 	}
 }

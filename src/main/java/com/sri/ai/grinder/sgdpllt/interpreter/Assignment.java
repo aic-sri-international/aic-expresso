@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, SRI International
+ * Copyright (c) 2013, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -37,37 +37,42 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import java.util.Random;
+import java.util.Map;
 
-import com.sri.ai.grinder.helper.LazySampledFunctionApplicationTopRewriter;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * This interpreter will evaluate expressions, but will sample quantifiers instead of using brute force.
+ * An interface representing assignments for a set of expressions.
  * 
- * @author oreilly
+ * @author braz
  *
  */
-public class SampleInterpreter extends AbstractInterpreter {
-	
-	private int sampleSizeN;
-	private boolean alwaysSample;
-	private Random random;
+public interface Assignment extends Map<Expression, Expression> {
 
-	public SampleInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, boolean alwaysSample, Random random) {
-		super();
-		this.sampleSizeN = sampleSizeN;
-		this.alwaysSample = alwaysSample;
-		this.random = random;
-		// it is important that the properties above are settled before invoking the method below
-		// The reason is that setting the base top rewriter invokes {@link #makeQuantifierEliminator(TopRewriterUsingContextAssignments)},
-		// which needs these properties.
-		setBaseTopRewriter(new LazySampledFunctionApplicationTopRewriter(this, baseTopRewriter));
+	/**
+	 * Sets the value assignment to a given expression in the binding mechanism stored in the context.
+	 * @param newAssignment
+	 * @param context
+	 * @return
+	 */
+	public static Context extendAssignments(Map<Expression, Expression> newAssignments, Context context) {
+		@SuppressWarnings("unchecked")
+		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(AbstractIterativeMultiIndexQuantifierEliminator.ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
+		Map<Expression, Expression> extendedAssignments;
+		if (assignments == null) {
+			extendedAssignments = newAssignments;
+		}
+		else {
+			extendedAssignments = new StackedHashMap<>(newAssignments, assignments);
+		}
+		Context result = context.putGlobalObject(AbstractIterativeMultiIndexQuantifierEliminator.ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
+		return result;
 	}
 	
-	@Override
-	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new SampleMultiIndexQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
+	default Context extend(Context context) {
+		Context result = extendAssignments(this, context);
+		return result;
 	}
 }

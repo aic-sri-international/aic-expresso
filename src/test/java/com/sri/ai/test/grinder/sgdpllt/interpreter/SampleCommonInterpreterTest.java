@@ -26,7 +26,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.sgdpllt.interpreter.SampleCommonInterpreter;
+import com.sri.ai.grinder.sgdpllt.interpreter.SamplingCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
@@ -359,7 +359,7 @@ public class SampleCommonInterpreterTest {
 	}
 	
 	private Expression run(int sampleSizeN, boolean alwaysSample, String expressionString) {
-		SampleCommonInterpreter interpreter = new SampleCommonInterpreter(sampleSizeN, alwaysSample, random);
+		SamplingCommonInterpreter interpreter = new SamplingCommonInterpreter(sampleSizeN, alwaysSample, random);
 		
 		Expression expression = parse(expressionString);
 		if (expression.numberOfArguments() == 1 && Sets.isIntensionalSet(expression.get(0))) {

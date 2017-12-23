@@ -23,7 +23,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.sgdpllt.interpreter.SampleCommonInterpreter;
+import com.sri.ai.grinder.sgdpllt.interpreter.SamplingCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 import com.sri.ai.grinder.sgdpllt.library.set.invsupport.InversionSimplifier;
@@ -245,14 +245,14 @@ public class InversionPerformanceEvaluationTest {
 	}
 	
 	private class SamplingSumProductInterpreter implements SumProductInterpreter {
-		private SampleCommonInterpreter samplingInterpreter;
+		private SamplingCommonInterpreter samplingInterpreter;
 		private int n;
 		private boolean alwaysSample;
 		
 		public SamplingSumProductInterpreter(int n, boolean alwaysSample) {
 			this.n = n;
 			this.alwaysSample = alwaysSample;
-			samplingInterpreter = new SampleCommonInterpreter(n, alwaysSample, new Random(1));
+			samplingInterpreter = new SamplingCommonInterpreter(n, alwaysSample, new Random(1));
 		}
 		
 		@Override

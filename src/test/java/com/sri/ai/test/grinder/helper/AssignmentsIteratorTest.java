@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 
 
@@ -84,7 +84,7 @@ public class AssignmentsIteratorTest  {
 		Symbol myTypeExpression = makeSymbol(myType.getName());
 		registry = registry.makeCloneWithAddedType(myType);
 		registry = registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), registry);
+		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
 		
 		// System.out.println(actual);	
@@ -108,7 +108,7 @@ public class AssignmentsIteratorTest  {
 		Symbol myTypeExpression = makeSymbol(myType.getName());
 		registry = registry.makeCloneWithAddedType(myType);
 		registry = registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), registry);
+		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
 		
 		// System.out.println(actual);	
@@ -143,7 +143,7 @@ public class AssignmentsIteratorTest  {
 		registry = registry.makeCloneWithAddedType(peopleType);
 		registry = registry.makeCloneWithAddedType(petsType);
 		registry = registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), registry);
+		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
 		
 		// System.out.println(actual);	

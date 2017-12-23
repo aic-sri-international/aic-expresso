@@ -61,7 +61,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -146,7 +146,7 @@ public class FunctionType extends AbstractType {
 				lambdaApplicationPrefix.add(argVar + " in " + symbolsAndTypes.get(argVar));
 			}
 			
-			AssignmentsIterator assignmentsIterator = new AssignmentsIterator(argVariables, cachedIterateRegistry);
+			AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(argVariables, cachedIterateRegistry);
 			StringJoiner lambdaApplicationBody = new StringJoiner(" else ", "", ")");
 			AtomicInteger counter = new AtomicInteger(0);
 			assignmentsIterator.forEachRemaining(assignment -> {
@@ -166,7 +166,7 @@ public class FunctionType extends AbstractType {
 			genericLambda = parse(lambdaApplicationPrefix.toString() + lambdaApplicationBody.toString());
 		}
 		
-		return FunctionIterator.functionIterator(new AssignmentsIterator(codomainVariables, cachedIterateRegistry), assignment -> {
+		return FunctionIterator.functionIterator(new AssignmentMapsIterator(codomainVariables, cachedIterateRegistry), assignment -> {
 			
 			Expression lambda = genericLambda;
 			for (int i = 0; i < codomainVariables.size(); i++) {

@@ -60,7 +60,7 @@ import com.sri.ai.expresso.api.Tuple;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -132,7 +132,7 @@ public class TupleType extends AbstractType {
 			genericTuple = parse(tupleVariableRepresentation.toString());
 		}
 		
-		return FunctionIterator.functionIterator(new AssignmentsIterator(elementVariables, cachedIterateRegistry), assignment -> {
+		return FunctionIterator.functionIterator(new AssignmentMapsIterator(elementVariables, cachedIterateRegistry), assignment -> {
 			
 			Expression tuple = genericTuple;
 			for (int i = 0; i < elementVariables.size(); i++) {

@@ -61,8 +61,7 @@ public class BruteForceFallbackQuantifierEliminationStepSolver extends FallbackQ
 
 	@Override
 	protected MultiIndexQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context) {
-		MultiIndexQuantifierEliminator result = new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
-		return result;
+		return new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
 	}
 
 	@Override

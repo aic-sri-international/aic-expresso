@@ -59,7 +59,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -70,7 +70,7 @@ import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.sgdpllt.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.interpreter.AbstractIterativeMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.sgdpllt.library.boole.And;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
@@ -459,9 +459,9 @@ public class SGDPLLTTester {
 		output("Computing model count by brute force of: " + conjunction);
 		int modelCount = 0;
 		Expression testingVariable = variable;
-		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), context);
+		AssignmentMapsIterator testingVariableAssignmentsIterator = new AssignmentMapsIterator(list(testingVariable), context);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(testingVariableAssignment, context);
+			Context extendedContext = Assignment.extendAssignments(testingVariableAssignment, context);
 			Expression value = interpreter.apply(conjunction, extendedContext);
 			if (value.equals(TRUE)) {
 				modelCount++;
@@ -754,7 +754,7 @@ public class SGDPLLTTester {
 			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToBruteForceSolution,
 			Context context) throws Error {
 		
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, context);
+		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(freeVariables, context);
 		for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
 			testSymbolicVsBruteForceComputationForAssignment(assignment, theory, problemDescription, symbolicSolution, fromInterpreterAndContextWithAssignmentToBruteForceSolution, context);
 		}
@@ -762,7 +762,7 @@ public class SGDPLLTTester {
 
 	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, Theory theory, String problemDescription, Expression symbolicSolution, BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToBruteForceSolution, Context context) throws Error {
 		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter();
-		Context extendedContext = AbstractIterativeMultiIndexQuantifierEliminator.extendAssignments(assignment, context);
+		Context extendedContext = Assignment.extendAssignments(assignment, context);
 		Expression bruteForceResultUnderAssignment = fromInterpreterAndContextWithAssignmentToBruteForceSolution.apply(interpreter, extendedContext);
 		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, extendedContext);
 		output("Under free variables assignment " + assignment);

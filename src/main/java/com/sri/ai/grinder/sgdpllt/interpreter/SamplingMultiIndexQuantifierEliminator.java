@@ -40,7 +40,6 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
@@ -70,13 +69,20 @@ import com.sri.ai.util.math.Rational;
  * @author oreilly
  *
  */
-public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
+public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
+
 	private int sampleSizeN;
 	private boolean alwaysSample;
 	private Rewriter indicesConditionRewriter;
 	private Random random;
 	
-	public SampleMultiIndexQuantifierEliminator(TopRewriter topRewriter, int sampleSizeN, boolean alwaysSample, Rewriter indicesConditionRewriter, Random random) {
+	public SamplingMultiIndexQuantifierEliminator(
+			TopRewriter topRewriter, 
+			int sampleSizeN, 
+			boolean alwaysSample, 
+			Rewriter indicesConditionRewriter, 
+			Random random) {
+		
 		super(topRewriter);
 		this.sampleSizeN = sampleSizeN;
 		this.alwaysSample = alwaysSample;
@@ -84,7 +90,13 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		this.random = random;
 	}
 	
-	public SampleMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, int sampleSizeN, boolean alwaysSample, Rewriter indicesConditionRewriter, Random random) {
+	public SamplingMultiIndexQuantifierEliminator(
+			TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, 
+			int sampleSizeN, 
+			boolean alwaysSample, 
+			Rewriter indicesConditionRewriter, 
+			Random random) {
+		
 		super(topRewriterWithBaseAssignment);
 		this.sampleSizeN = sampleSizeN;
 		this.alwaysSample = alwaysSample;
@@ -93,8 +105,11 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 	}
 	
 	@Override
-	public Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
-		Iterator<Map<Expression, Expression>> result;
+	public
+	Iterator<Assignment> 
+	makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
+		
+		Iterator<Assignment> result;
 		if (indices.size() == 2 && indices.get(1).equals(Expressions.TRUE)) {
 			result = new AssignmentsSamplingIterator(indices.subList(0, 1), sampleSizeN, indicesCondition, indicesConditionRewriter, random, context);
 		}
@@ -103,7 +118,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 		}
 		return result;
 	}
-	
+
 	@Override
 	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Expression result;
@@ -134,7 +149,7 @@ public class SampleMultiIndexQuantifierEliminator extends AbstractIterativeMulti
 				// Quantifier({{ (on I in Samples) Head }} )							
 
 				// NOTE: we are using the indices[2] with 2nd arg=TRUE so that the sampling logic can determine when it should activate
-				// in makeAssignmentsInterator() and makeSummand().
+				// in makeAssignmentsIterator() and makeSummand().
 				Expression sampleGroupSum = super.solve(group, Arrays.asList(indices.get(0), Expressions.TRUE), indicesCondition,  body, context);			
 			
 				// Average = Quantifier( {{ (on I in Samples) Head }}) / n

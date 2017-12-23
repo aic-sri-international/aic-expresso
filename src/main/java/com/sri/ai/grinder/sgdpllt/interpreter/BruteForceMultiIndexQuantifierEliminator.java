@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -77,7 +76,7 @@ public class BruteForceMultiIndexQuantifierEliminator extends AbstractIterativeM
 	}
 	
 	@Override
-	public Iterator<Map<Expression, Expression>> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
+	public Iterator<Assignment> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
 		return new AssignmentsIterator(indices, context);
 	}
 
