@@ -69,7 +69,7 @@ import com.sri.ai.util.math.Rational;
  */
 public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
 
-	private int sampleSizeN;
+	private int sampleSize;
 	private boolean alwaysSample;
 	private Rewriter indicesConditionEvaluator;
 	private Random random;
@@ -83,7 +83,7 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 			Random random) {
 		
 		super(topRewriterWithBaseAssignment);
-		this.sampleSizeN = sampleSizeN;
+		this.sampleSize = sampleSizeN;
 		this.alwaysSample = alwaysSample;
 		this.indicesConditionEvaluator = indicesConditionEvaluator;
 		this.random = random;
@@ -135,16 +135,16 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 		boolean result = 
 				type == null 
 				|| !type.isDiscrete() 
-				|| measureSetOfI.compareTo(sampleSizeN) > 0;
+				|| measureSetOfI.compareTo(sampleSize) > 0;
 		return result;
 	}
 
 	private Expression computeResultBasedOnSamples(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Rational measureSetOfI, Context context) {
 		// Quantifier({{ (on I in Samples) Head }} )							
-		Expression sampleGroupSum = super.solve(group, list(index), indicesCondition, body, context);			
+		Expression groupSumFromSamples = super.solve(group, list(index), indicesCondition, body, context);			
 
 		// Average = Quantifier( {{ (on I in Samples) Head }} ) / n
-		Expression average = group.addNTimes(sampleGroupSum, Division.make(ONE, makeSymbol(sampleSizeN)), context);
+		Expression average = group.addNTimes(groupSumFromSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
 		
 		// return Average * | SetOfI |
 		Expression result = group.addNTimes(average, makeSymbol(measureSetOfI), context);
@@ -158,7 +158,7 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 		
 		Iterator<Assignment> result;
 		if (sampleSingleIndex) {
-			result = new AssignmentsSamplingIterator(indices, sampleSizeN, indicesCondition, indicesConditionEvaluator, random, context);
+			result = new AssignmentsSamplingIterator(indices, sampleSize, indicesCondition, indicesConditionEvaluator, random, context);
 		}
 		else {
 			result = new AssignmentsIterator(indices, context);
