@@ -67,7 +67,7 @@ import com.sri.ai.util.math.Rational;
  * @author oreilly
  *
  */
-public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
+public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQuantifierEliminator {
 
 	private int sampleSize;
 	private boolean alwaysSample;
@@ -75,7 +75,7 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 	private Random random;
 	private boolean sampleSingleIndex;
 	
-	public SamplingMultiIndexQuantifierEliminator(
+	public SamplingMultiQuantifierEliminator(
 			TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, 
 			int sampleSizeN, 
 			boolean alwaysSample, 

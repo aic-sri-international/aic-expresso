@@ -3,7 +3,7 @@ package com.sri.ai.grinder.sgdpllt.helper;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 
 public abstract class FallbackQuantifierEliminationStepSolver implements ExpressionLiteralSplitterStepSolver {
@@ -11,7 +11,7 @@ public abstract class FallbackQuantifierEliminationStepSolver implements Express
 	protected SingleQuantifierEliminationProblem problem;
 	protected ExpressionLiteralSplitterStepSolver base;
 
-	protected abstract MultiIndexQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context);
+	protected abstract MultiQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context);
 
 	public FallbackQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
 		super();
@@ -38,7 +38,7 @@ public abstract class FallbackQuantifierEliminationStepSolver implements Express
 	}
 
 	private Expression solveWithFallbackAndReturnExpression(Context context) {
-		MultiIndexQuantifierEliminator fallbackMultiIndexQuantifierEliminator = makeFallbackMultiIndexQuantifierEliminator(context);
+		MultiQuantifierEliminator fallbackMultiIndexQuantifierEliminator = makeFallbackMultiIndexQuantifierEliminator(context);
 		Expression resultExpression = fallbackMultiIndexQuantifierEliminator.solveSingleIndexQuantifierEliminationProblem(problem, context);
 		return resultExpression;
 	}

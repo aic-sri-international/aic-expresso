@@ -59,7 +59,7 @@ public interface Assignment extends Map<Expression, Expression> {
 	 */
 	public static Context extendAssignments(Map<Expression, Expression> newAssignments, Context context) {
 		@SuppressWarnings("unchecked")
-		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(AbstractIterativeMultiIndexQuantifierEliminator.ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
+		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(AbstractIterativeMultiQuantifierEliminator.ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
 		Map<Expression, Expression> extendedAssignments;
 		if (assignments == null) {
 			extendedAssignments = newAssignments;
@@ -67,7 +67,7 @@ public interface Assignment extends Map<Expression, Expression> {
 		else {
 			extendedAssignments = new StackedHashMap<>(newAssignments, assignments);
 		}
-		Context result = context.putGlobalObject(AbstractIterativeMultiIndexQuantifierEliminator.ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
+		Context result = context.putGlobalObject(AbstractIterativeMultiQuantifierEliminator.ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
 		return result;
 	}
 	

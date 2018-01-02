@@ -37,10 +37,10 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 
 /**
- * A {@link MultiIndexQuantifierEliminator} implementing interruption and debugging mechanisms.
+ * A {@link MultiQuantifierEliminator} implementing interruption and debugging mechanisms.
  * <p>
  * Extensions to this class must routinely invoke {@link #checkInterrupted()}
  * during its operation so as to allow interruption ordered by client code.
@@ -48,7 +48,7 @@ import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
  * @author braz
  *
  */
-public abstract class AbstractMultiIndexQuantifierEliminator implements MultiIndexQuantifierEliminator {
+public abstract class AbstractMultiQuantifierEliminator implements MultiQuantifierEliminator {
 
 	private boolean interrupted = false;
 	private boolean debug = false;

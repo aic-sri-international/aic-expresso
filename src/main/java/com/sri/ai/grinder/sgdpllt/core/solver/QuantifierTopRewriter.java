@@ -44,7 +44,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
  * A {@link TopRewriter} solving quantified expressions,
- * given the syntactic form type, group, and {@link MultiIndexQuantifierEliminator}.
+ * given the syntactic form type, group, and {@link MultiQuantifierEliminator}.
  *
  * @author braz
  *
@@ -63,7 +63,7 @@ public class QuantifierTopRewriter extends Switch<Object> {
 	public QuantifierTopRewriter(
 			Object syntaticFormType,
 			AssociativeCommutativeGroup group,
-			MultiIndexQuantifierEliminator quantifierEliminator) {
+			MultiQuantifierEliminator quantifierEliminator) {
 		
 		super(
 				Switch.SYNTACTIC_FORM_TYPE,
@@ -74,7 +74,7 @@ public class QuantifierTopRewriter extends Switch<Object> {
 		);
 	}
 
-	private static Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group, MultiIndexQuantifierEliminator quantifierEliminator) {
+	private static Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group, MultiQuantifierEliminator quantifierEliminator) {
 		return (e, c) -> {
 			Expression result;
 			try {

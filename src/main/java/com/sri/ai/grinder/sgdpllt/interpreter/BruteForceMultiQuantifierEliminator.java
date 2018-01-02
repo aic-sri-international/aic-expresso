@@ -44,13 +44,13 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * An extension of {@link AbstractMultiIndexQuantifierEliminator}
+ * An extension of {@link AbstractMultiQuantifierEliminator}
  * that solves quantified expressions by brute force.
  * <p>
  * Additionally, it takes an assignment to symbols as a constructing parameter,
@@ -65,13 +65,13 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  *
  */
 @Beta
-public class BruteForceMultiIndexQuantifierEliminator extends AbstractIterativeMultiIndexQuantifierEliminator {
+public class BruteForceMultiQuantifierEliminator extends AbstractIterativeMultiQuantifierEliminator {
 
-	public BruteForceMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
+	public BruteForceMultiQuantifierEliminator(TopRewriter topRewriter) {
 		super(topRewriter);
 	}
 	
-	public BruteForceMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment) {
+	public BruteForceMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment) {
 		super(topRewriterWithBaseAssignment);
 	}
 	

@@ -38,11 +38,11 @@
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
- * An implementation of {@link AbstractInterpreter} using {@link BruteForceMultiIndexQuantifierEliminator}.
+ * An implementation of {@link AbstractInterpreter} using {@link BruteForceMultiQuantifierEliminator}.
  *
  * @author braz
  *
@@ -56,7 +56,7 @@ public class BruteForceInterpreter extends AbstractInterpreter {
 	}
 
 	@Override
-	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new BruteForceMultiIndexQuantifierEliminator(topRewriterWithAssignment);
+	protected MultiQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
+		return new BruteForceMultiQuantifierEliminator(topRewriterWithAssignment);
 	}
 }

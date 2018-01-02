@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.library.commonrewriters;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.SGVET;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 
 /**
  * A {@link TopRewriter} aggregating symbolic quantifier eliminators for +, *, max, cardinality, for all and there exists
- * using {@link DefaultMultiIndexQuantifierEliminator} ({@link SGVET} for summations).
+ * using {@link DefaultMultiQuantifierEliminator} ({@link SGVET} for summations).
  * 
  * @author braz
  *
@@ -63,15 +63,15 @@ public class SymbolicQuantifierEliminatorRewritersTopRewriter extends CombiningT
 		super(
 				new SummationRewriter(new SGVET())
 				,
-				new ProductRewriter(new DefaultMultiIndexQuantifierEliminator())
+				new ProductRewriter(new DefaultMultiQuantifierEliminator())
 				,
-				new MaxRewriter(new DefaultMultiIndexQuantifierEliminator())
+				new MaxRewriter(new DefaultMultiQuantifierEliminator())
 				,
-				new CardinalityTopRewriter(new DefaultMultiIndexQuantifierEliminator())
+				new CardinalityTopRewriter(new DefaultMultiQuantifierEliminator())
 				,
-				new ForAllRewriter(new DefaultMultiIndexQuantifierEliminator())
+				new ForAllRewriter(new DefaultMultiQuantifierEliminator())
 				,
-				new ThereExistsRewriter(new DefaultMultiIndexQuantifierEliminator())
+				new ThereExistsRewriter(new DefaultMultiQuantifierEliminator())
 				);
 	}
 }

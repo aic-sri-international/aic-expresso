@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.library.number;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MAX;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter;
 import com.sri.ai.grinder.sgdpllt.group.Max;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  */
 @Beta
 public class MaxRewriter extends QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter {
-	public MaxRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
+	public MaxRewriter(MultiQuantifierEliminator quantifierEliminator) {
 		super(MAX, new Max(), quantifierEliminator);
 	}
 }

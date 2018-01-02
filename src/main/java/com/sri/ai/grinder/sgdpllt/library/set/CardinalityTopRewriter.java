@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.CountingFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.CombiningTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 
 /**
- * A {@link TopRewriter} cardinality and counting formulas according to a given {@link MultiIndexQuantifierEliminator}.
+ * A {@link TopRewriter} cardinality and counting formulas according to a given {@link MultiQuantifierEliminator}.
  *
  * @author braz
  *
@@ -64,7 +64,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Switch;
 @Beta
 public class CardinalityTopRewriter extends CombiningTopRewriter {
 
-	public CardinalityTopRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
+	public CardinalityTopRewriter(MultiQuantifierEliminator quantifierEliminator) {
 		
 		super(
 				"Cardinality",
@@ -84,7 +84,7 @@ public class CardinalityTopRewriter extends CombiningTopRewriter {
 		);
 	}
 
-	private static Simplifier simplifierForCountingFormulaEquivalentExpression(MultiIndexQuantifierEliminator quantifierEliminator) {
+	private static Simplifier simplifierForCountingFormulaEquivalentExpression(MultiQuantifierEliminator quantifierEliminator) {
 		return (e, p) -> {
 			Expression result;
 			try {

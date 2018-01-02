@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.library.boole;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierTopRewriter;
 import com.sri.ai.grinder.sgdpllt.group.Conjunction;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  */
 @Beta
 public class ForAllRewriter extends QuantifierTopRewriter {
-	public ForAllRewriter(MultiIndexQuantifierEliminator quantifierEliminator) {
+	public ForAllRewriter(MultiQuantifierEliminator quantifierEliminator) {
 		super(ForAll.SYNTACTIC_FORM_TYPE, new Conjunction(), quantifierEliminator);
 	}
 }

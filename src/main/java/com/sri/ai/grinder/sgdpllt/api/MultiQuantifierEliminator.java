@@ -60,7 +60,7 @@ import com.sri.ai.util.base.Triple;
  * @author braz
  *
  */
-public interface MultiIndexQuantifierEliminator {
+public interface MultiQuantifierEliminator {
 
 	default Expression solve(
 			AssociativeCommutativeGroup group,

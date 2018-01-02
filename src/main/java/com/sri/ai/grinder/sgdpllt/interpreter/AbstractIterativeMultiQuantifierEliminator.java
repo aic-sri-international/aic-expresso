@@ -46,7 +46,7 @@ import java.util.Map;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
@@ -72,7 +72,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  * @author braz
  *
  */
-public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends AbstractMultiIndexQuantifierEliminator {
+public abstract class AbstractIterativeMultiQuantifierEliminator extends AbstractMultiQuantifierEliminator {
 
 	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
 
@@ -97,11 +97,11 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 	 */
 	public abstract Iterator<Assignment> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context);
 
-	public AbstractIterativeMultiIndexQuantifierEliminator(TopRewriter topRewriter) {
+	public AbstractIterativeMultiQuantifierEliminator(TopRewriter topRewriter) {
 		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
 	}
 
-	public AbstractIterativeMultiIndexQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
+	public AbstractIterativeMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
 		super();
 		this.topRewriterUsingContextAssignments = topRewriterUsingContextAssignments;
 	}
@@ -122,8 +122,8 @@ public abstract class AbstractIterativeMultiIndexQuantifierEliminator extends Ab
 		Expression summand  = makeSummand(group, indices, indicesCondition, body, context);
 		Rewriter   rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
 		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
-		for (Map<Expression, Expression> indicesValues : in(assignmentsIterator)) {
-			Context extendedContext = Assignment.extendAssignments(indicesValues, context);			
+		for (Assignment assignment : in(assignmentsIterator)) {
+			Context extendedContext = assignment.extend(context);			
 			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
 			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
 				return bodyEvaluation;

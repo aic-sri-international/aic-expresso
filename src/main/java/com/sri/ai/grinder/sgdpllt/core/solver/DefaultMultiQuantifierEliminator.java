@@ -4,18 +4,18 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 /**
- * A {@link MultiIndexQuantifierEliminator} implementation that
+ * A {@link MultiQuantifierEliminator} implementation that
  * eliminates each quantifier using the context's theory.
  * 
  * @author braz
  *
  */
-public class DefaultMultiIndexQuantifierEliminator extends AbstractMultiIndexQuantifierEliminator {
+public class DefaultMultiQuantifierEliminator extends AbstractMultiQuantifierEliminator {
 
 	@Override
 	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression condition, Expression body, Context context) {

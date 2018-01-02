@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 import java.util.Random;
 
 import com.sri.ai.grinder.helper.LazySampledFunctionApplicationTopRewriter;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
@@ -67,7 +67,7 @@ public class SamplingInterpreter extends AbstractInterpreter {
 	}
 	
 	@Override
-	protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new SamplingMultiIndexQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
+	protected MultiQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
+		return new SamplingMultiQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
 	}
 }

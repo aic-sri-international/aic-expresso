@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 
 
 /**
- * A {@link AbstractSGVET} using {@link DefaultMultiIndexQuantifierEliminator} as the eliminator for single quantifiers.
+ * A {@link AbstractSGVET} using {@link DefaultMultiQuantifierEliminator} as the eliminator for single quantifiers.
  * 
  * @author braz
  *
@@ -47,6 +47,6 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 public class SGVET extends AbstractSGVET {
 
 	public SGVET() {
-		super(new DefaultMultiIndexQuantifierEliminator());
+		super(new DefaultMultiQuantifierEliminator());
 	}
 }

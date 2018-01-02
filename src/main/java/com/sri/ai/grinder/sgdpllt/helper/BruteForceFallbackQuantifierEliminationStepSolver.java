@@ -40,10 +40,10 @@ package com.sri.ai.grinder.sgdpllt.helper;
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.SingleQuantifierEliminationStepSolver;
-import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiQuantifierEliminator;
 
 /**
  * Wraps a base {@link SingleQuantifierEliminationStepSolver} into another
@@ -60,8 +60,8 @@ public class BruteForceFallbackQuantifierEliminationStepSolver extends FallbackQ
 	}
 
 	@Override
-	protected MultiIndexQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context) {
-		return new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
+	protected MultiQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context) {
+		return new BruteForceMultiQuantifierEliminator(context.getTheory().getTopRewriter());
 	}
 
 	@Override

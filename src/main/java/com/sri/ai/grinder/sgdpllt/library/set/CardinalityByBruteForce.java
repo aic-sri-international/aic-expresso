@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.library.set;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
@@ -49,7 +49,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  */
 @Beta
 public class CardinalityByBruteForce extends CardinalityTopRewriter {
-	public CardinalityByBruteForce(MultiIndexQuantifierEliminator quantifierEliminator) {
+	public CardinalityByBruteForce(MultiQuantifierEliminator quantifierEliminator) {
 		super(quantifierEliminator);
 	}
 }

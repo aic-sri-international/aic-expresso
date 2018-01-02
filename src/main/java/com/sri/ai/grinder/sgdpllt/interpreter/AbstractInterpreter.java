@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.boole.ForAllRewriter;
 import com.sri.ai.grinder.sgdpllt.library.boole.ThereExistsRewriter;
 import com.sri.ai.grinder.sgdpllt.library.number.MaxRewriter;
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.help.RedirectingRewriter;
 
 /**
  * A {@link Rewriter} based on a {@link TopRewriter},
- * adding the functionality of solving quantified and aggregate expressions with a {@link MultiIndexQuantifierEliminator}
+ * adding the functionality of solving quantified and aggregate expressions with a {@link MultiQuantifierEliminator}
  * provided by the implementation of an abstract method.
  *
  * @author braz
@@ -63,11 +63,11 @@ import com.sri.ai.grinder.sgdpllt.rewriter.help.RedirectingRewriter;
 public abstract class AbstractInterpreter extends RedirectingRewriter {
 
 	/**
-	 * Must provide a {@link MultiIndexQuantifierEliminator} based on given {@link TopRewriterUsingContextAssignments}.
+	 * Must provide a {@link MultiQuantifierEliminator} based on given {@link TopRewriterUsingContextAssignments}.
 	 * @param topRewriterUsingContextAssignments
 	 * @return
 	 */
-	abstract protected MultiIndexQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments);
+	abstract protected MultiQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments);
 	
 	public AbstractInterpreter() {
 	}
@@ -81,7 +81,7 @@ public abstract class AbstractInterpreter extends RedirectingRewriter {
 
 		public TopRewriterUsingQuantifierEliminatorAndContextAssignments(TopRewriter baseTopRewriter) {
 			super();
-			MultiIndexQuantifierEliminator quantifierEliminator = makeQuantifierEliminator(this);
+			MultiQuantifierEliminator quantifierEliminator = makeQuantifierEliminator(this);
 			setBaseRewriter(
 					TopRewriter.merge(
 							baseTopRewriter,

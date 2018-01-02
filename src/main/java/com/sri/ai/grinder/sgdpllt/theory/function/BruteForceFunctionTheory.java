@@ -48,9 +48,9 @@ import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -85,8 +85,8 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 		Expression indexExpression = IndexExpressions.makeIndexExpression(variable, type);
 		ExtensionalIndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression);
 		
-		MultiIndexQuantifierEliminator quantifierEliminator =
-				new BruteForceMultiIndexQuantifierEliminator(context.getTheory().getTopRewriter());
+		MultiQuantifierEliminator quantifierEliminator =
+				new BruteForceMultiQuantifierEliminator(context.getTheory().getTopRewriter());
 
 		// TODO: return conditional steps on literals on free variables.
 		// We are solving it straight here because there are no literals in this theory,
