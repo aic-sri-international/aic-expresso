@@ -58,5 +58,7 @@ public interface MultiQuantifierEliminationProblem {
 	
 	MultiQuantifierEliminationProblem makeWithNewBody(Expression newBody);
 	
+	SingleQuantifierEliminationProblem getFirstIndexVersion();
+	
 	Expression toExpression();
 }

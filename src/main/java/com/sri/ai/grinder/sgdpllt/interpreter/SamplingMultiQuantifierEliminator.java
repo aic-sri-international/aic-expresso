@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.util.Util.list;
+import static com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiQuantifierEliminationProblem.makeProblem;
 
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +54,8 @@ import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
@@ -93,45 +95,53 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Expression result = null;
 		
+		MultiQuantifierEliminationProblem problem = 
+				makeProblem(group, indices, indicesCondition, body, context);
+		
 		if (indices.size() == 1) {						
-			result = solveBySamplingSingleIndexIfCheaper(group, indices.get(0), indicesCondition, body, context);
+			result = solveBySamplingSingleIndexIfCheaper(problem.getFirstIndexVersion(), context);
 		}
 				
 		if (result == null) {
 			result = super.solve(group, indices, indicesCondition,  body, context);
+			// CANNOT be replaced by super.solve(problem, context), since that will use default method that redirects to dynamic solve, ending up here again and causing a stack overflow.
 		}
 		
 		return result;
 	}
 
-	private Expression solveBySamplingSingleIndexIfCheaper(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Context context) {
+	private Expression solveBySamplingSingleIndexIfCheaper(SingleQuantifierEliminationProblem problem, Context context) {
 		Expression result = null;
-		Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(index, indicesCondition, context);
-		sampleSingleIndex = decideWhetherToSampleSingleIndex(index, measureOfDomainSatisfyingCondition, context);
+		Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(problem, context);
+		sampleSingleIndex = decideWhetherToSampleSingleIndex(problem, measureOfDomainSatisfyingCondition, context);
 		if (sampleSingleIndex) {
-			result = computeResultBasedOnSamples(group, index, indicesCondition, body, measureOfDomainSatisfyingCondition, context);								
+			result = computeResultBasedOnSamples(problem, measureOfDomainSatisfyingCondition, context);								
 		}
 		return result;
 	}
 
-	private Rational computeMeasureOfDomainSatisfyingCondition(Expression index, Expression indexCondition, Context context) {
-		Expression indexType = GrinderUtil.getTypeExpressionOfExpression(index, context);
-		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(index, indexType));
-		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, index, indexCondition);
-		Rational result = Measure.get(intensionalSet, context);
+	private Rational computeMeasureOfDomainSatisfyingCondition(SingleQuantifierEliminationProblem problem, Context context) {
+		Expression intensionalSetOfAllIndexValues = getIntensionalSetOfAllIndexValues(problem);
+		Rational result = Measure.get(intensionalSetOfAllIndexValues, context);
 		return result;
 	}
 
-	private boolean decideWhetherToSampleSingleIndex(Expression index, Rational measureOfDomainSatisfyingCondition, Context context) {
+	private Expression getIntensionalSetOfAllIndexValues(SingleQuantifierEliminationProblem problem) {
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(problem.getIndex(), problem.getIndexType()));
+		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, problem.getIndex(), problem.getConstraint());
+		return intensionalSet;
+	}
+
+	private boolean decideWhetherToSampleSingleIndex(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
 		boolean result = 
 				alwaysSample
 				||
-				domainIsContinuousOrDiscreteButLargerThanSampleSize(index, measureOfDomainSatisfyingCondition, context);
+				domainIsContinuousOrDiscreteButLargerThanSampleSize(problem, measureOfDomainSatisfyingCondition, context);
 		return result;
 	}
 
-	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(Expression index, Rational measureOfDomainSatisfyingCondition, Context context) {
-		Type type = GrinderUtil.getTypeOfExpression(index, context);
+	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
+		Type type = GrinderUtil.getTypeOfExpression(problem.getIndex(), context);
 		boolean result = 
 				type == null 
 				|| !type.isDiscrete() 
@@ -139,8 +149,9 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 		return result;
 	}
 
-	private Expression computeResultBasedOnSamples(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Rational measureOfDomainSatisfyingCondition, Context context) {
-		Expression groupSumOfSamples = super.solve(group, list(index), indicesCondition, body, context);			
+	private Expression computeResultBasedOnSamples(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
+		AssociativeCommutativeGroup group = problem.getGroup();
+		Expression groupSumOfSamples = super.solve(group, problem.getIndices(), problem.getConstraint(), problem.getBody(), context);			
 		Expression average = group.addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
 		Expression result = group.addNTimes(average, makeSymbol(measureOfDomainSatisfyingCondition), context);
 		return result;

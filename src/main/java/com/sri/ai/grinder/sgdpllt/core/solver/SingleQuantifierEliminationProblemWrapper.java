@@ -99,6 +99,11 @@ public class SingleQuantifierEliminationProblemWrapper implements SingleQuantifi
 	}
 
 	@Override
+	public SingleQuantifierEliminationProblem getFirstIndexVersion() {
+		return problem.getFirstIndexVersion();
+	}
+
+	@Override
 	public String toString() {
 		return problem.toString();
 	}

@@ -44,6 +44,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
@@ -65,6 +66,10 @@ public class DefaultSingleQuantifierEliminationProblem extends AbstractMultiQuan
 		this.indexType = indexType;
 	}
 	
+	public DefaultSingleQuantifierEliminationProblem(MultiQuantifierEliminationProblem problem) {
+		this(problem.getGroup(), problem.getIndices().get(0), problem.getIndicesTypes().get(0), problem.getConstraint(), problem.getBody());
+	}
+
 	@Override
 	public Expression getIndex() {
 		return index;
@@ -93,5 +98,10 @@ public class DefaultSingleQuantifierEliminationProblem extends AbstractMultiQuan
 	@Override
 	public DefaultSingleQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
 		return new DefaultSingleQuantifierEliminationProblem(group, index, indexType, constraint, newBody);
+	}
+
+	@Override
+	public SingleQuantifierEliminationProblem getFirstIndexVersion() {
+		return this;
 	}
 }

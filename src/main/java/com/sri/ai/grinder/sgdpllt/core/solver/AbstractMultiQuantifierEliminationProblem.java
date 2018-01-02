@@ -42,7 +42,7 @@ abstract public class AbstractMultiQuantifierEliminationProblem implements Multi
 	public String toString() {
 		return "Quantifier elimination problem on " + toExpression();
 	}
-
+	
 	@Override
 	public Expression toExpression() {
 		Expression result = getGroup().makeProblemExpression(this);

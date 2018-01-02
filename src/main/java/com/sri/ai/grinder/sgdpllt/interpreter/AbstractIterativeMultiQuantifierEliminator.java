@@ -117,6 +117,7 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 		return solve(group, indices, indicesCondition, body, context);
 	}
 
+	@Override
 	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
 		Expression currentValue = group.additiveIdentityElement();		
 		Expression summand  = makeSummand(group, indices, indicesCondition, body, context);

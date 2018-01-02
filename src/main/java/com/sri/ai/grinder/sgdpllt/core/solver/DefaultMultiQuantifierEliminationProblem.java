@@ -44,8 +44,8 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
@@ -54,15 +54,37 @@ public class DefaultMultiQuantifierEliminationProblem extends AbstractMultiQuant
 	final public List<Expression> indices;
 	final public List<Expression> indicesTypes;
 
-	public DefaultMultiQuantifierEliminationProblem(AssociativeCommutativeGroup group, List<Expression> indices, List<Expression> indicesTypes, Expression constraint, Expression body) {
+	public DefaultMultiQuantifierEliminationProblem(
+			AssociativeCommutativeGroup group, 
+			List<Expression> indices, 
+			List<Expression> indicesTypes, 
+			Expression constraint, 
+			Expression body) {
+		
 		super(group, constraint, body);
 		myAssert(indices.size() == indicesTypes.size(), () -> "DefaultMultiQuantifierEliminationProblem requires numbers of indices and types to be the same, but got " + indices + " and " + indicesTypes);
 		this.indices = indices;
 		this.indicesTypes = indicesTypes;
 	}
 	
-	public DefaultMultiQuantifierEliminationProblem(AssociativeCommutativeGroup group, List<Expression> indices, List<Expression> indicesTypes, Expression body, Context context) {
-		this(group, indices, indicesTypes, Expressions.TRUE, body);
+	public DefaultMultiQuantifierEliminationProblem(
+			AssociativeCommutativeGroup group, 
+			List<Expression> indices, 
+			Expression indicesCondition,
+			Expression body, 
+			Context context) {
+		this(group, indices, context.getTypeExpressions(indices), indicesCondition, body);
+	}
+	
+	public static
+	DefaultMultiQuantifierEliminationProblem
+	makeProblem(
+			AssociativeCommutativeGroup group, 
+			List<Expression> indices, 
+			Expression indicesCondition,
+			Expression body, 
+			Context context) {
+		return new DefaultMultiQuantifierEliminationProblem(group, indices, indicesCondition, body, context);
 	}
 	
 	@Override
@@ -83,5 +105,10 @@ public class DefaultMultiQuantifierEliminationProblem extends AbstractMultiQuant
 	@Override
 	public DefaultMultiQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
 		return new DefaultMultiQuantifierEliminationProblem(group, indices, indicesTypes, constraint, newBody);
+	}
+
+	@Override
+	public SingleQuantifierEliminationProblem getFirstIndexVersion() {
+		return new DefaultSingleQuantifierEliminationProblem(this);
 	}
 }

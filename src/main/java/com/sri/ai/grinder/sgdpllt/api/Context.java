@@ -40,11 +40,13 @@ package com.sri.ai.grinder.sgdpllt.api;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.getIndices;
+import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.Triple.triple;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -208,6 +210,11 @@ public interface Context extends Registry, Constraint {
 			// no collision; usual extension and the expressions do not change.
 			result = triple(extendWith(indexExpressions), indexExpressions, expressionInScope);
 		}
+		return result;
+	}
+
+	default List<Expression> getTypeExpressions(List<Expression> indices) {
+		List<Expression> result = mapIntoList(indices, i -> getTypeExpressionOfRegisteredSymbol(i));
 		return result;
 	}
 }
