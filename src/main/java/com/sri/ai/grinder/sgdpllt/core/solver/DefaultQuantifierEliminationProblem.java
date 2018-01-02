@@ -37,6 +37,10 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
+import static com.sri.ai.util.Util.list;
+
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
@@ -83,6 +87,16 @@ public class DefaultQuantifierEliminationProblem implements QuantifierEliminatio
 	@Override
 	public Expression getIndexType() {
 		return indexType;
+	}
+
+	@Override
+	public List<Expression> getIndices() {
+		return list(getIndex());
+	}
+
+	@Override
+	public List<Expression> getIndicesTypes() {
+		return list(getIndexType());
 	}
 
 	@Override
