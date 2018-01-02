@@ -48,7 +48,7 @@ import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
-public class DefaultSingleQuantifierEliminationProblem extends AbstractQuantifierEliminationProblem implements SingleQuantifierEliminationProblem {
+public class DefaultSingleQuantifierEliminationProblem extends AbstractMultiQuantifierEliminationProblem implements SingleQuantifierEliminationProblem {
 	
 	final public Expression index;
 	final public Expression indexType;
@@ -93,16 +93,5 @@ public class DefaultSingleQuantifierEliminationProblem extends AbstractQuantifie
 	@Override
 	public DefaultSingleQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
 		return new DefaultSingleQuantifierEliminationProblem(group, index, indexType, constraint, newBody);
-	}
-
-	@Override
-	public String toString() {
-		return "Quantifier elimination problem on " + toExpression();
-	}
-
-	@Override
-	public Expression toExpression() {
-		Expression result = getGroup().makeProblemExpression(this);
-		return result;
 	}
 }

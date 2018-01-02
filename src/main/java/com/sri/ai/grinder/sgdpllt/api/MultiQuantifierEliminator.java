@@ -87,6 +87,13 @@ public interface MultiQuantifierEliminator {
 	Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context);
 	
 	/**
+	 * Returns the given problem's answer.
+	 */
+	default Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
+		return solve(problem.getGroup(), problem.getIndices(), problem.getConstraint(), problem.getBody(), context);
+	}
+	
+	/**
 	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Expression, Expression, Collection, Context)}
 	 * assuming a true constraint.
 	 */

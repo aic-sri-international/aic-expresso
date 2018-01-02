@@ -5,19 +5,19 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
-abstract public class AbstractQuantifierEliminationProblem implements MultiQuantifierEliminationProblem {
+abstract public class AbstractMultiQuantifierEliminationProblem implements MultiQuantifierEliminationProblem {
 
 	public final AssociativeCommutativeGroup group;
 	public final Expression constraint;
 	public final Expression body;
 
-	public AbstractQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression constraint, Expression body) {
+	public AbstractMultiQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression constraint, Expression body) {
 		this.group = group;
 		this.constraint = constraint;
 		this.body = body;
 	}
 
-	public AbstractQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression body) {
+	public AbstractMultiQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression body) {
 		this.group = group;
 		this.constraint = Expressions.TRUE;
 		this.body = body;
@@ -36,5 +36,16 @@ abstract public class AbstractQuantifierEliminationProblem implements MultiQuant
 	@Override
 	public Expression getBody() {
 		return body;
+	}
+
+	@Override
+	public String toString() {
+		return "Quantifier elimination problem on " + toExpression();
+	}
+
+	@Override
+	public Expression toExpression() {
+		Expression result = getGroup().makeProblemExpression(this);
+		return result;
 	}
 }
