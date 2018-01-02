@@ -107,7 +107,7 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 	private Expression solveBySamplingSingleIndexIfCheaper(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Context context) {
 		Expression result = null;
 		Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(index, indicesCondition, context);
-		sampleSingleIndex = decideWhetherToSampleEvenWithSingleIndex(index, measureOfDomainSatisfyingCondition, context);
+		sampleSingleIndex = decideWhetherToSampleSingleIndex(index, measureOfDomainSatisfyingCondition, context);
 		if (sampleSingleIndex) {
 			result = computeResultBasedOnSamples(group, index, indicesCondition, body, measureOfDomainSatisfyingCondition, context);								
 		}
@@ -122,32 +122,27 @@ public class SamplingMultiIndexQuantifierEliminator extends AbstractIterativeMul
 		return result;
 	}
 
-	private boolean decideWhetherToSampleEvenWithSingleIndex(Expression index, Rational measureSetOfI, Context context) {
+	private boolean decideWhetherToSampleSingleIndex(Expression index, Rational measureOfDomainSatisfyingCondition, Context context) {
 		boolean result = 
 				alwaysSample
 				||
-				domainIsContinuousOrDiscreteButLargerThanSampleSize(index, measureSetOfI, context);
+				domainIsContinuousOrDiscreteButLargerThanSampleSize(index, measureOfDomainSatisfyingCondition, context);
 		return result;
 	}
 
-	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(Expression index, Rational measureSetOfI, Context context) {
+	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(Expression index, Rational measureOfDomainSatisfyingCondition, Context context) {
 		Type type = GrinderUtil.getTypeOfExpression(index, context);
 		boolean result = 
 				type == null 
 				|| !type.isDiscrete() 
-				|| measureSetOfI.compareTo(sampleSize) > 0;
+				|| measureOfDomainSatisfyingCondition.compareTo(sampleSize) > 0;
 		return result;
 	}
 
-	private Expression computeResultBasedOnSamples(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Rational measureSetOfI, Context context) {
-		// Quantifier({{ (on I in Samples) Head }} )							
-		Expression groupSumFromSamples = super.solve(group, list(index), indicesCondition, body, context);			
-
-		// Average = Quantifier( {{ (on I in Samples) Head }} ) / n
-		Expression average = group.addNTimes(groupSumFromSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
-		
-		// return Average * | SetOfI |
-		Expression result = group.addNTimes(average, makeSymbol(measureSetOfI), context);
+	private Expression computeResultBasedOnSamples(AssociativeCommutativeGroup group, Expression index, Expression indicesCondition, Expression body, Rational measureOfDomainSatisfyingCondition, Context context) {
+		Expression groupSumOfSamples = super.solve(group, list(index), indicesCondition, body, context);			
+		Expression average = group.addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
+		Expression result = group.addNTimes(average, makeSymbol(measureOfDomainSatisfyingCondition), context);
 		return result;
 	}
 

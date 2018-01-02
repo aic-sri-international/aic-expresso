@@ -12,7 +12,7 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 /**
- * Eliminates a quantifier when the body does not contain the index by doing one of two things:
+ * Quantifier elimination when the body does not contain the index by doing one of two things:
  * <ul>
  * <li> if the group is idempotent, simplify to <code>if condition for satisfiability of constraint then body else group's identity</code>.
  * <li> if the group is not idempotent, 
@@ -24,11 +24,11 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * @author braz
  *
  */
-public class QuantifierEliminatorForIndexFreeBody extends QuantifierEliminationProblemWrapper {
+public class QuantifierEliminationForIndexFreeBody extends QuantifierEliminationProblemWrapper {
 
 	private Context context;
 	
-	public QuantifierEliminatorForIndexFreeBody(QuantifierEliminationProblem problem, Context context) {
+	public QuantifierEliminationForIndexFreeBody(QuantifierEliminationProblem problem, Context context) {
 		super(problem);
 		this.context = context;
 	}

@@ -49,7 +49,7 @@ import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
  * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
  * (the above is all done by {@link AbstractQuantifierEliminationStepSolver}.
  * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
- * {@link QuantifierEliminatorForIndexFreeBody}.
+ * {@link QuantifierEliminationForIndexFreeBody}.
  * 
  * @author braz
  *
@@ -63,14 +63,14 @@ public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStep
 
 	@Override
 	protected Step eliminateQuantifierForLiteralFreeBody(Expression literalFreeBody, Context context) {
-		QuantifierEliminatorForIndexFreeBody solver = makeSolver(literalFreeBody, context);
+		QuantifierEliminationForIndexFreeBody solver = makeSolver(literalFreeBody, context);
 		Expression result = solver.eliminateQuantifierForLiteralFreeBody();
 		return new Solution(result);
 	}
 
-	private QuantifierEliminatorForIndexFreeBody makeSolver(Expression literalFreeBody, Context context) {
+	private QuantifierEliminationForIndexFreeBody makeSolver(Expression literalFreeBody, Context context) {
 		QuantifierEliminationProblem problemWithLiteralFreeBody = getProblem().makeWithNewBody(literalFreeBody);
-		QuantifierEliminatorForIndexFreeBody solver = new QuantifierEliminatorForIndexFreeBody(problemWithLiteralFreeBody, context);
+		QuantifierEliminationForIndexFreeBody solver = new QuantifierEliminationForIndexFreeBody(problemWithLiteralFreeBody, context);
 		return solver;
 	}	
 }
