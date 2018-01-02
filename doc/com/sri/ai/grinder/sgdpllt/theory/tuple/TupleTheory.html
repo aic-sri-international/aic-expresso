@@ -168,7 +168,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/Abs
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/tuple/TupleTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/tuple/TupleTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
 <div class="block">Provides a quantifier eliminator step solver for use with given single-variable constraint and body, or null if there is no appropriate theory.</div>
 </td>
@@ -259,7 +259,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/Abs
 <pre>public&nbsp;boolean&nbsp;isSuitableFor(<a href="../../../../../../../com/sri/ai/expresso/api/Type.html" title="interface in com.sri.ai.expresso.api">Type</a>&nbsp;type)</pre>
 </li>
 </ul>
-<a name="getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -267,13 +267,13 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/Abs
 <h4>getQuantifierEliminatorStepSolver</h4>
 <pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a>&nbsp;getQuantifierEliminatorStepSolver(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                                                              <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">Theory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">Theory</a></code></span></div>
 <div class="block">Provides a quantifier eliminator step solver for use with given single-variable constraint and body, or null if there is no appropriate theory.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Theory</a></code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Theory</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractTranslationBasedTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractTranslationBasedTheory.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractTranslationBasedTheory</a></code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractTranslationBasedTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractTranslationBasedTheory.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractTranslationBasedTheory</a></code></dd>
 </dl>
 </li>
 </ul>

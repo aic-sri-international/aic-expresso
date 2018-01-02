@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2016, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -35,76 +35,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpllt.core.solver;
+package com.sri.ai.grinder.sgdpllt.api;
 
-import java.util.List;
-
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
-@Beta
-public class QuantifierEliminationProblemWrapper implements QuantifierEliminationProblem {
-	
-	final public QuantifierEliminationProblem problem;
+public interface SingleQuantifierEliminationProblem extends MultiQuantifierEliminationProblem {
 
-	public QuantifierEliminationProblemWrapper(QuantifierEliminationProblem problem) {
-		this.problem = problem;
-	}
-	
-	@Override
-	public AssociativeCommutativeGroup getGroup() {
-		return problem.getGroup();
+	default Expression getIndex() {
+		return getIndices().get(0);
 	}
 
-	@Override
-	public Expression getIndex() {
-		return problem.getIndex();
-	}
-
-	@Override
-	public Expression getIndexType() {
-		return problem.getIndexType();
-	}
-
-	@Override
-	public List<Expression> getIndices() {
-		return problem.getIndices();
-	}
-
-	@Override
-	public List<Expression> getIndicesTypes() {
-		return problem.getIndicesTypes();
-	}
-
-	@Override
-	public Expression getConstraint() {
-		return problem.getConstraint();
-	}
-
-	@Override
-	public Expression getBody() {
-		return problem.getBody();
+	default Expression getIndexType() {
+		return getIndicesTypes().get(0);
 	}
 	
-	@Override
-	public QuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint) {
-		return problem.makeWithNewIndexConstraint(newConstraint);
-	}
-
-	@Override
-	public QuantifierEliminationProblem makeWithNewBody(Expression newBody) {
-		return problem.makeWithNewBody(newBody);
-	}
-
-	@Override
-	public String toString() {
-		return problem.toString();
-	}
-
-	@Override
-	public Expression toExpression() {
-		return problem.toExpression();
-	}
+	SingleQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint);
+	
+	SingleQuantifierEliminationProblem makeWithNewBody(Expression newBody);
 }

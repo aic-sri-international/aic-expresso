@@ -48,7 +48,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver.Step;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.Util;
 
@@ -118,16 +118,16 @@ public class IntegrationRecording {
 		return result;
 	}
 
-	public static void registerGroupIntegration(QuantifierEliminationProblem problem, Expression literalFreeBody, Step result, Context context) {
+	public static void registerGroupIntegration(SingleQuantifierEliminationProblem problem, Expression literalFreeBody, Step result, Context context) {
 		if (recordingIntegrationsOverGroups) {
 			store(problem, literalFreeBody, context, result);
 			incrementValue(numberOfIntegrationsOverGroup, problem.getGroup());
 		}
 	}
 
-	private static void store(QuantifierEliminationProblem problem, Expression literalFreeBody, Context context, Step result) {
+	private static void store(SingleQuantifierEliminationProblem problem, Expression literalFreeBody, Context context, Step result) {
 		if (storingIntegrationsOverGroups) {
-			QuantifierEliminationProblem problemWithNewBody = problem.makeWithNewBody(literalFreeBody);
+			SingleQuantifierEliminationProblem problemWithNewBody = problem.makeWithNewBody(literalFreeBody);
 			Integration integration = new Integration(problem, problemWithNewBody, context, result);
 			Util.putInListValue(integrationsOverGroup, problem.getGroup(), integration);
 		}

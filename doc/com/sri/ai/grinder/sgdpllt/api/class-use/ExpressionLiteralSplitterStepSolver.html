@@ -176,7 +176,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">Theory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">Theory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
 <div class="block">Provides a quantifier eliminator step solver for use with given single-variable constraint and body, or null if there is no appropriate theory.</div>
 </td>
@@ -401,7 +401,7 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/helper/BruteForceFallbackQuantifierEliminationStepSolverWrapper.html#BruteForceFallbackQuantifierEliminationStepSolverWrapper-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver-">BruteForceFallbackQuantifierEliminationStepSolverWrapper</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/helper/BruteForceFallbackQuantifierEliminationStepSolverWrapper.html#BruteForceFallbackQuantifierEliminationStepSolverWrapper-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver-">BruteForceFallbackQuantifierEliminationStepSolverWrapper</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                                         <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a>&nbsp;base)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -551,7 +551,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">AbstractTranslationBasedTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractTranslationBasedTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">AbstractTranslationBasedTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractTranslationBasedTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
@@ -580,7 +580,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">BruteForceFallbackTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/bruteforce/BruteForceFallbackTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">BruteForceFallbackTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/bruteforce/BruteForceFallbackTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -609,7 +609,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">CompoundTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/compound/CompoundTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">CompoundTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/compound/CompoundTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -674,7 +674,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">DifferenceArithmeticTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/differencearithmetic/DifferenceArithmeticTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">DifferenceArithmeticTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/differencearithmetic/DifferenceArithmeticTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -743,7 +743,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">EqualityTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/equality/EqualityTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">EqualityTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/equality/EqualityTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -772,7 +772,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">BruteForceFunctionTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/function/BruteForceFunctionTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">BruteForceFunctionTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/function/BruteForceFunctionTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 </tbody>
@@ -791,7 +791,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">TheoryWrapper.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/help/TheoryWrapper.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">TheoryWrapper.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/help/TheoryWrapper.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -869,7 +869,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">LinearRealArithmeticTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/linearrealarithmetic/LinearRealArithmeticTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">LinearRealArithmeticTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/linearrealarithmetic/LinearRealArithmeticTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -943,7 +943,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">PropositionalTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/propositional/PropositionalTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">PropositionalTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/propositional/PropositionalTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -972,7 +972,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></td>
-<td class="colLast"><span class="typeNameLabel">TupleTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/tuple/TupleTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colLast"><span class="typeNameLabel">TupleTheory.</span><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/tuple/TupleTheory.html#getQuantifierEliminatorStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">getQuantifierEliminatorStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                  <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 </tbody>

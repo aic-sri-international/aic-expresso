@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.bruteforce;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.StepSolver;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackQuantifierEliminationStepSolver;
@@ -56,7 +56,7 @@ public class BruteForceFallbackTheory extends FallbackTheory {
 	}
 	
 	@Override
-	protected BruteForceFallbackQuantifierEliminationStepSolver makeFallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver) {
+	protected BruteForceFallbackQuantifierEliminationStepSolver makeFallbackQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver) {
 		return new BruteForceFallbackQuantifierEliminationStepSolver(problem, baseQuantifierEliminatorStepSolver);
 	}
 

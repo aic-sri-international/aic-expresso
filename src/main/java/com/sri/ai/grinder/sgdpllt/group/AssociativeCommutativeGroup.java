@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -101,5 +101,5 @@ public interface AssociativeCommutativeGroup {
 	/**
 	 * Generates an expression representing of problem in this group (problem's own group is ignored). 
 	 */
-	Expression makeProblemExpression(QuantifierEliminationProblem problem);
+	Expression makeProblemExpression(SingleQuantifierEliminationProblem problem);
 }

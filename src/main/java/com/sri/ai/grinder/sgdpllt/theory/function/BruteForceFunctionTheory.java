@@ -49,7 +49,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
@@ -78,7 +78,7 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	}
 	
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		
 		Expression variable = problem.getIndex();
 		Expression type = GrinderUtil.getTypeExpressionOfExpression(variable, context);

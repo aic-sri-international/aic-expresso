@@ -4,16 +4,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 
 public abstract class FallbackQuantifierEliminationStepSolver implements ExpressionLiteralSplitterStepSolver {
 
-	protected QuantifierEliminationProblem problem;
+	protected SingleQuantifierEliminationProblem problem;
 	protected ExpressionLiteralSplitterStepSolver base;
 
 	protected abstract MultiIndexQuantifierEliminator makeFallbackMultiIndexQuantifierEliminator(Context context);
 
-	public FallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
+	public FallbackQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
 		super();
 		this.problem = problem;
 		this.base = base;

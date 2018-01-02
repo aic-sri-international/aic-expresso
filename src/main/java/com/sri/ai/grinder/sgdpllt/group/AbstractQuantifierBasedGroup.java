@@ -4,7 +4,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
@@ -36,7 +36,7 @@ public abstract class AbstractQuantifierBasedGroup extends AbstractAssociativeCo
 	}
 
 	@Override
-	public Expression makeProblemExpression(QuantifierEliminationProblem problem) {
+	public Expression makeProblemExpression(SingleQuantifierEliminationProblem problem) {
 		Expression result = makeProblemExpression(problem.getIndex(), problem.getIndexType(), problem.getConstraint(), problem.getBody());
 		return result;
 	}

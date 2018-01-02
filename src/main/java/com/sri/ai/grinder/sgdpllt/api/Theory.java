@@ -307,7 +307,7 @@ public interface Theory extends Cloneable {
 	/**
 	 * Provides a quantifier eliminator step solver for use with given single-variable constraint and body, or null if there is no appropriate theory.
 	 */
-	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context);
+	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context);
 	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,

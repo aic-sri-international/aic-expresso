@@ -3,17 +3,17 @@ package com.sri.ai.grinder.sgdpllt.core.solver;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver.Step;
 
 public class Integration {
 
-	private QuantifierEliminationProblem problem;
-	private QuantifierEliminationProblem simplifiedProblem;
+	private SingleQuantifierEliminationProblem problem;
+	private SingleQuantifierEliminationProblem simplifiedProblem;
 	private Context context;
 	private Step integrationResult;
 	
-	public Integration(QuantifierEliminationProblem problem, QuantifierEliminationProblem simplifiedProblem, Context context, Step result) {
+	public Integration(SingleQuantifierEliminationProblem problem, SingleQuantifierEliminationProblem simplifiedProblem, Context context, Step result) {
 		super();
 		this.problem = problem;
 		this.simplifiedProblem = simplifiedProblem;
@@ -21,11 +21,11 @@ public class Integration {
 		this.integrationResult = result;
 	}
 
-	public QuantifierEliminationProblem getProblem() {
+	public SingleQuantifierEliminationProblem getProblem() {
 		return problem;
 	}
 
-	public QuantifierEliminationProblem getSimplifiedProblem() {
+	public SingleQuantifierEliminationProblem getSimplifiedProblem() {
 		return simplifiedProblem;
 	}
 

@@ -52,9 +52,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
@@ -220,7 +220,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {
 		
 		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(variable);
 		
-		QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), variable, typeExpression, constraint, body);
+		SingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(new Sum(), variable, typeExpression, constraint, body);
 		
 		ExpressionStepSolver stepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(problem);
 		

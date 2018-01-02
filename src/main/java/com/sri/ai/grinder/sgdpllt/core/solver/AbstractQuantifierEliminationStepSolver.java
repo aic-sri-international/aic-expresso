@@ -56,7 +56,7 @@ import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.ConstraintSplitting;
@@ -115,7 +115,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 @Beta
 public abstract class AbstractQuantifierEliminationStepSolver implements QuantifierEliminationStepSolver {
 
-	private QuantifierEliminationProblem problem;
+	private SingleQuantifierEliminationProblem problem;
 	
 	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
 	
@@ -127,7 +127,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 */
 	public static final String BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS = "Brute force checking of non-conditional problems";
 
-	public AbstractQuantifierEliminationStepSolver(QuantifierEliminationProblem problem) {
+	public AbstractQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem) {
 		this.problem = problem;
 	}
 
@@ -239,7 +239,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
 			if ( ! result.itDepends()) {
 				Expression indexType = context.getTypeExpressionOfRegisteredSymbol(getIndex());
-				QuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
+				SingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
 				Expression problemExpression = problem.toExpression();
 				Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
 				AssignmentMapsIterator assignments = new AssignmentMapsIterator(freeVariables, context);
@@ -425,7 +425,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 //	abstract protected AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint);
 
 	@Override
-	public QuantifierEliminationProblem getProblem() {
+	public SingleQuantifierEliminationProblem getProblem() {
 		return problem;
 	}
 
@@ -457,8 +457,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	protected
 	AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		try {
-			QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
-			AbstractQuantifierEliminationStepSolver result = getClass().getConstructor(QuantifierEliminationProblem.class).newInstance(newProblem);
+			SingleQuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
+			AbstractQuantifierEliminationStepSolver result = getClass().getConstructor(SingleQuantifierEliminationProblem.class).newInstance(newProblem);
 			return result;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new Error(e);

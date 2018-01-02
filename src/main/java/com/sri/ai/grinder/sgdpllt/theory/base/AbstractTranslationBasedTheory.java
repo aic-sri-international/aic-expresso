@@ -45,10 +45,10 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.Disjunction;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 
@@ -96,7 +96,7 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
 		Expression index = constraint.getVariable();
 		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
-		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Disjunction(), index, indexType, constraint, TRUE);
+		DefaultSingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(new Disjunction(), index, indexType, constraint, TRUE);
 		return getQuantifierEliminatorStepSolver(problem, context);
 	}
 
@@ -104,10 +104,10 @@ public abstract class AbstractTranslationBasedTheory extends AbstractTheory {
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, Context context) {
 		Expression index = constraint.getVariable();
 		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
-		DefaultQuantifierEliminationProblem problem = new DefaultQuantifierEliminationProblem(new Sum(), index, indexType, constraint, ONE);
+		DefaultSingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(new Sum(), index, indexType, constraint, ONE);
 		return getQuantifierEliminatorStepSolver(problem, context);
 	}
 
 	@Override
-	public abstract	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context);
+	public abstract	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context);
 }

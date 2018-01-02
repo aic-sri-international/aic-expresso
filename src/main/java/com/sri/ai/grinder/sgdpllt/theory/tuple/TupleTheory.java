@@ -46,7 +46,7 @@ import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
@@ -85,7 +85,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 	}
 	
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		// The tuple-specific version will do the following:
 		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)

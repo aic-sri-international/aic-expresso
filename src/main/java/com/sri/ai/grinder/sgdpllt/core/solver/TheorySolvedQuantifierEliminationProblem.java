@@ -51,7 +51,7 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
  * @author braz
  *
  */
-public class TheorySolvedQuantifierEliminationProblem extends DefaultQuantifierEliminationProblem {
+public class TheorySolvedQuantifierEliminationProblem extends DefaultSingleQuantifierEliminationProblem {
 	
 	public TheorySolvedQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, SingleVariableConstraint constraint, Expression body) {
 		super(group, index, indexType, constraint, body);

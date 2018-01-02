@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
 
@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierElim
 @Beta
 public class BruteForceFallbackQuantifierEliminationStepSolver extends FallbackQuantifierEliminationStepSolver {
 	
-	public BruteForceFallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
+	public BruteForceFallbackQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver base) {
 		super(problem, base);
 	}
 

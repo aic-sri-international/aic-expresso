@@ -54,7 +54,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.constraint.AbstractTheory;
@@ -204,7 +204,7 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		Theory theory = getTheory(problem.getIndex(), context);
 		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(problem, context);
 		return result;

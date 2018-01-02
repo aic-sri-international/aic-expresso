@@ -53,7 +53,7 @@ import com.sri.ai.grinder.polynomial.core.DefaultPolynomial;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
@@ -79,7 +79,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	
 	private ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 	
-	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(QuantifierEliminationProblem problem) {
+	public SummationOnDifferenceArithmeticAndPolynomialStepSolver(SingleQuantifierEliminationProblem problem) {
 		super(problem);
 		valuesOfSingleVariableDifferenceArithmeticConstraintStepSolver =
 				new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(
@@ -93,7 +93,7 @@ public class SummationOnDifferenceArithmeticAndPolynomialStepSolver extends Abst
 	
 	@Override
 	protected SummationOnDifferenceArithmeticAndPolynomialStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
+		SingleQuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
 		SummationOnDifferenceArithmeticAndPolynomialStepSolver result = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(newProblem);
 		return result;
 	}

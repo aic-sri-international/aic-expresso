@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.core.solver.DefaultSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.Sum;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
 import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
@@ -789,7 +789,7 @@ public class LinearRealArithmeticTheoryTest {
 				"summation for " + bodyString, 
 				(SingleVariableConstraint c, Expression b) -> 
 				new SummationOnLinearRealArithmeticAndPolynomialStepSolver(
-						new DefaultQuantifierEliminationProblem(new Sum(), variable, typeExpression, c, b)),
+						new DefaultSingleQuantifierEliminationProblem(new Sum(), variable, typeExpression, c, b)),
 				context);
 	}
 

@@ -48,7 +48,7 @@ import com.sri.ai.grinder.polynomial.core.PolynomialIntegration;
 import com.sri.ai.grinder.polynomial.core.PolynomialSummation;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.IsVariable;
@@ -75,7 +75,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	
 	private IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 	
-	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(QuantifierEliminationProblem problem) {
+	public SummationOnLinearRealArithmeticAndPolynomialStepSolver(SingleQuantifierEliminationProblem problem) {
 		super(problem);
 		valuesOfSingleVariableLinearRealArithmeticConstraintStepSolver =
 				new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver(
@@ -89,7 +89,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 	
 	@Override
 	protected SummationOnLinearRealArithmeticAndPolynomialStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
-		QuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
+		SingleQuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
 		SummationOnLinearRealArithmeticAndPolynomialStepSolver result = new SummationOnLinearRealArithmeticAndPolynomialStepSolver(newProblem);
 		return result;
 	}

@@ -9,7 +9,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -40,7 +40,7 @@ public abstract class AbstractFunctionBasedGroup extends AbstractNumericGroup im
 	}
 
 	@Override
-	public Expression makeProblemExpression(QuantifierEliminationProblem problem) {
+	public Expression makeProblemExpression(SingleQuantifierEliminationProblem problem) {
 		Expression result = makeProblemExpression(problem.getIndex(), problem.getIndexType(), problem.getConstraint(), problem.getBody());
 		return result;
 	}

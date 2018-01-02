@@ -39,7 +39,7 @@ package com.sri.ai.grinder.sgdpllt.theory.bruteforce;
 
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.theory.help.TheoryWrapper;
@@ -56,7 +56,7 @@ public abstract class FallbackTheory extends TheoryWrapper {
 		super(base);
 	}
 
-	protected abstract ExpressionLiteralSplitterStepSolver makeFallbackQuantifierEliminationStepSolver(QuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver);
+	protected abstract ExpressionLiteralSplitterStepSolver makeFallbackQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem, ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver);
 
 	@Override
 	public ExpressionLiteralSplitterStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, Context context) {
@@ -69,7 +69,7 @@ public abstract class FallbackTheory extends TheoryWrapper {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(QuantifierEliminationProblem problem, Context context) {
+	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver = getBase().getQuantifierEliminatorStepSolver(problem, context);
 		ExpressionLiteralSplitterStepSolver result = makeFallbackQuantifierEliminationStepSolver(problem, baseQuantifierEliminatorStepSolver);
 		return result;

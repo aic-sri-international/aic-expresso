@@ -104,7 +104,7 @@ public interface MultiIndexQuantifierEliminator {
 	
 	// Convenience:
 	
-	public default Expression solveSingleIndexQuantifierEliminationProblem(QuantifierEliminationProblem problem, Context context) {
+	public default Expression solveSingleIndexQuantifierEliminationProblem(SingleQuantifierEliminationProblem problem, Context context) {
 		AssociativeCommutativeGroup group = problem.getGroup();
 		LinkedList<Expression> indices = list(problem.getIndex());
 		Expression indicesCondition = problem.getConstraint();

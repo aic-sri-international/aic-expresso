@@ -5,7 +5,7 @@ import static com.sri.ai.util.Util.requires;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
@@ -24,11 +24,11 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * @author braz
  *
  */
-public class QuantifierEliminationForIndexFreeBody extends QuantifierEliminationProblemWrapper {
+public class SingleQuantifierEliminationForIndexFreeBody extends SingleQuantifierEliminationProblemWrapper {
 
 	private Context context;
 	
-	public QuantifierEliminationForIndexFreeBody(QuantifierEliminationProblem problem, Context context) {
+	public SingleQuantifierEliminationForIndexFreeBody(SingleQuantifierEliminationProblem problem, Context context) {
 		super(problem);
 		this.context = context;
 	}

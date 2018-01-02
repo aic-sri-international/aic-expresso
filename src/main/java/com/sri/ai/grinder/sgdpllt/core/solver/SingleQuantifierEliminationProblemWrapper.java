@@ -37,96 +37,74 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import static com.sri.ai.util.Util.list;
-
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
-public class DefaultQuantifierEliminationProblem implements QuantifierEliminationProblem {
+public class SingleQuantifierEliminationProblemWrapper implements SingleQuantifierEliminationProblem {
 	
-	final public AssociativeCommutativeGroup group;
-	final public Expression index;
-	final public Expression indexType;
-	final public Expression constraint;
-	final public Expression body;
+	final public SingleQuantifierEliminationProblem problem;
 
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression constraint, Expression body) {
-		super();
-		this.group = group;
-		this.index = index;
-		this.indexType = indexType;
-		this.constraint = constraint;
-		this.body = body;
-	}
-	
-	public DefaultQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression body, Context context) {
-		super();
-		this.group = group;
-		this.index = index;
-		this.indexType = indexType;
-		this.constraint = context.getTheory().makeSingleVariableConstraint(index, context);
-		this.body = body;
+	public SingleQuantifierEliminationProblemWrapper(SingleQuantifierEliminationProblem problem) {
+		this.problem = problem;
 	}
 	
 	@Override
 	public AssociativeCommutativeGroup getGroup() {
-		return group;
+		return problem.getGroup();
 	}
 
 	@Override
 	public Expression getIndex() {
-		return index;
+		return problem.getIndex();
 	}
 
 	@Override
 	public Expression getIndexType() {
-		return indexType;
+		return problem.getIndexType();
 	}
 
 	@Override
 	public List<Expression> getIndices() {
-		return list(getIndex());
+		return problem.getIndices();
 	}
 
 	@Override
 	public List<Expression> getIndicesTypes() {
-		return list(getIndexType());
+		return problem.getIndicesTypes();
 	}
 
 	@Override
 	public Expression getConstraint() {
-		return constraint;
+		return problem.getConstraint();
 	}
 
 	@Override
 	public Expression getBody() {
-		return body;
+		return problem.getBody();
 	}
 	
 	@Override
-	public DefaultQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint) {
-		return new DefaultQuantifierEliminationProblem(group, index, indexType, newConstraint, body);
+	public SingleQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint) {
+		return problem.makeWithNewIndexConstraint(newConstraint);
 	}
 
 	@Override
-	public DefaultQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
-		return new DefaultQuantifierEliminationProblem(group, index, indexType, constraint, newBody);
+	public SingleQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
+		return problem.makeWithNewBody(newBody);
 	}
 
 	@Override
 	public String toString() {
-		return "Quantifier elimination problem on " + group + ", " + index + ", " + constraint + ", " + body;
+		return problem.toString();
 	}
 
 	@Override
 	public Expression toExpression() {
-		Expression result = getGroup().makeProblemExpression(this);
-		return result;
+		return problem.toExpression();
 	}
 }

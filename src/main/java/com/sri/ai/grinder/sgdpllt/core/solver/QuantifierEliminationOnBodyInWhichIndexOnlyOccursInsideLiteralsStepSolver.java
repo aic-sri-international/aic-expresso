@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 
 /**
  * A {@link AbstractQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
@@ -49,7 +49,7 @@ import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
  * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
  * (the above is all done by {@link AbstractQuantifierEliminationStepSolver}.
  * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
- * {@link QuantifierEliminationForIndexFreeBody}.
+ * {@link SingleQuantifierEliminationForIndexFreeBody}.
  * 
  * @author braz
  *
@@ -57,20 +57,20 @@ import com.sri.ai.grinder.sgdpllt.api.QuantifierEliminationProblem;
 @Beta
 public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(QuantifierEliminationProblem problem) {
+	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(SingleQuantifierEliminationProblem problem) {
 		super(problem);
 	}
 
 	@Override
 	protected Step eliminateQuantifierForLiteralFreeBody(Expression literalFreeBody, Context context) {
-		QuantifierEliminationForIndexFreeBody solver = makeSolver(literalFreeBody, context);
+		SingleQuantifierEliminationForIndexFreeBody solver = makeSolver(literalFreeBody, context);
 		Expression result = solver.eliminateQuantifierForLiteralFreeBody();
 		return new Solution(result);
 	}
 
-	private QuantifierEliminationForIndexFreeBody makeSolver(Expression literalFreeBody, Context context) {
-		QuantifierEliminationProblem problemWithLiteralFreeBody = getProblem().makeWithNewBody(literalFreeBody);
-		QuantifierEliminationForIndexFreeBody solver = new QuantifierEliminationForIndexFreeBody(problemWithLiteralFreeBody, context);
+	private SingleQuantifierEliminationForIndexFreeBody makeSolver(Expression literalFreeBody, Context context) {
+		SingleQuantifierEliminationProblem problemWithLiteralFreeBody = getProblem().makeWithNewBody(literalFreeBody);
+		SingleQuantifierEliminationForIndexFreeBody solver = new SingleQuantifierEliminationForIndexFreeBody(problemWithLiteralFreeBody, context);
 		return solver;
 	}	
 }
