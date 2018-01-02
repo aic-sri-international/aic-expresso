@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
  * Note that quantifier-splitting only happens for quantifier elimination,
  * and at the level of {@link ExpressionLiteralSplitterStepSolver}
  * there is not necessarily a quantifier involved.
- * This is currently done at the level of {@link QuantifierEliminationStepSolver}.
+ * This is currently done at the level of {@link SingleQuantifierEliminationStepSolver}.
  * 
  * @author braz
  *

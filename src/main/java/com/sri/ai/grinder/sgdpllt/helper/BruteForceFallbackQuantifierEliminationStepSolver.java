@@ -42,11 +42,11 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.MultiIndexQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.SingleQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceMultiIndexQuantifierEliminator;
 
 /**
- * Wraps a base {@link QuantifierEliminationStepSolver} into another
+ * Wraps a base {@link SingleQuantifierEliminationStepSolver} into another
  * one that solves the problem by brute force when the base one cannot.
  *
  * @author braz

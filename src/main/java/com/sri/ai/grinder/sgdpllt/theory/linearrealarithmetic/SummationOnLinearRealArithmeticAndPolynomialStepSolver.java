@@ -50,7 +50,7 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver;
+import com.sri.ai.grinder.sgdpllt.core.solver.AbstractSingleQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.sgdpllt.library.IsVariable;
 import com.sri.ai.grinder.sgdpllt.library.set.Sets;
 
@@ -65,7 +65,7 @@ import com.sri.ai.grinder.sgdpllt.library.set.Sets;
  *
  */
 @Beta
-public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends AbstractQuantifierEliminationStepSolver {
+public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends AbstractSingleQuantifierEliminationStepSolver {
 
 	// TODO: before making changes to this class,
 	// it would be better to abstract its common aspects (lots of them)

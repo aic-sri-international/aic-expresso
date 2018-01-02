@@ -45,7 +45,7 @@ import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.theory.help.TheoryWrapper;
 
 /**
- * An abstract class for {@link TheoryWrapper}s wrapping a base theory's {@link QuantifierEliminationStepSolver}
+ * An abstract class for {@link TheoryWrapper}s wrapping a base theory's {@link SingleQuantifierEliminationStepSolver}
  * into a fallback step solver.
  * @author braz
  *

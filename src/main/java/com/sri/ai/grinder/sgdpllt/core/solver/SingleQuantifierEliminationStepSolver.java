@@ -15,7 +15,7 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
  *
  */
 @Beta
-public interface QuantifierEliminationStepSolver extends ExpressionStepSolver, Cloneable {
+public interface SingleQuantifierEliminationStepSolver extends ExpressionStepSolver, Cloneable {
 
 	SingleQuantifierEliminationProblem getProblem();
 	

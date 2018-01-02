@@ -44,10 +44,10 @@ import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 
 /**
- * A {@link AbstractQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
+ * A {@link AbstractSingleQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
  * This step solver first provides all the literals in the body as {@link ExpressionStepSolver#ItDepends} steps.
  * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
- * (the above is all done by {@link AbstractQuantifierEliminationStepSolver}.
+ * (the above is all done by {@link AbstractSingleQuantifierEliminationStepSolver}.
  * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
  * {@link SingleQuantifierEliminationForIndexFreeBody}.
  * 
@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
  *
  */
 @Beta
-public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver extends AbstractQuantifierEliminationStepSolver {
+public class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver extends AbstractSingleQuantifierEliminationStepSolver {
 
 	public QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(SingleQuantifierEliminationProblem problem) {
 		super(problem);

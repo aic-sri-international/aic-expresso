@@ -113,7 +113,7 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  *
  */
 @Beta
-public abstract class AbstractQuantifierEliminationStepSolver implements QuantifierEliminationStepSolver {
+public abstract class AbstractSingleQuantifierEliminationStepSolver implements SingleQuantifierEliminationStepSolver {
 
 	private SingleQuantifierEliminationProblem problem;
 	
@@ -127,7 +127,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	 */
 	public static final String BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS = "Brute force checking of non-conditional problems";
 
-	public AbstractQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem) {
+	public AbstractSingleQuantifierEliminationStepSolver(SingleQuantifierEliminationProblem problem) {
 		this.problem = problem;
 	}
 
@@ -205,8 +205,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 					result = resultIfLiteralContainsIndex(literalOnIndex, bodyStep, contextForBody, context);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
-					AbstractQuantifierEliminationStepSolver ifTrue = clone();
-					AbstractQuantifierEliminationStepSolver ifFalse = clone();
+					AbstractSingleQuantifierEliminationStepSolver ifTrue = clone();
+					AbstractSingleQuantifierEliminationStepSolver ifFalse = clone();
 					ifTrue.initialBodyEvaluationStepSolver  = bodyStep.getStepSolverForWhenSplitterIsTrue();
 					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
 					ifTrue.initialContextForBody  = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteral();
@@ -323,7 +323,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 	
-	protected Expression solveSubProblems(AbstractQuantifierEliminationStepSolver subProblem1, AbstractQuantifierEliminationStepSolver subProblem2, Context context) {
+	protected Expression solveSubProblems(AbstractSingleQuantifierEliminationStepSolver subProblem1, AbstractSingleQuantifierEliminationStepSolver subProblem2, Context context) {
 		// (**) IF DELETING THIS MARKER, DELETE ALL THE REFERENCES TO IT IN THIS FILE
 		// This is where this step solver may return a Solution with literals in it:
 		// solveSubProblem uses an exhaustive solve.
@@ -333,17 +333,17 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 		return result;
 	}
 
-	protected Expression solveSubProblem(AbstractQuantifierEliminationStepSolver subProblem, Context context) {	
+	protected Expression solveSubProblem(AbstractSingleQuantifierEliminationStepSolver subProblem, Context context) {	
 		Expression result = subProblem.solve(context);
 		// (**) IF DELETING THIS, DELETE ALL OTHER OCCURRENCES IN THIS FILE
 		// The above code line is the exhaustive solve mentioned in other occurrences of (**)
 		return result;
 	}
 	
-	protected AbstractQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, ExpressionLiteralSplitterStepSolver.Step bodyStep, Constraint newIndexConstraint) {
+	protected AbstractSingleQuantifierEliminationStepSolver makeSubProblem(boolean valueForLiteral, ExpressionLiteralSplitterStepSolver.Step bodyStep, Constraint newIndexConstraint) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = 
 				(SingleVariableConstraint) newIndexConstraint;
-		AbstractQuantifierEliminationStepSolver result = 
+		AbstractSingleQuantifierEliminationStepSolver result = 
 				makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		result.initialBodyEvaluationStepSolver =
 				valueForLiteral
@@ -407,10 +407,10 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	@Override
-	public AbstractQuantifierEliminationStepSolver clone() {
-		AbstractQuantifierEliminationStepSolver result = null;
+	public AbstractSingleQuantifierEliminationStepSolver clone() {
+		AbstractSingleQuantifierEliminationStepSolver result = null;
 		try {
-			result = (AbstractQuantifierEliminationStepSolver) super.clone();
+			result = (AbstractSingleQuantifierEliminationStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -455,10 +455,10 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Quantif
 	}
 
 	protected
-	AbstractQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
+	AbstractSingleQuantifierEliminationStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		try {
 			SingleQuantifierEliminationProblem newProblem = getProblem().makeWithNewIndexConstraint(newIndexConstraint);
-			AbstractQuantifierEliminationStepSolver result = getClass().getConstructor(SingleQuantifierEliminationProblem.class).newInstance(newProblem);
+			AbstractSingleQuantifierEliminationStepSolver result = getClass().getConstructor(SingleQuantifierEliminationProblem.class).newInstance(newProblem);
 			return result;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new Error(e);

@@ -48,37 +48,23 @@ import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
-public class DefaultSingleQuantifierEliminationProblem implements SingleQuantifierEliminationProblem {
+public class DefaultSingleQuantifierEliminationProblem extends AbstractQuantifierEliminationProblem implements SingleQuantifierEliminationProblem {
 	
-	final public AssociativeCommutativeGroup group;
 	final public Expression index;
 	final public Expression indexType;
-	final public Expression constraint;
-	final public Expression body;
 
 	public DefaultSingleQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression constraint, Expression body) {
-		super();
-		this.group = group;
+		super(group, constraint, body);
 		this.index = index;
 		this.indexType = indexType;
-		this.constraint = constraint;
-		this.body = body;
 	}
 	
 	public DefaultSingleQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression body, Context context) {
-		super();
-		this.group = group;
+		super(group, context.getTheory().makeSingleVariableConstraint(index, context), body);
 		this.index = index;
 		this.indexType = indexType;
-		this.constraint = context.getTheory().makeSingleVariableConstraint(index, context);
-		this.body = body;
 	}
 	
-	@Override
-	public AssociativeCommutativeGroup getGroup() {
-		return group;
-	}
-
 	@Override
 	public Expression getIndex() {
 		return index;
@@ -100,16 +86,6 @@ public class DefaultSingleQuantifierEliminationProblem implements SingleQuantifi
 	}
 
 	@Override
-	public Expression getConstraint() {
-		return constraint;
-	}
-
-	@Override
-	public Expression getBody() {
-		return body;
-	}
-	
-	@Override
 	public DefaultSingleQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint) {
 		return new DefaultSingleQuantifierEliminationProblem(group, index, indexType, newConstraint, body);
 	}
@@ -121,7 +97,7 @@ public class DefaultSingleQuantifierEliminationProblem implements SingleQuantifi
 
 	@Override
 	public String toString() {
-		return "Quantifier elimination problem on " + group + ", " + index + ", " + constraint + ", " + body;
+		return "Quantifier elimination problem on " + toExpression();
 	}
 
 	@Override

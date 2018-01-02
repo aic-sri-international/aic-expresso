@@ -38,7 +38,7 @@
 package com.sri.ai.test.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver.BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS;
+import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractSingleQuantifierEliminationStepSolver.BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
