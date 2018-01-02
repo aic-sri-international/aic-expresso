@@ -158,7 +158,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
+	public ExpressionLiteralSplitterStepSolver getSingleQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		ExpressionStepSolver formulaSplitterStepSolver;		
 		if (problem.getGroup() instanceof Sum) {
 			formulaSplitterStepSolver = new SummationOnDifferenceArithmeticAndPolynomialStepSolver(problem);

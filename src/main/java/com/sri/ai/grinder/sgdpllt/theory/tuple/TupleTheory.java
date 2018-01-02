@@ -85,7 +85,7 @@ public class TupleTheory extends AbstractTranslationBasedTheory {
 	}
 	
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getSingleQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		// The tuple-specific version will do the following:
 		// - create a E expression equivalent to the quantifier elimination of the constraint given here.
 		//          - you can use AssociativeCommutativeGroup.makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body)

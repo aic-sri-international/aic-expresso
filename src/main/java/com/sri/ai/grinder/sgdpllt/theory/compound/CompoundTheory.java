@@ -204,9 +204,9 @@ public class CompoundTheory extends AbstractTheory {
 	}
 
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getSingleQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		Theory theory = getTheory(problem.getIndex(), context);
-		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(problem, context);
+		ExpressionLiteralSplitterStepSolver result = theory.getSingleQuantifierEliminatorStepSolver(problem, context);
 		return result;
 	}
 

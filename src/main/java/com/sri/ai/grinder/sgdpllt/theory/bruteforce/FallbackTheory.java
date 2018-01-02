@@ -69,8 +69,8 @@ public abstract class FallbackTheory extends TheoryWrapper {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
-		ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver = getBase().getQuantifierEliminatorStepSolver(problem, context);
+	public ExpressionLiteralSplitterStepSolver getSingleQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
+		ExpressionLiteralSplitterStepSolver baseQuantifierEliminatorStepSolver = getBase().getSingleQuantifierEliminatorStepSolver(problem, context);
 		ExpressionLiteralSplitterStepSolver result = makeFallbackQuantifierEliminationStepSolver(problem, baseQuantifierEliminatorStepSolver);
 		return result;
 	}

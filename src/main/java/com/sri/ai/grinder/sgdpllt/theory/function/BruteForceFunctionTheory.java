@@ -78,7 +78,7 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 	}
 	
 	@Override
-	public 	ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
+	public 	ExpressionLiteralSplitterStepSolver getSingleQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
 		
 		Expression variable = problem.getIndex();
 		Expression type = GrinderUtil.getTypeExpressionOfExpression(variable, context);

@@ -122,8 +122,8 @@ public class TheoryWrapper implements Theory {
 	}
 
 	@Override
-	public ExpressionLiteralSplitterStepSolver getQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
-		return base.getQuantifierEliminatorStepSolver(problem, context);
+	public ExpressionLiteralSplitterStepSolver getSingleQuantifierEliminatorStepSolver(SingleQuantifierEliminationProblem problem, Context context) {
+		return base.getSingleQuantifierEliminatorStepSolver(problem, context);
 	}
 
 	@Override

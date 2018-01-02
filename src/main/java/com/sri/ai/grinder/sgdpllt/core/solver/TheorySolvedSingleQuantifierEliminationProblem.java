@@ -47,17 +47,17 @@ import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
 /**
- * A {@link QuantifierEliminationProblem} solved by using quantifier eliminators from context's theory.
+ * A {@link SingleQuantifierEliminationProblem} solved by using quantifier eliminators from context's theory.
  * @author braz
  *
  */
-public class TheorySolvedQuantifierEliminationProblem extends DefaultSingleQuantifierEliminationProblem {
+public class TheorySolvedSingleQuantifierEliminationProblem extends DefaultSingleQuantifierEliminationProblem {
 	
-	public TheorySolvedQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, SingleVariableConstraint constraint, Expression body) {
+	public TheorySolvedSingleQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, SingleVariableConstraint constraint, Expression body) {
 		super(group, index, indexType, constraint, body);
 	}
 	
-	public TheorySolvedQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression body, Context context) {
+	public TheorySolvedSingleQuantifierEliminationProblem(AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression body, Context context) {
 		super(group, index, indexType, body, context);
 	}
 
@@ -69,7 +69,7 @@ public class TheorySolvedQuantifierEliminationProblem extends DefaultSingleQuant
 
 	private ExpressionLiteralSplitterStepSolver makeStepSolver(Context context) {
 		Theory theory = context.getTheory();
-		ExpressionLiteralSplitterStepSolver result = theory.getQuantifierEliminatorStepSolver(this, context);
+		ExpressionLiteralSplitterStepSolver result = theory.getSingleQuantifierEliminatorStepSolver(this, context);
 		return result;
 	}
 }

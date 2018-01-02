@@ -30,7 +30,7 @@ public class DefaultMultiIndexQuantifierEliminator extends AbstractMultiIndexQua
 		for (int i = indices.size() - 1; i >= 0; i--) {
 			Expression index = indices.get(i);
 			Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
-			TheorySolvedQuantifierEliminationProblem nextProblem = makeProblem(group, index, indexType, currentExpression, context);
+			TheorySolvedSingleQuantifierEliminationProblem nextProblem = makeProblem(group, index, indexType, currentExpression, context);
 			currentExpression = nextProblem.solve(context);
 		}
 		return currentExpression;
@@ -48,9 +48,9 @@ public class DefaultMultiIndexQuantifierEliminator extends AbstractMultiIndexQua
 		return result;
 	}
 
-	private TheorySolvedQuantifierEliminationProblem makeProblem(
+	private TheorySolvedSingleQuantifierEliminationProblem makeProblem(
 			AssociativeCommutativeGroup group, Expression index, Expression indexType, Expression body, Context context) {
 
-		return new TheorySolvedQuantifierEliminationProblem(group, index, indexType, body, context);
+		return new TheorySolvedSingleQuantifierEliminationProblem(group, index, indexType, body, context);
 	}
 }
