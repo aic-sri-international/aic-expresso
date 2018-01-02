@@ -44,6 +44,8 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
@@ -116,7 +118,13 @@ public class Conjunction extends AbstractQuantifierBasedGroup {
 	}
 
 	@Override
-	public DefaultUniversallyQuantifiedFormula makeQuantifiedExpression(Expression indexExpression, Expression body) {
-		return new DefaultUniversallyQuantifiedFormula(indexExpression, body);
+	public Expression makeQuantifiedExpression(List<Expression> indexExpressions, Expression body) {
+		Expression current = body;
+		ListIterator<Expression> iterator = indexExpressions.listIterator(indexExpressions.size());
+		while (iterator.hasPrevious()) {
+			Expression indexExpression = iterator.previous();
+			current = new DefaultUniversallyQuantifiedFormula(indexExpression, current);
+		}
+		return current;
 	}
 }

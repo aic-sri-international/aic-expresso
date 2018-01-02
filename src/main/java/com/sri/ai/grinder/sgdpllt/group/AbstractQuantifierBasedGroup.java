@@ -1,10 +1,12 @@
 package com.sri.ai.grinder.sgdpllt.group;
 
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
@@ -24,7 +26,7 @@ public abstract class AbstractQuantifierBasedGroup extends AbstractAssociativeCo
 	 * @param body
 	 * @return
 	 */
-	public abstract Expression makeQuantifiedExpression(Expression indexExpression, Expression body);
+	public abstract Expression makeQuantifiedExpression(List<Expression> indexExpressions, Expression body);
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
@@ -36,16 +38,15 @@ public abstract class AbstractQuantifierBasedGroup extends AbstractAssociativeCo
 	}
 
 	@Override
-	public Expression makeProblemExpression(SingleQuantifierEliminationProblem problem) {
-		Expression result = makeProblemExpression(problem.getIndex(), problem.getIndexType(), problem.getConstraint(), problem.getBody());
+	public Expression makeProblemExpression(MultiQuantifierEliminationProblem problem) {
+		Expression result = makeProblemExpression(problem.getIndices(), problem.getIndicesTypes(), problem.getConstraint(), problem.getBody());
 		return result;
 	}
 
-	//@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
-		Expression indexExpression = IndexExpressions.makeIndexExpression(index, indexType);
+	public Expression makeProblemExpression(List<Expression> indices, List<Expression> indicesTypes, Expression constraint, Expression body) {
+		List<Expression> indexExpressions = IndexExpressions.makeIndexExpressions(indices, indicesTypes);
 		Expression bodyEncodingConstraint = IfThenElse.make(constraint, body, additiveIdentityElement());
-		Expression result = makeQuantifiedExpression(indexExpression, bodyEncodingConstraint);
+		Expression result = makeQuantifiedExpression(indexExpressions, bodyEncodingConstraint);
 		return result;
 	}
 

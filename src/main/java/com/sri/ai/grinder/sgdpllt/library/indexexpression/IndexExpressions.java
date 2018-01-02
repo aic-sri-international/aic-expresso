@@ -1,6 +1,9 @@
 package com.sri.ai.grinder.sgdpllt.library.indexexpression;
 
 
+import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.myAssert;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -186,6 +189,15 @@ public class IndexExpressions {
 	 */
 	public static Expression makeIndexExpression(Expression index, Expression type) {
 		Expression result = type == null? index : Expressions.apply("in", index, type);
+		return result;
+	}
+	
+	/**
+	 * Makes a list of index expressions given lists of variables and types.
+	 */
+	public static List<Expression> makeIndexExpressions(List<Expression> indices, List<Expression> types) {
+		myAssert(indices.size() == types.size(), () -> "IndexExpressions.makeIndexExpression requires the same number of variables and types, but got " + indices + " and " + types);
+		List<Expression> result = mapIntoList(indices, types, (i, t) -> makeIndexExpression(i, t));
 		return result;
 	}
 	

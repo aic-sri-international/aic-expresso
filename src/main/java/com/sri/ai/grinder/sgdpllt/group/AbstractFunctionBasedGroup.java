@@ -1,7 +1,9 @@
 package com.sri.ai.grinder.sgdpllt.group;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.makeIndexExpression;
+import static com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions.makeIndexExpressions;
+
+import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -9,7 +11,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -40,15 +42,14 @@ public abstract class AbstractFunctionBasedGroup extends AbstractNumericGroup im
 	}
 
 	@Override
-	public Expression makeProblemExpression(SingleQuantifierEliminationProblem problem) {
-		Expression result = makeProblemExpression(problem.getIndex(), problem.getIndexType(), problem.getConstraint(), problem.getBody());
+	public Expression makeProblemExpression(MultiQuantifierEliminationProblem problem) {
+		Expression result = makeProblemExpression(problem.getIndices(), problem.getIndicesTypes(), problem.getConstraint(), problem.getBody());
 		return result;
 	}
 
-	//@Override
-	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
-		Expression indexExpression = makeIndexExpression(index, indexType);
-		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression); 
+	public Expression makeProblemExpression(List<Expression> indices, List<Expression> indicesTypes, Expression constraint, Expression body) {
+		List<Expression> indexExpressions = makeIndexExpressions(indices, indicesTypes);
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpressions); 
 		DefaultIntensionalMultiSet set = new DefaultIntensionalMultiSet(indexExpressionsSet, body, constraint);
 		Expression problem = apply(getFunctionString(), set);
 		return problem;

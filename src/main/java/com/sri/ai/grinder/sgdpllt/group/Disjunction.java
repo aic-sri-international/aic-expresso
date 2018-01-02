@@ -44,6 +44,8 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.GREATER_THAN;
 
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
@@ -114,7 +116,14 @@ public class Disjunction extends AbstractQuantifierBasedGroup {
 		return result;
 	}
 
-	public DefaultExistentiallyQuantifiedFormula makeQuantifiedExpression(Expression indexExpression, Expression body) {
-		return new DefaultExistentiallyQuantifiedFormula(indexExpression, body);
+	@Override
+	public Expression makeQuantifiedExpression(List<Expression> indexExpressions, Expression body) {
+		Expression current = body;
+		ListIterator<Expression> iterator = indexExpressions.listIterator(indexExpressions.size());
+		while (iterator.hasPrevious()) {
+			Expression indexExpression = iterator.previous();
+			current = new DefaultExistentiallyQuantifiedFormula(indexExpression, current);
+		}
+		return current;
 	}
 }
