@@ -81,6 +81,6 @@ public class BruteForceMultiQuantifierEliminator extends AbstractIterativeMultiQ
 
 	@Override
 	public Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context) {
-		return problem.getConditionedBodyValue();
+		return problem.getConditionedBody();
 	}
 }

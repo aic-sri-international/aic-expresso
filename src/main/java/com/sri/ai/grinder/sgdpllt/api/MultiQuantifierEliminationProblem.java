@@ -63,7 +63,7 @@ public interface MultiQuantifierEliminationProblem {
 	
 	Expression toExpression();
 
-	default Expression getConditionedBodyValue() {
+	default Expression getConditionedBody() {
 		return IfThenElse.make(getConstraint(), getBody(), getGroup().additiveIdentityElement());
 	}
 }

@@ -175,7 +175,7 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 			result = problem.getBody();
 		}
 		else {
-			result = problem.getConditionedBodyValue();
+			result = problem.getConditionedBody();
 		}		
 		return result;
 	}

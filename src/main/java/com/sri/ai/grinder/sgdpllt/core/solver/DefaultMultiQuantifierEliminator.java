@@ -26,7 +26,7 @@ public class DefaultMultiQuantifierEliminator extends AbstractMultiQuantifierEli
 
 	private Expression eliminateAllQuantifiers(MultiQuantifierEliminationProblem problem, Context context) {
 		List<Expression> indices = problem.getIndices();
-		Expression bodyWithCondition = problem.getConditionedBodyValue();
+		Expression bodyWithCondition = problem.getConditionedBody();
 		Expression currentExpression = bodyWithCondition;
 		for (int i = indices.size() - 1; i >= 0; i--) {
 			Expression index = indices.get(i);
