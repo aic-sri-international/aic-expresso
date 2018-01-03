@@ -86,7 +86,7 @@ public class QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter extends S
 							(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
 					// the set is intensional, but not the set of index expressions!
 					result =
-							quantifierEliminator.solve(
+							quantifierEliminator.extendContextAndSolve(
 									group,
 									indexExpressions,
 									intensionalSet.getCondition(),

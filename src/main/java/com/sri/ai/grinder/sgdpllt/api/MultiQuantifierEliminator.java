@@ -62,7 +62,7 @@ import com.sri.ai.util.base.Triple;
  */
 public interface MultiQuantifierEliminator {
 
-	default Expression solve(
+	default Expression extendContextAndSolve(
 			AssociativeCommutativeGroup group,
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression indicesCondition,
@@ -82,6 +82,16 @@ public interface MultiQuantifierEliminator {
 	}
 	
 	/**
+	 * Convenience substitute for {@link #extendContextAndSolve(AssociativeCommutativeGroup, Expression, Expression, Collection, Context)}
+	 * assuming a true constraint.
+	 */
+	default Expression extendContextAndSolve(AssociativeCommutativeGroup group, List<Expression> indices, Expression body, Context context) {
+		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
+		Expression result = solve(group, indices, trueConstraint, body, context);
+		return result;
+	}
+
+	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
 	Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context);
@@ -93,16 +103,6 @@ public interface MultiQuantifierEliminator {
 		return solve(problem.getGroup(), problem.getIndices(), problem.getConstraint(), problem.getBody(), context);
 	}
 	
-	/**
-	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Expression, Expression, Collection, Context)}
-	 * assuming a true constraint.
-	 */
-	default Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression body, Context context) {
-		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
-		Expression result = solve(group, indices, trueConstraint, body, context);
-		return result;
-	}
-
 	void interrupt();
 	
 	boolean getDebug();
@@ -123,7 +123,7 @@ public interface MultiQuantifierEliminator {
 	}
 
 	/**
-	 * Convenience substitute for {@link #solve(AssociativeCommutativeGroup, Collection, Expression, Context)} that takes care of constructing the Context
+	 * Convenience substitute for {@link #extendContextAndSolve(AssociativeCommutativeGroup, Collection, Expression, Context)} that takes care of constructing the Context
 	 * given the data required to build it.
 	 */
 	default Expression solve(
@@ -143,7 +143,7 @@ public interface MultiQuantifierEliminator {
 				isUniquelyNamedConstantPredicate,
 				theory);
 		
-		Expression result = solve(group, indices, expression, context);
+		Expression result = extendContextAndSolve(group, indices, expression, context);
 		return result;
 	}
 }

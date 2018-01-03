@@ -83,7 +83,7 @@ public class QuantifierTopRewriter extends Switch<Object> {
 				ExtensionalIndexExpressionsSet indexExpressions = 
 						(ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
 				// the set is intensional, but not the set of index expressions!
-				result = quantifierEliminator.solve(group, indexExpressions, TRUE, body, c);
+				result = quantifierEliminator.extendContextAndSolve(group, indexExpressions, TRUE, body, c);
 			}
 			catch (IllegalArgumentException exception) {
 				result = e;

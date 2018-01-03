@@ -165,7 +165,7 @@ public class AbstractSGVET extends AbstractMultiQuantifierEliminator {
 			// In the future it should also re-use the representation.
 			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
 			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(indicesConstraint, indexSubProblemExpression, semiRing.multiplicativeAbsorbingElement());
-			Expression indexSubProblemSolution = subSolver.solve(group, partition.index, indexSubProblemExpressionWithConstraint, context);
+			Expression indexSubProblemSolution = subSolver.extendContextAndSolve(group, partition.index, indexSubProblemExpressionWithConstraint, context);
 
 			if (basicOutput) {
 				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	

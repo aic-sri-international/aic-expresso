@@ -111,7 +111,7 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 	}
 	
 	@Override
-	public Expression solve(AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
+	public Expression extendContextAndSolve(AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
 		context = context.extendWith(indexExpressions);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		return solve(group, indices, indicesCondition, body, context);

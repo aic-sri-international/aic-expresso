@@ -91,7 +91,7 @@ public class BruteForceFunctionTheory extends AbstractTranslationBasedTheory {
 		// TODO: return conditional steps on literals on free variables.
 		// We are solving it straight here because there are no literals in this theory,
 		// however a more sophisticated solution would return conditional steps on literals on free variables.
-		Expression solution = quantifierEliminator.solve(problem.getGroup(), indexExpressionsSet, problem.getConstraint(), problem.getBody(), context);
+		Expression solution = quantifierEliminator.extendContextAndSolve(problem.getGroup(), indexExpressionsSet, problem.getConstraint(), problem.getBody(), context);
 		
 		return new ConstantExpressionStepSolver(solution);
 	}

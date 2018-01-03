@@ -92,7 +92,7 @@ public class CardinalityTopRewriter extends CombiningTopRewriter {
 					ExtensionalIndexExpressionsSet indexExpressions =
 							(ExtensionalIndexExpressionsSet) getIndexExpressions(e);
 					result =
-							quantifierEliminator.solve(
+							quantifierEliminator.extendContextAndSolve(
 									new Sum(),
 									indexExpressions,
 									getCondition(e),
