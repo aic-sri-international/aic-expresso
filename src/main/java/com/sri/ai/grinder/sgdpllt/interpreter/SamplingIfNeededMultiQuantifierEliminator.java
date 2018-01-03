@@ -37,23 +37,16 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
-
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.library.set.Measure;
+import com.sri.ai.grinder.sgdpllt.core.solver.MeasurableMultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.util.math.Rational;
 
 /**
  * A quantifier eliminator that decides whether to use brute force or sampling
@@ -100,17 +93,18 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 	
 	@Override
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
-		boolean sample = decideWhetherToSample(problem, context);
-		Expression result = solve(sample, problem, context);
+		// we create a measurable problem here so that the measure is computed inside it only once and reused afterwards.
+		MeasurableMultiQuantifierEliminationProblem measurableProblem =
+				new MeasurableMultiQuantifierEliminationProblem(problem);
+		boolean sample = decideWhetherToSample(measurableProblem, context);
+		Expression result = solve(sample, measurableProblem, context);
 		return result;
 	}
 
-	private boolean decideWhetherToSample(MultiQuantifierEliminationProblem problem, Context context) {
+	private boolean decideWhetherToSample(MeasurableMultiQuantifierEliminationProblem problem, Context context) {
 		boolean sample;
 		if (problem.getIndices().size() == 1) {						
-			SingleQuantifierEliminationProblem firstIndexProblem = problem.getFirstIndexVersion();
-			Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(firstIndexProblem, context);
-			sample = samplingIsCheaper(firstIndexProblem, measureOfDomainSatisfyingCondition, context);
+			sample = samplingIsCheaper(problem, context);
 		}
 		else {
 			sample = false;
@@ -118,7 +112,7 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 		return sample;
 	}
 
-	private Expression solve(boolean sample, MultiQuantifierEliminationProblem problem, Context context) {
+	private Expression solve(boolean sample, MeasurableMultiQuantifierEliminationProblem problem, Context context) {
 		Expression result;
 		if (sample) {
 			result = getSampling().solve(problem, context);
@@ -129,32 +123,20 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 		return result;
 	}
 
-	private boolean samplingIsCheaper(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
+	private boolean samplingIsCheaper(MeasurableMultiQuantifierEliminationProblem problem, Context context) {
 		boolean result = 
 				alwaysSample
 				||
-				domainIsContinuousOrDiscreteButLargerThanSampleSize(problem, measureOfDomainSatisfyingCondition, context);
+				domainIsContinuousOrDiscreteAndLargerThanSampleSize(problem, context);
 		return result;
 	}
 
-	private Rational computeMeasureOfDomainSatisfyingCondition(SingleQuantifierEliminationProblem problem, Context context) {
-		Expression intensionalSetOfAllIndexValues = getIntensionalSetOfAllIndexValues(problem);
-		Rational result = Measure.get(intensionalSetOfAllIndexValues, context);
-		return result;
-	}
-
-	private Expression getIntensionalSetOfAllIndexValues(SingleQuantifierEliminationProblem problem) {
-		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(problem.getIndex(), problem.getIndexType()));
-		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, problem.getIndex(), problem.getConstraint());
-		return intensionalSet;
-	}
-
-	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
-		Type type = GrinderUtil.getTypeOfExpression(problem.getIndex(), context);
+	private boolean domainIsContinuousOrDiscreteAndLargerThanSampleSize(MeasurableMultiQuantifierEliminationProblem problem, Context context) {
+		Type type = GrinderUtil.getTypeOfExpression(problem.getIndices().get(0), context);
 		boolean result = 
 				type == null 
 				|| !type.isDiscrete() 
-				|| measureOfDomainSatisfyingCondition.compareTo(sampleSize) > 0;
+				|| problem.getMeasure(context).compareTo(sampleSize) > 0;
 		return result;
 	}
 }

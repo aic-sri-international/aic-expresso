@@ -53,32 +53,54 @@ import com.sri.ai.util.math.Rational;
  * A {@link MultiQuantifierEliminationProblem} that knows how to compute the measure
  * of the domain satisfying its constraint.
  */
-public class MeasurableMultiQuantifierEliminationProblem extends DefaultMultiQuantifierEliminationProblem {
+public class MeasurableMultiQuantifierEliminationProblem extends MultiQuantifierEliminationProblemWrapper {
 
 	private Rational measure;
 	
 	public MeasurableMultiQuantifierEliminationProblem(MultiQuantifierEliminationProblem problem) {
-		super(
-				problem.getGroup(), 
-				problem.getIndices(), 
-				problem.getIndicesTypes(), 
-				problem.getConstraint(), 
-				problem.getBody());
+		super(problem);
+	}
+
+	@Override
+	public MeasurableMultiQuantifierEliminationProblem copyWithNewProblem(MultiQuantifierEliminationProblem problem) {
+		return new MeasurableMultiQuantifierEliminationProblem(problem);
 	}
 
 	public Rational getMeasure(Context context) {
 		if (measure == null) {
-			myAssert(getIndices().size() == 1, () -> this.getClass() + " currently supports single indices only, but got " + this);
-			Expression intensionalSetOfAllIndexValues = getIntensionalSet();
-			measure  = Measure.get(intensionalSetOfAllIndexValues, context);
-			// TODO: need to revisit Measure and see if it is doing the right thing, especially when generalizing to multiple indices.
+			measure = computeMeasure(this, context);
 		}
 		return measure;
 	}
 
-	private Expression getIntensionalSet() {
-		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(getIndices().get(0), getIndicesTypes().get(0)));
-		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, getIndices().get(0), getConstraint());
+	/**
+	 * Method with package visibility for reuse in {@link MeasurableSingleQuantifierEliminationProblem},
+	 * as a way of simulating multiple inheritance, which already extends {@link SingleQuantifierEliminationProblemWrapper}.
+	 * @param problem
+	 * @param context
+	 * @return
+	 */
+	static Rational computeMeasure(MultiQuantifierEliminationProblem problem, Context context) {
+		myAssert(problem.getIndices().size() == 1, () -> problem.getClass() + " currently supports single indices only, but got " + problem);
+		Expression intensionalSetOfAllIndexValues = getIntensionalSet(problem);
+		Rational measure = Measure.get(intensionalSetOfAllIndexValues, context);
+		// TODO: need to revisit Measure and see if it is doing the right thing, especially when generalizing to multiple indices.
+		return measure;
+	}
+
+	private static Expression getIntensionalSet(MultiQuantifierEliminationProblem problem) {
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(problem.getIndices().get(0), problem.getIndicesTypes().get(0)));
+		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, problem.getIndices().get(0), problem.getConstraint());
 		return intensionalSet;
+	}
+
+	@Override
+	public MeasurableSingleQuantifierEliminationProblem getFirstIndexVersion() {
+		MeasurableSingleQuantifierEliminationProblem firstIndexVersion = 
+				new MeasurableSingleQuantifierEliminationProblem(baseProblem.getFirstIndexVersion());
+		if (measure != null && getIndices().size() == 1) {
+			firstIndexVersion.measure = measure;
+		}
+		return firstIndexVersion;
 	}
 }

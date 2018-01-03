@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.myAssert;
@@ -47,18 +46,15 @@ import java.util.List;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.core.solver.MeasurableMultiQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.core.solver.MeasurableSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.Division;
-import com.sri.ai.grinder.sgdpllt.library.set.Measure;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.util.math.Rational;
 
 /**
  * A sampling quantifier elimination for problems with a single index.
@@ -86,34 +82,30 @@ public class SamplingSingleQuantifierEliminator extends AbstractIterativeMultiQu
 		
 		myAssert(problem.getIndices().size() == 1, () -> this.getClass() + " requires single-index problems but got " + problem);
 		
-		Expression result = solveBySamplingSingleIndexIfCheaper(problem.getFirstIndexVersion(), context);
+		MeasurableMultiQuantifierEliminationProblem measurableProblem = getMeasurableProblem(problem);
+		
+		Expression result = computeResultBasedOnSamples(measurableProblem.getFirstIndexVersion(), context);
 				
 		return result;
 	}
 
-	private Expression solveBySamplingSingleIndexIfCheaper(SingleQuantifierEliminationProblem problem, Context context) {
-		Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(problem, context);
-		Expression result = computeResultBasedOnSamples(problem, measureOfDomainSatisfyingCondition, context);								
-		return result;
+	private MeasurableMultiQuantifierEliminationProblem getMeasurableProblem(MultiQuantifierEliminationProblem problem) {
+		MeasurableMultiQuantifierEliminationProblem measurableProblem;
+		if (problem instanceof MeasurableMultiQuantifierEliminationProblem) {
+			measurableProblem = (MeasurableMultiQuantifierEliminationProblem) problem;
+		}
+		else {
+			measurableProblem = new MeasurableMultiQuantifierEliminationProblem(problem);
+		}
+		return measurableProblem;
 	}
 
-	private Rational computeMeasureOfDomainSatisfyingCondition(SingleQuantifierEliminationProblem problem, Context context) {
-		Expression intensionalSetOfAllIndexValues = getIntensionalSetOfAllIndexValues(problem);
-		Rational result = Measure.get(intensionalSetOfAllIndexValues, context);
-		return result;
-	}
-
-	private Expression getIntensionalSetOfAllIndexValues(SingleQuantifierEliminationProblem problem) {
-		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(problem.getIndex(), problem.getIndexType()));
-		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, problem.getIndex(), problem.getConstraint());
-		return intensionalSet;
-	}
-
-	private Expression computeResultBasedOnSamples(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
+	private Expression computeResultBasedOnSamples(MeasurableSingleQuantifierEliminationProblem problem, Context context) {
 		Expression groupSumOfSamples = super.solve(problem, context);			
 		AssociativeCommutativeGroup group = problem.getGroup();
 		Expression average = group.addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
-		Expression result = group.addNTimes(average, makeSymbol(measureOfDomainSatisfyingCondition), context);
+		Symbol measureExpression = makeSymbol(problem.getMeasure(context));
+		Expression result = group.addNTimes(average, measureExpression, context);
 		return result;
 	}
 
