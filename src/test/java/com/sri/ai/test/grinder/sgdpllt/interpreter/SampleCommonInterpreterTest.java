@@ -52,8 +52,7 @@ public class SampleCommonInterpreterTest {
 						new EqualityTheory(false, false),
 						new PropositionalTheory()));
 	}
-	
-	
+
 	@Test
 	public void testSumOverCategoricalDomain() {
 		updateContextWithIndexAndType("N", 

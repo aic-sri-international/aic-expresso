@@ -79,8 +79,11 @@ public abstract class AbstractInterpreter extends RedirectingRewriter {
 	
 	protected class TopRewriterUsingQuantifierEliminatorAndContextAssignments extends TopRewriterUsingContextAssignments {
 
+		private TopRewriter originalBaseTopRewriter;
+		
 		public TopRewriterUsingQuantifierEliminatorAndContextAssignments(TopRewriter baseTopRewriter) {
 			super();
+			this.originalBaseTopRewriter = baseTopRewriter;
 			MultiQuantifierEliminator quantifierEliminator = makeQuantifierEliminator(this);
 			setBaseRewriter(
 					TopRewriter.merge(
@@ -95,6 +98,11 @@ public abstract class AbstractInterpreter extends RedirectingRewriter {
 
 							new CardinalityByBruteForce(quantifierEliminator)
 							));
+		}
+		
+		@Override
+		public String toString() {
+			return "TopRewriter adding quantifier eliminators and use of context assignments to original top base rewriter " + originalBaseTopRewriter;
 		}
 	}
 }

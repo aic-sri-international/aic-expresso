@@ -41,7 +41,10 @@ import java.util.Random;
 
 import com.sri.ai.grinder.helper.LazySampledFunctionApplicationTopRewriter;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 /**
  * This interpreter will evaluate expressions, but will sample quantifiers instead of using brute force.
@@ -51,13 +54,13 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
  */
 public class SamplingInterpreter extends AbstractInterpreter {
 	
-	private int sampleSizeN;
+	private int sampleSize;
 	private boolean alwaysSample;
 	private Random random;
 
-	public SamplingInterpreter(TopRewriter baseTopRewriter, int sampleSizeN, boolean alwaysSample, Random random) {
+	public SamplingInterpreter(TopRewriter baseTopRewriter, int sampleSize, boolean alwaysSample, Random random) {
 		super();
-		this.sampleSizeN = sampleSizeN;
+		this.sampleSize = sampleSize;
 		this.alwaysSample = alwaysSample;
 		this.random = random;
 		// it is important that the properties above are settled before invoking the method below
@@ -68,6 +71,7 @@ public class SamplingInterpreter extends AbstractInterpreter {
 	
 	@Override
 	protected MultiQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new SamplingIfNeededMultiQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
+		Rewriter indicesConditionEvaluator = new Recursive(new Exhaustive(topRewriterWithAssignment));
+		return new SamplingIfNeededMultiQuantifierEliminator(topRewriterWithAssignment, sampleSize, alwaysSample, indicesConditionEvaluator, random);
 	}
 }
