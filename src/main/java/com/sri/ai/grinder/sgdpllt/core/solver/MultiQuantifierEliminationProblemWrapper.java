@@ -37,78 +37,77 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
-import static com.sri.ai.util.Util.myAssert;
-
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 
 @Beta
-public class DefaultMultiQuantifierEliminationProblem extends AbstractMultiQuantifierEliminationProblem {
+public abstract class MultiQuantifierEliminationProblemWrapper implements MultiQuantifierEliminationProblem {
 	
-	final public List<Expression> indices;
-	final public List<Expression> indicesTypes;
+	final public MultiQuantifierEliminationProblem baseProblem;
 
-	public DefaultMultiQuantifierEliminationProblem(
-			AssociativeCommutativeGroup group, 
-			List<Expression> indices, 
-			List<Expression> indicesTypes, 
-			Expression constraint, 
-			Expression body) {
-		
-		super(group, constraint, body);
-		myAssert(indices.size() == indicesTypes.size(), () -> "DefaultMultiQuantifierEliminationProblem requires numbers of indices and types to be the same, but got " + indices + " and " + indicesTypes);
-		this.indices = indices;
-		this.indicesTypes = indicesTypes;
+	public MultiQuantifierEliminationProblemWrapper(MultiQuantifierEliminationProblem baseProblem) {
+		this.baseProblem = baseProblem;
 	}
 	
-	public DefaultMultiQuantifierEliminationProblem(
-			AssociativeCommutativeGroup group, 
-			List<Expression> indices, 
-			Expression constraint,
-			Expression body, 
-			Context context) {
-		this(group, indices, context.getTypeExpressions(indices), constraint, body);
-	}
-	
-	public static
-	DefaultMultiQuantifierEliminationProblem
-	makeProblem(
-			AssociativeCommutativeGroup group, 
-			List<Expression> indices, 
-			Expression indicesCondition,
-			Expression body, 
-			Context context) {
-		return new DefaultMultiQuantifierEliminationProblem(group, indices, indicesCondition, body, context);
-	}
+	/**
+	 * A method replicating this instance, but with a new wrapped object;
+	 * extending classes should override this method to define specific wrapping functionality.
+	 * All wrappers should use something like this.
+	 * @param problem
+	 * @return
+	 */
+	abstract public MultiQuantifierEliminationProblemWrapper copyWithNewProblem(MultiQuantifierEliminationProblem problem);
 	
 	@Override
+	abstract public SingleQuantifierEliminationProblem getFirstIndexVersion();
+
+	@Override
+	public AssociativeCommutativeGroup getGroup() {
+		return baseProblem.getGroup();
+	}
+
+	@Override
 	public List<Expression> getIndices() {
-		return Collections.unmodifiableList(indices);
+		return baseProblem.getIndices();
 	}
 
 	@Override
 	public List<Expression> getIndicesTypes() {
-		return Collections.unmodifiableList(indicesTypes);
+		return baseProblem.getIndicesTypes();
 	}
 
 	@Override
-	public DefaultMultiQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint) {
-		return new DefaultMultiQuantifierEliminationProblem(group, indices, indicesTypes, newConstraint, body);
+	public Expression getConstraint() {
+		return baseProblem.getConstraint();
 	}
 
 	@Override
-	public DefaultMultiQuantifierEliminationProblem makeWithNewBody(Expression newBody) {
-		return new DefaultMultiQuantifierEliminationProblem(group, indices, indicesTypes, constraint, newBody);
+	public Expression getBody() {
+		return baseProblem.getBody();
+	}
+	
+	@Override
+	public MultiQuantifierEliminationProblemWrapper makeWithNewIndexConstraint(Expression newConstraint) {
+		return copyWithNewProblem(baseProblem.makeWithNewIndexConstraint(newConstraint));
 	}
 
 	@Override
-	public SingleQuantifierEliminationProblem getFirstIndexVersion() {
-		return new DefaultSingleQuantifierEliminationProblem(this);
+	public MultiQuantifierEliminationProblemWrapper makeWithNewBody(Expression newBody) {
+		return copyWithNewProblem(baseProblem.makeWithNewBody(newBody));
+	}
+
+	@Override
+	public String toString() {
+		return baseProblem.toString();
+	}
+
+	@Override
+	public Expression toExpression() {
+		return baseProblem.toExpression();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2017, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -37,56 +37,48 @@
  */
 package com.sri.ai.grinder.sgdpllt.core.solver;
 
+import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
 import static com.sri.ai.util.Util.myAssert;
 
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.sgdpllt.library.set.Measure;
+import com.sri.ai.util.math.Rational;
 
-@Beta
-public abstract class SingleQuantifierEliminationProblemWrapper
-extends MultiQuantifierEliminationProblemWrapper
-implements SingleQuantifierEliminationProblem {
+/**
+ * A {@link MultiQuantifierEliminationProblem} that knows how to compute the measure
+ * of the domain satisfying its constraint.
+ */
+public class MeasurableMultiQuantifierEliminationProblem extends DefaultMultiQuantifierEliminationProblem {
+
+	private Rational measure;
 	
-	public SingleQuantifierEliminationProblemWrapper(SingleQuantifierEliminationProblem baseProblem) {
-		super(baseProblem);
-	}
-	
-	abstract public SingleQuantifierEliminationProblemWrapper copyWithNewProblem(SingleQuantifierEliminationProblem problem);
-
-	public SingleQuantifierEliminationProblemWrapper copyWithNewProblem(MultiQuantifierEliminationProblem problem) {
-		myAssert(problem instanceof SingleQuantifierEliminationProblem, () -> this.getClass() + " requires " + SingleQuantifierEliminationProblem.class + " objects, but got object of type " + problem.getClass());
-		SingleQuantifierEliminationProblemWrapper result = copyWithNewProblem((SingleQuantifierEliminationProblem) problem);
-		return result;
+	public MeasurableMultiQuantifierEliminationProblem(MultiQuantifierEliminationProblem problem) {
+		super(
+				problem.getGroup(), 
+				problem.getIndices(), 
+				problem.getIndicesTypes(), 
+				problem.getConstraint(), 
+				problem.getBody());
 	}
 
-	private SingleQuantifierEliminationProblem getSingleQuantifierEliminationBaseProblem() {
-		return (SingleQuantifierEliminationProblem) baseProblem;
+	public Rational getMeasure(Context context) {
+		if (measure == null) {
+			myAssert(getIndices().size() == 1, () -> this.getClass() + " currently supports single indices only, but got " + this);
+			Expression intensionalSetOfAllIndexValues = getIntensionalSet();
+			measure  = Measure.get(intensionalSetOfAllIndexValues, context);
+			// TODO: need to revisit Measure and see if it is doing the right thing, especially when generalizing to multiple indices.
+		}
+		return measure;
 	}
 
-	@Override
-	public Expression getIndex() {
-		return getSingleQuantifierEliminationBaseProblem().getIndex();
-	}
-
-	@Override
-	public Expression getIndexType() {
-		return getSingleQuantifierEliminationBaseProblem().getIndexType();
-	}
-
-	@Override
-	public SingleQuantifierEliminationProblemWrapper makeWithNewIndexConstraint(Expression newConstraint) {
-		return copyWithNewProblem(getSingleQuantifierEliminationBaseProblem().makeWithNewIndexConstraint(newConstraint));
-	}
-
-	@Override
-	public SingleQuantifierEliminationProblemWrapper makeWithNewBody(Expression newBody) {
-		return copyWithNewProblem(getSingleQuantifierEliminationBaseProblem().makeWithNewBody(newBody));
-	}
-
-	@Override
-	public SingleQuantifierEliminationProblem getFirstIndexVersion() {
-		return this;
+	private Expression getIntensionalSet() {
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(IndexExpressions.makeIndexExpression(getIndices().get(0), getIndicesTypes().get(0)));
+		Expression intensionalSet = intensionalMultiSet(indexExpressionsSet, getIndices().get(0), getConstraint());
+		return intensionalSet;
 	}
 }

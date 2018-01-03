@@ -68,6 +68,6 @@ public class SamplingInterpreter extends AbstractInterpreter {
 	
 	@Override
 	protected MultiQuantifierEliminator makeQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithAssignment) {
-		return new SamplingMultiQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
+		return new SamplingIfNeededMultiQuantifierEliminator(topRewriterWithAssignment, sampleSizeN, alwaysSample, this, random);
 	}
 }

@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Iterator;
 import java.util.List;
@@ -47,11 +48,8 @@ import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.AssignmentsSamplingIterator;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
@@ -63,54 +61,39 @@ import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.util.math.Rational;
 
 /**
- * 
- * @author oreilly
- *
+ * A sampling quantifier elimination for problems with a single index.
  */
-public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQuantifierEliminator {
+public class SamplingSingleQuantifierEliminator extends AbstractIterativeMultiQuantifierEliminator {
 
 	private int sampleSize;
-	private boolean alwaysSample;
 	private Rewriter indicesConditionEvaluator;
 	private Random random;
-	private boolean sampleSingleIndex;
 	
-	public SamplingMultiQuantifierEliminator(
+	public SamplingSingleQuantifierEliminator(
 			TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, 
-			int sampleSizeN, 
-			boolean alwaysSample, 
+			int sampleSize, 
 			Rewriter indicesConditionEvaluator, 
 			Random random) {
 		
 		super(topRewriterWithBaseAssignment);
-		this.sampleSize = sampleSizeN;
-		this.alwaysSample = alwaysSample;
+		this.sampleSize = sampleSize;
 		this.indicesConditionEvaluator = indicesConditionEvaluator;
 		this.random = random;
 	}
 	
 	@Override
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
-		Expression result = null;
 		
-		if (problem.getIndices().size() == 1) {						
-			result = solveBySamplingSingleIndexIfCheaper(problem.getFirstIndexVersion(), context);
-		}
+		myAssert(problem.getIndices().size() == 1, () -> this.getClass() + " requires single-index problems but got " + problem);
+		
+		Expression result = solveBySamplingSingleIndexIfCheaper(problem.getFirstIndexVersion(), context);
 				
-		if (result == null) {
-			result = super.solve(problem, context);
-		}
-		
 		return result;
 	}
 
 	private Expression solveBySamplingSingleIndexIfCheaper(SingleQuantifierEliminationProblem problem, Context context) {
-		Expression result = null;
 		Rational measureOfDomainSatisfyingCondition = computeMeasureOfDomainSatisfyingCondition(problem, context);
-		sampleSingleIndex = decideWhetherToSampleSingleIndex(problem, measureOfDomainSatisfyingCondition, context);
-		if (sampleSingleIndex) {
-			result = computeResultBasedOnSamples(problem, measureOfDomainSatisfyingCondition, context);								
-		}
+		Expression result = computeResultBasedOnSamples(problem, measureOfDomainSatisfyingCondition, context);								
 		return result;
 	}
 
@@ -126,23 +109,6 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 		return intensionalSet;
 	}
 
-	private boolean decideWhetherToSampleSingleIndex(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
-		boolean result = 
-				alwaysSample
-				||
-				domainIsContinuousOrDiscreteButLargerThanSampleSize(problem, measureOfDomainSatisfyingCondition, context);
-		return result;
-	}
-
-	private boolean domainIsContinuousOrDiscreteButLargerThanSampleSize(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
-		Type type = GrinderUtil.getTypeOfExpression(problem.getIndex(), context);
-		boolean result = 
-				type == null 
-				|| !type.isDiscrete() 
-				|| measureOfDomainSatisfyingCondition.compareTo(sampleSize) > 0;
-		return result;
-	}
-
 	private Expression computeResultBasedOnSamples(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
 		Expression groupSumOfSamples = super.solve(problem, context);			
 		AssociativeCommutativeGroup group = problem.getGroup();
@@ -155,28 +121,15 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 	public
 	Iterator<Assignment> 
 	makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
-		
-		Iterator<Assignment> result;
-		if (sampleSingleIndex) {
-			result = new AssignmentsSamplingIterator(indices, sampleSize, indicesCondition, indicesConditionEvaluator, random, context);
-		}
-		else {
-			result = new AssignmentsIterator(indices, context);
-		}
+		Iterator<Assignment> result = 
+				new AssignmentsSamplingIterator(
+						indices, sampleSize, indicesCondition, indicesConditionEvaluator, random, context);
 		return result;
 	}
 
 	@Override
 	public Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context) {
-		Expression result;
-		if (sampleSingleIndex) {
-			// AssignmentsSamplingIterator takes the indicesCondition into account 
-			// so no need to take it into account in this case
-			result = problem.getBody();
-		}
-		else {
-			result = problem.getConditionedBody();
-		}		
+		Expression result = problem.getBody();
 		return result;
 	}
 }

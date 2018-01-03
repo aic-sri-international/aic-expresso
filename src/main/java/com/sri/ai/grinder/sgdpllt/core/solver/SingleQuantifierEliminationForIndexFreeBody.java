@@ -32,6 +32,10 @@ public class SingleQuantifierEliminationForIndexFreeBody extends SingleQuantifie
 		super(problem);
 		this.context = context;
 	}
+	
+	public SingleQuantifierEliminationForIndexFreeBody copyWithNewProblem(SingleQuantifierEliminationProblem problem) {
+		return new SingleQuantifierEliminationForIndexFreeBody(problem, context);
+	}
 
 	public Expression eliminateQuantifierForLiteralFreeBody() {
 		checkThatIndexDoesNotAppearInBody();
@@ -85,6 +89,6 @@ public class SingleQuantifierEliminationForIndexFreeBody extends SingleQuantifie
 	}
 
 	private void checkWeCanSolveSatisfiabilityOfConstraint(Expression conditionForSatisfiability) throws Error {
-		requires(conditionForSatisfiability != null, () -> "No satisfiability solver present for " + getIndex() + " while solving " + problem);
+		requires(conditionForSatisfiability != null, () -> "No satisfiability solver present for " + getIndex() + " while solving " + baseProblem);
 	}
 }
