@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 /**
  * A {@link MultiQuantifierEliminator} implementation that
@@ -18,10 +18,10 @@ import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 public class DefaultMultiQuantifierEliminator extends AbstractMultiQuantifierEliminator {
 
 	@Override
-	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression condition, Expression body, Context context) {
-		Expression bodyWithCondition = IfThenElse.make(condition, body, group.additiveIdentityElement());
-		Expression eliminationResult = eliminateAllQuantifiers(group, indices, bodyWithCondition, context);
-		Expression normalizedResult = makeSureResultIsNormalized(eliminationResult, indices, context);
+	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
+		Expression bodyWithCondition = problem.getConditionedBodyValue();
+		Expression eliminationResult = eliminateAllQuantifiers(problem.getGroup(), problem.getIndices(), bodyWithCondition, context);
+		Expression normalizedResult = makeSureResultIsNormalized(eliminationResult, problem.getIndices(), context);
 		return normalizedResult;
 	}
 

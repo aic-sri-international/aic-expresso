@@ -44,9 +44,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
 
 /**
@@ -81,7 +80,7 @@ public class BruteForceMultiQuantifierEliminator extends AbstractIterativeMultiQ
 	}
 
 	@Override
-	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
-		return IfThenElse.make(indicesCondition, body, group.additiveIdentityElement());
+	public Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context) {
+		return problem.getConditionedBodyValue();
 	}
 }

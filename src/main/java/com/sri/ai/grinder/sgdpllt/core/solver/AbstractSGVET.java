@@ -65,6 +65,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.sgdpllt.api.Constraint;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing;
@@ -116,8 +117,13 @@ public class AbstractSGVET extends AbstractMultiQuantifierEliminator {
 	}
 	
 	@Override
-	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
-			
+	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
+		
+		AssociativeCommutativeGroup group = problem.getGroup();
+		List<Expression> indices = problem.getIndices();
+		Expression indicesConstraint = problem.getConstraint();
+		Expression body = problem.getBody();
+		
 		checkInterrupted();
 		
 		// Make sure body is simplified and quantifier-free.

@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 public interface MultiQuantifierEliminationProblem {
 
@@ -61,4 +62,8 @@ public interface MultiQuantifierEliminationProblem {
 	SingleQuantifierEliminationProblem getFirstIndexVersion();
 	
 	Expression toExpression();
+
+	default Expression getConditionedBodyValue() {
+		return IfThenElse.make(getConstraint(), getBody(), getGroup().additiveIdentityElement());
+	}
 }

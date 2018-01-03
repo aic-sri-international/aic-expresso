@@ -40,7 +40,6 @@ package com.sri.ai.grinder.sgdpllt.interpreter;
 import static com.sri.ai.expresso.api.IntensionalSet.intensionalMultiSet;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiQuantifierEliminationProblem.makeProblem;
 
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +56,6 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.library.number.Division;
 import com.sri.ai.grinder.sgdpllt.library.set.Measure;
@@ -92,19 +90,15 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 	}
 	
 	@Override
-	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
+	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
 		Expression result = null;
 		
-		MultiQuantifierEliminationProblem problem = 
-				makeProblem(group, indices, indicesCondition, body, context);
-		
-		if (indices.size() == 1) {						
+		if (problem.getIndices().size() == 1) {						
 			result = solveBySamplingSingleIndexIfCheaper(problem.getFirstIndexVersion(), context);
 		}
 				
 		if (result == null) {
-			result = super.solve(group, indices, indicesCondition,  body, context);
-			// CANNOT be replaced by super.solve(problem, context), since that will use default method that redirects to dynamic solve, ending up here again and causing a stack overflow.
+			result = super.solve(problem, context);
 		}
 		
 		return result;
@@ -150,8 +144,8 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 	}
 
 	private Expression computeResultBasedOnSamples(SingleQuantifierEliminationProblem problem, Rational measureOfDomainSatisfyingCondition, Context context) {
+		Expression groupSumOfSamples = super.solve(problem, context);			
 		AssociativeCommutativeGroup group = problem.getGroup();
-		Expression groupSumOfSamples = super.solve(group, problem.getIndices(), problem.getConstraint(), problem.getBody(), context);			
 		Expression average = group.addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
 		Expression result = group.addNTimes(average, makeSymbol(measureOfDomainSatisfyingCondition), context);
 		return result;
@@ -173,15 +167,15 @@ public class SamplingMultiQuantifierEliminator extends AbstractIterativeMultiQua
 	}
 
 	@Override
-	public Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
+	public Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context) {
 		Expression result;
 		if (sampleSingleIndex) {
 			// AssignmentsSamplingIterator takes the indicesCondition into account 
 			// so no need to take it into account in this case
-			result = body;
+			result = problem.getBody();
 		}
 		else {
-			result = IfThenElse.make(indicesCondition, body, group.additiveIdentityElement());
+			result = problem.getConditionedBodyValue();
 		}		
 		return result;
 	}

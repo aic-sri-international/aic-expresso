@@ -46,6 +46,7 @@ import java.util.Map;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.sgdpllt.api.Context;
+import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
@@ -78,14 +79,8 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 
 	/**
 	 * Make the term to be summed for all assignments provided by assignments iterator.
-	 * @param group
-	 * @param indices 
-	 * @param indicesCondition
-	 * @param body
-	 * @param context 
-	 * @return
 	 */
-	public abstract Expression makeSummand(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context);
+	public abstract Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context);
 
 	/**
 	 * Makes an iterator (ranging assignments from indices to their values)
@@ -118,11 +113,12 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 	}
 
 	@Override
-	public Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesCondition, Expression body, Context context) {
+	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
+		AssociativeCommutativeGroup group = problem.getGroup();
 		Expression currentValue = group.additiveIdentityElement();		
-		Expression summand  = makeSummand(group, indices, indicesCondition, body, context);
+		Expression summand  = makeSummand(problem, context);
 		Rewriter   rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
-		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(indices, indicesCondition, context);
+		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(problem.getIndices(), problem.getConstraint(), context);
 		for (Assignment assignment : in(assignmentsIterator)) {
 			Context extendedContext = assignment.extend(context);			
 			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);

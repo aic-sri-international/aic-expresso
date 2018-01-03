@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpllt.api;
 
 import static com.sri.ai.expresso.api.Tuple.tuple;
+import static com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiQuantifierEliminationProblem.makeProblem;
 import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
@@ -94,14 +95,16 @@ public interface MultiQuantifierEliminator {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context);
+	default Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
+		MultiQuantifierEliminationProblem problem = makeProblem(group, indices, indicesConstraint, body, context);
+		Expression result = solve(problem, context);
+		return result;
+	}
 	
 	/**
 	 * Returns the given problem's answer.
 	 */
-	default Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
-		return solve(problem.getGroup(), problem.getIndices(), problem.getConstraint(), problem.getBody(), context);
-	}
+	Expression solve(MultiQuantifierEliminationProblem problem, Context context);
 	
 	void interrupt();
 	
