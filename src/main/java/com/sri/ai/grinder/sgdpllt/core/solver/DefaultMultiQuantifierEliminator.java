@@ -19,18 +19,19 @@ public class DefaultMultiQuantifierEliminator extends AbstractMultiQuantifierEli
 
 	@Override
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
-		Expression bodyWithCondition = problem.getConditionedBodyValue();
-		Expression eliminationResult = eliminateAllQuantifiers(problem.getGroup(), problem.getIndices(), bodyWithCondition, context);
+		Expression eliminationResult = eliminateAllQuantifiers(problem, context);
 		Expression normalizedResult = makeSureResultIsNormalized(eliminationResult, problem.getIndices(), context);
 		return normalizedResult;
 	}
 
-	private Expression eliminateAllQuantifiers(AssociativeCommutativeGroup group, List<Expression> indices, Expression bodyWithCondition, Context context) {
+	private Expression eliminateAllQuantifiers(MultiQuantifierEliminationProblem problem, Context context) {
+		List<Expression> indices = problem.getIndices();
+		Expression bodyWithCondition = problem.getConditionedBodyValue();
 		Expression currentExpression = bodyWithCondition;
 		for (int i = indices.size() - 1; i >= 0; i--) {
 			Expression index = indices.get(i);
 			Expression indexType = context.getTypeExpressionOfRegisteredSymbol(index);
-			TheorySolvedSingleQuantifierEliminationProblem nextProblem = makeProblem(group, index, indexType, currentExpression, context);
+			TheorySolvedSingleQuantifierEliminationProblem nextProblem = makeProblem(problem.getGroup(), index, indexType, currentExpression, context);
 			currentExpression = nextProblem.solve(context);
 		}
 		return currentExpression;
