@@ -3,46 +3,32 @@ package com.sri.ai.grinder.sgdpllt.anytime;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
+import static com.sri.ai.util.Util.in;
+import static com.sri.ai.util.Util.println;
 import static java.lang.Math.min;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
-import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.parser.antlr.AntlrGrinderParser.IntensionalMultisetContext;
-import com.sri.ai.grinder.sgdpllt.anytime.Examples;
-import com.sri.ai.grinder.sgdpllt.anytime.Model;
-import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultIntensionalBound;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
-
-import static com.sri.ai.util.Util.in;
-import static com.sri.ai.util.Util.println;
 
 public class BPTest {
 	private static Expression randomNumberGenerator() {
@@ -109,6 +95,7 @@ public class BPTest {
 		return result;
 	}
 	
+	@SuppressWarnings("unused")
 	private Model randomModel(int nVariables, int nFactors , Theory theory, Context context, Expression possibleValues) {
 		Set<Expression> Factor = new HashSet<Expression>();
 		
@@ -134,6 +121,7 @@ public class BPTest {
 		
 	}
 
+	@SuppressWarnings("unused")
 	private static void printModel(Model m) {
 		for (Pair<Expression, Expression> e : in(m.map.iterator())) {
 			println(e.second + " -> " + e.first);
@@ -226,6 +214,7 @@ public class BPTest {
 		// println(naiveResult.getArguments());
 	}
 	
+	@SuppressWarnings("unused")
 	private static float getError(Bound b,Theory t, Context c) {
 		if (b.isExtensionalBound()) {
 			List<Expression> l =((DefaultExtensionalBound) b).getElementsDefinitions();

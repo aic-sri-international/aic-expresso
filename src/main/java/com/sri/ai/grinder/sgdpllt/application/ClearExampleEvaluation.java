@@ -116,8 +116,6 @@ public class ClearExampleEvaluation {
 		// Here's how to do it from scratch, but see next the way we typically actually do it.
 		Expression p = makeSymbol("P");
 		context=context.extendWithSymbolsAndTypes("P", "Integer");
-		Expression people = makeSymbol("People");
-		Expression foods = makeSymbol("Foods");
 		IndexExpressionsSet indices = new ExtensionalIndexExpressionsSet(apply(IN, p, parse("1..4")));
 		
 		

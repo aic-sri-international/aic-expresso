@@ -65,6 +65,8 @@ import com.sri.ai.util.collect.NestedIterator;
  */
 @Beta
 public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements CompoundSyntaxTree {
+
+	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	

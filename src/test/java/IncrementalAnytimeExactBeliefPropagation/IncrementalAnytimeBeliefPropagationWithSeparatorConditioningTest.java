@@ -51,7 +51,6 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioningTest {
 		IncrementalAnytimeBeliefPropagationWithSeparatorConditioning sbp = new IncrementalAnytimeBeliefPropagationWithSeparatorConditioning(m, bfsExpander);
 		Bound inferenceResult = null;
 
-		Expression LVE = ModelGenerator.LVECalculation(m);
 		NullaryFunction<Bound> doInference = ()->makeSingleElementBound(LVECalculation(m), true);
 		inferenceResult = doInference.apply();
 		Pair<Double, Double> SGDPLLPairResult = ModelGenerator.MaxMinProbability(inferenceResult, m);

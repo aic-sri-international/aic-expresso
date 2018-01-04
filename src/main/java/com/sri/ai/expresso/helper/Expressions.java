@@ -139,7 +139,6 @@ public class Expressions {
 	 * Returns an expression represented by a given syntax tree.
 	 * Scheduled to be removed once expressions are no longer based on syntax trees.
 	 */
-	@Deprecated
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
 		if (syntaxTree instanceof CompoundSyntaxTree) {
 			Expression result = makeExpressionOnSyntaxTreeWithLabelAndSubTrees(syntaxTree.getLabel(), syntaxTree.getImmediateSubTrees().toArray());

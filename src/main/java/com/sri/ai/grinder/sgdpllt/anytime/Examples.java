@@ -1,22 +1,18 @@
 package com.sri.ai.grinder.sgdpllt.anytime;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IF_THEN_ELSE;
 import static com.sri.ai.util.Util.println;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUAL;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
 
 public class Examples {
 
@@ -161,7 +157,6 @@ public class Examples {
 		// Expression c = DefaultSymbol.createSymbol("C");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		Expression trueValue = DefaultSymbol.createSymbol(true);
 		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("0.1"), parse("0.9")), IfThenElse.make(q, parse("0.8"), parse("0.2")));
 		Expression f2 = IfThenElse.make(b, IfThenElse.make(q, parse("55"), parse("45")), IfThenElse.make(q, parse("65"), parse("35")));
 		// Expression f3 = apply(IF_THEN_ELSE, apply(EQUAL, c, trueValue),

@@ -6,25 +6,12 @@ import static java.lang.Math.abs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.anytime.BPTest;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 public class BoundPlotting {
@@ -84,13 +71,14 @@ public class BoundPlotting {
 	}
 	
 	public static void main(String[] args) {
-		Theory theory = new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, false),
-				new LinearRealArithmeticTheory(false, false),
-				new TupleTheory(),
-				new PropositionalTheory());
-		Context context = new TrueContext(theory);
+//		Theory theory = new CompoundTheory(
+//				new EqualityTheory(false, true),
+//				new DifferenceArithmeticTheory(false, false),
+//				new LinearRealArithmeticTheory(false, false),
+//				new TupleTheory(),
+//				new PropositionalTheory());
+
+		// Context context = new TrueContext(theory);
 		
 		// Model m = BPTest.IsingModel(3,3,theory, context, parse("Boolean"));
 		

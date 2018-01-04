@@ -25,7 +25,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 
 public class Derivative {
 
-	public static Expression Derivative(Expression expression, Expression variable, Context context) {
+	public static Expression computeDerivative(Expression expression, Expression variable, Context context) {
 		Expression functor = expression.getFunctor();
 		if (functor == parse("*")) {
 			return productCase(expression, variable, context);
@@ -72,7 +72,7 @@ public class Derivative {
 		for (int i = 2; i<arguments.size(); i++) {
 			factor = apply(TIMES, factor, arguments.get(i));
 		}
-		Expression toEvaluate = apply("+",apply("*", Derivative(arguments.get(0), variable, context), factor), apply("*", arguments.get(0), Derivative(factor, variable, context)));
+		Expression toEvaluate = apply("+",apply("*", computeDerivative(arguments.get(0), variable, context), factor), apply("*", arguments.get(0), computeDerivative(factor, variable, context)));
 		return theory.simplify(toEvaluate , context);
 	}
 	
@@ -83,7 +83,7 @@ public class Derivative {
 		for (int i = 2; i<arguments.size(); i++) {
 			sum = apply("+", sum, arguments.get(i));
 		}
-		Expression toEvaluate = apply("+",Derivative(arguments.get(0), variable, context), Derivative(sum, variable, context));
+		Expression toEvaluate = apply("+",computeDerivative(arguments.get(0), variable, context), computeDerivative(sum, variable, context));
 		return theory.simplify(toEvaluate , context);
 	}
 	
@@ -94,7 +94,7 @@ public class Derivative {
 		for (int i = 2; i<arguments.size(); i++) {
 			sum = apply("*", sum, arguments.get(i));
 		}
-		Expression toEvaluate = apply("-",Derivative(arguments.get(0), variable, context), Derivative(sum, variable, context));
+		Expression toEvaluate = apply("-",computeDerivative(arguments.get(0), variable, context), computeDerivative(sum, variable, context));
 		return theory.simplify(toEvaluate , context);
 	}
 	
@@ -105,7 +105,7 @@ public class Derivative {
 		for (int i = 2; i<arguments.size(); i++) {
 			factor = apply(TIMES, factor, arguments.get(i));
 		}
-		Expression toEvaluate = apply("-",apply("*", Derivative(arguments.get(0), variable, context), factor), apply("*", arguments.get(0), Derivative(factor, variable, context)));
+		Expression toEvaluate = apply("-",apply("*", computeDerivative(arguments.get(0), variable, context), factor), apply("*", arguments.get(0), computeDerivative(factor, variable, context)));
 		toEvaluate = apply("/", toEvaluate, apply("*", factor, factor));
 		return theory.simplify(toEvaluate , context);
 	}
@@ -118,7 +118,7 @@ public class Derivative {
 			factor = apply("^", factor, arguments.get(i));
 		}
 		Expression toEvaluate = apply("*", 
-										Derivative.Derivative(apply("*",
+										Derivative.computeDerivative(apply("*",
 																	factor,
 																	apply("ln", arguments.get(0))
 																	), variable, context), 
@@ -131,7 +131,7 @@ public class Derivative {
 		Theory theory = context.getTheory();
 		Expression insideLn = expression.getArguments().get(0);
 		Expression toEvaluate = apply("/", 
-										Derivative.Derivative(insideLn, variable, context), 
+										Derivative.computeDerivative(insideLn, variable, context), 
 										insideLn);
 										
 		return theory.simplify(toEvaluate , context);
@@ -146,33 +146,33 @@ public class Derivative {
 		Set<Expression> conditionVariables = Expressions.freeVariables(condition, context);
 	
 		if (!conditionVariables.contains(variable)) {
-			Expression toEvaluate = IfThenElse.make(condition, Derivative.Derivative(trueBranch, variable, context), Derivative.Derivative(falseBranch, variable, context));		
+			Expression toEvaluate = IfThenElse.make(condition, Derivative.computeDerivative(trueBranch, variable, context), Derivative.computeDerivative(falseBranch, variable, context));		
 			return theory.simplify(toEvaluate , context);
 		}
 		else{
 			Expression functor = condition.getFunctor();
 			if (functor == parse("=")) {
-				Expression toEvaluate = IfThenElse.make(condition, parse("Undefined"), Derivative.Derivative(falseBranch, variable, context));		
+				Expression toEvaluate = IfThenElse.make(condition, parse("Undefined"), Derivative.computeDerivative(falseBranch, variable, context));		
 				return theory.simplify(toEvaluate , context);
 			}
 			if (functor == parse("!=")) {
-				Expression toEvaluate = IfThenElse.make(condition, Derivative.Derivative(trueBranch, variable, context), parse("Undefined"));		
+				Expression toEvaluate = IfThenElse.make(condition, Derivative.computeDerivative(trueBranch, variable, context), parse("Undefined"));		
 				return theory.simplify(toEvaluate , context);
 			}
 			if (functor == parse("<=") || functor == parse(">=")) {
 				Expression toEvaluate = IfThenElse.make(condition, 
 														IfThenElse.make(apply("=",condition.getArguments().get(0), condition.getArguments().get(1)), 
 																		parse("Undefined"), 
-																		Derivative.Derivative(trueBranch, variable, context)), 
-														Derivative.Derivative(falseBranch, variable, context));	
+																		Derivative.computeDerivative(trueBranch, variable, context)), 
+														Derivative.computeDerivative(falseBranch, variable, context));	
 				return theory.simplify(toEvaluate , context);
 			}
 			if (functor == parse("<") || functor == parse(">")) {
 				Expression toEvaluate = IfThenElse.make(condition, 
-														Derivative.Derivative(trueBranch, variable, context),
+														Derivative.computeDerivative(trueBranch, variable, context),
 														IfThenElse.make(apply("=",condition.getArguments().get(0), condition.getArguments().get(1)), 
 																		parse("Undefined"), 
-																		Derivative.Derivative(falseBranch, variable, context)));	
+																		Derivative.computeDerivative(falseBranch, variable, context)));	
 				return theory.simplify(toEvaluate , context);
 			}
 		}						
@@ -218,7 +218,6 @@ public class Derivative {
 			System.out.println(sumOnPhi);
 			evaluation = theory.evaluate(sumOnPhi, context);
 		}
-		int i = 0;
 		Set<Expression> result = new HashSet<Expression>();
 		System.out.println(result);
 		for (Expression variable : variableInFactor) {
@@ -226,9 +225,8 @@ public class Derivative {
 			Iterator<Expression> valuesInType = type.iterator();
 			for (Expression values : in(valuesInType)) {
 				String s = "prob" + variable.toString() + values.toString();
-				result.add(Derivative.Derivative(evaluation, parse(s), context));
+				result.add(Derivative.computeDerivative(evaluation, parse(s), context));
 			}
-			i++;
 		}
 		
 		

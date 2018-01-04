@@ -110,7 +110,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override 
 	public Expression visitFunctionApplication(
 			AntlrGrinderParser.FunctionApplicationContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, visit(ctx.functor), expressions(ctx.args));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, visit(ctx.functor), (Object[]) expressions(ctx.args));
 		
 		return result;
 	}

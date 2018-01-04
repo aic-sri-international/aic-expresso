@@ -52,7 +52,6 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
@@ -109,7 +108,6 @@ public class CompoundTheoryTestingSupport extends AbstractTheoryTestingSupport {
 
 		for (Map.Entry<String, Type> variableNameAndType : getVariableNamesAndTypesForTesting().entrySet()) {
 			String variableName = variableNameAndType.getKey();
-			Expression variable = Expressions.parse(variableName);
 			Type type = variableNameAndType.getValue();
 			for (Theory subTheory : getTheory().getSubTheories()) {
 				if (subTheory.isSuitableFor(type) || (type instanceof FunctionType && subTheory.isSuitableFor(((FunctionType)type).getCodomain()))) {

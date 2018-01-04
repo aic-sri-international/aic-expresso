@@ -213,6 +213,7 @@ public class InversionPerformanceEvaluationTest {
 		return result;
 	}
 	
+	@SuppressWarnings("unused")
 	private class BruteForceSumProductInterpreter implements SumProductInterpreter {
 		private BruteForceCommonInterpreter bruteForceInterpreter = new BruteForceCommonInterpreter();
 		

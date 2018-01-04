@@ -7,12 +7,9 @@ import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
 
-
-import static com.sri.ai.util.Util.list;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -26,7 +23,6 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 
 
 public class FactorComponent {
@@ -234,6 +230,7 @@ public class FactorComponent {
 		Scanner reader = new Scanner(System.in);  // Reading from System.in
 		System.out.println("Enter a choice: ");
 		int n = reader.nextInt(); // Scans the next token of the input as an int.
+		reader.close();
 		return n;
 	}
 	
@@ -291,7 +288,6 @@ public class FactorComponent {
 	}
 	
 	public void calculateSchema() {
-		Theory theory = this.model.theory;
 		Context context = this.model.context;		
 		Set<Expression> freeVariables =new HashSet<Expression>();
 		freeVariables.addAll(Expressions.freeVariables(this.phi, context));

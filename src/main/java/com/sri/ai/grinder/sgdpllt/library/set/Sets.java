@@ -308,7 +308,7 @@ public class Sets {
 			result = sets[0];			
 		}
 		else {
-			result = Expressions.apply(FunctorConstants.UNION, sets);			
+			result = Expressions.apply(FunctorConstants.UNION, (Object []) sets);			
 		}
 		return result;
 	}
@@ -323,7 +323,7 @@ public class Sets {
 			result = sets[0];			
 		}
 		else {
-			result = Expressions.apply(FunctorConstants.INTERSECTION, sets);
+			result = Expressions.apply(FunctorConstants.INTERSECTION, (Object []) sets);
 		}
 		return result;
 	}

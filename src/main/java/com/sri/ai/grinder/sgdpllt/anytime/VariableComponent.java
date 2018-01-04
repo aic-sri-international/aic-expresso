@@ -248,6 +248,7 @@ public class VariableComponent {
 		Scanner reader = new Scanner(System.in);  // Reading from System.in
 		System.out.println("Enter a choice: ");
 		int n = reader.nextInt(); // Scans the next token of the input as an int.
+		reader.close();
 		return n;
 	}
 	
@@ -260,7 +261,7 @@ public class VariableComponent {
 				Set<Expression> toMultiply = this.model.getNeighbors(this.children.get(j).phi);
 				toMultiply.removeAll(this.children.get(j).parent);
 				
-				DefaultExtensionalUniSet varToMultiply = new DefaultExtensionalUniSet(new ArrayList(toMultiply));
+				DefaultExtensionalUniSet varToMultiply = new DefaultExtensionalUniSet(new ArrayList<>(toMultiply));
 				
 				IndexExpressionsSet indices = getIndexExpressionsOfFreeVariablesIn(varToMultiply, this.model.context);
 				// TODO Find a way to do : intersection (variablesToBeSummedOut, FreeVariables(phi))
@@ -274,7 +275,7 @@ public class VariableComponent {
 				Expression firstProduct = apply(TIMES, setOfFactorInstantiations);
 				Expression evaluation = this.model.theory.evaluate(firstProduct, this.model.context);
 				
-				DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(new ArrayList(this.children.get(j).parent));
+				DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(new ArrayList<>(this.children.get(j).parent));
 				
 				indices = getIndexExpressionsOfFreeVariablesIn(varToSum, this.model.context);
 				
@@ -404,8 +405,6 @@ public class VariableComponent {
 	}
 	
 	public void calculateSchema() {
-		Theory theory = this.model.theory;
-		Context context = this.model.context;		
 		Set<Expression> freeVariables =new HashSet<Expression>();
 		freeVariables.add(this.variable);
 		for (FactorComponent children : this.children) {

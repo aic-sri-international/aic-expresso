@@ -138,7 +138,6 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 		return result;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static IntensionalSet standardizeApartIntensionalSets(IntensionalSet intensionalSet, IntensionalSet fromOtherIntensionalSet, Context context) {
 		IntensionalSet result = intensionalSet;
 		

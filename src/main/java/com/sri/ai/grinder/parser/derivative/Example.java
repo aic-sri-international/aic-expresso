@@ -9,7 +9,6 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.sgdpllt.anytime.Model;
 import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
 
 
@@ -17,10 +16,8 @@ public class Example {
 	
 	public static VariableComponent TreeModel() {
 		Expression a = DefaultSymbol.createSymbol("A");
-		Expression b = DefaultSymbol.createSymbol("B");
 		Expression q = DefaultSymbol.createSymbol("Q");
 
-		Expression trueValue = DefaultSymbol.createSymbol(true);
 		Expression f1 = IfThenElse.make(a, IfThenElse.make(q, parse("0.1"), parse("0.9")), IfThenElse.make(q, parse("0.8"), parse("0.2")));
 		
 		

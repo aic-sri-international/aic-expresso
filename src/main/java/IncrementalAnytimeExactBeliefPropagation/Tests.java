@@ -14,15 +14,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
+
+import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
+import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.Theory;
 import com.sri.ai.grinder.sgdpllt.core.TrueContext;
 import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
 import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
@@ -32,9 +32,6 @@ import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
-
-import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
-import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 
 public class Tests {
 	static Theory theory;
