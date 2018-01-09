@@ -41,38 +41,25 @@ import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.util.collect.StackedHashMap;
 
-/**
- * An interface representing assignments for a set of expressions.
- * 
- * @author braz
- *
- */
-public interface Assignment extends Map<Expression, Expression> {
+public abstract class ContextAssignmentLookup {
 
+	static final public String ASSIGNMENTS_GLOBAL_OBJECTS_KEY = "ASSIGNMENTS_GLOBAL_OBJECTS_KEY";
+	
 	/**
-	 * Sets the value assignment to a given expression in the binding mechanism stored in the context.
-	 * @param newAssignment
+	 * Obtains the value assignment to a given expression in the binding mechanism stored in the context.
+	 * @param expression
 	 * @param context
 	 * @return
 	 */
-	public static Context extendAssignments(Map<Expression, Expression> newAssignments, Context context) {
+	public static Expression getAssignedValue(Expression expression, Context context) {
 		@SuppressWarnings("unchecked")
-		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ContextAssignmentLookup.ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
-		Map<Expression, Expression> extendedAssignments;
-		if (assignments == null) {
-			extendedAssignments = newAssignments;
-		}
-		else {
-			extendedAssignments = new StackedHashMap<>(newAssignments, assignments);
-		}
-		Context result = ContextAssignmentLookup.setAssignments(context, extendedAssignments);
+		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
+		Expression result = assignments == null? null : assignments.get(expression);
 		return result;
 	}
 
-	default Context extend(Context context) {
-		Context result = extendAssignments(this, context);
-		return result;
+	public static Context setAssignments(Context context, Map<Expression, Expression> extendedAssignments) {
+		return context.putGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
 	}
 }

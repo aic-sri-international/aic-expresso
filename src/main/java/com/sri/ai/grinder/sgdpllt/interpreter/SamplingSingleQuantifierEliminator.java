@@ -52,7 +52,6 @@ import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.MeasurableMultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.MeasurableSingleQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.number.Division;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 
@@ -101,11 +100,20 @@ public class SamplingSingleQuantifierEliminator extends AbstractIterativeMultiQu
 	}
 
 	private Expression computeResultBasedOnSamples(MeasurableSingleQuantifierEliminationProblem problem, Context context) {
+		Expression average = computeAverage(problem, context);
+		Expression result = multiplyByMeasure(average, problem, context);
+		return result;
+	}
+
+	private Expression computeAverage(MeasurableSingleQuantifierEliminationProblem problem, Context context) {
 		Expression groupSumOfSamples = super.solve(problem, context);			
-		AssociativeCommutativeGroup group = problem.getGroup();
-		Expression average = group.addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
+		Expression average = problem.getGroup().addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(sampleSize)), context);
+		return average;
+	}
+
+	private Expression multiplyByMeasure(Expression average, MeasurableSingleQuantifierEliminationProblem problem, Context context) {
 		Symbol measureExpression = makeSymbol(problem.getMeasure(context));
-		Expression result = group.addNTimes(average, measureExpression, context);
+		Expression result = problem.getGroup().addNTimes(average, measureExpression, context);
 		return result;
 	}
 

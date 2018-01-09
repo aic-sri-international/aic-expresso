@@ -37,42 +37,58 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import java.util.Map;
+import java.util.Iterator;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.util.collect.StackedHashMap;
+import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
+import com.sri.ai.util.collect.EZIterator;
 
 /**
- * An interface representing assignments for a set of expressions.
  * 
  * @author braz
  *
  */
-public interface Assignment extends Map<Expression, Expression> {
+public class IterativeAdder extends EZIterator<Expression> {
 
-	/**
-	 * Sets the value assignment to a given expression in the binding mechanism stored in the context.
-	 * @param newAssignment
-	 * @param context
-	 * @return
-	 */
-	public static Context extendAssignments(Map<Expression, Expression> newAssignments, Context context) {
-		@SuppressWarnings("unchecked")
-		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ContextAssignmentLookup.ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
-		Map<Expression, Expression> extendedAssignments;
-		if (assignments == null) {
-			extendedAssignments = newAssignments;
-		}
-		else {
-			extendedAssignments = new StackedHashMap<>(newAssignments, assignments);
-		}
-		Context result = ContextAssignmentLookup.setAssignments(context, extendedAssignments);
-		return result;
+	private AssociativeCommutativeGroup group;
+	private Iterator<Assignment> assignmentIterator;
+	private Expression body;
+	private Rewriter rewriter;
+	private Context context;
+	private Expression currentValue;		
+	Context extendedContext;
+	
+	public IterativeAdder(
+			AssociativeCommutativeGroup group, 
+			Iterator<Assignment> assignmentIterator, 
+			Expression body,
+			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, 
+			Context context) {
+		
+		this.group = group;
+		this.assignmentIterator = assignmentIterator;
+		this.body = body;
+		this.rewriter = new Recursive(new Exhaustive(topRewriterUsingContextAssignments));
+		this.context = context;
+		this.currentValue = group.additiveIdentityElement();
 	}
 
-	default Context extend(Context context) {
-		Context result = extendAssignments(this, context);
+	public Expression calculateNext() {
+		Expression result;
+		if (assignmentIterator.hasNext()) {
+			Assignment assignment = assignmentIterator.next();
+			Context extendedContext = assignment.extend(context);			
+			Expression bodyEvaluation = rewriter.apply(body, extendedContext);
+			currentValue = group.add(currentValue, bodyEvaluation, extendedContext);
+			result = currentValue;
+		}
+		else {
+			result = null;
+		}
 		return result;
 	}
 }

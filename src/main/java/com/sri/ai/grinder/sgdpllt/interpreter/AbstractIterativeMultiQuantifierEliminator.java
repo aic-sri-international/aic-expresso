@@ -50,10 +50,7 @@ import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
 
 /**
  * An abstract class for quantifier eliminators using a simple (total or sampled)
@@ -64,8 +61,8 @@ import com.sri.ai.grinder.sgdpllt.rewriter.core.Recursive;
  * after it is evaluated under the assignments also provided by the extending class.
  * <p>
  * The current assignment to the eliminated variables is kept in the {@link Context}'s
- * global object with key {@link #ASSIGNMENTS_GLOBAL_OBJECTS_KEY},
- * which can be extended with {@link Assignment#extendAssignments(Map, Context)}.
+ * global objects, and accessible through {@link ContextAssignmentLookup}.
+ * This assignment can be extended with {@link Assignment#extendAssignments(Map, Context)}.
  * This same assignment is also used by top rewriters in implementations of
  * {@link AbstractInterpreter} to replace variables by their values.
  * <p>
@@ -114,40 +111,33 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 
 	@Override
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
+
 		AssociativeCommutativeGroup group = problem.getGroup();
 		Expression currentValue = group.additiveIdentityElement();		
 		Expression summand  = makeSummand(problem, context);
-		Rewriter   rewriter = new Recursive(new Exhaustive(getTopRewriterUsingContextAssignments()));
 		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(problem.getIndices(), problem.getConstraint(), context);
-		for (Assignment assignment : in(assignmentsIterator)) {
-			Context extendedContext = assignment.extend(context);			
-			Expression bodyEvaluation = rewriter.apply(summand, extendedContext);
-			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
-				return bodyEvaluation;
+
+		IterativeAdder adder = 
+				new IterativeAdder(
+						group,
+						assignmentsIterator,
+						summand,
+						topRewriterUsingContextAssignments,
+						context);
+
+		for (Expression value : in(adder)) {
+			currentValue = value;
+			if (group.isAdditiveAbsorbingElement(currentValue)) {
+				break;
 			}
-			currentValue = group.add(currentValue, bodyEvaluation, extendedContext);
 		}
 		Expression result = normalizeIfThereIsATheoryAvailable(currentValue, context);
 		return result;
+		
 	}
 
 	private Expression normalizeIfThereIsATheoryAvailable(Expression currentValue, Context context) {
 		Expression result = context.getTheory() == null? currentValue : context.getTheory().evaluate(currentValue, context);
-		return result;
-	}
-	
-	static final String ASSIGNMENTS_GLOBAL_OBJECTS_KEY = "ASSIGNMENTS_GLOBAL_OBJECTS_KEY";
-	
-	/**
-	 * Obtains the value assignment to a given expression in the binding mechanism stored in the context.
-	 * @param expression
-	 * @param context
-	 * @return
-	 */
-	public static Expression getAssignedValue(Expression expression, Context context) {
-		@SuppressWarnings("unchecked")
-		Map<Expression, Expression> assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
-		Expression result = assignments == null? null : assignments.get(expression);
 		return result;
 	}
 }
