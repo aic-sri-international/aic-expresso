@@ -1,22 +1,4 @@
-package z3test;
-/*++
- Copyright (c) 2012 Microsoft Corporation
 
-Module Name:
-
-    Program.java
-
-Abstract:
-
-    Z3 Java API: Example program
-
-Author:
-
-    Christoph Wintersteiger (cwinter) 2012-11-27
-
-Notes:
-    
---*/
 
 import java.util.*;
 

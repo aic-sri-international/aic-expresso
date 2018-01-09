@@ -113,7 +113,6 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
 
 		AssociativeCommutativeGroup group = problem.getGroup();
-		Expression currentValue = group.additiveIdentityElement();		
 		Expression summand  = makeSummand(problem, context);
 		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(problem.getIndices(), problem.getConstraint(), context);
 
@@ -125,12 +124,14 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 						topRewriterUsingContextAssignments,
 						context);
 
+		Expression currentValue = group.additiveIdentityElement();		
 		for (Expression value : in(adder)) {
 			currentValue = value;
 			if (group.isAdditiveAbsorbingElement(currentValue)) {
 				break;
 			}
 		}
+		
 		Expression result = normalizeIfThereIsATheoryAvailable(currentValue, context);
 		return result;
 		
