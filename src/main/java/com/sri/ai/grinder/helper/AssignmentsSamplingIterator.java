@@ -64,6 +64,7 @@ import com.sri.ai.util.collect.EZIterator;
 
 /**
  * An assignments iterator that samples over the space of possible assignments.
+ * A total number of samples equal to -1 produces an endless iterator.
  * Currently, only a single variable is supported and an exception is thrown if more than one is received.
  * 
  * @author oreilly
@@ -100,7 +101,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 	@Override
 	protected Assignment calculateNext() {
 		Assignment result;
-		if (samplesSoFar < totalNumberOfSamples) {
+		if (totalNumberOfSamples == -1 || samplesSoFar < totalNumberOfSamples) {
 			result = sampleAssignmentConsistentWithCondition();
 			samplesSoFar++;
 		}

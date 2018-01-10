@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, SRI International
+ * Copyright (c) 2013, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -37,33 +37,28 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import java.util.Random;
-
-import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.util.collect.LazyIterator;
 
 /**
- * A sampling quantifier elimination for problems with a single index.
+ * An adder iterator going over all indices assignments.
+ * 
+ * @author braz
+ *
  */
-public class SamplingSingleQuantifierEliminator extends AbstractIterativeMultiQuantifierEliminator {
+public class BruteForceAdderIterator extends AdderIterator {
 
-	private int sampleSize;
-	private Random random;
-	
-	public SamplingSingleQuantifierEliminator(
-			TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, 
-			int sampleSize, 
-			Random random) {
-		
-		super(topRewriterWithBaseAssignment);
-		this.sampleSize = sampleSize;
-		this.random = random;
-	}
-	
-	@Override
-	public LazyIterator<Expression> makeAdderLazyIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Context context) {
-		return new SamplingAdderIterator(sampleSize, problem, topRewriterUsingContextAssignments, random, context);
+	public BruteForceAdderIterator(
+			MultiQuantifierEliminationProblem problem,
+			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, 
+			Context context) {
+
+		super(
+				problem.getGroup(),
+				new AssignmentsIterator(problem.getIndices(), context),
+				problem.getConditionedBody(),
+				topRewriterUsingContextAssignments,
+				context);
 	}
 }

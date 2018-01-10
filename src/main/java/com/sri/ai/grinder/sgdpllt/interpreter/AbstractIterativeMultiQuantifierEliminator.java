@@ -37,9 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import static com.sri.ai.util.Util.in;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +48,7 @@ import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.util.collect.LazyIterator;
 
 /**
  * An abstract class for quantifier eliminators using a simple (total or sampled)
@@ -74,21 +72,13 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 
 	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
 
-	/**
-	 * Make the term to be summed for all assignments provided by assignments iterator.
-	 */
-	public abstract Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context);
-
-	/**
-	 * Makes an iterator (ranging assignments from indices to their values)
-	 * that will be used to generate all the terms to be added.
-	 * @param indices
-	 * @param indicesCondition
-	 * @param context
-	 * @return
-	 */
-	public abstract Iterator<Assignment> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context);
-
+	public abstract 
+	LazyIterator<Expression>
+	makeAdderLazyIterator(
+			MultiQuantifierEliminationProblem problem,
+			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, 
+			Context context);
+	
 	public AbstractIterativeMultiQuantifierEliminator(TopRewriter topRewriter) {
 		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
 	}
@@ -112,29 +102,16 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 	@Override
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
 
-		AssociativeCommutativeGroup group = problem.getGroup();
-		Expression summand = makeSummand(problem, context);
-		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(problem.getIndices(), problem.getConstraint(), context);
-
-		IterativeAdder adder = 
-				new IterativeAdder(
-						group,
-						assignmentsIterator,
-						summand,
+		LazyIterator<Expression> adder = 
+				makeAdderLazyIterator(
+						problem,
 						topRewriterUsingContextAssignments,
 						context);
 
-		Expression currentValue = group.additiveIdentityElement();		
-		for (Expression value : in(adder)) {
-			currentValue = value;
-			if (group.isAdditiveAbsorbingElement(currentValue)) {
-				break;
-			}
-		}
+		Expression sum = adder.computeFinalValue();
 		
-		Expression result = normalizeIfThereIsATheoryAvailable(currentValue, context);
+		Expression result = normalizeIfThereIsATheoryAvailable(sum, context);
 		return result;
-		
 	}
 
 	private Expression normalizeIfThereIsATheoryAvailable(Expression currentValue, Context context) {

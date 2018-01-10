@@ -57,7 +57,6 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
 	private int sampleSize;
 	private boolean alwaysSample;
-	private Rewriter indicesConditionEvaluator;
 	private Random random;
 	
 	private BruteForceMultiQuantifierEliminator bruteForce;
@@ -73,7 +72,6 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 		this.topRewriterUsingContextAssignments = topRewriterUsingContextAssignments;
 		this.sampleSize = sampleSize;
 		this.alwaysSample = alwaysSample;
-		this.indicesConditionEvaluator = indicesConditionEvaluator;
 		this.random = random;
 	}
 	
@@ -86,7 +84,7 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 	
 	private SamplingSingleQuantifierEliminator getSampling() {
 		if (sampling == null) {
-			sampling = new SamplingSingleQuantifierEliminator(topRewriterUsingContextAssignments, sampleSize, indicesConditionEvaluator, random);
+			sampling = new SamplingSingleQuantifierEliminator(topRewriterUsingContextAssignments, sampleSize, random);
 		}
 		return sampling;
 	}

@@ -37,16 +37,14 @@
  */
 package com.sri.ai.grinder.sgdpllt.interpreter;
 
-import java.util.Iterator;
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
+import com.sri.ai.util.collect.LazyIterator;
+import com.sri.ai.util.collect.LazyIteratorAdapter;
 
 /**
  * An extension of {@link AbstractMultiQuantifierEliminator}
@@ -75,12 +73,9 @@ public class BruteForceMultiQuantifierEliminator extends AbstractIterativeMultiQ
 	}
 	
 	@Override
-	public Iterator<Assignment> makeAssignmentsIterator(List<Expression> indices, Expression indicesCondition, Context context) {
-		return new AssignmentsIterator(indices, context);
-	}
-
-	@Override
-	public Expression makeSummand(MultiQuantifierEliminationProblem problem, Context context) {
-		return problem.getConditionedBody();
+	public LazyIterator<Expression> makeAdderLazyIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Context context) {
+		return 
+				new LazyIteratorAdapter<>(
+						new BruteForceAdderIterator(problem, topRewriterUsingContextAssignments, context));
 	}
 }

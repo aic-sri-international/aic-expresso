@@ -52,17 +52,17 @@ import com.sri.ai.util.collect.EZIterator;
  * @author braz
  *
  */
-public class IterativeAdder extends EZIterator<Expression> {
+public class AdderIterator extends EZIterator<Expression> {
 
-	private AssociativeCommutativeGroup group;
+	protected AssociativeCommutativeGroup group;
 	private Iterator<Assignment> assignmentIterator;
 	private Expression body;
 	private Rewriter rewriter;
-	private Context context;
+	protected Context context;
 	private Expression currentValue;		
 	Context extendedContext;
 	
-	public IterativeAdder(
+	public AdderIterator(
 			AssociativeCommutativeGroup group, 
 			Iterator<Assignment> assignmentIterator, 
 			Expression body,
