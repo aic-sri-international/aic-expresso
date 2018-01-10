@@ -113,7 +113,7 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
 
 		AssociativeCommutativeGroup group = problem.getGroup();
-		Expression summand  = makeSummand(problem, context);
+		Expression summand = makeSummand(problem, context);
 		Iterator<Assignment> assignmentsIterator = makeAssignmentsIterator(problem.getIndices(), problem.getConstraint(), context);
 
 		IterativeAdder adder = 
