@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.grinder.sgdpllt.interpreter.DefaultAssignment.assignment;
+import static com.sri.ai.grinder.interpreter.DefaultAssignment.assignment;
 
 import java.util.List;
 import java.util.Random;
@@ -50,16 +50,16 @@ import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
-import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.RangeAndExceptionsSet;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.interpreter.Assignment;
+import com.sri.ai.grinder.library.set.Sets;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
+import com.sri.ai.grinder.rewriter.api.Rewriter;
+import com.sri.ai.grinder.theory.differencearithmetic.RangeAndExceptionsSet;
+import com.sri.ai.grinder.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.util.collect.EZIterator;
 import com.sri.ai.util.collect.NIterator;
 

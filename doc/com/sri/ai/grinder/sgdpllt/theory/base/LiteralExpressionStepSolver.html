@@ -49,8 +49,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/FunctionOnContextExpressionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/FunctionOnContextExpressionStepSolver.html" title="class in com.sri.ai.grinder.theory.base"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralStepSolver.html" title="class in com.sri.ai.grinder.theory.base"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.theory.base</div>
+<div class="subTitle">com.sri.ai.grinder.theory.base</div>
 <h2 title="Class LiteralExpressionStepSolver" class="title">Class LiteralExpressionStepSolver</h2>
 </div>
 <div class="contentContainer">
@@ -100,7 +100,7 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.theory.base.LiteralExpressionStepSolver</li>
+<li>com.sri.ai.grinder.theory.base.LiteralExpressionStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -121,7 +121,7 @@ implements <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolv
  that simply decides whether a literal is true or not,
  producing  boolean <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api"><code>Expression</code></a>.
  <p>
- Note that this is different from <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base"><code>LiteralStepSolver</code></a>
+ Note that this is different from <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralStepSolver.html" title="class in com.sri.ai.grinder.theory.base"><code>LiteralStepSolver</code></a>
  because that class produces a Java <code>Boolean</code> solution.</div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
@@ -178,7 +178,7 @@ implements <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolv
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">LiteralExpressionStepSolver</a></code></td>
+<td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html" title="class in com.sri.ai.grinder.theory.base">LiteralExpressionStepSolver</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html#clone--">clone</a></span>()</code>
 <div class="block">Cloning is important for this interface, because when a problem depends on an expression to be solved
  the <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html" title="class in com.sri.ai.grinder.sgdpllt.api"><code>StepSolver.ItDependsOn</code></a> solver step will carry within it two sub-step solvers
@@ -188,7 +188,7 @@ implements <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolv
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.Step.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver.Step</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
 <div class="block">Returns a solver step for the problem: either the solution itself, if independent
  on the values for free variables, or a literal that, if used to split the context,
  will bring the problem closer to a solution.</div>
@@ -239,7 +239,7 @@ implements <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolv
 <ul class="blockList">
 <li class="blockList">
 <h4>clone</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">LiteralExpressionStepSolver</a>&nbsp;clone()</pre>
+<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html" title="class in com.sri.ai.grinder.theory.base">LiteralExpressionStepSolver</a>&nbsp;clone()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#clone--">StepSolver</a></code></span></div>
 <div class="block">Cloning is important for this interface, because when a problem depends on an expression to be solved
  the <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html" title="class in com.sri.ai.grinder.sgdpllt.api"><code>StepSolver.ItDependsOn</code></a> solver step will carry within it two sub-step solvers
@@ -277,20 +277,20 @@ implements <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolv
 </dl>
 </li>
 </ul>
-<a name="step-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="step-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>step</h4>
 <pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.Step.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver.Step</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;step(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">StepSolver</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.api.Context-">StepSolver</a></code></span></div>
 <div class="block">Returns a solver step for the problem: either the solution itself, if independent
  on the values for free variables, or a literal that, if used to split the context,
  will bring the problem closer to a solution.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 </dl>
 </li>
@@ -323,8 +323,8 @@ implements <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolv
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/FunctionOnContextExpressionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/FunctionOnContextExpressionStepSolver.html" title="class in com.sri.ai.grinder.theory.base"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/LiteralStepSolver.html" title="class in com.sri.ai.grinder.theory.base"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/theory/base/LiteralExpressionStepSolver.html" target="_top">Frames</a></li>

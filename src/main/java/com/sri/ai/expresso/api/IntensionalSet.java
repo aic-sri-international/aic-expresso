@@ -40,7 +40,7 @@ package com.sri.ai.expresso.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
-import com.sri.ai.grinder.sgdpllt.library.set.Sets;
+import com.sri.ai.grinder.library.set.Sets;
 
 /**
  * An {@link Expression} that represents an intensionally defined set.

@@ -39,7 +39,7 @@ package com.sri.ai.test.grinder.sgdpllt.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static org.junit.Assert.assertEquals;
@@ -52,13 +52,13 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.StepSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpllt.helper.SelectExpressionsSatisfyingComparisonStepSolver;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.base.ExpressionWrapperStepSolver;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.StepSolver;
+import com.sri.ai.grinder.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.helper.SelectExpressionsSatisfyingComparisonStepSolver;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.base.ExpressionWrapperStepSolver;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 
 @Beta
 public class SelectExpressionsSatisfyingComparisonStepSolverTest {

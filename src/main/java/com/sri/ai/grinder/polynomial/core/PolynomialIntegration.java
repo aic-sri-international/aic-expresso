@@ -9,12 +9,12 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.number.Division;
+import com.sri.ai.grinder.library.number.Exponentiation;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.polynomial.api.Monomial;
 import com.sri.ai.grinder.polynomial.api.Polynomial;
-import com.sri.ai.grinder.sgdpllt.library.number.Division;
-import com.sri.ai.grinder.sgdpllt.library.number.Exponentiation;
-import com.sri.ai.grinder.sgdpllt.library.number.Plus;
-import com.sri.ai.grinder.sgdpllt.library.number.Times;
 import com.sri.ai.util.math.Rational;
 
 /**

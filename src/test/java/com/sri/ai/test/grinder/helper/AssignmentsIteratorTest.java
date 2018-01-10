@@ -50,8 +50,8 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.core.DefaultRegistry;
 import com.sri.ai.grinder.helper.AssignmentMapsIterator;
-import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 
 
 public class AssignmentsIteratorTest  {

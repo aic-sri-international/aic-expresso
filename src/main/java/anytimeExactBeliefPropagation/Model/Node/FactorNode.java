@@ -1,8 +1,8 @@
 package anytimeExactBeliefPropagation.Model.Node;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
 
 /**
  * Special type of {@link Node} used to represent factors

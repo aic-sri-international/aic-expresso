@@ -4,13 +4,13 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.sri.ai.grinder.sgdpllt.group.Conjunction;
-import com.sri.ai.grinder.sgdpllt.group.Disjunction;
-import com.sri.ai.grinder.sgdpllt.group.Max;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.group.Conjunction;
+import com.sri.ai.grinder.group.Disjunction;
+import com.sri.ai.grinder.group.Max;
+import com.sri.ai.grinder.group.Sum;
+import com.sri.ai.grinder.tester.SGDPLLTTester;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryIncludingEqualityTest;
 
 public abstract class AbstractDifferenceArithmeticConstraintTest extends AbstractTheoryIncludingEqualityTest {

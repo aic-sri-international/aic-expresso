@@ -42,11 +42,11 @@ import static com.sri.ai.util.Util.mapIntoList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.IfRewriter;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.rewriter.api.Rewriter;
+import com.sri.ai.grinder.rewriter.api.Simplifier;
+import com.sri.ai.grinder.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.rewriter.core.IfRewriter;
 
 /**
  * A {@link TopRewriter} that

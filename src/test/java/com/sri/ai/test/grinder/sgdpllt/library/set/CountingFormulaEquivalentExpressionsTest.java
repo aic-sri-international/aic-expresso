@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.library.set.CountingFormulaEquivalentExpressions;
+import com.sri.ai.grinder.library.set.CountingFormulaEquivalentExpressions;
 
 public class CountingFormulaEquivalentExpressionsTest {
 	

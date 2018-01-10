@@ -55,7 +55,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
 /**

@@ -5,8 +5,8 @@ import org.junit.Test;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.FUNCTION_TYPE;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TUPLE_TYPE;
+import static com.sri.ai.grinder.library.FunctorConstants.FUNCTION_TYPE;
+import static com.sri.ai.grinder.library.FunctorConstants.TUPLE_TYPE;
 
 import java.util.Arrays;
 import java.util.StringJoiner;

@@ -7,11 +7,11 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultExtensionalBound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.DefaultIntensionalBound;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.library.bounds.Bound;
+import com.sri.ai.grinder.library.bounds.DefaultExtensionalBound;
+import com.sri.ai.grinder.library.bounds.DefaultIntensionalBound;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.collect.ManyToManyRelation;
 

@@ -40,7 +40,7 @@ package com.sri.ai.expresso.type;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TUPLE_TYPE;
+import static com.sri.ai.grinder.library.FunctorConstants.TUPLE_TYPE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +60,9 @@ import com.sri.ai.expresso.api.Tuple;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.core.DefaultRegistry;
 import com.sri.ai.grinder.helper.AssignmentMapsIterator;
-import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.math.Rational;
 

@@ -50,12 +50,12 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Step;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.NumberOfDistinctExpressionsStepSolver;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver.Step;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.equality.NumberOfDistinctExpressionsStepSolver;
 
 public class NumberOfDistinctExpressionsStepSolverTest  {
 	

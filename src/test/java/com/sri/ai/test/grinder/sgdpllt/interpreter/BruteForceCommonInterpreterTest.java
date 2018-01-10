@@ -10,10 +10,10 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
-import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.interpreter.Assignment;
+import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
 
 public class BruteForceCommonInterpreterTest {
 	

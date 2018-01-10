@@ -10,7 +10,7 @@ import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 import anytimeExactBeliefPropagation.Model.Node.Node;
 import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
+import com.sri.ai.grinder.library.bounds.Bound;
 import com.sri.ai.util.Util;
 
 public class IncrementalBeliefPropagationWithConditioningVersion2 {

@@ -3,9 +3,9 @@ package com.sri.ai.test.grinder.sgdpllt.theory.base;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheoryTestingSupport.TESTING_CATEGORICAL_TYPE;
-import static com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport.TESTING_INTEGER_INTERVAL_TYPE;
-import static com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport.TESTING_REAL_INTERVAL_TYPE;
+import static com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport.TESTING_INTEGER_INTERVAL_TYPE;
+import static com.sri.ai.grinder.theory.equality.EqualityTheoryTestingSupport.TESTING_CATEGORICAL_TYPE;
+import static com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport.TESTING_REAL_INTERVAL_TYPE;
 
 import java.util.Random;
 
@@ -15,15 +15,15 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.FunctionType;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.StepSolver;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.base.UnificationStepSolver;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.StepSolver;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.base.UnificationStepSolver;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 
 public class UnificationStepSolverTest {
 

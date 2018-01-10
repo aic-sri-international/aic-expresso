@@ -13,7 +13,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 
 public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpression implements ExtensionalSet {

@@ -45,11 +45,11 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.theory.bruteforce.BruteForceFallbackTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.theory.bruteforce.BruteForceFallbackTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 
 @Beta
 public class BruteForceFallbackTheoryTest {

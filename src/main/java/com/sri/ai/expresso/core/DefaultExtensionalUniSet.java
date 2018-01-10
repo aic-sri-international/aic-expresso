@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExtensionalSet;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
 
 /**
  * A default implementation of a {@link ExtensionalSets} for unisets.

@@ -44,7 +44,7 @@
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver.html" target="_top">Frames</a></li>
@@ -86,7 +86,7 @@
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.core.solver</div>
+<div class="subTitle">com.sri.ai.grinder.core.solver</div>
 <h2 title="Class AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver" class="title">Class AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver</h2>
 </div>
 <div class="contentContainer">
@@ -94,10 +94,10 @@
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver</a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">com.sri.ai.grinder.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.core.solver.AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver</li>
+<li>com.sri.ai.grinder.core.solver.AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -112,14 +112,14 @@
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/equality/SatisfiabilityOfSingleVariableEqualityConstraintStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.equality">SatisfiabilityOfSingleVariableEqualityConstraintStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/propositional/SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.propositional">SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver</a></dd>
+<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/equality/SatisfiabilityOfSingleVariableEqualityConstraintStepSolver.html" title="class in com.sri.ai.grinder.theory.equality">SatisfiabilityOfSingleVariableEqualityConstraintStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/propositional/SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver.html" title="class in com.sri.ai.grinder.theory.propositional">SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver</a></dd>
 </dl>
 <hr>
 <br>
 <pre>@Beta
 public abstract class <span class="typeNameLabel">AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></pre>
-<div class="block">A specialization of <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></pre>
+<div class="block">A specialization of <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>
  that returns solution <code>false</code> if propagated literals and propagated CNF are not satisfied
  by the context.
  This has been written with satisfiability in mind although it could apply to other problems.
@@ -168,7 +168,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver.html#AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver-com.sri.ai.grinder.sgdpllt.api.Constraint-">AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Constraint.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Constraint</a>&nbsp;constraint)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver.html#AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver-com.sri.ai.grinder.api.Constraint-">AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Constraint.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Constraint</a>&nbsp;constraint)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -183,8 +183,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">clone</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getConstraint--">getConstraint</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></h3>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">clone</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getConstraint--">getConstraint</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -198,7 +198,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -214,7 +214,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver-com.sri.ai.grinder.sgdpllt.api.Constraint-">
+<a name="AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver-com.sri.ai.grinder.api.Constraint-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -252,7 +252,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/AbstractBooleanWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver.html" target="_top">Frames</a></li>

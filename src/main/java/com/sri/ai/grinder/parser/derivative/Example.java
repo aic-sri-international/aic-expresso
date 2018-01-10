@@ -6,10 +6,10 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.grinder.sgdpllt.anytime.Model;
-import com.sri.ai.grinder.sgdpllt.anytime.VariableComponent;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.anytime.Model;
+import com.sri.ai.grinder.anytime.VariableComponent;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 
 public class Example {

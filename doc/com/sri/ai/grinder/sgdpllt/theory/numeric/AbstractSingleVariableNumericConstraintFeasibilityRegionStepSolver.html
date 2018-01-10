@@ -49,7 +49,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.theory.numeric</div>
+<div class="subTitle">com.sri.ai.grinder.theory.numeric</div>
 <h2 title="Class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver" class="title">Class AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver</a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">com.sri.ai.grinder.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</li>
+<li>com.sri.ai.grinder.theory.numeric.AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -118,17 +118,17 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/differencearithmetic/AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.differencearithmetic">AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/linearrealarithmetic/AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic">AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver</a></dd>
+<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/differencearithmetic/AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.theory.differencearithmetic">AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/linearrealarithmetic/AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.theory.linearrealarithmetic">AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver</a></dd>
 </dl>
 <hr>
 <br>
 <pre>@Beta
 public abstract class <span class="typeNameLabel">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></pre>
-<div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>
- for a <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric"><code>AbstractSingleVariableNumericConstraint</code></a>
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></pre>
+<div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>
+ for a <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric"><code>AbstractSingleVariableNumericConstraint</code></a>
  with basic methods for determining the feasibility region of the variable,
- but leaving the determination of the final solution to <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html#solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied-com.sri.ai.grinder.sgdpllt.api.Context-"><code>solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context)</code></a>.</div>
+ but leaving the determination of the final solution to <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html#solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied-com.sri.ai.grinder.api.Context-"><code>solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Context)</code></a>.</div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
 <dd>braz</dd>
@@ -166,7 +166,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html#AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver-com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractSingleVariableNumericConstraint-">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric">AbstractSingleVariableNumericConstraint</a>&nbsp;constraint)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html#AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver-com.sri.ai.grinder.theory.numeric.AbstractSingleVariableNumericConstraint-">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric">AbstractSingleVariableNumericConstraint</a>&nbsp;constraint)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -184,13 +184,13 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</a></code></td>
+<td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.theory.numeric">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html#clone--">clone</a></span>()</code>
 <div class="block">A cloning method delegating to super.clone().</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric">AbstractSingleVariableNumericConstraint</a></code></td>
+<td class="colFirst"><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric">AbstractSingleVariableNumericConstraint</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html#getConstraint--">getConstraint</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
@@ -225,8 +225,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></h3>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -240,7 +240,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -256,13 +256,13 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver-com.sri.ai.grinder.sgdpllt.theory.numeric.AbstractSingleVariableNumericConstraint-">
+<a name="AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver-com.sri.ai.grinder.theory.numeric.AbstractSingleVariableNumericConstraint-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</h4>
-<pre>public&nbsp;AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric">AbstractSingleVariableNumericConstraint</a>&nbsp;constraint)</pre>
+<pre>public&nbsp;AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric">AbstractSingleVariableNumericConstraint</a>&nbsp;constraint)</pre>
 </li>
 </ul>
 </li>
@@ -333,7 +333,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <ul class="blockList">
 <li class="blockList">
 <h4>clone</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</a>&nbsp;clone()</pre>
+<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver.html" title="class in com.sri.ai.grinder.theory.numeric">AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver</a>&nbsp;clone()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></span></div>
 <div class="block">A cloning method delegating to super.clone().</div>
 <dl>
@@ -344,7 +344,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#clone--">clone</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">clone</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">clone</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>a clone of this step solver.</dd>
 </dl>
@@ -356,10 +356,10 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getConstraint</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric">AbstractSingleVariableNumericConstraint</a>&nbsp;getConstraint()</pre>
+<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric">AbstractSingleVariableNumericConstraint</a>&nbsp;getConstraint()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getConstraint--">getConstraint</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getConstraint--">getConstraint</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -391,7 +391,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.sgdpllt.theory.numeric"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/numeric/AbstractSingleVariableNumericConstraint.html" title="class in com.sri.ai.grinder.theory.numeric"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">

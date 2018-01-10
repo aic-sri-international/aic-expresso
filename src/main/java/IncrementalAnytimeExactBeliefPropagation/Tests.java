@@ -5,7 +5,7 @@ import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.isingModel
 import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.lineModel;
 import static IncrementalAnytimeExactBeliefPropagation.ModelGenerator.nTreeModel;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.library.bounds.Bounds.makeSingleElementBound;
+import static com.sri.ai.grinder.library.bounds.Bounds.makeSingleElementBound;
 import static com.sri.ai.util.Util.println;
 
 import java.io.IOException;
@@ -19,16 +19,16 @@ import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
 import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.library.bounds.Bound;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;

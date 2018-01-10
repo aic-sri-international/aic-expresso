@@ -5,9 +5,9 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetIntersectExtensionalSetEqualToEmptySetSimplifier;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.library.set.invsupport.SetIntersectExtensionalSetEqualToEmptySetSimplifier;
 
 public class SetIntersectExtensionalSetEqualToEmptySetSimplifierTest {
 	private SetIntersectExtensionalSetEqualToEmptySetSimplifier simplifier = new SetIntersectExtensionalSetEqualToEmptySetSimplifier();

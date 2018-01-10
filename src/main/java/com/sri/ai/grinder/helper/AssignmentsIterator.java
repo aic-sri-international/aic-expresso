@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.helper;
 
-import static com.sri.ai.grinder.sgdpllt.interpreter.DefaultAssignment.assignment;
+import static com.sri.ai.grinder.interpreter.DefaultAssignment.assignment;
 
 import java.util.Collection;
 import java.util.Map;
@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Registry;
-import com.sri.ai.grinder.sgdpllt.interpreter.Assignment;
+import com.sri.ai.grinder.interpreter.Assignment;
 import com.sri.ai.util.collect.FunctionIterator;
 
 /**

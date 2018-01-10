@@ -5,7 +5,7 @@ import static java.lang.Math.round;
 
 import java.util.Random;
 
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
 
 public abstract class AbstractTheoryTest {
 

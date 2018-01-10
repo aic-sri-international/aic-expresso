@@ -49,8 +49,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.core.solver</div>
+<div class="subTitle">com.sri.ai.grinder.core.solver</div>
 <h2 title="Class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver" class="title">Class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver</a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">com.sri.ai.grinder.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver</li>
+<li>com.sri.ai.grinder.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -118,23 +118,23 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/equality/ModelCountingOfSingleVariableEqualityConstraintStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.equality">ModelCountingOfSingleVariableEqualityConstraintStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/propositional/ModelCountingOfSingleVariablePropositionalConstraintStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.propositional">ModelCountingOfSingleVariablePropositionalConstraintStepSolver</a></dd>
+<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/equality/ModelCountingOfSingleVariableEqualityConstraintStepSolver.html" title="class in com.sri.ai.grinder.theory.equality">ModelCountingOfSingleVariableEqualityConstraintStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/theory/propositional/ModelCountingOfSingleVariablePropositionalConstraintStepSolver.html" title="class in com.sri.ai.grinder.theory.propositional">ModelCountingOfSingleVariablePropositionalConstraintStepSolver</a></dd>
 </dl>
 <hr>
 <br>
 <pre>@Beta
 public abstract class <span class="typeNameLabel">AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></pre>
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></pre>
 <div class="block">An abstract step solver for model counting step solvers.
  <p>
- It extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>
+ It extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>
  and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
  step solver, which is obtained through the theory's
- <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getSingleVariableConstraintSatisfiabilityStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleVariableConstraint-com.sri.ai.grinder.sgdpllt.api.Context-"><code>Theory.getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)</code></a>.
+ <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#getSingleVariableConstraintSatisfiabilityStepSolver-com.sri.ai.grinder.api.SingleVariableConstraint-com.sri.ai.grinder.api.Context-"><code>Theory.getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, Context)</code></a>.
  However, it is important that the satisfiability step solver provided by the theory
- be an instance of <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>,
- because <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver.html#getPropagatedCNF-com.sri.ai.grinder.sgdpllt.api.Context-"><code>getPropagatedCNF(Context)</code></a> is delegated to the satisfiability step solver's
- <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getPropagatedCNF-com.sri.ai.grinder.sgdpllt.api.Context-"><code>AbstractExpressionWithPropagatedLiteralsStepSolver.getPropagatedCNF(Context)</code></a>
+ be an instance of <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><code>AbstractExpressionWithPropagatedLiteralsStepSolver</code></a>,
+ because <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver.html#getPropagatedCNF-com.sri.ai.grinder.api.Context-"><code>getPropagatedCNF(Context)</code></a> is delegated to the satisfiability step solver's
+ <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getPropagatedCNF-com.sri.ai.grinder.api.Context-"><code>AbstractExpressionWithPropagatedLiteralsStepSolver.getPropagatedCNF(Context)</code></a>
  method.
  An error is thrown if this assumption is violated.
  <p>
@@ -179,7 +179,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver.html#AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver-com.sri.ai.grinder.sgdpllt.api.Constraint-">AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Constraint.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Constraint</a>&nbsp;constraint)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver.html#AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver-com.sri.ai.grinder.api.Constraint-">AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Constraint.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Constraint</a>&nbsp;constraint)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -205,8 +205,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.AbstractExpressionWithPropagatedLiteralsStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">clone</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></h3>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#clone--">clone</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -220,7 +220,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -236,7 +236,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver-com.sri.ai.grinder.sgdpllt.api.Constraint-">
+<a name="AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver-com.sri.ai.grinder.api.Constraint-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -262,7 +262,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <pre>public&nbsp;<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/SingleVariableConstraint.html" title="interface in com.sri.ai.grinder.sgdpllt.api">SingleVariableConstraint</a>&nbsp;getConstraint()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getConstraint--">getConstraint</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html#getConstraint--">getConstraint</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractExpressionWithPropagatedLiteralsStepSolver</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -294,8 +294,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractExpressionWithPropagatedLiteralsStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver.html" target="_top">Frames</a></li>

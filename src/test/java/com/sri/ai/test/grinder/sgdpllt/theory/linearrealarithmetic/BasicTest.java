@@ -45,9 +45,9 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 
 @Beta
 public class BasicTest {

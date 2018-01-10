@@ -46,10 +46,10 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.lambda.LambdaBetaReductionSimplifier;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.library.lambda.LambdaBetaReductionSimplifier;
+import com.sri.ai.grinder.rewriter.api.Simplifier;
 
 public class LambdaBetaReductionSimplifierTest {
 	

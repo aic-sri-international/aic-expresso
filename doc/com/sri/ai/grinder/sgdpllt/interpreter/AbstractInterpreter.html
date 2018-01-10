@@ -50,7 +50,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/AbstractIterativeMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.interpreter"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/AbstractIterativeMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.interpreter"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/sri/ai/grinder/sgdpllt/interpreter/AbstractInterpreter.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.interpreter</div>
+<div class="subTitle">com.sri.ai.grinder.interpreter</div>
 <h2 title="Class AbstractInterpreter" class="title">Class AbstractInterpreter</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.help">com.sri.ai.grinder.sgdpllt.rewriter.help.RedirectingRewriter</a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html" title="class in com.sri.ai.grinder.rewriter.help">com.sri.ai.grinder.rewriter.help.RedirectingRewriter</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.interpreter.AbstractInterpreter</li>
+<li>com.sri.ai.grinder.interpreter.AbstractInterpreter</li>
 </ul>
 </li>
 </ul>
@@ -114,18 +114,18 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">Rewriter</a>, com.sri.ai.util.base.BinaryFunction&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>,<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</dd>
+<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">Rewriter</a>, com.sri.ai.util.base.BinaryFunction&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>,<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</dd>
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/BruteForceInterpreter.html" title="class in com.sri.ai.grinder.sgdpllt.interpreter">BruteForceInterpreter</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/SampleInterpreter.html" title="class in com.sri.ai.grinder.sgdpllt.interpreter">SampleInterpreter</a></dd>
+<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/BruteForceInterpreter.html" title="class in com.sri.ai.grinder.interpreter">BruteForceInterpreter</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/SampleInterpreter.html" title="class in com.sri.ai.grinder.interpreter">SampleInterpreter</a></dd>
 </dl>
 <hr>
 <br>
 <pre>@Beta
 public abstract class <span class="typeNameLabel">AbstractInterpreter</span>
-extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.help">RedirectingRewriter</a></pre>
-<div class="block">A <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api"><code>Rewriter</code></a> based on a <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api"><code>TopRewriter</code></a>,
+extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html" title="class in com.sri.ai.grinder.rewriter.help">RedirectingRewriter</a></pre>
+<div class="block">A <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api"><code>Rewriter</code></a> based on a <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.rewriter.api"><code>TopRewriter</code></a>,
  adding the functionality of solving quantified and aggregate expressions with a <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html" title="interface in com.sri.ai.grinder.sgdpllt.api"><code>MultiIndexQuantifierEliminator</code></a>
  provided by the implementation of an abstract method.</div>
 <dl>
@@ -169,15 +169,15 @@ extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/Redi
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/AbstractInterpreter.html#setBaseTopRewriter-com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter-">setBaseTopRewriter</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">TopRewriter</a>&nbsp;baseTopRewriter)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/AbstractInterpreter.html#setBaseTopRewriter-com.sri.ai.grinder.rewriter.api.TopRewriter-">setBaseTopRewriter</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">TopRewriter</a>&nbsp;baseTopRewriter)</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.rewriter.help.RedirectingRewriter">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.rewriter.help.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.help">RedirectingRewriter</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html#getBaseRewriter--">getBaseRewriter</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html#makeStepSolver-com.sri.ai.expresso.api.Expression-">makeStepSolver</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html#setBaseRewriter-com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter-">setBaseRewriter</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.rewriter.help.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html" title="class in com.sri.ai.grinder.rewriter.help">RedirectingRewriter</a></h3>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html#getBaseRewriter--">getBaseRewriter</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html#makeStepSolver-com.sri.ai.expresso.api.Expression-">makeStepSolver</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/RedirectingRewriter.html#setBaseRewriter-com.sri.ai.grinder.rewriter.api.Rewriter-">setBaseRewriter</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -190,8 +190,8 @@ extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/Redi
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.rewriter.api.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">Rewriter</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#apply-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">apply</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#step-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.rewriter.api.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">Rewriter</a></h3>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#apply-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">apply</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#step-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">step</a></code></li>
 </ul>
 </li>
 </ul>
@@ -224,13 +224,13 @@ extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/Redi
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setBaseTopRewriter-com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter-">
+<a name="setBaseTopRewriter-com.sri.ai.grinder.rewriter.api.TopRewriter-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>setBaseTopRewriter</h4>
-<pre>public&nbsp;void&nbsp;setBaseTopRewriter(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">TopRewriter</a>&nbsp;baseTopRewriter)</pre>
+<pre>public&nbsp;void&nbsp;setBaseTopRewriter(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">TopRewriter</a>&nbsp;baseTopRewriter)</pre>
 </li>
 </ul>
 </li>
@@ -262,7 +262,7 @@ extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/help/Redi
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/AbstractIterativeMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.interpreter"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/interpreter/AbstractIterativeMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.interpreter"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/sri/ai/grinder/sgdpllt/interpreter/AbstractInterpreter.html" target="_top">Frames</a></li>

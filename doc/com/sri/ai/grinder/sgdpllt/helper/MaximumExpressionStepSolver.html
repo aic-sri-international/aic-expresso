@@ -100,13 +100,13 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">com.sri.ai.grinder.sgdpllt.theory.base.AbstractLinearStepSolver</a>&lt;T&gt;</li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.theory.base">com.sri.ai.grinder.theory.base.AbstractLinearStepSolver</a>&lt;T&gt;</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.theory.base">com.sri.ai.grinder.theory.base.AbstractExpressionsSequenceStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.helper.MaximumExpressionStepSolver</li>
+<li>com.sri.ai.grinder.helper.MaximumExpressionStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -125,13 +125,13 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>@Beta
 public class <span class="typeNameLabel">MaximumExpressionStepSolver</span>
-extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractExpressionsSequenceStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;
+extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractExpressionsSequenceStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;
 implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></pre>
 <div class="block">A context-dependent problem step solver deciding which in a set of expressions is the maximum one
  given an order.
  <p>
  Note that it would be intuitive to have this class implement <code>ExpressionStepSolver</code>,
- but this class delegates to its super class, whose <a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/MaximumExpressionStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-"><code>step(Context)</code></a> method returns a <code>ContextDependentProblemStepSolver#SolverStep<Expression></code>,
+ but this class delegates to its super class, whose <a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/MaximumExpressionStepSolver.html#step-com.sri.ai.grinder.api.Context-"><code>step(Context)</code></a> method returns a <code>ContextDependentProblemStepSolver#SolverStep<Expression></code>,
  and we do not want to have to construct a new <code>ExpressionStepSolver#SolverStep</code>
  object every time just to conform to the interface.</div>
 <dl>
@@ -204,7 +204,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.Step.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver.Step</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/MaximumExpressionStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/MaximumExpressionStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
 <div class="block">Returns a solver step for the problem: either the solution itself, if independent
  on the values for free variables, or a literal that, if used to split the context,
  will bring the problem closer to a solution.</div>
@@ -215,7 +215,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.theory.base.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractExpressionsSequenceStepSolver</a></h3>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.theory.base.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractExpressionsSequenceStepSolver</a></h3>
 <code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html#getExpressions--">getExpressions</a></code></li>
 </ul>
 <ul class="blockList">
@@ -230,7 +230,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -316,32 +316,32 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#clone--">clone</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#clone--">clone</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractLinearStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#clone--">clone</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractLinearStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>a clone of this step solver.</dd>
 </dl>
 </li>
 </ul>
-<a name="step-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="step-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>step</h4>
 <pre>public&nbsp;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.Step.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver.Step</a>&nbsp;step(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">StepSolver</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.api.Context-">StepSolver</a></code></span></div>
 <div class="block">Returns a solver step for the problem: either the solution itself, if independent
  on the values for free variables, or a literal that, if used to split the context,
  will bring the problem closer to a solution.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractLinearStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractLinearStepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 </dl>
 </li>

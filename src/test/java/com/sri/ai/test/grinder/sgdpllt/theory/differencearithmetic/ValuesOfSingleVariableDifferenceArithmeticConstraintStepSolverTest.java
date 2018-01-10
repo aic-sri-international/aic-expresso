@@ -48,13 +48,13 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.api.Constraint;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 
 @Beta
 public class ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolverTest {

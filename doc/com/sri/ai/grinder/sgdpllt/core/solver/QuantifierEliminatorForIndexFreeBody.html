@@ -49,8 +49,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorForIndexFreeBody.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.core.solver</div>
+<div class="subTitle">com.sri.ai.grinder.core.solver</div>
 <h2 title="Class QuantifierEliminatorForIndexFreeBody" class="title">Class QuantifierEliminatorForIndexFreeBody</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">com.sri.ai.grinder.sgdpllt.core.solver.SingleQuantifierEliminationProblemWrapper</a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.core.solver">com.sri.ai.grinder.core.solver.SingleQuantifierEliminationProblemWrapper</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.core.solver.SingleQuantifierEliminationForIndexFreeBody</li>
+<li>com.sri.ai.grinder.core.solver.SingleQuantifierEliminationForIndexFreeBody</li>
 </ul>
 </li>
 </ul>
@@ -119,14 +119,14 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">QuantifierEliminatorForIndexFreeBody</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">QuantifierEliminationProblemWrapper</a></pre>
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.core.solver">QuantifierEliminationProblemWrapper</a></pre>
 <div class="block">Eliminates a quantifier when the body does not contain the index by doing one of two things:
  <ul>
  <li> if the group is idempotent, simplify to <code>if condition for satisfiability of constraint then body else group's identity</code>.
  <li> if the group is not idempotent, 
- applies <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#addNTimes-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-"><code>AssociativeCommutativeGroup.addNTimes(Expression, Expression, Context)</code></a> to
- the literal-free body and <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/SingleVariableConstraint.html#modelCount-com.sri.ai.grinder.sgdpllt.api.Context-"><code>SingleVariableConstraint.modelCount(Context)</code></a>,
- followed by <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#simplify-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-"><code>Theory.simplify(Expression, Context)</code></a>.
+ applies <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#addNTimes-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-"><code>AssociativeCommutativeGroup.addNTimes(Expression, Expression, Context)</code></a> to
+ the literal-free body and <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/SingleVariableConstraint.html#modelCount-com.sri.ai.grinder.api.Context-"><code>SingleVariableConstraint.modelCount(Context)</code></a>,
+ followed by <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Theory.html#simplify-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-"><code>Theory.simplify(Expression, Context)</code></a>.
  </ul></div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
@@ -148,7 +148,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Qua
 <li class="blockList"><a name="fields.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationProblemWrapper">
 <!--   -->
 </a>
-<h3>Fields inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">QuantifierEliminationProblemWrapper</a></h3>
+<h3>Fields inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.core.solver">QuantifierEliminationProblemWrapper</a></h3>
 <code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#problem">problem</a></code></li>
 </ul>
 </li>
@@ -165,7 +165,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Qua
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorForIndexFreeBody.html#QuantifierEliminatorForIndexFreeBody-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">QuantifierEliminatorForIndexFreeBody</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorForIndexFreeBody.html#QuantifierEliminatorForIndexFreeBody-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.api.Context-">QuantifierEliminatorForIndexFreeBody</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                     <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 </table>
@@ -192,7 +192,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Qua
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationProblemWrapper">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">QuantifierEliminationProblemWrapper</a></h3>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.core.solver">QuantifierEliminationProblemWrapper</a></h3>
 <code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#getBody--">getBody</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#getConstraint--">getConstraint</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#getGroup--">getGroup</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#getIndex--">getIndex</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#getIndexType--">getIndexType</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#makeWithNewBody-com.sri.ai.expresso.api.Expression-">makeWithNewBody</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#makeWithNewIndexConstraint-com.sri.ai.expresso.api.Expression-">makeWithNewIndexConstraint</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#toExpression--">toExpression</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html#toString--">toString</a></code></li>
 </ul>
 <ul class="blockList">
@@ -216,7 +216,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Qua
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="QuantifierEliminatorForIndexFreeBody-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="QuantifierEliminatorForIndexFreeBody-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -271,8 +271,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Qua
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorForIndexFreeBody.html" target="_top">Frames</a></li>

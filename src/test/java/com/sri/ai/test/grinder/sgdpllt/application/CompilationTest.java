@@ -1,7 +1,7 @@
 package com.sri.ai.test.grinder.sgdpllt.application;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.application.Compilation.compile;
+import static com.sri.ai.grinder.application.Compilation.compile;
 import static com.sri.ai.util.Util.list;
 import static org.junit.Assert.assertEquals;
 
@@ -11,10 +11,10 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.util.Util;
 
 public class CompilationTest {

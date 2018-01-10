@@ -4,13 +4,13 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.sri.ai.grinder.sgdpllt.group.Max;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.grinder.group.Max;
+import com.sri.ai.grinder.group.Sum;
+import com.sri.ai.grinder.tester.SGDPLLTTester;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.tuple.TupleTheory;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryTest;
 
 public abstract class AbstractTupleTheoryTest extends AbstractTheoryTest {

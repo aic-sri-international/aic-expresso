@@ -7,8 +7,8 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.sgdpllt.library.set.Sets;
-import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetOfArgumentTuplesForFunctionOccurringInExpression;
+import com.sri.ai.grinder.library.set.Sets;
+import com.sri.ai.grinder.library.set.invsupport.SetOfArgumentTuplesForFunctionOccurringInExpression;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 

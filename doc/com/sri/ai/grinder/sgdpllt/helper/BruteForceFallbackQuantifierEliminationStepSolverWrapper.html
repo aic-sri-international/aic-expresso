@@ -100,7 +100,7 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.helper.BruteForceFallbackQuantifierEliminationStepSolver</li>
+<li>com.sri.ai.grinder.helper.BruteForceFallbackQuantifierEliminationStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -117,7 +117,7 @@ var activeTableTab = "activeTableTab";
 public class <span class="typeNameLabel">BruteForceFallbackQuantifierEliminationStepSolverWrapper</span>
 extends java.lang.Object
 implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></pre>
-<div class="block">Wraps a base <a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.core.solver"><code>QuantifierEliminationStepSolver</code></a> into another
+<div class="block">Wraps a base <a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.core.solver"><code>QuantifierEliminationStepSolver</code></a> into another
  one that solves the problem by brute force when the base one cannot.</div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
@@ -156,7 +156,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/BruteForceFallbackQuantifierEliminationStepSolverWrapper.html#BruteForceFallbackQuantifierEliminationStepSolverWrapper-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver-">BruteForceFallbackQuantifierEliminationStepSolverWrapper</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/BruteForceFallbackQuantifierEliminationStepSolverWrapper.html#BruteForceFallbackQuantifierEliminationStepSolverWrapper-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver-">BruteForceFallbackQuantifierEliminationStepSolverWrapper</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem,
                                                         <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a>&nbsp;base)</code>&nbsp;</td>
 </tr>
 </table>
@@ -185,7 +185,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.Step.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver.Step</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/BruteForceFallbackQuantifierEliminationStepSolverWrapper.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/helper/BruteForceFallbackQuantifierEliminationStepSolverWrapper.html#step-com.sri.ai.grinder.api.Context-">step</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
 <div class="block">Returns a solver step for the problem: either the solution itself, if independent
  on the values for free variables, or a literal that, if used to split the context,
  will bring the problem closer to a solution.</div>
@@ -208,7 +208,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#solve-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -224,7 +224,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="BruteForceFallbackQuantifierEliminationStepSolverWrapper-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver-">
+<a name="BruteForceFallbackQuantifierEliminationStepSolverWrapper-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -242,24 +242,24 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionL
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="step-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="step-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>step</h4>
 <pre>public&nbsp;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.Step.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver.Step</a>&nbsp;step(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">ExpressionStepSolver</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#step-com.sri.ai.grinder.api.Context-">ExpressionStepSolver</a></code></span></div>
 <div class="block">Returns a solver step for the problem: either the solution itself, if independent
  on the values for free variables, or a literal that, if used to split the context,
  will bring the problem closer to a solution.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionLiteralSplitterStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionLiteralSplitterStepSolver</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a></code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 </dl>
 </li>

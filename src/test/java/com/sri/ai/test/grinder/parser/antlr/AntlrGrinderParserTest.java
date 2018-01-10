@@ -58,8 +58,8 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.helper.FunctionSignature;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
 import com.sri.ai.test.grinder.AbstractParserTest;
 
 public class AntlrGrinderParserTest extends AbstractParserTest {

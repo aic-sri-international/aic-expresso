@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
+import com.sri.ai.grinder.library.boole.ThereExists;
 
 /**
  * A default implementation of a {@link ExistentiallyQuantifiedFormula}.

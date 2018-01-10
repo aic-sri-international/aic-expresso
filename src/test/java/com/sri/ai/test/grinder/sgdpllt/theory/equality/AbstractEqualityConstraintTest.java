@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.universallyQuantifyFreeVariables;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.EQUIVALENCE;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUIVALENCE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
 
@@ -55,17 +55,17 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.sgdpllt.api.Constraint;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.constraint.CompleteMultiVariableContext;
-import com.sri.ai.grinder.sgdpllt.group.Max;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.library.boole.And;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Simplifier;
-import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.SingleVariableEqualityConstraint;
+import com.sri.ai.grinder.api.Constraint;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext;
+import com.sri.ai.grinder.group.Max;
+import com.sri.ai.grinder.group.Sum;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.rewriter.api.Simplifier;
+import com.sri.ai.grinder.tester.SGDPLLTTester;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.equality.SingleVariableEqualityConstraint;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryIncludingEqualityTest;
 
 @Beta

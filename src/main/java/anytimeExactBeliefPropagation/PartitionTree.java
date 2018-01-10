@@ -1,10 +1,12 @@
 package anytimeExactBeliefPropagation;
 
-import static com.sri.ai.grinder.sgdpllt.library.bounds.Bounds.simplex;
+import static com.sri.ai.grinder.library.bounds.Bounds.simplex;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+
+
 
 
 
@@ -19,10 +21,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.library.bounds.Bound;
+import com.sri.ai.grinder.library.bounds.Bounds;
 import com.sri.ai.util.Util;
 
 import anytimeExactBeliefPropagation.Model.Model;

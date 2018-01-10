@@ -49,8 +49,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.group"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.group"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/sri/ai/grinder/sgdpllt/group/AbstractFunctionBasedGroup.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.group</div>
+<div class="subTitle">com.sri.ai.grinder.group</div>
 <h2 title="Class AbstractFunctionBasedGroup" class="title">Class AbstractFunctionBasedGroup</h2>
 </div>
 <div class="contentContainer">
@@ -100,13 +100,13 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group">com.sri.ai.grinder.sgdpllt.group.AbstractAssociativeCommutativeGroup</a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.group">com.sri.ai.grinder.group.AbstractAssociativeCommutativeGroup</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group">com.sri.ai.grinder.sgdpllt.group.AbstractNumericGroup</a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.group">com.sri.ai.grinder.group.AbstractNumericGroup</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.group.AbstractFunctionBasedGroup</li>
+<li>com.sri.ai.grinder.group.AbstractFunctionBasedGroup</li>
 </ul>
 </li>
 </ul>
@@ -119,17 +119,17 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a></dd>
+<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a></dd>
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Max.html" title="class in com.sri.ai.grinder.sgdpllt.group">Max</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Product.html" title="class in com.sri.ai.grinder.sgdpllt.group">Product</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Sum.html" title="class in com.sri.ai.grinder.sgdpllt.group">Sum</a></dd>
+<dd><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Max.html" title="class in com.sri.ai.grinder.group">Max</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Product.html" title="class in com.sri.ai.grinder.group">Product</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Sum.html" title="class in com.sri.ai.grinder.group">Sum</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public abstract class <span class="typeNameLabel">AbstractFunctionBasedGroup</span>
-extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group">AbstractNumericGroup</a>
-implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a></pre>
+extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.group">AbstractNumericGroup</a>
+implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a></pre>
 <div class="block">A group whose related problems are represented as function applications on sets<br>
  (e.g.: <code>sum({{ (on X in Integer) X | X > 0 and X < 5 }})</code>).</div>
 <dl>
@@ -173,7 +173,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>com.sri.ai.util.base.Pair&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,<a href="../../../../../../com/sri/ai/expresso/api/IndexExpressionsSet.html" title="interface in com.sri.ai.expresso.api">IndexExpressionsSet</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractFunctionBasedGroup.html#getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">getExpressionAndIndexExpressionsFromProblemExpression</a></span>(<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractFunctionBasedGroup.html#getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">getExpressionAndIndexExpressionsFromProblemExpression</a></span>(<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
                                                      <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>
 <div class="block">Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
  and indices for DPLL to solve.</div>
@@ -192,7 +192,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractFunctionBasedGroup.html#makeProblemExpression-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-">makeProblemExpression</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractFunctionBasedGroup.html#makeProblemExpression-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-">makeProblemExpression</a></span>(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem)</code>
 <div class="block">Generates an expression representing of problem in this group (problem's own group is ignored).</div>
 </td>
 </tr>
@@ -201,14 +201,14 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.group.AbstractNumericGroup">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.group.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group">AbstractNumericGroup</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#add-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">add</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#additiveIdentityElement--">additiveIdentityElement</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#addNTimes-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">addNTimes</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#isAdditiveAbsorbingElement-com.sri.ai.expresso.api.Expression-">isAdditiveAbsorbingElement</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.group.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.group">AbstractNumericGroup</a></h3>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#add-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">add</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#additiveIdentityElement--">additiveIdentityElement</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#addNTimes-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">addNTimes</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html#isAdditiveAbsorbingElement-com.sri.ai.expresso.api.Expression-">isAdditiveAbsorbingElement</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.group.AbstractAssociativeCommutativeGroup">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.group.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group">AbstractAssociativeCommutativeGroup</a></h3>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.group.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.group">AbstractAssociativeCommutativeGroup</a></h3>
 <code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html#equals-java.lang.Object-">equals</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html#hashCode--">hashCode</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html#toString--">toString</a></code></li>
 </ul>
 <ul class="blockList">
@@ -222,8 +222,8 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.group.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#add-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">add</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#additiveIdentityElement--">additiveIdentityElement</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#addNTimes-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">addNTimes</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#isAdditiveAbsorbingElement-com.sri.ai.expresso.api.Expression-">isAdditiveAbsorbingElement</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#isIdempotent--">isIdempotent</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#makeRandomConstant-java.util.Random-">makeRandomConstant</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.group.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a></h3>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#add-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">add</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#additiveIdentityElement--">additiveIdentityElement</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#addNTimes-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">addNTimes</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#isAdditiveAbsorbingElement-com.sri.ai.expresso.api.Expression-">isAdditiveAbsorbingElement</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#isIdempotent--">isIdempotent</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#makeRandomConstant-java.util.Random-">makeRandomConstant</a></code></li>
 </ul>
 </li>
 </ul>
@@ -265,7 +265,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 <pre>public abstract&nbsp;java.lang.String&nbsp;getFunctionString()</pre>
 </li>
 </ul>
-<a name="getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -273,29 +273,29 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 <h4>getExpressionAndIndexExpressionsFromProblemExpression</h4>
 <pre>public&nbsp;com.sri.ai.util.base.Pair&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,<a href="../../../../../../com/sri/ai/expresso/api/IndexExpressionsSet.html" title="interface in com.sri.ai.expresso.api">IndexExpressionsSet</a>&gt;&nbsp;getExpressionAndIndexExpressionsFromProblemExpression(<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
                                                                                                                        <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">AssociativeCommutativeGroup</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">AssociativeCommutativeGroup</a></code></span></div>
 <div class="block">Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
  and indices for DPLL to solve.
  The index types are assumed to be stored in the context.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">getExpressionAndIndexExpressionsFromProblemExpression</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a></code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#getExpressionAndIndexExpressionsFromProblemExpression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">getExpressionAndIndexExpressionsFromProblemExpression</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 </dl>
 </li>
 </ul>
-<a name="makeProblemExpression-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-">
+<a name="makeProblemExpression-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>makeProblemExpression</h4>
 <pre>public&nbsp;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;makeProblemExpression(<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#makeProblemExpression-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-">AssociativeCommutativeGroup</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#makeProblemExpression-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-">AssociativeCommutativeGroup</a></code></span></div>
 <div class="block">Generates an expression representing of problem in this group (problem's own group is ignored).</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#makeProblemExpression-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-">makeProblemExpression</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a></code></dd>
+<dd><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html#makeProblemExpression-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-">makeProblemExpression</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -339,8 +339,8 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/Associati
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.sgdpllt.group"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractAssociativeCommutativeGroup.html" title="class in com.sri.ai.grinder.group"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/group/AbstractNumericGroup.html" title="class in com.sri.ai.grinder.group"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/sri/ai/grinder/sgdpllt/group/AbstractFunctionBasedGroup.html" target="_top">Frames</a></li>

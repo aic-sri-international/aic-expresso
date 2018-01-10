@@ -43,8 +43,8 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/IntegrationRecording.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/IntegrationRecording.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver.html" target="_top">Frames</a></li>
@@ -86,7 +86,7 @@
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.core.solver</div>
+<div class="subTitle">com.sri.ai.grinder.core.solver</div>
 <h2 title="Class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver" class="title">Class QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver</h2>
 </div>
 <div class="contentContainer">
@@ -94,10 +94,10 @@
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">com.sri.ai.grinder.sgdpllt.core.solver.AbstractSingleQuantifierEliminationStepSolver</a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver">com.sri.ai.grinder.core.solver.AbstractSingleQuantifierEliminationStepSolver</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver</li>
+<li>com.sri.ai.grinder.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -108,19 +108,19 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.core.solver">QuantifierEliminationStepSolver</a>, java.lang.Cloneable</dd>
+<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationStepSolver.html" title="interface in com.sri.ai.grinder.core.solver">QuantifierEliminationStepSolver</a>, java.lang.Cloneable</dd>
 </dl>
 <hr>
 <br>
 <pre>@Beta
 public class <span class="typeNameLabel">QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractQuantifierEliminationStepSolver</a></pre>
-<div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>AbstractQuantifierEliminationStepSolver</code></a> for quantifiers based on a group, and with body in which the index occurs in literals only.
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractQuantifierEliminationStepSolver</a></pre>
+<div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><code>AbstractQuantifierEliminationStepSolver</code></a> for quantifiers based on a group, and with body in which the index occurs in literals only.
  This step solver first provides all the literals in the body as <code>ExpressionStepSolver#ItDepends</code> steps.
  If at any point the constraint becomes unsatisfiable, the group's identity element is returned
- (the above is all done by <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>AbstractQuantifierEliminationStepSolver</code></a>.
+ (the above is all done by <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><code>AbstractQuantifierEliminationStepSolver</code></a>.
  If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
- <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorForIndexFreeBody.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>QuantifierEliminatorForIndexFreeBody</code></a>.</div>
+ <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminatorForIndexFreeBody.html" title="class in com.sri.ai.grinder.core.solver"><code>QuantifierEliminatorForIndexFreeBody</code></a>.</div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
 <dd>braz</dd>
@@ -156,7 +156,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <li class="blockList"><a name="fields.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver">
 <!--   -->
 </a>
-<h3>Fields inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractQuantifierEliminationStepSolver</a></h3>
+<h3>Fields inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractQuantifierEliminationStepSolver</a></h3>
 <code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS">BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS</a></code></li>
 </ul>
 </li>
@@ -173,7 +173,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver.html#QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-">QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver.html#QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-">QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/QuantifierEliminationProblem.html" title="interface in com.sri.ai.grinder.sgdpllt.api">QuantifierEliminationProblem</a>&nbsp;problem)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -188,8 +188,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.AbstractQuantifierEliminationStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractQuantifierEliminationStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#clone--">clone</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getBody--">getBody</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getGroup--">getGroup</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getIndex--">getIndex</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getIndexConstraint--">getIndexConstraint</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getProblem--">getProblem</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#toString--">toString</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver">AbstractQuantifierEliminationStepSolver</a></h3>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#clone--">clone</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getBody--">getBody</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getGroup--">getGroup</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getIndex--">getIndex</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getIndexConstraint--">getIndexConstraint</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#getProblem--">getProblem</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html#toString--">toString</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -203,7 +203,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">ExpressionStepSolver</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#solve-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/ExpressionStepSolver.html#solve-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -219,7 +219,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver-com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem-">
+<a name="QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver-com.sri.ai.grinder.api.SingleQuantifierEliminationProblem-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -256,8 +256,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/IntegrationRecording.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/IntegrationRecording.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationProblemWrapper.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver.html" target="_top">Frames</a></li>

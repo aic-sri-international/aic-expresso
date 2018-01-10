@@ -37,7 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.TIMES;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.PairOf.pairOf;
@@ -87,15 +87,15 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.IsVariable;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.IsVariable;
-import com.sri.ai.grinder.sgdpllt.library.boole.And;
-import com.sri.ai.grinder.sgdpllt.library.boole.ForAll;
-import com.sri.ai.grinder.sgdpllt.library.boole.ThereExists;
-import com.sri.ai.grinder.sgdpllt.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
-import com.sri.ai.grinder.sgdpllt.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;

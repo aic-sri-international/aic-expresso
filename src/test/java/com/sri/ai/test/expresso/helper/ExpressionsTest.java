@@ -17,9 +17,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.number.Times;
-import com.sri.ai.grinder.sgdpllt.library.number.UnaryMinus;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 
 public class ExpressionsTest {
 	

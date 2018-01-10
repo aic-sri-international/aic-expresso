@@ -8,12 +8,12 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultMultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultSingleQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.group.Conjunction;
-import com.sri.ai.grinder.sgdpllt.group.Disjunction;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
+import com.sri.ai.grinder.api.MultiQuantifierEliminationProblem;
+import com.sri.ai.grinder.core.solver.DefaultMultiQuantifierEliminationProblem;
+import com.sri.ai.grinder.core.solver.DefaultSingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.group.Conjunction;
+import com.sri.ai.grinder.group.Disjunction;
+import com.sri.ai.grinder.group.Sum;
 
 public class MultiQuantifierEliminationProblemTest {
 

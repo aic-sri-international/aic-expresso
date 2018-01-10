@@ -40,11 +40,11 @@ package com.sri.ai.test.grinder.sgdpllt.theory.propositional;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpllt.group.Max;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.tester.SGDPLLTTester;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.group.Max;
+import com.sri.ai.grinder.group.Sum;
+import com.sri.ai.grinder.tester.SGDPLLTTester;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.test.grinder.sgdpllt.theory.base.AbstractTheoryTest;
 
 @Beta

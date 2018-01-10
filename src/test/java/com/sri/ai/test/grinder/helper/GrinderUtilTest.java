@@ -58,8 +58,8 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.core.DefaultRegistry;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpllt.core.DefaultRegistry;
 
 public class GrinderUtilTest {
 	Registry registry;

@@ -94,16 +94,16 @@
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">com.sri.ai.grinder.sgdpllt.theory.base.AbstractLinearStepSolver</a>&lt;T&gt;</li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.theory.base">com.sri.ai.grinder.theory.base.AbstractLinearStepSolver</a>&lt;T&gt;</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver</a>&lt;java.util.List&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&gt;</li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.theory.base">com.sri.ai.grinder.theory.base.AbstractExpressionsSequenceStepSolver</a>&lt;java.util.List&lt;<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&gt;</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractSelectionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">com.sri.ai.grinder.sgdpllt.theory.base.AbstractSelectionStepSolver</a></li>
+<li><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractSelectionStepSolver.html" title="class in com.sri.ai.grinder.theory.base">com.sri.ai.grinder.theory.base.AbstractSelectionStepSolver</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.helper.SelectExpressionsSatisfyingComparisonStepSolver</li>
+<li>com.sri.ai.grinder.helper.SelectExpressionsSatisfyingComparisonStepSolver</li>
 </ul>
 </li>
 </ul>
@@ -124,13 +124,13 @@
 <br>
 <pre>@Beta
 public class <span class="typeNameLabel">SelectExpressionsSatisfyingComparisonStepSolver</span>
-extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractSelectionStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractSelectionStepSolver</a></pre>
+extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractSelectionStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractSelectionStepSolver</a></pre>
 <div class="block">A context-dependent problem step solver deciding which in a set of expressions that satisfy
  a comparison according to a given functor and bound.
  <p>
  Unlike many step solvers finding Expression-typed solutions, this one
  is not an extension of <code>ExpressionStepSolver</code>
- because it extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base"><code>AbstractExpressionsSequenceStepSolver</code></a>,
+ because it extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.theory.base"><code>AbstractExpressionsSequenceStepSolver</code></a>,
  which does not necessarily have Expression-typed solutions.
  This has the disadvantage of requiring the use of
  generic <code>StepSolver#SolverStep</code>,
@@ -190,15 +190,15 @@ extends <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/Abstra
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.theory.base.AbstractExpressionsSequenceStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.theory.base.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractExpressionsSequenceStepSolver</a></h3>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.theory.base.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractExpressionsSequenceStepSolver</a></h3>
 <code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractExpressionsSequenceStepSolver.html#getExpressions--">getExpressions</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.theory.base.AbstractLinearStepSolver">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.theory.base.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.theory.base">AbstractLinearStepSolver</a></h3>
-<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#clone--">clone</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#step-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code></li>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.theory.base.<a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html" title="class in com.sri.ai.grinder.theory.base">AbstractLinearStepSolver</a></h3>
+<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#clone--">clone</a>, <a href="../../../../../../com/sri/ai/grinder/sgdpllt/theory/base/AbstractLinearStepSolver.html#step-com.sri.ai.grinder.api.Context-">step</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">

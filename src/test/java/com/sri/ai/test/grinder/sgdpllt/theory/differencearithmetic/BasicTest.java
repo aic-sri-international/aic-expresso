@@ -38,7 +38,7 @@
 package com.sri.ai.test.grinder.sgdpllt.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.core.solver.AbstractSingleQuantifierEliminationStepSolver.BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS;
+import static com.sri.ai.grinder.core.solver.AbstractSingleQuantifierEliminationStepSolver.BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
@@ -48,12 +48,12 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.sgdpllt.interpreter.BruteForceInterpreter;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
+import com.sri.ai.grinder.interpreter.BruteForceInterpreter;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 
 @Beta
 public class BasicTest {

@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.library.inequality</div>
+<div class="subTitle">com.sri.ai.grinder.library.inequality</div>
 <h2 title="Class InequalitySimplifier" class="title">Class InequalitySimplifier</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.core">com.sri.ai.grinder.sgdpllt.rewriter.core.Switch</a>&lt;java.lang.String&gt;</li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.rewriter.core">com.sri.ai.grinder.rewriter.core.Switch</a>&lt;java.lang.String&gt;</li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.library.inequality.InequalitySimplifier</li>
+<li>com.sri.ai.grinder.library.inequality.InequalitySimplifier</li>
 </ul>
 </li>
 </ul>
@@ -114,14 +114,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">Rewriter</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">TopRewriter</a>, com.sri.ai.util.base.BinaryFunction&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>,<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</dd>
+<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">Rewriter</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">TopRewriter</a>, com.sri.ai.util.base.BinaryFunction&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>,<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;</dd>
 </dl>
 <hr>
 <br>
 <pre>@Beta
 public class <span class="typeNameLabel">InequalitySimplifier</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.core">Switch</a>&lt;java.lang.String&gt;</pre>
-<div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Simplifier.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api"><code>Simplifier</code></a> with inequality functions (<code>> <, >=, <=</code>)</div>
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.rewriter.core">Switch</a>&lt;java.lang.String&gt;</pre>
+<div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Simplifier.html" title="interface in com.sri.ai.grinder.rewriter.api"><code>Simplifier</code></a> with inequality functions (<code>> <, >=, <=</code>)</div>
 <dl>
 <dt><span class="simpleTagLabel">Author:</span></dt>
 <dd>braz</dd>
@@ -142,7 +142,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/S
 <li class="blockList"><a name="fields.inherited.from.class.com.sri.ai.grinder.sgdpllt.rewriter.core.Switch">
 <!--   -->
 </a>
-<h3>Fields inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.rewriter.core.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.core">Switch</a></h3>
+<h3>Fields inherited from class&nbsp;com.sri.ai.grinder.rewriter.core.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.rewriter.core">Switch</a></h3>
 <code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#FUNCTOR">FUNCTOR</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#SYNTACTIC_FORM_TYPE">SYNTACTIC_FORM_TYPE</a></code></li>
 </ul>
 </li>
@@ -177,7 +177,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/S
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static java.util.Map&lt;java.lang.String,<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">Rewriter</a>&gt;</code></td>
+<td class="colFirst"><code>static java.util.Map&lt;java.lang.String,<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">Rewriter</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/library/inequality/InequalitySimplifier.html#makeFunctionApplicationSimplifiers--">makeFunctionApplicationSimplifiers</a></span>()</code>&nbsp;</td>
 </tr>
 </table>
@@ -185,7 +185,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/S
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.rewriter.core.Switch">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.rewriter.core.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.sgdpllt.rewriter.core">Switch</a></h3>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.rewriter.core.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html" title="class in com.sri.ai.grinder.rewriter.core">Switch</a></h3>
 <code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#equals-java.lang.Object-">equals</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#getKeyMaker--">getKeyMaker</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#getMapFromKeyToRewriter--">getMapFromKeyToRewriter</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#hashCode--">hashCode</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#makeStepSolver-com.sri.ai.expresso.api.Expression-">makeStepSolver</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#mergeSwitchesWithTheSameKeyMakerIntoASingleOne-java.util.List-">mergeSwitchesWithTheSameKeyMakerIntoASingleOne</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/Switch.html#toString--">toString</a></code></li>
 </ul>
 <ul class="blockList">
@@ -199,15 +199,15 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/S
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.rewriter.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">TopRewriter</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#gatherListsOfSwitchesSharingKeyMaker-java.util.List-">gatherListsOfSwitchesSharingKeyMaker</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches-java.util.List-">makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches-com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter...-">makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeTopRewriterFromAlreadyMergedSwitches-java.util.List-">makeTopRewriterFromAlreadyMergedSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches-java.util.List-">makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#merge-com.sri.ai.grinder.sgdpllt.rewriter.api.TopRewriter...-">merge</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.rewriter.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">TopRewriter</a></h3>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#gatherListsOfSwitchesSharingKeyMaker-java.util.List-">gatherListsOfSwitchesSharingKeyMaker</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches-java.util.List-">makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches-com.sri.ai.grinder.rewriter.api.TopRewriter...-">makeMergedSwitchesFromTopRewritersThatAreEitherFirstOfOrSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeTopRewriterFromAlreadyMergedSwitches-java.util.List-">makeTopRewriterFromAlreadyMergedSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches-java.util.List-">makeTopRewriterFromTopRewritersThatAreEitherFirstOfOrSwitches</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/TopRewriter.html#merge-com.sri.ai.grinder.rewriter.api.TopRewriter...-">merge</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.rewriter.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">Rewriter</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#apply-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">apply</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#step-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">step</a></code></li>
+<h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.rewriter.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">Rewriter</a></h3>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#apply-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">apply</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html#step-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">step</a></code></li>
 </ul>
 </li>
 </ul>
@@ -246,7 +246,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/core/S
 <ul class="blockListLast">
 <li class="blockList">
 <h4>makeFunctionApplicationSimplifiers</h4>
-<pre>public static&nbsp;java.util.Map&lt;java.lang.String,<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.sgdpllt.rewriter.api">Rewriter</a>&gt;&nbsp;makeFunctionApplicationSimplifiers()</pre>
+<pre>public static&nbsp;java.util.Map&lt;java.lang.String,<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/rewriter/api/Rewriter.html" title="interface in com.sri.ai.grinder.rewriter.api">Rewriter</a>&gt;&nbsp;makeFunctionApplicationSimplifiers()</pre>
 </li>
 </ul>
 </li>

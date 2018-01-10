@@ -213,7 +213,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.sri.ai.grinder.sgdpllt.application.SymbolicShell</mainClass>
+							<mainClass>com.sri.ai.grinder.application.SymbolicShell</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

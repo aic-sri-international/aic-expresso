@@ -40,7 +40,7 @@ package com.sri.ai.test.grinder.sgdpllt.theory.differencearithmetic;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static org.junit.Assert.fail;
 
 import java.util.Random;
@@ -49,17 +49,17 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionStepSolver;
+import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.solver.DefaultSingleQuantifierEliminationProblem;
+import com.sri.ai.grinder.group.Sum;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.SingleQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.api.Theory;
-import com.sri.ai.grinder.sgdpllt.core.solver.DefaultSingleQuantifierEliminationProblem;
-import com.sri.ai.grinder.sgdpllt.group.Sum;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
+import com.sri.ai.grinder.theory.differencearithmetic.SummationOnDifferenceArithmeticAndPolynomialStepSolver;
 
 @Beta
 public class SummationOnDifferenceArithmeticAndPolynomialStepSolverTest {

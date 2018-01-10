@@ -11,14 +11,14 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.library.set.invsupport.SetDNFRewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.tuple.TupleTheory;
+import com.sri.ai.grinder.library.set.invsupport.SetDNFRewriter;
+import com.sri.ai.grinder.rewriter.api.Rewriter;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.tuple.TupleTheory;
 
 public class SetDNFRewriterTest {
 	private Context context;

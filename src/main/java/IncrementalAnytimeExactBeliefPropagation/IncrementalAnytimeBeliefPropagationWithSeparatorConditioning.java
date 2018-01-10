@@ -12,8 +12,8 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bounds;
+import com.sri.ai.grinder.library.bounds.Bound;
+import com.sri.ai.grinder.library.bounds.Bounds;
 import com.sri.ai.util.base.PairOf;
 
 import IncrementalAnytimeExactBeliefPropagation.Model.Model;

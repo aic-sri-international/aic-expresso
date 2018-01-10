@@ -22,21 +22,21 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.IntegerInterval;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionStepSolver;
-import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.sgdpllt.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpllt.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
-import com.sri.ai.grinder.sgdpllt.library.boole.And;
-import com.sri.ai.grinder.sgdpllt.library.boole.Not;
-import com.sri.ai.grinder.sgdpllt.library.boole.Or;
-import com.sri.ai.grinder.sgdpllt.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.api.ExpressionStepSolver;
+import com.sri.ai.grinder.core.constraint.ContextSplitting;
+import com.sri.ai.grinder.core.solver.ContextDependentExpressionProblemSolver;
+import com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 
 public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	

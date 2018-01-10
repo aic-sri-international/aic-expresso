@@ -37,7 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.grinder.sgdpllt.library.FunctorConstants.INTEGER_INTERVAL;
+import static com.sri.ai.grinder.library.FunctorConstants.INTEGER_INTERVAL;
 import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoObjectArray;
@@ -60,8 +60,8 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.sgdpllt.library.FunctorConstants;
-import com.sri.ai.grinder.sgdpllt.library.boole.Not;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.util.Util;
 
 /**

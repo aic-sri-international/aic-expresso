@@ -100,7 +100,7 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.api.StepSolver.ItDependsOn&lt;T&gt;</li>
+<li>com.sri.ai.grinder.api.StepSolver.ItDependsOn&lt;T&gt;</li>
 </ul>
 </li>
 </ul>
@@ -142,8 +142,8 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html#ItDependsOn-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting-com.sri.ai.grinder.sgdpllt.api.StepSolver-com.sri.ai.grinder.sgdpllt.api.StepSolver-">ItDependsOn</a></span>(<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;splitter,
-           <a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.sgdpllt.core.constraint">ContextSplitting</a>&nbsp;contextSplitting,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html#ItDependsOn-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.core.constraint.ContextSplitting-com.sri.ai.grinder.api.StepSolver-com.sri.ai.grinder.api.StepSolver-">ItDependsOn</a></span>(<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;splitter,
+           <a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.core.constraint">ContextSplitting</a>&nbsp;contextSplitting,
            <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html" title="type parameter in StepSolver.ItDependsOn">T</a>&gt;&nbsp;stepSolverIfSplitterIsTrue,
            <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html" title="type parameter in StepSolver.ItDependsOn">T</a>&gt;&nbsp;stepSolverIfSplitterIsFalse)</code>
 <div class="block">Represents a solver step in which the final solution depends on the definition of a given expression
@@ -166,7 +166,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.sgdpllt.core.constraint">ContextSplitting</a></code></td>
+<td class="colFirst"><code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.core.constraint">ContextSplitting</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html#getContextSplittingWhenSplitterIsLiteral--">getContextSplittingWhenSplitterIsLiteral</a></span>()</code>
 <div class="block">For solutions depending on a split, provides the constraint splitting
  for the context and splitter used, if available,
@@ -228,14 +228,14 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ItDependsOn-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting-com.sri.ai.grinder.sgdpllt.api.StepSolver-com.sri.ai.grinder.sgdpllt.api.StepSolver-">
+<a name="ItDependsOn-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.core.constraint.ContextSplitting-com.sri.ai.grinder.api.StepSolver-com.sri.ai.grinder.api.StepSolver-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ItDependsOn</h4>
 <pre>public&nbsp;ItDependsOn(<a href="../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;splitter,
-                   <a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.sgdpllt.core.constraint">ContextSplitting</a>&nbsp;contextSplitting,
+                   <a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.core.constraint">ContextSplitting</a>&nbsp;contextSplitting,
                    <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html" title="type parameter in StepSolver.ItDependsOn">T</a>&gt;&nbsp;stepSolverIfSplitterIsTrue,
                    <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.html" title="interface in com.sri.ai.grinder.sgdpllt.api">StepSolver</a>&lt;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.ItDependsOn.html" title="type parameter in StepSolver.ItDependsOn">T</a>&gt;&nbsp;stepSolverIfSplitterIsFalse)</pre>
 <div class="block">Represents a solver step in which the final solution depends on the definition of a given expression
@@ -311,7 +311,7 @@ implements <a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.
 <ul class="blockList">
 <li class="blockList">
 <h4>getContextSplittingWhenSplitterIsLiteral</h4>
-<pre>public&nbsp;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.sgdpllt.core.constraint">ContextSplitting</a>&nbsp;getContextSplittingWhenSplitterIsLiteral()</pre>
+<pre>public&nbsp;<a href="../../../../../../com/sri/ai/grinder/sgdpllt/core/constraint/ContextSplitting.html" title="class in com.sri.ai.grinder.core.constraint">ContextSplitting</a>&nbsp;getContextSplittingWhenSplitterIsLiteral()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/sri/ai/grinder/sgdpllt/api/StepSolver.Step.html#getContextSplittingWhenSplitterIsLiteral--">StepSolver.Step</a></code></span></div>
 <div class="block">For solutions depending on a split, provides the constraint splitting
  for the context and splitter used, if available,

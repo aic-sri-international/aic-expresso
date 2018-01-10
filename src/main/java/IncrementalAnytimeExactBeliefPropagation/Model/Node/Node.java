@@ -1,7 +1,7 @@
 package IncrementalAnytimeExactBeliefPropagation.Model.Node;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpllt.library.bounds.Bound;
+import com.sri.ai.grinder.library.bounds.Bound;
 
 /**
  * A class that provides the basic nodes for a factor graph.

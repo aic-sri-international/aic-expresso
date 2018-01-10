@@ -48,17 +48,17 @@ import org.junit.Test;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.sgdpllt.api.Context;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.sgdpllt.api.ExpressionLiteralSplitterStepSolver.Solution;
-import com.sri.ai.grinder.sgdpllt.core.TrueContext;
-import com.sri.ai.grinder.sgdpllt.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.Rewriter;
-import com.sri.ai.grinder.sgdpllt.rewriter.api.RewriterFromStepMaker;
-import com.sri.ai.grinder.sgdpllt.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.sgdpllt.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.sgdpllt.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver.Solution;
+import com.sri.ai.grinder.core.TrueContext;
+import com.sri.ai.grinder.core.constraint.ContextSplitting;
+import com.sri.ai.grinder.rewriter.api.Rewriter;
+import com.sri.ai.grinder.rewriter.api.RewriterFromStepMaker;
+import com.sri.ai.grinder.rewriter.core.Exhaustive;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 
 
 public class ExhaustiveTest {

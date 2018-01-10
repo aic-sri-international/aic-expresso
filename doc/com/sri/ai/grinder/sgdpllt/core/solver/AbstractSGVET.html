@@ -49,8 +49,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/ContextDependentExpressionProblemSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/ContextDependentExpressionProblemSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html" target="_top">Frames</a></li>
@@ -92,7 +92,7 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.sri.ai.grinder.sgdpllt.core.solver</div>
+<div class="subTitle">com.sri.ai.grinder.core.solver</div>
 <h2 title="Class AbstractSGVET" class="title">Class AbstractSGVET</h2>
 </div>
 <div class="contentContainer">
@@ -100,10 +100,10 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiQuantifierEliminator</a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver">com.sri.ai.grinder.core.solver.AbstractMultiQuantifierEliminator</a></li>
 <li>
 <ul class="inheritance">
-<li>com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET</li>
+<li>com.sri.ai.grinder.core.solver.AbstractSGVET</li>
 </ul>
 </li>
 </ul>
@@ -118,14 +118,14 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/SGVET.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">SGVET</a></dd>
+<dd><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/SGVET.html" title="class in com.sri.ai.grinder.core.solver">SGVET</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">AbstractSGVET</span>
-extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractMultiIndexQuantifierEliminator</a></pre>
+extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver">AbstractMultiIndexQuantifierEliminator</a></pre>
 <div class="block">A <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html" title="interface in com.sri.ai.grinder.sgdpllt.api"><code>MultiIndexQuantifierEliminator</code></a> generalizing the Variable Elimination algorithm in the same manner
- <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/DefaultMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>DefaultMultiIndexQuantifierEliminator</code></a> is generalized from DPLL,
+ <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/DefaultMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver"><code>DefaultMultiIndexQuantifierEliminator</code></a> is generalized from DPLL,
  that is, it can produce symbolic answers and it does not need
  to only solve problems with the operations from its classic version
  (for the case of VE, sum and product, or max and product).
@@ -141,7 +141,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
  <pre>
  sum_{i_n} prod_{j : args_j contains i_n} f_j(args_j)
  </pre>
- with <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/DefaultMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><code>DefaultMultiIndexQuantifierEliminator</code></a>.
+ with <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/DefaultMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver"><code>DefaultMultiIndexQuantifierEliminator</code></a>.
  Note that the symbolic capability of <code>SGDPLL(T)</code> is crucial here, as
  args_j for the various functions f_j will typically involve other indices which,
  at the level of the sub-problem, are free variables.</div>
@@ -186,7 +186,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#AbstractSGVET-com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator-">AbstractSGVET</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html" title="interface in com.sri.ai.grinder.sgdpllt.api">MultiIndexQuantifierEliminator</a>&nbsp;subSolver)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#AbstractSGVET-com.sri.ai.grinder.api.MultiQuantifierEliminator-">AbstractSGVET</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html" title="interface in com.sri.ai.grinder.sgdpllt.api">MultiIndexQuantifierEliminator</a>&nbsp;subSolver)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -209,12 +209,12 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#elseBranchIsAbsorbing-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-">elseBranchIsAbsorbing</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#elseBranchIsAbsorbing-com.sri.ai.grinder.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-">elseBranchIsAbsorbing</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
                      <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression)</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#factoredConditionalsWithAbsorbingElseClause-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">factoredConditionalsWithAbsorbingElseClause</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#factoredConditionalsWithAbsorbingElseClause-com.sri.ai.grinder.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">factoredConditionalsWithAbsorbingElseClause</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
                                            <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
                                            <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
@@ -224,11 +224,11 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#isVariable-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">isVariable</a></span>(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#isVariable-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">isVariable</a></span>(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
           <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>com.google.common.base.Function&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET.Partition&gt;</code></td>
+<td class="colFirst"><code>com.google.common.base.Function&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,com.sri.ai.grinder.core.solver.AbstractSGVET.Partition&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#makePartition-java.util.Collection-java.util.List-">makePartition</a></span>(java.util.Collection&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
              java.util.List&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;expressions)</code>&nbsp;</td>
 </tr>
@@ -237,14 +237,14 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#numberOfConjuncts-com.sri.ai.expresso.api.Expression-">numberOfConjuncts</a></span>(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression)</code>&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET.Partition</code></td>
+<td class="colFirst"><code>com.sri.ai.grinder.core.solver.AbstractSGVET.Partition</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#pickPartitionForIndex-com.sri.ai.expresso.api.Expression-java.util.Collection-java.util.List-">pickPartitionForIndex</a></span>(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;index,
                      java.util.Collection&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
                      java.util.List&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;expressions)</code>&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#solve-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a>&nbsp;group,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#solve-com.sri.ai.grinder.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">solve</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a>&nbsp;group,
      java.util.List&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
      <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;indicesConstraint,
      <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;body,
@@ -257,8 +257,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#toString--">toString</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>com.google.common.base.Function&lt;com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET.Partition,java.lang.Integer&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#width-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing-com.sri.ai.grinder.sgdpllt.api.Context-">width</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
+<td class="colFirst"><code>com.google.common.base.Function&lt;com.sri.ai.grinder.core.solver.AbstractSGVET.Partition,java.lang.Integer&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html#width-com.sri.ai.grinder.group.AssociativeCommutativeSemiRing-com.sri.ai.grinder.api.Context-">width</a></span>(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
      <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 </table>
@@ -266,7 +266,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <li class="blockList"><a name="methods.inherited.from.class.com.sri.ai.grinder.sgdpllt.core.solver.AbstractMultiIndexQuantifierEliminator">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractMultiIndexQuantifierEliminator</a></h3>
+<h3>Methods inherited from class&nbsp;com.sri.ai.grinder.core.solver.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver">AbstractMultiIndexQuantifierEliminator</a></h3>
 <code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html#checkInterrupted--">checkInterrupted</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html#getDebug--">getDebug</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html#setDebug-boolean-">setDebug</a></code></li>
 </ul>
 <ul class="blockList">
@@ -281,7 +281,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.sri.ai.grinder.sgdpllt.api.<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html" title="interface in com.sri.ai.grinder.sgdpllt.api">MultiIndexQuantifierEliminator</a></h3>
-<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup-com.sri.ai.expresso.api.Expression-java.util.List-java.util.Map-java.util.Map-java.util.Collection-com.google.common.base.Predicate-com.sri.ai.grinder.sgdpllt.api.Theory-">solve</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup-com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">solve</a></code></li>
+<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.group.AssociativeCommutativeGroup-com.sri.ai.expresso.api.Expression-java.util.List-java.util.Map-java.util.Map-java.util.Collection-com.google.common.base.Predicate-com.sri.ai.grinder.api.Theory-">solve</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.group.AssociativeCommutativeGroup-com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">solve</a>, <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">solve</a></code></li>
 </ul>
 </li>
 </ul>
@@ -314,7 +314,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="AbstractSGVET-com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminator-">
+<a name="AbstractSGVET-com.sri.ai.grinder.api.MultiQuantifierEliminator-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -331,7 +331,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="isVariable-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="isVariable-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -352,22 +352,22 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#interrupt--">interrupt</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html" title="interface in com.sri.ai.grinder.sgdpllt.api">MultiIndexQuantifierEliminator</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html#interrupt--">interrupt</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver">AbstractMultiIndexQuantifierEliminator</a></code></dd>
+<dd><code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html#interrupt--">interrupt</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractMultiIndexQuantifierEliminator.html" title="class in com.sri.ai.grinder.core.solver">AbstractMultiIndexQuantifierEliminator</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="solve-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="solve-com.sri.ai.grinder.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>solve</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;solve(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeGroup</a>&nbsp;group,
+<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;solve(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeGroup.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeGroup</a>&nbsp;group,
                         java.util.List&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
                         <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;indicesConstraint,
                         <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;body,
                         <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">MultiIndexQuantifierEliminator</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/MultiIndexQuantifierEliminator.html#solve-com.sri.ai.grinder.group.AssociativeCommutativeGroup-java.util.List-com.sri.ai.expresso.api.Expression-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">MultiIndexQuantifierEliminator</a></code></span></div>
 <div class="block">Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them</div>
 </li>
 </ul>
@@ -377,7 +377,7 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <ul class="blockList">
 <li class="blockList">
 <h4>makePartition</h4>
-<pre>public&nbsp;com.google.common.base.Function&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET.Partition&gt;&nbsp;makePartition(java.util.Collection&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
+<pre>public&nbsp;com.google.common.base.Function&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>,com.sri.ai.grinder.core.solver.AbstractSGVET.Partition&gt;&nbsp;makePartition(java.util.Collection&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
                                                                                                                                 java.util.List&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;expressions)</pre>
 </li>
 </ul>
@@ -387,28 +387,28 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <ul class="blockList">
 <li class="blockList">
 <h4>pickPartitionForIndex</h4>
-<pre>public&nbsp;com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET.Partition&nbsp;pickPartitionForIndex(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;index,
+<pre>public&nbsp;com.sri.ai.grinder.core.solver.AbstractSGVET.Partition&nbsp;pickPartitionForIndex(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;index,
                                                                                             java.util.Collection&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;indices,
                                                                                             java.util.List&lt;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&gt;&nbsp;expressions)</pre>
 </li>
 </ul>
-<a name="width-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="width-com.sri.ai.grinder.group.AssociativeCommutativeSemiRing-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>width</h4>
-<pre>public&nbsp;com.google.common.base.Function&lt;com.sri.ai.grinder.sgdpllt.core.solver.AbstractSGVET.Partition,java.lang.Integer&gt;&nbsp;width(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
+<pre>public&nbsp;com.google.common.base.Function&lt;com.sri.ai.grinder.core.solver.AbstractSGVET.Partition,java.lang.Integer&gt;&nbsp;width(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
                                                                                                                                <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
 </li>
 </ul>
-<a name="factoredConditionalsWithAbsorbingElseClause-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.sgdpllt.api.Context-">
+<a name="factoredConditionalsWithAbsorbingElseClause-com.sri.ai.grinder.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-com.sri.ai.grinder.api.Context-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>factoredConditionalsWithAbsorbingElseClause</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;factoredConditionalsWithAbsorbingElseClause(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
+<pre>public&nbsp;<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;factoredConditionalsWithAbsorbingElseClause(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
                                                               <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression,
                                                               <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/api/Context.html" title="interface in com.sri.ai.grinder.sgdpllt.api">Context</a>&nbsp;context)</pre>
 </li>
@@ -422,13 +422,13 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 <pre>public&nbsp;boolean&nbsp;conditionIsConjunction(<a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression)</pre>
 </li>
 </ul>
-<a name="elseBranchIsAbsorbing-com.sri.ai.grinder.sgdpllt.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-">
+<a name="elseBranchIsAbsorbing-com.sri.ai.grinder.group.AssociativeCommutativeSemiRing-com.sri.ai.expresso.api.Expression-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>elseBranchIsAbsorbing</h4>
-<pre>public&nbsp;boolean&nbsp;elseBranchIsAbsorbing(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.sgdpllt.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
+<pre>public&nbsp;boolean&nbsp;elseBranchIsAbsorbing(<a href="../../../../../../../com/sri/ai/grinder/sgdpllt/group/AssociativeCommutativeSemiRing.html" title="interface in com.sri.ai.grinder.group">AssociativeCommutativeSemiRing</a>&nbsp;semiRing,
                                      <a href="../../../../../../../com/sri/ai/expresso/api/Expression.html" title="interface in com.sri.ai.expresso.api">Expression</a>&nbsp;expression)</pre>
 </li>
 </ul>
@@ -482,8 +482,8 @@ extends <a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/Abs
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/ContextDependentExpressionProblemSolver.html" title="class in com.sri.ai.grinder.sgdpllt.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/AbstractQuantifierEliminationStepSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/sri/ai/grinder/sgdpllt/core/solver/ContextDependentExpressionProblemSolver.html" title="class in com.sri.ai.grinder.core.solver"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/sri/ai/grinder/sgdpllt/core/solver/AbstractSGVET.html" target="_top">Frames</a></li>
