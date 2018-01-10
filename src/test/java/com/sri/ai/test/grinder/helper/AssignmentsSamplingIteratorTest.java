@@ -3,6 +3,7 @@ package com.sri.ai.test.grinder.helper;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.collect.NIterator.nIterator;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -144,7 +145,8 @@ public class AssignmentsSamplingIteratorTest {
 			condition = svdaConstraint;
 		}		
 		
-		Iterator<Assignment> result = new AssignmentsSamplingIterator(Arrays.asList(index), sampleSize, condition, conditionRewriter, random, context);
+		AssignmentsSamplingIterator samplingIterator = new AssignmentsSamplingIterator(Arrays.asList(index), condition, conditionRewriter, random, context);
+		Iterator<Assignment> result = nIterator(sampleSize, samplingIterator);
 		return result;
 	}
 }

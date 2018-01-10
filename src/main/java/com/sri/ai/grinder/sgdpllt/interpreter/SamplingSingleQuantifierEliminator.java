@@ -43,6 +43,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpllt.api.Context;
 import com.sri.ai.grinder.sgdpllt.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.util.collect.LazyIterator;
+import com.sri.ai.util.collect.NLazyIterator;
 
 /**
  * A sampling quantifier elimination for problems with a single index.
@@ -64,6 +65,10 @@ public class SamplingSingleQuantifierEliminator extends AbstractIterativeMultiQu
 	
 	@Override
 	public LazyIterator<Expression> makeAdderLazyIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Context context) {
-		return new SamplingAdderIterator(sampleSize, problem, topRewriterUsingContextAssignments, random, context);
+		return 
+				new NLazyIterator<Expression>(
+						sampleSize,
+						new SamplingAdderLazyIterator(
+								problem, topRewriterUsingContextAssignments, random, context));
 	}
 }

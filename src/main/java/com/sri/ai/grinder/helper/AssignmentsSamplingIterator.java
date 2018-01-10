@@ -61,10 +61,12 @@ import com.sri.ai.grinder.sgdpllt.theory.differencearithmetic.ValuesOfSingleVari
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.sgdpllt.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.util.collect.EZIterator;
+import com.sri.ai.util.collect.NIterator;
 
 /**
  * An assignments iterator that samples over the space of possible assignments.
- * A total number of samples equal to -1 produces an endless iterator.
+ * The iterator never ends unless the set to sample from is empty.
+ * To limit to a number of samples, use the {@link NIterator} adaptor.
  * Currently, only a single variable is supported and an exception is thrown if more than one is received.
  * 
  * @author oreilly
@@ -72,25 +74,24 @@ import com.sri.ai.util.collect.EZIterator;
  */
 public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 	private Expression index;
-	private int totalNumberOfSamples;
-	private int samplesSoFar;
 	private Type typeToSampleFrom; 
 	private Expression condition;
 	private Rewriter conditionRewriter;
 	private Random random;
 	private Context context;
+	private boolean done;
 	
-	public AssignmentsSamplingIterator(List<Expression> indices, int totalNumberOfSamples, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
+	public AssignmentsSamplingIterator(List<Expression> indices, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
 		if (indices.size() != 1) {
 			throw new UnsupportedOperationException("Assignment sampling iterator only supports a single index currently, received: " + indices);
 		}
 		this.index = indices.get(0);
-		this.totalNumberOfSamples = totalNumberOfSamples;
-		this.samplesSoFar = 0;
 		this.typeToSampleFrom = getTypeToSampleFrom(index, condition, context);
 		if (this.typeToSampleFrom == null) {
-			// Means we have an empty set
-			samplesSoFar = totalNumberOfSamples;
+			done = true;
+		}
+		else {
+			done = false;
 		}
 		this.condition         = condition;
 		this.conditionRewriter = conditionRewriter;
@@ -100,18 +101,9 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 	
 	@Override
 	protected Assignment calculateNext() {
-		Assignment result;
-		if (totalNumberOfSamples == -1 || samplesSoFar < totalNumberOfSamples) {
-			result = sampleAssignmentConsistentWithCondition();
-			samplesSoFar++;
+		if (done) {
+			return null;
 		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	private Assignment sampleAssignmentConsistentWithCondition() {
 		Expression sampledValue;
 		do {
 			sampledValue = sampleValue();

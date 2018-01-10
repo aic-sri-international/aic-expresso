@@ -64,7 +64,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  *
  */
-public class SamplingAdderIterator implements LazyIterator<Expression> {
+public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 
 	private FunctionIterator<Expression, Expression> sumEstimateIterator;
 	private AdderIterator sumOfSamplesIterator;
@@ -72,8 +72,7 @@ public class SamplingAdderIterator implements LazyIterator<Expression> {
 	private MeasurableSingleQuantifierEliminationProblem problem;
 	private Rational numberOfSamples;
 
-	public SamplingAdderIterator(
-			int sampleSize,
+	public SamplingAdderLazyIterator(
 			MultiQuantifierEliminationProblem problem, 
 			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments,
 			Random random, 
@@ -81,53 +80,39 @@ public class SamplingAdderIterator implements LazyIterator<Expression> {
 
 		myAssert(problem.getIndices().size() == 1, () -> this.getClass() + " requires single-index problems but got " + problem);
 
-		makeSumEstimateIterator(sampleSize, problem, topRewriterUsingContextAssignments, random, context);
+		makeSumEstimateIterator(problem, topRewriterUsingContextAssignments, random, context);
 
 		this.problem = getMeasurableProblem(problem).getFirstIndexVersion();
 		this.numberOfSamples = Rational.ZERO;
 	}
 
-	private void makeSumEstimateIterator(int sampleSize, MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Random random, Context context) {
-		sumOfSamplesIterator = makeSumOfSamplesIterator(sampleSize, problem, topRewriterUsingContextAssignments, random, context);
+	private void makeSumEstimateIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Random random, Context context) {
+		sumOfSamplesIterator = makeSumOfSamplesIterator(problem, topRewriterUsingContextAssignments, random, context);
 		sumEstimateIterator = functionIterator(sumOfSamplesIterator, this::computeSumEstimateFromSumOfSamples);
 	}
 
-	private AdderIterator makeSumOfSamplesIterator(int sampleSize, MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Random random, Context context) {
-		AssignmentsSamplingIterator sampledAssignmentsIterator = makeAssignmentsIterator(
-				sampleSize, 
-				problem, 
-				topRewriterUsingContextAssignments, 
-				random, 
-				context);
+	private AdderIterator makeSumOfSamplesIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Random random, Context context) {
+		AssignmentsSamplingIterator sampledAssignmentsIterator = 
+				new AssignmentsSamplingIterator(
+						problem.getIndices(), 
+						problem.getConstraint(),
+						new Recursive(new Exhaustive(topRewriterUsingContextAssignments)), 
+						random, 
+						context);
 		
-		return new AdderIterator(
-				problem.getGroup(),
-				sampledAssignmentsIterator,
-				problem.getBody(),
-				topRewriterUsingContextAssignments,
-				context);
+		return 
+				new AdderIterator(
+						problem.getGroup(),
+						sampledAssignmentsIterator,
+						problem.getBody(),
+						topRewriterUsingContextAssignments,
+						context);
 	}
 
 	private Expression computeSumEstimateFromSumOfSamples(Expression sumOfSamples) {
 		Expression average = computeAverage(sumOfSamples);
 		Expression result = multiplyByMeasure(average);
 		return result;
-	}
-
-	private static AssignmentsSamplingIterator makeAssignmentsIterator(
-			int sampleSize, 
-			MultiQuantifierEliminationProblem problem, 
-			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, 
-			Random random, Context context) {
-		
-		return 
-				new AssignmentsSamplingIterator(
-						problem.getIndices(), 
-						sampleSize,
-						problem.getConstraint(), 
-						new Recursive(new Exhaustive(topRewriterUsingContextAssignments)), 
-						random, 
-						context);
 	}
 
 	private MeasurableMultiQuantifierEliminationProblem getMeasurableProblem(MultiQuantifierEliminationProblem problem) {
@@ -166,12 +151,6 @@ public class SamplingAdderIterator implements LazyIterator<Expression> {
 
 	@Override
 	public Expression computeCurrent() {
-		return sumEstimateIterator.computeCurrent();
-	}
-
-	@Override
-	public Expression next() {
-		sumEstimateIterator.goToNextWithoutComputingCurrent();
 		return sumEstimateIterator.computeCurrent();
 	}
 }
