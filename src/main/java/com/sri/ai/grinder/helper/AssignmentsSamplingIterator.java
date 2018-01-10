@@ -79,20 +79,17 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 	private Rewriter conditionRewriter;
 	private Random random;
 	private Context context;
-	private boolean done;
+	private boolean nothingToSampleFrom;
 	
 	public AssignmentsSamplingIterator(List<Expression> indices, Expression condition, Rewriter conditionRewriter, Random random, Context context) {
 		if (indices.size() != 1) {
 			throw new UnsupportedOperationException("Assignment sampling iterator only supports a single index currently, received: " + indices);
 		}
 		this.index = indices.get(0);
+		
 		this.typeToSampleFrom = getTypeToSampleFrom(index, condition, context);
-		if (this.typeToSampleFrom == null) {
-			done = true;
-		}
-		else {
-			done = false;
-		}
+		this.nothingToSampleFrom = this.typeToSampleFrom == null;
+		
 		this.condition         = condition;
 		this.conditionRewriter = conditionRewriter;
 		this.random            = random;
@@ -101,7 +98,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 	
 	@Override
 	protected Assignment calculateNext() {
-		if (done) {
+		if (nothingToSampleFrom) {
 			return null;
 		}
 		Expression sampledValue;
