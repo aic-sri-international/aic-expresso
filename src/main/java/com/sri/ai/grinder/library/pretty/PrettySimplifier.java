@@ -43,7 +43,7 @@ import com.sri.ai.grinder.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.rewriter.core.FirstOf;
 
 /**
- * A {@link TopRewriter} simplified normalized expressions to more readable ones by combining:
+ * A {@link TopRewriter} simplifying normalized expressions to more readable ones by combining:
  * 
  * <ul>
  * <li> {@link IfThenElseConstantBranchesSimplifier}

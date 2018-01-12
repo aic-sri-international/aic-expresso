@@ -29,7 +29,6 @@ public abstract class AbstractExtensionalBound extends DefaultExtensionalUniSet 
 		return true;
 	}
 	
-	
 	public boolean isIntensionalBound() {
 		return false;
 	}

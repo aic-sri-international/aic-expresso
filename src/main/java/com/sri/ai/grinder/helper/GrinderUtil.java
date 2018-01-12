@@ -108,6 +108,8 @@ import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.expresso.type.TupleType;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FormulaUtil;
@@ -953,6 +955,12 @@ public class GrinderUtil {
 		catch (IllegalArgumentException exception) {
 			result = expression;
 		}
+		return result;
+	}
+
+	public static Context makeContext(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
+		Context result = (Context) extendRegistryWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new TrueContext(theory));			
+		result = result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
 }

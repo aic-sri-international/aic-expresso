@@ -50,8 +50,8 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.grinder.core.SGDPLLTUtil;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Triple;
 
@@ -139,7 +139,7 @@ public interface MultiQuantifierEliminator {
 			Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
 		
 		Context context =
-				SGDPLLTUtil.makeContext(
+				GrinderUtil.makeContext(
 				mapFromSymbolNameToTypeName,
 				mapFromCategoricalTypeNameToSizeString,
 				additionalTypes,

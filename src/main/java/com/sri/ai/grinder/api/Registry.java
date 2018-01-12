@@ -39,6 +39,7 @@ package com.sri.ai.grinder.api;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes;
 import static com.sri.ai.grinder.helper.GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
+import static com.sri.ai.util.Util.valueOrMakeDefaultIfNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -46,6 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -53,6 +55,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.NullaryFunction;
 
 /**
  * An object containing information about global symbols and their types,
@@ -206,6 +209,21 @@ public interface Registry extends Cloneable {
 	default Registry extendWith(IndexExpressionsSet indexExpressions) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
 		Registry result = makeCloneWithAdditionalRegisteredSymbolsAndTypes(indexToTypeMap);
+		return result;
+	}
+	
+	/**
+	 * Updates a global object under given key, using default maker function to make a default value if absent, and updating it using given update function.
+	 * @param key
+	 * @param defaultMaker
+	 * @param update
+	 * @return
+	 */
+	default <T> Registry updateGlobalObject(Object key, NullaryFunction<T> defaultMaker, Function<T, T> update) {
+		@SuppressWarnings("unchecked")
+		T oldValue = valueOrMakeDefaultIfNull((T) getGlobalObject(key), defaultMaker);
+		T newValue = update.apply(oldValue);
+		Registry result = putGlobalObject(key, newValue);
 		return result;
 	}
 }
