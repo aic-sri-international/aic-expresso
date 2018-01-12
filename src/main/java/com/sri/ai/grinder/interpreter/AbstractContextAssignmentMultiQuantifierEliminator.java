@@ -37,45 +37,30 @@
  */
 package com.sri.ai.grinder.interpreter;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
-import com.sri.ai.util.collect.LazyIterator;
-import com.sri.ai.util.collect.LazyIteratorAdapter;
 
 /**
- * An extension of {@link AbstractMultiQuantifierEliminator}
- * that solves quantified expressions by brute force.
- * <p>
- * Additionally, it takes an assignment to symbols as a constructing parameter,
- * and throws an error when a symbol with unassigned value is found.
- * <p>
- * The reason this quantifier eliminator uses an assignment to keep a binding to variables,
- * as opposed to using equalities in the context, is that
- * the context can only deal with variables for which we have a satisfiability solver,
- * whereas an assignment can be used for any variables.
- *
+ * An abstract class for quantifier eliminators context assignments
+ * and which therefore require a top rewriter that can use them.
+ * 
  * @author braz
  *
  */
-@Beta
-public class BruteForceMultiQuantifierEliminator extends AbstractFiniteIterationsMultiQuantifierEliminator {
+public abstract class AbstractContextAssignmentMultiQuantifierEliminator extends AbstractMultiQuantifierEliminator {
 
-	public BruteForceMultiQuantifierEliminator(TopRewriter topRewriter) {
-		super(topRewriter);
+	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
+
+	public AbstractContextAssignmentMultiQuantifierEliminator(TopRewriter topRewriter) {
+		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
 	}
-	
-	public BruteForceMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment) {
-		super(topRewriterWithBaseAssignment);
+
+	public AbstractContextAssignmentMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
+		super();
+		this.topRewriterUsingContextAssignments = topRewriterUsingContextAssignments;
 	}
-	
-	@Override
-	public LazyIterator<Expression> makeAdderLazyIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Context context) {
-		return 
-				new LazyIteratorAdapter<>(
-						new BruteForceAdderIterator(problem, topRewriterUsingContextAssignments, context));
+
+	public TopRewriterUsingContextAssignments getTopRewriterUsingContextAssignments() {
+		return topRewriterUsingContextAssignments;
 	}
 }

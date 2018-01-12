@@ -44,15 +44,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.core.solver.AbstractMultiQuantifierEliminator;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
 import com.sri.ai.util.collect.LazyIterator;
 
 /**
- * An abstract class for quantifier eliminators using a simple (total or sampled)
- * iteration over the domain of the eliminated variables.
+ * An abstract class for quantifier eliminators using a finite number of iterations
+ * over the domain of the eliminated variables (total or sampled).
  * <p>
  * This abstract class implements the procedure for group aggregating (for example, summing) over
  * the values of a summand provided by the extending class,
@@ -68,9 +67,7 @@ import com.sri.ai.util.collect.LazyIterator;
  * @author braz
  *
  */
-public abstract class AbstractIterativeMultiQuantifierEliminator extends AbstractMultiQuantifierEliminator {
-
-	protected TopRewriterUsingContextAssignments topRewriterUsingContextAssignments;
+public abstract class AbstractFiniteIterationsMultiQuantifierEliminator extends AbstractContextAssignmentMultiQuantifierEliminator {
 
 	public abstract 
 	LazyIterator<Expression>
@@ -79,13 +76,12 @@ public abstract class AbstractIterativeMultiQuantifierEliminator extends Abstrac
 			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, 
 			Context context);
 	
-	public AbstractIterativeMultiQuantifierEliminator(TopRewriter topRewriter) {
-		this(new TopRewriterUsingContextAssignmentsReceivingBaseTopRewriterAtConstruction(topRewriter));
+	public AbstractFiniteIterationsMultiQuantifierEliminator(TopRewriter topRewriter) {
+		super(topRewriter);
 	}
 
-	public AbstractIterativeMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
-		super();
-		this.topRewriterUsingContextAssignments = topRewriterUsingContextAssignments;
+	public AbstractFiniteIterationsMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterUsingContextAssignments) {
+		super(topRewriterUsingContextAssignments);
 	}
 
 	public TopRewriterUsingContextAssignments getTopRewriterUsingContextAssignments() {

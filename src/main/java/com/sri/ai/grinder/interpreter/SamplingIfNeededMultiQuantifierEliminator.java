@@ -60,7 +60,7 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 	private Random random;
 	
 	private BruteForceMultiQuantifierEliminator bruteForce;
-	private SamplingSingleQuantifierEliminator sampling;
+	private SamplingWithFixedSampleSizeSingleQuantifierEliminator sampling;
 	
 	public SamplingIfNeededMultiQuantifierEliminator(
 			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, 
@@ -82,9 +82,9 @@ public class SamplingIfNeededMultiQuantifierEliminator extends AbstractMultiQuan
 		return bruteForce;
 	}
 	
-	private SamplingSingleQuantifierEliminator getSampling() {
+	private SamplingWithFixedSampleSizeSingleQuantifierEliminator getSampling() {
 		if (sampling == null) {
-			sampling = new SamplingSingleQuantifierEliminator(topRewriterUsingContextAssignments, sampleSize, random);
+			sampling = new SamplingWithFixedSampleSizeSingleQuantifierEliminator(topRewriterUsingContextAssignments, sampleSize, random);
 		}
 		return sampling;
 	}

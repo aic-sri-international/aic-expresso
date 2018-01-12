@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, SRI International
+ * Copyright (c) 2017, SRI International
  * All rights reserved.
  * Licensed under the The BSD 3-Clause License;
  * you may not use this file except in compliance with the License.
@@ -37,45 +37,49 @@
  */
 package com.sri.ai.grinder.interpreter;
 
-import com.google.common.annotations.Beta;
+import java.util.Iterator;
+import java.util.Random;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.MultiQuantifierEliminationProblem;
-import com.sri.ai.grinder.core.solver.AbstractMultiQuantifierEliminator;
+import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
-import com.sri.ai.util.collect.LazyIterator;
-import com.sri.ai.util.collect.LazyIteratorAdapter;
 
-/**
- * An extension of {@link AbstractMultiQuantifierEliminator}
- * that solves quantified expressions by brute force.
- * <p>
- * Additionally, it takes an assignment to symbols as a constructing parameter,
- * and throws an error when a symbol with unassigned value is found.
- * <p>
- * The reason this quantifier eliminator uses an assignment to keep a binding to variables,
- * as opposed to using equalities in the context, is that
- * the context can only deal with variables for which we have a satisfiability solver,
- * whereas an assignment can be used for any variables.
- *
- * @author braz
- *
- */
-@Beta
-public class BruteForceMultiQuantifierEliminator extends AbstractFiniteIterationsMultiQuantifierEliminator {
+public class SamplingProceduralAttachmentSingleQuantifierEliminator extends AbstractContextAssignmentMultiQuantifierEliminator {
 
-	public BruteForceMultiQuantifierEliminator(TopRewriter topRewriter) {
+	private Random random;
+	
+	public SamplingProceduralAttachmentSingleQuantifierEliminator(
+			TopRewriter topRewriter,
+			Random random) {
 		super(topRewriter);
+		this.random = random;
 	}
-	
-	public BruteForceMultiQuantifierEliminator(TopRewriterUsingContextAssignments topRewriterWithBaseAssignment) {
-		super(topRewriterWithBaseAssignment);
+
+	public SamplingProceduralAttachmentSingleQuantifierEliminator(
+			TopRewriterUsingContextAssignments topRewriterUsingContextAssignments,
+			Random random) {
+		super(topRewriterUsingContextAssignments);
+		this.random = random;
 	}
-	
+
 	@Override
-	public LazyIterator<Expression> makeAdderLazyIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Context context) {
-		return 
-				new LazyIteratorAdapter<>(
-						new BruteForceAdderIterator(problem, topRewriterUsingContextAssignments, context));
+	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
+		
+		final Iterator<Expression> indexSampler =
+				new SamplingAdderLazyIterator(
+						problem,
+						getTopRewriterUsingContextAssignments(),
+						random,
+						context);
+		
+		Simplifier sampler =
+				(e, c) -> {
+					indexSampler.next();
+					return null;
+				};
+				
+		return null;
 	}
 }

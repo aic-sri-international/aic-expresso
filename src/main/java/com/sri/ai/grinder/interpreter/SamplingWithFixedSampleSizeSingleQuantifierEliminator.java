@@ -48,12 +48,12 @@ import com.sri.ai.util.collect.NLazyIterator;
 /**
  * A sampling quantifier elimination for problems with a single index.
  */
-public class SamplingSingleQuantifierEliminator extends AbstractIterativeMultiQuantifierEliminator {
+public class SamplingWithFixedSampleSizeSingleQuantifierEliminator extends AbstractFiniteIterationsMultiQuantifierEliminator {
 
 	private int sampleSize;
 	private Random random;
 	
-	public SamplingSingleQuantifierEliminator(
+	public SamplingWithFixedSampleSizeSingleQuantifierEliminator(
 			TopRewriterUsingContextAssignments topRewriterWithBaseAssignment, 
 			int sampleSize, 
 			Random random) {
