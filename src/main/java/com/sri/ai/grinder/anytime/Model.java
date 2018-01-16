@@ -52,7 +52,7 @@ public class Model {
 				new TupleTheory(),
 				new PropositionalTheory());
 		this.context = new TrueContext(theory);			
-		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
+		context = context.makeNewContextWithAddedType(BOOLEAN_TYPE);
 		
 
 		Context context = new TrueContext();

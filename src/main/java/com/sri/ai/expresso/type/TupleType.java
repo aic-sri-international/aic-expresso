@@ -120,7 +120,7 @@ public class TupleType extends AbstractType {
 				Expression elementVariableI = makeSymbol("E" + (i + 1));
 				elementVariables.add(elementVariableI);
 				symbolsAndTypes.put(elementVariableI, parse(getElementTypes().get(i).getName()));
-				cachedIterateRegistry = cachedIterateRegistry.makeCloneWithAddedType(elementTypes.get(i));
+				cachedIterateRegistry = cachedIterateRegistry.makeNewContextWithAddedType(elementTypes.get(i));
 			}
 			cachedIterateRegistry = cachedIterateRegistry.setSymbolsAndTypes(symbolsAndTypes);
 			

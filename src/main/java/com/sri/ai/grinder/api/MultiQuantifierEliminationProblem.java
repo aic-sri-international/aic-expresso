@@ -37,9 +37,12 @@
  */
 package com.sri.ai.grinder.api;
 
+import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpressions;
+
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
@@ -65,5 +68,15 @@ public interface MultiQuantifierEliminationProblem {
 
 	default Expression getConditionedBody() {
 		return IfThenElse.make(getConstraint(), getBody(), getGroup().additiveIdentityElement());
+	}
+	
+	default ExtensionalIndexExpressionsSet getIndexExpressions() {
+		ExtensionalIndexExpressionsSet result = new ExtensionalIndexExpressionsSet(makeIndexExpressions(getIndices(), getIndicesTypes()));
+		return result;
+	}
+	
+	default Context extend(Context context) {
+		Context result = context.extendWith(getIndexExpressions());
+		return result;
 	}
 }

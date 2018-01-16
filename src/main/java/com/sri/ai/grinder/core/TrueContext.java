@@ -236,6 +236,11 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
+	public void putInplaceGlobalObject(Object key, Object value) {
+		registry.putInplaceGlobalObject(key, value);
+	}
+
+	@Override
 	public boolean containsGlobalObjectKey(Object key) {
 		return registry.containsGlobalObjectKey(key);
 	}
@@ -262,9 +267,9 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TrueContext makeCloneWithAddedType(Type type) {
+	public TrueContext makeNewContextWithAddedType(Type type) {
 		TrueContext result = clone();
-		result.registry = result.registry.makeCloneWithAddedType(type);
+		result.registry = result.registry.makeNewContextWithAddedType(type);
 		return result;
 	}
 

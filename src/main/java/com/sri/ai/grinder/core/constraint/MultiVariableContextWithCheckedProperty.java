@@ -440,6 +440,11 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
+	public void putInplaceGlobalObject(Object key, Object value) {
+		tail.putInplaceGlobalObject(key, value);
+	}
+
+	@Override
 	public boolean containsGlobalObjectKey(Object key) {
 		return tail.containsGlobalObjectKey(key);
 	}
@@ -450,9 +455,9 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty makeCloneWithAddedType(Type type) {
+	public MultiVariableContextWithCheckedProperty makeNewContextWithAddedType(Type type) {
 		MultiVariableContextWithCheckedProperty result = clone();
-		Context newTail = tail.makeCloneWithAddedType(type);
+		Context newTail = tail.makeNewContextWithAddedType(type);
 		result.tail = newTail;
 		return result;
 	}

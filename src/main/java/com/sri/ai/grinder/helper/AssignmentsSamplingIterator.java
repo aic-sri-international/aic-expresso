@@ -55,10 +55,12 @@ import com.sri.ai.grinder.interpreter.Assignment;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.rewriter.api.Rewriter;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.theory.differencearithmetic.RangeAndExceptionsSet;
 import com.sri.ai.grinder.theory.differencearithmetic.SingleVariableDifferenceArithmeticConstraint;
 import com.sri.ai.grinder.theory.differencearithmetic.ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
+import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.util.collect.EZIterator;
 import com.sri.ai.util.collect.NIterator;
@@ -155,8 +157,13 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 				// we leave as is.
 			}
 			else if (result instanceof RealExpressoType || result instanceof RealInterval) {		
+
+				LinearRealArithmeticTheory theory = new LinearRealArithmeticTheory(true, true);
+				SingleVariableLinearRealArithmeticConstraint constraint = (SingleVariableLinearRealArithmeticConstraint) theory.makeSingleVariableConstraint(variable, context);
+				constraint = (SingleVariableLinearRealArithmeticConstraint) constraint.conjoin(condition, context);
+
 				IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver solver = 
-						new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver((SingleVariableLinearRealArithmeticConstraint) condition);
+						new IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver(constraint);
 				
 				Expression realInterval = solver.solve(context);
 				if (Sets.isEmptySet(realInterval)) {
@@ -171,7 +178,12 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 				}
 			}
 			else if (result instanceof IntegerExpressoType || result instanceof IntegerInterval) {
-				ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver solver = new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver((SingleVariableDifferenceArithmeticConstraint)condition);
+				
+				DifferenceArithmeticTheory theory = new DifferenceArithmeticTheory(true, true);
+				SingleVariableDifferenceArithmeticConstraint constraint = (SingleVariableDifferenceArithmeticConstraint) theory.makeSingleVariableConstraint(variable, context);
+				constraint = (SingleVariableDifferenceArithmeticConstraint) constraint.conjoin(condition, context);
+				
+				ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver solver = new ValuesOfSingleVariableDifferenceArithmeticConstraintStepSolver(constraint);
 				
 				// NOTE: the exceptions set returned here is implicit in the condition so no need to use it here.
 				RangeAndExceptionsSet rangeAndExceptionsSet = (RangeAndExceptionsSet) solver.solve(context);
@@ -189,7 +201,7 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 		}
 		
 		if (result != null && !result.isSampleUniquelyNamedConstantSupported()) {
-			throw new IllegalArgumentException("Unable to sample "+variable+" from "+result);
+			throw new IllegalArgumentException("Unable to sample " + variable + " from " + result);
 		}
 		
 		return result;

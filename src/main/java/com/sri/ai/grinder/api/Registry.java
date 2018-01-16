@@ -56,6 +56,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.util.base.Wrapper;
 
 /**
  * An object containing information about global symbols and their types,
@@ -143,6 +144,11 @@ public interface Registry extends Cloneable {
 	Registry putGlobalObject(Object key, Object value);
 	
 	/**
+	 * Puts a global object in this object.
+	 */
+	void putInplaceGlobalObject(Object key, Object value);
+	
+	/**
 	 * Indicates whether map of global objects contains key.
 	 */
 	boolean containsGlobalObjectKey(Object key);
@@ -152,12 +158,12 @@ public interface Registry extends Cloneable {
 	 */
 	Object getGlobalObject(Object key);
 	
-	Registry makeCloneWithAddedType(Type type);
+	Registry makeNewContextWithAddedType(Type type);
 
 	default Registry addAll(Collection<Type> types) {
 		Registry result = this;
 		for (Type type : types) {
-			result = result.makeCloneWithAddedType(type);
+			result = result.makeNewContextWithAddedType(type);
 		}
 		return result;
 	}
@@ -225,5 +231,35 @@ public interface Registry extends Cloneable {
 		T newValue = update.apply(oldValue);
 		Registry result = putGlobalObject(key, newValue);
 		return result;
+	}
+	
+	/**
+	 * Updates an <b>inplace</b> global object under given key,
+	 * using default maker function to make a default value if absent, and updating it using given update function.
+	 * Objects manipulated this way are shared across contexts.
+	 * @param key
+	 * @param defaultMaker
+	 * @param update
+	 * @return the updated value
+	 */
+	default <T> T updateInplaceGlobalObject(Object key, NullaryFunction<T> defaultMaker, Function<T, T> update) {
+		@SuppressWarnings("unchecked")
+		Wrapper<T> wrapper = (Wrapper<T>) getGlobalObject(key);
+		if (wrapper == null) {
+			wrapper = new Wrapper<T>(defaultMaker.apply());
+			putInplaceGlobalObject(key, wrapper);
+		}
+		wrapper.value = update.apply(wrapper.value);
+		return wrapper.value;
+	}
+	
+	default Object getInplaceGlobalObject(Object key) {
+		Wrapper wrapper = (Wrapper) getGlobalObject(key);
+		if (wrapper != null) {
+			return wrapper.value;
+		}
+		else {
+			return null;
+		}
 	}
 }

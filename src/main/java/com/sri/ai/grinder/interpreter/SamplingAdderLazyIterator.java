@@ -70,7 +70,7 @@ public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 	private AdderIterator sumOfSamplesIterator;
 	
 	private MeasurableSingleQuantifierEliminationProblem problem;
-	private Rational numberOfSamples;
+	private Rational numberOfSamplesSoFar;
 
 	public SamplingAdderLazyIterator(
 			MultiQuantifierEliminationProblem problem, 
@@ -83,7 +83,18 @@ public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 		makeSumEstimateIterator(problem, topRewriterUsingContextAssignments, random, context);
 
 		this.problem = getMeasurableProblem(problem).getFirstIndexVersion();
-		this.numberOfSamples = Rational.ZERO;
+		this.numberOfSamplesSoFar = Rational.ZERO;
+	}
+
+	private MeasurableMultiQuantifierEliminationProblem getMeasurableProblem(MultiQuantifierEliminationProblem problem) {
+		MeasurableMultiQuantifierEliminationProblem measurableProblem;
+		if (problem instanceof MeasurableMultiQuantifierEliminationProblem) {
+			measurableProblem = (MeasurableMultiQuantifierEliminationProblem) problem;
+		}
+		else {
+			measurableProblem = new MeasurableMultiQuantifierEliminationProblem(problem);
+		}
+		return measurableProblem;
 	}
 
 	private void makeSumEstimateIterator(MultiQuantifierEliminationProblem problem, TopRewriterUsingContextAssignments topRewriterUsingContextAssignments, Random random, Context context) {
@@ -100,13 +111,14 @@ public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 						random, 
 						context);
 		
-		return 
-				new AdderIterator(
-						problem.getGroup(),
-						sampledAssignmentsIterator,
-						problem.getBody(),
-						topRewriterUsingContextAssignments,
-						context);
+		AdderIterator result = new AdderIterator(
+				problem.getGroup(),
+				sampledAssignmentsIterator,
+				problem.getBody(),
+				topRewriterUsingContextAssignments,
+				context);
+		
+		return result;
 	}
 
 	private Expression computeSumEstimateFromSumOfSamples(Expression sumOfSamples) {
@@ -115,20 +127,8 @@ public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 		return result;
 	}
 
-	private MeasurableMultiQuantifierEliminationProblem getMeasurableProblem(MultiQuantifierEliminationProblem problem) {
-		MeasurableMultiQuantifierEliminationProblem measurableProblem;
-		if (problem instanceof MeasurableMultiQuantifierEliminationProblem) {
-			measurableProblem = (MeasurableMultiQuantifierEliminationProblem) problem;
-		}
-		else {
-			measurableProblem = new MeasurableMultiQuantifierEliminationProblem(problem);
-		}
-		return measurableProblem;
-	}
-
-
 	private Expression computeAverage(Expression groupSumOfSamples) {
-		Expression average = problem.getGroup().addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(numberOfSamples)), sumOfSamplesIterator.context);
+		Expression average = problem.getGroup().addNTimes(groupSumOfSamples, Division.make(ONE, makeSymbol(numberOfSamplesSoFar)), sumOfSamplesIterator.context);
 		return average;
 	}
 
@@ -138,6 +138,10 @@ public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 		return result;
 	}
 
+	public void setContext(Context newContext) {
+		sumOfSamplesIterator.setContext(newContext);
+	}
+	
 	@Override
 	public boolean hasNext() {
 		return sumEstimateIterator.hasNext();
@@ -145,7 +149,7 @@ public class SamplingAdderLazyIterator implements LazyIterator<Expression> {
 
 	@Override
 	public void goToNextWithoutComputingCurrent() {
-		numberOfSamples = numberOfSamples.add(1);
+		numberOfSamplesSoFar = numberOfSamplesSoFar.add(1);
 		sumEstimateIterator.goToNextWithoutComputingCurrent();
 	}
 

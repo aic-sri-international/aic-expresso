@@ -77,6 +77,10 @@ public class AdderIterator extends EZIterator<Expression> {
 		this.currentValue = group.additiveIdentityElement();
 	}
 
+	public void setContext(Context newContext) {
+		this.context = newContext;
+	}
+	
 	public Expression calculateNext() {
 		Expression result;
 		if (assignmentIterator.hasNext()) {

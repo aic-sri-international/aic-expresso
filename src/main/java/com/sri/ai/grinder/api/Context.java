@@ -88,7 +88,7 @@ public interface Context extends Registry, Constraint {
 	Context putGlobalObject(Object key, Object value);
 	
 	@Override
-	Context makeCloneWithAddedType(Type type);
+	Context makeNewContextWithAddedType(Type type);
 
 	@Override
 	default Context addAll(Collection<Type> types) {
@@ -120,7 +120,9 @@ public interface Context extends Registry, Constraint {
 	 * @return
 	 */
 	default boolean isLiteral(Expression expression) {
-		boolean result = getTheory().isLiteralOrBooleanConstant(expression, this);
+		Theory theory = getTheory();
+		Util.myAssert(theory != null, () -> "Context does not contain a theory, but is trying to check if " + expression + " is a literal according to some theory. Please make sure the context has been provided a theory");
+		boolean result = theory.isLiteralOrBooleanConstant(expression, this);
 		return result;
 	}
 

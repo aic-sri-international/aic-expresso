@@ -91,7 +91,7 @@ public class ClearExampleEvaluation {
 
 		Context context = new TrueContext(theory); // true context: all assignments to free variables are of interest
 		// We will later see how we can use contexts that restrict the free variable assignments of interest.
-		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
+		context = context.makeNewContextWithAddedType(BOOLEAN_TYPE);
 		context=context.extendWithSymbolsAndTypes("B", "Integer");
 		context=context.extendWithSymbolsAndTypes("J", "Integer");
 		

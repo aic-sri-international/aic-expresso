@@ -40,10 +40,10 @@ package com.sri.ai.test.grinder.library.proceduralattachment;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.library.proceduralattachment.ProceduralAttachments.getProceduralAttachmentsRewriter;
-import static com.sri.ai.grinder.library.proceduralattachment.ProceduralAttachments.newContextWithNewProceduralAttachment;
+import static com.sri.ai.grinder.library.proceduralattachment.ProceduralAttachments.getProceduralAttachmentsTopRewriter;
+import static com.sri.ai.grinder.library.proceduralattachment.ProceduralAttachments.registerProceduralAttachment;
 import static com.sri.ai.util.Util.println;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -56,9 +56,7 @@ import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.rewriter.core.CombiningTopRewriter;
 import com.sri.ai.grinder.rewriter.core.Exhaustive;
-import com.sri.ai.grinder.rewriter.core.FunctorSwitch;
 import com.sri.ai.grinder.rewriter.core.Recursive;
-import com.sri.ai.grinder.rewriter.core.SymbolSwitch;
 
 public class ProceduralAttachmentsTest {
 	
@@ -70,11 +68,11 @@ public class ProceduralAttachmentsTest {
 		
 		context = new TrueContext();
 		
-		SymbolSwitch ten = new SymbolSwitch("ten", (Simplifier) (e, c) -> makeSymbol(10));
-		FunctorSwitch g2 = new FunctorSwitch("g", 2, (Simplifier) (e, c) -> apply("h", e.getArguments()));
-
-		context = newContextWithNewProceduralAttachment(context, ten);
-		context = newContextWithNewProceduralAttachment(context, g2);
+		Simplifier replaceBy10 = (e, c) -> makeSymbol(10);
+		registerProceduralAttachment(makeSymbol("ten"), replaceBy10, context);
+		
+		Simplifier makeHWithFlippedArguments = (e, c) -> apply("h", e.getArguments());
+		registerProceduralAttachment(makeSymbol("g"), 2, makeHWithFlippedArguments, context);
 
 		input = parse("ten + 1 + g(1, 2) + g(1)");
 		expected = parse("11 + h(1, 2) + g(1)");
@@ -89,7 +87,7 @@ public class ProceduralAttachmentsTest {
 		topRewriter =
 				new CombiningTopRewriter(
 						new CommonSimplifier(), 
-						getProceduralAttachmentsRewriter(context));
+						getProceduralAttachmentsTopRewriter(context));
 
 		evaluator = new Recursive(new Exhaustive(topRewriter));
 		

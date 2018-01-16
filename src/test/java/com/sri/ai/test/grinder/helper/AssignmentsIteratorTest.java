@@ -82,7 +82,7 @@ public class AssignmentsIteratorTest  {
 				"{X=people4, Y=people4}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		registry = registry.makeCloneWithAddedType(myType);
+		registry = registry.makeNewContextWithAddedType(myType);
 		registry = registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
 		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
@@ -106,7 +106,7 @@ public class AssignmentsIteratorTest  {
 				"{X=mary, Y=mary}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
-		registry = registry.makeCloneWithAddedType(myType);
+		registry = registry.makeNewContextWithAddedType(myType);
 		registry = registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(x, myTypeExpression, y, myTypeExpression));
 		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);
@@ -140,8 +140,8 @@ public class AssignmentsIteratorTest  {
 
 		Symbol myPeopleTypeExpression = makeSymbol(peopleType.getName());
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());
-		registry = registry.makeCloneWithAddedType(peopleType);
-		registry = registry.makeCloneWithAddedType(petsType);
+		registry = registry.makeNewContextWithAddedType(peopleType);
+		registry = registry.makeNewContextWithAddedType(petsType);
 		registry = registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(map(x, myPeopleTypeExpression, y, myPetsTypeExpression));
 		AssignmentMapsIterator assignmentsIterator = new AssignmentMapsIterator(list(x, y), registry);
 		String actual = join("\n", assignmentsIterator);

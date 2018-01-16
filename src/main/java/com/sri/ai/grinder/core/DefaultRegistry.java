@@ -223,6 +223,11 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
+	public void putInplaceGlobalObject(Object key, Object value) {
+		globalObjects.put(key, value);
+	}
+
+	@Override
 	public boolean containsGlobalObjectKey(Object key) {
 		return globalObjects.containsKey(key);
 	}
@@ -249,7 +254,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	}
 
 	@Override
-	public DefaultRegistry makeCloneWithAddedType(Type type) {
+	public DefaultRegistry makeNewContextWithAddedType(Type type) {
 		DefaultRegistry result = clone();
 		String name = type.getName();
 		Expression typeExpression = parse(name);

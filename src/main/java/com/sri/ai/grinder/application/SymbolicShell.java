@@ -178,10 +178,10 @@ public class SymbolicShell {
 	}
 
 	private static Context declareTypes(Context context) {
-		context = context.makeCloneWithAddedType(BOOLEAN_TYPE);
-		context = context.makeCloneWithAddedType(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
-		context = context.makeCloneWithAddedType(new IntegerInterval("Integer"));
-		context = context.makeCloneWithAddedType(new RealInterval("Real"));
+		context = context.makeNewContextWithAddedType(BOOLEAN_TYPE);
+		context = context.makeNewContextWithAddedType(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
+		context = context.makeNewContextWithAddedType(new IntegerInterval("Integer"));
+		context = context.makeNewContextWithAddedType(new RealInterval("Real"));
 		return context;
 	}
 

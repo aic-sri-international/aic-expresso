@@ -37,10 +37,18 @@
  */
 package com.sri.ai.grinder.interpreter;
 
-import java.util.Iterator;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.proceduralattachment.ProceduralAttachments.registerProceduralAttachment;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.MultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.rewriter.api.Simplifier;
@@ -48,7 +56,10 @@ import com.sri.ai.grinder.rewriter.api.TopRewriter;
 
 public class SamplingProceduralAttachmentSingleQuantifierEliminator extends AbstractContextAssignmentMultiQuantifierEliminator {
 
+	private static String COUNTER_KEY = "Samplers counter key";
+
 	private Random random;
+	private SamplingAdderLazyIterator sampler;
 	
 	public SamplingProceduralAttachmentSingleQuantifierEliminator(
 			TopRewriter topRewriter,
@@ -67,19 +78,40 @@ public class SamplingProceduralAttachmentSingleQuantifierEliminator extends Abst
 	@Override
 	public Expression solve(MultiQuantifierEliminationProblem problem, Context context) {
 		
-		final Iterator<Expression> indexSampler =
+		sampler =
 				new SamplingAdderLazyIterator(
 						problem,
 						getTopRewriterUsingContextAssignments(),
 						random,
 						context);
+
+		List<Expression> proceduralAttachmentParameters = getParameters(problem, context);
+		int arity = proceduralAttachmentParameters.size();
 		
-		Simplifier sampler =
-				(e, c) -> {
-					indexSampler.next();
-					return null;
-				};
+		Symbol samplerFunctor = makeAndRegisterProceduralAttachment(arity, context);
 				
-		return null;
+		Expression samplerExpression = apply(samplerFunctor, proceduralAttachmentParameters);
+		
+		return samplerExpression;
+	}
+
+	private Symbol makeAndRegisterProceduralAttachment(int arity, Context context) {
+		Integer counter = context.updateInplaceGlobalObject(COUNTER_KEY, () -> 0, c -> c.intValue() + 1);
+		Simplifier samplerRewriter = 
+				(Simplifier) (e, c) -> {
+					sampler.setContext(c);
+					Expression result = sampler.next();
+					return result;
+				};
+		Symbol samplerFunctor = makeSymbol("sampler" + counter);
+		registerProceduralAttachment(samplerFunctor, arity, samplerRewriter, context);
+		return samplerFunctor;
+	}
+
+	private List<Expression> getParameters(MultiQuantifierEliminationProblem problem, Context context) {
+		Set<Expression> freeVariables = Expressions.freeVariables(problem.getConditionedBody(), context);
+		freeVariables.removeAll(problem.getIndices());
+		List<Expression> proceduralAttachmentParameters = new ArrayList<>(freeVariables);
+		return proceduralAttachmentParameters;
 	}
 }
