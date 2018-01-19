@@ -77,6 +77,5 @@ public class SamplingProceduralAttachmentSingleQuantifierEliminatorTest {
 		println(rewriter.apply(sampler, context));
 		println(rewriter.apply(sampler, context));
 		println(rewriter.apply(sampler, context));
-		println(rewriter.apply(sampler, context));
 	}
 }
