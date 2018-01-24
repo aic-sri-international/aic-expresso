@@ -118,10 +118,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
 		_specialFunctorSymbols.add(FunctorConstants.FUNCTION_TYPE);
 	}
-	private static int     _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	private static boolean _displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
-	private static int     _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	private static int     _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	private static int     displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	private static boolean displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
+	private static int     displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	private static int     displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	
 	public static final CharSequenceTranslator UNESCAPE_STRING_VALUE = 
 		        new AggregateTranslator(
@@ -182,9 +182,9 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	 * @return the old numeric display precision;
 	 */
 	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = _displayNumericPrecision;
+		int oldPrecision = displayNumericPrecision;
 		
-		_displayNumericPrecision = precision;
+		displayNumericPrecision = precision;
 		
 		return oldPrecision;
 	}
@@ -198,9 +198,9 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	 * @return the old display exactly setting;
 	 */
 	public static boolean setDisplayNumericsExactly(boolean displayNumericsExactly) {
-		boolean oldDisplayNumericsExactly = _displayNumericsExactly;
+		boolean oldDisplayNumericsExactly = DefaultSyntaxLeaf.displayNumericsExactly;
 		
-		_displayNumericsExactly = displayNumericsExactly;
+		DefaultSyntaxLeaf.displayNumericsExactly = displayNumericsExactly;
 		
 		return oldDisplayNumericsExactly;
 	}
@@ -213,9 +213,9 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = _displayScientificGreaterNIntegerPlaces;
+		int oldValue = displayScientificGreaterNIntegerPlaces;
 		
-		_displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+		displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
 				
 		return oldValue;
 	}
@@ -228,9 +228,9 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = _displayScientificAfterNDecimalPlaces;
+		int oldValue = displayScientificAfterNDecimalPlaces;
 		
-		_displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+		displayScientificAfterNDecimalPlaces = numDecimalPlaces;
 				
 		return oldValue;
 	}
@@ -460,63 +460,151 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		else if (valueOrRootSyntaxTree instanceof Expression) {
 			result = "<" + valueOrRootSyntaxTree + ">";
 		}
-		else if (valueOrRootSyntaxTree instanceof Number && _displayNumericPrecision != 0) {
-			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
-	
-			Rational   absValue                 = rLabel.abs();
-			Rational[] integerAndFractionalPart = absValue.integerAndFractionalPart();
-			Rational integerPart                = integerAndFractionalPart[0];
-			Rational fractionalPart             = integerAndFractionalPart[1];
-			
-			// Determine if we lose precision
-			boolean  losePrecision           = false;
-			Rational reducedIntegerPart      = integerPart;
-			Rational increasedFractionalPart = fractionalPart;
-			for (int i = 0; i < _displayNumericPrecision; i++) {					
-				if (reducedIntegerPart.compareTo(1) < 0) {
-					increasedFractionalPart = increasedFractionalPart.multiply(10);
-					if (increasedFractionalPart.isInteger()) {							
-						break; // this means we won't lose precision
-					}
-				}
-				else {
-					reducedIntegerPart = reducedIntegerPart.divide(10);						
-				}
-			}
-			
-			if (!(reducedIntegerPart.compareTo(1) < 0 && increasedFractionalPart.isInteger())) {
-				losePrecision = true;
-			}
-			
-			if (_displayNumericsExactly && losePrecision) {		
-				if (rLabel.isInteger()) {
-					result = rLabel.getNumerator().toString();
-				}
-				else {
-					// Output as an exact ratio
-					result = rLabel.getNumerator().toString()+"/"+rLabel.getDenominator().toString(); 
-				}
-			}
-			else {		
-				int approxPrecision = _displayNumericPrecision;
-				if (!(reducedIntegerPart.compareTo(1) < 0)) { // Means we'll lose integer part precision
-					// Increase the precision to the max before scientific.
-					approxPrecision = _displayScientificGreaterNIntegerPlaces;
-				}
-				if (isTooLargeRequiresScientificFormat(integerPart, fractionalPart)) {					
-					result = rLabel.toStringExponent(approxPrecision);
-				}
-				else {
-					result = rLabel.toStringDotRelative(approxPrecision);
-				}
-				result = removeTrailingZerosToRight(result);
-			}
+		else if (valueOrRootSyntaxTree instanceof Number && displayNumericPrecision != 0) {
+			Rational rationalValue = ((Rational) valueOrRootSyntaxTree);
+			RationalWithPrecisionInformation rationalWithPrecisionInformation = new RationalWithPrecisionInformation(rationalValue);
+			result = rationalWithPrecisionInformation.getRepresentation();
 		}
 		else {
 			result = valueOrRootSyntaxTree.toString();
 		}
 		
 		return result;
+	}
+	
+	private static class RationalWithPrecisionInformation {
+		public Rational rationalValue;
+		public Rational absValue;
+		public Rational[] integerAndFractionalPart;
+		public Rational integerPart;
+		public Rational fractionalPart;
+		public Rational reducedIntegerPart;
+		public Rational increasedFractionalPart;
+		public boolean decimalRepresentationLosesPrecision;
+
+		public RationalWithPrecisionInformation(Rational rationalValue) {
+			this.rationalValue            = rationalValue;
+			this.absValue                 = rationalValue.abs();
+			this.integerAndFractionalPart = absValue.integerAndFractionalPart();
+			this.integerPart              = integerAndFractionalPart[0];
+			this.fractionalPart           = integerAndFractionalPart[1];
+
+			decimalRepresentationLosesPrecision = decimalRepresentationLosesPrecision();
+		}
+
+		private boolean decimalRepresentationLosesPrecision() {
+
+			this.reducedIntegerPart      = integerPart;
+			this.increasedFractionalPart = fractionalPart;
+
+			for (int i = 0; i < displayNumericPrecision; i++) {				
+				boolean eliminatedAllIntegerPlaces = reducedIntegerPart.compareTo(1) < 0;
+				if (eliminatedAllIntegerPlaces) {
+					boolean eliminatedAllDecimalPlaces = increasedFractionalPart.isInteger();
+					if (eliminatedAllDecimalPlaces) {							
+						// eliminated all places in rational value in less steps than displayNumericPrecision.
+						// Therefore, converting to decimal representation does not lose precision.
+						break;
+					}
+					else {
+						// eliminate decimal place
+						increasedFractionalPart = increasedFractionalPart.multiply(10);
+					}
+				}
+				else {
+					// eliminate integer place
+					reducedIntegerPart = reducedIntegerPart.divide(10);						
+				}
+			}
+			boolean result = !(reducedIntegerPart.compareTo(1) < 0 && increasedFractionalPart.isInteger());
+			return result;
+		}
+
+		public String getRepresentation() {
+			String result;
+			boolean cannotUseDecimalRepresentation = displayNumericsExactly && decimalRepresentationLosesPrecision;
+			if (cannotUseDecimalRepresentation) {		
+				result = getExactRepresentation();
+			}
+			else {		
+				result = getDecimalRepresentation();
+			}
+			return result;
+		}
+
+		private String getExactRepresentation() {
+			String result;
+			if (rationalValue.isInteger()) {
+				result = rationalValue.getNumerator().toString();
+			}
+			else {
+				// Output as an exact ratio
+				result = rationalValue.getNumerator().toString() + "/" + rationalValue.getDenominator().toString(); 
+			}
+			return result;
+		}
+
+		private String getDecimalRepresentation() {
+			int approximatePrecision = decideApproximatePrecision();
+			String result = getDecimalRepresentationGivenApproximatePrecision(approximatePrecision);
+			return result;
+		}
+
+		private int decideApproximatePrecision() {
+			int approximationPrecision = displayNumericPrecision;
+			boolean decimalRepresentationLosesIntegerPartPrecision = reducedIntegerPart.compareTo(1) >= 0;
+			if (decimalRepresentationLosesIntegerPartPrecision) {
+				approximationPrecision = displayScientificGreaterNIntegerPlaces;
+			}
+			return approximationPrecision;
+		}
+
+		private String getDecimalRepresentationGivenApproximatePrecision(int approximationPrecision) {
+			String result;
+			if (requiresScientificFormat()) {					
+				result = rationalValue.toStringExponent(approximationPrecision);
+			}
+			else {
+				result = rationalValue.toStringDotRelative(approximationPrecision);
+			}
+			
+			result = removeTrailingZerosToRight(result);
+			return result;
+		}
+		
+		boolean numberOfIntegerPlacesIsGreaterThan(Rational rational, int integerPlacesBound) {
+			int numberOfCountedIntegerPlaces = 0;
+			while ((numberOfCountedIntegerPlaces <= integerPlacesBound) && rational.compareTo(1) >= 0) {
+				numberOfCountedIntegerPlaces++;
+				rational = rational.divide(10);
+			}
+			boolean result = numberOfCountedIntegerPlaces > integerPlacesBound;
+			return result;
+		}
+
+		boolean numberOfDecimalPlacesIsGreaterThan(Rational rational, int decimalPlacesBound) {
+			int numberOfCountedDecimalPlaces = 0;
+			while ((numberOfCountedDecimalPlaces <= decimalPlacesBound) && ! rational.isInteger()) {
+				numberOfCountedDecimalPlaces++;
+				rational = rational.multiply(10);
+			}
+			boolean result = numberOfCountedDecimalPlaces > decimalPlacesBound;
+			return result;
+		}
+
+		private boolean requiresScientificFormat() {
+			
+			boolean isDisplayIntegerPartScientific = numberOfIntegerPlacesIsGreaterThan(integerPart, displayScientificGreaterNIntegerPlaces);
+			
+			boolean isDisplayFractPartScientific = false;
+			if (!isDisplayIntegerPartScientific) {
+				isDisplayFractPartScientific = numberOfDecimalPlacesIsGreaterThan(fractionalPart, displayScientificAfterNDecimalPlaces);
+			}
+			
+			boolean result = isDisplayIntegerPartScientific || isDisplayFractPartScientific;
+			
+			return result;
+		}
 	}
 
 	@Override
@@ -585,40 +673,6 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 	
-	private static boolean isTooLargeRequiresScientificFormat(Rational integerPart, Rational fractionalPart) {
-		boolean isDisplayIntegerPartScientific = false;
-		boolean isDisplayFractPartScientific   = false;
-		
-		Rational reducedIntegerPart = integerPart;
-		for (int i = 0; i < _displayScientificGreaterNIntegerPlaces; i++) {
-			if (reducedIntegerPart.compareTo(1) < 0) {
-				break; // We don't need to display the integer part with scientific notation
-			}
-			reducedIntegerPart = reducedIntegerPart.divide(10);
-		}
-		if (!(reducedIntegerPart.compareTo(1) < 0)) {
-			isDisplayIntegerPartScientific = true;
-		}
-		if (!isDisplayIntegerPartScientific) {
-			// The integer part does not need to be displayed as scientific
-			// test the decimal part.
-			Rational increasedFractionalPart = fractionalPart;
-			for (int i = 0; i < _displayScientificAfterNDecimalPlaces; i++) {						
-				if (increasedFractionalPart.isInteger()) {							
-					break; // We don't need to display the fractional part with scientific notation
-				}
-				increasedFractionalPart = increasedFractionalPart.multiply(10);
-			}
-			if (!increasedFractionalPart.isInteger()) {
-				isDisplayFractPartScientific = true;
-			}
-		}
-		
-		boolean result = isDisplayIntegerPartScientific || isDisplayFractPartScientific;
-		
-		return result;
-	}
-
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());

@@ -1,7 +1,5 @@
 package com.sri.ai.test.expresso;
 
-
-
 import java.math.MathContext;
 
 import org.junit.After;
@@ -80,6 +78,26 @@ public class DefaultSymbolTest {
 	public void testPrecisionOutput() {			
 		//
 		// Positive
+		Assert.assertEquals("100000",      Expressions.makeSymbol(100000).toString());
+		Assert.assertEquals("1E6",         Expressions.makeSymbol(1000000).toString());
+		Assert.assertEquals("1E7",         Expressions.makeSymbol(10000000).toString());
+		
+		Assert.assertEquals("0.1",         Expressions.makeSymbol(new Rational(1,10)).toString());
+		Assert.assertEquals("0.01",        Expressions.makeSymbol(new Rational(1,100)).toString());
+		Assert.assertEquals("0.001",       Expressions.makeSymbol(new Rational(1,1000)).toString());
+		Assert.assertEquals("0.0001",      Expressions.makeSymbol(new Rational(1,10000)).toString());
+		Assert.assertEquals("1E-5",        Expressions.makeSymbol(0.00001).toString());
+		Assert.assertEquals("1E-6",        Expressions.makeSymbol(0.000001).toString());
+
+		// When reading values as doubles, more decimal places are introduced and
+		// scientific notation is deemed necessary
+		Assert.assertEquals("1E-1",        Expressions.makeSymbol(0.1).toString());
+		Assert.assertEquals("1E-2",        Expressions.makeSymbol(0.01).toString());
+		Assert.assertEquals("1E-3",        Expressions.makeSymbol(0.001).toString());
+		Assert.assertEquals("1E-4",        Expressions.makeSymbol(0.0001).toString());
+		Assert.assertEquals("1E-5",        Expressions.makeSymbol(0.00001).toString());
+		Assert.assertEquals("1E-6",        Expressions.makeSymbol(0.000001).toString());
+		
 		Assert.assertEquals("3.9E-1",      Expressions.makeSymbol(0.3928208).toString());
 		Assert.assertEquals("4E-1",        Expressions.makeSymbol(0.3998208).toString());
 		Assert.assertEquals("0.013",       Expressions.makeSymbol(new Rational(129, 10000)).toString()); // 0.0129
