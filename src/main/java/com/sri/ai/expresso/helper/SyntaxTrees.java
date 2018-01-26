@@ -153,8 +153,8 @@ public class SyntaxTrees {
 	 * @param numIntegerPlaces
 	 * @return the value previously used before being set here.
 	 */
-	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int result = DefaultSyntaxLeaf.setDisplayScientificGreaterNIntegerPlaces(numIntegerPlaces);
+	public static int setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(int numIntegerPlaces) {
+		int result = DefaultSyntaxLeaf.setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(numIntegerPlaces);
 		return result;
 	}
 
@@ -165,8 +165,8 @@ public class SyntaxTrees {
 	 * @param numDecimalPlaces
 	 * @return the value previously used before being set here.
 	 */
-	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int result = DefaultSyntaxLeaf.setDisplayScientificAfterNDecimalPlaces(numDecimalPlaces);				
+	public static int setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(int numDecimalPlaces) {
+		int result = DefaultSyntaxLeaf.setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(numDecimalPlaces);				
 		return result;
 	}
 

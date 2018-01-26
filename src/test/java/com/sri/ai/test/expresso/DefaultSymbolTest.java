@@ -21,8 +21,8 @@ public class DefaultSymbolTest {
 	public void setUp() {
 		oldPrecision         = SyntaxTrees.setNumericDisplayPrecision(2);
 		oldDisplayExact      = SyntaxTrees.setDisplayNumericsExactly(false);
-		oldScientificGreater = SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(6);
-		oldScientificAfter   = SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(4); 
+		oldScientificGreater = SyntaxTrees.setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(6);
+		oldScientificAfter   = SyntaxTrees.setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(4); 
 		// Ensure we are in approximation mode (i.e. the default) for these tests
 		Rational.resetApproximationConfiguration(true, MathContext.DECIMAL128.getPrecision(), MathContext.DECIMAL128.getRoundingMode());
 	}
@@ -31,8 +31,8 @@ public class DefaultSymbolTest {
 	public void tearDown() {
 		SyntaxTrees.setNumericDisplayPrecision(oldPrecision);
 		SyntaxTrees.setDisplayNumericsExactly(oldDisplayExact);
-		SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(oldScientificGreater);
-		SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(oldScientificAfter);
+		SyntaxTrees.setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(oldScientificGreater);
+		SyntaxTrees.setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(oldScientificAfter);
 		Rational.resetApproximationConfigurationFromAICUtilConfiguration();
 	}
 	

@@ -120,8 +120,8 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	}
 	private static int     displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
 	private static boolean displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
-	private static int     displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	private static int     displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	private static int     maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	private static int     maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	
 	public static final CharSequenceTranslator UNESCAPE_STRING_VALUE = 
 		        new AggregateTranslator(
@@ -212,10 +212,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	 * @param numIntegerPlaces
 	 * @return the value previously used before being set here.
 	 */
-	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = displayScientificGreaterNIntegerPlaces;
+	public static int setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(int numIntegerPlaces) {
+		int oldValue = maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
 		
-		displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+		maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation = numIntegerPlaces;
 				
 		return oldValue;
 	}
@@ -227,10 +227,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	 * @param numDecimalPlaces
 	 * @return the value previously used before being set here.
 	 */
-	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = displayScientificAfterNDecimalPlaces;
+	public static int setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(int numDecimalPlaces) {
+		int oldValue = maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation;
 		
-		displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+		maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation = numDecimalPlaces;
 				
 		return oldValue;
 	}
@@ -444,6 +444,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	
 	@Override
 	public String toStringWithoutCaching() {
+
 		String result = "";
 		if (valueOrRootSyntaxTree instanceof String) {
 			result = (String) valueOrRootSyntaxTree;
@@ -461,14 +462,19 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			result = "<" + valueOrRootSyntaxTree + ">";
 		}
 		else if (valueOrRootSyntaxTree instanceof Number && displayNumericPrecision != 0) {
-			Rational rationalValue = ((Rational) valueOrRootSyntaxTree);
-			RationalWithPrecisionInformation rationalWithPrecisionInformation = new RationalWithPrecisionInformation(rationalValue);
-			result = rationalWithPrecisionInformation.getRepresentation();
+			result = getRestrictedPrecisionNumberRepresentation();
 		}
 		else {
 			result = valueOrRootSyntaxTree.toString();
 		}
 		
+		return result;
+	}
+
+	private String getRestrictedPrecisionNumberRepresentation() {
+		Rational rationalValue = ((Rational) valueOrRootSyntaxTree);
+		RationalWithPrecisionInformation rationalWithPrecisionInformation = new RationalWithPrecisionInformation(rationalValue);
+		String result = rationalWithPrecisionInformation.getRepresentation();
 		return result;
 	}
 	
@@ -516,8 +522,9 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 					reducedIntegerPart = reducedIntegerPart.divide(10);						
 				}
 			}
-			boolean result = !(reducedIntegerPart.compareTo(1) < 0 && increasedFractionalPart.isInteger());
-			return result;
+			boolean numberOfIntegerAndDecimalPlacesIsLessThanOrEqualToDisplayNumericPrecision = reducedIntegerPart.compareTo(1) < 0 && increasedFractionalPart.isInteger();
+			boolean losesPrecision = !numberOfIntegerAndDecimalPlacesIsLessThanOrEqualToDisplayNumericPrecision;
+			return losesPrecision;
 		}
 
 		public String getRepresentation() {
@@ -545,34 +552,53 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 
 		private String getDecimalRepresentation() {
-			int approximatePrecision = decideApproximatePrecision();
-			String result = getDecimalRepresentationGivenApproximatePrecision(approximatePrecision);
+			int actuallyUsedNumericPrecision = selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation();
+			String result = getDecimalRepresentationGivenNumericPrecision(actuallyUsedNumericPrecision);
 			return result;
 		}
 
-		private int decideApproximatePrecision() {
-			int approximationPrecision = displayNumericPrecision;
+		private int selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation() {
+			int actuallyUsedNumericPrecision = displayNumericPrecision;
 			boolean decimalRepresentationLosesIntegerPartPrecision = reducedIntegerPart.compareTo(1) >= 0;
 			if (decimalRepresentationLosesIntegerPartPrecision) {
-				approximationPrecision = displayScientificGreaterNIntegerPlaces;
+				actuallyUsedNumericPrecision = maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
 			}
-			return approximationPrecision;
+			return actuallyUsedNumericPrecision;
 		}
 
-		private String getDecimalRepresentationGivenApproximatePrecision(int approximationPrecision) {
+		private String getDecimalRepresentationGivenNumericPrecision(int actuallyUsedNumericPrecision) {
 			String result;
-			if (requiresScientificFormat()) {					
-				result = rationalValue.toStringExponent(approximationPrecision);
+			if (requiresScientificNotation()) {					
+				result = rationalValue.toStringExponent(actuallyUsedNumericPrecision);
 			}
 			else {
-				result = rationalValue.toStringDotRelative(approximationPrecision);
+				result = rationalValue.toStringDotRelative(actuallyUsedNumericPrecision);
 			}
-			
 			result = removeTrailingZerosToRight(result);
 			return result;
 		}
+
+		private boolean requiresScientificNotation() {
+			
+			boolean integerPartHasEnoughIntegerPlacesToRequireScientificNotation = 
+					numberOfIntegerPlacesIsGreaterThan(
+							integerPart, 
+							maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation);
+			
+			boolean fractionalPartHasEnoughDecimalPlacesToRequireScientificNotation = false;
+			if (!integerPartHasEnoughIntegerPlacesToRequireScientificNotation) {
+				fractionalPartHasEnoughDecimalPlacesToRequireScientificNotation = 
+						numberOfDecimalPlacesIsGreaterThan(
+								fractionalPart,
+								maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation);
+			}
+			
+			boolean result = integerPartHasEnoughIntegerPlacesToRequireScientificNotation || fractionalPartHasEnoughDecimalPlacesToRequireScientificNotation;
+			
+			return result;
+		}
 		
-		boolean numberOfIntegerPlacesIsGreaterThan(Rational rational, int integerPlacesBound) {
+		static private boolean numberOfIntegerPlacesIsGreaterThan(Rational rational, int integerPlacesBound) {
 			int numberOfCountedIntegerPlaces = 0;
 			while ((numberOfCountedIntegerPlaces <= integerPlacesBound) && rational.compareTo(1) >= 0) {
 				numberOfCountedIntegerPlaces++;
@@ -582,27 +608,13 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			return result;
 		}
 
-		boolean numberOfDecimalPlacesIsGreaterThan(Rational rational, int decimalPlacesBound) {
+		static private boolean numberOfDecimalPlacesIsGreaterThan(Rational rational, int decimalPlacesBound) {
 			int numberOfCountedDecimalPlaces = 0;
 			while ((numberOfCountedDecimalPlaces <= decimalPlacesBound) && ! rational.isInteger()) {
 				numberOfCountedDecimalPlaces++;
 				rational = rational.multiply(10);
 			}
 			boolean result = numberOfCountedDecimalPlaces > decimalPlacesBound;
-			return result;
-		}
-
-		private boolean requiresScientificFormat() {
-			
-			boolean isDisplayIntegerPartScientific = numberOfIntegerPlacesIsGreaterThan(integerPart, displayScientificGreaterNIntegerPlaces);
-			
-			boolean isDisplayFractPartScientific = false;
-			if (!isDisplayIntegerPartScientific) {
-				isDisplayFractPartScientific = numberOfDecimalPlacesIsGreaterThan(fractionalPart, displayScientificAfterNDecimalPlaces);
-			}
-			
-			boolean result = isDisplayIntegerPartScientific || isDisplayFractPartScientific;
-			
 			return result;
 		}
 	}
