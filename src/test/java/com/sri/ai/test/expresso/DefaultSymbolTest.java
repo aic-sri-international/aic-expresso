@@ -68,10 +68,10 @@ public class DefaultSymbolTest {
 	@Test
 	public void testDisplayLargeApprox() {
 		Rational largeRational = new Rational(3).pow(100000);
-		Assert.assertEquals("1.33497E47712", Expressions.makeSymbol(largeRational).toString());
+		Assert.assertEquals("1.3E47712", Expressions.makeSymbol(largeRational).toString());
 		
 		largeRational = new Rational(3).pow(100000).divide(new Rational(7).pow(100));
-		Assert.assertEquals("4.12732E47627", Expressions.makeSymbol(largeRational).toString());
+		Assert.assertEquals("4.1E47627", Expressions.makeSymbol(largeRational).toString());
 	}
 	
 	@Test
@@ -89,17 +89,8 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("1E-5",        Expressions.makeSymbol(0.00001).toString());
 		Assert.assertEquals("1E-6",        Expressions.makeSymbol(0.000001).toString());
 
-		// When reading values as doubles, more decimal places are introduced and
-		// scientific notation is deemed necessary
-		Assert.assertEquals("1E-1",        Expressions.makeSymbol(0.1).toString());
-		Assert.assertEquals("1E-2",        Expressions.makeSymbol(0.01).toString());
-		Assert.assertEquals("1E-3",        Expressions.makeSymbol(0.001).toString());
-		Assert.assertEquals("1E-4",        Expressions.makeSymbol(0.0001).toString());
-		Assert.assertEquals("1E-5",        Expressions.makeSymbol(0.00001).toString());
-		Assert.assertEquals("1E-6",        Expressions.makeSymbol(0.000001).toString());
-		
-		Assert.assertEquals("3.9E-1",      Expressions.makeSymbol(0.3928208).toString());
-		Assert.assertEquals("4E-1",        Expressions.makeSymbol(0.3998208).toString());
+		Assert.assertEquals("0.39",        Expressions.makeSymbol(0.3928208).toString());
+		Assert.assertEquals("0.4",         Expressions.makeSymbol(0.3998208).toString());
 		Assert.assertEquals("0.013",       Expressions.makeSymbol(new Rational(129, 10000)).toString()); // 0.0129
 		Assert.assertEquals("123",         Expressions.makeSymbol(123).toString());
 		Assert.assertEquals("10",          Expressions.makeSymbol(new Rational(100143, 10000)).toString()); // 10.143
@@ -117,14 +108,14 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("100001",      Expressions.makeSymbol(new Rational(1000009, 10)).toString()); // 100000.9
 		Assert.assertEquals("123456",      Expressions.makeSymbol(new Rational(1234561, 10)).toString()); // 123456.1
 		Assert.assertEquals("123457",      Expressions.makeSymbol(new Rational(1234569, 10)).toString()); // 123456.9
-		Assert.assertEquals("1.9E1",       Expressions.makeSymbol(new Rational(1900000926, 100000000)).toString()); // 19.00000926
-		Assert.assertEquals("1.23457E9",   Expressions.makeSymbol(1234567890).toString());
+		Assert.assertEquals("19",          Expressions.makeSymbol(new Rational(1900000926, 100000000)).toString()); // 19.00000926
+		Assert.assertEquals("1.2E9",       Expressions.makeSymbol(1234567890).toString());
 		
 		
 		//
 		// Negative
-		Assert.assertEquals("-3.9E-1",      Expressions.makeSymbol(-0.3928208).toString());
-		Assert.assertEquals("-4E-1",        Expressions.makeSymbol(-0.3998208).toString());
+		Assert.assertEquals("-0.39",        Expressions.makeSymbol(-0.3928208).toString());
+		Assert.assertEquals("-0.4",         Expressions.makeSymbol(-0.3998208).toString());
 		Assert.assertEquals("-0.013",       Expressions.makeSymbol(new Rational(-129, 10000)).toString()); // 0.0129
 		Assert.assertEquals("-123",         Expressions.makeSymbol(-123).toString());
 		Assert.assertEquals("-10",          Expressions.makeSymbol(new Rational(-100143, 10000)).toString()); // 10.143
@@ -142,8 +133,8 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("-100001",      Expressions.makeSymbol(new Rational(-1000009, 10)).toString()); // 100000.9
 		Assert.assertEquals("-123456",      Expressions.makeSymbol(new Rational(-1234561, 10)).toString()); // 123456.1
 		Assert.assertEquals("-123457",      Expressions.makeSymbol(new Rational(-1234569, 10)).toString()); // 123456.9
-		Assert.assertEquals("-1.9E1",       Expressions.makeSymbol(new Rational(-1900000926, 100000000)).toString()); // 19.00000926
-		Assert.assertEquals("-1.23457E9",   Expressions.makeSymbol(-1234567890).toString());
+		Assert.assertEquals("-19",          Expressions.makeSymbol(new Rational(-1900000926, 100000000)).toString()); // 19.00000926
+		Assert.assertEquals("-1.2E9",   Expressions.makeSymbol(-1234567890).toString());
 	}
 	
 	@Test
@@ -155,8 +146,8 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("1E6",       Expressions.makeSymbol(1000000.013).toString());
 		Assert.assertEquals("1E6",       Expressions.makeSymbol(1000000.016).toString());
 		Assert.assertEquals("1E6",       Expressions.makeSymbol(new Rational(10000009, 10)).toString()); // 1000000.9
-		Assert.assertEquals("1.23457E6", Expressions.makeSymbol(1234567.1).toString());
-		Assert.assertEquals("1.23457E6", Expressions.makeSymbol(1234567.9).toString());
+		Assert.assertEquals("1.2E6",     Expressions.makeSymbol(1234567.1).toString());
+		Assert.assertEquals("1.2E6",     Expressions.makeSymbol(1234567.9).toString());
 		
 		//
 		// Negative
@@ -165,7 +156,7 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("-1E6",       Expressions.makeSymbol(-1000000.013).toString());
 		Assert.assertEquals("-1E6",       Expressions.makeSymbol(-1000000.016).toString());
 		Assert.assertEquals("-1E6",       Expressions.makeSymbol(new Rational(-10000009, 10)).toString()); // 1000000.9
-		Assert.assertEquals("-1.23457E6", Expressions.makeSymbol(-1234567.1).toString());
-		Assert.assertEquals("-1.23457E6", Expressions.makeSymbol(-1234567.9).toString());
+		Assert.assertEquals("-1.2E6",     Expressions.makeSymbol(-1234567.1).toString());
+		Assert.assertEquals("-1.2E6",     Expressions.makeSymbol(-1234567.9).toString());
 	}
 }

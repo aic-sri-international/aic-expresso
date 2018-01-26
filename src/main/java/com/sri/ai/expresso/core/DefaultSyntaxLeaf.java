@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.base.Pair.pair;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,6 +68,7 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -552,9 +555,23 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 
 		private String getDecimalRepresentation() {
-			int actuallyUsedNumericPrecision = selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation();
-			String result = getDecimalRepresentationGivenNumericPrecision(actuallyUsedNumericPrecision);
+			String result;
+			String dotRelative = getDotRelativeRepresentation();
+			boolean requiresScientificNotation = requiresScientificNotation(dotRelative);
+			if (requiresScientificNotation) {					
+				result = rationalValue.toStringExponent(displayNumericPrecision);
+			}
+			else {
+				result = dotRelative;
+			}
 			return result;
+		}
+
+		private String getDotRelativeRepresentation() {
+			int actuallyUsedNumericPrecision = selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation();
+			String dotRelative = rationalValue.toStringDotRelative(actuallyUsedNumericPrecision);
+			dotRelative = removeTrailingZerosToRight(dotRelative);
+			return dotRelative;
 		}
 
 		private int selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation() {
@@ -566,56 +583,30 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			return actuallyUsedNumericPrecision;
 		}
 
-		private String getDecimalRepresentationGivenNumericPrecision(int actuallyUsedNumericPrecision) {
-			String result;
-			if (requiresScientificNotation()) {					
-				result = rationalValue.toStringExponent(actuallyUsedNumericPrecision);
+		private boolean requiresScientificNotation(String dotRelative) {
+			Pair<Integer, Integer> numberOfIntegerAndDecimalPlacesInDotRelativeString = numberOfIntegerAndDecimalPlaces(dotRelative);
+
+			boolean requiresScientificNotation = 
+					numberOfIntegerAndDecimalPlacesInDotRelativeString.first.intValue() > maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation
+					||
+					numberOfIntegerAndDecimalPlacesInDotRelativeString.second.intValue() > maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation;
+			return requiresScientificNotation;
+		}
+
+		static private Pair<Integer, Integer> numberOfIntegerAndDecimalPlaces(String dotRelative) {
+			int integerPlaces;
+			int decimalPlaces;
+			boolean hasMinus = dotRelative.charAt(0) == '-';
+			int indexOfDot = dotRelative.indexOf('.');
+			if (indexOfDot == -1) {
+				integerPlaces = dotRelative.length() - (hasMinus? 1 : 0);
+				decimalPlaces = 0;
 			}
 			else {
-				result = rationalValue.toStringDotRelative(actuallyUsedNumericPrecision);
+				integerPlaces = indexOfDot - (hasMinus? 1 : 0);
+				decimalPlaces = dotRelative.length() - (indexOfDot + 1);
 			}
-			result = removeTrailingZerosToRight(result);
-			return result;
-		}
-
-		private boolean requiresScientificNotation() {
-			
-			boolean integerPartHasEnoughIntegerPlacesToRequireScientificNotation = 
-					numberOfIntegerPlacesIsGreaterThan(
-							integerPart, 
-							maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation);
-			
-			boolean fractionalPartHasEnoughDecimalPlacesToRequireScientificNotation = false;
-			if (!integerPartHasEnoughIntegerPlacesToRequireScientificNotation) {
-				fractionalPartHasEnoughDecimalPlacesToRequireScientificNotation = 
-						numberOfDecimalPlacesIsGreaterThan(
-								fractionalPart,
-								maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation);
-			}
-			
-			boolean result = integerPartHasEnoughIntegerPlacesToRequireScientificNotation || fractionalPartHasEnoughDecimalPlacesToRequireScientificNotation;
-			
-			return result;
-		}
-		
-		static private boolean numberOfIntegerPlacesIsGreaterThan(Rational rational, int integerPlacesBound) {
-			int numberOfCountedIntegerPlaces = 0;
-			while ((numberOfCountedIntegerPlaces <= integerPlacesBound) && rational.compareTo(1) >= 0) {
-				numberOfCountedIntegerPlaces++;
-				rational = rational.divide(10);
-			}
-			boolean result = numberOfCountedIntegerPlaces > integerPlacesBound;
-			return result;
-		}
-
-		static private boolean numberOfDecimalPlacesIsGreaterThan(Rational rational, int decimalPlacesBound) {
-			int numberOfCountedDecimalPlaces = 0;
-			while ((numberOfCountedDecimalPlaces <= decimalPlacesBound) && ! rational.isInteger()) {
-				numberOfCountedDecimalPlaces++;
-				rational = rational.multiply(10);
-			}
-			boolean result = numberOfCountedDecimalPlaces > decimalPlacesBound;
-			return result;
+			return pair(integerPlaces, decimalPlaces);
 		}
 	}
 
