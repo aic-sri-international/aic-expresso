@@ -275,7 +275,7 @@ public class SampleCommonInterpreterTest {
 			{"product", "7.425492171971923688023442712229336E+1301028"}
 		};
 		
-		runSampleCompareToExact(10000, true, intensionalSet, functionNamesAndExactValues);		
+		runSampleCompareToExact(1, true, intensionalSet, functionNamesAndExactValues);		
 	}
 	
 	@Test
@@ -340,6 +340,8 @@ public class SampleCommonInterpreterTest {
 			else {
 				exactValue = Expressions.parse(exactValueString);
 			}			
+			
+			System.out.println("Sampling " + functionApplicationToIntensionalSet);
 			long start = System.currentTimeMillis();
 			Expression sampleValue = run(sampleSizeN, alwaysSample, functionApplicationToIntensionalSet);
 			long end = System.currentTimeMillis();

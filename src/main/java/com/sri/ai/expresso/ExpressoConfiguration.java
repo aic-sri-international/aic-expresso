@@ -87,6 +87,12 @@ public class ExpressoConfiguration extends Configuration {
 		
 		return result;
 	}
+
+	public static boolean setDisplayNumericsExactlyForSymbols(boolean newValue) {
+		boolean result = isDisplayNumericsExactlyForSymbols();
+		Configuration.setProperty(KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS, Boolean.toString(newValue));
+		return result;
+	}
 	
 	public static int getDisplayScientificGreaterNIntegerPlaces() {
 		int result = getInt(KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES);

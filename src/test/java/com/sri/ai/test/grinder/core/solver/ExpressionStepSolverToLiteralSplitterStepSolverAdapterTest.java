@@ -4,6 +4,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 				TheoryTestingSupport.make(
 						makeRandom(), 
 						new PropositionalTheory());	
-		extendTestingVaribles("P", theoryTestingSupport, "S", "T");
+		extendTestingVariables("P", theoryTestingSupport, "S", "T");
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 	
@@ -70,7 +71,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	@Test
 	public void testPropositionalTheoryWithRandomDisjunctiveFormulas() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new PropositionalTheory());		
-		extendTestingVaribles("P", theoryTestingSupport, "S", "T", "U", "V", "W", "X", "Y", "Z");
+		extendTestingVariables("P", theoryTestingSupport, "S", "T", "U", "V", "W", "X", "Y", "Z");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -80,7 +81,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	public void testLinearRealArithmeticTheoryWithRandomDisjunctiveFormulas() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new LinearRealArithmeticTheory(true, true));
 	
-		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
+		extendTestingVariables("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -89,7 +90,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	public void testEqualityTheoryWithoutPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new EqualityTheory(true, false));
 	
-		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
+		extendTestingVariables("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -98,7 +99,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	public void testEqualityTheoryWithPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new EqualityTheory(true, true));
 	
-		extendTestingVaribles("X", theoryTestingSupport, "S", "T", "U", "V", "W");
+		extendTestingVariables("X", theoryTestingSupport, "S", "T", "U", "V", "W");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -107,7 +108,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	public void testDifferenceArithmeticTheoryWithoutPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new DifferenceArithmeticTheory(true, false));
 	
-		extendTestingVaribles("K", theoryTestingSupport, "L", "M", "N", "O", "P");
+		extendTestingVariables("K", theoryTestingSupport, "L", "M", "N", "O", "P");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -116,7 +117,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	public void testDifferenceArithmeticTheoryWithPropagationOfAllLiteralsWhenBoundWithRandomDisjunctiveFormulas() {
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), new DifferenceArithmeticTheory(true, true));
 	
-		extendTestingVaribles("K", theoryTestingSupport, "L", "M", "N", "O", "P");
+		extendTestingVariables("K", theoryTestingSupport, "L", "M", "N", "O", "P");
 		
 		runRandomDisjunctiveFormulasTest(theoryTestingSupport);
 	}
@@ -163,7 +164,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	//
 	//
 	
-	private void extendTestingVaribles(String variableToBaseTypeOn, TheoryTestingSupport theoryTestingSupport, String... newVariables) {
+	private void extendTestingVariables(String variableToBaseTypeOn, TheoryTestingSupport theoryTestingSupport, String... newVariables) {
 		Map<String, Type> variablesAndTypes = new LinkedHashMap<>(theoryTestingSupport.getVariableNamesAndTypesForTesting());
 		Type type = variablesAndTypes.get(variableToBaseTypeOn);
 		if (type == null) {
@@ -191,16 +192,21 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	
 	private void runTest(TheoryTestingSupport theoryTestingSupport, GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
 		ExpressionStepSolverToLiteralSplitterStepSolverAdapter stepSolver = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(generalFormulaExpressionTestStepSolver);
-		System.out.println("Evaluating " + generalFormulaExpressionTestStepSolver.getExpressionToSolve());
+		println("Evaluating " + generalFormulaExpressionTestStepSolver.getExpressionToSolve());
+		println("based in theory only (no simplification is performed and we get a tree of literals).");
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
-		System.out.println(generalFormulaExpressionTestStepSolver.getExpressionToSolve() + " -----> " + solution + "\n");
+		println(generalFormulaExpressionTestStepSolver.getExpressionToSolve() + " -----> " + solution + "\n");
 		
 		if (expected != null) {
 			assertEquals(expected, solution);
 		}
 		
+		println("Evaluating solution " + solution);
+		println("Under context " + context);
+		println("This test *incorrectly* assumes this should result in 'true'. This follows from GeneralFormulaExpressionTestStepSolver being incorrect.");
+		println("It needs to be replaced by a comparison of expression-step-solver-based and literal-step-solver-based solutions");
 		Expression evaluation = theoryTestingSupport.getTheory().evaluate(solution, context);
-//		Expression evaluation = new Evaluator(theoryTestingSupport.getTheory()).apply(solution, context);
+		println("Result: " + evaluation + "\n");
 		assertEquals(Expressions.TRUE, evaluation);
 	}
 	

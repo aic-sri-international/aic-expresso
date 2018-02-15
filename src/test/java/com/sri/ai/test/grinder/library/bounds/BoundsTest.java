@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.anytime.Model;
@@ -42,7 +43,7 @@ public class BoundsTest {
 	Bound intensionalSetOfFactors3;
 	Model m;
 	
-	private void declaringTheoryContextAndSetOfFactors() {
+	private void declareTheoryContextAndSetOfFactors() {
 		
 		/* That's How we create a empty bound
 		 * It is useful for abstracting the kind of bound we are talking about:
@@ -65,6 +66,9 @@ public class BoundsTest {
 		 * 		foo object = new foo(new DefaultExtensionalBound(),...);
 		 * 		
 		 * */
+		
+		ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(true);
+		
 		extensionalBound = new DefaultExtensionalBound();
 		intensionalBound = new DefaultIntensionalBound();
 		
@@ -125,7 +129,7 @@ public class BoundsTest {
 	
 	@Test
 	public void testSimplex() {
-		declaringTheoryContextAndSetOfFactors();
+		declareTheoryContextAndSetOfFactors();
 		
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
@@ -171,7 +175,7 @@ public class BoundsTest {
 	
 	@Test
 	public void testNormalize() {
-		declaringTheoryContextAndSetOfFactors();
+		declareTheoryContextAndSetOfFactors();
 		
 		assertEquals(
 				"{ if X then 1/7 else if Y then 2/7 else 3/7, "
@@ -219,7 +223,7 @@ public class BoundsTest {
 	
 	@Test
 	public void testBoundProduct() {
-		declaringTheoryContextAndSetOfFactors();
+		declareTheoryContextAndSetOfFactors();
 		
 		// Set of functions
 		Expression phi = parse("if A = true then  1 else 6");
@@ -256,7 +260,7 @@ public class BoundsTest {
 	
 	//@Test BUGGY
 	public void testSummingOverBound() {
-		declaringTheoryContextAndSetOfFactors();
+		declareTheoryContextAndSetOfFactors();
 
 		assertEquals(
 			  "{ if Y then 3/7 else 4/7, "
@@ -276,8 +280,8 @@ public class BoundsTest {
 	}
 	
 	@Test
-	public void testNormilizeOneSingleElement() {
-		declaringTheoryContextAndSetOfFactors();
+	public void testNormalizeOneSingleElement() {
+		declareTheoryContextAndSetOfFactors();
 		assertEquals(
 				"if A then if B then 67/76 else 7/76 else 1/76",
 				Bounds.normalizeSingleExpression(

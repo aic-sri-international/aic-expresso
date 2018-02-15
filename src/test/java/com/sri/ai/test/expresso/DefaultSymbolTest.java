@@ -66,7 +66,7 @@ public class DefaultSymbolTest {
 	}
 	
 	@Test
-	public void testDisplayLargeApprox() {
+	public void testDisplayLargeApproximateNumber() {
 		Rational largeRational = new Rational(3).pow(100000);
 		Assert.assertEquals("1.3E47712", Expressions.makeSymbol(largeRational).toString());
 		
