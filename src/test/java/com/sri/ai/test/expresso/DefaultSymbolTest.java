@@ -1,5 +1,7 @@
 package com.sri.ai.test.expresso;
 
+import static com.sri.ai.util.Util.println;
+
 import java.math.MathContext;
 
 import org.junit.After;
@@ -76,6 +78,8 @@ public class DefaultSymbolTest {
 	
 	@Test
 	public void testPrecisionOutput() {			
+
+		// Assert.assertEquals("12345.68",    Expressions.makeSymbol(12345.6789).toString());
 		//
 		// Positive
 		Assert.assertEquals("100000",      Expressions.makeSymbol(100000).toString());
@@ -91,7 +95,7 @@ public class DefaultSymbolTest {
 
 		Assert.assertEquals("0.39",        Expressions.makeSymbol(0.3928208).toString());
 		Assert.assertEquals("0.4",         Expressions.makeSymbol(0.3998208).toString());
-		Assert.assertEquals("0.013",       Expressions.makeSymbol(new Rational(129, 10000)).toString()); // 0.0129
+		Assert.assertEquals("0.013",        Expressions.makeSymbol(new Rational(129, 10000)).toString()); // 0.0129
 		Assert.assertEquals("123",         Expressions.makeSymbol(123).toString());
 		Assert.assertEquals("10",          Expressions.makeSymbol(new Rational(100143, 10000)).toString()); // 10.143
 		Assert.assertEquals("11",          Expressions.makeSymbol(new Rational(10926, 1000)).toString()); // 10.926
@@ -116,7 +120,7 @@ public class DefaultSymbolTest {
 		// Negative
 		Assert.assertEquals("-0.39",        Expressions.makeSymbol(-0.3928208).toString());
 		Assert.assertEquals("-0.4",         Expressions.makeSymbol(-0.3998208).toString());
-		Assert.assertEquals("-0.013",       Expressions.makeSymbol(new Rational(-129, 10000)).toString()); // 0.0129
+		Assert.assertEquals("-0.013",        Expressions.makeSymbol(new Rational(-129, 10000)).toString()); // 0.0129
 		Assert.assertEquals("-123",         Expressions.makeSymbol(-123).toString());
 		Assert.assertEquals("-10",          Expressions.makeSymbol(new Rational(-100143, 10000)).toString()); // 10.143
 		Assert.assertEquals("-11",          Expressions.makeSymbol(new Rational(-10926, 1000)).toString()); // 10.926
@@ -158,5 +162,11 @@ public class DefaultSymbolTest {
 		Assert.assertEquals("-1E6",       Expressions.makeSymbol(new Rational(-10000009, 10)).toString()); // 1000000.9
 		Assert.assertEquals("-1.2E6",     Expressions.makeSymbol(-1234567.1).toString());
 		Assert.assertEquals("-1.2E6",     Expressions.makeSymbol(-1234567.9).toString());
+	}
+	
+	@Test
+	public void testRelativePrecision() {
+		Rational number = new Rational(1234567.1234567);
+		println(number + ": " + number.toStringDot(2));
 	}
 }

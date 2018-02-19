@@ -38,6 +38,8 @@
 package com.sri.ai.expresso.core;
 
 import static com.sri.ai.util.base.Pair.pair;
+import static java.lang.Math.floor;
+import static java.lang.Math.log10;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -487,10 +489,11 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		public Rational[] integerAndFractionalPart;
 		public Rational integerPart;
 		public Rational fractionalPart;
-		public Rational reducedIntegerPart;
-		public Rational increasedFractionalPart;
 		public boolean decimalRepresentationLosesPrecision;
-
+		public boolean integerPartLosesPrecision;
+		public boolean decimalPartLosesPrecision;
+		// public int numberOfIntegerPlaces;
+		
 		public RationalWithPrecisionInformation(Rational rationalValue) {
 			this.rationalValue            = rationalValue;
 			this.absValue                 = rationalValue.abs();
@@ -498,13 +501,16 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			this.integerPart              = integerAndFractionalPart[0];
 			this.fractionalPart           = integerAndFractionalPart[1];
 
-			decimalRepresentationLosesPrecision = decimalRepresentationLosesPrecision();
+			this.decimalRepresentationLosesPrecision = decimalRepresentationLosesPrecision();
+			
+			// double log10 = log10(rationalValue.doubleValue());
+			// this.numberOfIntegerPlaces = log10 > 0? (int) floor(log10) + 1 : 0;
 		}
 
 		private boolean decimalRepresentationLosesPrecision() {
-
-			this.reducedIntegerPart      = integerPart;
-			this.increasedFractionalPart = fractionalPart;
+			
+			Rational reducedIntegerPart = integerPart;
+			Rational increasedFractionalPart = fractionalPart;
 
 			for (int i = 0; i < displayNumericPrecision; i++) {				
 				boolean eliminatedAllIntegerPlaces = reducedIntegerPart.compareTo(1) < 0;
@@ -525,8 +531,9 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 					reducedIntegerPart = reducedIntegerPart.divide(10);						
 				}
 			}
-			boolean numberOfIntegerAndDecimalPlacesIsLessThanOrEqualToDisplayNumericPrecision = reducedIntegerPart.compareTo(1) < 0 && increasedFractionalPart.isInteger();
-			boolean losesPrecision = !numberOfIntegerAndDecimalPlacesIsLessThanOrEqualToDisplayNumericPrecision;
+			integerPartLosesPrecision = reducedIntegerPart.compareTo(1) >= 0;
+			decimalPartLosesPrecision = !increasedFractionalPart.isInteger();
+			boolean losesPrecision = integerPartLosesPrecision || decimalPartLosesPrecision;
 			return losesPrecision;
 		}
 
@@ -575,10 +582,12 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 
 		private int selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation() {
-			int actuallyUsedNumericPrecision = displayNumericPrecision;
-			boolean decimalRepresentationLosesIntegerPartPrecision = reducedIntegerPart.compareTo(1) >= 0;
-			if (decimalRepresentationLosesIntegerPartPrecision) {
+			int actuallyUsedNumericPrecision;
+			if (integerPartLosesPrecision) {
 				actuallyUsedNumericPrecision = maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
+			}
+			else {
+				actuallyUsedNumericPrecision = displayNumericPrecision;
 			}
 			return actuallyUsedNumericPrecision;
 		}

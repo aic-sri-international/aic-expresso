@@ -267,10 +267,10 @@ public class SampleCommonInterpreterTest {
 		String intensionalSet = "{{(on I in Person) if I != person1 then 20 else 30 : I != person2 }}";
 		
 		String[][] functionNamesAndExactValues = new String[][] {
-			// 42sec brute, 1186ms sample
-			{"sum", "19999990"},
-			// 26sec brute,  762ms sample
-			{"max", "30"}, 
+//			// 42sec brute, 1186ms sample
+//			{"sum", "19999990"},
+//			// 26sec brute,  762ms sample
+//			{"max", "30"}, 
 			// 25sec brute,  703ms sample
 			{"product", "7.425492171971923688023442712229336E+1301028"}
 		};
