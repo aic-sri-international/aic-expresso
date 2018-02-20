@@ -38,8 +38,6 @@
 package com.sri.ai.expresso.core;
 
 import static com.sri.ai.util.base.Pair.pair;
-import static java.lang.Math.floor;
-import static java.lang.Math.log10;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -467,12 +465,139 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			result = "<" + valueOrRootSyntaxTree + ">";
 		}
 		else if (valueOrRootSyntaxTree instanceof Number && displayNumericPrecision != 0) {
-			result = getRestrictedPrecisionNumberRepresentation();
+			if ( ! use2) {
+				result = getRestrictedPrecisionNumberRepresentation();
+			}
+			else {
+				result = getRestrictedPrecisionNumberRepresentation2();
+			}
 		}
 		else {
 			result = valueOrRootSyntaxTree.toString();
 		}
 		
+		return result;
+	}
+	
+	public static boolean use2 = true;
+
+	private String getRestrictedPrecisionNumberRepresentation2() {
+		String result;
+		Rational rationalValue = (Rational) valueOrRootSyntaxTree;
+		if (displayNumericsExactly && decimalRepresentationLosesPrecision(rationalValue)) {
+			result = getExactRepresentationEvenIfThatMeansARatio(rationalValue);
+		}
+		else {
+			result = getDecimalRepresentation(rationalValue);
+		}
+		return result;
+	}
+
+	private boolean decimalRepresentationLosesPrecision(Rational rationalValue) {
+		boolean result;
+		if (mustUseScientificNotation(rationalValue)) {
+			result = scientificNotationLosesPrecision(rationalValue);
+		}
+		else {
+			result = dotRepresentationLosesPrecision(rationalValue);
+		}
+		return result;
+	}
+
+	private boolean scientificNotationLosesPrecision(Rational rationalValue) {
+		String scientificNotation = rationalValue.toStringExponent(displayNumericPrecision);
+		String scientificNotationWithOneMorePrecisionUnit = rationalValue.toStringExponent(displayNumericPrecision + 1);
+		boolean result = ! scientificNotation.equals(scientificNotationWithOneMorePrecisionUnit);
+		return result;
+	}
+
+	private boolean dotRepresentationLosesPrecision(Rational rationalValue) {
+		Rational tenToThePrecision = new Rational(10).pow(displayNumericPrecision);
+		Rational rationalValueWithPrecisionPartMovedToIntegerPart = rationalValue.multiply(tenToThePrecision);
+		boolean result = ! rationalValueWithPrecisionPartMovedToIntegerPart.isInteger();
+		return result;
+	}
+
+	private static String getExactRepresentationEvenIfThatMeansARatio(Rational rationalValue) {
+		String result;
+		if (rationalValue.isInteger()) {
+			result = rationalValue.getNumerator().toString();
+		}
+		else {
+			// Output as an exact ratio
+			result = rationalValue.getNumerator().toString() + "/" + rationalValue.getDenominator().toString(); 
+		}
+		return result;
+	}
+
+	private String getDecimalRepresentation(Rational rationalValue) {
+		String result;
+		if (mustUseScientificNotation(rationalValue)) {
+			result = toStringScientificNotation(rationalValue);
+		}
+		else {
+			result = toStringDotNotation(rationalValue);
+		}
+		return result;
+	}
+
+	private boolean mustUseScientificNotation(Rational rationalValue) {
+
+		boolean result;
+		
+		if (rationalValue.abs().compareTo(new Rational(Double.MAX_VALUE)) < 0) {
+			double log10 = Math.log10(rationalValue.abs().doubleValue());
+			long characteristic = (long) log10;
+			result =
+					numberOfIntegerPlacesRequiresScientificNotation(characteristic)
+					||
+					keepingOnlyPrecisionNumberOfDecimalPlacesEliminatesAllInformation(log10, characteristic);
+		}
+		else {
+			result = true;
+		}
+
+		return result;
+	}
+
+	private boolean numberOfIntegerPlacesRequiresScientificNotation(long characteristic) {
+		long numberOfIntegerPlaces = characteristic >= 0? (characteristic + 1): 0;
+		boolean result = numberOfIntegerPlaces > maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
+		return result;
+	}
+
+	private boolean keepingOnlyPrecisionNumberOfDecimalPlacesEliminatesAllInformation(double log10, long characteristic) {
+		boolean result = 
+				firstNonZeroDigitIsInDecimalPlace(characteristic) && 
+				firstNonZeroDigitDecimalPlacePosition(log10, characteristic) > displayNumericPrecision;
+		return result;
+	}
+
+	private boolean firstNonZeroDigitIsInDecimalPlace(long characteristic) {
+		return characteristic < 0;
+	}
+
+	private long firstNonZeroDigitDecimalPlacePosition(double log10, long characteristic) {
+		long result;
+		if (log10 == Math.floor(log10)) { // 0.001 has log -3
+			result = -characteristic;
+		}
+		else { // 0.00123 has log -2.91
+			result = -(characteristic + 1);
+		}
+		return result;
+	}
+
+	private String toStringScientificNotation(Rational rationalValue) {
+		String result;
+		int decimalPlacesInScientificNotation = displayNumericPrecision + 1;
+		result = rationalValue.toStringExponent(decimalPlacesInScientificNotation);
+		return result;
+	}
+	
+	private String toStringDotNotation(Rational rationalValue) {
+		String dotNotationWithTrailingZeros = rationalValue.toStringDot(displayNumericPrecision);
+		String result = removeTrailingZerosToRight(dotNotationWithTrailingZeros);
 		return result;
 	}
 
@@ -541,22 +666,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			String result;
 			boolean cannotUseDecimalRepresentation = displayNumericsExactly && decimalRepresentationLosesPrecision;
 			if (cannotUseDecimalRepresentation) {		
-				result = getExactRepresentation();
+				result = getExactRepresentationEvenIfThatMeansARatio(rationalValue);
 			}
 			else {		
 				result = getDecimalRepresentation();
-			}
-			return result;
-		}
-
-		private String getExactRepresentation() {
-			String result;
-			if (rationalValue.isInteger()) {
-				result = rationalValue.getNumerator().toString();
-			}
-			else {
-				// Output as an exact ratio
-				result = rationalValue.getNumerator().toString() + "/" + rationalValue.getDenominator().toString(); 
 			}
 			return result;
 		}
