@@ -508,6 +508,8 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			result =
 					numberOfIntegerPlacesRequiresScientificNotation(characteristic)
 					||
+					numberOfDecimalPlacesRequiresScientificNotation(characteristic)
+					||
 					keepingOnlyAllowedPrecisionNumberOfDecimalPlacesEliminatesAllInformation(log10, characteristic);
 		}
 		else {
@@ -524,6 +526,12 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	private boolean numberOfIntegerPlacesRequiresScientificNotation(long characteristic) {
 		long numberOfIntegerPlaces = characteristic >= 0? (characteristic + 1): 0;
 		boolean result = numberOfIntegerPlaces > getDisplayScientificGreaterNIntegerPlaces();
+		return result;
+	}
+
+	private boolean numberOfDecimalPlacesRequiresScientificNotation(long characteristic) {
+		long numberOfDecimalPlaces = characteristic >= 0? 0 : -characteristic;
+		boolean result = numberOfDecimalPlaces > ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 		return result;
 	}
 
