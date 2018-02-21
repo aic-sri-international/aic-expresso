@@ -66,16 +66,16 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Symbol {
 	private static final long serialVersionUID = 1L;
 	
-	private SyntaxLeaf syntxLeaf;
+	private SyntaxLeaf syntaxLeaf;
 
 	@Override
 	public Object getValue() {
-		return syntxLeaf.getValue();
+		return syntaxLeaf.getValue();
 	}
 	
 	@Override
 	public boolean isStringLiteral() {
-		return syntxLeaf.isStringLiteral();
+		return syntaxLeaf.isStringLiteral();
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 
 	@Override
 	public SyntaxTree getSyntaxTree() {
-		return syntxLeaf;
+		return syntaxLeaf;
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 
 	// Note: End users can only instantiate Symbols via the factory method.
 	private DefaultSymbol(Object value, boolean isStringLiteral) {	
-		syntxLeaf = DefaultSyntaxLeaf.createSyntaxLeaf(value, isStringLiteral);
+		syntaxLeaf = DefaultSyntaxLeaf.createSyntaxLeaf(value, isStringLiteral);
 	}
 
 	public static void flushGlobalSymbolTable() {

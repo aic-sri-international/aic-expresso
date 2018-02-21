@@ -37,7 +37,11 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.util.base.Pair.pair;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericApproximationPrecisionForSymbols;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericExactPrecisionForSymbols;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces;
+import static com.sri.ai.expresso.ExpressoConfiguration.isDisplayNumericsExactlyForSymbols;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -68,7 +72,6 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -121,10 +124,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
 		_specialFunctorSymbols.add(FunctorConstants.FUNCTION_TYPE);
 	}
-	private static int     displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	private static boolean displayNumericsExactly                 = ExpressoConfiguration.isDisplayNumericsExactlyForSymbols();
-	private static int     maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	private static int     maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	private static int     maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation   = getDisplayScientificAfterNDecimalPlaces();
 	
 	public static final CharSequenceTranslator UNESCAPE_STRING_VALUE = 
 		        new AggregateTranslator(
@@ -176,53 +176,6 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return valueOrRootSyntaxTree;
 	}
 
-	/**
-	 * Set the numeric display precision for numeric valued symbols.
-	 * 
-	 * @param precision
-	 *        the decimal display precision.
-	 *        
-	 * @return the old numeric display precision;
-	 */
-	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = displayNumericPrecision;
-		
-		displayNumericPrecision = precision;
-		
-		return oldPrecision;
-	}
-	
-	/**
-	 * Set whether numerics should be displayed exactly or not.
-	 * 
-	 * @param displayExactly
-	 *        whether to display numerics exactly or not.
-	 *        
-	 * @return the old display exactly setting;
-	 */
-	public static boolean setDisplayNumericsExactly(boolean displayNumericsExactly) {
-		boolean oldDisplayNumericsExactly = DefaultSyntaxLeaf.displayNumericsExactly;
-		
-		DefaultSyntaxLeaf.displayNumericsExactly = displayNumericsExactly;
-		
-		return oldDisplayNumericsExactly;
-	}
-	
-	/**
-	 * Set the number of integer places a number is to have before it is
-	 * displayed in scientific notation.
-	 * 
-	 * @param numIntegerPlaces
-	 * @return the value previously used before being set here.
-	 */
-	public static int setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(int numIntegerPlaces) {
-		int oldValue = maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
-		
-		maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation = numIntegerPlaces;
-				
-		return oldValue;
-	}
-	
 	/**
 	 * Set the number of decimal places a number is to have before it is
 	 * displayed in scientific notation.
@@ -464,13 +417,8 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		else if (valueOrRootSyntaxTree instanceof Expression) {
 			result = "<" + valueOrRootSyntaxTree + ">";
 		}
-		else if (valueOrRootSyntaxTree instanceof Number && displayNumericPrecision != 0) {
-			if ( ! use2) {
-				result = getRestrictedPrecisionNumberRepresentation();
-			}
-			else {
-				result = getRestrictedPrecisionNumberRepresentation2();
-			}
+		else if (valueOrRootSyntaxTree instanceof Number && getDisplayNumericApproximationPrecisionForSymbols() != 0) {
+			result = getRestrictedPrecisionNumberRepresentation();
 		}
 		else {
 			result = valueOrRootSyntaxTree.toString();
@@ -479,12 +427,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 	
-	public static boolean use2 = true;
-
-	private String getRestrictedPrecisionNumberRepresentation2() {
+	private String getRestrictedPrecisionNumberRepresentation() {
 		String result;
 		Rational rationalValue = (Rational) valueOrRootSyntaxTree;
-		if (displayNumericsExactly && decimalRepresentationLosesPrecision(rationalValue)) {
+		if (isDisplayNumericsExactlyForSymbols() && exactDecimalRepresentationMayExceedAllowedPrecision(rationalValue)) {
 			result = getExactRepresentationEvenIfThatMeansARatio(rationalValue);
 		}
 		else {
@@ -493,29 +439,39 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 
-	private boolean decimalRepresentationLosesPrecision(Rational rationalValue) {
+	private boolean exactDecimalRepresentationMayExceedAllowedPrecision(Rational rationalValue) {
+		boolean decimalExpansionIsKnownToBeFinite = isKnownToBePowerOf2And5Only(new Rational(rationalValue.getDenominator()));
+		boolean decimalExpansionMayBeInfinite = ! decimalExpansionIsKnownToBeFinite;
+		return decimalExpansionMayBeInfinite;
+	}
+	
+	private boolean isKnownToBePowerOf2And5Only(Rational rationalValue) {
 		boolean result;
-		if (mustUseScientificNotation(rationalValue)) {
-			result = scientificNotationLosesPrecision(rationalValue);
+		boolean tooLargeToBeWorthChecking = rationalValue.compareTo(new Rational(10, 100)) < 0;
+		if (tooLargeToBeWorthChecking) {
+			result = false; // assume it is not
 		}
 		else {
-			result = dotRepresentationLosesPrecision(rationalValue);
+			rationalValue = removeAllFactorsEqualTo(rationalValue, 2);
+			rationalValue = removeAllFactorsEqualTo(rationalValue, 5);
+			result = rationalValue.equals(Rational.ONE);
 		}
 		return result;
 	}
 
-	private boolean scientificNotationLosesPrecision(Rational rationalValue) {
-		String scientificNotation = rationalValue.toStringExponent(displayNumericPrecision);
-		String scientificNotationWithOneMorePrecisionUnit = rationalValue.toStringExponent(displayNumericPrecision + 1);
-		boolean result = ! scientificNotation.equals(scientificNotationWithOneMorePrecisionUnit);
-		return result;
-	}
-
-	private boolean dotRepresentationLosesPrecision(Rational rationalValue) {
-		Rational tenToThePrecision = new Rational(10).pow(displayNumericPrecision);
-		Rational rationalValueWithPrecisionPartMovedToIntegerPart = rationalValue.multiply(tenToThePrecision);
-		boolean result = ! rationalValueWithPrecisionPartMovedToIntegerPart.isInteger();
-		return result;
+	private Rational removeAllFactorsEqualTo(Rational rationalValue, int factor) {
+		boolean changed;
+		do {
+			Rational fraction = rationalValue.divide(factor);
+			if (fraction.isInteger()) {
+				rationalValue = fraction;
+				changed = true;
+			}
+			else {
+				changed = false;
+			}
+		} while (changed);
+		return rationalValue;
 	}
 
 	private static String getExactRepresentationEvenIfThatMeansARatio(Rational rationalValue) {
@@ -545,13 +501,14 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 		boolean result;
 		
-		if (rationalValue.abs().compareTo(new Rational(Double.MAX_VALUE)) < 0) {
-			double log10 = Math.log10(rationalValue.abs().doubleValue());
+		boolean weCanComputeTheLogarithm = rationalValue.abs().compareTo(new Rational(Double.MAX_VALUE)) < 0;
+		if (weCanComputeTheLogarithm) {
+			double log10 = log10(rationalValue);
 			long characteristic = (long) log10;
 			result =
 					numberOfIntegerPlacesRequiresScientificNotation(characteristic)
 					||
-					keepingOnlyPrecisionNumberOfDecimalPlacesEliminatesAllInformation(log10, characteristic);
+					keepingOnlyAllowedPrecisionNumberOfDecimalPlacesEliminatesAllInformation(log10, characteristic);
 		}
 		else {
 			result = true;
@@ -560,16 +517,20 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 
+	private double log10(Rational rationalValue) {
+		return Math.log10(rationalValue.abs().doubleValue());
+	}
+
 	private boolean numberOfIntegerPlacesRequiresScientificNotation(long characteristic) {
 		long numberOfIntegerPlaces = characteristic >= 0? (characteristic + 1): 0;
-		boolean result = numberOfIntegerPlaces > maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
+		boolean result = numberOfIntegerPlaces > getDisplayScientificGreaterNIntegerPlaces();
 		return result;
 	}
 
-	private boolean keepingOnlyPrecisionNumberOfDecimalPlacesEliminatesAllInformation(double log10, long characteristic) {
+	private boolean keepingOnlyAllowedPrecisionNumberOfDecimalPlacesEliminatesAllInformation(double log10, long characteristic) {
 		boolean result = 
 				firstNonZeroDigitIsInDecimalPlace(characteristic) && 
-				firstNonZeroDigitDecimalPlacePosition(log10, characteristic) > displayNumericPrecision;
+				firstNonZeroDigitDecimalPlacePosition(log10, characteristic) > getPrecisionToBeUsed();
 		return result;
 	}
 
@@ -590,148 +551,22 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 	private String toStringScientificNotation(Rational rationalValue) {
 		String result;
-		int decimalPlacesInScientificNotation = displayNumericPrecision + 1;
-		result = rationalValue.toStringExponent(decimalPlacesInScientificNotation);
+		int numberOfDigitsIncludingIntegerPartInScientificNotation = getPrecisionToBeUsed() + 1;
+		result = rationalValue.toStringExponent(numberOfDigitsIncludingIntegerPartInScientificNotation);
 		return result;
 	}
-	
+
 	private String toStringDotNotation(Rational rationalValue) {
-		String dotNotationWithTrailingZeros = rationalValue.toStringDot(displayNumericPrecision);
+		String dotNotationWithTrailingZeros = rationalValue.toStringDot(getPrecisionToBeUsed());
 		String result = removeTrailingZerosToRight(dotNotationWithTrailingZeros);
 		return result;
 	}
 
-	private String getRestrictedPrecisionNumberRepresentation() {
-		Rational rationalValue = ((Rational) valueOrRootSyntaxTree);
-		RationalWithPrecisionInformation rationalWithPrecisionInformation = new RationalWithPrecisionInformation(rationalValue);
-		String result = rationalWithPrecisionInformation.getRepresentation();
+	private int getPrecisionToBeUsed() {
+		int result = isDisplayNumericsExactlyForSymbols()? getDisplayNumericExactPrecisionForSymbols() : getDisplayNumericApproximationPrecisionForSymbols();
 		return result;
 	}
 	
-	private static class RationalWithPrecisionInformation {
-		public Rational rationalValue;
-		public Rational absValue;
-		public Rational[] integerAndFractionalPart;
-		public Rational integerPart;
-		public Rational fractionalPart;
-		public boolean decimalRepresentationLosesPrecision;
-		public boolean integerPartLosesPrecision;
-		public boolean decimalPartLosesPrecision;
-		// public int numberOfIntegerPlaces;
-		
-		public RationalWithPrecisionInformation(Rational rationalValue) {
-			this.rationalValue            = rationalValue;
-			this.absValue                 = rationalValue.abs();
-			this.integerAndFractionalPart = absValue.integerAndFractionalPart();
-			this.integerPart              = integerAndFractionalPart[0];
-			this.fractionalPart           = integerAndFractionalPart[1];
-
-			this.decimalRepresentationLosesPrecision = decimalRepresentationLosesPrecision();
-			
-			// double log10 = log10(rationalValue.doubleValue());
-			// this.numberOfIntegerPlaces = log10 > 0? (int) floor(log10) + 1 : 0;
-		}
-
-		private boolean decimalRepresentationLosesPrecision() {
-			
-			Rational reducedIntegerPart = integerPart;
-			Rational increasedFractionalPart = fractionalPart;
-
-			for (int i = 0; i < displayNumericPrecision; i++) {				
-				boolean eliminatedAllIntegerPlaces = reducedIntegerPart.compareTo(1) < 0;
-				if (eliminatedAllIntegerPlaces) {
-					boolean eliminatedAllDecimalPlaces = increasedFractionalPart.isInteger();
-					if (eliminatedAllDecimalPlaces) {							
-						// eliminated all places in rational value in less steps than displayNumericPrecision.
-						// Therefore, converting to decimal representation does not lose precision.
-						break;
-					}
-					else {
-						// eliminate decimal place
-						increasedFractionalPart = increasedFractionalPart.multiply(10);
-					}
-				}
-				else {
-					// eliminate integer place
-					reducedIntegerPart = reducedIntegerPart.divide(10);						
-				}
-			}
-			integerPartLosesPrecision = reducedIntegerPart.compareTo(1) >= 0;
-			decimalPartLosesPrecision = !increasedFractionalPart.isInteger();
-			boolean losesPrecision = integerPartLosesPrecision || decimalPartLosesPrecision;
-			return losesPrecision;
-		}
-
-		public String getRepresentation() {
-			String result;
-			boolean cannotUseDecimalRepresentation = displayNumericsExactly && decimalRepresentationLosesPrecision;
-			if (cannotUseDecimalRepresentation) {		
-				result = getExactRepresentationEvenIfThatMeansARatio(rationalValue);
-			}
-			else {		
-				result = getDecimalRepresentation();
-			}
-			return result;
-		}
-
-		private String getDecimalRepresentation() {
-			String result;
-			String dotRelative = getDotRelativeRepresentation();
-			boolean requiresScientificNotation = requiresScientificNotation(dotRelative);
-			if (requiresScientificNotation) {					
-				result = rationalValue.toStringExponent(displayNumericPrecision);
-			}
-			else {
-				result = dotRelative;
-			}
-			return result;
-		}
-
-		private String getDotRelativeRepresentation() {
-			int actuallyUsedNumericPrecision = selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation();
-			String dotRelative = rationalValue.toStringDotRelative(actuallyUsedNumericPrecision);
-			dotRelative = removeTrailingZerosToRight(dotRelative);
-			return dotRelative;
-		}
-
-		private int selectNumericPrecisionSoThatIntegerPartIsRepresentedUpToMaximumNumberOfPlacesBeforeTurningToScientificNotation() {
-			int actuallyUsedNumericPrecision;
-			if (integerPartLosesPrecision) {
-				actuallyUsedNumericPrecision = maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation;
-			}
-			else {
-				actuallyUsedNumericPrecision = displayNumericPrecision;
-			}
-			return actuallyUsedNumericPrecision;
-		}
-
-		private boolean requiresScientificNotation(String dotRelative) {
-			Pair<Integer, Integer> numberOfIntegerAndDecimalPlacesInDotRelativeString = numberOfIntegerAndDecimalPlaces(dotRelative);
-
-			boolean requiresScientificNotation = 
-					numberOfIntegerAndDecimalPlacesInDotRelativeString.first.intValue() > maximumNumberOfIntegerPlacesBeforeResortingToScientificNotation
-					||
-					numberOfIntegerAndDecimalPlacesInDotRelativeString.second.intValue() > maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation;
-			return requiresScientificNotation;
-		}
-
-		static private Pair<Integer, Integer> numberOfIntegerAndDecimalPlaces(String dotRelative) {
-			int integerPlaces;
-			int decimalPlaces;
-			boolean hasMinus = dotRelative.charAt(0) == '-';
-			int indexOfDot = dotRelative.indexOf('.');
-			if (indexOfDot == -1) {
-				integerPlaces = dotRelative.length() - (hasMinus? 1 : 0);
-				decimalPlaces = 0;
-			}
-			else {
-				integerPlaces = indexOfDot - (hasMinus? 1 : 0);
-				decimalPlaces = dotRelative.length() - (indexOfDot + 1);
-			}
-			return pair(integerPlaces, decimalPlaces);
-		}
-	}
-
 	@Override
 	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction) {
 		return this;

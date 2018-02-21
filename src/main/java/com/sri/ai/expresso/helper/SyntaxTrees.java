@@ -147,56 +147,6 @@ public class SyntaxTrees {
 	}
 
 	/**
-	 * Set the number of integer places a number is to have before it is
-	 * displayed in scientific notation.
-	 * 
-	 * @param numIntegerPlaces
-	 * @return the value previously used before being set here.
-	 */
-	public static int setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(int numIntegerPlaces) {
-		int result = DefaultSyntaxLeaf.setDisplayScientificIfNumberOfIntegerPlacesIsGreaterThan(numIntegerPlaces);
-		return result;
-	}
-
-	/**
-	 * Set the number of decimal places a number is to have before it is
-	 * displayed in scientific notation.
-	 * 
-	 * @param numDecimalPlaces
-	 * @return the value previously used before being set here.
-	 */
-	public static int setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(int numDecimalPlaces) {
-		int result = DefaultSyntaxLeaf.setDisplayScientificIfNumberOfDecimalPlacesIsGreaterThan(numDecimalPlaces);				
-		return result;
-	}
-
-	/**
-	 * Set the numeric display precision for numeric valued symbols.
-	 * 
-	 * @param precision
-	 *        the decimal display precision.
-	 *        
-	 * @return the old numeric display precision;
-	 */
-	public static int setNumericDisplayPrecision(int precision) {
-		int result = DefaultSyntaxLeaf.setNumericDisplayPrecision(precision);
-		return result;
-	}
-	
-	/**
-	 * Set whether numerics should be displayed exactly or not.
-	 * 
-	 * @param displayExactly
-	 *        whether to display numerics exactly or not.
-	 *        
-	 * @return the old display exactly setting;
-	 */
-	public static boolean setDisplayNumericsExactly(boolean displayNumericsExactly) {				
-		boolean result = DefaultSyntaxLeaf.setDisplayNumericsExactly(displayNumericsExactly);
-		return result;
-	}
-
-	/**
 	 * Given a syntax tree, a path, and a sub-syntax tree,
 	 * returns the syntax tree with its path-sub-syntax tree replaced by the given sub-syntax tree.
 	 * The path is a list of indices indicating a path in the syntax tree.

@@ -40,6 +40,8 @@ package com.sri.ai.expresso;
 import java.math.MathContext;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.cache.CacheMap;
 
@@ -51,8 +53,11 @@ import com.sri.ai.util.cache.CacheMap;
  */
 @Beta
 public class ExpressoConfiguration extends Configuration {
-	public static final String  KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS                     = "expresso.display.numeric.precision.for.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS           = new Integer(MathContext.DECIMAL128.getPrecision());
+	public static final String  KEY_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS           = "expresso.display.numeric.exact.precision.for.symbols";
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS = new Integer(10000);
+	//
+	public static final String  KEY_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS           = "expresso.display.numeric.approximate.precision.for.symbols";
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS = new Integer(MathContext.DECIMAL128.getPrecision());
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS                      = "expresso.display.numerics.exactly.for.symbols";
 	public static final boolean DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS            = true;
@@ -76,33 +81,75 @@ public class ExpressoConfiguration extends Configuration {
 	public static final Long   DEFAULT_VALUE_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS = new Long(60);
 	
 			
-	public static int getDisplayNumericPrecisionForSymbols() {
-		int result = getInt(KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS);
-	
-		return result;
-	}
-	
 	public static boolean isDisplayNumericsExactlyForSymbols() {
 		boolean result = getBoolean(KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS);
-		
 		return result;
 	}
 
 	public static boolean setDisplayNumericsExactlyForSymbols(boolean newValue) {
 		boolean result = isDisplayNumericsExactlyForSymbols();
+		SyntaxTrees.flushGlobalSymbolTable();
+		DefaultSymbol.flushGlobalSymbolTable();
 		Configuration.setProperty(KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS, Boolean.toString(newValue));
+		return result;
+	}
+
+	/**
+	 * Get the number of maximum number of decimal places to use when exactly representing a numeric symbol.
+	 */
+	public static int getDisplayNumericExactPrecisionForSymbols() {
+		int result = getInt(KEY_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS);
+		return result;
+	}
+
+	public static int setDisplayNumericExactPrecisionForSymbols(int newValue) {
+		int result = getDisplayNumericExactPrecisionForSymbols();
+		SyntaxTrees.flushGlobalSymbolTable();
+		DefaultSymbol.flushGlobalSymbolTable();
+		Configuration.setProperty(KEY_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS, Integer.toString(newValue));
+		return result;
+	}
+	
+	/**
+	 * Get the number of maximum number of decimal places to use when approximately representing a numeric symbol.
+	 */
+	public static int getDisplayNumericApproximationPrecisionForSymbols() {
+		int result = getInt(KEY_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS);
+	
+		return result;
+	}
+	
+	public static int setDisplayNumericApproximationPrecisionForSymbols(int newValue) {
+		int result = getDisplayNumericApproximationPrecisionForSymbols();
+		SyntaxTrees.flushGlobalSymbolTable();
+		DefaultSymbol.flushGlobalSymbolTable();
+		Configuration.setProperty(KEY_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS, Integer.toString(newValue));
 		return result;
 	}
 	
 	public static int getDisplayScientificGreaterNIntegerPlaces() {
 		int result = getInt(KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES);
+		return result;
+	}
 	
+	public static int setDisplayScientificGreaterNIntegerPlaces(int newValue) {
+		int result = getDisplayScientificGreaterNIntegerPlaces();
+		SyntaxTrees.flushGlobalSymbolTable();
+		DefaultSymbol.flushGlobalSymbolTable();
+		Configuration.setProperty(KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES, Integer.toString(newValue));
 		return result;
 	}
 	
 	public static int getDisplayScientificAfterNDecimalPlaces() {
 		int result = getInt(KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES);
+		return result;
+	}
 	
+	public static int setDisplayScientificAfterNDecimalPlaces(int newValue) {
+		int result = getDisplayScientificAfterNDecimalPlaces();
+		SyntaxTrees.flushGlobalSymbolTable();
+		DefaultSymbol.flushGlobalSymbolTable();
+		Configuration.setProperty(KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES, Integer.toString(newValue));
 		return result;
 	}
 	
