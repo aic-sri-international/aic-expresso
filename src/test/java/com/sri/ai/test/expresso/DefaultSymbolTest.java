@@ -20,22 +20,22 @@ public class DefaultSymbolTest {
 
 	@Before
 	public void setUp() {
-		oldExactPrecision = ExpressoConfiguration.setDisplayNumericExactPrecisionForSymbols(1500);
-		oldApproximatePrecision = ExpressoConfiguration.setDisplayNumericApproximationPrecisionForSymbols(2);
+		oldExactPrecision = ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols(1500);
+		oldApproximatePrecision = ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(2);
 		oldDisplayExact      = ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
-		oldScientificGreater = ExpressoConfiguration.setDisplayScientificGreaterNIntegerPlaces(6);
-		oldScientificAfter   = ExpressoConfiguration.setDisplayScientificAfterNDecimalPlaces(4); 
+		oldScientificGreater = ExpressoConfiguration.setDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation(6);
+		oldScientificAfter   = ExpressoConfiguration.setDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation(4); 
 		// Ensure we are in approximation mode (i.e. the default) for these tests
 		Rational.resetApproximationConfiguration(true, MathContext.DECIMAL128.getPrecision(), MathContext.DECIMAL128.getRoundingMode());
 	}
 	
 	@After
 	public void tearDown() {
-		ExpressoConfiguration.setDisplayNumericExactPrecisionForSymbols(oldExactPrecision);
-		ExpressoConfiguration.setDisplayNumericApproximationPrecisionForSymbols(oldApproximatePrecision);
+		ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols(oldExactPrecision);
+		ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(oldApproximatePrecision);
 		ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(oldDisplayExact);
-		ExpressoConfiguration.setDisplayScientificGreaterNIntegerPlaces(oldScientificGreater);
-		ExpressoConfiguration.setDisplayScientificAfterNDecimalPlaces(oldScientificAfter);
+		ExpressoConfiguration.setDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation(oldScientificGreater);
+		ExpressoConfiguration.setDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation(oldScientificAfter);
 		Rational.resetApproximationConfigurationFromAICUtilConfiguration();
 	}
 	
@@ -153,15 +153,15 @@ public class DefaultSymbolTest {
 	@Test
 	public void testScientificNotationTriggeredByNumberOfDecimalPlaces() {
 
-		ExpressoConfiguration.setDisplayNumericApproximationPrecisionForSymbols(10);
-		ExpressoConfiguration.setDisplayScientificAfterNDecimalPlaces(4);
+		ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(10);
+		ExpressoConfiguration.setDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation(4);
 		Assert.assertEquals("0.001", Expressions.makeSymbol(new Rational(1,1000)).toString());
 		Assert.assertEquals("0.0001", Expressions.makeSymbol(new Rational(1,10000)).toString());
 		Assert.assertEquals("1E-5", Expressions.makeSymbol(new Rational(1,100000)).toString());
 		Assert.assertEquals("1E-6", Expressions.makeSymbol(new Rational(1,1000000)).toString());
 
-		ExpressoConfiguration.setDisplayNumericApproximationPrecisionForSymbols(3);
-		ExpressoConfiguration.setDisplayScientificAfterNDecimalPlaces(12);
+		ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
+		ExpressoConfiguration.setDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation(12);
 		Assert.assertEquals("0.001", Expressions.makeSymbol(new Rational(1,1000)).toString());
 		Assert.assertEquals("1E-4", Expressions.makeSymbol(new Rational(1,10000)).toString());
 		Assert.assertEquals("1E-5", Expressions.makeSymbol(new Rational(1,100000)).toString());

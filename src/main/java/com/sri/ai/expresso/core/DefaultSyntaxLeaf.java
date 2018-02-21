@@ -37,10 +37,10 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericApproximationPrecisionForSymbols;
-import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericExactPrecisionForSymbols;
-import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces;
-import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation;
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation;
 import static com.sri.ai.expresso.ExpressoConfiguration.isDisplayNumericsExactlyForSymbols;
 
 import java.util.Collections;
@@ -124,7 +124,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
 		_specialFunctorSymbols.add(FunctorConstants.FUNCTION_TYPE);
 	}
-	private static int     maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation   = getDisplayScientificAfterNDecimalPlaces();
+	private static int     maximumNumberOfDecimalPlacesBeforeResortingToScientificNotation   = getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation();
 	
 	public static final CharSequenceTranslator UNESCAPE_STRING_VALUE = 
 		        new AggregateTranslator(
@@ -417,7 +417,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		else if (valueOrRootSyntaxTree instanceof Expression) {
 			result = "<" + valueOrRootSyntaxTree + ">";
 		}
-		else if (valueOrRootSyntaxTree instanceof Number && getDisplayNumericApproximationPrecisionForSymbols() != 0) {
+		else if (valueOrRootSyntaxTree instanceof Number && getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols() != 0) {
 			result = getRestrictedPrecisionNumberRepresentation();
 		}
 		else {
@@ -525,13 +525,13 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 	private boolean numberOfIntegerPlacesRequiresScientificNotation(long characteristic) {
 		long numberOfIntegerPlaces = characteristic >= 0? (characteristic + 1): 0;
-		boolean result = numberOfIntegerPlaces > getDisplayScientificGreaterNIntegerPlaces();
+		boolean result = numberOfIntegerPlaces > getDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation();
 		return result;
 	}
 
 	private boolean numberOfDecimalPlacesRequiresScientificNotation(long characteristic) {
 		long numberOfDecimalPlaces = characteristic >= 0? 0 : -characteristic;
-		boolean result = numberOfDecimalPlaces > ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+		boolean result = numberOfDecimalPlaces > ExpressoConfiguration.getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation();
 		return result;
 	}
 
@@ -571,7 +571,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	}
 
 	private int getPrecisionToBeUsed() {
-		int result = isDisplayNumericsExactlyForSymbols()? getDisplayNumericExactPrecisionForSymbols() : getDisplayNumericApproximationPrecisionForSymbols();
+		int result = isDisplayNumericsExactlyForSymbols()? getDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols() : getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols();
 		return result;
 	}
 	

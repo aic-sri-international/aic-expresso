@@ -53,19 +53,19 @@ import com.sri.ai.util.cache.CacheMap;
  */
 @Beta
 public class ExpressoConfiguration extends Configuration {
-	public static final String  KEY_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS           = "expresso.display.numeric.exact.precision.for.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS = new Integer(10000);
+	public static final String  KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS = "expresso.display.numerics.most.decimal.places.in.exact.representation.of.numerical.symbols";
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS = new Integer(10000);
 	//
-	public static final String  KEY_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS           = "expresso.display.numeric.approximate.precision.for.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS = new Integer(MathContext.DECIMAL128.getPrecision());
+	public static final String  KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS = "expresso.display.numerics.most.decimal.places.in.approximate.representation.of.numerical.symbols";
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS = new Integer(MathContext.DECIMAL128.getPrecision());
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS                      = "expresso.display.numerics.exactly.for.symbols";
 	public static final boolean DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS            = true;
 	//
-	public static final String  KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES               = "expresso.display.scientific.greater.n.integer.places";
-	public static final Integer DEFAULT_VALUE_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES     = new Integer(40);
+	public static final String  KEY_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION               = "expresso.display.numerics.most.integer.places.before.switching.to.scientific.notation";
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION     = new Integer(40);
 	//
-	public static final String  KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES                 = "expresso.display.scientific.after.n.decimal.places";
+	public static final String  KEY_DISPLAY_NUMERICS_GREATEST_INITIAL_NON_ZERO_DECIMAL_PLACE_POSITION_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION = "expresso.display.numerics.greatest.initial.non.zero.decimal.place.position.before.switching.to.scientific.notation";
 	public static final Integer DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES       = new Integer(40);
 	//
 	public static final String  KEY_USE_GLOBAL_SYMBOL_TABLE                                   = "expresso.use.global.symbol.table";
@@ -97,59 +97,59 @@ public class ExpressoConfiguration extends Configuration {
 	/**
 	 * Get the number of maximum number of decimal places to use when exactly representing a numeric symbol.
 	 */
-	public static int getDisplayNumericExactPrecisionForSymbols() {
-		int result = getInt(KEY_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS);
+	public static int getDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols() {
+		int result = getInt(KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS);
 		return result;
 	}
 
-	public static int setDisplayNumericExactPrecisionForSymbols(int newValue) {
-		int result = getDisplayNumericExactPrecisionForSymbols();
+	public static int setDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols(int newValue) {
+		int result = getDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols();
 		SyntaxTrees.flushGlobalSymbolTable();
 		DefaultSymbol.flushGlobalSymbolTable();
-		Configuration.setProperty(KEY_DISPLAY_NUMERIC_EXACT_PRECISION_FOR_SYMBOLS, Integer.toString(newValue));
+		Configuration.setProperty(KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS, Integer.toString(newValue));
 		return result;
 	}
 	
 	/**
 	 * Get the number of maximum number of decimal places to use when approximately representing a numeric symbol.
 	 */
-	public static int getDisplayNumericApproximationPrecisionForSymbols() {
-		int result = getInt(KEY_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS);
+	public static int getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols() {
+		int result = getInt(KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS);
 	
 		return result;
 	}
 	
-	public static int setDisplayNumericApproximationPrecisionForSymbols(int newValue) {
-		int result = getDisplayNumericApproximationPrecisionForSymbols();
+	public static int setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(int newValue) {
+		int result = getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols();
 		SyntaxTrees.flushGlobalSymbolTable();
 		DefaultSymbol.flushGlobalSymbolTable();
-		Configuration.setProperty(KEY_DISPLAY_NUMERIC_APPROXIMATION_PRECISION_FOR_SYMBOLS, Integer.toString(newValue));
+		Configuration.setProperty(KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS, Integer.toString(newValue));
 		return result;
 	}
 	
-	public static int getDisplayScientificGreaterNIntegerPlaces() {
-		int result = getInt(KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES);
+	public static int getDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation() {
+		int result = getInt(KEY_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION, DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION);
 		return result;
 	}
 	
-	public static int setDisplayScientificGreaterNIntegerPlaces(int newValue) {
-		int result = getDisplayScientificGreaterNIntegerPlaces();
+	public static int setDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation(int newValue) {
+		int result = getDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation();
 		SyntaxTrees.flushGlobalSymbolTable();
 		DefaultSymbol.flushGlobalSymbolTable();
-		Configuration.setProperty(KEY_DISPLAY_SCIENTIFIC_GREATER_N_INTEGER_PLACES, Integer.toString(newValue));
+		Configuration.setProperty(KEY_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION, Integer.toString(newValue));
 		return result;
 	}
 	
-	public static int getDisplayScientificAfterNDecimalPlaces() {
-		int result = getInt(KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES);
+	public static int getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation() {
+		int result = getInt(KEY_DISPLAY_NUMERICS_GREATEST_INITIAL_NON_ZERO_DECIMAL_PLACE_POSITION_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES);
 		return result;
 	}
 	
-	public static int setDisplayScientificAfterNDecimalPlaces(int newValue) {
-		int result = getDisplayScientificAfterNDecimalPlaces();
+	public static int setDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation(int newValue) {
+		int result = getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation();
 		SyntaxTrees.flushGlobalSymbolTable();
 		DefaultSymbol.flushGlobalSymbolTable();
-		Configuration.setProperty(KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES, Integer.toString(newValue));
+		Configuration.setProperty(KEY_DISPLAY_NUMERICS_GREATEST_INITIAL_NON_ZERO_DECIMAL_PLACE_POSITION_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION, Integer.toString(newValue));
 		return result;
 	}
 	
