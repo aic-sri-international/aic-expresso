@@ -46,7 +46,7 @@ public class BoundsTest {
 	
 	private void declareTheoryContextAndSetOfFactors() {
 		
-		/* That's How we create a empty bound
+		/* That's how we create a empty bound
 		 * It is useful for abstracting the kind of bound we are talking about:
 		 * 		if you say to a program that one of his attributes is a bound, you can let the user choose
 		 * 		between a extensional or intensional representation just by passing the right object as 
