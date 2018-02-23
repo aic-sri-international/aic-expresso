@@ -145,9 +145,9 @@ public class Examples {
 		Factor.add(f5);
 		Factor.add(res);
 
-		Model m = new Model(Factor);
+		Model model = new Model(Factor);
 
-		VariableComponent ComponentResultat = new VariableComponent(q, res, m, new HashSet<Expression>());
+		VariableComponent ComponentResultat = new VariableComponent(q, res, model, new HashSet<Expression>());
 		return ComponentResultat;
 	}*/
 

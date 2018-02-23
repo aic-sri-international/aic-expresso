@@ -1,8 +1,6 @@
 package com.sri.ai.grinder.library.bounds;
 
 import static com.sri.ai.util.Util.arrayList;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-
 
 import java.util.ArrayList;
 
@@ -19,10 +17,6 @@ public abstract class AbstractExtensionalBound extends DefaultExtensionalUniSet 
 
 	public AbstractExtensionalBound(Expression singleElement) {
 		super(arrayList(singleElement));
-	}
-	
-	public AbstractExtensionalBound() {
-		super(arrayList(makeSymbol("0"))); // TODO
 	}
 	
 	public boolean isExtensionalBound() {

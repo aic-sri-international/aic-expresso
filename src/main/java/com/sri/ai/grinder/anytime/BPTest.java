@@ -139,7 +139,7 @@ public class BPTest {
 		
 		Model m = IsingModel(3,4,theory, context, parse("Boolean"));
 		
-		// printModel(m);
+		// printModel(model);
 				
 		runTest(m);
 		

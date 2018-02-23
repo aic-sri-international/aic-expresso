@@ -1,6 +1,10 @@
 package com.sri.ai.test.grinder.library.bounds;
 
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.TWO;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.arrayList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -27,9 +31,6 @@ import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory
 import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
 
-import static com.sri.ai.util.Util.arrayList;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-
 public class BoundsTest {
 	
 	Theory theory ;
@@ -41,7 +42,7 @@ public class BoundsTest {
 	Bound intensionalSetOfFactors1;
 	Bound intensionalSetOfFactors2;
 	Bound intensionalSetOfFactors3;
-	Model m;
+	Model model;
 	
 	private void declareTheoryContextAndSetOfFactors() {
 		
@@ -80,11 +81,11 @@ public class BoundsTest {
 								new PropositionalTheory());	
 		
 		context = new TrueContext(theory);
-		context = context.extendWithSymbolsAndTypes("X","Boolean");
-		context = context.extendWithSymbolsAndTypes("Y","Boolean");
-		context = context.extendWithSymbolsAndTypes("A","Boolean");
-		context = context.extendWithSymbolsAndTypes("B","Boolean");
-		context = context.extendWithSymbolsAndTypes("C","1..5");
+		context = context.extendWithSymbolsAndTypes("X", "Boolean");
+		context = context.extendWithSymbolsAndTypes("Y", "Boolean");
+		context = context.extendWithSymbolsAndTypes("A", "Boolean");
+		context = context.extendWithSymbolsAndTypes("B", "Boolean");
+		context = context.extendWithSymbolsAndTypes("C", "1..5");
 		// context = context.extendWithSymbolsAndTypes("D","{1,3,4,8}");
 
 		// Set of functions
@@ -95,36 +96,34 @@ public class BoundsTest {
 		Expression phi5 = parse("if C < 4 then 10 else if C = 4 then 11 else 12");
 		
 		/*
-		 * This is How we create a non empty Extensional bound
+		 * This is how we create a non empty extensional bound
 		 */
 		setOfFactors = new DefaultExtensionalBound(arrayList(phi1, phi2, phi3, phi4, phi5)); 
 	
 		// Set of numbers
-		Expression one   = DefaultSymbol.createSymbol(1);
-		Expression two   = DefaultSymbol.createSymbol(2);
-		setOFNumbers = new DefaultExtensionalBound(arrayList(one,two));
+		setOFNumbers = new DefaultExtensionalBound(arrayList(ONE, TWO));
 
 		Set<Expression> Factor = new HashSet<Expression>();
 		
-		m = new Model(Factor);
+		model = new Model(Factor);
 		
-		m.context =	m.context.extendWithSymbolsAndTypes("A", "Boolean");
-		m.context =	m.context.extendWithSymbolsAndTypes("B", "Boolean");
-		m.context =	m.context.extendWithSymbolsAndTypes("Q", "Boolean");
-		m.context =	m.context.extendWithSymbolsAndTypes("C", "1..4");
-		m.context =	m.context.extendWithSymbolsAndTypes("D", "6..9");		
+		model.context =	model.context.extendWithSymbolsAndTypes("A", "Boolean");
+		model.context =	model.context.extendWithSymbolsAndTypes("B", "Boolean");
+		model.context =	model.context.extendWithSymbolsAndTypes("Q", "Boolean");
+		model.context =	model.context.extendWithSymbolsAndTypes("C", "1..4");
+		model.context =	model.context.extendWithSymbolsAndTypes("D", "6..9");		
 		
 		intensionalSetOfFactors1 = new DefaultIntensionalBound(
 				arrayList(
-						parse(" A' in Boolean"), 
+						parse("A' in Boolean"), 
 						parse("C' in 1..5")
 						),
 				parse("if C = C' then if A = A' then 1 else 4 else 0"),
-				makeSymbol(true)
+				TRUE
 				);
 		
-		intensionalSetOfFactors2 = DefaultIntensionalBound.simplex(arrayList(parse("A")), m);
-		intensionalSetOfFactors3 = DefaultIntensionalBound.simplex(arrayList(parse("C"),parse("B")), m);
+		intensionalSetOfFactors2 = DefaultIntensionalBound.simplex(arrayList(parse("A")), model);
+		intensionalSetOfFactors3 = DefaultIntensionalBound.simplex(arrayList(parse("C"), parse("B")), model);
 	}
 	
 	@Test
@@ -136,41 +135,39 @@ public class BoundsTest {
 		Expression c = DefaultSymbol.createSymbol("C");
 		Expression d = DefaultSymbol.createSymbol("D");
 		
-		ArrayList<Expression> Variables = new ArrayList<>();
-		Variables.add(a);
-		Variables.add(b);
-		Variables.add(d);
+		ArrayList<Expression> variables = arrayList(a, b, d);
 		
 		assertEquals(
-				parse("{ if A then if B then if D = 6 then 1 else 0 else 0 else 0, "
-						+ "if A then if B then if D = 7 then 1 else 0 else 0 else 0, "
-						+ "if A then if B then if D = 8 then 1 else 0 else 0 else 0, "
-						+ "if A then if B then if D = 9 then 1 else 0 else 0 else 0, "
-						+ "if A then if not B then if D = 6 then 1 else 0 else 0 else 0, "
-						+ "if A then if not B then if D = 7 then 1 else 0 else 0 else 0, "
-						+ "if A then if not B then if D = 8 then 1 else 0 else 0 else 0, "
-						+ "if A then if not B then if D = 9 then 1 else 0 else 0 else 0, "
-						+ "if not A then if B then if D = 6 then 1 else 0 else 0 else 0, "
-						+ "if not A then if B then if D = 7 then 1 else 0 else 0 else 0, "
-						+ "if not A then if B then if D = 8 then 1 else 0 else 0 else 0, "
-						+ "if not A then if B then if D = 9 then 1 else 0 else 0 else 0, "
+				parse("{   if     A then if     B then if D = 6 then 1 else 0 else 0 else 0, "
+						+ "if     A then if     B then if D = 7 then 1 else 0 else 0 else 0, "
+						+ "if     A then if     B then if D = 8 then 1 else 0 else 0 else 0, "
+						+ "if     A then if     B then if D = 9 then 1 else 0 else 0 else 0, "
+						+ "if     A then if not B then if D = 6 then 1 else 0 else 0 else 0, "
+						+ "if     A then if not B then if D = 7 then 1 else 0 else 0 else 0, "
+						+ "if     A then if not B then if D = 8 then 1 else 0 else 0 else 0, "
+						+ "if     A then if not B then if D = 9 then 1 else 0 else 0 else 0, "
+						+ "if not A then if     B then if D = 6 then 1 else 0 else 0 else 0, "
+						+ "if not A then if     B then if D = 7 then 1 else 0 else 0 else 0, "
+						+ "if not A then if     B then if D = 8 then 1 else 0 else 0 else 0, "
+						+ "if not A then if     B then if D = 9 then 1 else 0 else 0 else 0, "
 						+ "if not A then if not B then if D = 6 then 1 else 0 else 0 else 0, "
 						+ "if not A then if not B then if D = 7 then 1 else 0 else 0 else 0, "
 						+ "if not A then if not B then if D = 8 then 1 else 0 else 0 else 0, "
 						+ "if not A then if not B then if D = 9 then 1 else 0 else 0 else 0 }"),
-				DefaultExtensionalBound.simplex(Variables, m));
+
+				DefaultExtensionalBound.simplex(variables, model));
 		
-		Variables.add(c);
+		variables.add(c);
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, B' in Boolean, D' in 6..9, C' in 1..4 ) "
 						+ "if C = C' then if D = D' then if B = B' then if A = A' then "
 						+ "1 else 0 else 0 else 0 else 0 }"),
-				DefaultIntensionalBound.simplex(Variables, m));
+				DefaultIntensionalBound.simplex(variables, model));
 		
 		assertEquals(parse("{ ( on A' in Boolean) if A = A' then 1 else 0}"), intensionalSetOfFactors2);
 		assertEquals(parse("{(on C' in 1..4, B' in Boolean) if B = B' then if C = C' then 1 else 0 else 0}"), intensionalSetOfFactors3);
-		assertEquals(parse("{(on ) 1}"), DefaultIntensionalBound.simplex(arrayList(), m));
+		assertEquals(parse("{(on ) 1}"), DefaultIntensionalBound.simplex(arrayList(), model));
 	}
 	
 	@Test
@@ -183,6 +180,7 @@ public class BoundsTest {
 				+ "if X then 7/31 else if B then 8/31 else 9/31, "
 				+ "if B then 10/43 else if A then 11/43 else 12/43, "
 				+ "if C < 4 then 10/53 else if C = 4 then 11/53 else 12/53 }",
+				
 				setOfFactors.normalize(theory, context).toString());
 
 		assertEquals(
@@ -199,9 +197,11 @@ public class BoundsTest {
 								+ "else "
 									+ "0.8"
 							+ " else 0 }"),
+							
 				intensionalSetOfFactors1.normalize(theory, context));
 		
-		Bound b = Bounds.boundProduct(theory, context, false, intensionalSetOfFactors1,intensionalSetOfFactors2).normalize(theory, context);
+		Bound b = Bounds.boundProduct(
+				theory, context, false, intensionalSetOfFactors1, intensionalSetOfFactors2).normalize(theory, context);
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean, C' in 1..5, A'' in Boolean ) "
@@ -255,7 +255,7 @@ public class BoundsTest {
 		
 		assertEquals(
 				parse("{ ( on A' in Boolean ) if A then if A' then 1 else 0 else if not A' then 1 else 0 }"),
-				Bounds.boundProduct(theory, context,false,  DefaultIntensionalBound.simplex(arrayList(parse("A")), m)));
+				Bounds.boundProduct(theory, context,false,  DefaultIntensionalBound.simplex(arrayList(parse("A")), model)));
 	}
 	
 	//@Test BUGGY

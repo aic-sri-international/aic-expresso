@@ -95,8 +95,8 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * Returns an iterator over positive normalized atoms not actually represented in constraint,
 	 * but assumed for purposes of determining redundancy or contradiction of new normalized atoms.
 	 * For example, if an extension defines a difference arithmetic theory,
-	 * and the constraint's variable X is in an integer interval ]n, m[,
-	 * then having this method return X > n and X < m will cause the solver to
+	 * and the constraint's variable X is in an integer interval ]n, model[,
+	 * then having this method return X > n and X < model will cause the solver to
 	 * act as if these atoms where actually part of the constraint,
 	 * which will result in contradicting normalized atoms
 	 * stating that X is out of these bounds, and making redundant normalized atoms saying X is within these bounds.

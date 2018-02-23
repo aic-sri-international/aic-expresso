@@ -63,9 +63,6 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 		super(arrayList(singleElement));
 	}
 
-	public DefaultExtensionalBound() {
-	}
-	
 	static public DefaultExtensionalBound simplex(List<Expression> Variables, Model m) {
 		DefaultExtensionalBound result = simplex(Variables,m.theory , m.context);
 		return result;

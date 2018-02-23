@@ -778,7 +778,7 @@ public class GrinderUtil {
 	 * by the user and registered in the registry by name only).
 	 * Current recognized type expressions are
 	 * <code>Boolean</code>, <code>Integer</code>, and function applications
-	 * of the type <code>m..n</code>.
+	 * of the type <code>model..n</code>.
 	 * If there is no such meaning, the method returns <code>null</code>.
 	 * @param typeExpression
 	 * @param registry TODO

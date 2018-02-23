@@ -193,7 +193,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				result = quotient;
 			}
 		} else if (expression.hasFunctor(EXPONENTIATION_FUNCTOR)) {
-			// E1 ^ m with m an integer constant --> make(E1).exponentiate(m)
+			// E1 ^ model with model an integer constant --> make(E1).exponentiate(model)
 			Expression base  = expression.get(0);
 			Expression power = simplifyExponentIfPossible(expression.get(1));
 			if (containsAnyOfGivenCollectionAsSubExpression(power, variables)) {

@@ -8,7 +8,6 @@ import com.sri.ai.grinder.api.Theory;
 
 public interface Bound extends Expression {
 	
-
 	/**
 	 * Assumes that each element of the bound is a factor with the same domain
 	 * Normalizes each factor of the bound. In latex notation: 
@@ -52,11 +51,9 @@ public interface Bound extends Expression {
 	 * @param theory
 	 * @return
 	 */
-	Bound summingPhiTimesBound(
-			Expression variablesToBeSummedOut, Expression phi, Context context, Theory theory);
+	Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Context context, Theory theory);
 
-	Bound summingPhiTimesBound(
-			ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context, Theory theory);
+	Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context, Theory theory);
 
 	boolean isExtensionalBound();
 	
