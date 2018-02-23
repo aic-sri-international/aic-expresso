@@ -103,7 +103,7 @@ public class Model {
 	 * Returns true if exploredGraphicalModel == graphicalModel
 	 * @return
 	 */
-	public boolean AllExplored() {
+	public boolean allNodesAreExplored() {
 		boolean result = graphicalModel.equals(exploredGraphicalModel);
 		return result;
 	}

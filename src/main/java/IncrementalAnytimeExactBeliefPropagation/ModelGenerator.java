@@ -236,12 +236,6 @@ public class ModelGenerator {
 		return result;
 	}
 	
-	/**
-	 * Lifited variabble Elimination
-	 * this method just creates the inference equation and asks SGDPLL to solve it
-	 * @param m
-	 * @return
-	 */
 	public static Expression LVECalculation(Model m) {
 		return LVECalculation(m.getEntireGraph().getBs(),m.getQuery().getValue(),m.getContext(),m.getTheory());
 	}
@@ -268,7 +262,9 @@ public class ModelGenerator {
 				);
 		
 		Expression sumOnPhi = apply(SUM, setOfFactorInstantiations);
+		println("Evaluating " + sumOnPhi);
 		Expression evaluation = theory.evaluate(sumOnPhi, context);
+		println("Finished evaluating " + sumOnPhi);
 		
 		Expression result = Bounds.normalizeSingleExpression(evaluation, theory, context);
 		

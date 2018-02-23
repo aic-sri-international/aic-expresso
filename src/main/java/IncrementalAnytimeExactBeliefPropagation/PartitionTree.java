@@ -17,10 +17,11 @@ import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
 /**
  * This class defines a partition tree for factors of a given {@link Model}.
  * 
- * In the S-BP algorithm, each {@link Node} has it's own partition, and sees a given part of the graph.
+ * In the S-BP algorithm, each {@link Node} has its own partition, and sees a given part of the graph.
  * This is shown here by the attributes {@code node} and {@code setOfFactorsInsidePartition}.
  * Those a partition of those {@code setOfFactorsInsidePartition} is found in the attribute {@code parents}. 
- * This means that the Union of p.setOfFactorsInsidePartition, for p in partition is equal to this.setOfFactorsInsidePartition. 
+ * This means that the Union of p.setOfFactorsInsidePartition,
+ * for p in partition is equal to this.setOfFactorsInsidePartition. 
  * 
  * @author ferreira
  *
@@ -34,7 +35,7 @@ public class PartitionTree {
 	public Node node;
 	public PartitionTree parent;
 	public Set<VariableNode> separator;
-	public Set<VariableNode> cutsetOfAllLevelsAbove;// Also called LAS  (Levels Above Separator) in some function names
+	public Set<VariableNode> cutsetOfAllLevelsAbove; // Also called LAS (Levels Above Separator) in some function names
 	public boolean recomputeBound;
 
 
@@ -43,12 +44,12 @@ public class PartitionTree {
 		children = new HashSet<>();
 		this.separator = new HashSet<VariableNode>();
 		this.cutsetOfAllLevelsAbove = new HashSet<VariableNode>();
-		this.setOfFactors= new HashSet<FactorNode>();
-		this.setOfVariables= new HashSet<VariableNode>();
+		this.setOfFactors = new HashSet<FactorNode>();
+		this.setOfVariables = new HashSet<VariableNode>();
 		recomputeBound = true;
 	}
 
-	public PartitionTree(Node node,PartitionTree parent) {
+	public PartitionTree(Node node, PartitionTree parent) {
 		this(node);
 		this.parent = parent;
 		if (parent != null) {
@@ -82,7 +83,8 @@ public class PartitionTree {
 	 * @param model
 	 */
 	public void createPartitionTreeWithBFS(Model model) {
-		HashMap<Node, PartitionTree> hashTable= new HashMap<>();
+		
+		HashMap<Node, PartitionTree> hashTable = new HashMap<>();
 		Set<Node> visited = new HashSet<>();
 		Queue<Node> queue = new LinkedList<>();
 
@@ -100,7 +102,7 @@ public class PartitionTree {
 				Collection<VariableNode> variableNeighbors = model.getExploredGraph().getAsOfB((FactorNode) n);
 				neighbors.addAll(variableNeighbors);
 			}
-			else{
+			else {
 				Collection<FactorNode> factorNeighbors = model.getExploredGraph().getBsOfA((VariableNode) n);
 				neighbors.addAll(factorNeighbors);
 			}

@@ -51,14 +51,14 @@ import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
  */
 public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 	private Model model;
-	private boolean allExplored;
+	private boolean allNodesAreExplored;
 	public PartitionTree partitionTree;
 	private Iterator<PartitionTree> partitionTreeIterator;	// on the first iteration, it.next() gives the query (a variable node)
 															// after the first iteration, it.next returns factors to be added in the partition three
 	
 	public IncrementalAnytimeBeliefPropagationWithSeparatorConditioning(Model model, Iterator<PartitionTree> partitionTreeIterator) {
 		this.model = model;
-		allExplored = false;
+		allNodesAreExplored = false;
 		this.partitionTreeIterator = partitionTreeIterator;
 		if (partitionTreeIterator.hasNext()) {
 			partitionTree = partitionTreeIterator.next();
@@ -217,7 +217,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
    	
 /*------------------------------------------------------------------------------------------------------------------------*/   	
    	/**
-   	 * The Updadte Bounds is the traditional message passing that we have in S-BP. The difference is that, when the cutsets
+   	 * The Update Bounds is the traditional message passing that we have in S-BP. The difference is that, when the cutsets
    	 * were updated, a tag "recompute" bound was assigned to all nodes whose separator have been updated 
    	 */
    	private void updateBounds() {
@@ -330,9 +330,9 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 	
 	public Bound inference() {
 		VariableNode query = model.getQuery();
-		this.partitionTree = new PartitionTree(query,model);
+		this.partitionTree = new PartitionTree(query, model);
 		
-		allExplored = model.AllExplored();
+		allNodesAreExplored = model.allNodesAreExplored();
 		
 		Bound result = variableMessage(partitionTree, new HashSet<VariableNode>());
 		return result;
@@ -359,7 +359,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 		// if this node is not exhausted (see definition in Model) it means that the message coming to it is the 
 		// simplex, no matter how it is what comes below in the partition.
 		// obs. it can be equivalently thought as attaching a "simplex factor" to non exhausted nodes.
-		if (!allExplored && !model.isExhausted((VariableNode) partitionInAVariableNode.node)) {
+		if (!allNodesAreExplored && !model.isExhausted((VariableNode) partitionInAVariableNode.node)) {
 			Expression var = partitionInAVariableNode.node.getValue();
 			Bound bound = Bounds.simplex(arrayList(var), model.getTheory(), model.getContext(), model.isExtensional());
 //			partitionInAVariableNode.node.setBound(bound);

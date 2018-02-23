@@ -31,7 +31,6 @@ import com.sri.ai.grinder.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
@@ -57,9 +56,9 @@ public class Tests {
 		println("Testing BFS.");
 		testingBFS();
 
-		// Testing on standard output (output results on screen)
-		println("Testing and printing on screen.");
-		testingAndPrintingOnScreen();
+//		// Testing on standard output (output results on screen)
+//		println("Testing and printing on screen.");
+//		testingAndPrintingOnScreen();
 
 		println("Running main test.");
 		runTest();		
@@ -71,47 +70,45 @@ public class Tests {
 		ModelGenerator.resetRandomGenerator();
 		Triple<Set<Expression>,Context,Expression> factors = isingModel(3,4, context, parse("Boolean"));
 
-		boolean printSGDPLL = true;
+		boolean runSGDPLL = false;
 		double threshold = 0.0001;
 		int n = 5;
 
-		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(factors,n,modelName,printSGDPLL,threshold);
+		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(
+				factors,n,modelName,runSGDPLL,threshold);
 
 		println("The End");
 
 		modelName = "IsingModel4X4";
 		ModelGenerator.resetRandomGenerator();
 		factors = isingModel(4, 4, context, parse("Boolean"));
-		printSGDPLL = true;
 		threshold = 0.0001;
 		n = 5;
 
 		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(
-				factors, n, modelName, printSGDPLL, threshold);
+				factors, n, modelName, runSGDPLL, threshold);
 
 		println("The End");
 
 		modelName = "IsingModel6X2";
 		ModelGenerator.resetRandomGenerator();
 		factors = isingModel(6, 2, context, parse("Boolean"));
-		printSGDPLL = true;
 		threshold = 0.0001;
 		n = 5;
 
 		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(
-				factors, n, modelName, printSGDPLL, threshold);
+				factors, n, modelName, runSGDPLL, threshold);
 
 		println("The End");
 
 		modelName = "lineModel20";
 		ModelGenerator.resetRandomGenerator();
 		factors = lineModel(20, context, parse("Boolean"));
-		printSGDPLL = true;
 		threshold = 0.0001;
 		n = 5;
 
 		testingTheSameModelNTimesAndThenPrintingToFileVersionsOneAndTwoOfTheAlgorithm(
-				factors, n, modelName, printSGDPLL, threshold);
+				factors, n, modelName, runSGDPLL, threshold);
 
 		println("The End");
 	}
@@ -120,48 +117,48 @@ public class Tests {
 			Triple<Set<Expression>,Context,Expression> factors,
 			int n,
 			String fileNameWithoutExtension, 
-			boolean printSGDPLL,
+			boolean runSGDPLL,
 			double threshold) {
 	
-		List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
+		List<List<InferenceResult>> modelsToprintInFile = new ArrayList<>();
 	
 		for(int i = 0; i < n; i++){
-			Model m = new Model(factors,theory,true);
-			modelsToprintInFile.add(testingAndExportingListWithDataFunction(fileNameWithoutExtension + "Incremental", m, true, printSGDPLL, threshold));
+			Model model = new Model(factors, theory, true);
+			modelsToprintInFile.add(solveModelAndRecordResult(fileNameWithoutExtension + "Incremental", model, true, runSGDPLL, threshold));
 			println(i);
 		}
 	
 		for (int i = 0; i < n; i++) {		
 			ModelGenerator.resetRandomGenerator();
-			Model m = new Model(factors,theory,true);
-			modelsToprintInFile.add(testingAndExportingListWithDataFunction(fileNameWithoutExtension + "NONIncremental", m, false, printSGDPLL, threshold));
+			Model model = new Model(factors, theory, true);
+			modelsToprintInFile.add(solveModelAndRecordResult(fileNameWithoutExtension + "NONIncremental", model, false, runSGDPLL, threshold));
 			println(i);
 		}
 	
-		writingToFile(fileNameWithoutExtension + ".csv", modelsToprintInFile);
+		writeInferenceResultsToFile(modelsToprintInFile, fileNameWithoutExtension + ".csv");
 	}
 
 	private static void testingAndPrintingOnFile2() {
 
 		ModelGenerator.resetRandomGenerator();
 
-		List<List<TupleOfData>> modelsToprintInFile = new ArrayList<>();
+		List<List<InferenceResult>> modelsToprintInFile = new ArrayList<>();
 
 		int nLines = 4;
 		int nCols = 4;
 		Model m = new Model(isingModel(nLines, nCols, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testingAndExportingListWithDataFunction("IsingModel", m, true,true, 0,nLines, nCols));
+		modelsToprintInFile.add(solveModelAndRecordResult("IsingModel", m, true,true, 0,nLines, nCols));
 
 		int nFactors = 12;
 		m = new Model(ModelGenerator.lineModel(nFactors, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testingAndExportingListWithDataFunction("lineModel", m, true,true, 0,nFactors));
+		modelsToprintInFile.add(solveModelAndRecordResult("lineModel", m, true,true, 0,nFactors));
 
 		int nLevels = 4;
 		int nChildren = 2;
 		m = new Model(ModelGenerator.nTreeModel(nLevels, nChildren, context, parse("Boolean")),theory,true);
-		modelsToprintInFile.add(testingAndExportingListWithDataFunction("nTreeModel", m, true, true,0,nLevels, nChildren));
+		modelsToprintInFile.add(solveModelAndRecordResult("nTreeModel", m, true, true,0,nLevels, nChildren));
 
-		writingToFile("SomeTests.csv", modelsToprintInFile);
+		writeInferenceResultsToFile(modelsToprintInFile, "SomeTests.csv");
 	}
 
 	public static void runTest() {
@@ -169,27 +166,27 @@ public class Tests {
 		int nLines = 4;
 		int nCols = 4;
 		int n = 3; 
-		boolean printSGDPLL = true;
+		boolean runSGDPLL = false;
 		double threshold = 0.00001;
 
 
 		Triple<Set<Expression>,Context,Expression> factors = 
 				isingModel(nLines, nCols, context, parse("Boolean"));
 
-		testingDifferentModelsWithTheSameStructure(
+		solveModelNTimes(
+				"IsingModel4X4", 
 				factors, 
 				n, 
-				"IsingModel4X4", 
-				printSGDPLL, 
+				runSGDPLL, 
 				threshold);
 		
 		//		
 		//		nLines = 7;
 		//		nCols = 2;
 		//		n = 10;
-		//		printSGDPLL = false;
+		//		runSGDPLL = false;
 		//		factors = IsingModel(nLines, nCols, context, parse("Boolean"));
-		//		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel6X2", printSGDPLL, threshold);
+		//		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel6X2", runSGDPLL, threshold);
 		//		
 		//		
 		//		nLines = 20;
@@ -197,7 +194,7 @@ public class Tests {
 		//		threshold = .001;
 		//		n = 10;
 		//		factors = IsingModel(nLines, nCols, context, parse("Boolean"));
-		//		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel20X20", printSGDPLL, threshold);
+		//		testingDifferentModelsWithTheSameStructure(factors, n, "IsingModel20X20", runSGDPLL, threshold);
 		//		
 		//		
 
@@ -206,35 +203,33 @@ public class Tests {
 		//		int nLevels = 4;
 		//		int nChildren = 2;
 		//		factors = nTreeModel(nLevels, nChildren, context, parse("Boolean"));
-		//		testingDifferentModelsWithTheSameStructure(factors, n, "BinaryTree4", printSGDPLL, threshold);
+		//		testingDifferentModelsWithTheSameStructure(factors, n, "BinaryTree4", runSGDPLL, threshold);
 
 	}
 
-	public static void testingDifferentModelsWithTheSameStructure(
+	public static void solveModelNTimes(
+			String modelName,
 			Triple<Set<Expression>,Context,Expression> factors,
-			int n,
-			String fileNameWithoutExtension, 
-			boolean printSGDPLL,
+			int n, 
+			boolean runSGDPLL,
 			double threshold) {
 
-		List<List<TupleOfData>> modelsToPrintInFile = new ArrayList<>();
+		List<List<InferenceResult>> inferenceResults = new ArrayList<>();
 
-		int seed = 1;
-		ModelGenerator.setSeed(seed);
 		for(int i = 0; i < n; i++){
-			Model model = new Model(factors, theory, true);
-			modelsToPrintInFile.add(
-					testingAndExportingListWithDataFunction(
-							fileNameWithoutExtension + "Incremental", 
+			println("Solving " + modelName + " for the " + i + "-th time...");
+			Model model = new Model(factors, theory, true /* is extensional */);
+			inferenceResults.add(
+					solveModelAndRecordResult(
+							modelName + "Incremental", 
 							model, 
 							true /* incremental */, 
-							printSGDPLL, 
+							runSGDPLL, 
 							threshold));
-			println(i);
-			//		seed+=10;
+			println("Done solving " + modelName + " for the " + i + "-th time...");
 		}
 
-		writingToFile(fileNameWithoutExtension + ".csv", modelsToPrintInFile);
+		writeInferenceResultsToFile(inferenceResults, modelName + ".csv");
 	}
 
 	/**
@@ -246,15 +241,15 @@ public class Tests {
 	 * @param parameter
 	 * @return
 	 */
-	public static List<TupleOfData> testingAndExportingListWithDataFunction(
+	public static List<InferenceResult> solveModelAndRecordResult(
 			String modelName, 
 			Model model, 
 			boolean incrementalversion, 
-			boolean printSGDPLL,
+			boolean runSGDPLL,
 			double threshold, 
 			Integer... parameter){
 		
-		List<TupleOfData> result = new ArrayList<TupleOfData>();
+		List<InferenceResult> result = new ArrayList<InferenceResult>();
 	
 		model.clearExploredGraph();
 	
@@ -270,7 +265,7 @@ public class Tests {
 		
 		int id = 0;
 		while (bfsExpander.hasNext() && error > threshold) {
-			TupleOfData t = 
+			InferenceResult t = 
 					doInferenceAndStoreInformation(
 							() -> incrementalversion? sbp.expandAndComputeInference() : sbp.expandAndComputeInferenceByRebuildingPartitionTree(),
 									sbp.getModel(),
@@ -285,8 +280,8 @@ public class Tests {
 			println("...." + error);
 		}
 	
-		if (printSGDPLL && !bfsExpander.hasNext()) {
-			TupleOfData t = 
+		if (runSGDPLL && !bfsExpander.hasNext()) {
+			InferenceResult t = 
 					doInferenceAndStoreInformation(
 							() -> makeSingleElementBound(LVECalculation(model), true),
 							model, 
@@ -308,8 +303,10 @@ public class Tests {
 					doInferenceAndStoreInformation(
 							()-> sbp.inferenceOverEntireModel(),
 							sbp.getModel(),
-							modelName,id++,
-							0,"S-BP over Entire Model",
+							modelName,
+							id++,
+							0,
+							"S-BP over Entire Model",
 							parameter);
 	
 			result.add(t);	
@@ -405,10 +402,10 @@ public class Tests {
 	/**
 	 * This prints in a file the content of trying many different models.
 	 * the idea is to test many different models (with teh function {@code testing}) and have them printed in the same .csv  file
+	 * @param results
 	 * @param filename
-	 * @param testedModels
 	 */
-	public static void writingToFile(String filename, List<List<TupleOfData>> testedModels) {
+	public static void writeInferenceResultsToFile(List<List<InferenceResult>> results, String filename) {
 		try{
 			PrintWriter writer = new PrintWriter(filename, "UTF-8");
 			// print head of dataset
@@ -429,8 +426,8 @@ public class Tests {
 					+ "Parameter 4,"
 					+ "Parameter 5");
 			// printLines
-			for (List<TupleOfData> l : testedModels) {		    
-				for (TupleOfData t : l) {
+			for (List<InferenceResult> l : results) {		    
+				for (InferenceResult t : l) {
 					writer.print(t.id + "," +
 							t.typeOfComputationUsed +","+
 							t.graphicalModelName + "," +
@@ -455,12 +452,12 @@ public class Tests {
 		}
 	}
 
-	private static TupleOfData doInferenceAndStoreInformation(NullaryFunction<Bound> doInference,
+	private static InferenceResult doInferenceAndStoreInformation(NullaryFunction<Bound> doInference,
 			Model m,
 			String modelName, int id, double tTotalTime,
 			String typeOfComputationUsed,
 			Integer... parameter){
-		TupleOfData t = new TupleOfData();
+		InferenceResult t = new InferenceResult();
 
 		long tStart = System.currentTimeMillis();
 		Bound inferenceResult;
@@ -483,7 +480,7 @@ public class Tests {
 		t.minAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.first;
 		t.maxAndMaxProbabilityofQueryequalsTrue = minAndMaxProbabilityofQueryequalsTrue.second;
 		t.IntervalLength = t.maxAndMaxProbabilityofQueryequalsTrue - t.minAndMaxProbabilityofQueryequalsTrue; 
-		t.allExplored = m.AllExplored();
+		t.allExplored = m.allNodesAreExplored();
 
 		for (int i = 0; i < parameter.length && i < t.parameter.length; i++) {
 			t.parameter[i] = parameter[i];

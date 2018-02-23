@@ -1,7 +1,7 @@
 package IncrementalAnytimeExactBeliefPropagation;
 
 
-public class TupleOfData{
+public class InferenceResult{
 	int id = -1;
 	String typeOfComputationUsed = ""; // SGDPLL or Bounded S-BP
 	String graphicalModelName = "";
@@ -16,6 +16,6 @@ public class TupleOfData{
 	double totalTime = 0;
 	
 	
-	public TupleOfData() {
+	public InferenceResult() {
 	}
 }

@@ -69,33 +69,33 @@ public class Tests {
 		List<List<TupleOfData>> listOdModelsToPrintInFile = new ArrayList<>();
 		
 //		m = new Model(IsingModel(20, 4, context, parse("Boolean")),theory, true);
-//		List<TupleOfData> IsingModel2X2 = testing("IsingModel",m,2,2);
+//		List<InferenceResult> IsingModel2X2 = testing("IsingModel",m,2,2);
 //		listOdModelsToPrintInFile.add(IsingModel2X2);
 //		println("ok");
 //		
 //		m = new Model(IsingModel(3, 3, context, parse("Boolean")),theory, true);
-//		List<TupleOfData> IsingModel3X3 = testing("IsingModel",m,3,3);
+//		List<InferenceResult> IsingModel3X3 = testing("IsingModel",m,3,3);
 //		listOdModelsToPrintInFile.add(IsingModel3X3);
 //		println("ok");
 //		
 //		m = new Model(IsingModel(3, 4, context, parse("Boolean")),theory, true);
-//		List<TupleOfData> IsingModel3X4 = testing("IsingModel",m,3,4);
+//		List<InferenceResult> IsingModel3X4 = testing("IsingModel",m,3,4);
 //		listOdModelsToPrintInFile.add(IsingModel3X4);
 //		println("ok");
 //		
 //		m = new Model(IsingModel(4, 4, context, parse("Boolean")),theory, true);
-//		List<TupleOfData> IsingModel4X4 = testing("IsingModel",m,4,4);
+//		List<InferenceResult> IsingModel4X4 = testing("IsingModel",m,4,4);
 //		listOdModelsToPrintInFile.add(IsingModel4X4);
 //		println("ok");
 //		
 ////		m = new Model(IsingModel(4, 5, context, parse("Boolean")),theory, true);
-////		List<TupleOfData> IsingModel4X5 = testing("IsingModel",m,4,5);
+////		List<InferenceResult> IsingModel4X5 = testing("IsingModel",m,4,5);
 ////		listOdModelsToPrintInFile.add(IsingModel4X5);
 ////		println("ok");
 //		
 //		modelName = "Line Model";
 //		m = new Model(lineModel(20, context, parse("Boolean")),theory, true);
-//		List<TupleOfData> line10 = testing(modelName,m,4,5);
+//		List<InferenceResult> line10 = testing(modelName,m,4,5);
 //		listOdModelsToPrintInFile.add(line10);
 //		println("ok");
 		
