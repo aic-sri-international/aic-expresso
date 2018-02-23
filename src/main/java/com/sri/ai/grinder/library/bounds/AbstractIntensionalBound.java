@@ -7,7 +7,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 
-public abstract class AbstractIntensionalBound extends DefaultIntensionalUniSet implements Bound{
+public abstract class AbstractIntensionalBound extends DefaultIntensionalUniSet implements Bound {
 
 	private static final long serialVersionUID = 1L;
 	

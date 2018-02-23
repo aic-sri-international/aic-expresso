@@ -25,12 +25,12 @@ public class Bounds{
 	 * Returns a simplex on the the given Variables. 
 	 * if ExtensionalRepresentation == true -> simplex is a extensional Bound
 	 * else simplex is a extensional simplex
-	 * @param Variables : list of variables. one freeVAriable per expression
+	 * @param variables : list of variables. one freeVAriable per expression
 	 * @param model
 	 * @return
 	 */
-	public static Bound simplex(List<Expression> Variables, Model model, boolean ExtensionalRepresentation) {
-		Bound result = ExtensionalRepresentation ? DefaultExtensionalBound.simplex(Variables, model) : DefaultIntensionalBound.simplex(Variables, model);
+	public static Bound simplex(List<Expression> variables, Model model, boolean ExtensionalRepresentation) {
+		Bound result = ExtensionalRepresentation ? DefaultExtensionalBound.simplex(variables, model) : DefaultIntensionalBound.simplex(variables, model);
 		return result;
 	}
 	
@@ -38,14 +38,14 @@ public class Bounds{
 	 * Returns a simplex on the the given Variables. 
 	 * if ExtensionalRepresentation == true -> simplex is a extensional Bound
 	 * else simplex is a extensional simplex
-	 * @param Variables : list of variables. one freeVAriable per expression
+	 * @param variables : list of variables. one freeVAriable per expression
 	 * @param theory
 	 * @param context
 	 * @param ExtensionalRepresentation
 	 * @return
 	 */
-	public static Bound simplex(List<Expression> Variables, Theory theory, Context context, boolean ExtensionalRepresentation) {
-		Bound result = ExtensionalRepresentation ? DefaultExtensionalBound.simplex(Variables, theory, context) : DefaultIntensionalBound.simplex(Variables, theory, context);
+	public static Bound simplex(List<Expression> variables, Theory theory, Context context, boolean ExtensionalRepresentation) {
+		Bound result = ExtensionalRepresentation ? DefaultExtensionalBound.simplex(variables, theory, context) : DefaultIntensionalBound.simplex(variables, theory, context);
 		return result;
 	}
 	

@@ -63,8 +63,8 @@ public class Model {
 		}
 	}
 	
-	public Model(Set<Expression> Factor,Theory theory, Context context) {
-		this(Factor);
+	public Model(Set<Expression> factor, Theory theory, Context context) {
+		this(factor);
 		this.theory = theory;	
 		this.context = context;
 	}

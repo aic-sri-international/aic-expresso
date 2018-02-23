@@ -6,7 +6,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 
-public interface Bound extends Expression{
+public interface Bound extends Expression {
 	
 
 	/**
@@ -18,7 +18,7 @@ public interface Bound extends Expression{
 	 * @param context
 	 * @return  bound of normalized factors
 	 */
-	public Bound normalize(Theory theory, Context context);
+	Bound normalize(Theory theory, Context context);
 		
 	/**
 	 * given a set of variables "S" and a bound "B", performs the following operation:
@@ -33,10 +33,10 @@ public interface Bound extends Expression{
 	 * @param theory
 	 * @return
 	 */
-	public Bound summingBound(Expression variablesToBeSummedOut,
+	Bound summingBound(Expression variablesToBeSummedOut,
 			Context context, Theory theory);
 	
-	public Bound summingBound(ArrayList<Expression> variablesToBeSummedOut,
+	Bound summingBound(ArrayList<Expression> variablesToBeSummedOut,
 			Context context, Theory theory);
 	
 	/**
@@ -52,14 +52,15 @@ public interface Bound extends Expression{
 	 * @param theory
 	 * @return
 	 */
-	public Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
-			Context context, Theory theory);
+	Bound summingPhiTimesBound(
+			Expression variablesToBeSummedOut, Expression phi, Context context, Theory theory);
 
-	public Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
-			Context context, Theory theory);
+	Bound summingPhiTimesBound(
+			ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context, Theory theory);
 
-	public boolean isExtensionalBound();
-	public boolean isIntensionalBound();
+	boolean isExtensionalBound();
+	
+	boolean isIntensionalBound();
 	
 	/**
 	 * Computes the product of each term of a list of bounds
@@ -68,7 +69,7 @@ public interface Bound extends Expression{
 	 * @param listOfBounds
 	 * @return bound resulting from the product of bounds
 	 */
-	// public Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
+	// Bound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context);
 	
 	
 //	/** Returns an explicit representation for the simplex. The expression returned is
@@ -77,7 +78,7 @@ public interface Bound extends Expression{
 //	 * @param model
 //	 * @return
 //	 */
-//	public Bound simplex(List<Expression> Variables, Model model);
+//	Bound simplex(List<Expression> Variables, Model model);
 //	
 //	/** Returns an explicit representation for the simplex. The expression returned is
 //	 * a UniSet.
@@ -85,7 +86,7 @@ public interface Bound extends Expression{
 //	 * @param model
 //	 * @return
 //	 */
-//	public Bound simplex(List<Expression> Variables, Theory theory, Context context);
+//	Bound simplex(List<Expression> Variables, Theory theory, Context context);
 //	
 //	/**
 //	 * Computes the product of each term of a list of bounds
@@ -94,5 +95,5 @@ public interface Bound extends Expression{
 //	 * @param listOfBounds
 //	 * @return bound resulting from the product of bounds
 //	 */
-//	public Bound boundProduct(Theory theory, Context context, Bound...listOfBounds);
+//	Bound boundProduct(Theory theory, Context context, Bound...listOfBounds);
 }

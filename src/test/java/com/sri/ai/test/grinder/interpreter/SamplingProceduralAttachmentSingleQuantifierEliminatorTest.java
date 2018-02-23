@@ -53,7 +53,6 @@ public class SamplingProceduralAttachmentSingleQuantifierEliminatorTest {
 						new CommonSimplifier(),
 						ProceduralAttachments.getProceduralAttachmentsTopRewriter(context));
 		
-		Expression sample; 
 		println(rewriter.apply(sampler, context));
 		println(rewriter.apply(sampler, context));
 		println(rewriter.apply(sampler, context));

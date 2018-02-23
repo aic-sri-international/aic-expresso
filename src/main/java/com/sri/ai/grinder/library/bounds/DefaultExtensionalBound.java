@@ -42,7 +42,7 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
 
-public class DefaultExtensionalBound extends AbstractExtensionalBound{
+public class DefaultExtensionalBound extends AbstractExtensionalBound {
 
 	/**
 	 * 

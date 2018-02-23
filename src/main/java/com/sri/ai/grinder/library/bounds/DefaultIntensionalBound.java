@@ -35,7 +35,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 
-public class DefaultIntensionalBound extends AbstractIntensionalBound{
+public class DefaultIntensionalBound extends AbstractIntensionalBound {
 
 	/**
 	 * 
@@ -46,34 +46,34 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 	 * Empty Bound
 	 */
 	public DefaultIntensionalBound() {
-		super(new ExtensionalIndexExpressionsSet(new ArrayList<>()),makeSymbol("1"),makeSymbol(true));
+		super(new ExtensionalIndexExpressionsSet(new ArrayList<>()), makeSymbol("1"), makeSymbol(true));
 	}
 
 	public DefaultIntensionalBound(IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		super(indexExpressions, head, condition);
-		}
+	}
 
 	public DefaultIntensionalBound(List<Expression> indexExpressionsList, Expression head, Expression condition) {
 		this(new ExtensionalIndexExpressionsSet(indexExpressionsList), head, condition);
 	}
 
-	static public DefaultIntensionalBound simplex(List<Expression> Variables, Model model) {
-		DefaultIntensionalBound result = simplex(Variables, model.theory,model.context);
+	static public DefaultIntensionalBound simplex(List<Expression> variables, Model model) {
+		DefaultIntensionalBound result = simplex(variables, model.theory,model.context);
 		return result;
 	}
 	
-	static public DefaultIntensionalBound simplex(List<Expression> Variables, Theory theory, Context context) {
-		if (Variables.size() == 0) {
+	static public DefaultIntensionalBound simplex(List<Expression> variables, Theory theory, Context context) {
+		if (variables.size() == 0) {
 			return new DefaultIntensionalBound();
 		}
 		Expression one = makeSymbol("1");
 		Expression zero= makeSymbol("0");
-		List<Expression> indexExpressionsList = new ArrayList<>(Variables.size());
+		List<Expression> indexExpressionsList = new ArrayList<>(variables.size());
 		
 		// ExtensionalIndexExpressionsSet indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInRegistry(Variables, context);
 				
 		Expression head = one;
-		for (Expression var : Variables) {
+		for (Expression var : variables) {
 			Expression index = Expressions.primedUntilUnique(var, var, context);
 			Expression type = context.getTypeExpressionOfRegisteredSymbol(var);
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
@@ -148,6 +148,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound{
 		
 		DefaultIntensionalBound normalizedIntensionalSet = 
 				new DefaultIntensionalBound(indexExpressions, evaluation, condition);
+		
 		return normalizedIntensionalSet;		
 	}
 
