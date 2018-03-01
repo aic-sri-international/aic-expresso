@@ -15,8 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
-
 import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
 import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 
@@ -40,8 +38,7 @@ public class Tests {
 	static Context context;
 	static int ID = 0;
 
-	@Test
-	public void test() {
+	public void main(String[] args) {
 		// Theory initialization
 		theory = new CompoundTheory(
 				new EqualityTheory(false, true),
