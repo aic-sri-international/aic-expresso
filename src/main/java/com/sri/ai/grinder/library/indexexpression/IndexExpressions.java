@@ -58,8 +58,8 @@ public class IndexExpressions {
 	}
 	
 	public static ExtensionalIndexExpressionsSet makeExtensionalIndexExpressionsSetFromSymbolsAndTypesStrings(String...symbolsAndTypes) {
-		Expression[] symbolsAndTypesExpressions = GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(symbolsAndTypes);
-		List<Expression> indexExpressions = GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes(symbolsAndTypesExpressions);
+		Expression[] symbolsAndTypesExpressions = GrinderUtil.getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(symbolsAndTypes);
+		List<Expression> indexExpressions = GrinderUtil.getIndexExpressionsFromSymbolsAndTypes(symbolsAndTypesExpressions);
 		ExtensionalIndexExpressionsSet result = new ExtensionalIndexExpressionsSet(indexExpressions);
 		return result;
 	}

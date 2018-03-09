@@ -218,4 +218,14 @@ public interface Context extends Registry, Constraint {
 		List<Expression> result = mapIntoList(indices, i -> getTypeExpressionOfRegisteredSymbol(i));
 		return result;
 	}
+	
+	/**
+	 * Equivalent to <code>getTheory().evaluate(expression, this)</code>.
+	 * @param expression
+	 * @return
+	 */
+	default Expression evaluate(Expression expression) {
+		Expression result = getTheory().evaluate(expression, this);
+		return result;
+	}
 }

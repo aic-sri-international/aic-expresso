@@ -10,9 +10,9 @@ import anytimeExactBeliefPropagation.Model.Node.VariableNode;
 public class BFS implements Iterator<FactorNode> {
     private Set<FactorNode> visited = new HashSet<>();
     private Queue<FactorNode> queue = new LinkedList<>();
-    private ManyToManyRelation<VariableNode,FactorNode> graph;
+    private ManyToManyRelation<VariableNode, FactorNode> graph;
 
-    public BFS(ManyToManyRelation<VariableNode,FactorNode> g, VariableNode query) {
+    public BFS(ManyToManyRelation<VariableNode, FactorNode> g, VariableNode query) {
         if (g.containsA(query)) {
             this.graph = g;
             Set<FactorNode> factorsLinkedToQuery = new HashSet<>();
@@ -60,9 +60,9 @@ public class BFS implements Iterator<FactorNode> {
 // public class BFS<F,V> implements Iterator<F> {
 //    private Set<F> visited = new HashSet<>();
 //    private Queue<F> queue = new LinkedList<>();
-//    private ManyToManyRelation<V,F> graph;
+//    private DefaultManyToManyRelation<V,F> graph;
 //
-//    public BFS(ManyToManyRelation<V,F> g, V query) {
+//    public BFS(DefaultManyToManyRelation<V,F> g, V query) {
 //        if (g.containsA(query)) {
 //            this.graph = g;
 //            Set<F> factorsLinkedToQuery = new HashSet<>();

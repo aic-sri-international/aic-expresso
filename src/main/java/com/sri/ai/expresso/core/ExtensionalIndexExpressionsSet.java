@@ -37,8 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes;
-import static com.sri.ai.grinder.helper.GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.grinder.helper.GrinderUtil.getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
@@ -80,8 +80,8 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet, Seri
 	
 	public ExtensionalIndexExpressionsSet(String... symbolsAndTypesStrings) {
 		this(
-				makeIndexExpressionsFromSymbolsAndTypes(
-						makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(
+				getIndexExpressionsFromSymbolsAndTypes(
+						getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(
 								symbolsAndTypesStrings)));
 	}
 	

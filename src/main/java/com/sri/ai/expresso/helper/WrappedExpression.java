@@ -35,50 +35,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.api;
-
-import java.util.List;
+package com.sri.ai.expresso.helper;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 
 /**
- * An {@link Expression} that represents an extensionally defined set.
- * 
+ * An expression delegating to an inner expression.
  * @author braz
  */
 @Beta
-public interface ExtensionalSet extends Expression {
-	
-	/**
-	 * Indicates whether the set is a uniset.
-	 */
-	public boolean isUniSet();
-	
-	/**
-	 * Indicates whether the set is a multiset.
-	 */
-	public boolean isMultiSet();
-	
-	/**
-	 * Returns the expressions describing the elements in the set.
-	 * The method is named {@link #getElementsDefinitions()} instead of simply <code>getElements</code>
-	 * to stress the distinctions about the sub-expressions defining the elements of set, and the elements themselves.
-	 * For example, the extensionally defined set expression <code>{ X, X, a, a }</code> has <i>four</i> element definitions,
-	 * but has two or perhaps even only one element (depending on whether the value of <code>X</code> is <code>a</code>).
-	 */
-	default public List<Expression> getElementsDefinitions() {
-		return getImmediateSubExpressions();
-	}
+public abstract class WrappedExpression extends AbstractExpressionWrapper {
 
-	/**
-	 * Returns the i-th element definition.
-	 */
-	default public Expression getElementDefinition(int i) {
-		return getImmediateSubExpressions().get(i);
-	}
+	private static final long serialVersionUID = 1L;
+	
+	protected Expression innerExpression;
 
-	/**
-	 * Returns a new instance equivalent to this one but for the i-th element definition, which is replaced by the given one.
-	 */
-	public Expression setElementDefinition(int i, Expression newIthElementDefinition);
+	public WrappedExpression(Expression innerExpression) {
+		this.innerExpression = innerExpression;
+	}
+	
+	@Override
+	protected Expression computeInnerExpression() {
+		return innerExpression;
+	}
 }

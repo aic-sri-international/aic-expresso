@@ -105,7 +105,7 @@ public class ExtensionalSets {
 	}
 	
 	public static List<Expression> getElements(Expression setExpression) {
-		return setExpression.getSubExpressions();
+		return setExpression.getImmediateSubExpressions();
 	}
 
 	public static int cardinality(Expression expression) {

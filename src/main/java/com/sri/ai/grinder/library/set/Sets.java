@@ -41,14 +41,19 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
@@ -353,6 +358,12 @@ public class Sets {
 			result = apply(functor, innerSet);
 		}
 		
+		return result;
+	}
+
+	public static Expression intensionalMultiSet(List<? extends Expression> indices, Expression body, Context context) {
+		IndexExpressionsSet indexExpressions = context.getIndexExpressions(indices);
+		Expression result = new DefaultIntensionalMultiSet(indexExpressions, body, TRUE);
 		return result;
 	}
 }

@@ -265,7 +265,7 @@ public abstract class AbstractExpression implements Expression {
 	}
 	
 	@Override
-	public List<Expression> getSubExpressions() {
+	public List<Expression> getImmediateSubExpressions() {
 		List<Expression> result = null;
 		Iterator<ExpressionAndSyntacticContext> immediateSubExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
 	

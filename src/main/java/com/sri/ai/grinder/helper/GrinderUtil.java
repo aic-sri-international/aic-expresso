@@ -137,7 +137,7 @@ public class GrinderUtil {
 	 * @param symbolsAndTypes
 	 * @return
 	 */
-	public static Expression[] makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(String... symbolsAndTypes) {
+	public static Expression[] getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(String... symbolsAndTypes) {
 		Expression symbolsAndTypesExpressions[] = new Expression[symbolsAndTypes.length];
 		for (int i = 0; i != symbolsAndTypes.length; i++) {
 			symbolsAndTypesExpressions[i] = parse(symbolsAndTypes[i]);
@@ -150,7 +150,7 @@ public class GrinderUtil {
 	 * @param symbolsAndTypes
 	 * @return
 	 */
-	public static List<Expression> makeIndexExpressionsFromSymbolsAndTypes(Expression... symbolsAndTypes) {
+	public static List<Expression> getIndexExpressionsFromSymbolsAndTypes(Expression... symbolsAndTypes) {
 		List<Expression> indexExpressions = list();
 		for (int i = 0; i != symbolsAndTypes.length/2; i++) {
 			Expression indexExpression = apply(FunctorConstants.IN, symbolsAndTypes[2*i], symbolsAndTypes[2*i + 1]);
@@ -164,14 +164,14 @@ public class GrinderUtil {
 	 */
 	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, Registry registry) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, registry);
-		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInRegistry(freeVariables, registry);
+		IndexExpressionsSet result = getIndexExpressionsForIndicesInListAndTypesInRegistry(freeVariables, registry);
 		return result;
 	}
 
 	/**
 	 * Returns a list of index expressions corresponding to the given indices and their types per the registry, if any.
 	 */
-	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInRegistry(Collection<Expression> indices, Registry registry) {
+	public static ExtensionalIndexExpressionsSet getIndexExpressionsForIndicesInListAndTypesInRegistry(Collection<? extends Expression> indices, Registry registry) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
 			Expression type = registry.getTypeExpressionOfRegisteredSymbol(index);
