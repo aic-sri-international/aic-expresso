@@ -219,7 +219,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound {
 	}
 
 	@Override
-	public DefaultIntensionalBound summingBound(Expression variablesToBeSummedOut, Context context, Theory theory) {
+	public DefaultIntensionalBound sumOut(Expression variablesToBeSummedOut, Context context, Theory theory) {
 		DefaultIntensionalBound result = summingBound(variablesToBeSummedOut, this, context, theory);
 		return result;
 	}
@@ -253,7 +253,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound {
 	}
 
 	@Override
-	public DefaultIntensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Context context,
+	public DefaultIntensionalBound sumOutProductByFactor(Expression variablesToBeSummedOut, Expression phi, Context context,
 			Theory theory) {
 		DefaultIntensionalBound result = summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
 		return result;
@@ -284,16 +284,16 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound {
 	}
 	
 	@Override
-	public Bound summingBound(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
+	public Bound sumOut(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
 		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		return summingBound(varSet, context, theory); 
+		return sumOut(varSet, context, theory); 
 	}
 
 	@Override
-	public Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context,
+	public Bound sumOutProductByFactor(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context,
 			Theory theory) {
 		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		return summingPhiTimesBound(varSet, phi, context, theory); 
+		return sumOutProductByFactor(varSet, phi, context, theory); 
 	}
 
 	protected DefaultIntensionalBound applyFunctionToBound(Expression f, Expression variableName, Bound bound, Theory theory, Context context) {

@@ -167,7 +167,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 	}
 
 	@Override
-	public DefaultExtensionalBound summingBound(Expression variablesToBeSummedOut, Context context, Theory theory) {
+	public DefaultExtensionalBound sumOut(Expression variablesToBeSummedOut, Context context, Theory theory) {
 		return summingBound(variablesToBeSummedOut, this, context, theory);
 	}	
 	
@@ -197,23 +197,23 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 	return result;
 	}
 	
-	public DefaultExtensionalBound summingBound(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
+	public DefaultExtensionalBound sumOut(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
 		Expression varsSet = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		DefaultExtensionalBound result = summingBound(varsSet,context,theory);
+		DefaultExtensionalBound result = sumOut(varsSet,context,theory);
 		return result;
 	}
 
 
 	@Override
-	public DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi,
+	public DefaultExtensionalBound sumOutProductByFactor(Expression variablesToBeSummedOut, Expression phi,
 			Context context, Theory theory) {
 		return summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
 	}	
 	
-	public DefaultExtensionalBound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
+	public DefaultExtensionalBound sumOutProductByFactor(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
 			Context context, Theory theory) {
 		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		return summingPhiTimesBound(varSet, phi, context, theory); 
+		return sumOutProductByFactor(varSet, phi, context, theory); 
 	}	
 	
 	private DefaultExtensionalBound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Bound bound,
@@ -320,7 +320,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 		
 		//(there exists) ci in Real
 		ArrayList<Expression> listOfCiInReal = new ArrayList<>(listOfB.size());
-		for (i = 0; i <n; i++) {
+		for (i = 0; i < n; i++) {
 			listOfCiInReal.add(apply(IN,c[i],"Real"));
 			context = context.extendWithSymbolsAndTypes(c[i],parse("Real"));
 		}

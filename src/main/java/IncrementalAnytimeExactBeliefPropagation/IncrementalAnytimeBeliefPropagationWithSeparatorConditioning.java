@@ -279,7 +279,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		bound = bound.summingPhiTimesBound(varToSumOut, currentNode.node.getValue(), model.getContext(), model.getTheory());
+		bound = bound.sumOutProductByFactor(varToSumOut, currentNode.node.getValue(), model.getContext(), model.getTheory());
 		return bound;
 	}
 	
@@ -303,7 +303,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		bound = bound.summingBound(varToSumOut, model.getContext(), model.getTheory());
+		bound = bound.sumOut(varToSumOut, model.getContext(), model.getTheory());
 		
 		return bound;
 	}
@@ -380,7 +380,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		bound = bound.summingBound(varToSumOut, model.getContext(), model.getTheory());
+		bound = bound.sumOut(varToSumOut, model.getContext(), model.getTheory());
 		
 		return bound;
 		// partitionInAVariableNode.node.setBound(bound);
@@ -425,7 +425,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 		varToSumOutList.addAll(variablesToSumOut);
 		Expression varToSumOut = new DefaultExtensionalMultiSet(varToSumOutList);
 		
-		bound = bound.summingPhiTimesBound(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
+		bound = bound.sumOutProductByFactor(varToSumOut, partitionInAFactorNode.node.getValue(), model.getContext(), model.getTheory());
 		return bound;
 		// partitionInAFactorNode.node.setBound(bound);
 	}
