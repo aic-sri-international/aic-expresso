@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import anytimeExactBeliefPropagation.Model.BFS;
 import anytimeExactBeliefPropagation.Model.Model;
@@ -27,6 +28,7 @@ import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory
 import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.Triple;
 
 public class Tests {
 	
@@ -44,10 +46,15 @@ public class Tests {
 		String modelName;
 		
 		
-		modelName = "Ising Model";
-		m = new Model(IsingModel(3,2, context, parse("Boolean")),theory, true);
+		Triple<Set<Expression>, Context, Expression> a = IsingModel(4,4, context, parse("Boolean"));
 		
-		testFunction(modelName, m,true);
+		println(a);
+		
+		m = new Model(a,theory, true);
+		
+		Expression b = ModelGenerator.lveCalculation(m);
+		println(b);
+//		testFunction(modelName, m,true);
 		
 //		modelName = "Line Model";
 //		m = new Model(lineModel(10, context, parse("Boolean")),theory, true);
