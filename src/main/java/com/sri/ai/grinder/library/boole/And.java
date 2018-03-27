@@ -110,7 +110,7 @@ public class And extends BooleanCommutativeAssociative {
 		}
 		else {
 			LinkedHashSet<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
-			Util.collect(conjunction.getArguments(), distinctArgumentsNotEqualToTrue, e -> ! e.equals(Expressions.TRUE));
+			Util.collect(conjunction.getArguments(), e -> ! e.equals(Expressions.TRUE), distinctArgumentsNotEqualToTrue);
 			if (distinctArgumentsNotEqualToTrue.size() != conjunction.getArguments().size()) {
 				if (distinctArgumentsNotEqualToTrue.size() == 0) {
 					result = Expressions.TRUE;

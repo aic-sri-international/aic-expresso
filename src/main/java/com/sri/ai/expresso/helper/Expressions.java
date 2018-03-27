@@ -730,7 +730,7 @@ public class Expressions {
 	 */
 	public static LinkedHashSet<Expression> getSubExpressionsSatisfying(Expression expression, Predicate<Expression> predicate) {
 		LinkedHashSet<Expression> results = new LinkedHashSet<Expression>();
-		Util.collect(new SubExpressionsDepthFirstIterator(expression), results, predicate);
+		Util.collect(new SubExpressionsDepthFirstIterator(expression), predicate, results);
 		return results;
 	}
 

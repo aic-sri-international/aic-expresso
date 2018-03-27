@@ -123,7 +123,7 @@ public abstract class CommutativeAssociative implements Simplifier {
 		int indexOfFirstOperable =
 			Util.collect(
 					arguments,
-					operableArguments, getIsOperableArgumentExpressionPredicate(),
+					getIsOperableArgumentExpressionPredicate(), operableArguments,
 					nonOperableArguments);
 	
 		if (operableArguments.size() == 0) {

@@ -109,7 +109,7 @@ public class Or extends BooleanCommutativeAssociative {
 		}
 		else {
 			LinkedHashSet<Expression> distinctArgumentsNotEqualToFalse = new LinkedHashSet<Expression>();
-			Util.collect(disjunction.getArguments(), distinctArgumentsNotEqualToFalse, e -> ! e.equals(Expressions.FALSE));
+			Util.collect(disjunction.getArguments(), e -> ! e.equals(Expressions.FALSE), distinctArgumentsNotEqualToFalse);
 			if (distinctArgumentsNotEqualToFalse.size() != disjunction.getArguments().size()) {
 				if (distinctArgumentsNotEqualToFalse.size() == 0) {
 					result = Expressions.FALSE;
