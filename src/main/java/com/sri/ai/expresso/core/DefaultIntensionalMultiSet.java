@@ -37,12 +37,16 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * A default implementation of a {@link IntensionalSet} for multisets.
@@ -90,5 +94,22 @@ public class DefaultIntensionalMultiSet extends AbstractIntensionalSet implement
 	@Override
 	protected String getClosingBrackets() {
 		return "}}";
+	}
+
+	/**
+	 * Creates an intensional multi-set on a single index, obtaining its type from the context
+	 * (so it must be registered there).
+	 * @param index
+	 * @param body
+	 * @param condition
+	 * @param context
+	 * @return an intensional multi-set expression.
+	 */
+	public static Expression intensionalMultiSet(Expression index, Expression body, Expression condition, Context context) {
+		Expression type = context.getTypeExpressionOfRegisteredSymbol(index);
+		Expression indexExpression = apply(FunctorConstants.IN, index, type);
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(indexExpression);
+		Expression set = new DefaultIntensionalMultiSet(indexExpressions, body, condition);
+		return set;
 	}
 }
