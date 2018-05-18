@@ -14,6 +14,12 @@ import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
 import com.sri.ai.grinder.core.TrueContext;
 
+/**
+ * Class to test automatic symbolic differentiation of {@link Expression}
+ * 
+ * @author Sarah Perrin
+ */
+
 public class AutomaticDifferentiationTest {
 	
 	private static AutomaticDifferentiation autoDifferentiator;
