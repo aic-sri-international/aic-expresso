@@ -3,6 +3,7 @@ package com.sri.ai.expresso.autodifferentiation;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
 import static com.sri.ai.grinder.library.FunctorConstants.DERIV;
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
@@ -10,14 +11,15 @@ import static com.sri.ai.grinder.library.FunctorConstants.LOG;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.thereExists;
 
 import java.util.function.Function;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.util.Util;
 
 /**
  * Class for automatic symbolic differentiation of {@link Expression}
@@ -40,12 +42,14 @@ public class AutomaticDifferentiation {
 	 * 
 	 */
 	public Expression differentiateExpression(Expression f, Expression argument) {
+		Expression result;
 		if (argument.getSyntacticFormType().equals("Symbol") || argument.getSyntacticFormType().equals("Function application")) {
-			return differentiateExpressionIfArgIsSymbolOrFunctionApplication(f, argument);
+			result = differentiateExpressionIfArgumentIsSymbolOrFunctionApplication(f, argument);
 		}
 		else { 
-			return apply(DERIV, f, argument);
+			result = apply(DERIV, f, argument);
 		}
+		return result;
 	}
 	
 	/**
@@ -53,7 +57,7 @@ public class AutomaticDifferentiation {
 	 * (either a {@link DefaultFunctionApplication} or a {@link Symbol}
 	 * 
 	 */
-	private Expression differentiateExpressionIfArgIsSymbolOrFunctionApplication(Expression f, Expression argument) {
+	private Expression differentiateExpressionIfArgumentIsSymbolOrFunctionApplication(Expression f, Expression argument) {
 		
 		Expression result;
 		if (f.getSyntacticFormType().equals("Symbol")) {
@@ -107,12 +111,18 @@ public class AutomaticDifferentiation {
 			result = ONE;
 		 }
 		else if (argument.getSyntacticFormType().equals("Function application")) {
-			if (symbolIsAnArgumentOfFunction((Symbol)f, (DefaultFunctionApplication)argument)) {
-				result = apply(DERIV, f, argument);
-			}
-			else {
-				result = ZERO;
-			}
+			result = differentiateStringWhenArgumentIsFunctionApplication(f, argument);
+		}
+		else {
+			result = ZERO;
+		}
+		return result;
+	}
+
+	private Expression differentiateStringWhenArgumentIsFunctionApplication(Expression f, Expression argument) {
+		Expression result;
+		if (symbolIsAnArgumentOfFunction((Symbol)f, (DefaultFunctionApplication)argument)) {
+			result = apply(DERIV, f, argument);
 		}
 		else {
 			result = ZERO;
@@ -134,7 +144,8 @@ public class AutomaticDifferentiation {
 	 * 
 	 */
 	private boolean isAComposed(Expression f) {
-		return Util.thereExists(f.getArguments(), a -> a.getSyntacticFormType().equals("Function application"));
+		boolean result = thereExists(f.getArguments(), a -> a.getSyntacticFormType().equals("Function application"));
+		return result;
 	}
 
 	/**
@@ -142,8 +153,9 @@ public class AutomaticDifferentiation {
 	 * which is the {@link DefaultFunctionApplication} f passed in the arguments.
 	 * 
 	 */
-	private boolean isADirectComposedOfArg(Expression f, Expression argument) {
-		return Util.thereExists(f.getArguments(), a -> a.equals(argument));
+	private boolean isADirectComposedOfArgument(Expression f, Expression argument) {
+		boolean result = thereExists(f.getArguments(), a -> a.equals(argument));
+		return result;
 	}
 	
 	/**
@@ -151,19 +163,8 @@ public class AutomaticDifferentiation {
 	 * which is the {@link Symbol} argument passed in the arguments.
 	 * 
 	 */
-	private boolean symbolIsAnArgumentOfFunction(Symbol argument, DefaultFunctionApplication f) {
-		boolean result = false;
-		if (Util.thereExists(f.getArguments(), a -> a.equals(argument))) {
-			result = true;
-		}
-		else {
-			for (int i = 0; i<f.numberOfArguments(); i++ ) {
-				Expression IthTermOfF = f.get(i);
-				if (IthTermOfF.getSyntacticFormType().equals("Function application")) {
-					result = symbolIsAnArgumentOfFunction(argument, (DefaultFunctionApplication)IthTermOfF);
-				}
-			}
-		}
+	private boolean symbolIsAnArgumentOfFunction(Symbol argument, FunctionApplication f) {
+		boolean result = isSubExpressionOf(argument, f);
 		return result;
 	}
 
@@ -175,14 +176,20 @@ public class AutomaticDifferentiation {
 		Expression result;
 		if (f.numberOfArguments() > 0) {
 			result = f;
-			for (int i = 0; i < f.numberOfArguments(); i++) {
-				Expression IthTermOfF = f.get(i);
-				Expression newIthArgument = differentiateExpression(IthTermOfF, argument);
-				result = result.set(i, newIthArgument);
-			}
+			result = setArgumentsWhenDifferentiatingSumOrSubstraction(f, argument, result);
 		}
 		else { 
 			result = apply(DERIV, f, argument);
+		}
+		return result;
+	}
+
+	private Expression setArgumentsWhenDifferentiatingSumOrSubstraction(Expression f, Expression argument,
+			Expression result) {
+		for (int i = 0; i < f.numberOfArguments(); i++) {
+			Expression ithTermOfF = f.get(i);
+			Expression newIthArgument = differentiateExpression(ithTermOfF, argument);
+			result = result.set(i, newIthArgument);
 		}
 		return result;
 	}
@@ -242,7 +249,7 @@ public class AutomaticDifferentiation {
 			
 		}
 		else { 
-			result = Expressions.apply(DERIV, f, argument);
+			result = apply(DERIV, f, argument);
 		}
 		return result;
 	}
@@ -277,21 +284,14 @@ public class AutomaticDifferentiation {
 	 */
 	private Expression differentiateUndefinedFunctionApplication(Expression f, Expression argument) {
 		Expression result;
-		if (isAComposed(f)) {
-			if (isADirectComposedOfArg(f, argument)) {
-				result = apply(DERIV, f, argument);
-			}
-			else {
-				result = differentiateAnyFunction(f, argument);
-			}
+		if(isAComposed(f) && !isADirectComposedOfArgument(f, argument)) {
+			result = differentiateAnyFunction(f, argument);
+		}
+		else if(!isAComposed(f) && !isADirectComposedOfArgument(f, argument)) {
+			result = ZERO;
 		}
 		else {
-			if (isADirectComposedOfArg(f, argument)) {
-				result = apply(DERIV, f, argument);
-			}
-			else {
-				result = ZERO;
-			}
+			result = apply(DERIV, f, argument);
 		}
 		return result;
 	}
@@ -306,7 +306,7 @@ public class AutomaticDifferentiation {
 			result = apply(PLUS,f.getArguments());
 			result = setArgumentsWhenDifferentiatingComposedFunction(f, argument, result);
 		}
-		else { 
+		else {
 			result = apply(DERIV, f, argument);
 		}
 		return result;
@@ -314,8 +314,8 @@ public class AutomaticDifferentiation {
 
 	private Expression setArgumentsWhenDifferentiatingComposedFunction(Expression f, Expression argument, Expression result) {
 		for (int i = 0; i < f.numberOfArguments(); i++) {
-			Expression IthTermOfF = f.get(i);
-			Expression argument_i = apply(TIMES,differentiateExpression(f,IthTermOfF),differentiateExpression(f.get(i), argument));
+			Expression ithTermOfF = f.get(i);
+			Expression argument_i = apply(TIMES,differentiateExpression(f,ithTermOfF),differentiateExpression(f.get(i), argument));
 			result = result.set(i, argument_i);
 		}
 		return result;
