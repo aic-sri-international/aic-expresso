@@ -28,21 +28,22 @@ import com.sri.ai.grinder.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
+import com.sri.ai.util.collect.DefaultManyToManyRelation;
 import com.sri.ai.util.collect.ManyToManyRelation;
 
 public class Model {
 	public ManyToManyRelation<Expression, Expression> map;
-	// public ManyToManyRelation<Expression, String> mapVariablesToType;
-	// public ManyToManyRelation<Expression, Expression> mapVariablesToValuesTaken;
+	// public DefaultManyToManyRelation<Expression, String> mapVariablesToType;
+	// public DefaultManyToManyRelation<Expression, Expression> mapVariablesToValuesTaken;
 	public Set<VariableComponent> initializeVariableComponent;
 	public Set<FactorComponent> initializeFactorComponent;
 	public Context context;
 	public Theory theory;
 
 	public Model(Set<Expression> Factor) {
-		this.map = new ManyToManyRelation<Expression, Expression>();
-		// this.mapVariablesToType	 = new ManyToManyRelation<Expression, String>();
-		// this.mapVariablesToValuesTaken	 = new ManyToManyRelation<Expression, Expression>();
+		this.map = new DefaultManyToManyRelation<Expression, Expression>();
+		// this.mapVariablesToType	 = new DefaultManyToManyRelation<Expression, String>();
+		// this.mapVariablesToValuesTaken	 = new DefaultManyToManyRelation<Expression, Expression>();
 		this.initializeFactorComponent = new HashSet<FactorComponent>();
 		this.initializeVariableComponent = new HashSet<VariableComponent>();
 		this.theory = new CompoundTheory(

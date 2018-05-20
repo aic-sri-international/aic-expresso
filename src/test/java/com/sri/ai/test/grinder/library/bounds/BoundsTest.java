@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.sri.ai.expresso.ExpressoConfiguration;
@@ -35,7 +36,7 @@ public class BoundsTest {
 	
 	Theory theory ;
 	Context context;
-	Bound setOFNumbers;
+	Bound setOfNumbers;
 	Bound setOfFactors;
 	Bound extensionalBound;
 	Bound intensionalBound;
@@ -43,30 +44,9 @@ public class BoundsTest {
 	Bound intensionalSetOfFactors2;
 	Bound intensionalSetOfFactors3;
 	Model model;
-	
-	private void declareTheoryContextAndSetOfFactors() {
-		
-		/* That's how we create a empty bound
-		 * It is useful for abstracting the kind of bound we are talking about:
-		 * 		if you say to a program that one of his attributes is a bound, you can let the user choose
-		 * 		between a extensional or intensional representation just by passing the right object as 
-		 * 		argument.
-		 * 
-		 * 		Example:
-		 * 		
-		 * 		class foo{
-		 * 			Bound b
-		 * 			...
-		 * 			public foo(Bound b, ...) {
-		 *				this.b = b;
-		 *				...
-		 *			} 	 
-		 * 		}
-		 * 		
-		 * 		Use:
-		 * 		foo object = new foo(new DefaultExtensionalBound(),...);
-		 * 		
-		 * */
+
+	@Before
+	public void declareTheoryContextAndSetOfFactors() {
 		
 		ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(true);
 		
@@ -101,11 +81,11 @@ public class BoundsTest {
 		setOfFactors = new DefaultExtensionalBound(arrayList(phi1, phi2, phi3, phi4, phi5)); 
 	
 		// Set of numbers
-		setOFNumbers = new DefaultExtensionalBound(arrayList(ONE, TWO));
+		setOfNumbers = new DefaultExtensionalBound(arrayList(ONE, TWO));
 
-		Set<Expression> Factor = new HashSet<Expression>();
+		Set<Expression> factor = new HashSet<Expression>();
 		
-		model = new Model(Factor);
+		model = new Model(factor);
 		
 		model.context =	model.context.extendWithSymbolsAndTypes("A", "Boolean");
 		model.context =	model.context.extendWithSymbolsAndTypes("B", "Boolean");
@@ -128,7 +108,6 @@ public class BoundsTest {
 	
 	@Test
 	public void testSimplex() {
-		declareTheoryContextAndSetOfFactors();
 		
 		Expression a = DefaultSymbol.createSymbol("A");
 		Expression b = DefaultSymbol.createSymbol("B");
@@ -172,7 +151,6 @@ public class BoundsTest {
 	
 	@Test
 	public void testNormalize() {
-		declareTheoryContextAndSetOfFactors();
 		
 		assertEquals(
 				"{ if X then 1/7 else if Y then 2/7 else 3/7, "
@@ -223,10 +201,9 @@ public class BoundsTest {
 	
 	@Test
 	public void testBoundProduct() {
-		declareTheoryContextAndSetOfFactors();
 		
 		// Set of functions
-		Expression phi = parse("if A = true then  1 else 6");
+		Expression phi = parse("if A = true then 1 else 6");
 		Bound setOfFactors2 = new DefaultExtensionalBound(phi);
 		
 		assertEquals(
@@ -242,7 +219,7 @@ public class BoundsTest {
 				 Bounds.boundProduct(theory, context,true,
 						 setOfFactors,
 						 setOfFactors2,
-						 setOFNumbers
+						 setOfNumbers
 						 ));	 
 
 		assertEquals(
@@ -260,14 +237,14 @@ public class BoundsTest {
 	
 	@Test
 	public void testSummingOverBound() {
-		declareTheoryContextAndSetOfFactors();		
+
 		assertEquals(
 			"{ if Y then 12 else 16, "
 			+ "if Y then 40 else 44, "
 			+ "62, "
 			+ "86, "
 			+ "if C < 4 then 80 else if C = 4 then 88 else 96 }",
-			setOfFactors.summingBound(parse("{A,B,X}"), context, theory).toString());
+			setOfFactors.sumOut(parse("{A,B,X}"), context, theory).toString());
 
 		
 		assertEquals(
@@ -276,17 +253,17 @@ public class BoundsTest {
 				+ "if X then 140 else 170, "
 				+ "215, "
 				+ "212 }",
-				setOfFactors.summingBound(parse("{A,B,C}"), context, theory).toString());
+				setOfFactors.sumOut(parse("{A,B,C}"), context, theory).toString());
 	}
 	
 	@Test
 	public void testNormalizeOneSingleElement() {
-		declareTheoryContextAndSetOfFactors();
+
 		assertEquals(
 				"if A then if B then 67/76 else 7/76 else 1/76",
 				Bounds.normalizeSingleExpression(
-						parse("if A then if B then 67 else 7 else 1")
-						, theory,
+						parse("if A then if B then 67 else 7 else 1"),
+						theory,
 						context)
 				.toString());
 	}

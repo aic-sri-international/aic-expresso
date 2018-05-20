@@ -254,8 +254,8 @@ public class Equality implements Simplifier {
 		Predicate<Expression> notIsConstant = Predicates.not(context.getIsUniquelyNamedConstantPredicate());
 		Util.collectOrReturnFalseIfElementDoesNotFitEither(
 				equality.getArguments(),
-				variables, notIsConstant,
-				constants, context.getIsUniquelyNamedConstantPredicate());
+				notIsConstant, variables,
+				context.getIsUniquelyNamedConstantPredicate(), constants);
 		if (constants.isEmpty()) {
 			result = null;
 		}
@@ -277,8 +277,8 @@ public class Equality implements Simplifier {
 		Predicate<Expression> notIsConstant = Predicates.not(context.getIsUniquelyNamedConstantPredicate());
 		Util.collectOrReturnFalseIfElementDoesNotFitEither(
 				equality.getArguments(),
-				variables, notIsConstant,
-				constants, context.getIsUniquelyNamedConstantPredicate());
+				notIsConstant, variables,
+				context.getIsUniquelyNamedConstantPredicate(), constants);
 		result = Pair.make(variables, constants);
 		return result;
 	}
@@ -438,7 +438,7 @@ public class Equality implements Simplifier {
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
 			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
-			Util.collect(equality.getArguments(), constants, context.getIsUniquelyNamedConstantPredicate(), nonConstants);
+			Util.collect(equality.getArguments(), context.getIsUniquelyNamedConstantPredicate(), constants, nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.FALSE;
 			}

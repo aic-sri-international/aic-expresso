@@ -66,14 +66,6 @@ import com.sri.ai.grinder.rewriter.api.Rewriter;
 import com.sri.ai.grinder.rewriter.core.Exhaustive;
 import com.sri.ai.grinder.rewriter.core.FirstOf;
 import com.sri.ai.grinder.rewriter.core.Recursive;
-import com.sri.ai.grinder.theory.bruteforce.BruteForceFallbackTheory;
-import com.sri.ai.grinder.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.theory.function.BruteForceFunctionTheory;
-import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.theory.tuple.TupleTheory;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
@@ -164,16 +156,7 @@ public class SymbolicShell {
 	}
 
 	private static Theory makeTheory() {
-		Theory theory = new CompoundTheory(
-				new EqualityTheory(false, true),
-				new DifferenceArithmeticTheory(false, false),
-				new LinearRealArithmeticTheory(false, false),
-				new TupleTheory(),
-				new PropositionalTheory()
-				,
-				new BruteForceFunctionTheory()
-				);
-		theory = new BruteForceFallbackTheory(theory);
+		Theory theory = new CommonTheory();
 		return theory;
 	}
 

@@ -37,8 +37,9 @@
  */
 package com.sri.ai.grinder.api;
 
-import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsFromSymbolsAndTypes;
-import static com.sri.ai.grinder.helper.GrinderUtil.makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsForIndicesInListAndTypesInRegistry;
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.grinder.helper.GrinderUtil.getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
 import static com.sri.ai.util.Util.valueOrMakeDefaultIfNull;
 
 import java.util.Collection;
@@ -191,7 +192,7 @@ public interface Registry extends Cloneable {
 	 */
 	default Registry extendWithSymbolsAndTypes(Expression... symbolsAndTypes) {
 		Util.myAssert(symbolsAndTypes.length % 2 == 0, () -> "Need to extend registry with a sequence of symbols and their types");
-		List<Expression> indexExpressions = makeIndexExpressionsFromSymbolsAndTypes(symbolsAndTypes);
+		List<Expression> indexExpressions = getIndexExpressionsFromSymbolsAndTypes(symbolsAndTypes);
 		Registry result = extendWith(new ExtensionalIndexExpressionsSet(indexExpressions));
 		return result;
 	}
@@ -202,7 +203,7 @@ public interface Registry extends Cloneable {
 	 * @return
 	 */
 	default Registry extendWithSymbolsAndTypes(String... symbolsAndTypes) {
-		Expression[] symbolsAndTypesExpressions = makeListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(symbolsAndTypes);
+		Expression[] symbolsAndTypesExpressions = getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings(symbolsAndTypes);
 		Registry result = extendWithSymbolsAndTypes(symbolsAndTypesExpressions);
 		return result;
 	}
@@ -261,5 +262,10 @@ public interface Registry extends Cloneable {
 		else {
 			return null;
 		}
+	}
+
+	default IndexExpressionsSet getIndexExpressions(List<? extends Expression> indices) {
+		ExtensionalIndexExpressionsSet result = getIndexExpressionsForIndicesInListAndTypesInRegistry(indices, this);
+		return result;		
 	}
 }

@@ -13,6 +13,7 @@ import com.sri.ai.grinder.library.bounds.Bound;
 import com.sri.ai.grinder.library.bounds.DefaultExtensionalBound;
 import com.sri.ai.grinder.library.bounds.DefaultIntensionalBound;
 import com.sri.ai.util.base.Triple;
+import com.sri.ai.util.collect.DefaultManyToManyRelation;
 import com.sri.ai.util.collect.ManyToManyRelation;
 
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
@@ -45,8 +46,8 @@ public class Model {
 	private boolean isExtensional;
 	
 	public Model(Theory theory, Context context, boolean isExtensional, VariableNode query) {
-		this.graphicalModel = new ManyToManyRelation<>();
-		this.exploredGraphicalModel= new ManyToManyRelation<>();
+		this.graphicalModel = new DefaultManyToManyRelation<>();
+		this.exploredGraphicalModel= new DefaultManyToManyRelation<>();
 		this.theory = theory;
 		this.context = context;
 		this.isExtensional = isExtensional;
@@ -147,7 +148,7 @@ public class Model {
 	 * graph expansion or other partition trees), it suffices to clear the explored graph 
 	 */
 	public void clearExploredGraph() {
-		exploredGraphicalModel = new ManyToManyRelation<>();
+		exploredGraphicalModel = new DefaultManyToManyRelation<>();
 	}
 	
 	public Context getContext() {

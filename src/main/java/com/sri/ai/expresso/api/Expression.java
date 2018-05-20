@@ -65,7 +65,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	Iterator<ExpressionAndSyntacticContext> getImmediateSubExpressionsAndContextsIterator();
 	Expression replace(ExpressionAndSyntacticContext replacement);
 	
-	List<Expression> getSubExpressions();
+	List<Expression> getImmediateSubExpressions();
 	
 	/**
 	 * Returns scoped expressions (that is, indices and quantified variables) introduced by this expression

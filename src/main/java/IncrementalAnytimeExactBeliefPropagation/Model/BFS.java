@@ -21,13 +21,13 @@ public class BFS implements Iterator<PartitionTree> {
 	
     private Set<FactorNode> visited = new HashSet<>();
     private Queue<FactorNode> queue = new LinkedList<>();
-    private ManyToManyRelation<VariableNode,FactorNode> graph;
+    private ManyToManyRelation<VariableNode, FactorNode> graph;
     private HashMap<Node, PartitionTree> fromNodeToPartition = new HashMap<>();
     
     private boolean first = true;
     PartitionTree partitionQuery;
 
-    public BFS(ManyToManyRelation<VariableNode,FactorNode> graph, VariableNode query) {
+    public BFS(ManyToManyRelation<VariableNode, FactorNode> graph, VariableNode query) {
 
     	myAssert(graph.containsA(query), () -> "Graph does not contain query " + query);
 

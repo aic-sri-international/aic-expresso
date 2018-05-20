@@ -183,7 +183,7 @@ public class ExpressoAPIExamples {
 		arithmetic1 = apply(FunctorConstants.TIMES, 2,  apply(FunctorConstants.PLUS, 2, 3));
 		logic1      = apply(FunctorConstants.AND,  "p", apply(FunctorConstants.OR, "q", "r"));
 
-		// Functor constants can also be statically imported:
+		// Using static imports makes it more readable (in Eclipse, place the cursor on the field/method/constant and press Shift-Ctrl-M):
 		arithmetic1 = apply(TIMES, 2,  apply(PLUS, 2, 3));
 		logic1      = apply(AND,  "p", apply(OR, "q", "r"));
 		
@@ -411,6 +411,7 @@ public class ExpressoAPIExamples {
 		// including some very flexible ones that allow the user to provide a function for determining the replacement.
 
 		// Here's how to decide if a point is in the convex hull of other two points:
+		// BUGGY : doesn't evaluate but it should
 		Context convexityBaseContext = new TrueContext(theory);
 		convexityBaseContext = convexityBaseContext.setIsUniquelyNamedConstantPredicate(new UniquelyNamedConstantIncludingBooleansAndNumbersPredicate(set()));
 		convexityBaseContext = convexityBaseContext.extendWithSymbolsAndTypes("p", "Real", "p1", "Real", "p2", "Real", "X", "Integer");

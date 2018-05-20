@@ -35,50 +35,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.api;
-
-import java.util.List;
+package com.sri.ai.grinder.application;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.theory.bruteforce.BruteForceFallbackTheory;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
+import com.sri.ai.grinder.theory.equality.EqualityTheory;
+import com.sri.ai.grinder.theory.function.BruteForceFunctionTheory;
+import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
+import com.sri.ai.grinder.theory.tuple.TupleTheory;
 
 /**
- * An {@link Expression} that represents an extensionally defined set.
+ * Provides "common theory" for the typical applications.
+ * Will change as theories are developed and defined.
  * 
  * @author braz
+ *
  */
 @Beta
-public interface ExtensionalSet extends Expression {
+public class CommonTheory extends BruteForceFallbackTheory {
 	
-	/**
-	 * Indicates whether the set is a uniset.
-	 */
-	public boolean isUniSet();
-	
-	/**
-	 * Indicates whether the set is a multiset.
-	 */
-	public boolean isMultiSet();
-	
-	/**
-	 * Returns the expressions describing the elements in the set.
-	 * The method is named {@link #getElementsDefinitions()} instead of simply <code>getElements</code>
-	 * to stress the distinctions about the sub-expressions defining the elements of set, and the elements themselves.
-	 * For example, the extensionally defined set expression <code>{ X, X, a, a }</code> has <i>four</i> element definitions,
-	 * but has two or perhaps even only one element (depending on whether the value of <code>X</code> is <code>a</code>).
-	 */
-	default public List<Expression> getElementsDefinitions() {
-		return getImmediateSubExpressions();
+	public CommonTheory() {
+		super(new CompoundTheory(
+			new EqualityTheory(false, true),
+			new DifferenceArithmeticTheory(false, false),
+			new LinearRealArithmeticTheory(false, false),
+			new TupleTheory(),
+			new PropositionalTheory()
+			,
+			new BruteForceFunctionTheory()
+			));
 	}
-
-	/**
-	 * Returns the i-th element definition.
-	 */
-	default public Expression getElementDefinition(int i) {
-		return getImmediateSubExpressions().get(i);
-	}
-
-	/**
-	 * Returns a new instance equivalent to this one but for the i-th element definition, which is replaced by the given one.
-	 */
-	public Expression setElementDefinition(int i, Expression newIthElementDefinition);
 }

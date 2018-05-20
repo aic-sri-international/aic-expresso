@@ -82,7 +82,7 @@ public class Disequality  implements Simplifier {
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
 			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
-			Util.collect(disequality.getArguments(), constants, context.getIsUniquelyNamedConstantPredicate(), nonConstants);
+			Util.collect(disequality.getArguments(), context.getIsUniquelyNamedConstantPredicate(), constants, nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.TRUE;
 			}

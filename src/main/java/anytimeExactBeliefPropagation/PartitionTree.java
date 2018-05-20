@@ -292,7 +292,7 @@ public class PartitionTree {
    		Context context = this.model.getContext();
    		Theory theory = this.model.getTheory();
    		ArrayList<Expression> varToSum = this.getVarToSumInMessageFromVariableToFactor();
-   		return childrenProduct.summingBound(varToSum, context, theory);
+   		return childrenProduct.sumOut(varToSum, context, theory);
    	}
    	
    	public ArrayList<Expression> getVarToSumInMessageFromVariableToFactor() {
@@ -319,7 +319,7 @@ public class PartitionTree {
    		Context context = model.getContext();
    		Theory theory = model.getTheory();
    		ArrayList<Expression> varToSum = this.getVarToSumInMessageFromFactorToVariable();
-   		return childrenProduct.summingBound(varToSum, context, theory);
+   		return childrenProduct.sumOut(varToSum, context, theory);
    	}
    	
    	

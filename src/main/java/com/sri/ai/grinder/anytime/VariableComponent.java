@@ -401,7 +401,7 @@ public class VariableComponent {
 		// We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		
-		bound = childrenBound.summingBound(varToSum, context, theory);
+		bound = childrenBound.sumOut(varToSum, context, theory);
 		
 	}
 	

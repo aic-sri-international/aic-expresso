@@ -284,7 +284,7 @@ public class FactorComponent {
 		
 		// We want sum other toSum of Phi*childrenBound
 		DefaultExtensionalUniSet varToSum = new DefaultExtensionalUniSet(variablesToBeSummedOut);
-		bound = childrenBound.summingPhiTimesBound(varToSum, phi, context, theory);
+		bound = childrenBound.sumOutProductByFactor(varToSum, phi, context, theory);
 	}
 	
 	public void calculateSchema() {

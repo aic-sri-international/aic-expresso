@@ -272,7 +272,7 @@ public class ModelGenerator {
 	}
 	
 	public static void printModel(Model m, boolean entire) {
-		ManyToManyRelation<VariableNode,FactorNode> graph = entire ? m.getEntireGraph() : m.getExploredGraph();
+		ManyToManyRelation<VariableNode, FactorNode> graph = entire ? m.getEntireGraph() : m.getExploredGraph();
 		for (Pair<VariableNode, FactorNode> e : in(graph.iterator())) {
 			println(e.second.getValue() + " -> " + e.first.getValue());
 		}

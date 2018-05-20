@@ -15,45 +15,43 @@ public interface Bound extends Expression {
 	 * @param bound
 	 * @param theory
 	 * @param context
-	 * @return  bound of normalized factors
+	 * @return bound of normalized factors
 	 */
 	Bound normalize(Theory theory, Context context);
 		
 	/**
-	 * given a set of variables "S" and a bound "B", performs the following operation:
+	 * Given a set of variables "S" and a bound "B", performs the following operation:
 	 * sum_S B = {sum_S \phi : \phi in B} 
 	 * 
 	 * @param variablesToBeSummedOut 
-	 * 		S in the example. 
-	 * 		Must be a Explicit UniSet. For example: {A,B,C} , where A, B and C are variables 
+	 * 		S in the mathematical description. 
+	 * 		Must be an extensional uniset, for example {A,B,C}, where A, B and C are variables 
 	 * @param bound
-	 * 		B in the example
+	 * 		B in the mathematical description
 	 * @param context
 	 * @param theory
 	 * @return
 	 */
-	Bound summingBound(Expression variablesToBeSummedOut,
-			Context context, Theory theory);
+	Bound sumOut(Expression variablesToBeSummedOut, Context context, Theory theory);
 	
-	Bound summingBound(ArrayList<Expression> variablesToBeSummedOut,
-			Context context, Theory theory);
+	Bound sumOut(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory);
 	
 	/**
-	 * given a set of variables "S" a factor \phi and a bound "B", performs the following operation:
+	 * Given a set of variables "S" a factor \phi and a bound "B", performs the following operation:
 	 * sum_S (\phi * B) = {sum_S \phi \phi' : \phi' in B} 
 	 * 
 	 * @param variablesToBeSummedOut 
-	 * 		S in the example
+	 * 		S in the mathematical description
 	 * @param phi
 	 * @param bound
-	 * 		B in the example
+	 * 		B in the mathematical description
 	 * @param context
 	 * @param theory
 	 * @return
 	 */
-	Bound summingPhiTimesBound(Expression variablesToBeSummedOut, Expression phi, Context context, Theory theory);
+	Bound sumOutProductByFactor(Expression variablesToBeSummedOut, Expression phi, Context context, Theory theory);
 
-	Bound summingPhiTimesBound(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context, Theory theory);
+	Bound sumOutProductByFactor(ArrayList<Expression> variablesToBeSummedOut, Expression phi, Context context, Theory theory);
 
 	boolean isExtensionalBound();
 	
