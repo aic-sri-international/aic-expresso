@@ -68,6 +68,10 @@ public class FunctorConstants {
 	public final static String TIMES  = "*";
 	public static final String DIVISION = "/";
 	public final static String EXPONENTIATION = "^";
+	
+	public final static String DERIV = "deriv";
+	public final static String LOG = "log";
+	
 	public final static String EQUIVALENCE  = "<=>";
 	public final static String IMPLICATION  = "=>";
 	public final static String IMPLIED  = "<=";
