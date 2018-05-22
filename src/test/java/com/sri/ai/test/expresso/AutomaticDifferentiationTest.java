@@ -99,7 +99,7 @@ public class AutomaticDifferentiationTest {
 		assertEquals(parse("f(b)/(f(b)*f(b))"), derivative("a/f(b)", "a"));
 		
 		assertEquals(parse("-1/(a*a)"), derivative("1/a", "a"));
-		assertEquals(parse("1 / 3"), parse(derivative("a/3", "a").toString()));
+		assertEquals(parse("1 / 3"), parse(derivative("a/3", "a").toString())); // toString needed because parser creates an application of / while result is a Rational symbol.
 	}
 	
 	@Test
@@ -131,7 +131,7 @@ public class AutomaticDifferentiationTest {
 		
 		assertEquals(parse("1"), derivative("a + b*(b + c)", "a"));
 		assertEquals(parse("1 + b"), derivative("a + b*(c + a)", "a"));
-		assertEquals(parse("(a^b*(b/a)*(b + c*a)-a^b*c)/((b + c*a)*(b + c*a))"), parse(derivative("(a^b)/(b + c*a)", "a").toString()));
+		assertEquals(parse("(a^b*(b/a)*(b + c*a)-a^b*c)/((b + c*a)*(b + c*a))"), parse(derivative("(a^b)/(b + c*a)", "a").toString())); // toString is needed because parser flattens the first product
 		
 	}
 	
