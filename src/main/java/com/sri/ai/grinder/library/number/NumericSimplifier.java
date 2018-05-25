@@ -90,7 +90,9 @@ public class NumericSimplifier extends Switch<String> {
 				
 				EXPONENTIAL,               new Exponential(),
 				
-				/*LOG,                       new Logarithm(),
+				LOG,                        new Logarithm(),
+				
+				/*LOG10,                       new LogarithmBaseTen(),
 				
 				SIGMOID,                   new Sigmoid(),*/
 

@@ -128,6 +128,18 @@ public class AutomaticDifferentiationTest {
 	}
 	
 	@Test
+	public void testLog() {
+		Assert.assertEquals(parse("1 / a"), derivExpression("log(a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("ln(a)","b"));
+		
+		Assert.assertEquals(parse("2/(2*a)"), derivExpression("log(2*a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("log(2*a)","b"));
+		
+		Assert.assertEquals(parse("(a+a)/(a*a)"), derivExpression("log(a*a)","a"));
+		Assert.assertEquals(parse("deriv(f(a),a)/f(a)"), derivExpression("log(f(a))","a"));
+	}
+	
+	@Test
 	public void testComposition() {
 		Assert.assertEquals(parse("0"), derivExpression("f(g(a))","b"));
 		Assert.assertEquals(parse("deriv(f(g(a)), g(a))*deriv(g(a), a)"), derivExpression("f(g(a))","a"));

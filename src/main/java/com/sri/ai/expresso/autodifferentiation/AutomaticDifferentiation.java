@@ -80,6 +80,9 @@ public class AutomaticDifferentiation {
 		else if (f.hasFunctor(EXPONENTIAL)) {
 			result = differentiateExponential(f, argument);
 		}
+		else if (f.hasFunctor(LOG)) {
+			result = differentiateLog(f, argument);
+		}
 		else if (f.getSyntacticFormType().equals("Function application")) {
 			result = differentiateUndefinedFunctionApplication(f, argument);
 		}
@@ -88,6 +91,17 @@ public class AutomaticDifferentiation {
 		}
 		result = simplify(result);
 		
+		return result;
+	}
+
+	private Expression differentiateLog(Expression f, Expression argument) {
+		Expression result;
+		if (f.numberOfArguments() == 1) {
+			result = apply(FunctorConstants.DIVISION, differentiateExpression(f.get(0), argument), f.get(0));
+		}
+		else {
+			result = apply(DERIV, f, argument);
+		}
 		return result;
 	}
 
