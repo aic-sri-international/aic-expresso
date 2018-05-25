@@ -389,8 +389,10 @@ public class ExpressoAPIExamples {
 		context = new TrueContext();
 		Expression expression = parse("X + f(g(x, Y, 1, true, false, 10, bob, john, there exists Z in Real : 10, { (on W in Real) 1 } ))");
 		Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
+		// --- HERE, outputs [X, Y, Real] in fact 
 		println("variables in " + expression + " by Prolog standard: " + variablesInExpression); // outputs [X, Y]
 		
+		// --- HERE, second phrase is strange (defined -> define ?)
 		// More recently, we have adopted the practice of not caring about capitalization.
 		// This means that we may, for example, defined uniquely named constants to be any symbols that are not in a given set of variables.
 		Set<Expression> allVariables = set(parse("x"), parse("X"), parse("Y"), parse("Z"), parse("W"));
@@ -437,7 +439,8 @@ public class ExpressoAPIExamples {
 			Expression result = theory.evaluate(isInConvexHull, convexityContext);
 			println("p (value " + pValue + ") is in the convex hull of p1 and p2 (" + p1Value + ", " + p2Value + "): " + result);
 		}
-
+		// --- HERE, problem with the example above? (should be false on the second case ...)
+		
 		// Even coding the values directly still results in a bug.
 //		Expression isInConvexHull = 
 //				parse("there exists c1 in [0;1] : there exists c2 in [0;1] : c1 + c2 = 1 and (if X = 1 then 2 else 3) = c1*(if X = 2 then 1 else 3) + c2*(if X = 10 then 0 else 10)");
