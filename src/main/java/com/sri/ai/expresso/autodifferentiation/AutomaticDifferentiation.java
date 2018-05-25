@@ -6,6 +6,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
 import static com.sri.ai.grinder.library.FunctorConstants.DERIV;
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
+import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIAL;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.library.FunctorConstants.LOG;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
@@ -20,6 +21,7 @@ import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * Class for automatic symbolic differentiation of {@link Expression}
@@ -75,6 +77,9 @@ public class AutomaticDifferentiation {
 		else if (f.hasFunctor(EXPONENTIATION)) {
 			result = differentiateExponentiation(f, argument);
 		}
+		else if (f.hasFunctor(EXPONENTIAL)) {
+			result = differentiateExponential(f, argument);
+		}
 		else if (f.getSyntacticFormType().equals("Function application")) {
 			result = differentiateUndefinedFunctionApplication(f, argument);
 		}
@@ -83,6 +88,17 @@ public class AutomaticDifferentiation {
 		}
 		result = simplify(result);
 		
+		return result;
+	}
+
+	private Expression differentiateExponential(Expression f, Expression argument) {
+		Expression result;
+		if (f.numberOfArguments() > 0) {
+			result = apply(FunctorConstants.TIMES, differentiateExpression(f.get(0), argument), f);
+		}
+		else {
+			result = apply(DERIV, f, argument);
+		}
 		return result;
 	}
 

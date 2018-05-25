@@ -39,6 +39,9 @@ package com.sri.ai.grinder.library.number;
 
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
+import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIAL;
+import static com.sri.ai.grinder.library.FunctorConstants.LOG;
+import static com.sri.ai.grinder.library.FunctorConstants.SIGMOID;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
@@ -84,6 +87,12 @@ public class NumericSimplifier extends Switch<String> {
 				EXPONENTIATION,            new Exponentiation(),
 
 				DIVISION,                  new Division(),
+				
+				EXPONENTIAL,               new Exponential(),
+				
+				/*LOG,                       new Logarithm(),
+				
+				SIGMOID,                   new Sigmoid(),*/
 
 				MAX,                       new Max(),
 

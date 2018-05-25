@@ -116,6 +116,18 @@ public class AutomaticDifferentiationTest {
 	}
 	
 	@Test
+	public void testExponential() {
+		Assert.assertEquals(parse("exp(a)"), derivExpression("exp(a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("exp(a)","b"));
+		
+		Assert.assertEquals(parse("2*exp(2*a)"), derivExpression("exp(2*a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("exp(2*a)","b"));
+		
+		Assert.assertEquals(parse("(a+a)*exp(a*a)"), derivExpression("exp(a*a)","a"));
+		Assert.assertEquals(parse("deriv(f(a), a) * exp(f(a))"), derivExpression("exp(f(a))","a"));
+	}
+	
+	@Test
 	public void testComposition() {
 		Assert.assertEquals(parse("0"), derivExpression("f(g(a))","b"));
 		Assert.assertEquals(parse("deriv(f(g(a)), g(a))*deriv(g(a), a)"), derivExpression("f(g(a))","a"));
