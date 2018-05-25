@@ -31,11 +31,11 @@ public class Logarithm implements Simplifier {
 			throw new Error("Undefined value for log of non positive values " + expression);
 		}
 
-		if (expression.get(0).equals(makeSymbol(1))) { // if numerator and denominator are equal, result is 1.
+		if (expression.get(0).equals(makeSymbol(1))) { 
 			return ZERO;
 		}
 
-		if (expression.get(0).equals(makeSymbol(Math.E))) { // if numerator is 0, fraction is 0.
+		if (expression.get(0).equals(makeSymbol(Math.E))) { 
 			return ONE;
 		}
 
