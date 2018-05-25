@@ -8,6 +8,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.util.math.Rational;
 
@@ -19,6 +20,19 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Logarithm implements Simplifier {
+	
+	public static final Expression LOG_FUNCTOR = Expressions.makeSymbol(FunctorConstants.LOG);
+	
+	/**
+	 * Makes a log function application.
+	 * @param expression the expression to log
+	 * @return the log function application
+	 */
+	public static Expression make(Expression expression) {
+		Expression plainForm = Expressions.apply(LOG_FUNCTOR, expression);
+		Expression result = simplify(plainForm);
+		return result;
+	}
 	
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {
