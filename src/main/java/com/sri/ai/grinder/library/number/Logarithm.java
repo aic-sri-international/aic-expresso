@@ -13,7 +13,7 @@ import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Class to implement the natural (neparian) logarithm ln(x).
+ * Class to implement the natural (neparian) logarithm log(x).
  * It assumes that it has only 1 argument.
  * @author Sarah Perrin
  *
