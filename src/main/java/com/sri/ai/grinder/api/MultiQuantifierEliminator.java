@@ -44,14 +44,10 @@ import static com.sri.ai.util.Util.list;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Triple;
 
@@ -122,31 +118,6 @@ public interface MultiQuantifierEliminator {
 		
 		Expression result = solve(group, indices, indicesCondition, body, context);
 		
-		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #extendContextAndSolve(AssociativeCommutativeGroup, Collection, Expression, Context)} that takes care of constructing the Context
-	 * given the data required to build it.
-	 */
-	default Expression solve(
-			AssociativeCommutativeGroup group, 
-			Expression expression,
-			List<Expression> indices, 
-			Map<String, String> mapFromSymbolNameToTypeName,
-			Map<String, String> mapFromCategoricalTypeNameToSizeString, 
-			Collection<Type> additionalTypes, 
-			Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory) {
-		
-		Context context =
-				GrinderUtil.makeContext(
-				mapFromSymbolNameToTypeName,
-				mapFromCategoricalTypeNameToSizeString,
-				additionalTypes,
-				isUniquelyNamedConstantPredicate,
-				theory);
-		
-		Expression result = extendContextAndSolve(group, indices, expression, context);
 		return result;
 	}
 }

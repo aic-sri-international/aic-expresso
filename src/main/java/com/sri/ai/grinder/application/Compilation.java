@@ -46,12 +46,14 @@ import java.util.function.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.core.solver.DefaultMultiQuantifierEliminator;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.group.Max;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.util.Util;
 
 /**
@@ -81,14 +83,23 @@ public class Compilation {
 		
 		// We use the Prolog convention of small-letter initials for constants, but we need an exception for the random variables.
 		Predicate<Expression> isPrologConstant = new PrologConstantPredicate();
-		Predicate<Expression> isUniquelyNamedConstantPredicate = e -> isPrologConstant.apply(e) && ! mapFromVariableNameToTypeName.containsKey(e);
+		Predicate<Expression> isUniquelyNamedConstantPredicate = e -> isPrologConstant.apply(e) && ! mapFromVariableNameToTypeName.containsKey(e.toString());
 		
 		Map<String, String> mapFromSymbolNameToTypeName = new LinkedHashMap<>(mapFromVariableNameToTypeName);
 		mapFromSymbolNameToTypeName.putAll(mapFromUniquelyNamedConstantToTypeName);
 		
 		// Solve the problem.
-		List<Expression> indices = Util.list(); // no indices; we want to keep all variables
-		Expression result = solver.solve(group, inputExpression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate, theory);	
+		 // no indices; we want to keep all variables
+		List<Expression> indices = Util.list();
+		Context context =
+				GrinderUtil.makeContext(
+				mapFromSymbolNameToTypeName,
+				mapFromCategoricalTypeNameToSizeString,
+				additionalTypes,
+				isUniquelyNamedConstantPredicate,
+				theory);
+		
+		Expression result = solver.extendContextAndSolve(group, indices, inputExpression, context);	
 		
 		if (solverListener != null) {
 			solverListener.apply(null);
