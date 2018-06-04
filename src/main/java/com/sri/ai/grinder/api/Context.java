@@ -54,7 +54,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
@@ -186,7 +185,7 @@ public interface Context extends Registry, Constraint {
 			
 			for (int i = 0; i != newIndexExpressionsList.size(); i++) {
 				Expression indexExpression = newIndexExpressionsList.get(i);
-				Symbol index = (Symbol) indexExpression.get(0);
+				Expression index = indexExpression.get(0);
 				Expression type = indexExpression.get(1);
 				PairOf<Expression> newIndexAndNewExpressionInScope = Expressions.standardizeApart(index, isAlreadyDefined, newExpressionInScope);
 				Expression newIndex  = newIndexAndNewExpressionInScope.first;

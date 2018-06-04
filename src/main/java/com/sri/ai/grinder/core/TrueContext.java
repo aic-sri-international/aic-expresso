@@ -173,7 +173,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	
 	@Override
 	public boolean isVariable(Expression expression) {
-		boolean result = IsVariable.isVariable(expression, getIsUniquelyNamedConstantPredicate());
+		boolean result = IsVariable.isVariable(expression, getIsUniquelyNamedConstantPredicate(), getTypes(), getTheory());
 		return result;
 	}
 

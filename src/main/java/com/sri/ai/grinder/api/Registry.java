@@ -86,7 +86,7 @@ public interface Registry extends Cloneable {
 
 	/** Indicates whether a given expression is not a uniquely named constant. */
 	boolean isVariable(Expression expression);
-
+	
 	/**
 	 * @return the set of known symbols.
 	 */

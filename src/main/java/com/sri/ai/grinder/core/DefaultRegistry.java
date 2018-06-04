@@ -162,7 +162,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	
 	@Override
 	public boolean isVariable(Expression expression) {
-		boolean result = IsVariable.isVariable(expression, isUniquelyNamedConstantPredicate);
+		boolean result = IsVariable.isVariable(expression, isUniquelyNamedConstantPredicate, getTypes(), null);
 		return result;
 	}
 

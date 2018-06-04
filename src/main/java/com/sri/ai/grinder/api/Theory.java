@@ -354,12 +354,29 @@ public interface Theory extends Cloneable {
 				!context.isUniquelyNamedConstant(expression)
 				&& expression.getSyntacticFormType().equals("Symbol")
 				&& !(expression instanceof QuantifiedExpression)
-				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
-				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
+				&& !isInterpretedSymbolInThisTheory(expression)
 				&& (typeExpression = GrinderUtil.getTypeExpressionOfExpression(expression, context)) != null
 				&& (type = context.getTypeFromTypeExpression(typeExpression)) != null
 				&& isSuitableFor(type)
 				&& !thereExists(context.getTypes(), t -> t.contains(expression));		
+		return result;
+	}
+
+	/** Indicates whether an expression is an interpreted symbol in this theory. */
+	default boolean isInterpretedSymbolInThisTheory(Expression expression) {
+		boolean result = 
+				expression.getSyntacticFormType().equals("Symbol")
+				&&
+				knownSymbolIsInterpretedInThisTheory(expression);
+		return result;
+	}
+	
+	/** Indicates whether an expression known to be a symbol is interpreted in this theory. */
+	default boolean knownSymbolIsInterpretedInThisTheory(Expression symbol) {
+		boolean result = 
+				isInterpretedInPropositionalLogicIncludingConditionals(symbol)  
+				|| 
+				isInterpretedInThisTheoryBesidesBooleanConnectives(symbol);
 		return result;
 	}
 	

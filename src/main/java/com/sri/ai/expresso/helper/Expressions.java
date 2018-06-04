@@ -72,6 +72,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.api.Tuple;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultCountingFormula;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
@@ -84,7 +85,9 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Registry;
+import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -445,7 +448,7 @@ public class Expressions {
 	 * to make it unique, according to a given predicate indicating uniqueness.
 	 */
 	public static Expression primedUntilUnique(Expression symbol, Predicate<Expression> isUnique) {
-		Symbol newSymbol = (Symbol) symbol;
+		Expression newSymbol = symbol;
 		while (! isUnique.apply(newSymbol)) {
 			newSymbol = Expressions.makeSymbol(newSymbol + "'");
 		}
@@ -481,8 +484,8 @@ public class Expressions {
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
 	 * to make it unique in a given expression.
 	 */
-	public static Expression primedUntilUnique(Expression symbol, Expression expression, Registry registry) {
-		LinkedHashSet<Expression> variableBeingReferenced = Expressions.getVariablesBeingReferenced(expression, registry.getIsUniquelyNamedConstantPredicate());
+	public static Expression primedUntilUnique(Expression symbol, Expression expression, Context context) {
+		LinkedHashSet<Expression> variableBeingReferenced = Expressions.getVariablesBeingReferenced(expression, context.getIsUniquelyNamedConstantPredicate(), context.getTypes(), context.getTheory());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variableBeingReferenced);
 		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
 		return result;
@@ -497,13 +500,13 @@ public class Expressions {
 	 * @param expression
 	 *            an expression to check for other variables in order to ensure
 	 *            uniqueness.
-	 * @param registry
+	 * @param context
 	 *            the context that the variable is being created in.
 	 * @return a uniquely named variable in the context of the passed in
 	 *         expression.
 	 */
 	public static Expression makeUniqueVariable(
-			String variableName, Expression expression, Registry registry) {
+			String variableName, Expression expression, Context context) {
 		// Variables have a leading captial
 		if (variableName.length() > 0) {
 			String leadingChar = variableName.substring(0, 1);
@@ -515,7 +518,7 @@ public class Expressions {
 			variableName = "V";
 		}
 
-		Expression result = primedUntilUnique(Expressions.makeSymbol(variableName), expression, registry);
+		Expression result = primedUntilUnique(Expressions.makeSymbol(variableName), expression, context);
 		return result;
 	}
 	
@@ -794,8 +797,8 @@ public class Expressions {
 	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
 	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariablesBeingReferenced(Expression expression, Registry registry) {
-		return getVariablesBeingReferenced(expression, registry.getIsUniquelyNamedConstantPredicate());
+	public static LinkedHashSet<Expression> getVariablesBeingReferenced(Expression expression, Context context) {
+		return getVariablesBeingReferenced(expression, context.getIsUniquelyNamedConstantPredicate(), context.getTypes(), context.getTheory());
 	}
 
 	/**
@@ -805,8 +808,8 @@ public class Expressions {
 	 * For example, this method returns <code>{x}</code> given <code>{{(on y) x + 1}}</code>,
 	 * and <code>{x,y}</code> given <code>{{(on y) x + y + 1}}</code>.
 	 */
-	public static LinkedHashSet<Expression> getVariablesBeingReferenced(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return Expressions.getSubExpressionsSatisfying(expression, new IsVariable(isUniquelyNamedConstantPredicate));
+	public static LinkedHashSet<Expression> getVariablesBeingReferenced(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate, Collection<? extends Type> types, Theory theory) {
+		return Expressions.getSubExpressionsSatisfying(expression, new IsVariable(isUniquelyNamedConstantPredicate, types, theory));
 	}
 
 	/** Returns the set of free variables in an expression, according to a given context. */
@@ -1112,7 +1115,7 @@ public class Expressions {
 	 * @param containingSymbol
 	 * @return the new symbol and the result of replacing the old symbol by the new in the expression containing it.
 	 */
-	public static PairOf<Expression> standardizeApart(Symbol symbol, Predicate<Expression> alreadyDefined, Expression containingSymbol) {
+	public static PairOf<Expression> standardizeApart(Expression symbol, Predicate<Expression> alreadyDefined, Expression containingSymbol) {
 		Expression newSymbol = symbol;
 		while (alreadyDefined.apply(newSymbol)) {
 			newSymbol = primedUntilUnique(newSymbol, s -> ! alreadyDefined.apply(s));
