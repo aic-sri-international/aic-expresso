@@ -142,7 +142,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return false; // SingleVariableLinearRealArithmeticConstraint is not complete
+		return false; // SingleVariableDifferenceArithmeticConstraint is not complete
 	}
 
 	@Override

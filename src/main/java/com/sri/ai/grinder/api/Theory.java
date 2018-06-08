@@ -253,6 +253,7 @@ public interface Theory extends Cloneable {
 	 */
 	default SingleVariableConstraint makeSingleVariableConstraint(Expression variable, Context context) {
 		Type variableType = context.getTypeOfRegisteredSymbol(variable);
+		myAssert(variableType != null, () -> this + " does not know how to make constraints for variable " + variable + " because it does not have a registered type");
 		myAssert(context.getTheory().isSuitableFor(variableType), () -> this + " does not know how to make constraints for variable " + variable + " of type " + variableType);
 		SingleVariableConstraint result = makeSingleVariableConstraintAfterBookkeeping(variable, context);
 		return result;
