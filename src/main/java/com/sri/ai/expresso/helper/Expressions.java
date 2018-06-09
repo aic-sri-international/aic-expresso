@@ -88,6 +88,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.DefaultRegistry;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -690,6 +691,14 @@ public class Expressions {
 		}
 	}
 
+	public static boolean areEqualToAGivenPrecision(Expression expression1, Expression expression2, final int precision) {
+		DefaultRegistry registry = new DefaultRegistry();
+		Expression rounded1 = roundToAGivenPrecision(expression1, precision, registry);
+		Expression rounded2 = roundToAGivenPrecision(expression2, precision, registry);
+		boolean result = rounded1.equals(rounded2);
+		return result;
+	}
+	
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
 	 */
