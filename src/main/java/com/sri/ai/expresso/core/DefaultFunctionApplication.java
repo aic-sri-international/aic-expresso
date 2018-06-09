@@ -84,7 +84,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		this.functor   = functor;
 		this.arguments = arguments;
 		
-		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), mapIntoObjectArray(arguments, e -> e == null? null : e.getSyntaxTree()));
+		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), (Object[]) mapIntoObjectArray(arguments, e -> e == null? null : e.getSyntaxTree()));
 		
 		expressionAndSyntacticContexts = new LinkedList<ExpressionAndSyntacticContext>();
 		expressionAndSyntacticContexts.add(new DefaultExpressionAndSyntacticContext(functor, new IndexAddress(-1)));
