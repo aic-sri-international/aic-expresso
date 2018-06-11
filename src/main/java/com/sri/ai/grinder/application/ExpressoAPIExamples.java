@@ -334,6 +334,8 @@ public class ExpressoAPIExamples {
 				"X + 1 + 1", "X + 2",
 				"sum({{ (on I in 1..10) I }})", "55",
 				"product({{ (on I in 1..5) 2 : I != 3 and I != 5 }})", "8",
+				"|{{ (on I in 1..5) X : I != 3 and I != 5 }}|", "3",
+				
 				// see many more examples in SymbolicShell.java
 		}, theory, context);
 		
@@ -389,12 +391,10 @@ public class ExpressoAPIExamples {
 		context = new TrueContext();
 		Expression expression = parse("X + f(g(x, Y, 1, true, false, 10, bob, john, there exists Z in Real : 10, { (on W in Real) 1 } ))");
 		Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
-		// --- HERE, outputs [X, Y, Real] in fact 
-		println("variables in " + expression + " by Prolog standard: " + variablesInExpression); // outputs [X, Y]
+		println("variables in " + expression + " by Prolog standard: " + variablesInExpression); // outputs [X, Y, Real]
 		
-		// --- HERE, second phrase is strange (defined -> define ?)
 		// More recently, we have adopted the practice of not caring about capitalization.
-		// This means that we may, for example, defined uniquely named constants to be any symbols that are not in a given set of variables.
+		// This means that we may, for example, define uniquely named constants to be any symbols that are not in a given set of variables.
 		Set<Expression> allVariables = set(parse("x"), parse("X"), parse("Y"), parse("Z"), parse("W"));
 		context = context.setIsUniquelyNamedConstantPredicate(new UniquelyNamedConstantAreAllSymbolsNotIn(allVariables));
 		variablesInExpression = Expressions.freeVariables(expression, context);
@@ -462,6 +462,8 @@ public class ExpressoAPIExamples {
 		type = context.getTypeOfRegisteredSymbol(parse("P"));
 		iteratorToValuesInType = type.iterator();
 		println("All values of the type " + typeExpression + " of P: " + Util.join(iteratorToValuesInType));
+		
+		
 	}
 
 	/**
