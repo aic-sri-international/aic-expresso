@@ -1,4 +1,4 @@
-package com.sri.ai.expresso.minimization;
+package com.sri.ai.expresso.optimization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +16,12 @@ import com.sri.ai.grinder.core.TrueContext;
 
 /**
  * Class to convert an Expression into a MultivariateFunction (from Apache Commons Math). 
- * Used for minimization.
+ * Used for optimization.
  * @author Sarah Perrin
  *
  */
 
-public class FunctionToMinimize implements MultivariateFunction {
+public class FunctionToOptimize implements MultivariateFunction {
 	
 	public Expression expression;
 	
@@ -29,7 +29,7 @@ public class FunctionToMinimize implements MultivariateFunction {
 	public Context context;
 	public AutomaticDifferentiation autoDifferentiator;
 	
-	public FunctionToMinimize(Expression expression) {
+	public FunctionToOptimize(Expression expression) {
 		this.expression = expression;
 		
 		this.theory = new CommonTheory();
@@ -43,8 +43,8 @@ public class FunctionToMinimize implements MultivariateFunction {
 	 */
     public double value(double[] variables) {
     	
-    	Map<Expression, Double> map = new HashMap<Expression, Double>();
-    	Set<Expression> variablesInExpression = createMap(variables, map);
+    	Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
+    	Map<Expression, Double> map = createMap(variables, variablesInExpression);
     	
     	Expression evaluatedExpression = makeEvaluatedAndSimplifiedExpression(map, variablesInExpression);
     	
@@ -57,14 +57,14 @@ public class FunctionToMinimize implements MultivariateFunction {
 	 * Create the HashMap which associates every variable of the expression to its value.
 	 *
 	 */
-	private Set<Expression> createMap(double[] variables, Map<Expression, Double> map) {
-		Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
+	private Map<Expression, Double> createMap(double[] variables, Set<Expression> variablesInExpression) {
+		Map<Expression, Double> result = new HashMap<Expression, Double>();
     	int i = 0;
     	for (Expression e : variablesInExpression) {
-    		map.put(e, variables[i]);
+    		result.put(e, variables[i]);
     		i++;
     	}
-		return variablesInExpression;
+    	return result;
 	}
 
     /**
@@ -73,14 +73,14 @@ public class FunctionToMinimize implements MultivariateFunction {
 	 */
 	private Expression makeEvaluatedAndSimplifiedExpression(Map<Expression, Double> map,
 			Set<Expression> variablesInExpression) {
-		Expression expressionReplacedPrev = expression;
+		Expression expressionReplacedPrevious = expression;
     	Expression expressionReplaced = expression;
     	for (Expression e : variablesInExpression) {
-    		expressionReplaced = expressionReplacedPrev.replaceAllOccurrences(e, Expressions.makeSymbol(map.get(e)), context);
-    		expressionReplacedPrev = expressionReplaced;
+    		expressionReplaced = expressionReplacedPrevious.replaceAllOccurrences(e, Expressions.makeSymbol(map.get(e)), context);
+    		expressionReplacedPrevious = expressionReplaced;
     	}
-    	Expression evaluatedExpression = autoDifferentiator.simplify(expressionReplaced);
-		return evaluatedExpression;
+    	Expression result = autoDifferentiator.simplify(expressionReplaced);
+		return result;
 	}
 
 }

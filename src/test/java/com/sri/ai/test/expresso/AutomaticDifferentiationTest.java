@@ -116,6 +116,30 @@ public class AutomaticDifferentiationTest {
 	}
 	
 	@Test
+	public void testExponential() {
+		Assert.assertEquals(parse("exp(a)"), derivExpression("exp(a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("exp(a)","b"));
+		
+		Assert.assertEquals(parse("2*exp(2*a)"), derivExpression("exp(2*a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("exp(2*a)","b"));
+		
+		Assert.assertEquals(parse("(a+a)*exp(a*a)"), derivExpression("exp(a*a)","a"));
+		Assert.assertEquals(parse("deriv(f(a), a) * exp(f(a))"), derivExpression("exp(f(a))","a"));
+	}
+	
+	@Test
+	public void testLog() {
+		Assert.assertEquals(parse("1 / a"), derivExpression("log(a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("ln(a)","b"));
+		
+		Assert.assertEquals(parse("2/(2*a)"), derivExpression("log(2*a)","a"));
+		Assert.assertEquals(parse("0"), derivExpression("log(2*a)","b"));
+		
+		Assert.assertEquals(parse("(a+a)/(a*a)"), derivExpression("log(a*a)","a"));
+		Assert.assertEquals(parse("deriv(f(a),a)/f(a)"), derivExpression("log(f(a))","a"));
+	}
+	
+	@Test
 	public void testComposition() {
 		assertEquals(parse("0"), derivative("f(g(a))", "b"));
 		assertEquals(parse("deriv(f(g(a)), g(a))*deriv(g(a), a)"), derivative("f(g(a))", "a"));
