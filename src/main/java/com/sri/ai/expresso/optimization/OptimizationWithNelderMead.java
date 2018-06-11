@@ -37,7 +37,7 @@ public class OptimizationWithNelderMead implements Optimization {
 	 *
 	 */
 	public OptimizationWithNelderMead(Expression expression, GoalType goalType, double[] initialPoint) {
-		this(expression, goalType, initialPoint, new SimplexOptimizer(1e-10, 1e-30), new MaxEval(1000));
+		this(expression, goalType, initialPoint, new SimplexOptimizer(1e-10, 1e-30), new MaxEval(10000));
 	}
 	
 	/**
