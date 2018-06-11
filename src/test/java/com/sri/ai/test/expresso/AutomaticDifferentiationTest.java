@@ -3,6 +3,7 @@ package com.sri.ai.test.expresso;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -117,26 +118,26 @@ public class AutomaticDifferentiationTest {
 	
 	@Test
 	public void testExponential() {
-		Assert.assertEquals(parse("exp(a)"), derivExpression("exp(a)","a"));
-		Assert.assertEquals(parse("0"), derivExpression("exp(a)","b"));
+		Assert.assertEquals(parse("exp(a)"), derivative("exp(a)","a"));
+		Assert.assertEquals(parse("0"), derivative("exp(a)","b"));
 		
-		Assert.assertEquals(parse("2*exp(2*a)"), derivExpression("exp(2*a)","a"));
-		Assert.assertEquals(parse("0"), derivExpression("exp(2*a)","b"));
+		Assert.assertEquals(parse("2*exp(2*a)"), derivative("exp(2*a)","a"));
+		Assert.assertEquals(parse("0"), derivative("exp(2*a)","b"));
 		
-		Assert.assertEquals(parse("(a+a)*exp(a*a)"), derivExpression("exp(a*a)","a"));
-		Assert.assertEquals(parse("deriv(f(a), a) * exp(f(a))"), derivExpression("exp(f(a))","a"));
+		Assert.assertEquals(parse("(a+a)*exp(a*a)"), derivative("exp(a*a)","a"));
+		Assert.assertEquals(parse("deriv(f(a), a) * exp(f(a))"), derivative("exp(f(a))","a"));
 	}
 	
 	@Test
 	public void testLog() {
-		Assert.assertEquals(parse("1 / a"), derivExpression("log(a)","a"));
-		Assert.assertEquals(parse("0"), derivExpression("ln(a)","b"));
+		Assert.assertEquals(parse("1 / a"), derivative("log(a)","a"));
+		Assert.assertEquals(parse("0"), derivative("ln(a)","b"));
 		
-		Assert.assertEquals(parse("2/(2*a)"), derivExpression("log(2*a)","a"));
-		Assert.assertEquals(parse("0"), derivExpression("log(2*a)","b"));
+		Assert.assertEquals(parse("2/(2*a)"), derivative("log(2*a)","a"));
+		Assert.assertEquals(parse("0"), derivative("log(2*a)","b"));
 		
-		Assert.assertEquals(parse("(a+a)/(a*a)"), derivExpression("log(a*a)","a"));
-		Assert.assertEquals(parse("deriv(f(a),a)/f(a)"), derivExpression("log(f(a))","a"));
+		Assert.assertEquals(parse("(a+a)/(a*a)"), derivative("log(a*a)","a"));
+		Assert.assertEquals(parse("deriv(f(a),a)/f(a)"), derivative("log(f(a))","a"));
 	}
 	
 	@Test
