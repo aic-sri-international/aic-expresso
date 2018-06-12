@@ -44,7 +44,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 import static com.sri.ai.grinder.rewriter.core.Switch.FUNCTOR;
 import static com.sri.ai.util.Util.forAll;
@@ -185,17 +184,6 @@ public class LinearRealArithmeticTheory extends AbstractNumericTheory {
 		return list(REAL_TYPE);
 	}
 
-	@Override
-	/**
-	 * Extends super implementation by considering * applications as interpreted in this theory.
-	 */
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
-		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
-				|| expression.equals(TIMES)
-				|| expression.hasFunctor(TIMES); 
-		return result;
-	}
-	
 	@Override
 	public boolean applicationOfAtomFunctorIsIndeedAtom(Expression applicationOfAtomFunctor, Context context) {
 		boolean result;

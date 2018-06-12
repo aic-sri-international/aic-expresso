@@ -40,6 +40,7 @@ package com.sri.ai.grinder.api;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsForIndicesInListAndTypesInRegistry;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsFromSymbolsAndTypes;
 import static com.sri.ai.grinder.helper.GrinderUtil.getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
+import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.valueOrMakeDefaultIfNull;
 
 import java.util.Collection;
@@ -86,7 +87,7 @@ public interface Registry extends Cloneable {
 
 	/** Indicates whether a given expression is not a uniquely named constant. */
 	boolean isVariable(Expression expression);
-
+	
 	/**
 	 * @return the set of known symbols.
 	 */
@@ -116,9 +117,19 @@ public interface Registry extends Cloneable {
 	 * @return the type of a registered symbol (equivalent to <code>getType(getTypeExpressionOfRegisteredSymbol(symbol))</code>.
 	 */
 	default Type getTypeOfRegisteredSymbol(Expression symbol) {
-		Expression typeExpression = getTypeExpressionOfRegisteredSymbol(symbol);
+		Expression typeExpression = getMandatoryTypeExpressionOfRegisteredSymbol(symbol);
 		Type result = getTypeFromTypeExpression(typeExpression);
 		return result;
+	}
+	
+	/**
+	 * @return the type of a registered symbol (equivalent to <code>getType(getTypeExpressionOfRegisteredSymbol(symbol))</code>,
+	 * but throws an {@link Error} if there is no type (as opposed to returning <code>null</code>.
+	 */
+	default Expression getMandatoryTypeExpressionOfRegisteredSymbol(Expression symbol) {
+		Expression typeExpression = getTypeExpressionOfRegisteredSymbol(symbol);
+		check(typeExpression != null, () -> "Type of " + symbol + " is required, but not registered.");
+		return typeExpression;
 	}
 	
 	/**

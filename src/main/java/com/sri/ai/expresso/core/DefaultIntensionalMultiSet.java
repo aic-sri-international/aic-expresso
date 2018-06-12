@@ -106,7 +106,7 @@ public class DefaultIntensionalMultiSet extends AbstractIntensionalSet implement
 	 * @return an intensional multi-set expression.
 	 */
 	public static Expression intensionalMultiSet(Expression index, Expression body, Expression condition, Context context) {
-		Expression type = context.getTypeExpressionOfRegisteredSymbol(index);
+		Expression type = context.getMandatoryTypeExpressionOfRegisteredSymbol(index);
 		Expression indexExpression = apply(FunctorConstants.IN, index, type);
 		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(indexExpression);
 		Expression set = new DefaultIntensionalMultiSet(indexExpressions, body, condition);

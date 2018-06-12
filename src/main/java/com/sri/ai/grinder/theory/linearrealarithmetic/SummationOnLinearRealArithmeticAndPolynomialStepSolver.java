@@ -134,7 +134,7 @@ public class SummationOnLinearRealArithmeticAndPolynomialStepSolver extends Abst
 			Expression lowerBound = values.get(0);
 			Expression upperBound = values.get(1);
 			Polynomial bodyPolynomial = DefaultPolynomial.make(literalFreeBody);
-			Predicate<Expression> isVariable = new IsVariable(context.getIsUniquelyNamedConstantPredicate());
+			Predicate<Expression> isVariable = new IsVariable(context.getIsUniquelyNamedConstantPredicate(), context.getTypes(), context.getTheory());
 			result = PolynomialIntegration.definiteIntegral(bodyPolynomial, getIndex(), lowerBound, upperBound, isVariable);
 		}
 		return result;

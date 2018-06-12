@@ -37,11 +37,17 @@
  */
 package com.sri.ai.grinder.library;
 
+import static com.sri.ai.util.Util.thereExists;
+
+import java.util.Collection;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.Theory;
 
 /**
  * A {@link Predicate} that determines if a given Expression represents a Variable.
@@ -53,22 +59,60 @@ import com.sri.ai.grinder.api.Context;
 public class IsVariable implements Predicate<Expression> {
 	
 	private Predicate<Expression> isUniquelyNamedConstantPredicate;
+	private Collection<? extends Type> types;
+	private Theory theory;
 	
-	public IsVariable(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public IsVariable(Predicate<Expression> isUniquelyNamedConstantPredicate, Collection<? extends Type> types, Theory theory) {
 		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
+		this.types = types;
+		this.theory = theory;
 	}
 
-	public IsVariable(Context context) {
-		this(context.getIsUniquelyNamedConstantPredicate());
+	public IsVariable(Context context, Collection<? extends Type> types, Theory theory) {
+		this(context.getIsUniquelyNamedConstantPredicate(), types, theory);
 	}
 
 	@Override
 	public boolean apply(Expression expression) {
-		boolean result = isVariable(expression, isUniquelyNamedConstantPredicate);
+		boolean result = isVariable(expression, isUniquelyNamedConstantPredicate, types, theory);
 		return result;
 	}
 
-	public static boolean isVariable(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) && !isUniquelyNamedConstantPredicate.apply(expression);
+	public static boolean isVariable(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate, Collection<? extends Type> types, Theory theory) {
+		boolean result = 
+				expression.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE) 
+				&& 
+				!isUniquelyNamedConstant(expression, isUniquelyNamedConstantPredicate, types)
+				&& isUninterpretedAccordingToTheory(expression, theory);
+		return result;
+	}
+
+	private static boolean isUniquelyNamedConstant(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate, Collection<? extends Type> types) {
+		boolean result = 
+				isUniquelyNamedConstantPredicate.apply(expression)
+				||
+				isUniquelyNamedConstantAccordingToTypes(expression, types);
+		return result;
+	}
+	
+	private static boolean isUniquelyNamedConstantAccordingToTypes(Expression symbol, Collection<? extends Type> types) {
+		boolean result =
+				types != null
+				&&
+				thereExists(types, t -> t.contains(symbol));
+		return result;
+	}
+	
+	private static boolean isUninterpretedAccordingToTheory(Expression symbol, Theory theory) {
+		boolean result = ! isInterpretedAccordingToTheory(symbol, theory);
+		return result;
+	}
+
+	private static boolean isInterpretedAccordingToTheory(Expression symbol, Theory theory) {
+		boolean result =
+				theory != null
+				&&
+				theory.knownSymbolIsInterpretedInThisTheory(symbol);
+		return result;
 	}
 }

@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.fromTypeExpressionToItsIntrinsicMeaning;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -162,7 +163,7 @@ public class DefaultRegistry implements Registry, Serializable {
 	
 	@Override
 	public boolean isVariable(Expression expression) {
-		boolean result = IsVariable.isVariable(expression, isUniquelyNamedConstantPredicate);
+		boolean result = IsVariable.isVariable(expression, isUniquelyNamedConstantPredicate, getTypes(), null);
 		return result;
 	}
 
@@ -202,7 +203,8 @@ public class DefaultRegistry implements Registry, Serializable {
 	
 	@Override
 	public Expression getTypeExpressionOfRegisteredSymbol(Expression symbol) {
-		return symbolsAndTypes.get(symbol);
+		Expression typeExpression = symbolsAndTypes.get(symbol);
+		return typeExpression;
 	}
 
 	@Override
@@ -272,6 +274,7 @@ public class DefaultRegistry implements Registry, Serializable {
 
 	@Override
 	public Type getTypeFromTypeExpression(Expression typeExpression) {
+		myAssert(typeExpression != null, () -> "getTypeFromTypeExpression: illegal argument: typeExpression = null");
 		Type result = fromTypeExpressionToType.get(typeExpression);
 		if (result == null) {
 			result = fromTypeExpressionToItsIntrinsicMeaning(typeExpression, this);

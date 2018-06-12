@@ -38,18 +38,24 @@
 package com.sri.ai.grinder.theory.numeric;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.library.commonrewriters.CommonSimplifiersAndSymbolicQuantifierEliminationRewritersTopRewriter.INSTANCE;
 import static com.sri.ai.grinder.rewriter.api.TopRewriter.merge;
+import static com.sri.ai.util.Util.set;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -137,12 +143,24 @@ public abstract class AbstractNumericTheory extends AbstractTheoryWithBinaryAtom
 
 	@Override
 	/**
-	 * Extends super implementation by considering + and - applications as interpreted in this theory.
+	 * Extends super implementation by considering +, -, *, /, ^ applications as interpreted in this theory.
 	 */
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression) {
-		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
-				|| expression.equals(PLUS) || expression.equals(MINUS)
-				|| expression.hasFunctor(PLUS) || expression.hasFunctor(MINUS); 
+		boolean result = 
+				super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression)
+				|| isNumericOperator(expression)
+				|| (expression.getFunctor() != null && isNumericOperator(expression.getFunctor())); 
 		return result;
 	}
+
+	private boolean isNumericOperator(Expression expression) {
+		boolean isString = expression.getValue() != null && expression.getValue() instanceof String;
+		boolean result = 
+				isString 
+				&& 
+				numericOperators.contains(expression.getValue());
+		return result;
+	}
+	
+	private final Set<String> numericOperators = set(PLUS, MINUS, TIMES, DIVISION, EXPONENTIATION, CARDINALITY); 
 }

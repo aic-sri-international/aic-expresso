@@ -449,14 +449,14 @@ public class ExpressoAPIExamples {
 		context = new TrueContext();
 		context = context.extendWithSymbolsAndTypes("I", "3..8", "P", "Boolean");
 		println(context.getSymbolsAndTypes());
-		println(context.getTypeExpressionOfRegisteredSymbol(parse("I")));
+		println(context.getMandatoryTypeExpressionOfRegisteredSymbol(parse("I")));
 		
-		Expression typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("I"));
+		Expression typeExpression = context.getMandatoryTypeExpressionOfRegisteredSymbol(parse("I"));
 		Type type = context.getTypeOfRegisteredSymbol(parse("I"));
 		Iterator<Expression> iteratorToValuesInType = type.iterator();
 		println("All values of the type " + typeExpression + " of I: " + Util.join(iteratorToValuesInType));
 
-		typeExpression = context.getTypeExpressionOfRegisteredSymbol(parse("P"));
+		typeExpression = context.getMandatoryTypeExpressionOfRegisteredSymbol(parse("P"));
 		type = context.getTypeOfRegisteredSymbol(parse("P"));
 		iteratorToValuesInType = type.iterator();
 		println("All values of the type " + typeExpression + " of P: " + Util.join(iteratorToValuesInType));
