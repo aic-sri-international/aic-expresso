@@ -339,8 +339,6 @@ public class ExpressoAPIExamples {
 				// see many more examples in SymbolicShell.java
 		}, theory, context);
 		
-		
-		
 		// now let us assume we have a free variable J which is an integer
 		// Contexts are, like expressions, also IMMUTABLE:
 		Context context2 = context.extendWithSymbolsAndTypes("J", "Integer");
@@ -462,7 +460,6 @@ public class ExpressoAPIExamples {
 		type = context.getTypeOfRegisteredSymbol(parse("P"));
 		iteratorToValuesInType = type.iterator();
 		println("All values of the type " + typeExpression + " of P: " + Util.join(iteratorToValuesInType));
-		
 		
 	}
 
