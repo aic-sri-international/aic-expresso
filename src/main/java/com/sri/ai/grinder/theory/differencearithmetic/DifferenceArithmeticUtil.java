@@ -62,13 +62,18 @@ import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticLitera
 public class DifferenceArithmeticUtil {
 
 	/**
-	 * Simplify a difference arithmetic literal.
-	 * @param expression
-	 * @param theory TODO
-	 * @param context TODO
-	 * @return
+	 * Perform simplifications specific to this theory.
 	 */
 	public static Expression simplify(Expression expression, DifferenceArithmeticTheory theory, Context context) {
+		Expression result = simplifyIfLiteral(expression, theory, context);
+		return result;
+	}
+
+	/**
+	 * Simplify a difference arithmetic literal.
+	 */
+	private static Expression simplifyIfLiteral(Expression expression, DifferenceArithmeticTheory theory,
+			Context context) {
 		Expression result;
 		
 		try {

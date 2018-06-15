@@ -74,28 +74,37 @@ public class LinearRealArithmeticUtil {
 	public static Expression simplify(Expression expression) {
 		// we isolate variable x in the expression, even if there is no variable x in it.
 		// If it does not exist, then we will get the equivalent "if 0 != 0 then <irrelevant> else 0 <operator> <polynomial without x>"
-		return simplify(expression, X);
+		return simplifyLiteral(expression, X);
 	}
 
 	/**
-	 * Simplify a linear real arithmetic literal using {@link #simplify(Expression, Symbol)}
+	 * Perform simplifications specific to this theory.
+	 */
+	public static Expression simplify(Expression expression, LinearRealArithmeticTheory theory, Context context) {
+		Expression result = simplifyIfLiteral(expression, theory, context);
+		return result;
+	}
+
+	/**
+	 * Simplify a linear real arithmetic literal using {@link #simplifyLiteral(Expression, Symbol)}
 	 * with respect to the first variable found in the expression 
 	 * (variable is determined in accordance to {@link LinearRealArithmeticTheory#isVariable(Expression, Context)};
 	 * the same expression is returned if there are no liner real arithmetic variable.
-	 * @param expression
-	 * @param theory
-	 * @param context
-	 * @return
 	 */
-	public static Expression simplify(Expression expression, LinearRealArithmeticTheory theory, Context context) {
+	private static Expression simplifyIfLiteral(Expression expression, LinearRealArithmeticTheory theory, Context context) {
 		Expression result;
-		Collection<Expression> variables = theory.getVariablesIn(expression, context);
-		if (variables.isEmpty()) { // no linear real arithmetic variable, so it is not a linear real arithmetic literal
-			result = expression;
+		if (theory.isLiteral(expression, context)) {
+			Collection<Expression> variables = theory.getVariablesIn(expression, context);
+			if (variables.isEmpty()) { // no linear real arithmetic variable, so it is not a linear real arithmetic literal
+				result = expression;
+			}
+			else {
+				Expression variable = getFirst(variables);
+				result = simplifyLiteral(expression, variable);
+			}
 		}
 		else {
-			Expression variable = getFirst(variables);
-			result = simplify(expression, variable);
+			result = expression;
 		}
 		return result;
 	}
@@ -103,13 +112,13 @@ public class LinearRealArithmeticUtil {
 	/**
 	 * Simplify a literal with respect to a variable by isolating it.
 	 * If the variable is not present, all terms are move to the right-hand side.
-	 * @param expression
+	 * @param literal
 	 * @param variable
 	 * @return
 	 * @throws Error
 	 */
-	public static Expression simplify(Expression expression, Expression variable) throws Error {
-		Expression result = isolateVariable(variable, expression);
+	public static Expression simplifyLiteral(Expression literal, Expression variable) throws Error {
+		Expression result = isolateVariable(variable, literal);
 		
 		// not strictly required because caller is the one who knows about context and simplification, 
 		// but why return an ugly thing if we can avoid it?
@@ -117,8 +126,8 @@ public class LinearRealArithmeticUtil {
 			result = elseBranch(result);
 		}
 		
-		if (result != expression && result.equals(expression)) { // comply to requirement that if there are no changes, then instance is the same
-			result = expression;
+		if (result != literal && result.equals(literal)) { // comply to requirement that if there are no changes, then instance is the same
+			result = literal;
 		}
 		
 		return result;
