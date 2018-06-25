@@ -8,14 +8,14 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.optimization.OptimizationWithNonlinearConjugateGradientDescent;
 
 /**
- * Class to test the {@link OptimizationWithNelderMead}.
+ * Class to test the {@link OptimizationWithNonlinearConjugateGradientDescent}.
  * @author Sarah Perrin
  *
  */
 
-public class OptimizationWithNonLinearConjugateGradientDescentTest {
+public class OptimizationWithNonlinearConjugateGradientDescentTest {
 	
-	//@Test
+	@Test
 	public void testOptOneVariable() {
 		Assert.assertTrue(optAreEquals(0, "X^2", new double[] {-1}));
 		Assert.assertTrue(optAreEquals(0, "X^2", new double[] {1}));
@@ -31,7 +31,7 @@ public class OptimizationWithNonLinearConjugateGradientDescentTest {
 	
 	@Test
 	public void testArgoptOneVariable() {
-		/*Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {-1}));
+		Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {-1}));
 		Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {1}));
 		Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {10}));
 		Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {10000}));
@@ -39,13 +39,32 @@ public class OptimizationWithNonLinearConjugateGradientDescentTest {
 		Assert.assertTrue(argoptAreEquals(new double[] {0}, "(1+X^2)^(1/2)", new double[] {-1}));
 		Assert.assertTrue(argoptAreEquals(new double[] {0}, "(1+X^2)^(1/2)", new double[] {-100000}));
 		Assert.assertTrue(argoptAreEquals(new double[] {-1.132782218537319}, "3*X^4 + X^3 - 6*X^2 + 2 ", new double[] {-1}));
-		Assert.assertTrue(argoptAreEquals(new double[] {-1.132782218537319}, "3*X^4 + X^3 - 6*X^2 + 2 ", new double[] {-100}));*/
-		
-		Assert.assertTrue(argoptAreEquals(new double[] {1.0}, "log(63000000630000000 * (1 / (1 + exp(-Alpha))))", new double[] {0.5}));
+		Assert.assertTrue(argoptAreEquals(new double[] {-1.132782218537319}, "3*X^4 + X^3 - 6*X^2 + 2 ", new double[] {-100}));
 		
 	}
 	
-	//@Test
+	@Test
+	public void testArgmaxWithSigmoidTrickOneVariable() {
+		Assert.assertTrue(argmaxAreEquals(new double[] {1.0}, "log(63000000630000000 * (1 / (1 + exp(-Alpha))))", new double[] {0.5}));
+	}
+	
+	public static boolean argmaxAreEquals(double[] expectedResult, String stringToMaximize, double[] initialGuess) {
+		OptimizationWithNonlinearConjugateGradientDescent maxWithNonlinearCGD = new OptimizationWithNonlinearConjugateGradientDescent(Expressions.parse(stringToMaximize), GoalType.MAXIMIZE, initialGuess);
+		double[] argmaxOfExpression = maxWithNonlinearCGD.findArgopt();
+		for(int i = 0; i < argmaxOfExpression.length; i++) {
+			argmaxOfExpression[i] = 1/(1+Math.exp(-argmaxOfExpression[i]));
+		}
+		//System.out.println(argmaxOfExpression[0]);
+		//System.out.println(expectedResult[0]);
+		for(int i = 0; i < expectedResult.length; i++) {
+			if (Math.abs(argmaxOfExpression[i] - expectedResult[i]) > 1e-5) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Test
 	public void testOptTwoVariables() {
 		Assert.assertTrue(optAreEquals(0, "X^2+Y^2", new double[] {-1,-1}));
 		Assert.assertTrue(optAreEquals(0, "X^2+Y^2", new double[] {1,1}));
@@ -58,7 +77,7 @@ public class OptimizationWithNonLinearConjugateGradientDescentTest {
 		Assert.assertTrue(optAreEquals(-6.425963881403929, "3*X^4 + X^3 - 6*X^2 + 2 + 3*Y^4 + Y^3 - 6*Y^2 ", new double[] {-100,-100}));
 	}
 	
-	//@Test
+	@Test
 	public void testArgoptTwoVariables() {
 		Assert.assertTrue(argoptAreEquals(new double[] {0,0}, "X^2+Y^2", new double[] {-1,-1}));
 		Assert.assertTrue(argoptAreEquals(new double[] {0,0}, "X^2+Y^2", new double[] {1,1}));
@@ -71,7 +90,7 @@ public class OptimizationWithNonLinearConjugateGradientDescentTest {
 		Assert.assertTrue(argoptAreEquals(new double[] {-1.132782218537319,-1.132782218537319}, "3*X^4 + X^3 - 6*X^2 + 2 + 3*Y^4 + Y^3 - 6*Y^2 ", new double[] {-100,-100}));
 	}
 	
-	//@Test
+	@Test
 	public void testOptMultipleVariables() {
 		Assert.assertTrue(optAreEquals(0, "A^2+B^2+C^2+D^2+E^2+F^2+G^2", new double[] {-1,-1,-1,-1,-1,-1,-1}));
 		Assert.assertTrue(optAreEquals(0, "(A-1)^2+(B-2)^2+(C-3)^2+(D-4)^2+(E-5)^2+(F-6)^2+(G-7)^2", new double[] {-1,-1,-1,-1,-1,-1,-1}));
@@ -100,10 +119,10 @@ public class OptimizationWithNonLinearConjugateGradientDescentTest {
 	 *
 	 */
 	public static boolean argoptAreEquals(double[] expectedResult, String stringToMinimize, double[] initialGuess) {
-		OptimizationWithNonlinearConjugateGradientDescent minWithNonlinearCGD = new OptimizationWithNonlinearConjugateGradientDescent(Expressions.parse(stringToMinimize), GoalType.MAXIMIZE, initialGuess);
+		OptimizationWithNonlinearConjugateGradientDescent minWithNonlinearCGD = new OptimizationWithNonlinearConjugateGradientDescent(Expressions.parse(stringToMinimize), GoalType.MINIMIZE, initialGuess);
 		double[] argminOfExpression = minWithNonlinearCGD.findArgopt();
-		System.out.println(argminOfExpression[0]);
-		System.out.println(expectedResult[0]);
+		//System.out.println(argminOfExpression[0]);
+		//System.out.println(expectedResult[0]);
 		for(int i = 0; i < expectedResult.length; i++) {
 			if (Math.abs(argminOfExpression[i] - expectedResult[i]) > 1e-5) {
 				return false;
