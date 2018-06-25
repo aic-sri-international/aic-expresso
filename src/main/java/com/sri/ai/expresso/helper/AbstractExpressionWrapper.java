@@ -94,6 +94,20 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	
 	protected abstract Expression computeInnerExpression();
 	
+	/**
+	 * A wrapper built without an inner expression, which will be built as needed by {@link #getInnerExpression}.
+	 */
+	public AbstractExpressionWrapper() {
+		cachedInnerExpression = null;
+	}
+	
+	/**
+	 * A wrapper built with a given inner expression.
+	 */
+	public AbstractExpressionWrapper(Expression innerExpression) {
+		cachedInnerExpression = innerExpression;
+	}
+	
 	public Expression getInnerExpression() {
 		if (cachedInnerExpression == null) {
 			cachedInnerExpression = computeInnerExpression();

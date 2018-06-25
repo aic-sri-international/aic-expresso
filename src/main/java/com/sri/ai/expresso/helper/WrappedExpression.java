@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 
 /**
- * An expression delegating to an inner expression.
+ * An expression delegating to a given inner expression.
  * @author braz
  */
 @Beta

@@ -29,7 +29,7 @@ public class OptimizationWithNonLinearConjugateGradientDescentTest {
 		Assert.assertTrue(optAreEquals(-2.2129819407, "3*X^4 + X^3 - 6*X^2 + 2", new double[] {-1000}));
 	}
 	
-	@Test
+	//@Test
 	public void testArgoptOneVariable() {
 		/*Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {-1}));
 		Assert.assertTrue(argoptAreEquals(new double[] {0}, "X^2", new double[] {1}));
