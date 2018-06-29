@@ -17,6 +17,7 @@ import com.sri.ai.expresso.api.Expression;
  * Use the Nonlinear Conjugate Gradient Descent algorithm which is much faster than Melder-Nead algorithm.
  * Should be used when the Expression is differentiable.
  * NOTE: can find a local optimum but not necessarily a global optimum. It depends on the initial guess.
+ * 
  * @author Sarah Perrin
  *
  */
