@@ -93,7 +93,7 @@ public class OptimizationWithBOBYQA implements Optimization {
 	 */
 	private PointValuePair optimize(BOBYQAOptimizer optimizer) {
 		
-		final FunctionToOptimize f = new FunctionToOptimize(this.expressionToOptimize);
+		final SymbolicFunctionToOptimize f = new SymbolicFunctionToOptimize(this.expressionToOptimize);
 		
 		int dimension = numberOfVariablesInExpression();
 		double[] ones = new double[dimension];

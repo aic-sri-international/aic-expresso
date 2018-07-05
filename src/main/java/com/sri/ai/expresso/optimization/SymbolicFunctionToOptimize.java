@@ -21,19 +21,24 @@ import com.sri.ai.grinder.core.TrueContext;
  *
  */
 
-public class FunctionToOptimize implements MultivariateFunction {
+public class SymbolicFunctionToOptimize implements MultivariateFunction {
 	
 	public Expression expression;
+	public Set<Expression> variablesInExpression;
 	
 	public Theory theory;
 	public Context context;
 	public AutomaticDifferentiation autoDifferentiator;
 	
-	public FunctionToOptimize(Expression expression) {
+	public SymbolicFunctionToOptimize(Expression expression) {
 		this.expression = expression;
 		
 		this.theory = new CommonTheory();
 		this.context = new TrueContext(theory);
+		
+
+    	this.variablesInExpression = Expressions.freeVariables(expression, context);
+		
 		autoDifferentiator = new AutomaticDifferentiation(e -> context.evaluate(e));
 	}
 	
@@ -43,8 +48,7 @@ public class FunctionToOptimize implements MultivariateFunction {
 	 */
     public double value(double[] variables) {
     	
-    	Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
-    	Map<Expression, Double> map = createMap(variables, variablesInExpression);
+    	Map<Expression, Double> map = createMap(variables);
     	
     	Expression evaluatedExpression = makeEvaluatedAndSimplifiedExpression(map, variablesInExpression);
     	
@@ -57,7 +61,7 @@ public class FunctionToOptimize implements MultivariateFunction {
 	 * Create the HashMap which associates every variable of the expression to its value.
 	 *
 	 */
-	private Map<Expression, Double> createMap(double[] variables, Set<Expression> variablesInExpression) {
+	private Map<Expression, Double> createMap(double[] variables) {
 		Map<Expression, Double> result = new HashMap<Expression, Double>();
     	int i = 0;
     	for (Expression e : variablesInExpression) {
