@@ -188,6 +188,7 @@ public class IndexExpressions {
 	 * Makes an index expression for variable and type (the latter being possibly <code>null</code> indicating unknown type).
 	 */
 	public static Expression makeIndexExpression(Expression index, Expression type) {
+		myAssert(type != null, () -> "Type of " + index + " required but not registered (indices without types are not longer supported).");
 		Expression result = type == null? index : Expressions.apply("in", index, type);
 		return result;
 	}

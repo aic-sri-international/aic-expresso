@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndices;
 import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.Triple.triple;
 
@@ -58,6 +59,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.base.Triple;
@@ -195,6 +197,7 @@ public interface Context extends Registry, Constraint {
 				alreadyDefined.add(newIndex);
 				for (int j = i + 1; j != newIndexExpressionsList.size(); j++) {
 					Expression anotherIndexExpression = newIndexExpressionsList.get(j);
+					myAssert(anotherIndexExpression.hasFunctor(FunctorConstants.IN), () -> "Expected index expression 'SYMBOL in TYPE' but got instead " + anotherIndexExpression);
 					Expression anotherIndex = anotherIndexExpression.get(0);
 					Expression anotherType = anotherIndexExpression.get(1);
 					Expression newAnotherType = anotherType.replaceSymbol(index, newIndex, this);

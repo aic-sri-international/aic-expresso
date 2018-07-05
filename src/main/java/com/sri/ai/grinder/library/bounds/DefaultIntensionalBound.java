@@ -108,6 +108,7 @@ public class DefaultIntensionalBound extends AbstractIntensionalBound {
 		DefaultIntensionalBound intensionalBound = (DefaultIntensionalBound) bound;
 		
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalBound.getIndexExpressions();
+
 		Expression Head                      = intensionalBound.getHead();
 		Expression condition                 = intensionalBound.getCondition();
 		
