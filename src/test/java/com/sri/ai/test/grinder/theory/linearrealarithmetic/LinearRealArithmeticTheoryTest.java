@@ -50,16 +50,21 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionStepSolver;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.core.solver.DefaultSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.group.Sum;
 import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.grinder.tester.TheoryTestingSupport;
+import com.sri.ai.grinder.theory.compound.CompoundTheory;
+import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.theory.linearrealarithmetic.IntervalWithMeasureEquivalentToSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.theory.linearrealarithmetic.MeasureOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.theory.linearrealarithmetic.SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver;
 import com.sri.ai.grinder.theory.linearrealarithmetic.SingleVariableLinearRealArithmeticConstraint;
 import com.sri.ai.grinder.theory.linearrealarithmetic.SummationOnLinearRealArithmeticAndPolynomialStepSolver;
+import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
@@ -67,6 +72,24 @@ public class LinearRealArithmeticTheoryTest {
 
 	public Random makeRandom() {
 		return new Random();
+	}
+	
+	@Test 
+	public void debuggingTests() {
+		Theory theory;
+		Context context;
+		Expression expression;
+		Expression expected;
+		Expression actual;
+		
+		theory = new CompoundTheory(new DifferenceArithmeticTheory(false, true), new LinearRealArithmeticTheory(false, false));
+		theory = new CompoundTheory(new PropositionalTheory(), new LinearRealArithmeticTheory(false, false)); // TODO: DEBUG case with theory above; DifferenceArithmeticTheory is intefering
+		context = new TrueContext(theory);
+		context = context.extendWithSymbolsAndTypes("X", "Real", "Y", "Real");
+		expression = parse("(if (X > Y - 0.4999999999) and (X < Y + 0.4999999999) then 1 else 0)");
+		expected = parse("if X > Y - 0.4999999999 then if X < Y + 0.4999999999 then 1 else 0 else 0");
+		actual = context.evaluate(expression);
+		assertEquals(expected, actual);
 	}
 	
 	@Test
