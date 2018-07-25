@@ -90,7 +90,7 @@ public class OptimizationWithNelderMead implements Optimization {
 	 */
 	private PointValuePair optimize(SimplexOptimizer optimizer) {
 		
-		final SymbolicFunctionToOptimize f = new SymbolicFunctionToOptimize(this.expressionToOptimize);
+		final FunctionToOptimize f = new FunctionToOptimize(this.expressionToOptimize);
 		
 		double[] nelderMeadSimplexParameters = new double[numberOfVariablesInExpression()];
 		for (int i = 0; i < numberOfVariablesInExpression(); i++) {

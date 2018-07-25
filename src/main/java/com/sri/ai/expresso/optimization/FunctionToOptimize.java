@@ -21,7 +21,7 @@ import com.sri.ai.grinder.core.TrueContext;
  *
  */
 
-public class SymbolicFunctionToOptimize implements MultivariateFunction {
+public class FunctionToOptimize implements MultivariateFunction {
 	
 	public Expression expression;
 	public Set<Expression> variablesInExpression;
@@ -30,12 +30,11 @@ public class SymbolicFunctionToOptimize implements MultivariateFunction {
 	public Context context;
 	public AutomaticDifferentiation autoDifferentiator;
 	
-	public SymbolicFunctionToOptimize(Expression expression) {
+	public FunctionToOptimize(Expression expression) {
 		this.expression = expression;
 		
 		this.theory = new CommonTheory();
 		this.context = new TrueContext(theory);
-		
 
     	this.variablesInExpression = Expressions.freeVariables(expression, context);
 		

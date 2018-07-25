@@ -83,7 +83,7 @@ public class OptimizationWithNonlinearConjugateGradientDescent implements Optimi
 	 */
 	public PointValuePair optimize(NonLinearConjugateGradientOptimizer optimizer) {
 		
-		final SymbolicFunctionToOptimize f = new SymbolicFunctionToOptimize(this.expressionToOptimize);
+		final FunctionToOptimize f = new FunctionToOptimize(this.expressionToOptimize);
 		final FunctionToOptimizeGradient gradient = new FunctionToOptimizeGradient(expressionToOptimize);
 		
 		ObjectiveFunction objectiveFunction = new ObjectiveFunction(f);

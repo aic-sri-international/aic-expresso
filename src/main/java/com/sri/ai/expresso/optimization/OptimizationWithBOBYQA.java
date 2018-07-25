@@ -18,7 +18,7 @@ import com.sri.ai.grinder.core.TrueContext;
 
 /**
  * Class to optimize an {@link Expression}, more precisely to optimize bound constrained multivariate functions. 
- * Typically, the variables will have to be between 0 and 1 as they are probabilities.
+ * Typically, the variables will have to be between 0 and 1 as they are probabilities when it is used in PRAiSE.
  * BOBYQA algorithm only necessitates the function to be continuous. Thus it can be used if the function is not differentiable.
  * The number of variables must be greater than 2.
  * NOTE: can find a local minimum but not necessarily a global minimum. It depends on the initial guess.
@@ -93,7 +93,7 @@ public class OptimizationWithBOBYQA implements Optimization {
 	 */
 	private PointValuePair optimize(BOBYQAOptimizer optimizer) {
 		
-		final SymbolicFunctionToOptimize f = new SymbolicFunctionToOptimize(this.expressionToOptimize);
+		final FunctionToOptimize f = new FunctionToOptimize(this.expressionToOptimize);
 		
 		int dimension = numberOfVariablesInExpression();
 		double[] ones = new double[dimension];

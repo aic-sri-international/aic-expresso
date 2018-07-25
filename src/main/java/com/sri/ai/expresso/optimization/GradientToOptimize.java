@@ -85,7 +85,6 @@ public class GradientToOptimize implements MultivariateVectorFunction {
         		expressionReplaced = expressionReplacedPrevious.replaceAllOccurrences(e, Expressions.makeSymbol(map.get(e)), context);
         		expressionReplacedPrevious = expressionReplaced;
         	}
-        	
         	Expression evaluatedExpression = autoDifferentiator.simplify(expressionReplaced);
 			result[i] = evaluatedExpression.doubleValue();
         	i++;

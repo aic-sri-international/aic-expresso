@@ -17,6 +17,7 @@ import com.sri.ai.grinder.core.TrueContext;
 
 /**
  * Class to convert an Expression into a MultivariateVectorFunction (from Apache Commons Math), which corresponds to its gradient. 
+ * The gradient is computed with AutoDifferentiation automatically.
  * Used for optimization.
  * @author Sarah Perrin
  *

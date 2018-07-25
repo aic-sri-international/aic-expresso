@@ -17,7 +17,6 @@ import com.sri.ai.grinder.core.TrueContext;
 
 /**
  * Class to test automatic symbolic differentiation of {@link Expression}
- * 
  * @author Sarah Perrin
  */
 
