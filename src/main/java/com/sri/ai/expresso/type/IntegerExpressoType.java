@@ -73,7 +73,7 @@ public class IntegerExpressoType extends AbstractType {
 	 */
 	@Override
 	public Iterator<Expression> iterator() {
-		return functionIterator(new IntegerIterator(0), i -> makeSymbol(i));
+		return functionIterator(IntegerIterator.fromThisValueOnForever(0), i -> makeSymbol(i));
 	}
 
 	@Override

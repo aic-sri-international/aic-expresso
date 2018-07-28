@@ -134,7 +134,7 @@ public class IntegerInterval extends AbstractType {
 			if (noUpperBound()) {
 				integerIterator = 
 						new BreadthFirstIterator<Integer>( // alternates between the iterators given
-								new IntegerIterator(0), // natural numbers
+								IntegerIterator.fromThisValueOnForever(0), // natural numbers
 								new IntegerIterator(-1, 1 /* upper bound, never reached */, -1)); // backwards from -1
 			}
 			else {
@@ -147,7 +147,7 @@ public class IntegerInterval extends AbstractType {
 			if (noUpperBound()) {
 				myAssert(() -> isNumber(nonStrictLowerBound), () -> "Cannot iterate over elements of undefined interval " + this);
 				// go from integer after strict lower bound, forward forever
-				integerIterator = new IntegerIterator(nonStrictLowerBound.intValue());
+				integerIterator = IntegerIterator.fromThisValueOnForever(nonStrictLowerBound.intValue());
 			}
 			else {
 				myAssert(() -> isNumber(nonStrictLowerBound) && isNumber(nonStrictUpperBound), () -> "Cannot iterate over elements of undefined interval " + this);
@@ -271,5 +271,10 @@ public class IntegerInterval extends AbstractType {
 	@Override
 	public Set<Type> getEmbeddedTypes() {
 		return Collections.emptySet();
+	}
+	
+	public Expression toExpression() {
+		Expression expression = apply(INTEGER_INTERVAL, getNonStrictLowerBound(), getNonStrictUpperBound());
+		return expression;
 	}
 }
