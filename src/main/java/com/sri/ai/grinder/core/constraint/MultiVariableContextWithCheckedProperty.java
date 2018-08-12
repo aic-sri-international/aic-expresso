@@ -126,8 +126,12 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 		return result;
 	}
 
-	private static Context makeAndCheckOutOfConsistentHeadAndTail(SingleVariableConstraint head, Context tail,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, Context context) {
+	private static Context makeAndCheckOutOfConsistentHeadAndTail(
+			SingleVariableConstraint head, 
+			Context tail,
+			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
+			Context context) {
+		
 		Context result;
 		Theory theory = tail.getTheory();
 		MultiVariableContextWithCheckedProperty unchecked = new MultiVariableContextWithCheckedProperty(head, tail, contextDependentProblemStepSolverMaker, theory);
@@ -343,13 +347,12 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 
 	private Context conjoinNonTrivialLiteralIfThereIsNoHead(Expression literal, Context context, Collection<Expression> variablesInLiteral) {
 		
-		SingleVariableConstraint newSingleVariableConstraint = 
-				makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
+		SingleVariableConstraint newHead = makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
 		Context newTail = this;
 		Context result = 
 				makeAndCheck(
 						getTheory(), 
-						newSingleVariableConstraint, 
+						newHead, 
 						newTail, 
 						contextDependentProblemStepSolverMaker,
 						context);
