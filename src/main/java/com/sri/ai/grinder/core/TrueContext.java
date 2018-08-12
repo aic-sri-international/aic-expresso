@@ -346,7 +346,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		return theory;
 	}
 
-	private CompleteMultiVariableContext makeTrueConstraint(Theory theory) {
+	private CompleteMultiVariableContext makeTrueCompleteMultiVariableContext(Theory theory) {
 		CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
 		return result;
 	}
@@ -368,7 +368,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context conjoin(Expression formula, Context context) {
 		Context result = 
-				makeTrueConstraint(theoryToUse(formula))
+				makeTrueCompleteMultiVariableContext(theoryToUse(formula))
 				.conjoin(formula, context);
 		return result;
 	}
@@ -376,7 +376,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
 		Context result = 
-				makeTrueConstraint(theoryToUse(conjunctiveClause))
+				makeTrueCompleteMultiVariableContext(theoryToUse(conjunctiveClause))
 				.conjoinWithConjunctiveClause(conjunctiveClause, context);
 		return result;
 	}
@@ -384,7 +384,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
 		Context result = 
-				makeTrueConstraint(theoryToUse(literal))
+				makeTrueCompleteMultiVariableContext(theoryToUse(literal))
 				.conjoinWithLiteral(literal, context);
 		return result;
 	}
@@ -404,7 +404,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		if (theory == null) {
 			throw new Error("Should not be making a contradiction out of a TrueContext without a constraint");
 		}
-		Context result = makeTrueConstraint(theory).makeContradiction();
+		Context result = makeTrueCompleteMultiVariableContext(theory).makeContradiction();
 		return result;
 	}
 

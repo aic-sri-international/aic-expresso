@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.contains;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.base.Pair.pair;
 
 import java.util.Collection;
 import java.util.Map;
@@ -58,6 +59,7 @@ import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.Pair;
 
 // ISSUES
 // Extract Constraint part from this class and make it a multi-variable constraint, not a context, then use it to provide default true constraints for theories in Theory.makeTrueConstraint()
@@ -249,70 +251,117 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = makeContradiction();
 		}
 		else {
-			result = conjoinWithNonTrivialLiteral(literal, context);
+			result = conjoinWithNonBooleanConstantLiteral(literal, context);
 		}
 		return result;
 	}
 
-	private Context conjoinWithNonTrivialLiteral(Expression literal, Context context) throws Error {
+	private Context conjoinWithNonBooleanConstantLiteral(Expression literal, Context context) throws Error {
 		Context result;
 		Collection<Expression> variablesInLiteral = getTheory().getVariablesIn(literal, context);
 		if (variablesInLiteral.isEmpty()) {
-			Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
-			myAssert(literalSimplifiedToConstant != literal, () -> "Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context, or has been declared as a uniquely named constant in the Context (for example by constructing the Context with the default PrologConstantPredicate as a default predicate for recognizing constants, which recognizes all non-capitalized identifiers as such)");
-			result = conjoinWithLiteral(literalSimplifiedToConstant, context);
+			result = conjoinWithLiteralWithoutVariables(literal, context);
 		}
 		else if (head != null) {
-			SingleVariableConstraint newHead;
-			Context newTail;
-			if (variablesInLiteral.contains(head.getVariable())) {
-				newHead = head.conjoin(literal, context);
-				newTail = tail;
-			}
-			else {
-				newHead = head;
-				newTail = tail.conjoin(literal, context);
-			}
-
-			// optional, but good:
-			// we propagate external literals from head
-			// up the chain so they are integrated and simplified in the corresponding single-variable constraints
-			if ( ! newHead.isContradiction()) {
-				for (Expression externalLiteral : newHead.getExternalLiterals()) {
-					if ( ! newTail.isContradiction()) {
-						newTail = newTail.conjoin(externalLiteral, context);
-					}
-				}
-				newHead = newHead.makeSimplificationWithoutExternalLiterals();
-			}
-
-			if (newHead == head && newTail == tail) { // in case nothing changed
-				result = this;
-			}
-			else {
-				result = 
-						makeAndCheck(
-								getTheory(), 
-								newHead, 
-								newTail, 
-								contextDependentProblemStepSolverMaker,
-								context);
-			}
+			result = conjointNonTrivialLiteralIfThereIsHead(literal, variablesInLiteral, context);
 		}
 		else {
-			Expression firstVariable = getFirstOrNull(variablesInLiteral);
-			SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, context);
-			newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
-			Context newTail = this;
+			result = conjoinNonTrivialLiteralIfThereIsNoHead(literal, context, variablesInLiteral);
+		}
+		return result;
+	}
+
+	private Context conjoinWithLiteralWithoutVariables(Expression literal, Context context) {
+		Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
+		myAssert(literalSimplifiedToConstant != literal, () -> "Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context, or has been declared as a uniquely named constant in the Context (for example by constructing the Context with the default PrologConstantPredicate as a default predicate for recognizing constants, which recognizes all non-capitalized identifiers as such)");
+		Context result = conjoinWithLiteral(literalSimplifiedToConstant, context);
+		return result;
+	}
+
+	private Context conjointNonTrivialLiteralIfThereIsHead(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
+
+		Pair<SingleVariableConstraint, Context> newHeadAndNewTail = makeNewHeadAndNewTail(literal, variablesInLiteral, context);
+		
+		newHeadAndNewTail = propagateNewHeadExternalLiterals(newHeadAndNewTail, context);
+
+		Context result = makeNewMultiVariableContextWithCheckedPropertyFromNewHeadAndNewTail(newHeadAndNewTail, context);
+		return result;
+	}
+
+	private Pair<SingleVariableConstraint, Context> makeNewHeadAndNewTail(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
+		SingleVariableConstraint newHead;
+		Context newTail;
+		if (variablesInLiteral.contains(head.getVariable())) {
+			newHead = head.conjoin(literal, context);
+			newTail = tail;
+		}
+		else {
+			newHead = head;
+			newTail = tail.conjoin(literal, context);
+		}
+		Pair<SingleVariableConstraint, Context> newHeadAndNewTail = pair(newHead, newTail);
+		return newHeadAndNewTail;
+	}
+
+	private Pair<SingleVariableConstraint, Context> propagateNewHeadExternalLiterals(Pair<SingleVariableConstraint, Context> newHeadAndNewTail, Context context) {
+		// optional, but good:
+		// we propagate external literals from head
+		// up the chain so they are integrated and simplified in the corresponding single-variable constraints
+		SingleVariableConstraint currentNewHead = newHeadAndNewTail.first;
+		Context currentNewTail = newHeadAndNewTail.second;
+		if ( ! currentNewHead.isContradiction()) {
+			for (Expression externalLiteral : currentNewHead.getExternalLiterals()) {
+				if ( ! currentNewTail.isContradiction()) {
+					currentNewTail = currentNewTail.conjoin(externalLiteral, context);
+				}
+			}
+			currentNewHead = currentNewHead.makeSimplificationWithoutExternalLiterals();
+		}
+		return pair(currentNewHead, currentNewTail);
+	}
+
+	private Context makeNewMultiVariableContextWithCheckedPropertyFromNewHeadAndNewTail(Pair<SingleVariableConstraint, Context> newHeadAndNewTail, Context context) {
+
+		SingleVariableConstraint newHead = newHeadAndNewTail.first;
+		Context newTail = newHeadAndNewTail.second;
+		
+		Context result;
+		if (newHead == head && newTail == tail) { // in case nothing changed
+			result = this;
+		}
+		else {
 			result = 
 					makeAndCheck(
 							getTheory(), 
-							newSingleVariableConstraint, 
+							newHead, 
 							newTail, 
 							contextDependentProblemStepSolverMaker,
 							context);
 		}
 		return result;
+	}
+
+	private Context conjoinNonTrivialLiteralIfThereIsNoHead(Expression literal, Context context, Collection<Expression> variablesInLiteral) {
+		
+		SingleVariableConstraint newSingleVariableConstraint = 
+				makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
+		Context newTail = this;
+		Context result = 
+				makeAndCheck(
+						getTheory(), 
+						newSingleVariableConstraint, 
+						newTail, 
+						contextDependentProblemStepSolverMaker,
+						context);
+		return result;
+	}
+
+	private SingleVariableConstraint makeNewSingleVariableConstraintOnSomeVariableOfLiteral(Expression literal,
+			Collection<Expression> variablesInLiteral, Context context) {
+		Expression firstVariable = getFirstOrNull(variablesInLiteral);
+		SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, context);
+		newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
+		return newSingleVariableConstraint;
 	}
 
 	@Override
@@ -326,18 +375,24 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = this;
 		}
 		else {
-			ExpressionLiteralSplitterStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
-			Expression solution = problem.solve(tail);
-			if (solution == null) { // tail is found to be inconsistent with given context
-				result = makeContradiction();
-			}
-			else if (solution.equals(FALSE)) { // the head constraint does not exhibit the property in all contexts, so the total constraint does not either.
-				result = makeContradiction();
-			}
-			else {
-				this.checked = true;
-				result = this;
-			}
+			result = performCheck(context);
+		}
+		return result;
+	}
+
+	private MultiVariableContextWithCheckedProperty performCheck(Context context) {
+		MultiVariableContextWithCheckedProperty result;
+		ExpressionLiteralSplitterStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
+		Expression solution = problem.solve(tail);
+		if (solution == null) { // tail is found to be inconsistent with given context
+			result = makeContradiction();
+		}
+		else if (solution.equals(FALSE)) { // the head constraint does not exhibit the property in all contexts, so the total constraint does not either.
+			result = makeContradiction();
+		}
+		else {
+			this.checked = true;
+			result = this;
 		}
 		return result;
 	}
