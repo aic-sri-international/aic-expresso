@@ -55,7 +55,7 @@ public abstract class AbstractDifferenceArithmeticConstraintTest extends Abstrac
 
 	@Test
 	public void testMultiVariableConstraints() {
-		SGDPLLTTester.testMultiVariableConstraints(
+		SGDPLLTTester.testIncompleteMultiVariableConstraints(
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(500) /* number of tests */,

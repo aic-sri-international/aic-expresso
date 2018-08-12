@@ -68,6 +68,7 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 		public CompleteMultiVariableContextDependentProblemStepSolverMaker(Theory theory) {
 			this.theory = theory;
 		}
+		
 		@Override
 		public ExpressionLiteralSplitterStepSolver apply(SingleVariableConstraint constraint, Context context) {
 			ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);

@@ -65,7 +65,7 @@ import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext;
-import com.sri.ai.grinder.core.constraint.DefaultMultiVariableConstraint;
+import com.sri.ai.grinder.core.constraint.IncompleteMultiVariableConstraint;
 import com.sri.ai.grinder.core.solver.DefaultSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.helper.AssignmentMapsIterator;
@@ -148,24 +148,25 @@ public class SGDPLLTTester {
 	/**
 	 * Given a theory and a number <code>n</code> of multi-variable constraint tests,
 	 * generates <code>n</code> formulas in the theory
-	 * and see if those detected as unsatisfiable by the corresponding solver
+	 * and see if those detected as unsatisfiable by the corresponding incomplete solver
 	 * are indeed unsatisfiable (checked by brute force).
+	 * Note that we do not test if all unsatisfiable formulas are detected as such, because the solver is assumed to be incomplete.
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param theoryTestingSupport
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testMultiVariableConstraints(
+	public static void testIncompleteMultiVariableConstraints(
 			boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new DefaultMultiVariableConstraint(theoryTestingSupport.getTheory());
+		NullaryFunction<Constraint> makeInitialConstraint = () -> new IncompleteMultiVariableConstraint(theoryTestingSupport.getTheory());
 
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteral(context);
 
-		TestRunner tester = SGDPLLTTester::testIncompleteSatisfiability; // DefaultMultiVariableConstraint is incomplete
+		TestRunner tester = SGDPLLTTester::testIncompleteSatisfiability; // {@link IncompleteMultiVariableConstraint} is incomplete
 		
 		runTesterGivenOnSuccessiveConjunctionsOfLiterals("incomplete satisfiability", tester, numberOfTests, maxNumberOfLiterals, testAgainstBruteForce, theoryTestingSupport, makeInitialConstraint, makeRandomLiteral, outputCount, context);
 	}
@@ -369,7 +370,7 @@ public class SGDPLLTTester {
 		Expression quantifiedFormula = formula;
 		Collection<Expression> variables = theoryTestingSupport.getTheory().getVariablesIn(formula, context);
 		for (Expression variable : variables) {
-			Expression typeNameExpression = parse(variableNamesAndTypesForTesting.get(variable).toString());
+			Expression typeNameExpression = parse(variableNamesAndTypesForTesting.get(variable.toString()).toString());
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, typeNameExpression), quantifiedFormula);
 		}
 		Expression evaluation = new BruteForceCommonInterpreter().apply(quantifiedFormula, context);

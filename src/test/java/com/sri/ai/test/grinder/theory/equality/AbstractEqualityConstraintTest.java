@@ -91,7 +91,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 
 	@Test
 	public void testMultiVariableConstraints() {
-		SGDPLLTTester.testMultiVariableConstraints(
+		SGDPLLTTester.testIncompleteMultiVariableConstraints(
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(500) /* number of tests */,

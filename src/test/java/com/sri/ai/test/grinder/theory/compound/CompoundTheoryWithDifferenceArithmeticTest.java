@@ -154,7 +154,7 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 
 	@Test
 	public void testMultiVariableConstraints() {
-		SGDPLLTTester.testMultiVariableConstraints(
+		SGDPLLTTester.testIncompleteMultiVariableConstraints(
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				1 /* number of tests */,

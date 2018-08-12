@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.contains;
 import static com.sri.ai.util.Util.getFirstOrNull;
-import static com.sri.ai.util.base.Pair.pair;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.Map;
@@ -58,7 +58,13 @@ import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.Pair;
+
+// ISSUES
+// Extract Constraint part from this class and make it a multi-variable constraint, not a context, then use it to provide default true constraints for theories in Theory.makeTrueConstraint()
+// Case with head = null: sounds unnecessary
+// Expansion of constraint into expression: too expensive
+// Unchecked assumption that head and tail do not share variables
+// Why does this need to be a context as opposed to a constraint, which is more general?
 
 /**
  * An {@link Context} on multiple variables,
@@ -112,31 +118,23 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = tail.makeContradiction();
 		}
 		else {
-			MultiVariableContextWithCheckedProperty 
-			uncheckedMultiVariableConstraintWithCheckedProperty = 
-			new MultiVariableContextWithCheckedProperty(
-					tail.getTheory(), 
-					head, 
-					tail, 
-					contextDependentProblemStepSolverMaker);
-			result = 
-					uncheckedMultiVariableConstraintWithCheckedProperty
-					.check(context);
+			result = makeAndCheckOutOfConsistentHeadAndTail(head, tail, contextDependentProblemStepSolverMaker, context);
 		}
 
 		return result;
 	}
 
-	public MultiVariableContextWithCheckedProperty(
-			Theory theory, 
-			ContextDependentProblemStepSolverMaker contextDependentProblemMaker, 
-			Context context) {
-		
-		this(
-				theory, 
-				null, // no head at first
-				context, // initial tail is the context 
-				contextDependentProblemMaker);
+	private static Context makeAndCheckOutOfConsistentHeadAndTail(SingleVariableConstraint head, Context tail,
+			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, Context context) {
+		Context result;
+		Theory theory = tail.getTheory();
+		MultiVariableContextWithCheckedProperty unchecked = new MultiVariableContextWithCheckedProperty(head, tail, contextDependentProblemStepSolverMaker, theory);
+		result = unchecked.check(context);
+		return result;
+	}
+
+	public MultiVariableContextWithCheckedProperty(Theory theory, ContextDependentProblemStepSolverMaker contextDependentProblemMaker, Context context) {
+		this(null, context, contextDependentProblemMaker, theory);
 	}
 	
 	/**
@@ -144,31 +142,30 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 * which is only correct if the {@link SingleVariableConstraint}'s variable does not appear
 	 * in the tail constraint.
 	 * Note also that this does not check the checked property.
-	 * Because of these issues, the constructor is private.
+	 * Because of these choices, the constructor is private.
 	 * @param head
 	 * @param tail
 	 */
 	private MultiVariableContextWithCheckedProperty(
-			Theory theory,
 			SingleVariableConstraint head,
 			Context tail,
-			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
+			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
+			Theory theory) {
 		super(theory);
 		this.tail = tail;
 		this.head = head;
 		this.checked = false;
-		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
+		this.contextDependentProblemStepSolverMaker = contextDependentProblemStepSolverMaker;
 	}
 	
 	@Override
 	public Context conjoin(Expression formula, Context context) {
 		Context result;
 		
-		Pair<Boolean, Context> specializedResult
-		= conjoinSpecializedForConstraintsIfApplicable(formula, context);
+		Context specializedResult = conjoinSpecializedForConstraintsIfApplicable(formula, context);
 		
-		if (specializedResult.first) {
-			result = specializedResult.second;
+		if (specializedResult != null) {
+			result = specializedResult;
 		}
 		else { // fall back to default implementation
 			result = Context.super.conjoin(formula, context);
@@ -178,54 +175,68 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	/**
-	 * Returns a pair indicating whether specialized conjoin for constraints applies to this case and,
-	 * if so, provides the result of this conjoining.
+	 * Returns the result of conjoining a formula and this context under a given context if a specialized routine is available,
+	 * or null otherwise.
 	 * @param formula
 	 * @param context
 	 * @return
 	 */
-	private Pair<Boolean, Context> conjoinSpecializedForConstraintsIfApplicable(Expression formula, Context context) {
-		Pair<Boolean, Context> result;
+	private Context conjoinSpecializedForConstraintsIfApplicable(Expression formula, Context context) {
+		Context result;
 		
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulaAsSingleVariableConstraint = (SingleVariableConstraint) formula;
-			Expression variable = formulaAsSingleVariableConstraint.getVariable();
-			boolean variableAlreadyConstrainedInThis = contains(this, variable); // TODO: this forces expression representation to be generated, which can be expensive. Better write a method that checks it on the constraint representation itself
-			if ( ! variableAlreadyConstrainedInThis) {
-				// if the variable is new to this constraint, we can simply tack on its constraint on it. 
-				Context newContext = makeAndCheck(
-						getTheory(), 
-						formulaAsSingleVariableConstraint, 
-						this, 
-						contextDependentProblemStepSolverMaker,
-						context);
-				result = pair(true, newContext);
+			boolean formulaIsSingleVariableConstraintOnNewVariable = checkIfFormulaISingleVariableConstraintOnNewVariable(formulaAsSingleVariableConstraint);
+			if ( formulaIsSingleVariableConstraintOnNewVariable) {
+				result = conjoinWithSingleVariableConstraintOnANewVariable(formulaAsSingleVariableConstraint, context);
 			}
 			else {
 				// otherwise we won't be able to use the single variable constraint structure in any special way
-				result = pair(false, null);
+				result = null;
 			}
 		}
 		else if (formula instanceof MultiVariableContextWithCheckedProperty) {
 			MultiVariableContextWithCheckedProperty formulaAsMultiVariableConstraint = (MultiVariableContextWithCheckedProperty) formula;
-			// if formula is itself a MultiVariableContextWithCheckedProperty,
-			// we conjoin its two known parts individually.
-			// Their own inner structure will also be efficiently exploited by these conjunctions.
-			Context conjunction = this;
-			if (formulaAsMultiVariableConstraint.tail != null) {
-				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.tail, context);
-			}
-			if (formulaAsMultiVariableConstraint.head != null) {
-				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.head, context);
-			}
-			result = pair(true, conjunction);
+			result = conjoinWithMultiVariableContextWithCheckedProperty(formulaAsMultiVariableConstraint, context);
 		}
 		else {
-			// the formula does not have a recognizable structure we can exploit
-			result = pair(false, null);
+			result = null;
 		}
 		
 		return result;
+	}
+
+	private boolean checkIfFormulaISingleVariableConstraintOnNewVariable(SingleVariableConstraint formulaAsSingleVariableConstraint) {
+		Expression variable = formulaAsSingleVariableConstraint.getVariable();
+		boolean variableAlreadyConstrainedInThis = contains(this, variable); // TODO: this forces expression representation to be generated, which can be expensive. Better write a method that checks it on the constraint representation itself
+		boolean formulaIsSingleVariableConstraintOnNewVariable = ! variableAlreadyConstrainedInThis;
+		return formulaIsSingleVariableConstraintOnNewVariable;
+	}
+
+	private Context conjoinWithSingleVariableConstraintOnANewVariable(SingleVariableConstraint formulaAsSingleVariableConstraint,
+			Context context) {
+		MultiVariableContextWithCheckedProperty tailOfNewContext = this;
+		Context newContext = makeAndCheck(getTheory(), formulaAsSingleVariableConstraint, tailOfNewContext, contextDependentProblemStepSolverMaker, context);
+		return newContext;
+	}
+
+	private Context conjoinWithMultiVariableContextWithCheckedProperty(MultiVariableContextWithCheckedProperty formulaAsMultiVariableConstraint, Context context) {
+		
+		// if formula is itself a MultiVariableContextWithCheckedProperty,
+		// we conjoin its two known parts individually.
+		// Their own inner structure will also be efficiently exploited by these conjunctions.
+		
+		Context currentConjunction = this;
+		
+		if (formulaAsMultiVariableConstraint.tail != null) {
+			currentConjunction = currentConjunction.conjoin(formulaAsMultiVariableConstraint.tail, context);
+		}
+		
+		if (formulaAsMultiVariableConstraint.head != null) {
+			currentConjunction = currentConjunction.conjoin(formulaAsMultiVariableConstraint.head, context);
+		}
+		
+		return currentConjunction;
 	}
 
 	@Override
@@ -238,70 +249,72 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = makeContradiction();
 		}
 		else {
-			Collection<Expression> variablesInLiteral = getTheory().getVariablesIn(literal, context);
-			if (variablesInLiteral.isEmpty()) {
-				Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
-				if (literalSimplifiedToConstant == literal) {
-					throw new Error("Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context, or has been declared as a uniquely named constant in the Context (for example by constructing the Context with the default PrologConstantPredicate as a default predicate for recognizing constants, which recognizes all non-capitalized identifiers as such)");
-				}
-				result = conjoinWithLiteral(literalSimplifiedToConstant, context);
-			}
-			else if (head != null) {
-				SingleVariableConstraint newHead;
-				Context newTail;
-				if (variablesInLiteral.contains(head.getVariable())) {
-					newHead = head.conjoin(literal, context);
-					newTail = tail;
-				}
-				else {
-					newHead = head;
-					newTail = tail.conjoin(literal, context);
-				}
-		
-				// optional, but good:
-				// we propagate external literals from head
-				// up the chain so they are integrated and simplified in the corresponding single-variable constraints
-				if ( ! newHead.isContradiction()) {
-					for (Expression externalLiteral : newHead.getExternalLiterals()) {
-						if ( ! newTail.isContradiction()) {
-							newTail = newTail.conjoin(externalLiteral, context);
-						}
-					}
-					newHead = newHead.makeSimplificationWithoutExternalLiterals();
-				}
-
-				if (newHead == head && newTail == tail) { // in case nothing changed
-					result = this;
-				}
-				else {
-					result = 
-							makeAndCheck(
-									getTheory(), 
-									newHead, 
-									newTail, 
-									contextDependentProblemStepSolverMaker,
-									context);
-				}
-			}
-			else {
-				Expression firstVariable = getFirstOrNull(variablesInLiteral);
-				SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, context);
-				newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
-				result = 
-						makeAndCheck(
-								getTheory(), 
-								newSingleVariableConstraint, 
-								this, 
-								contextDependentProblemStepSolverMaker,
-								context);
-			}
+			result = conjoinWithNonTrivialLiteral(literal, context);
 		}
 		return result;
 	}
 
-	/**
-	 * @return
-	 */
+	private Context conjoinWithNonTrivialLiteral(Expression literal, Context context) throws Error {
+		Context result;
+		Collection<Expression> variablesInLiteral = getTheory().getVariablesIn(literal, context);
+		if (variablesInLiteral.isEmpty()) {
+			Expression literalSimplifiedToConstant = getTheory().simplify(literal, context);
+			myAssert(literalSimplifiedToConstant != literal, () -> "Literal " + literal + " should have been simplified to a boolean constant, but was not. Sometimes this is caused by using a symbol as a variable, but which has not been declared as a variable in the context, or has been declared as a uniquely named constant in the Context (for example by constructing the Context with the default PrologConstantPredicate as a default predicate for recognizing constants, which recognizes all non-capitalized identifiers as such)");
+			result = conjoinWithLiteral(literalSimplifiedToConstant, context);
+		}
+		else if (head != null) {
+			SingleVariableConstraint newHead;
+			Context newTail;
+			if (variablesInLiteral.contains(head.getVariable())) {
+				newHead = head.conjoin(literal, context);
+				newTail = tail;
+			}
+			else {
+				newHead = head;
+				newTail = tail.conjoin(literal, context);
+			}
+
+			// optional, but good:
+			// we propagate external literals from head
+			// up the chain so they are integrated and simplified in the corresponding single-variable constraints
+			if ( ! newHead.isContradiction()) {
+				for (Expression externalLiteral : newHead.getExternalLiterals()) {
+					if ( ! newTail.isContradiction()) {
+						newTail = newTail.conjoin(externalLiteral, context);
+					}
+				}
+				newHead = newHead.makeSimplificationWithoutExternalLiterals();
+			}
+
+			if (newHead == head && newTail == tail) { // in case nothing changed
+				result = this;
+			}
+			else {
+				result = 
+						makeAndCheck(
+								getTheory(), 
+								newHead, 
+								newTail, 
+								contextDependentProblemStepSolverMaker,
+								context);
+			}
+		}
+		else {
+			Expression firstVariable = getFirstOrNull(variablesInLiteral);
+			SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, context);
+			newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
+			Context newTail = this;
+			result = 
+					makeAndCheck(
+							getTheory(), 
+							newSingleVariableConstraint, 
+							newTail, 
+							contextDependentProblemStepSolverMaker,
+							context);
+		}
+		return result;
+	}
+
 	@Override
 	public MultiVariableContextWithCheckedProperty makeContradiction() {
 		return (MultiVariableContextWithCheckedProperty) super.makeContradiction();

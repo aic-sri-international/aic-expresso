@@ -67,7 +67,7 @@ public class PropositionalConstraintTest extends AbstractTheoryTest {
 
 	@Test
 	public void testMultiVariableConstraints() {
-		SGDPLLTTester.testMultiVariableConstraints(
+		SGDPLLTTester.testIncompleteMultiVariableConstraints(
 				getTestAgainstBruteForce(),
 				makeTheoryTestingSupport(),
 				scale(100) /* number of tests - many more possibilities when we have multiple variables */,
