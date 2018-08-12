@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.core.constraint;
 
+import static com.sri.ai.util.Util.check;
+
 import java.io.Serializable;
 
 import com.google.common.annotations.Beta;
@@ -72,9 +74,7 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 		@Override
 		public ExpressionLiteralSplitterStepSolver apply(SingleVariableConstraint constraint, Context context) {
 			ExpressionLiteralSplitterStepSolver result = theory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, context);
-			if (result == null) {
-				throw new Error("No solver present for solving satisfiability of " + constraint.getVariable());
-			}
+			check(result != null,  () -> "No solver present for solving satisfiability of " + constraint.getVariable());
 			return result;
 		}
 	}
