@@ -261,10 +261,10 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	// PRIVATE METHODS
 	//
 	
-	@Override
-	public String toString() {
-		return "Context with: " + getSymbolsAndTypes();
-	}
+//	@Override
+//	public String toString() {
+//		return "Context with: " + getSymbolsAndTypes();
+//	}
 
 	@Override
 	public TrueContext makeNewContextWithAddedType(Type type) {
@@ -370,16 +370,37 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		Context result = 
 				makeTrueCompleteMultiVariableContext(theoryToUse(formula))
 				.conjoin(formula, context);
+		
+//		Context result2 = Context.super.conjoin(formula, context);
+//		result = DebuggingComparativeContextInvocationHandler.makeComparativeContext(result, result2);
+//		if (!result.toString().equals(result2.toString())) {
+//			println("Divergence in context constraints!");
+//			println("original: " + context);
+//			println("formula: " + formula);
+//			println("result: " + result);
+//			println("result: " + result2);
+//			System.exit(-1);
+//		}
+//		
+//		if (result.isContradiction() != result2.isContradiction()) {
+//			println("Divergence in isContradiction!");
+//			println("original: " + context);
+//			println("formula: " + formula);
+//			println("result: " + result);
+//			println("result: " + result2);
+//			System.exit(-1);
+//		}
+		
 		return result;
 	}
 
-	@Override
-	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
-		Context result = 
-				makeTrueCompleteMultiVariableContext(theoryToUse(conjunctiveClause))
-				.conjoinWithConjunctiveClause(conjunctiveClause, context);
-		return result;
-	}
+//	@Override
+//	public Context conjoinWithConjunctiveClause(Expression conjunctiveClause, Context context) {
+//		Context result = 
+//				makeTrueCompleteMultiVariableContext(theoryToUse(conjunctiveClause))
+//				.conjoinWithConjunctiveClause(conjunctiveClause, context);
+//		return result;
+//	}
 
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
@@ -402,7 +423,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	@Override
 	public Context makeContradiction() {
 		if (theory == null) {
-			throw new Error("Should not be making a contradiction out of a TrueContext without a constraint");
+			throw new Error("Should not be making a contradiction out of a TrueContext without a theory");
 		}
 		Context result = makeTrueCompleteMultiVariableContext(theory).makeContradiction();
 		return result;

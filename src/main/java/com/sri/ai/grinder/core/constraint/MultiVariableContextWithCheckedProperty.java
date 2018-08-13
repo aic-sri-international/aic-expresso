@@ -40,7 +40,6 @@ package com.sri.ai.grinder.core.constraint;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.contains;
-import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.base.Pair.pair;
 
@@ -57,6 +56,7 @@ import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.api.ExpressionStepSolver;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
@@ -99,6 +99,25 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
 	
 	/**
+	 * Makes a {@link MultiVariableContextWithCheckedProperty} from a literal and a given {@link TrueContext}.
+	 * @param literal
+	 * @param trueContext
+	 * @param contextDependentProblemStepSolverMaker
+	 * @param theory
+	 */
+	public static MultiVariableContextWithCheckedProperty makeMultiVariableContextWithCheckedPropertyForLiteral(
+			Expression literal,
+			TrueContext trueContext,
+			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
+			Theory theory) {
+		
+		SingleVariableConstraint head = theory.makeSingleVariableConstraintOnSomeVariableOfLiteral(literal, trueContext);
+		MultiVariableContextWithCheckedProperty result = 
+				new MultiVariableContextWithCheckedProperty(head, trueContext, contextDependentProblemStepSolverMaker, theory);
+		return result;
+	}
+
+	/**
 	 * Creates a new {@link Context} from a {@link SingleVariableConstraint} and a {@link Context},
 	 * by either returning a contradiction if either is contradictory,
 	 * or a new {@link MultiVariableContextWithCheckedProperty} otherwise.
@@ -108,7 +127,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 * @param context
 	 * @return
 	 */
-	public static Context makeAndCheck(
+	private static Context makeAndCheck(
 			Theory theory,
 			SingleVariableConstraint head,
 			Context tail,
@@ -183,9 +202,6 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	/**
 	 * Returns the result of conjoining a formula and this context under a given context if a specialized routine is available,
 	 * or null otherwise.
-	 * @param formula
-	 * @param context
-	 * @return
 	 */
 	private Context conjoinSpecializedForConstraintsIfApplicable(Expression formula, Context context) {
 		Context result;
@@ -270,7 +286,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			result = conjointNonTrivialLiteralIfThereIsHead(literal, variablesInLiteral, context);
 		}
 		else {
-			result = conjoinNonTrivialLiteralIfThereIsNoHead(literal, context, variablesInLiteral);
+			result = conjoinNonTrivialLiteralIfThereIsNoHead(literal, variablesInLiteral, context);
 		}
 		return result;
 	}
@@ -345,9 +361,9 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 		return result;
 	}
 
-	private Context conjoinNonTrivialLiteralIfThereIsNoHead(Expression literal, Context context, Collection<Expression> variablesInLiteral) {
+	private Context conjoinNonTrivialLiteralIfThereIsNoHead(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
 		
-		SingleVariableConstraint newHead = makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
+		SingleVariableConstraint newHead = getTheory().makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
 		Context newTail = this;
 		Context result = 
 				makeAndCheck(
@@ -357,14 +373,6 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 						contextDependentProblemStepSolverMaker,
 						context);
 		return result;
-	}
-
-	private SingleVariableConstraint makeNewSingleVariableConstraintOnSomeVariableOfLiteral(Expression literal,
-			Collection<Expression> variablesInLiteral, Context context) {
-		Expression firstVariable = getFirstOrNull(variablesInLiteral);
-		SingleVariableConstraint newSingleVariableConstraint = getTheory().makeSingleVariableConstraint(firstVariable, context);
-		newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
-		return newSingleVariableConstraint;
 	}
 
 	@Override

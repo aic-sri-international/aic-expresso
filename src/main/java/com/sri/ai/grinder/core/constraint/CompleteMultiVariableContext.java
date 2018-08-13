@@ -42,10 +42,12 @@ import static com.sri.ai.util.Util.check;
 import java.io.Serializable;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.TrueContext;
 
 /**
  * A multi-variable context that detects unsatisfiability
@@ -59,6 +61,24 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Makes a {@link CompleteMultiVariableContext} from a literal and a given {@link TrueContext}.
+	 * @param literal
+	 * @param trueContext
+	 * @param contextDependentProblemStepSolverMaker
+	 * @param theory
+	 */
+	public static MultiVariableContextWithCheckedProperty makeMultiVariableContextWithCheckedPropertyForLiteral(
+			Expression literal,
+			TrueContext trueContext,
+			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
+			Theory theory) {
+		
+		MultiVariableContextWithCheckedProperty result = 
+				makeMultiVariableContextWithCheckedPropertyForLiteral(literal, trueContext, contextDependentProblemStepSolverMaker, theory);
+		return result;
+	}
+	
 	public CompleteMultiVariableContext(Theory theory, Context context) {
 		super(theory, new CompleteMultiVariableContextDependentProblemStepSolverMaker(theory), context);
 	}

@@ -44,6 +44,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
+import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.thereExists;
 
@@ -391,4 +392,25 @@ public interface Theory extends Cloneable {
 	Collection<Type> getNativeTypes();
 	
 	Theory clone();
+
+	default SingleVariableConstraint makeSingleVariableConstraintOnSomeVariableOfLiteral(Expression literal, Context context) {
+		Collection<Expression> variablesInLiteral = getVariablesIn(literal, context);
+		myAssert( ! variablesInLiteral.isEmpty(), () -> "There has been a request for making a single variable constraint on some variable of literal " + literal + " but no variables were identified in this literal. This may be caused by a mismatch between the variables used and the criterion used for deciding if a symbol is a variable (see Context.isVariable)");
+		SingleVariableConstraint result = makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
+		return result;
+	}
+
+	/**
+	 * Same as {@link #makeSingleVariableConstraintOnSomeVariableOfLiteral(Expression, Context)} for when the variables in literal are already known.
+	 * @param literal
+	 * @param variablesInLiteral
+	 * @param context
+	 * @return
+	 */
+	default SingleVariableConstraint makeNewSingleVariableConstraintOnSomeVariableOfLiteral(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
+		Expression firstVariable = getFirstOrNull(variablesInLiteral);
+		SingleVariableConstraint newSingleVariableConstraint = makeSingleVariableConstraint(firstVariable, context);
+		newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
+		return newSingleVariableConstraint;
+	}
 }
