@@ -38,6 +38,10 @@
 package com.sri.ai.grinder.core.solver;
 
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explain;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -76,26 +80,44 @@ public class ContextDependentExpressionProblemSolver {
 	 * @return
 	 */
 	public Expression solve(ExpressionLiteralSplitterStepSolver stepSolver, Context context) {
-		if (interrupted) {
-			throw new Error("Solver interrupted.");
-		}
 		
-		Expression result;
-		ExpressionLiteralSplitterStepSolver.Step step = stepSolver.step(context);
-		if (step.itDepends()) {
-			Expression splitter = step.getSplitter();
-			ContextSplitting split = (ContextSplitting) step.getContextSplittingWhenSplitterIsLiteral();
-			myAssert(() -> split.isUndefined(), () -> "Undefined " + ContextSplitting.class + " result value: " + split.getResult());
-			Expression subSolution1 = solve(step.getStepSolverForWhenSplitterIsTrue (), split.getConstraintAndLiteral());
-			Expression subSolution2 = solve(step.getStepSolverForWhenSplitterIsFalse(), split.getConstraintAndLiteralNegation());
-			result = IfThenElse.make(splitter, subSolution1, subSolution2, true);
-		}
-		else {
-			result = step.getValue();
-		}
+		return explanationBlock("Going to solve ", stepSolver, " under ", context, code(() -> {
+
+			if (interrupted) {
+				throw new Error("Solver interrupted.");
+			}
+
+			Expression result;
+			ExpressionLiteralSplitterStepSolver.Step step = stepSolver.step(context);
+			if (step.itDepends()) {
+				result = solveSplittedProblem(step);
+			}
+			else {
+				result = getDeterminedSolution(step);
+			}
+
+			return result;
+
+		}),	"Solution is ", RESULT);
+	}
+
+	private Expression solveSplittedProblem(ExpressionLiteralSplitterStepSolver.Step step) {
+		explain("Problem depends on ", step);
+		Expression splitter = step.getSplitter();
+		ContextSplitting split = (ContextSplitting) step.getContextSplittingWhenSplitterIsLiteral();
+		myAssert(() -> split.isUndefined(), () -> "Undefined " + ContextSplitting.class + " result value: " + split.getResult());
+		Expression subSolution1 = solve(step.getStepSolverForWhenSplitterIsTrue (), split.getConstraintAndLiteral());
+		Expression subSolution2 = solve(step.getStepSolverForWhenSplitterIsFalse(), split.getConstraintAndLiteralNegation());
+		Expression result = IfThenElse.make(splitter, subSolution1, subSolution2, true);
 		return result;
 	}
 	
+	private Expression getDeterminedSolution(ExpressionLiteralSplitterStepSolver.Step step) {
+		explain("Problem's solution is already determined to be ", step);
+		Expression result = step.getValue();
+		return result;
+	}
+
 	public static Expression staticSolve(ExpressionLiteralSplitterStepSolver stepSolver, Context context) {
 		ContextDependentExpressionProblemSolver solver = new ContextDependentExpressionProblemSolver();
 		Expression result = solver.solve(stepSolver, context);
