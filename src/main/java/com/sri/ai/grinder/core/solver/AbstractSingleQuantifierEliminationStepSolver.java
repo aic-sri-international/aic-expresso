@@ -136,9 +136,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	 * Abstract method defining a quantified expression with a given index constraint and literal-free body is to be solved.
 	 * @param literalFreeBody literal-free body
 	 */
-	protected abstract Step eliminateQuantifierForLiteralFreeBody(
-			Expression literalFreeBody,
-			Context context);
+	protected abstract Step eliminateQuantifierForLiteralFreeBody(Expression literalFreeBody, Context context);
 
 	private ExpressionLiteralSplitterStepSolver getInitialBodyStepSolver(Theory theory) {
 		if (initialBodyEvaluationStepSolver == null) {
@@ -321,7 +319,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	}
 
 	private Expression computeSolutionValue(ExpressionLiteralSplitterStepSolver.Step bodyStep,
-			ConstraintSplitting indexConstraintSplitting, Context context) throws Error {
+			ConstraintSplitting indexConstraintSplitting, Context context) {
 		Constraint indexConstraintAndLiteral = indexConstraintSplitting.getConstraintAndLiteral();
 		Constraint indexConstraintAndLiteralNegation = indexConstraintSplitting.getConstraintAndLiteralNegation();
 		
@@ -534,43 +532,85 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			throw new Error(e);
 		} 
 	}
+	
+	///////////////////////////////////// BRUTE-FORCE CHECKING DEBUGGING TOOL
 
-	private void bruteForceCheckingOfNonConditionalProblemsIfRequested(Step result, Context context) throws Error {
-		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
-			if ( ! result.itDepends()) {
-				Expression indexType = context.getTypeExpressionOfRegisteredSymbol(getIndex());
-				SingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
-				Expression problemExpression = problem.toExpression();
-				Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
-				AssignmentMapsIterator assignments = new AssignmentMapsIterator(freeVariables, context);
-				for (Map<Expression, Expression> assignment : in(assignments)) {
-					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
-					Context extendedContext = Assignment.extendAssignments(assignment, context);
-					// Only go on if the assignment satisfies the context:
-					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
-						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
-						Expression resultGivenAssignment = bruteForceCommonInterpreter.apply(result.getValue(), extendedContext);
-						Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
-						if ( ! bruteForceResult.equals(resultGivenAssignment)) {
-							String message = 
-									"Disagreement on " + problemExpression + "\nunder " + assignment + ".\n"
-											+ "Context: " + context + ".\n"
-											+ "Evaluated problem: " + evaluatedProblem + ".\n"
-											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
-							println(message);
-							throw new Error(message);
-						}
-						else {
-							String message = 
-									"Agreement on " + problemExpression + "\nunder " + assignment + ".\n"
-											+ "Context: " + context + ".\n"
-											+ "Evaluated problem: " + evaluatedProblem + ".\n"
-											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
-							println(message);
-						}
-					}
-				}
-			}
+	private void bruteForceCheckingOfNonConditionalProblemsIfRequested(Step step, Context context) {
+		if (mustBeBruteForceChecked(step, context)) {
+			bruteForceCheckingOfUnconditionalProblem(step, context);
+		}
+	}
+
+	private boolean mustBeBruteForceChecked(Step step, Context context) {
+		boolean result = 
+				context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null 
+				&& 
+				! step.itDepends();
+		return result;
+	}
+
+	private void bruteForceCheckingOfUnconditionalProblem(Step step, Context context) {
+		Expression problemExpression = makeProblemExpression(context);
+		AssignmentMapsIterator assignments = makeAssignmentsIterator(problemExpression, context);
+		for (Map<Expression, Expression> assignment : in(assignments)) {
+			bruteForceCheckAssignmentIfNeeded(assignment, problemExpression, step, context);
+		}
+	}
+
+	private Expression makeProblemExpression(Context context) {
+		Expression indexType = context.getTypeExpressionOfRegisteredSymbol(getIndex());
+		SingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
+		Expression problemExpression = problem.toExpression();
+		return problemExpression;
+	}
+
+	private static AssignmentMapsIterator makeAssignmentsIterator(Expression problemExpression, Context context) {
+		Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
+		AssignmentMapsIterator assignments = new AssignmentMapsIterator(freeVariables, context);
+		return assignments;
+	}
+
+	private static void bruteForceCheckAssignmentIfNeeded(Map<Expression, Expression> assignment, Expression problemExpression, Step step, Context context) {
+		BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
+		Context contextExtendedByAssignment = Assignment.extendAssignments(assignment, context);
+		if (assignmentSatisfiesContext(contextExtendedByAssignment, bruteForceCommonInterpreter, context)) {
+			bruteForceCheckAssignment(problemExpression, step, assignment, contextExtendedByAssignment, bruteForceCommonInterpreter, context);
+		}
+	}
+
+	private static boolean assignmentSatisfiesContext(Context contextExtendedByAssignment,
+			BruteForceCommonInterpreter bruteForceCommonInterpreter, Context context) {
+		return bruteForceCommonInterpreter.apply(context, contextExtendedByAssignment).equals(Expressions.TRUE);
+	}
+
+	private static void bruteForceCheckAssignment(
+			Expression problemExpression, 
+			Step step,
+			Map<Expression, Expression> assignment, 
+			Context contextExtendedByAssignment,
+			BruteForceCommonInterpreter bruteForceCommonInterpreter, 
+			Context context) {
+		
+		Expression bruteForceResult = bruteForceCommonInterpreter.apply(problemExpression, contextExtendedByAssignment);
+		Expression resultGivenAssignment = bruteForceCommonInterpreter.apply(step.getValue(), contextExtendedByAssignment);
+		Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problemExpression, contextExtendedByAssignment);
+		
+		if ( ! bruteForceResult.equals(resultGivenAssignment)) {
+			String message = 
+					"Disagreement on " + problemExpression + "\nunder " + assignment + ".\n"
+							+ "Context: " + context + ".\n"
+							+ "Evaluated problem: " + evaluatedProblem + ".\n"
+							+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
+			println(message);
+			throw new Error(message);
+		}
+		else {
+			String message = 
+					"Agreement on " + problemExpression + "\nunder " + assignment + ".\n"
+							+ "Context: " + context + ".\n"
+							+ "Evaluated problem: " + evaluatedProblem + ".\n"
+							+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
+			println(message);
 		}
 	}
 }
