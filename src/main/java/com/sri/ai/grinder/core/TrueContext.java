@@ -40,6 +40,9 @@ package com.sri.ai.grinder.core;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -347,8 +350,10 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	private CompleteMultiVariableContext makeTrueCompleteMultiVariableContext(Theory theory) {
-		CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
-		return result;
+		return explanationBlock("Making CompleteMultiVariableContext", code(() -> {
+			CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
+			return result;
+		}), "Made ", RESULT);
 	}
 	
 	private Theory theoryToUse(Expression conjoinant) {

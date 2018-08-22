@@ -169,119 +169,113 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			result = new Solution(getGroup().additiveIdentityElement());
 		}
 		else {
-			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
-			ExpressionLiteralSplitterStepSolver.Step bodyStep = bodyStepSolver.step(contextForBody); 
-			
-			// At this point, bodyStep may be a non-conditional solver step
-			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
-			// If one of these literals is the quantifier index, we *must* detect it.
-			// Therefore, we run EvaluatorStepSolver on it to make sure to detect literals before going on.
-			//
-			// One may ask: if the body is solved using an EvaluatorStepSolver,
-			// why is it that running *another* EvaluatorStepSolver on its result will
-			// now guarantee that literals are detected?
-			// Why do we get the guarantee only when running it a second time?
-			// The answer lies in the fact that EvaluatorStepSolver returns solutions with literals
-			// because *this* class (which EvaluatorStepSolver uses to eliminate quantifiers)
-			// does so. Once all quantifiers are eliminated,
-			// EvaluatorStepSolver does no longer return such solutions.
-			// The solution to this whole situation is to change *this* class
-			// so it does not return solutions with literals any longer.
-			// This happens in quantifier splits, when the two sub-solutions
-			// are computed with an exhaustive solve,
-			// which may return solutions with literals
-			// (it is only the step solvers that we want to prevent from doing this,
-			// not exhaustive solving).
-			// Check (**) in this file to see where this happens
-			if ( ! bodyStep.itDepends()) {
-				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
-				bodyStep = evaluatorStepSolver.step(context);
-			}
-			
-			if (bodyStep.itDepends()) {
-				// "intercept" literals containing the index and split the quantifier based on it
-				if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
-					Expression literalOnIndex = bodyStep.getSplitterLiteral();
-					result = resultIfLiteralContainsIndex(literalOnIndex, bodyStep, contextForBody, context);
-				}
-				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
-					AbstractSingleQuantifierEliminationStepSolver ifTrue = clone();
-					AbstractSingleQuantifierEliminationStepSolver ifFalse = clone();
-					ifTrue.initialBodyEvaluationStepSolver  = bodyStep.getStepSolverForWhenSplitterIsTrue();
-					ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
-					ifTrue.initialContextForBody  = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteral();
-					ifFalse.initialContextForBody = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteralNegation();
-					
-					// to compute the result's constraint splitting,
-					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from
-					// the context it is returning to,
-					// but from the context conjoined with the index constraint.
-					// In order to provide two contexts to work with the sequel step solvers,
-					// we calculate the splittings here.
-					// TODO: In the future, we expect it possible to efficiently extract the contextForBody component relative
-					// to the original context only, excluding the index.
-					ContextSplitting split = new ContextSplitting(bodyStep.getSplitterLiteral(), context);
-					
-					result = new ItDependsOn(bodyStep.getSplitterLiteral(), split, ifTrue, ifFalse);
-				}
-			}
-			else { // body is already literal free
-				Expression literalFreeBody = bodyStep.getValue();
-				result = eliminateQuantifierForLiteralFreeBody(literalFreeBody, context);
-				
-				boolean solutionToQuantifiedLiteralFreeBodyIsNotConditionalItself = ! result.itDepends(); 
-				if (solutionToQuantifiedLiteralFreeBodyIsNotConditionalItself) {
-					IntegrationRecording.registerGroupIntegration(problem, literalFreeBody, result, context);
-				}
-			}
+			result = solveProblemWithConsistentContextForBody(contextForBody, context);
 		}
 		
-		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
-			if ( ! result.itDepends()) {
-				Expression indexType = context.getTypeExpressionOfRegisteredSymbol(getIndex());
-				SingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
-				Expression problemExpression = problem.toExpression();
-				Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
-				AssignmentMapsIterator assignments = new AssignmentMapsIterator(freeVariables, context);
-				for (Map<Expression, Expression> assignment : in(assignments)) {
-					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
-					Context extendedContext = Assignment.extendAssignments(assignment, context);
-					// Only go on if the assignment satisfies the context:
-					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
-						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
-						Expression resultGivenAssignment = bruteForceCommonInterpreter.apply(result.getValue(), extendedContext);
-						Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
-						if ( ! bruteForceResult.equals(resultGivenAssignment)) {
-							String message = 
-									"Disagreement on " + problemExpression + "\nunder " + assignment + ".\n"
-											+ "Context: " + context + ".\n"
-											+ "Evaluated problem: " + evaluatedProblem + ".\n"
-											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
-							println(message);
-							throw new Error(message);
-						}
-						else {
-							String message = 
-									"Agreement on " + problemExpression + "\nunder " + assignment + ".\n"
-											+ "Context: " + context + ".\n"
-											+ "Evaluated problem: " + evaluatedProblem + ".\n"
-											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
-							println(message);
-						}
-					}
-				}
-			}
-		}
+		bruteForceCheckingOfNonConditionalProblemsIfRequested(result, context);
 
 		return result;
 	}
 
-	protected Step resultIfLiteralContainsIndex(Expression literal, ExpressionLiteralSplitterStepSolver.Step bodyStep, Context contextForBody, Context context) {
+	private Step solveProblemWithConsistentContextForBody(Context contextForBody, Context context) {
+		Step result;
+		ExpressionLiteralSplitterStepSolver.Step bodyStep = getBodyStep(contextForBody, context);
+		if (bodyStep.itDepends()) {
+			result = solveConditionalProblem(context, contextForBody, bodyStep);
+		}
+		else {
+			result = solveNonConditionalProblem(bodyStep, context);
+		}
+		return result;
+	}
+
+	private ExpressionLiteralSplitterStepSolver.Step getBodyStep(Context contextForBody, Context context) {
+		ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
+		ExpressionLiteralSplitterStepSolver.Step bodyStep = bodyStepSolver.step(contextForBody); 
+		
+		// At this point, bodyStep may be a non-conditional solver step
+		// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
+		// If one of these literals is the quantifier index, we *must* detect it.
+		// Therefore, we run EvaluatorStepSolver on it to make sure to detect literals before going on.
+		//
+		// One may ask: if the body is solved using an EvaluatorStepSolver,
+		// why is it that running *another* EvaluatorStepSolver on its result will
+		// now guarantee that literals are detected?
+		// Why do we get the guarantee only when running it a second time?
+		// The answer lies in the fact that EvaluatorStepSolver returns solutions with literals
+		// because *this* class (which EvaluatorStepSolver uses to eliminate quantifiers)
+		// does so. Once all quantifiers are eliminated,
+		// EvaluatorStepSolver does no longer return such solutions.
+		// The solution to this whole situation is to change *this* class
+		// so it does not return solutions with literals any longer.
+		// This happens in quantifier splits, when the two sub-solutions
+		// are computed with an exhaustive solve,
+		// which may return solutions with literals
+		// (it is only the step solvers that we want to prevent from doing this,
+		// not exhaustive solving).
+		// Check (**) in this file to see where this happens
+		if ( ! bodyStep.itDepends()) {
+			ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
+			bodyStep = evaluatorStepSolver.step(context);
+		}
+		return bodyStep;
+	}
+
+	private Step solveConditionalProblem(Context context, Context contextForBody,
+			ExpressionLiteralSplitterStepSolver.Step bodyStep) {
+		Step result;
+		if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
+			result = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context);
+		}
+		else {
+			result = splitOnNonIndexVariable(bodyStep, context);
+		}
+		return result;
+	}
+
+	private Step splitOnNonIndexVariable(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
+		Step result;
+		AbstractSingleQuantifierEliminationStepSolver ifTrue = clone();
+		AbstractSingleQuantifierEliminationStepSolver ifFalse = clone();
+		ifTrue.initialBodyEvaluationStepSolver  = bodyStep.getStepSolverForWhenSplitterIsTrue();
+		ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
+		ifTrue.initialContextForBody  = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteral();
+		ifFalse.initialContextForBody = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteralNegation();
+		
+		// to compute the result's constraint splitting,
+		// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from
+		// the context it is returning to,
+		// but from the context conjoined with the index constraint.
+		// In order to provide two contexts to work with the sequel step solvers,
+		// we calculate the splittings here.
+		// TODO: In the future, we expect it possible to efficiently extract the contextForBody component relative
+		// to the original context only, excluding the index.
+		ContextSplitting split = new ContextSplitting(bodyStep.getSplitterLiteral(), context);
+		
+		result = new ItDependsOn(bodyStep.getSplitterLiteral(), split, ifTrue, ifFalse);
+		return result;
+	}
+
+	private Step solveNonConditionalProblem(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
+		Step result;
+		Expression literalFreeBody = bodyStep.getValue();
+		result = eliminateQuantifierForLiteralFreeBody(literalFreeBody, context);
+		
+		boolean solutionToQuantifiedLiteralFreeBodyIsNotConditionalItself = ! result.itDepends(); 
+		if (solutionToQuantifiedLiteralFreeBodyIsNotConditionalItself) {
+			IntegrationRecording.registerGroupIntegration(problem, literalFreeBody, result, context);
+		}
+		return result;
+	}
+
+	protected Step splitQuantifierOnLiteralContainingIndex(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		
 		Step result;
 		Expression solutionValue;
+
+		Expression literal = bodyStep.getSplitterLiteral();
 
 		// Here, we need to obtain the new index constraints, for the case in which the splitter literal is true and false,
 		// to create the corresponding sub-problems, solve them, and combine them.
@@ -463,5 +457,44 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new Error(e);
 		} 
+	}
+
+	private void bruteForceCheckingOfNonConditionalProblemsIfRequested(Step result, Context context) throws Error {
+		if (context.getGlobalObject(BRUTE_FORCE_CHECKING_OF_NON_CONDITIONAL_PROBLEMS) != null) {
+			if ( ! result.itDepends()) {
+				Expression indexType = context.getTypeExpressionOfRegisteredSymbol(getIndex());
+				SingleQuantifierEliminationProblem problem = new DefaultSingleQuantifierEliminationProblem(getGroup(), getIndex(), indexType, getIndexConstraint(), getBody());
+				Expression problemExpression = problem.toExpression();
+				Set<Expression> freeVariables = Expressions.freeVariables(problemExpression, context);
+				AssignmentMapsIterator assignments = new AssignmentMapsIterator(freeVariables, context);
+				for (Map<Expression, Expression> assignment : in(assignments)) {
+					BruteForceCommonInterpreter bruteForceCommonInterpreter = new BruteForceCommonInterpreter();
+					Context extendedContext = Assignment.extendAssignments(assignment, context);
+					// Only go on if the assignment satisfies the context:
+					if (bruteForceCommonInterpreter.apply(context, extendedContext).equals(Expressions.TRUE)) {
+						Expression bruteForceResult = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
+						Expression resultGivenAssignment = bruteForceCommonInterpreter.apply(result.getValue(), extendedContext);
+						Expression evaluatedProblem = bruteForceCommonInterpreter.apply(problemExpression, extendedContext);
+						if ( ! bruteForceResult.equals(resultGivenAssignment)) {
+							String message = 
+									"Disagreement on " + problemExpression + "\nunder " + assignment + ".\n"
+											+ "Context: " + context + ".\n"
+											+ "Evaluated problem: " + evaluatedProblem + ".\n"
+											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
+							println(message);
+							throw new Error(message);
+						}
+						else {
+							String message = 
+									"Agreement on " + problemExpression + "\nunder " + assignment + ".\n"
+											+ "Context: " + context + ".\n"
+											+ "Evaluated problem: " + evaluatedProblem + ".\n"
+											+ "Brute force says " + bruteForceResult + ", symbolic says " + resultGivenAssignment;
+							println(message);
+						}
+					}
+				}
+			}
+		}
 	}
 }

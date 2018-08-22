@@ -61,7 +61,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 			ExpressionStepSolver formulaSplitterStepSolver) {
 		if (formulaSplitterStepSolver instanceof ExpressionLiteralSplitterStepSolver) {
-			throw new IllegalArgumentException("You do not pass an ExpressionLiteralSplitterStepSolver to this adapter.");
+			throw new IllegalArgumentException("You should not pass an ExpressionLiteralSplitterStepSolver to " + ExpressionStepSolverToLiteralSplitterStepSolverAdapter.class);
 		}
 		this.currentFormulaSplitterStepSolver = formulaSplitterStepSolver;
 	}
@@ -147,5 +147,10 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 		}
 		
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return "ExpressionStepSolverToLiteralSplitterStepSolverAdapter for " + this.currentFormulaSplitterStepSolver;
 	}
 }

@@ -4,6 +4,10 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.library.boole.And.isConjunction;
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explain;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
 
 import java.util.List;
 
@@ -67,6 +71,9 @@ public interface Constraint extends Expression {
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
 	default Constraint conjoin(Expression formula, Context context) {
+		
+		return explanationBlock("Constraint.conjoin of formula ", formula, " with ", this, " under ", context, code( () -> {
+		
 		myAssert(
 				() -> isValidConjoinant(formula, context),
 				() -> this.getClass() + " currently only supports conjoining with literals, conjunctive clauses, and constraints, but received " + formula);
@@ -74,6 +81,7 @@ public interface Constraint extends Expression {
 		Constraint result;
 	
 		if (isContradiction(formula)) {
+			explain("Formula is contradictory, so this results in a contradiction.");
 			result = makeContradiction();
 		}
 //      Warning: tempting, but inefficient because equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
@@ -81,13 +89,17 @@ public interface Constraint extends Expression {
 //			result = (Constraint) formula;
 //		}
 		else if (formula instanceof Constraint || isConjunction(formula)) {
+			explain("Formula is a ", (formula instanceof Constraint? "Constraint" : "conjunctive clause"), " so we will use conjoinWithConjunctiveClause.");
 			result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
+			explain("Formula is a literal, so we will use conjoinWithLiteral.");
 			result = conjoinWithLiteral(formula, context);
 		}
 
 		return result;
+		
+		}), "Results in ", RESULT);
 	}
 
 	/**

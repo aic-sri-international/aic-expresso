@@ -44,6 +44,9 @@ import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.Triple.triple;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -227,7 +230,9 @@ public interface Context extends Registry, Constraint {
 	 * @return
 	 */
 	default Expression evaluate(Expression expression) {
-		Expression result = getTheory().evaluate(expression, this);
-		return result;
+		return explanationBlock("Evaluating ", expression, code(() -> {
+			Expression result = getTheory().evaluate(expression, this);
+			return result;
+		}), "Evaluated to ", RESULT);
 	}
 }
