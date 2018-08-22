@@ -72,7 +72,7 @@ public interface Constraint extends Expression {
 	 */
 	default Constraint conjoin(Expression formula, Context context) {
 		
-		return explanationBlock("Constraint.conjoin of formula ", formula, " with ", this, " under ", context, code( () -> {
+		return explanationBlock("Constraint.conjoin of ", this, " with formula ", formula, " under ", context, code( () -> {
 		
 		myAssert(
 				() -> isValidConjoinant(formula, context),
@@ -93,7 +93,7 @@ public interface Constraint extends Expression {
 			result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
-			explain("Formula is a literal, so we will use conjoinWithLiteral.");
+			explain("Formula is a literal, so we will use ", getClass().getSimpleName(), ".conjoinWithLiteral.");
 			result = conjoinWithLiteral(formula, context);
 		}
 

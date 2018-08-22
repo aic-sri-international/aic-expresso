@@ -47,6 +47,10 @@ import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.thereExists;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explain;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -408,9 +412,15 @@ public interface Theory extends Cloneable {
 	 * @return
 	 */
 	default SingleVariableConstraint makeNewSingleVariableConstraintOnSomeVariableOfLiteral(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
-		Expression firstVariable = getFirstOrNull(variablesInLiteral);
-		SingleVariableConstraint newSingleVariableConstraint = makeSingleVariableConstraint(firstVariable, context);
-		newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
-		return newSingleVariableConstraint;
+		return explanationBlock("Making single-variable constraint for some variable of ", literal, code( () -> {
+
+			Expression firstVariable = getFirstOrNull(variablesInLiteral);
+			explain("Variable selected is ", firstVariable, " out of ", variablesInLiteral);
+			
+			SingleVariableConstraint newSingleVariableConstraint = makeSingleVariableConstraint(firstVariable, context);
+			newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, context);
+			return newSingleVariableConstraint;
+
+		}), "Result is ", RESULT);
 	}
 }

@@ -75,7 +75,7 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 			Theory theory) {
 		
 		MultiVariableContextWithCheckedProperty result = 
-				makeMultiVariableContextWithCheckedPropertyForLiteral(literal, trueContext, contextDependentProblemStepSolverMaker, theory);
+				MultiVariableContextWithCheckedProperty.makeMultiVariableContextWithCheckedPropertyForLiteral(literal, trueContext, contextDependentProblemStepSolverMaker, theory);
 		return result;
 	}
 	
