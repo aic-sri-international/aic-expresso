@@ -66,7 +66,6 @@ import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
 
 // ISSUES
-// Extract Constraint part from this class and make it a multi-variable constraint, not a context, then use it to provide default true constraints for theories in Theory.makeTrueConstraint()
 // Case with head = null: sounds unnecessary
 // Expansion of constraint into expression: too expensive
 // Unchecked assumption that head and tail do not share variables

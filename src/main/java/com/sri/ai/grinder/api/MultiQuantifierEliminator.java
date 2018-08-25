@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.api;
 
 import static com.sri.ai.expresso.api.Tuple.tuple;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.core.solver.DefaultMultiQuantifierEliminationProblem.makeProblem;
 import static com.sri.ai.util.Util.list;
 
@@ -83,8 +84,7 @@ public interface MultiQuantifierEliminator {
 	 * assuming a true constraint.
 	 */
 	default Expression extendContextAndSolve(AssociativeCommutativeGroup group, List<Expression> indices, Expression body, Context context) {
-		Constraint trueConstraint = context.getTheory().makeTrueConstraint();
-		Expression result = solve(group, indices, trueConstraint, body, context);
+		Expression result = solve(group, indices, TRUE, body, context);
 		return result;
 	}
 

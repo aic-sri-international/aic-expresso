@@ -63,7 +63,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.core.constraint.IncompleteMultiVariableConstraint;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
@@ -281,14 +280,6 @@ public interface Theory extends Cloneable {
 	 * @return the constraint, or null if there is no theory for the variable.
 	 */
 	SingleVariableConstraint makeSingleVariableConstraintAfterBookkeeping(Expression variable, Context context);
-	
-	/**
-	 * Returns a new true (empty conjunction) constraint for this theory.
-	 * @return
-	 */
-	default Constraint makeTrueConstraint() {
-		return new IncompleteMultiVariableConstraint(this);
-	}
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
