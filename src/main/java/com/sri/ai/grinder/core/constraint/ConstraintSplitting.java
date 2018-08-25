@@ -4,6 +4,9 @@ import static com.sri.ai.grinder.core.constraint.ConstraintSplitting.Result.CONS
 import static com.sri.ai.grinder.core.constraint.ConstraintSplitting.Result.LITERAL_IS_FALSE;
 import static com.sri.ai.grinder.core.constraint.ConstraintSplitting.Result.LITERAL_IS_TRUE;
 import static com.sri.ai.grinder.core.constraint.ConstraintSplitting.Result.LITERAL_IS_UNDEFINED;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
+import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -54,6 +57,7 @@ public class ConstraintSplitting {
 	private Constraint constraintAndLiteral;
 	private Constraint constraintAndLiteralNegation;
 
+	private static int counter = 0;
 	/**
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param literal
@@ -61,28 +65,32 @@ public class ConstraintSplitting {
 	 * @param context
 	 */
 	public ConstraintSplitting(Expression literal, Constraint constraint, Context context) {
-		this.constraint = constraint;
-		this.literal = literal;
-		Expression literalNegation   = constraint.getTheory().getLiteralNegation(literal, context);
-		constraintAndLiteral         = constraint.conjoin(        literal, context);
-		constraintAndLiteralNegation = constraint.conjoin(literalNegation, context);
-		
-		if ( ! constraintAndLiteral.isContradiction()) {
-			if ( ! constraintAndLiteralNegation.isContradiction()) {
-				result = LITERAL_IS_UNDEFINED;
+		explanationBlock("Constraint splitting number ", ++counter, " literal: ", literal, ", constraint ", constraint, code( () -> {
+			
+			this.constraint = constraint;
+			this.literal = literal;
+			Expression literalNegation   = constraint.getTheory().getLiteralNegation(literal, context);
+			constraintAndLiteral         = constraint.conjoin(        literal, context);
+			constraintAndLiteralNegation = constraint.conjoin(literalNegation, context);
+
+			if ( ! constraintAndLiteral.isContradiction()) {
+				if ( ! constraintAndLiteralNegation.isContradiction()) {
+					result = LITERAL_IS_UNDEFINED;
+				}
+				else {
+					result = LITERAL_IS_TRUE;
+				}
 			}
 			else {
-				result = LITERAL_IS_TRUE;
+				if ( ! constraintAndLiteralNegation.isContradiction()) {
+					result = LITERAL_IS_FALSE;
+				}
+				else {
+					result = CONSTRAINT_IS_CONTRADICTORY;
+				}
 			}
-		}
-		else {
-			if ( ! constraintAndLiteralNegation.isContradiction()) {
-				result = LITERAL_IS_FALSE;
-			}
-			else {
-				result = CONSTRAINT_IS_CONTRADICTORY;
-			}
-		}
+
+			return result; }), "Result is ", RESULT);
 	}
 	
 	/** The result of the splitting, which is one of the value of type {@link Result}. */

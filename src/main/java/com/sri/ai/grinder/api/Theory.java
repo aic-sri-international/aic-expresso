@@ -39,6 +39,7 @@ package com.sri.ai.grinder.api;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.core.solver.ContextDependentExpressionProblemSolver.staticSolve;
 import static com.sri.ai.grinder.library.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
@@ -63,7 +64,6 @@ import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.core.constraint.IncompleteMultiVariableConstraint;
-import com.sri.ai.grinder.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FormulaUtil;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
@@ -159,11 +159,21 @@ public interface Theory extends Cloneable {
 	ExpressionLiteralSplitterStepSolver makeEvaluatorStepSolver(Expression expression);
 	
 	default Expression evaluate(Expression expression, Context context) {
-		ExpressionLiteralSplitterStepSolver evaluatorStepSolver = makeEvaluatorStepSolver(expression);
-		Expression result = ContextDependentExpressionProblemSolver.staticSolve(evaluatorStepSolver, context);
-		return result;
+		return explanationBlock("Theory.evaluate ", expression, " under ", context, code( () -> {
+			
+			ExpressionLiteralSplitterStepSolver evaluatorStepSolver = explanationBlock("Making evaluator step solver ", code( () -> 
+			makeEvaluatorStepSolver(expression)
+			), "Step solver is ", RESULT);
+			
+			Expression result = explanationBlock("Solving step solver ", code( () -> 
+			staticSolve(evaluatorStepSolver, context)
+			), "Result is ", RESULT);
+			
+			return result;
+			
+		}), "Result is ", RESULT);
 	}
-	
+
 	boolean isSuitableFor(Type type);
 	
 	default boolean isConjunctiveClause(Expression formula, Context context) {
