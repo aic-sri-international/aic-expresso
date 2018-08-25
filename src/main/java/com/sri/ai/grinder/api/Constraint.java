@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.api;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.library.boole.And.isConjunction;
 import static com.sri.ai.util.Util.myAssert;
@@ -83,6 +84,9 @@ public interface Constraint extends Expression {
 		if (isContradiction(formula)) {
 			explain("Formula is contradictory, so this results in a contradiction.");
 			result = makeContradiction();
+		}
+		else if (formula.equals(TRUE)) {
+			result = this;
 		}
 //      Warning: tempting, but inefficient because equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
 //		else if (formula instanceof Constraint && this.equals(TRUE)) {

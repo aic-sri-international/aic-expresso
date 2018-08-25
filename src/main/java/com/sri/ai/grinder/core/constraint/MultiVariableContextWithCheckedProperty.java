@@ -38,8 +38,8 @@
 package com.sri.ai.grinder.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.contains;
+import static com.sri.ai.expresso.helper.Expressions.isBooleanSymbol;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.base.Pair.pair;
 import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
@@ -108,15 +108,23 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 * @param contextDependentProblemStepSolverMaker
 	 * @param theory
 	 */
-	public static MultiVariableContextWithCheckedProperty makeMultiVariableContextWithCheckedPropertyForLiteral(
+	public static Context conjoinTrueContextWithLiteralAsMultiVariableContextWithCheckedProperty(
 			Expression literal,
 			TrueContext trueContext,
 			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
 			Theory theory) {
 		
-		SingleVariableConstraint head = theory.makeSingleVariableConstraintOnSomeVariableOfLiteral(literal, trueContext);
-		MultiVariableContextWithCheckedProperty result = 
-				new MultiVariableContextWithCheckedProperty(head, trueContext, contextDependentProblemStepSolverMaker, theory);
+		Context result = null;
+		Collection<Expression> variablesInLiteral = trueContext.getTheory().getVariablesIn(literal, trueContext);
+		if (variablesInLiteral.isEmpty()) {
+			Expression simplifiedLiteral = trueContext.evaluate(literal);
+			myAssert(isBooleanSymbol(simplifiedLiteral), () -> "Literal without variables " + literal + " did not get simplified to a boolean constant, but to " + simplifiedLiteral + " instead. This is likely due to an incorrect uniquely named constant predicate or theory configuration");
+			result = trueContext.conjoin(simplifiedLiteral);
+		}
+		else {
+			SingleVariableConstraint head = theory.makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, trueContext);
+			result = new MultiVariableContextWithCheckedProperty(head, trueContext, contextDependentProblemStepSolverMaker, theory);
+		}
 		return result;
 	}
 
@@ -270,22 +278,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
-		Context result;
-		if (literal.equals(TRUE)) {
-			result = this;
-		}
-		else if (literal.equals(FALSE)) {
-			result = makeContradiction();
-		}
-		else {
-			result = conjoinWithNonBooleanConstantLiteral(literal, context);
-		}
-		return result;
-	}
-
-	private Context conjoinWithNonBooleanConstantLiteral(Expression literal, Context context) {
 		return explanationBlock(getClass().getSimpleName(), ".conjoin on literal ", literal, " to ", this, code( () -> {
-
+		
 			Context result;
 			Collection<Expression> variablesInLiteral = getTheory().getVariablesIn(literal, context);
 			explain("Variables in literal: ", variablesInLiteral);
@@ -300,7 +294,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 				result = conjoinNonTrivialLiteralIfThereIsNoHead(literal, variablesInLiteral, context);
 			}
 			return result;
-
+		
 		}), "Result is ", RESULT);
 	}
 
@@ -319,13 +313,13 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 
 		return explanationBlock("There is a head, dealing with that.", code( () -> {
 
-			explain("Head: " + head);
-			explain("Tail: " + tail);
+			explain("Head: ", head);
+			explain("Tail: ", tail);
 
 			Pair<SingleVariableConstraint, Context> newHeadAndNewTail = makeNewHeadAndNewTail(literal, variablesInLiteral, context);
 
-			explain("New head: " + newHeadAndNewTail.first);
-			explain("New tail: " + newHeadAndNewTail.second);
+			explain("New head: ", newHeadAndNewTail.first);
+			explain("New tail: ", newHeadAndNewTail.second);
 			
 			newHeadAndNewTail = propagateNewHeadExternalLiterals(newHeadAndNewTail, context);
 

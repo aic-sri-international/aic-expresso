@@ -68,14 +68,17 @@ public class CompleteMultiVariableContext extends MultiVariableContextWithChecke
 	 * @param contextDependentProblemStepSolverMaker
 	 * @param theory
 	 */
-	public static MultiVariableContextWithCheckedProperty makeMultiVariableContextWithCheckedPropertyForLiteral(
+	public static Context conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(
 			Expression literal,
-			TrueContext trueContext,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
-			Theory theory) {
+			Theory theory,
+			TrueContext trueContext) {
 		
-		MultiVariableContextWithCheckedProperty result = 
-				MultiVariableContextWithCheckedProperty.makeMultiVariableContextWithCheckedPropertyForLiteral(literal, trueContext, contextDependentProblemStepSolverMaker, theory);
+		ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker =
+				new CompleteMultiVariableContextDependentProblemStepSolverMaker(theory);
+		Context result = 
+				MultiVariableContextWithCheckedProperty
+				.conjoinTrueContextWithLiteralAsMultiVariableContextWithCheckedProperty(
+						literal, trueContext, contextDependentProblemStepSolverMaker, theory);
 		return result;
 	}
 	

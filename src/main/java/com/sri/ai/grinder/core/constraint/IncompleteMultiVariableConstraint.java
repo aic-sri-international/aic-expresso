@@ -1,7 +1,5 @@
 package com.sri.ai.grinder.core.constraint;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.min;
 import static com.sri.ai.util.Util.myAssert;
 
@@ -68,17 +66,8 @@ public class IncompleteMultiVariableConstraint extends AbstractConstraint {
 	}
 
 	private IncompleteMultiVariableConstraint conjointLiteralWithoutVariables(Expression literal, Context context) {
-		IncompleteMultiVariableConstraint result;
-		Expression literalEvaluation = getTheory().simplify(literal, context);
-		if (literalEvaluation.equals(TRUE)) {
-			result = this;
-		}
-		else if (literalEvaluation.equals(FALSE)) {
-			result = makeContradiction();
-		}
-		else {
-			throw new Error("Literal " + literal + " has no variables but does not evaluate to either true or false. This may be caused by not including theories definining the meaning of operators and constants in it, preventing its evaluation");
-		}
+		Expression simplifiedLiteral = getTheory().simplify(literal, context);
+		IncompleteMultiVariableConstraint result = conjoinWithLiteral(simplifiedLiteral, context);
 		return result;
 	}
 

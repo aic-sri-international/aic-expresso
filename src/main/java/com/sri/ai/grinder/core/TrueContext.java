@@ -377,8 +377,10 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		return explanationBlock("TrueContext.conjoinWithLiteral of ", this, " with literal ", literal, code(() -> {
 			
 			Context result = 
+					// CompleteMultiVariableContext.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, theory, this);
 					makeTrueCompleteMultiVariableContext(theoryToUse(literal))
 					.conjoinWithLiteral(literal, context);
+			
 			return result;
 			
 		}), "Result is ", RESULT);

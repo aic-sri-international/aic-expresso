@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.core.constraint;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.contains;
 import static com.sri.ai.util.Util.list;
 
@@ -266,13 +264,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractConstrain
 	@Override
 	public SingleVariableConstraint conjoinWithLiteral(Expression formula, Context context) {
 		AbstractSingleVariableConstraint result;
-		if (formula.equals(TRUE)) {
-			result = this;
-		}
-		else if (formula.equals(FALSE)) {
-			result = makeContradiction();
-		}
-		else if (!contains(formula, getVariable())) {
+		if (!contains(formula, getVariable())) {
 			result = addExternalLiteral(formula);
 		}
 		else {
