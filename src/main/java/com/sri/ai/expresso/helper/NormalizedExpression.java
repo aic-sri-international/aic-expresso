@@ -33,7 +33,7 @@ public class NormalizedExpression extends AbstractExpressionWrapper {
 	
 	public static NormalizedExpression normalize(Expression expression, Context context) {
 		Expression evaluatedExpression = context.evaluate(expression);
-		NormalizedExpression result = new NormalizedExpression(evaluatedExpression, context);
+		NormalizedExpression result = wrapAsNormalized(evaluatedExpression, context);
 		return result;
 	}
 	
@@ -50,7 +50,6 @@ public class NormalizedExpression extends AbstractExpressionWrapper {
 		}
 		return normalizedExpression;
 	}
-	
 	
 	public Context getContext() {
 		return context;
