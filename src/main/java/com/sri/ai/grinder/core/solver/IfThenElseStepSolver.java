@@ -1,11 +1,9 @@
 package com.sri.ai.grinder.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
@@ -20,14 +18,14 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 	Expression thenBranch;
 	Expression elseBranch;
 	
-	IfThenElseStepSolver(Expression ifThenElseExpression) {
+	public IfThenElseStepSolver(Expression ifThenElseExpression) {
 		conditionStepSolver = null;
 		condition = condition(ifThenElseExpression);
 		thenBranch = thenBranch(ifThenElseExpression);
 		elseBranch = elseBranch(ifThenElseExpression);
 	}
 
-	public IfThenElseStepSolver(ExpressionStepSolver conditionStepSolver, Expression condition, Expression thenBranch, Expression elseBranch) {
+	private IfThenElseStepSolver(ExpressionStepSolver conditionStepSolver, Expression condition, Expression thenBranch, Expression elseBranch) {
 		this.conditionStepSolver = conditionStepSolver;
 		this.condition = condition;
 		this.thenBranch = thenBranch;
@@ -35,7 +33,7 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 	}
 
 	@Override
-	public ExpressionStepSolver clone() {
+	public IfThenElseStepSolver clone() {
 		return new IfThenElseStepSolver(conditionStepSolver, condition, thenBranch, elseBranch);
 	}
 
@@ -43,13 +41,13 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 	public Step step(Context context) {
 		Step result;
 		
-		if(conditionExpressionHasNotYetBeenSteppedOver()) {
+		if (conditionExpressionHasNotYetBeenSteppedOver()) {
 			Theory theory = context.getTheory();
 			conditionStepSolver = theory.makeEvaluatorStepSolver(condition);
 		}
 		Step conditionStep = conditionStepSolver.step(context);
 		
-		if(conditionStep.itDepends()) { //condition needs to be simplified further
+		if (conditionStep.itDepends()) { //condition needs to be simplified further
 			result = createIfThenElseStepResultToContinueSteppingOverCondition(conditionStep);
 		}
 		else { //we have reached a leaf in the condition stepping
@@ -64,11 +62,11 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 		
 		Theory theory = context.getTheory();
 		
-		if(conditionStep.getValue().equals(TRUE)) {
+		if (conditionStep.getValue().equals(TRUE)) {
 			ExpressionStepSolver stepSolverForThenBranch = theory.makeEvaluatorStepSolver(thenBranch);
 			result = stepSolverForThenBranch.step(context);
 		}
-		else { //conditionStep.getValue().equals(FASLE)
+		else { //conditionStep.getValue().equals(FALSE)
 			ExpressionStepSolver stepSolverForElseBranch = theory.makeEvaluatorStepSolver(elseBranch);
 			result = stepSolverForElseBranch.step(context);
 		}
@@ -76,19 +74,37 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 	}
 
 	private Step createIfThenElseStepResultToContinueSteppingOverCondition(Step conditionStep) {
+		
 		Expression           splitter = conditionStep.getSplitter();
 		ContextSplitting     splitting = conditionStep.getContextSplittingWhenSplitterIsLiteral();
-		IfThenElseStepSolver continuingIfThenElseSolverForWhenConditionLiteralIsTrue = 
-									new IfThenElseStepSolver(conditionStep.getStepSolverForWhenSplitterIsTrue(), 
-											splitting.getContextAndLiteral(), thenBranch, elseBranch);
-		IfThenElseStepSolver continuingIfThenElseSolverForWhenConditionLiteralIsFalse = 
-									new IfThenElseStepSolver(conditionStep.getStepSolverForWhenSplitterIsFalse(), 
-											splitting.getContextAndLiteralNegation(), thenBranch, elseBranch);
 		
-		Step result = new ItDependsOn(splitter, splitting,
-				continuingIfThenElseSolverForWhenConditionLiteralIsTrue, continuingIfThenElseSolverForWhenConditionLiteralIsFalse);
+		IfThenElseStepSolver sequelStepSolverIfSplitterIsTrue = 
+				makeSequelStepSolver(
+						conditionStep.getStepSolverForWhenSplitterIsTrue(), splitting.getContextAndLiteral());
+		
+		IfThenElseStepSolver sequelStepSolverIfSplitterIsFalse = 
+				makeSequelStepSolver(
+						conditionStep.getStepSolverForWhenSplitterIsFalse(), splitting.getContextAndLiteralNegation());
+		
+		Step result = 
+				new ItDependsOn(
+						splitter, 
+						splitting,
+						sequelStepSolverIfSplitterIsTrue, 
+						sequelStepSolverIfSplitterIsFalse);
 		
 		return result;
+	}
+
+	private IfThenElseStepSolver makeSequelStepSolver(ExpressionStepSolver conditionSequelStepSolver, Context sequelContext) {
+		
+		IfThenElseStepSolver sequelStepSolver = 
+									new IfThenElseStepSolver(
+											conditionSequelStepSolver, 
+											sequelContext, 
+											thenBranch, 
+											elseBranch);
+		return sequelStepSolver;
 	}
 
 	private boolean conditionExpressionHasNotYetBeenSteppedOver() {
