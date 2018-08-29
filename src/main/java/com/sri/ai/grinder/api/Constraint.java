@@ -47,6 +47,54 @@ public interface Constraint extends Expression {
 	Theory getTheory();
 	
 	/**
+		 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
+		 * a given formula, or null if they are contradictory.
+		 * <p>
+		 * At this point, the formula should be either a literal, or a {@link Constraint}.
+		 * <p>
+		 * Extensions may want to override this method if there are more efficient ways
+		 * of conjoining with (certain types of) constraints than simply treating them as a formula
+		 * 
+		 * @param formula the formula to be conjoined.
+		 * @param context the context
+		 * @return the application result or <code>null</code> if contradiction.
+		 */
+		default Constraint conjoin(Expression formula, Context context) {
+			
+			return explanationBlock("Constraint.conjoin of ", this, " with formula ", formula, " under ", context, code( () -> {
+			
+			myAssert(
+					() -> isValidConjoinant(formula, context),
+					() -> this.getClass() + " currently only supports conjoining with literals, conjunctive clauses, and constraints, but received " + formula);
+			
+			Constraint result;
+		
+			if (isContradiction(formula)) {
+				explain("Formula is contradictory, so this results in a contradiction.");
+				result = makeContradiction();
+			}
+			else if (formula.equals(TRUE)) {
+				result = this;
+			}
+	//      Warning: tempting, but inefficient because equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
+	//		else if (formula instanceof Constraint && this.equals(TRUE)) {
+	//			result = (Constraint) formula;
+	//		}
+			else if (formula instanceof Constraint || isConjunction(formula)) {
+				explain("Formula is a ", (formula instanceof Constraint? "Constraint" : "conjunctive clause"), " so we will use conjoinWithConjunctiveClause.");
+				result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.
+			}
+			else {
+				explain("Formula is a literal, so we will use ", getClass().getSimpleName(), ".conjoinWithLiteral.");
+				result = conjoinWithLiteral(formula, context);
+			}
+	
+			return result;
+			
+			}), "Results in ", RESULT);
+		}
+
+	/**
 	 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
 	 * a given literal, or null if they are contradictory.
 	 * <p>
@@ -58,54 +106,6 @@ public interface Constraint extends Expression {
 	 */
 	Constraint conjoinWithLiteral(Expression literal, Context context);
 	
-	/**
-	 * Returns an {@link SGDPLLTTester} representing the conjunction of this constraint and
-	 * a given formula, or null if they are contradictory.
-	 * <p>
-	 * At this point, the formula should be either a literal, or a {@link Constraint}.
-	 * <p>
-	 * Extensions may want to override this method if there are more efficient ways
-	 * of conjoining with (certain types of) constraints than simply treating them as a formula
-	 * 
-	 * @param formula the formula to be conjoined.
-	 * @param context the context
-	 * @return the application result or <code>null</code> if contradiction.
-	 */
-	default Constraint conjoin(Expression formula, Context context) {
-		
-		return explanationBlock("Constraint.conjoin of ", this, " with formula ", formula, " under ", context, code( () -> {
-		
-		myAssert(
-				() -> isValidConjoinant(formula, context),
-				() -> this.getClass() + " currently only supports conjoining with literals, conjunctive clauses, and constraints, but received " + formula);
-		
-		Constraint result;
-	
-		if (isContradiction(formula)) {
-			explain("Formula is contradictory, so this results in a contradiction.");
-			result = makeContradiction();
-		}
-		else if (formula.equals(TRUE)) {
-			result = this;
-		}
-//      Warning: tempting, but inefficient because equals(TRUE) forces constraint's expression to be generated, which may be expensive if it's not being generated anywhere else. If going this route, may make sense to define a isTautology method that tests the same thing without generating expression
-//		else if (formula instanceof Constraint && this.equals(TRUE)) {
-//			result = (Constraint) formula;
-//		}
-		else if (formula instanceof Constraint || isConjunction(formula)) {
-			explain("Formula is a ", (formula instanceof Constraint? "Constraint" : "conjunctive clause"), " so we will use conjoinWithConjunctiveClause.");
-			result = conjoinWithConjunctiveClause(formula, context); // for now, all Constraints are conjunctions. This will probably change in the future.
-		}
-		else {
-			explain("Formula is a literal, so we will use ", getClass().getSimpleName(), ".conjoinWithLiteral.");
-			result = conjoinWithLiteral(formula, context);
-		}
-
-		return result;
-		
-		}), "Results in ", RESULT);
-	}
-
 	/**
 	 * Tests whether an expression is a contradiction (that is, equal to false),
 	 * by first checking if it is a {@link Constraint} and using {@link #isContradiction()},

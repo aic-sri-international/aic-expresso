@@ -117,13 +117,37 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 		Context result = null;
 		Collection<Expression> variablesInLiteral = trueContext.getTheory().getVariablesIn(literal, trueContext);
 		if (variablesInLiteral.isEmpty()) {
-			Expression simplifiedLiteral = trueContext.evaluate(literal);
-			myAssert(isBooleanSymbol(simplifiedLiteral), () -> "Literal without variables " + literal + " did not get simplified to a boolean constant, but to " + simplifiedLiteral + " instead. This is likely due to an incorrect uniquely named constant predicate or theory configuration");
-			result = trueContext.conjoin(simplifiedLiteral);
+			result = 
+					conjoinTrueContextWithLiteralWithoutAnyVariablesAsMultiVariableContextWithCheckedProperty(
+							literal, trueContext);
 		}
 		else {
-			SingleVariableConstraint head = theory.makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, trueContext);
-			result = new MultiVariableContextWithCheckedProperty(head, trueContext, contextDependentProblemStepSolverMaker, theory);
+			result = 
+					conjoinTrueContextWithLiteralContainingVariablesAsMultiVariableContextWithCheckedProperty(
+							literal, variablesInLiteral, trueContext, contextDependentProblemStepSolverMaker, theory);
+		}
+		return result;
+	}
+
+	private static Context conjoinTrueContextWithLiteralWithoutAnyVariablesAsMultiVariableContextWithCheckedProperty(
+			Expression literal, TrueContext trueContext) {
+		Context result;
+		Expression simplifiedLiteral = trueContext.evaluate(literal);
+		myAssert(isBooleanSymbol(simplifiedLiteral), () -> "Literal without variables " + literal + " did not get simplified to a boolean constant, but to " + simplifiedLiteral + " instead. This is likely due to an incorrect uniquely named constant predicate or theory configuration");
+		result = trueContext.conjoin(simplifiedLiteral);
+		return result;
+	}
+
+	private static Context conjoinTrueContextWithLiteralContainingVariablesAsMultiVariableContextWithCheckedProperty(
+			Expression literal, Collection<Expression> variablesInLiteral, TrueContext trueContext,
+			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, Theory theory) {
+		Context result;
+		SingleVariableConstraint head = theory.makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, trueContext);
+		if (head.isContradiction()) {
+			result = trueContext.makeContradiction();
+		}
+		else {
+			result = makeAndCheck(theory, head, trueContext, contextDependentProblemStepSolverMaker, trueContext);
 		}
 		return result;
 	}
