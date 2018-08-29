@@ -56,7 +56,6 @@ import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
-import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.api.Theory;
@@ -358,28 +357,12 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		}), "Made ", RESULT);
 	}
 	
-	private Theory theoryToUse(Expression conjoinant) {
-		Theory result;
-		if (theory != null) {
-			result = theory;
-		}
-		else if (conjoinant instanceof Constraint) {
-			result = ((Constraint) conjoinant).getTheory();
-		}
-		else {
-			throw new Error("Conjoining with default context but there is no theory available");
-		}
-		return result;
-	}
-	
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
 		return explanationBlock("TrueContext.conjoinWithLiteral of ", this, " with literal ", literal, code(() -> {
 			
 			Context result = 
-					// CompleteMultiVariableContext.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, theory, this);
-					makeTrueCompleteMultiVariableContext(theoryToUse(literal))
-					.conjoinWithLiteral(literal, context);
+					CompleteMultiVariableContext.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, theory, this);
 			
 			return result;
 			
