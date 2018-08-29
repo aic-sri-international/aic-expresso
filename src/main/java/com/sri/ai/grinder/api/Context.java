@@ -235,4 +235,8 @@ public interface Context extends Registry, Constraint {
 			return result;
 		}), "Evaluated to ", RESULT);
 	}
+	
+	static Expression evaluate(Expression expression, Context context) {
+		return context.evaluate(expression);
+	}
 }
