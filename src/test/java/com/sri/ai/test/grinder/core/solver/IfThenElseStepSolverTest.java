@@ -16,9 +16,33 @@ import com.sri.ai.grinder.api.ExpressionStepSolver.Step;
 import com.sri.ai.grinder.application.CommonTheory;
 import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
+import com.sri.ai.grinder.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.core.solver.IfThenElseStepSolver;
 
 public class IfThenElseStepSolverTest {
+	
+	@Test
+	public void test() {
+		Expression expression = parse("if X = 1 or Y = 1 then 2 else 3");
+		String[] symbolsAndTypes = {"X", "0..1","Y", "0..1"};
+		Context context = new TrueContext(new CommonTheory()).extendWithSymbolsAndTypes(symbolsAndTypes);
+		
+		String testName = new Object() {}
+						      .getClass()
+						      .getEnclosingMethod()
+						      .getName();
+
+		println("================== "+ testName + " ==================");
+		println(" " + expression);
+		println(" [no symbols or types]");
+		println("---------------------------------------------");
+		
+		IfThenElseStepSolver stepSolver = new IfThenElseStepSolver(expression);
+
+		Expression actual = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
+		
+		println(actual);
+	}
 	
 	@Test
 	public void test00() {

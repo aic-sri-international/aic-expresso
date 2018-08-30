@@ -7,13 +7,13 @@ import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.api.ExpressionStepSolver;
+import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
 
-public class IfThenElseStepSolver implements ExpressionStepSolver {
+public class IfThenElseStepSolver implements ExpressionLiteralSplitterStepSolver {
 	
-	ExpressionStepSolver conditionStepSolver;
+	ExpressionLiteralSplitterStepSolver conditionStepSolver;
 	Expression condition;
 	Expression thenBranch;
 	Expression elseBranch;
@@ -25,7 +25,7 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 		elseBranch = elseBranch(ifThenElseExpression);
 	}
 
-	private IfThenElseStepSolver(ExpressionStepSolver conditionStepSolver, Expression condition, Expression thenBranch, Expression elseBranch) {
+	private IfThenElseStepSolver(ExpressionLiteralSplitterStepSolver conditionStepSolver, Expression condition, Expression thenBranch, Expression elseBranch) {
 		this.conditionStepSolver = conditionStepSolver;
 		this.condition = condition;
 		this.thenBranch = thenBranch;
@@ -63,11 +63,11 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 		Theory theory = context.getTheory();
 		
 		if (conditionStep.getValue().equals(TRUE)) {
-			ExpressionStepSolver stepSolverForThenBranch = theory.makeEvaluatorStepSolver(thenBranch);
+			ExpressionLiteralSplitterStepSolver stepSolverForThenBranch = theory.makeEvaluatorStepSolver(thenBranch);
 			result = stepSolverForThenBranch.step(context);
 		}
 		else { //conditionStep.getValue().equals(FALSE)
-			ExpressionStepSolver stepSolverForElseBranch = theory.makeEvaluatorStepSolver(elseBranch);
+			ExpressionLiteralSplitterStepSolver stepSolverForElseBranch = theory.makeEvaluatorStepSolver(elseBranch);
 			result = stepSolverForElseBranch.step(context);
 		}
 		return result;
@@ -96,7 +96,7 @@ public class IfThenElseStepSolver implements ExpressionStepSolver {
 		return result;
 	}
 
-	private IfThenElseStepSolver makeSequelStepSolver(ExpressionStepSolver conditionSequelStepSolver, Context sequelContext) {
+	private IfThenElseStepSolver makeSequelStepSolver(ExpressionLiteralSplitterStepSolver conditionSequelStepSolver, Context sequelContext) {
 		
 		IfThenElseStepSolver sequelStepSolver = 
 									new IfThenElseStepSolver(
