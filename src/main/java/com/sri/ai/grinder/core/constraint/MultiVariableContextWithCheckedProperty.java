@@ -102,6 +102,26 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
 	
 	/**
+	 * Makes a {@link Context} from a literal and a given {@link TrueContext}.
+	 * @param literal
+	 * @param trueContext
+	 * @param contextDependentProblemStepSolverMaker
+	 * @param theory
+	 */
+	public static Context conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(
+			Expression literal,
+			Theory theory,
+			TrueContext trueContext) {
+		
+		ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker =
+				new CompleteMultiVariableContextDependentProblemStepSolverMaker(theory);
+		Context result = 
+				conjoinTrueContextWithLiteralAsMultiVariableContextWithCheckedProperty(
+						literal, trueContext, contextDependentProblemStepSolverMaker, theory);
+		return result;
+	}
+
+	/**
 	 * Makes a {@link MultiVariableContextWithCheckedProperty} from a literal and a given {@link TrueContext}.
 	 * @param literal
 	 * @param trueContext

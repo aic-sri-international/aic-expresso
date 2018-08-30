@@ -64,7 +64,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
-import com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.core.constraint.IncompleteMultiVariableConstraint;
 import com.sri.ai.grinder.core.solver.DefaultSingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
@@ -187,7 +186,7 @@ public class SGDPLLTTester {
 		
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
 		
-		NullaryFunction<Constraint> makeInitialConstraint = () -> new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
+		NullaryFunction<Constraint> makeInitialConstraint = () -> context;
 
 		Function<Constraint, Expression> makeRandomLiteral = c -> theoryTestingSupport.makeRandomLiteral(context);
 

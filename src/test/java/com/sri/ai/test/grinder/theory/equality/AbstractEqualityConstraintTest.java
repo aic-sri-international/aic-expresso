@@ -57,7 +57,6 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.group.Max;
 import com.sri.ai.grinder.group.Sum;
 import com.sri.ai.grinder.library.boole.And;
@@ -232,27 +231,26 @@ public abstract class AbstractEqualityConstraintTest extends AbstractTheoryInclu
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, TheoryTestingSupport theoryTestingSupport) {
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
-			constraint = constraint.conjoin(literal, context);
-			if (constraint.isContradiction()) {
+			context = context.conjoin(literal, context);
+			if (context.isContradiction()) {
 				break;
 			}
 		}
-		if (expected == null && !constraint.isContradiction()) {
-			throw new AssertionError("Expected null but was <" + constraint + ">");
+		if (expected == null && !context.isContradiction()) {
+			throw new AssertionError("Expected null but was <" + context + ">");
 		}
-		else if (expected != null && constraint.isContradiction()) {
+		else if (expected != null && context.isContradiction()) {
 			throw new AssertionError("Expected <" + expected + "> but was null");
 		}
-		else if (expected != null && !constraint.isContradiction() && !expected.equals(constraint)) {
+		else if (expected != null && !context.isContradiction() && !expected.equals(context)) {
 			Simplifier interpreter = (e, c) -> theoryTestingSupport.getTheory().evaluate(e, c);
 //			Simplifier interpreter = new Evaluator(theoryTestingSupport.getTheory());
-			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
+			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, context);
 			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, context);
 			Expression equivalent = interpreter.apply(universallyQuantified, context);
 			if (equivalent.equals(FALSE)) {
-				throw new Error("Expected <" + expected + "> but got <" + constraint + ">, which is not equivalent either");
+				throw new Error("Expected <" + expected + "> but got <" + context + ">, which is not equivalent either");
 			}
 		}
 	}

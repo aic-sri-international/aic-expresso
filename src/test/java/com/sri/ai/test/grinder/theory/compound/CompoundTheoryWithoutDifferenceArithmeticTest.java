@@ -50,11 +50,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.core.constraint.AbstractTheoryTestingSupport;
-import com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.group.Max;
 import com.sri.ai.grinder.group.Sum;
 import com.sri.ai.grinder.library.boole.And;
@@ -93,10 +91,9 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
 		Context context = theoryTestingSupport.extendWithTestingInformation(new TrueContext(theoryTestingSupport.getTheory()));
-		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
-		constraint = constraint.conjoin(condition, context);
+		context = context.conjoin(condition, context);
 		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
-		assertEquals(expected, constraint);
+		assertEquals(expected, context);
 	}
 	
 	@Test
@@ -202,10 +199,9 @@ public class CompoundTheoryWithoutDifferenceArithmeticTest extends AbstractTheor
 		equalityTheoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		TheoryTestingSupport theoryTestingSupport = TheoryTestingSupport.make(makeRandom(), equalityTheoryTestingSupport, TheoryTestingSupport.make(makeRandom(), new PropositionalTheory()));
 		Context context = theoryTestingSupport.makeContextWithTestingInformation();
-		Constraint constraint = new CompleteMultiVariableContext(theoryTestingSupport.getTheory(), context);
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
-			constraint = constraint.conjoin(literal, context);
+			context = context.conjoin(literal, context);
 		}
-		assertEquals(expected, constraint);
+		assertEquals(expected, context);
 	}
 }
