@@ -69,8 +69,8 @@ public interface Constraint extends Expression {
 			
 			Constraint result;
 		
-			if (isContradiction(formula)) {
-				explain("Formula is contradictory, so this results in a contradiction.");
+			if (isContradiction() || isContradiction(formula)) {
+				explain("This constraint or conjoined formula is contradictory, so result is a contradiction.");
 				result = makeContradiction();
 			}
 			else if (formula.equals(TRUE)) {

@@ -325,7 +325,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 				result = conjoinWithLiteralWithoutVariables(literal, context);
 			}
 			else {
-				result = conjointNonTrivialLiteralIfThereIsHead(literal, variablesInLiteral, context);
+				result = conjointNonTrivialLiteral(literal, variablesInLiteral, context);
 			}
 			return result;
 		
@@ -343,7 +343,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 		}), "Result is ", RESULT);
 	}
 
-	private Context conjointNonTrivialLiteralIfThereIsHead(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
+	private Context conjointNonTrivialLiteral(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
 
 		return explanationBlock("There is a head, dealing with that.", code( () -> {
 
@@ -357,7 +357,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 			
 			newHeadAndNewTail = propagateNewHeadExternalLiterals(newHeadAndNewTail, context);
 
-			Context result = makeNewMultiVariableContextWithCheckedPropertyFromNewHeadAndNewTail(newHeadAndNewTail, context);
+			Context result = makeNewConjoinedContextFromNewHeadAndNewTail(newHeadAndNewTail, context);
 			return result;
 
 		}), "Result is ", RESULT);
@@ -405,7 +405,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 		}), "Result is ", RESULT);
 }
 
-	private Context makeNewMultiVariableContextWithCheckedPropertyFromNewHeadAndNewTail(Pair<SingleVariableConstraint, Context> newHeadAndNewTail, Context context) {
+	private Context makeNewConjoinedContextFromNewHeadAndNewTail(Pair<SingleVariableConstraint, Context> newHeadAndNewTail, Context context) {
 
 		SingleVariableConstraint newHead = newHeadAndNewTail.first;
 		Context newTail = newHeadAndNewTail.second;
@@ -448,10 +448,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 			ConjoinedContext result;
 			ExpressionLiteralSplitterStepSolver problem = propertyCheckerStepSolverMaker.apply(head, context);
 			Expression solution = problem.solve(tail);
-			if (solution == null) { // tail is found to be inconsistent with given context
-				result = makeContradiction();
-			}
-			else if (solution.equals(FALSE)) { // the head constraint does not exhibit the property in all contexts, so the total constraint does not either.
+			if (solution.equals(FALSE)) { // the head constraint does not exhibit the property in all contexts, so the total constraint does not either.
 				result = makeContradiction();
 			}
 			else {
