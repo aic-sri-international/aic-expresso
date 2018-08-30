@@ -2,6 +2,7 @@ package com.sri.ai.test.grinder.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.println;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +40,11 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] < 2 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -64,7 +69,11 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -90,7 +99,13 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] < 2 >\r\n" + 
+				"    [3] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -116,7 +131,11 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] < 2 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -142,7 +161,11 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -168,7 +191,15 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] split on: Y = 1\r\n" + 
+				"        [3] < 2 >\r\n" + 
+				"        [4] < 3 >\r\n" + 
+				"    [5] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -195,7 +226,15 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] < 2 >\r\n" + 
+				"    [3] split on: Y = 1\r\n" + 
+				"        [4] < 2 >\r\n" + 
+				"        [5] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -221,7 +260,11 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] < 2 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -247,7 +290,13 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: Y = 1\r\n" + 
+				"    [2] < 2 >\r\n" + 
+				"    [3] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -273,7 +322,13 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] < 2 >\r\n" + 
+				"    [3] < 2 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -299,7 +354,13 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] < 2 >\r\n" + 
+				"    [3] < 3 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -325,7 +386,15 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] < 4 >\r\n" + 
+				"    [3] split on: Y = 1\r\n" + 
+				"        [4] < 4 >\r\n" + 
+				"        [5] < 6 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
 		println();
 	}
@@ -351,8 +420,126 @@ public class IfThenElseStepSolverTest {
 		AtomicInteger stepCount =  new AtomicInteger(0);
 		int nestingOfStep = 0;
 		
-		recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] split on: Y = 1\r\n" + 
+				"        [3] < true >\r\n" + 
+				"        [4] < false >\r\n" + 
+				"    [5] split on: Y = 1\r\n" + 
+				"        [6] < false >\r\n" + 
+				"        [7] < false >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
 		
+		println();
+	}
+	
+	@Test
+	public void test13() {
+		Expression expression = parse("if (X=1) and (Y=1) then (X!=1) and (Y!=1) else (X!=1) or (Y!=1)");
+		String[] symbolsAndTypes = {"X", "0..1","Y", "0..1"};
+		Context context = new TrueContext(new CommonTheory()).extendWithSymbolsAndTypes(symbolsAndTypes);
+		
+		String testName = new Object() {}
+					      .getClass()
+					      .getEnclosingMethod()
+					      .getName();
+		
+		println("================== "+ testName + " ==================");
+		println(" " + expression);
+		println(" " + Arrays.toString(symbolsAndTypes));
+		println("---------------------------------------------");
+		
+		ExpressionStepSolver stepSolver = new IfThenElseStepSolver(expression);
+		
+		AtomicInteger stepCount =  new AtomicInteger(0);
+		int nestingOfStep = 0;
+		
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 1\r\n" + 
+				"    [2] split on: Y = 1\r\n" + 
+				"        [3] < false >\r\n" + 
+				"        [4] < true >\r\n" + 
+				"    [5] < true >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
+		
+		println();
+	}
+	
+	@Test
+	public void test14() {
+		Expression expression = parse("if (X=0) and (Y=1) then if (Z = 1) then (X + Z) else (Y + Z) else 4");
+		String[] symbolsAndTypes = {"X", "0..1","Y", "0..1", "Z", "0..1"};
+		Context context = new TrueContext(new CommonTheory()).extendWithSymbolsAndTypes(symbolsAndTypes);
+		
+		String testName = new Object() {}
+					      .getClass()
+					      .getEnclosingMethod()
+					      .getName();
+		
+		println("================== "+ testName + " ==================");
+		println(" " + expression);
+		println(" " + Arrays.toString(symbolsAndTypes));
+		println("---------------------------------------------");
+		
+		ExpressionStepSolver stepSolver = new IfThenElseStepSolver(expression);
+		
+		AtomicInteger stepCount =  new AtomicInteger(0);
+		int nestingOfStep = 0;
+		
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 0\r\n" + 
+				"    [2] split on: Y = 1\r\n" + 
+				"        [3] split on: Z = 1\r\n" + 
+				"            [4] < 1 >\r\n" + 
+				"            [5] < 1 + Z >\r\n" + 
+				"        [6] < 4 >\r\n" + 
+				"    [7] < 4 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
+		
+		println();
+	}
+	
+	@Test
+	public void test15() {
+		Expression expression = parse("if (X=0) or (Y=1) then if (Z = 1) then (X + Z) else (Y + Z) else 4");
+		String[] symbolsAndTypes = {"X", "0..1","Y", "0..1", "Z", "0..1"};
+		Context context = new TrueContext(new CommonTheory()).extendWithSymbolsAndTypes(symbolsAndTypes);
+		
+		String testName = new Object() {}
+					      .getClass()
+					      .getEnclosingMethod()
+					      .getName();
+		
+		println("================== "+ testName + " ==================");
+		println(" " + expression);
+		println(" " + Arrays.toString(symbolsAndTypes));
+		println("---------------------------------------------");
+		
+		ExpressionStepSolver stepSolver = new IfThenElseStepSolver(expression);
+		
+		AtomicInteger stepCount =  new AtomicInteger(0);
+		int nestingOfStep = 0;
+		
+		String result = recursivelyTakeSteps(stepSolver, context, stepCount, nestingOfStep);
+		String expected = "[1] split on: X = 0\r\n" + 
+				"    [2] split on: Z = 1\r\n" + 
+				"        [3] < 1 >\r\n" + 
+				"        [4] < Y + Z >\r\n" + 
+				"    [5] split on: Y = 1\r\n" + 
+				"        [6] split on: Z = 1\r\n" + 
+				"            [7] < X + 1 >\r\n" + 
+				"            [8] < 1 + Z >\r\n" + 
+				"        [9] < 4 >\r\n";
+
+		println(result);
+		assertEquals(expected, result);
+
 		println();
 	}
 	
@@ -363,7 +550,11 @@ public class IfThenElseStepSolverTest {
 	
 	
 	
-	private void recursivelyTakeSteps(ExpressionStepSolver stepSolver, Context context, AtomicInteger stepCount, int nestingOfStep) {
+	
+	
+	private String recursivelyTakeSteps(ExpressionStepSolver stepSolver, Context context, AtomicInteger stepCount, int nestingOfStep) {
+		String result;
+		
 		Step step = stepSolver.step(context);
 		stepCount.incrementAndGet();
 		
@@ -371,19 +562,22 @@ public class IfThenElseStepSolverTest {
 			ContextSplitting splitting = step.getContextSplittingWhenSplitterIsLiteral();
 			
 			String nestingString = createNestingString(nestingOfStep);
-			println(nestingString + "[" + stepCount + "] split on: " + splitting.getLiteral());
+			//println(nestingString + "[" + stepCount + "] split on: " + splitting.getLiteral());
+			result = nestingString + "[" + stepCount + "] split on: " + splitting.getLiteral() + System.lineSeparator();
 			
 			Context trueContext = splitting.getContextAndLiteral();
 			Context falseContext = splitting.getContextAndLiteralNegation();
 			int nestingOfNextStep = nestingOfStep + 1;
 			
-			recursivelyTakeSteps(step.getStepSolverForWhenSplitterIsTrue(), trueContext, stepCount, nestingOfNextStep);
-			recursivelyTakeSteps(step.getStepSolverForWhenSplitterIsFalse(), falseContext, stepCount, nestingOfNextStep);
+			result += recursivelyTakeSteps(step.getStepSolverForWhenSplitterIsTrue(), trueContext, stepCount, nestingOfNextStep);
+			result += recursivelyTakeSteps(step.getStepSolverForWhenSplitterIsFalse(), falseContext, stepCount, nestingOfNextStep);
 		}
 		else {
 			String nestingString = createNestingString(nestingOfStep);
-			println(nestingString + "[" + stepCount + "] < " + step.getValue() + " >");
+			//println(nestingString + "[" + stepCount + "] < " + step.getValue() + " >");
+			result = nestingString + "[" + stepCount + "] < " + step.getValue() + " >" + System.lineSeparator();
 		}
+		return result;
 	}
 	
 	private String createNestingString(int nesting) {
