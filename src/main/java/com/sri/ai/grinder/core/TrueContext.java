@@ -38,8 +38,7 @@
 package com.sri.ai.grinder.core;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.helper.GrinderUtil.getTypeOfFunctor;
+import static com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext;
 import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
 import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
 import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
@@ -52,8 +51,6 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Context;
@@ -61,10 +58,9 @@ import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An implementation of {@link Context} extending a {@link DefaultRegistry}
+ * An implementation of {@link Context} containing a {@link DefaultRegistry}
  * with a {@link TRUE} constraint.
  * <p>
  * By default, the
@@ -84,6 +80,20 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	
 	//
 	// START - Constructors
+
+	public TrueContext(
+			Theory theory,
+			Map<Expression, Expression> symbolsAndTypes,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
+			Map<Object, Object> globalObjects) {
+
+		this.theory = theory;
+		this.registry = 
+				new DefaultRegistry(
+						symbolsAndTypes,
+						isUniquelyNamedConstantPredicate,
+						globalObjects);
+	}
 
 	public TrueContext() {
 		this(
@@ -108,20 +118,6 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 				new PrologConstantPredicate(), 
 				globalObjects);
 	}
-
-	public TrueContext(
-			Theory theory,
-			Map<Expression, Expression> symbolsAndTypes,
-			Predicate<Expression> isUniquelyNamedConstantPredicate,
-			Map<Object, Object> globalObjects) {
-
-		this.theory = theory;
-		this.registry = 
-				new DefaultRegistry(
-						symbolsAndTypes,
-						isUniquelyNamedConstantPredicate,
-						globalObjects);
-	}
 	
 	/**
 	 * Creates a {@link TrueContext} containing the basic information
@@ -142,19 +138,11 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	// END-Constructors
 	//
 	
-	
+	@Override
+	public Theory getTheory() {
+		return theory;
+	}
 
-	// END-Context
-	//
-	
-	//
-	//  PROTECTED METHODS
-	//
-	
-	//
-	// PRIVATE METHODS
-	//
-	
 	@Override
 	public TrueContext clone() {
 		TrueContext result = null;
@@ -166,22 +154,35 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		return result;
 	}
 
+	// END-TrueContext
 	//
-	// START-Context
+
+	//
+	// START-Registry
+
 	@Override
 	public boolean isUniquelyNamedConstant(Expression expression) {
-		return getIsUniquelyNamedConstantPredicate().apply(expression);
+		boolean result = registry.isUniquelyNamedConstant(expression);
+		return result;
 	}
 	
 	@Override
 	public boolean isVariable(Expression expression) {
+		// This is not just a matter of forwarding the method to the registry,
+		// because now we have a theory that needs to be taken into account.
+		// TODO: note that detection of uniquely named constants IS being forwarded to the registry
+		// and therefore not taking theory into account.
+		// This is therefore inconsistent.
+		// We must create, at construction time, a uniquely named constant predicate that takes the theory
+		// into account, and then forward these types of methods as one would expect.
 		boolean result = IsVariable.isVariable(expression, getIsUniquelyNamedConstantPredicate(), getTypes(), getTheory());
 		return result;
 	}
 
 	@Override
 	public Predicate<Expression> getIsUniquelyNamedConstantPredicate() {
-		return registry.getIsUniquelyNamedConstantPredicate();
+		Predicate<Expression> result = registry.getIsUniquelyNamedConstantPredicate();
+		return result;
 	}
 
 	@Override
@@ -252,22 +253,6 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		return registry.getGlobalObject(key);
 	}
 
-	// END-Context
-	//
-	
-	//
-	//  PROTECTED METHODS
-	//
-	
-	//
-	// PRIVATE METHODS
-	//
-	
-//	@Override
-//	public String toString() {
-//		return "Context with: " + getSymbolsAndTypes();
-//	}
-
 	@Override
 	public TrueContext makeNewContextWithAddedType(Type type) {
 		TrueContext result = clone();
@@ -277,8 +262,7 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 
 	@Override
 	public Type getType(String name) {
-		Expression typeExpression = parse(name);
-		Type result = getTypeFromTypeExpression(typeExpression);
+		Type result = registry.getType(name);
 		return result;
 	}
 
@@ -294,76 +278,23 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 	}
 
 	@Override
-	public TrueContext makeCloneWithAdditionalRegisteredSymbolsAndTypes(
-			Map<Expression, Expression> symbolsAndTypes) {
-		if (symbolsAndTypes.isEmpty()) { // nothing to do
-			return this;
-		}
-		
-		Map<Expression, Expression> newSymbolsAndTypes = 
-				createAugmentedSymbolsAndTypes(symbolsAndTypes);
-		
+	public TrueContext makeCloneWithAdditionalRegisteredSymbolsAndTypes(Map<Expression, Expression> symbolsAndTypes) {
 		TrueContext result = clone();
-		result.registry = result.registry.setSymbolsAndTypes(newSymbolsAndTypes);
-		
+		result.registry = result.registry.makeCloneWithAdditionalRegisteredSymbolsAndTypes(symbolsAndTypes);
 		return result;
 	}
 
-	private Map<Expression, Expression> createAugmentedSymbolsAndTypes(Map<Expression, Expression> additionalSymbolsAndTypes) {
-		Map<Expression, Expression> symbolsAndTypes = 
-				getTypesOfIndicesFunctorsOrSymbols(additionalSymbolsAndTypes); // returns a fresh map, so we can use it below without copying
-		Map<Expression, Expression> newSymbolsAndTypes = 
-				new StackedHashMap<Expression, Expression>(symbolsAndTypes, getSymbolsAndTypes());
-		return newSymbolsAndTypes;
-	}
+	// END-Registry
+	//
 
-	/**
-	 * Gets a freshly built map from indices to their types and returns a map from their functors-or-symbols
-	 * (that is, their functors if they are function application, and themselves if they are symbols)
-	 * to their types.
-	 * A function has a type of the form <code>'->'('x'(T1, ..., Tn), R)</code>, where <code>T1,...,Tn</code>
-	 * are the types of their arguments and <code>R</code> are their co-domain.
-	 */
-	private Map<Expression, Expression> getTypesOfIndicesFunctorsOrSymbols(Map<Expression, Expression> fromIndicesToType) {
-		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
-		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
-			Expression index     = entry.getKey();
-			Expression indexType = entry.getValue();
-			if (index.getSyntacticFormType().equals(Symbol.SYNTACTIC_FORM_TYPE)) {
-				result.put(index, indexType);
-			}
-			else if (index.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-				Expression typeOfFunctor = getTypeOfFunctor(index, indexType, this);
-				result.put(index.getFunctorOrSymbol(), typeOfFunctor);
-			}
-			else {
-				throw new Error("getTypesOfIndicesFunctorsOrSymbols not supported for expressions other than symbols and function applications, but invoked on " + index);
-			}
-		}
-		return result;
-	}
-
-	@Override
-	public Theory getTheory() {
-		return theory;
-	}
-
-	private CompleteMultiVariableContext makeTrueCompleteMultiVariableContext(Theory theory) {
-		return explanationBlock("Making CompleteMultiVariableContext", code(() -> {
-			
-			CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
-			return result;
-			
-		}), "Made ", RESULT);
-	}
+	//
+	// START-Context
 	
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
 		return explanationBlock("TrueContext.conjoinWithLiteral of ", this, " with literal ", literal, code(() -> {
 			
-			Context result = 
-					CompleteMultiVariableContext.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, theory, this);
-			
+			Context result = conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, theory, this);
 			return result;
 			
 		}), "Result is ", RESULT);
@@ -388,8 +319,27 @@ public class TrueContext extends AbstractExpressionWrapper implements Context {
 		return result;
 	}
 
+	private CompleteMultiVariableContext makeTrueCompleteMultiVariableContext(Theory theory) {
+		return explanationBlock("Making CompleteMultiVariableContext", code(() -> {
+			
+			CompleteMultiVariableContext result = new CompleteMultiVariableContext(theory, this);
+			return result;
+			
+		}), "Made ", RESULT);
+	}
+	
+	// END-Context
+	//
+
+	//
+	// START-Expression
+	
 	@Override
 	protected Expression computeInnerExpression() {
 		return TRUE;
 	}
+
+	// END-Expression
+	//
+
 }
