@@ -57,7 +57,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
-import com.sri.ai.grinder.api.ExpressionStepSolver;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.TrueContext;
@@ -66,29 +65,23 @@ import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
 
 // ISSUES
-// Case with head = null: sounds unnecessary
 // Expansion of constraint into expression: too expensive
 // Unchecked assumption that head and tail do not share variables
-// Why does this need to be a context as opposed to a constraint, which is more general?
 
 /**
- * An {@link Context} on multiple variables,
- * with the ability to ensure all single-variable constraints that are part of it
- * have a property determined by a {@link ExpressionStepSolver},
- * or otherwise the total constraint is deemed unsatisfiable.
+ * An {@link Context} representing a conjunction.
  * 
  * @author braz
  *
  */
 @Beta
-public class MultiVariableContextWithCheckedProperty extends AbstractConstraint implements Context {
+public class ConjoinedContext extends AbstractConstraint implements Context {
 
 	private static final long serialVersionUID = 1L;
 	
 	private SingleVariableConstraint head; // constraint on last variable
 	private Context tail; // constraint on variables but the last one; works as context for head when checking property
-	private boolean checked;
-	
+
 	/**
 	 * A {@link BinaryFunction} making a {@link SingleVariableConstraint} for a given
 	 * variable and current context.
@@ -96,61 +89,61 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 *
 	 */
 	public static
-	interface ContextDependentProblemStepSolverMaker
+	interface ConjoinedContextPropertyCheckerStepSolverMaker
 	extends BinaryFunction<SingleVariableConstraint, Context, ExpressionLiteralSplitterStepSolver> {}
 	
-	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
+	ConjoinedContextPropertyCheckerStepSolverMaker propertyCheckerStepSolverMaker; // a step solver for checking some property on the head
+	
+	private boolean checked;
 	
 	/**
 	 * Makes a {@link Context} from a literal and a given {@link TrueContext}.
 	 * @param literal
 	 * @param trueContext
-	 * @param contextDependentProblemStepSolverMaker
+	 * @param propertyCheckerStepSolverMaker
 	 * @param theory
 	 */
-	public static Context conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(
+	public static Context conjoinTrueContextWithLiteral(
 			Expression literal,
 			Theory theory,
 			TrueContext trueContext) {
 		
-		ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker =
-				new CompleteMultiVariableContextDependentProblemStepSolverMaker(theory);
+		ConjoinedContextPropertyCheckerStepSolverMaker contextDependentProblemStepSolverMaker =
+				new CompleteConjoinedContextPropertyCheckerStepSolverMaker(theory);
 		Context result = 
-				conjoinTrueContextWithLiteralAsMultiVariableContextWithCheckedProperty(
+				conjoinTrueContextWithLiteral(
 						literal, trueContext, contextDependentProblemStepSolverMaker, theory);
 		return result;
 	}
 
 	/**
-	 * Makes a {@link MultiVariableContextWithCheckedProperty} from a literal and a given {@link TrueContext}.
+	 * Makes a {@link ConjoinedContext} from a literal and a given {@link TrueContext}.
 	 * @param literal
 	 * @param trueContext
 	 * @param contextDependentProblemStepSolverMaker
 	 * @param theory
 	 */
-	public static Context conjoinTrueContextWithLiteralAsMultiVariableContextWithCheckedProperty(
+	public static Context conjoinTrueContextWithLiteral(
 			Expression literal,
 			TrueContext trueContext,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
+			ConjoinedContextPropertyCheckerStepSolverMaker contextDependentProblemStepSolverMaker,
 			Theory theory) {
 		
 		Context result = null;
 		Collection<Expression> variablesInLiteral = trueContext.getTheory().getVariablesIn(literal, trueContext);
 		if (variablesInLiteral.isEmpty()) {
 			result = 
-					conjoinTrueContextWithLiteralWithoutAnyVariablesAsMultiVariableContextWithCheckedProperty(
-							literal, trueContext);
+					conjoinTrueContextWithLiteralWithoutAnyVariables(literal, trueContext);
 		}
 		else {
 			result = 
-					conjoinTrueContextWithLiteralContainingVariablesAsMultiVariableContextWithCheckedProperty(
+					conjoinTrueContextWithLiteralContainingVariables(
 							literal, variablesInLiteral, trueContext, contextDependentProblemStepSolverMaker, theory);
 		}
 		return result;
 	}
 
-	private static Context conjoinTrueContextWithLiteralWithoutAnyVariablesAsMultiVariableContextWithCheckedProperty(
-			Expression literal, TrueContext trueContext) {
+	private static Context conjoinTrueContextWithLiteralWithoutAnyVariables(Expression literal, TrueContext trueContext) {
 		Context result;
 		Expression simplifiedLiteral = trueContext.evaluate(literal);
 		myAssert(isBooleanSymbol(simplifiedLiteral), () -> "Literal without variables " + literal + " did not get simplified to a boolean constant, but to " + simplifiedLiteral + " instead. This is likely due to an incorrect uniquely named constant predicate or theory configuration");
@@ -158,9 +151,13 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 		return result;
 	}
 
-	private static Context conjoinTrueContextWithLiteralContainingVariablesAsMultiVariableContextWithCheckedProperty(
-			Expression literal, Collection<Expression> variablesInLiteral, TrueContext trueContext,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, Theory theory) {
+	private static Context conjoinTrueContextWithLiteralContainingVariables(
+			Expression literal,
+			Collection<Expression> variablesInLiteral,
+			TrueContext trueContext,
+			ConjoinedContextPropertyCheckerStepSolverMaker contextDependentProblemStepSolverMaker,
+			Theory theory) {
+		
 		Context result;
 		SingleVariableConstraint head = theory.makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, trueContext);
 		if (head.isContradiction()) {
@@ -175,7 +172,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	/**
 	 * Creates a new {@link Context} from a {@link SingleVariableConstraint} and a {@link Context},
 	 * by either returning a contradiction if either is contradictory,
-	 * or a new {@link MultiVariableContextWithCheckedProperty} otherwise.
+	 * or a new {@link ConjoinedContext} otherwise.
 	 * @param theory
 	 * @param head
 	 * @param tail
@@ -186,7 +183,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			Theory theory,
 			SingleVariableConstraint head,
 			Context tail,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
+			ConjoinedContextPropertyCheckerStepSolverMaker contextDependentProblemStepSolverMaker, 
 			Context context) {
 
 		return explanationBlock("Making new MultiVariableContextWithCheckedProperty and checking property", code( () -> {
@@ -207,22 +204,18 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	private static Context makeAndCheckOutOfConsistentHeadAndTail(
 			SingleVariableConstraint head, 
 			Context tail,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker, 
+			ConjoinedContextPropertyCheckerStepSolverMaker contextDependentProblemStepSolverMaker, 
 			Context context) {
 		
 		Context result;
 		Theory theory = tail.getTheory();
-		MultiVariableContextWithCheckedProperty unchecked = new MultiVariableContextWithCheckedProperty(head, tail, contextDependentProblemStepSolverMaker, theory);
+		ConjoinedContext unchecked = new ConjoinedContext(head, tail, contextDependentProblemStepSolverMaker, theory);
 		result = unchecked.check(context);
 		return result;
 	}
 
-	public MultiVariableContextWithCheckedProperty(Theory theory, ContextDependentProblemStepSolverMaker contextDependentProblemMaker, Context context) {
-		this(null, context, contextDependentProblemMaker, theory);
-	}
-	
 	/**
-	 * Constructs a {@link MultiVariableContextWithCheckedProperty} from a head and a tail constraints,
+	 * Constructs a {@link ConjoinedContext} from a head and a tail constraints,
 	 * which is only correct if the {@link SingleVariableConstraint}'s variable does not appear
 	 * in the tail constraint.
 	 * Note also that this does not check the checked property.
@@ -230,16 +223,16 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	 * @param head
 	 * @param tail
 	 */
-	private MultiVariableContextWithCheckedProperty(
+	private ConjoinedContext(
 			SingleVariableConstraint head,
 			Context tail,
-			ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker,
+			ConjoinedContextPropertyCheckerStepSolverMaker contextDependentProblemStepSolverMaker,
 			Theory theory) {
 		super(theory);
 		this.tail = tail;
 		this.head = head;
 		this.checked = false;
-		this.contextDependentProblemStepSolverMaker = contextDependentProblemStepSolverMaker;
+		this.propertyCheckerStepSolverMaker = contextDependentProblemStepSolverMaker;
 	}
 	
 	@Override
@@ -276,8 +269,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 				result = null;
 			}
 		}
-		else if (formula instanceof MultiVariableContextWithCheckedProperty) {
-			MultiVariableContextWithCheckedProperty formulaAsMultiVariableConstraint = (MultiVariableContextWithCheckedProperty) formula;
+		else if (formula instanceof ConjoinedContext) {
+			ConjoinedContext formulaAsMultiVariableConstraint = (ConjoinedContext) formula;
 			result = conjoinWithMultiVariableContextWithCheckedProperty(formulaAsMultiVariableConstraint, context);
 		}
 		else {
@@ -294,14 +287,16 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 		return formulaIsSingleVariableConstraintOnNewVariable;
 	}
 
-	private Context conjoinWithSingleVariableConstraintOnANewVariable(SingleVariableConstraint formulaAsSingleVariableConstraint,
+	private Context conjoinWithSingleVariableConstraintOnANewVariable(
+			SingleVariableConstraint formulaAsSingleVariableConstraint,
 			Context context) {
-		MultiVariableContextWithCheckedProperty tailOfNewContext = this;
-		Context newContext = makeAndCheck(getTheory(), formulaAsSingleVariableConstraint, tailOfNewContext, contextDependentProblemStepSolverMaker, context);
+		
+		ConjoinedContext tailOfNewContext = this;
+		Context newContext = makeAndCheck(getTheory(), formulaAsSingleVariableConstraint, tailOfNewContext, propertyCheckerStepSolverMaker, context);
 		return newContext;
 	}
 
-	private Context conjoinWithMultiVariableContextWithCheckedProperty(MultiVariableContextWithCheckedProperty formulaAsMultiVariableConstraint, Context context) {
+	private Context conjoinWithMultiVariableContextWithCheckedProperty(ConjoinedContext formulaAsMultiVariableConstraint, Context context) {
 		
 		// if formula is itself a MultiVariableContextWithCheckedProperty,
 		// we conjoin its two known parts individually.
@@ -313,9 +308,7 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			currentConjunction = currentConjunction.conjoin(formulaAsMultiVariableConstraint.tail, context);
 		}
 		
-		if (formulaAsMultiVariableConstraint.head != null) {
-			currentConjunction = currentConjunction.conjoin(formulaAsMultiVariableConstraint.head, context);
-		}
+		currentConjunction = currentConjunction.conjoin(formulaAsMultiVariableConstraint.head, context);
 		
 		return currentConjunction;
 	}
@@ -331,11 +324,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 			if (variablesInLiteral.isEmpty()) {
 				result = conjoinWithLiteralWithoutVariables(literal, context);
 			}
-			else if (head != null) {
-				result = conjointNonTrivialLiteralIfThereIsHead(literal, variablesInLiteral, context);
-			}
 			else {
-				result = conjoinNonTrivialLiteralIfThereIsNoHead(literal, variablesInLiteral, context);
+				result = conjointNonTrivialLiteralIfThereIsHead(literal, variablesInLiteral, context);
 			}
 			return result;
 		
@@ -430,38 +420,19 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 							getTheory(), 
 							newHead, 
 							newTail, 
-							contextDependentProblemStepSolverMaker,
+							propertyCheckerStepSolverMaker,
 							context);
 		}
 		return result;
 	}
 
-	private Context conjoinNonTrivialLiteralIfThereIsNoHead(Expression literal, Collection<Expression> variablesInLiteral, Context context) {
-		return explanationBlock("Conjoining in case there is no head", code( () -> {
-
-			SingleVariableConstraint newHead = getTheory().makeNewSingleVariableConstraintOnSomeVariableOfLiteral(literal, variablesInLiteral, context);
-			explain("Made new head ", newHead);
-			Context newTail = this;
-			explain("New tails is ", newTail);
-			Context result = 
-					makeAndCheck(
-							getTheory(), 
-							newHead, 
-							newTail, 
-							contextDependentProblemStepSolverMaker,
-							context);
-			return result;
-
-		}), "Result is ", RESULT);
-	}
-
 	@Override
-	public MultiVariableContextWithCheckedProperty makeContradiction() {
-		return (MultiVariableContextWithCheckedProperty) super.makeContradiction();
+	public ConjoinedContext makeContradiction() {
+		return (ConjoinedContext) super.makeContradiction();
 	}
 	
-	private MultiVariableContextWithCheckedProperty check(Context context) {
-		MultiVariableContextWithCheckedProperty result;
+	private ConjoinedContext check(Context context) {
+		ConjoinedContext result;
 		if (checked) {
 			result = this;
 		}
@@ -471,11 +442,11 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 		return result;
 	}
 
-	private MultiVariableContextWithCheckedProperty performCheck(Context context) {
+	private ConjoinedContext performCheck(Context context) {
 		return explanationBlock("Performing check to ", this, code( () -> {
 
-			MultiVariableContextWithCheckedProperty result;
-			ExpressionLiteralSplitterStepSolver problem = contextDependentProblemStepSolverMaker.apply(head, context);
+			ConjoinedContext result;
+			ExpressionLiteralSplitterStepSolver problem = propertyCheckerStepSolverMaker.apply(head, context);
 			Expression solution = problem.solve(tail);
 			if (solution == null) { // tail is found to be inconsistent with given context
 				result = makeContradiction();
@@ -494,20 +465,14 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	
 	@Override
 	protected Expression computeInnerExpressionIfNotContradiction() {
-		Expression result;
-		if (head == null) {
-			result = tail;
-		}
-		else {
-			result = And.make(tail, head);
-		}
+		Expression result = And.make(tail, head);
 		return result;
 	}
 
 	@Override
 	public Expression binding(Expression variable) {
 		Expression result;
-		if ( head != null && head.getVariable().equals(variable)) {
+		if (head.getVariable().equals(variable)) {
 			result = head.binding();
 		}
 		else {
@@ -517,8 +482,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty clone() {
-		return (MultiVariableContextWithCheckedProperty) super.clone();
+	public ConjoinedContext clone() {
+		return (ConjoinedContext) super.clone();
 	}
 
 	/////////// Context methods
@@ -529,8 +494,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		MultiVariableContextWithCheckedProperty result = clone();
+	public ConjoinedContext setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		ConjoinedContext result = clone();
 		Context newTail = tail.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		result.tail = newTail;
 		return result;
@@ -557,8 +522,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
-		MultiVariableContextWithCheckedProperty result = clone();
+	public ConjoinedContext setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
+		ConjoinedContext result = clone();
 		result.tail = (Context) tail.setSymbolsAndTypes(newSymbolsAndTypes);
 		return result;
 	}
@@ -574,16 +539,16 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty makeCloneWithAdditionalRegisteredSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes) {
-		MultiVariableContextWithCheckedProperty result = clone();
+	public ConjoinedContext makeCloneWithAdditionalRegisteredSymbolsAndTypes(Map<Expression, Expression> indicesAndTypes) {
+		ConjoinedContext result = clone();
 		Context newTail = tail.makeCloneWithAdditionalRegisteredSymbolsAndTypes(indicesAndTypes);
 		result.tail = newTail;
 		return result;
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty putAllGlobalObjects(Map<Object, Object> objects) {
-		MultiVariableContextWithCheckedProperty result = clone();
+	public ConjoinedContext putAllGlobalObjects(Map<Object, Object> objects) {
+		ConjoinedContext result = clone();
 		Context newTail = tail.putAllGlobalObjects(objects);
 		result.tail = newTail;
 		return result;
@@ -595,8 +560,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty putGlobalObject(Object key, Object value) {
-		MultiVariableContextWithCheckedProperty result = clone();
+	public ConjoinedContext putGlobalObject(Object key, Object value) {
+		ConjoinedContext result = clone();
 		Context newTail = tail.putGlobalObject(key, value);
 		result.tail = newTail;
 		return result;
@@ -618,8 +583,8 @@ public class MultiVariableContextWithCheckedProperty extends AbstractConstraint 
 	}
 
 	@Override
-	public MultiVariableContextWithCheckedProperty makeNewContextWithAddedType(Type type) {
-		MultiVariableContextWithCheckedProperty result = clone();
+	public ConjoinedContext makeNewContextWithAddedType(Type type) {
+		ConjoinedContext result = clone();
 		Context newTail = tail.makeNewContextWithAddedType(type);
 		result.tail = newTail;
 		return result;

@@ -8,13 +8,13 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
-import com.sri.ai.grinder.core.constraint.MultiVariableContextWithCheckedProperty.ContextDependentProblemStepSolverMaker;
+import com.sri.ai.grinder.core.constraint.ConjoinedContext.ConjoinedContextPropertyCheckerStepSolverMaker;
 
-public final class CompleteMultiVariableContextDependentProblemStepSolverMaker implements ContextDependentProblemStepSolverMaker, Serializable {
+public final class CompleteConjoinedContextPropertyCheckerStepSolverMaker implements ConjoinedContextPropertyCheckerStepSolverMaker, Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private Theory theory;
-	public CompleteMultiVariableContextDependentProblemStepSolverMaker(Theory theory) {
+	public CompleteConjoinedContextPropertyCheckerStepSolverMaker(Theory theory) {
 		this.theory = theory;
 	}
 	

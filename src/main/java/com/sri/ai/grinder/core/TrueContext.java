@@ -50,7 +50,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
-import com.sri.ai.grinder.core.constraint.MultiVariableContextWithCheckedProperty;
+import com.sri.ai.grinder.core.constraint.ConjoinedContext;
 
 /**
  * An implementation of {@link Context} extending {@link AbstractTrivialContext} to be a {@link TRUE} constraint.
@@ -117,7 +117,7 @@ public class TrueContext extends AbstractTrivialContext {
 	public Context conjoinWithLiteral(Expression literal, Context context) {
 		return explanationBlock("TrueContext.conjoinWithLiteral of ", this, " with literal ", literal, code(() -> {
 			
-			Context result = MultiVariableContextWithCheckedProperty.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, getTheory(), this);
+			Context result = ConjoinedContext.conjoinTrueContextWithLiteral(literal, getTheory(), this);
 			return result;
 			
 		}), "Result is ", RESULT);
