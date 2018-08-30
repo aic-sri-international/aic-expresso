@@ -37,11 +37,7 @@
  */
 package com.sri.ai.grinder.core;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.grinder.core.constraint.CompleteMultiVariableContext.conjoinTrueContextWithLiteralAsCompleteMultiVariableContext;
-import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
-import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.code;
-import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.explanationBlock;
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -53,17 +49,17 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 
 /**
- * An implementation of {@link Context} extending {@link AbstractTrivialContext} to be a {@link TRUE} constraint.
+ * An implementation of {@link Context} extending {@link AbstractTrivialContext} to be a {@link FALSE} constraint.
  * 
  * @author braz
  * @author oreilly
  */
 @Beta
-public class TrueContext extends AbstractTrivialContext {
+public class FalseContext extends AbstractTrivialContext {
 	
 	private static final long serialVersionUID = 1L;
 
-	public TrueContext(
+	public FalseContext(
 			Theory theory,
 			Map<Expression, Expression> symbolsAndTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
@@ -75,7 +71,7 @@ public class TrueContext extends AbstractTrivialContext {
 				globalObjects);
 	}
 
-	public TrueContext() {
+	public FalseContext() {
 		this(
 				null,
 				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
@@ -83,7 +79,7 @@ public class TrueContext extends AbstractTrivialContext {
 				new LinkedHashMap<Object, Object>()); // globalObjects
 	}
 
-	public TrueContext(Theory theory) {
+	public FalseContext(Theory theory) {
 		this(
 				theory,
 				new LinkedHashMap<Expression, Expression>(), // symbolsAndTypes
@@ -92,14 +88,14 @@ public class TrueContext extends AbstractTrivialContext {
 	}
 	
 	/**
-	 * Creates a {@link TrueContext} containing the basic information
+	 * Creates a {@link FalseContext} containing the basic information
 	 * from another context.
 	 * The basic information are the theory, symbols and types, is unique constant predicate,
 	 * and global objects.
 	 * Uses {@link #TrueContext(Theory, Map, Predicate, Map)}.
 	 * @param another
 	 */
-	public TrueContext(Context another) {
+	public FalseContext(Context another) {
 		this(
 				another.getTheory(), 
 				another.getSymbolsAndTypes(), 
@@ -108,40 +104,29 @@ public class TrueContext extends AbstractTrivialContext {
 	}
 
 	@Override
-	public TrueContext clone() {
-		TrueContext result = (TrueContext) super.clone();
+	public FalseContext clone() {
+		FalseContext result = (FalseContext) super.clone();
 		return result;
 	}
 
 	@Override
 	public Context conjoinWithLiteral(Expression literal, Context context) {
-		return explanationBlock("TrueContext.conjoinWithLiteral of ", this, " with literal ", literal, code(() -> {
-			
-			Context result = conjoinTrueContextWithLiteralAsCompleteMultiVariableContext(literal, getTheory(), this);
-			return result;
-			
-		}), "Result is ", RESULT);
+		return this;
 	}
 
 	@Override
 	public boolean isContradiction() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public Context makeContradiction() {
-		Context result = 
-				new FalseContext(
-						getTheory(),
-						getSymbolsAndTypes(),
-						getIsUniquelyNamedConstantPredicate(),
-						getGlobalObjects());
-		return result;
+		return this;
 	}
 	
 	@Override
 	protected Expression computeInnerExpression() {
-		return TRUE;
+		return FALSE;
 	}
 
 }
