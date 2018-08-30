@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.core.solver;
+package com.sri.ai.grinder.library.controlflow;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
