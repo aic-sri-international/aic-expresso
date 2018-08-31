@@ -1,14 +1,16 @@
 package com.sri.ai.grinder.theory.differencearithmetic;
 
+import static com.sri.ai.grinder.library.FunctorConstants.IF_THEN_ELSE;
+import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.rewriter.core.Switch.FUNCTOR;
 import static com.sri.ai.util.Util.map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.core.solver.SGVET;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.core.solver.SimplifierForAggregateFunctionOnIntensionalSet;
+import com.sri.ai.grinder.group.SumProduct;
 import com.sri.ai.grinder.library.controlflow.IfThenElseRewriter;
-import com.sri.ai.grinder.library.number.SummationRewriter;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.rewriter.core.FirstOf;
 import com.sri.ai.grinder.rewriter.core.Switch;
@@ -23,15 +25,14 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters ex
 				atomFunctorsAreUniqueToThisTheory,
 				propagateAllLiteralsWhenVariableIsBound);
 		
-		TopRewriter ifThenElseSwitch = new Switch<>(
+		TopRewriter ifThenElseAndSummationSwitch = new Switch<>(
 				FUNCTOR,
-				map( FunctorConstants.IF_THEN_ELSE,  new IfThenElseRewriter() )
+				map(
+						IF_THEN_ELSE, new IfThenElseRewriter(),
+						SUM, new SimplifierForAggregateFunctionOnIntensionalSet(new SumProduct(), new SGVET()))
 		);
-		TopRewriter summationSwitch = new SummationRewriter(new SGVET());
 		
-		TopRewriter ifThenElseAndSummationSwitch = TopRewriter.merge(ifThenElseSwitch, summationSwitch);
-		
-		stepSolverSwitch =new FirstOf(
+		stepSolverSwitch = new FirstOf(
 				ifThenElseAndSummationSwitch + " with literal externalization",
 				ifThenElseAndSummationSwitch, 
 				new LiteralRewriter(ifThenElseAndSummationSwitch)

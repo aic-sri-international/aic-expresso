@@ -40,13 +40,8 @@ package com.sri.ai.grinder.core.solver;
 import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.library.set.Sets;
-import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.grinder.rewriter.core.Switch;
 
 /**
@@ -68,39 +63,8 @@ public class QuantifierEliminatorOfFunctionOnIntensionalSetTopRewriter extends S
 				Switch.FUNCTOR,
 				map(
 						functor, 
-						simplifierForAggregateOnIntensionalSet(group, quantifierEliminator)
+						new SimplifierForAggregateFunctionOnIntensionalSet(group, quantifierEliminator)
 				)
 		);
-	}
-
-	private static Simplifier simplifierForAggregateOnIntensionalSet(
-			AssociativeCommutativeGroup group, 
-			MultiQuantifierEliminator quantifierEliminator) {
-		
-		return (e, c) -> {
-			Expression result;
-			try {
-				if (Sets.isIntensionalMultiSet(e.get(0))) {
-					IntensionalSet intensionalSet = (IntensionalSet) e.get(0);
-					ExtensionalIndexExpressionsSet indexExpressions = 
-							(ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
-					// the set is intensional, but not the set of index expressions!
-					result =
-							quantifierEliminator.extendContextAndSolve(
-									group,
-									indexExpressions,
-									intensionalSet.getCondition(),
-									intensionalSet.getHead(),
-									c);
-				}
-				else {
-					result = e;
-				}
-			}
-			catch (IllegalArgumentException exception) {
-				result = e;
-			}
-			return result;
-		};
 	}
 }

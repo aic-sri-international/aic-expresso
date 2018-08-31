@@ -37,16 +37,11 @@
  */
 package com.sri.ai.grinder.core.solver;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.MultiQuantifierEliminator;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
 import com.sri.ai.grinder.rewriter.core.Switch;
 
@@ -69,26 +64,8 @@ public class QuantifierTopRewriter extends Switch<Object> {
 				Switch.SYNTACTIC_FORM_TYPE,
 				map(
 						syntaticFormType,
-						simplifierForQuantificationOn(group, quantifierEliminator)
+						new SimplifierForQuantificationOn(group, quantifierEliminator)
 				)
 		);
-	}
-
-	private static Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group, MultiQuantifierEliminator quantifierEliminator) {
-		return (e, c) -> {
-			Expression result;
-			try {
-				QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) e;
-				Expression body = quantifiedExpression.getBody();
-				ExtensionalIndexExpressionsSet indexExpressions = 
-						(ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();
-				// the set is intensional, but not the set of index expressions!
-				result = quantifierEliminator.extendContextAndSolve(group, indexExpressions, TRUE, body, c);
-			}
-			catch (IllegalArgumentException exception) {
-				result = e;
-			}
-			return result;
-		};
 	}
 }
