@@ -21,14 +21,11 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters ex
 	TopRewriter stepSolverSwitch; //ifThenElseAndSummationStepSolverSwitchWithLiteralExternalization
 	
 	public DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters(boolean atomFunctorsAreUniqueToThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
-		super(
-				atomFunctorsAreUniqueToThisTheory,
-				propagateAllLiteralsWhenVariableIsBound);
+		super(atomFunctorsAreUniqueToThisTheory, propagateAllLiteralsWhenVariableIsBound);
 		
 		TopRewriter ifThenElseAndSummationSwitch = new Switch<>(
 				FUNCTOR,
-				map(
-						IF_THEN_ELSE, new IfThenElseRewriter(),
+				map(	IF_THEN_ELSE, new IfThenElseRewriter(),
 						SUM, new SimplifierForAggregateFunctionOnIntensionalSet(new SumProduct(), new SGVET()))
 		);
 		
