@@ -5,30 +5,38 @@ import static com.sri.ai.util.Util.map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.core.solver.SGVET;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElseRewriter;
-import com.sri.ai.grinder.rewriter.api.Simplifier;
+import com.sri.ai.grinder.library.number.SummationRewriter;
 import com.sri.ai.grinder.rewriter.api.TopRewriter;
+import com.sri.ai.grinder.rewriter.core.FirstOf;
 import com.sri.ai.grinder.rewriter.core.Switch;
+import com.sri.ai.grinder.rewriter.help.LiteralRewriter;
 
 public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters extends DifferenceArithmeticTheory {
 	
-	TopRewriter stepSolverSwitch;
+	TopRewriter stepSolverSwitch; //ifThenElseAndSummationStepSolverSwitchWithLiteralExternalization
 	
-	//I didn't spend time to understand these arguments just FYI
 	public DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters(boolean atomFunctorsAreUniqueToThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				atomFunctorsAreUniqueToThisTheory,
 				propagateAllLiteralsWhenVariableIsBound);
-		//Switch(Function<Expression, T> keyMaker, Map<T, ? extends Rewriter> fromKeyToRewriter)
-		stepSolverSwitch = new Switch<>(
+		
+		TopRewriter ifThenElseSwitch = new Switch<>(
 				FUNCTOR,
-				map(
-						FunctorConstants.IF_THEN_ELSE,		new IfThenElseRewriter(),
-						FunctorConstants.EQUALITY,			(Simplifier) (expression, context) -> expression
-						//FunctorConstants.SUM,				//
-				)
+				map( FunctorConstants.IF_THEN_ELSE,  new IfThenElseRewriter() )
 		);
+		TopRewriter summationSwitch = new SummationRewriter(new SGVET());
+		
+		TopRewriter ifThenElseAndSummationSwitch = TopRewriter.merge(ifThenElseSwitch, summationSwitch);
+		
+		stepSolverSwitch =new FirstOf(
+				ifThenElseAndSummationSwitch + " with literal externalization",
+				ifThenElseAndSummationSwitch, 
+				new LiteralRewriter(ifThenElseAndSummationSwitch)
+		);
+		
 	}
 	
 	@Override
