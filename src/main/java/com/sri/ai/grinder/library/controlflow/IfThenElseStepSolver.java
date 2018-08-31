@@ -47,10 +47,10 @@ public class IfThenElseStepSolver implements ExpressionLiteralSplitterStepSolver
 		}
 		Step conditionStep = conditionStepSolver.step(context);
 		
-		if (conditionStep.itDepends()) { //condition needs to be simplified further
+		if (conditionStep.itDepends()) { // condition needs to be simplified further
 			result = createIfThenElseStepResultToContinueSteppingOverCondition(conditionStep);
 		}
-		else { //we have reached a leaf in the condition stepping
+		else { // we have reached a leaf in the condition stepping
 			result = createStepResultToProcessClauses(conditionStep, context);
 		}
 		
@@ -66,7 +66,7 @@ public class IfThenElseStepSolver implements ExpressionLiteralSplitterStepSolver
 			ExpressionLiteralSplitterStepSolver stepSolverForThenBranch = theory.makeEvaluatorStepSolver(thenBranch);
 			result = stepSolverForThenBranch.step(context);
 		}
-		else { //conditionStep.getValue().equals(FALSE)
+		else { // conditionStep.getValue().equals(FALSE)
 			ExpressionLiteralSplitterStepSolver stepSolverForElseBranch = theory.makeEvaluatorStepSolver(elseBranch);
 			result = stepSolverForElseBranch.step(context);
 		}

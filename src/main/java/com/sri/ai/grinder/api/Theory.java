@@ -160,9 +160,10 @@ public interface Theory extends Cloneable {
 	default Expression evaluate(Expression expression, Context context) {
 		return explanationBlock("Theory.evaluate ", expression, " under ", context, code( () -> {
 			
-			ExpressionLiteralSplitterStepSolver evaluatorStepSolver = explanationBlock("Making evaluator step solver ", code( () -> 
-			makeEvaluatorStepSolver(expression)
-			), "Step solver is ", RESULT);
+			ExpressionLiteralSplitterStepSolver evaluatorStepSolver = 
+					explanationBlock("Making evaluator step solver ", code( () -> 
+					makeEvaluatorStepSolver(expression)
+							), "Step solver is ", RESULT);
 			
 			Expression result = explanationBlock("Solving step solver ", code( () -> 
 			staticSolve(evaluatorStepSolver, context)

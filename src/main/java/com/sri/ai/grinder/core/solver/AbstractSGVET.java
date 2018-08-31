@@ -127,7 +127,7 @@ public class AbstractSGVET extends AbstractMultiQuantifierEliminator {
 		checkInterrupted();
 		
 		// Make sure body is simplified and quantifier-free.
-		Expression simplifiedBody = context.getTheory().evaluate(body, context);
+		Expression simplifiedBody = body; // context.getTheory().evaluate(body, context);
 		
 		Expression result;
 		if (getDebug()) {
