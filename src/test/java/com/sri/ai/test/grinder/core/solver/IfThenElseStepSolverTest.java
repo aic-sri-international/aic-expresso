@@ -320,17 +320,9 @@ public class IfThenElseStepSolverTest {
 	}
 	
 	private void printTestHeader(String testName, Expression expression, Map<Expression,Expression> symbolsAndTypes) {
-		String symbolsAndTypesString;
-		if(symbolsAndTypes.size() == 0) {
-			symbolsAndTypesString = "[no symbols or types]";
-		}
-		else {
-			symbolsAndTypesString = symbolsAndTypes.toString();
-		}
-		
 		println("=================== "+ testName + " ===================");
 		println(" " + expression);
-		println(" " + symbolsAndTypesString);
+		println(" " + (symbolsAndTypes.size() == 0 ? "[no symbols or types]" : symbolsAndTypes.toString()) );
 		println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
 	}
