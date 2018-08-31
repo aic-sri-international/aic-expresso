@@ -74,15 +74,15 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewritersTes
 							parse("X"), parse("Integer")
 							));
 
-					expression = parse("X = 0");
-					expected = parse("X = 0");
-					actual = context.evaluate(expression);
-					assertEquals(expected, actual);
-					
-					expression = parse("if X = 0 then X != 0 else true");
-					expected = parse("if X = 0 then false else true");
-					actual = context.evaluate(expression);
-					assertEquals(expected, actual);
+			expression = parse("X = 0");
+			expected = parse("X = 0");
+			actual = context.evaluate(expression);
+			assertEquals(expected, actual);
+
+			expression = parse("if X = 0 then X != 0 else true");
+			expected = parse("if X = 0 then false else true");
+			actual = context.evaluate(expression);
+			assertEquals(expected, actual);
 
 			expression = parse("sum({{ (on I in 1..2) I + 1 }})");
 			expected = parse("5");
