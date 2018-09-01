@@ -74,6 +74,11 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewritersTes
 							parse("X"), parse("Integer")
 							));
 
+			expression = parse("1 > 0");
+			expected = parse("true");
+			actual = context.evaluate(expression);
+			assertEquals(expected, actual);
+
 			expression = parse("X = 0");
 			expected = parse("X = 0");
 			actual = context.evaluate(expression);

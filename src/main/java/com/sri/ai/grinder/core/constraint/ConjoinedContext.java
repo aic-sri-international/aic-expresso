@@ -131,6 +131,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 		
 		Context result = null;
 		Collection<Expression> variablesInLiteral = trueContext.getTheory().getVariablesIn(literal, trueContext);
+		// TODO: literals should be simplified right when detected, and arguably trivial literals should not be considered literals in the first place
 		if (variablesInLiteral.isEmpty()) {
 			result = 
 					conjoinTrueContextWithLiteralWithoutAnyVariables(literal, trueContext);
@@ -145,7 +146,7 @@ public class ConjoinedContext extends AbstractConstraint implements Context {
 
 	private static Context conjoinTrueContextWithLiteralWithoutAnyVariables(Expression literal, TrueContext trueContext) {
 		Context result;
-		Expression simplifiedLiteral = trueContext.evaluate(literal);
+		Expression simplifiedLiteral = trueContext.simplify(literal);
 		myAssert(isBooleanSymbol(simplifiedLiteral), () -> "Literal without variables " + literal + " did not get simplified to a boolean constant, but to " + simplifiedLiteral + " instead. This is likely due to an incorrect uniquely named constant predicate or theory configuration");
 		result = trueContext.conjoin(simplifiedLiteral);
 		return result;

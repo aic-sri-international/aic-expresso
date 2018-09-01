@@ -236,7 +236,13 @@ public interface Context extends Registry, Constraint {
 		}), "Evaluated to ", RESULT);
 	}
 	
-	static Expression evaluate(Expression expression, Context context) {
-		return context.evaluate(expression);
+	/**
+	 * Equivalent to <code>getTheory().simplify(expression, this)</code>.
+	 * @param expression
+	 * @return
+	 */
+	default Expression simplify(Expression expression) {
+		Expression result = getTheory().simplify(expression, this);
+		return result;
 	}
 }
