@@ -57,7 +57,14 @@ public class ConstraintSplitting {
 	private Constraint constraintAndLiteral;
 	private Constraint constraintAndLiteralNegation;
 
+	
 	private static int counter = 0;
+	
+	public static void resetCounter() { 
+		counter = 0; 
+	}
+	
+	
 	/**
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param literal
