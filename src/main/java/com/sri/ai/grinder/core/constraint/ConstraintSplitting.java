@@ -58,11 +58,26 @@ public class ConstraintSplitting {
 	private Constraint constraintAndLiteralNegation;
 
 	
-	private static int counter = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// FOR TESTING PURPOSES ////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static long totalConstraintSplittingTime = 0;
+	private static boolean alreadyTimingConstraintSplitting = false;
+	
+	public static long getTotalConstraintSplittingTime() {
+		return totalConstraintSplittingTime;
+	}
+	
+	public static void resetTotalConstraintSplittingTime() {
+		totalConstraintSplittingTime = 0;
+	}
+	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+	private static int totalNumberOfConstraintSplittings = 0;
 	
 	public static void resetCounter() { 
-		counter = 0; 
+		totalNumberOfConstraintSplittings = 0; 
 	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
 	/**
@@ -72,7 +87,20 @@ public class ConstraintSplitting {
 	 * @param context
 	 */
 	public ConstraintSplitting(Expression literal, Constraint constraint, Context context) {
-		explanationBlock("Constraint splitting number ", ++counter, " literal: ", literal, ", constraint ", constraint, code( () -> {
+		explanationBlock("Constraint splitting number ", ++totalNumberOfConstraintSplittings, " literal: ", literal, ", constraint ", constraint, code( () -> {
+			
+			boolean addTheTimeFromThisSplitting;
+			long startTime = 0;
+			if(alreadyTimingConstraintSplitting) {
+				addTheTimeFromThisSplitting = false;
+			}
+			else {
+				addTheTimeFromThisSplitting = true;
+				startTime = System.nanoTime();
+				alreadyTimingConstraintSplitting = true;
+			}
+
+			
 			
 			this.constraint = constraint;
 			this.literal = literal;
@@ -95,6 +123,14 @@ public class ConstraintSplitting {
 				else {
 					result = CONSTRAINT_IS_CONTRADICTORY;
 				}
+			}
+			
+			
+			
+			if(addTheTimeFromThisSplitting) {
+				long constraintSplittingTime = System.nanoTime() - startTime;
+				totalConstraintSplittingTime += constraintSplittingTime;
+				alreadyTimingConstraintSplitting = false;
 			}
 
 			return result; }), "Result is ", RESULT);
