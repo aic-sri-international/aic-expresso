@@ -155,11 +155,11 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 
 			Step result;
 
-			Context contextForBody = getContextForBody(context);
+			Context contextForBody = getContextForBody(context);  
 
-			if (contextForBody.isContradiction()) {
+			if (contextForBody.isContradiction()) {								//this branch should not be included in the solution since it's context is contradictory
 				explain("Context for body is contradictory");
-				result = new Solution(getGroup().additiveIdentityElement());
+				result = new Solution(getGroup().additiveIdentityElement()); 	//return additive identity solution step so when this solution is combined, it will not have any effect (as if it were not part of the final solution)
 			}
 			else {
 				result = solveProblemWithConsistentContextForBody(contextForBody, context);
@@ -172,6 +172,25 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Step is ", RESULT);
 	}
 
+	/**
+	 * Returns the context defined for the body of the problem
+	 * given the context to step over.
+	 * <p>
+	 * If initialContextForBody is not already defined, 
+	 * then we are taking the very first step.  Thus we must
+	 * create an appropriate context by conjoining the context 
+	 * to step over with the index constraint of the quantifier.
+	 * This context will be returned.
+	 * <p>
+	 * If initialContextForBody is already defined, then
+	 * we are continuing from a previous step and the appropriate
+	 * context is already stored in initialContextForBody.
+	 * Thus the context in link #initialContextForBody will be
+	 * returned.
+	 * 
+	 * @param context
+	 * @return
+	 */
 	private Context getContextForBody(Context context) {
 		return explanationBlock("Making context for body ", code(() -> {
 
@@ -466,7 +485,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	}
 
 	private Expression addNonConditionalSolutions(Expression solution1, Expression solution2, Context context) {
-		Expression result = getGroup().add(solution1, solution2, context);
+		Expression result = getGroup().addAndPossiblySolveItDeprecated(solution1, solution2, context);
 		return result;
 	}
 

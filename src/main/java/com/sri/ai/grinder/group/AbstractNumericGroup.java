@@ -23,7 +23,7 @@ public abstract class AbstractNumericGroup extends AbstractAssociativeCommutativ
 	public abstract Expression additiveIdentityElement();
 
 	@Override
-	public abstract Expression add(Expression value1, Expression value2, Context context);
+	public abstract Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context);
 
 	@Override
 	public abstract boolean isAdditiveAbsorbingElement(Expression value);

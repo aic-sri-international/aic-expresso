@@ -87,7 +87,7 @@ public class AdderIterator extends EZIterator<Expression> {
 			Assignment assignment = assignmentIterator.next();
 			Context extendedContext = assignment.extend(context);			
 			Expression bodyEvaluation = rewriter.apply(body, extendedContext);
-			currentValue = group.add(currentValue, bodyEvaluation, extendedContext);
+			currentValue = group.addAndPossiblySolveItDeprecated(currentValue, bodyEvaluation, extendedContext);
 			result = currentValue;
 		}
 		else {

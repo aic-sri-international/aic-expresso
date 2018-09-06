@@ -72,7 +72,7 @@ public class Max extends AbstractFunctionBasedGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context context) {
+	public Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) {
 			Rational rationalValue1 = value1.rationalValue();

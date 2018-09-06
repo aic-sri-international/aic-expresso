@@ -29,8 +29,6 @@ public abstract class AbstractFunctionBasedGroup extends AbstractNumericGroup im
 		super();
 	}
 
-	public abstract String getFunctionString();
-
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
 		String functorString = getFunctionString();

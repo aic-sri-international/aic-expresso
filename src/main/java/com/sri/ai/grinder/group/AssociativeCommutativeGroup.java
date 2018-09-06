@@ -68,9 +68,18 @@ public interface AssociativeCommutativeGroup {
 	boolean isAdditiveAbsorbingElement(Expression value);
 	
 	/**
-	 * Performs the group's additive operation on two values.
+	 * Returns the string of the associated operator.
 	 */
-	Expression add(Expression value1, Expression value2, Context context);
+	String getFunctionString();
+
+	/**
+	 * Performs the group's additive operation on two values.
+	 * Implementations are inconsistent, with some of them evaluating the result
+	 * and some of them simply making an expression;
+	 * this should be eliminated and users should instead use {@link #getFunctionString()}
+	 * and evaluate it themselves if needed.
+	 */
+	Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context);
 
 	/**
 	 * The result of adding a value to itself n times, where both value and n may be symbolic expressions.

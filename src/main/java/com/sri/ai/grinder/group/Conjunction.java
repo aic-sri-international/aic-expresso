@@ -53,6 +53,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
@@ -77,7 +78,7 @@ public class Conjunction extends AbstractQuantifierBasedGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context context) {
+	public Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context) {
 		return And.make(value1, value2);
 	}
 
@@ -126,5 +127,10 @@ public class Conjunction extends AbstractQuantifierBasedGroup {
 			current = new DefaultUniversallyQuantifiedFormula(indexExpression, current);
 		}
 		return current;
+	}
+
+	@Override
+	public String getFunctionString() {
+		return FunctorConstants.AND;
 	}
 }

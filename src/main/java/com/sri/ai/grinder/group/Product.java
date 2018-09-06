@@ -78,7 +78,7 @@ public class Product extends AbstractFunctionBasedGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context context) {
+	public Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context) {
 		Expression result;
 		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
 			result = Expressions.makeSymbol(value1.rationalValue().multiply(value2.rationalValue()));

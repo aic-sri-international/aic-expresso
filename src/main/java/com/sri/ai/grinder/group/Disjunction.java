@@ -53,6 +53,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
@@ -77,7 +78,7 @@ public class Disjunction extends AbstractQuantifierBasedGroup {
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, Context context) {
+	public Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context) {
 		return Or.make(value1, value2);
 	}
 
@@ -125,5 +126,10 @@ public class Disjunction extends AbstractQuantifierBasedGroup {
 			current = new DefaultExistentiallyQuantifiedFormula(indexExpression, current);
 		}
 		return current;
+	}
+
+	@Override
+	public String getFunctionString() {
+		return FunctorConstants.OR;
 	}
 }
