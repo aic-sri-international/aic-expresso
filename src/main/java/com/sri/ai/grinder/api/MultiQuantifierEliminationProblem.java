@@ -42,9 +42,12 @@ import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIn
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.core.solver.DefaultMultiQuantifierEliminationProblem;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 public interface MultiQuantifierEliminationProblem {
 

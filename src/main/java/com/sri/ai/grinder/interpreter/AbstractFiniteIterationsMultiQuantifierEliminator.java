@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.interpreter;
 
+import static com.sri.ai.grinder.core.solver.DefaultMultiQuantifierEliminationProblem.makeProblem;
+
 import java.util.List;
 import java.util.Map;
 
@@ -92,7 +94,9 @@ public abstract class AbstractFiniteIterationsMultiQuantifierEliminator extends 
 	public Expression extendContextAndSolve(AssociativeCommutativeGroup group, ExtensionalIndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, Context context) throws Error {
 		context = context.extendWith(indexExpressions);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-		return solve(group, indices, indicesCondition, body, context);
+		MultiQuantifierEliminationProblem problem = makeProblem(group, indices, indicesCondition, body, context);
+		Expression result = solve(problem, context);
+		return result;
 	}
 
 	@Override
