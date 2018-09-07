@@ -275,8 +275,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			Step step;
 			if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
 				explain("Splitter contains index, so we are going to split the quantifier");
-				step = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context); //TO BE DEPRECIATED
-				//step = stepOverExpressionCombiningSplitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context);
+				//step = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context); //TO BE DEPRECIATED
+				step = stepOverExpressionCombiningSplitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context);
 			}
 			else {
 				explain("Splitter does not contains index, so we are going to make a conditional on two new subproblems");
@@ -348,10 +348,10 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			case CONSTRAINT_IS_CONTRADICTORY:
 				step = null;
 				break;
-			case LITERAL_IS_UNDEFINED:
-				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
-				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
-				break;
+//			case LITERAL_IS_UNDEFINED:
+//				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
+//				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
+//				break;
 			case LITERAL_IS_TRUE:
 				explain("Index literal ", bodyStep.getSplitter(), " is always true under current context, so we will solve a single sub-problem");
 				step = stepOverSubProblemIfSplitterIsTrue(bodyStep, indexConstraintAndLiteral, context);
@@ -360,6 +360,23 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 				explain("Index literal ", bodyStep.getSplitter(), " is always false under current context, so we will solve a single sub-problem");
 				step = stepOverSubProblemIfSplitterIsFalse(bodyStep, indexConstraintAndLiteralNegation, context);
 				break;
+			
+			/////////////////////////////////////////
+			////////// OLD IMPLEMENTATION ///////////
+			/////////////////////////////////////////
+			case LITERAL_IS_UNDEFINED:
+				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
+				step = makeSolution( solveSubProblemIfSplitterIsUndefined(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context) );
+				break;
+//			case LITERAL_IS_TRUE:
+//				explain("Index literal ", bodyStep.getSplitter(), " is always true under current context, so we will solve a single sub-problem");
+//				step = makeSolution( solveSubProblemIfSplitterIsTrue(bodyStep, indexConstraintAndLiteral, context) );
+//				break;
+//			case LITERAL_IS_FALSE:
+//				explain("Index literal ", bodyStep.getSplitter(), " is always false under current context, so we will solve a single sub-problem");
+//				step = makeSolution( solveSubProblemIfSplitterIsFalse(bodyStep, indexConstraintAndLiteralNegation, context) );
+//				break;
+				
 			default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
 			}
 
@@ -487,9 +504,12 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		SingleVariableConstraint newIndexConstraintForWhenLiteralIsFalse = (SingleVariableConstraint) indexConstraintAndLiteralNegation;
 		SingleQuantifierEliminationProblem subProblemWhenLiteralIsTrue = getProblem().makeWithNewIndexConstraint(newIndexConstraintForWhenLiteralIsTrue);
 		SingleQuantifierEliminationProblem subProblemWhenLiteralIsFalse = getProblem().makeWithNewIndexConstraint(newIndexConstraintForWhenLiteralIsFalse);
+		Expression subProblemExpressionWhenLiteralIsTrue = subProblemWhenLiteralIsTrue.toExpression();
+		Expression subProblemExpressionWhenLiteralIsFalse = subProblemWhenLiteralIsFalse.toExpression();
 		String associativeOperation = getGroup().getFunctionString();
-		Expression equivalentExpressionToContinueSteppingOver = Expressions.apply(associativeOperation, subProblemWhenLiteralIsTrue, subProblemWhenLiteralIsFalse);
-		
+		Expression equivalentExpressionToContinueSteppingOver = Expressions.apply( associativeOperation, 
+																				   subProblemExpressionWhenLiteralIsTrue,
+																				   subProblemExpressionWhenLiteralIsFalse);
 		return equivalentExpressionToContinueSteppingOver;
 	
 	}
