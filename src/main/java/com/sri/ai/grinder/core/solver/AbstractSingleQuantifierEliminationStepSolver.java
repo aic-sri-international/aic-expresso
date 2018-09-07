@@ -264,9 +264,10 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Body step is ", RESULT);
 	}
 
-	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////// METHOD ALTERED FOR TRANSITION TO NEW IMPLEMENTATION ///////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private Step stepOnConditionalQuantifiedProblem(Context context, Context contextForBody, ExpressionLiteralSplitterStepSolver.Step bodyStep) {
 		return explanationBlock("Taking step in solving problem split by splitter from body: ", bodyStep, code(() -> {
@@ -274,8 +275,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			Step step;
 			if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
 				explain("Splitter contains index, so we are going to split the quantifier");
-				//step = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context); //DEPRECIATED
-				step = stepOverExpressionCombiningSplitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context);
+				step = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context); //TO BE DEPRECIATED
+				//step = stepOverExpressionCombiningSplitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context);
 			}
 			else {
 				explain("Splitter does not contains index, so we are going to make a conditional on two new subproblems");
@@ -285,9 +286,11 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			
 		}), "Step is ", RESULT);
 	}
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	//DEPRECIATED
+	//TO BE DEPRECIATED
 	protected Step splitQuantifierOnLiteralContainingIndex(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
@@ -317,7 +320,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return indexConstraintSplitting;
 	}
 
-	//DEPRECIATED
+	//TO BE DEPRECIATED
 	private Step computeSolutionOfSplitQuantifier(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			ConstraintSplitting indexConstraintSplitting, 
@@ -378,7 +381,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return associativeOperationStep;
 	}
 
-	//DEPRECIATED
+	//TO BE DEPRECIATED
 	private Expression computeSolutionValueOfSplitQuantifier(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			ConstraintSplitting indexConstraintSplitting,
@@ -419,7 +422,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return result;
 	}
 
-	//DEPRECIATED
+	//TO BE DEPRECIATED
 	private Expression solveSubProblemIfSplitterIsTrue(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep, 
 			Constraint indexConstraintAndLiteral, 
@@ -440,7 +443,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return step;
 	}
 
-	//DEPRECIATED
+	//TO BE DEPRECIATED
 	private Expression solveSubProblemIfSplitterIsFalse(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			Constraint indexConstraintAndLiteralNegation, 
