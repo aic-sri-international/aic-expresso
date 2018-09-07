@@ -76,7 +76,7 @@ public interface AssociativeCommutativeGroup {
 	 * Performs the group's additive operation on two values.
 	 * Implementations are inconsistent, with some of them evaluating the result
 	 * and some of them simply making an expression;
-	 * this should be eliminated and users should instead use {@link #getFunctionString()}
+	 * this should be eliminated and users should instead use {@link #getQuantifierFunctionString()}
 	 * and evaluate it themselves if needed.
 	 */
 	Expression addAndPossiblySolveItDeprecated(Expression value1, Expression value2, Context context);

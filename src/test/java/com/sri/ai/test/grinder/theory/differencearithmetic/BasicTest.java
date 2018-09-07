@@ -201,6 +201,9 @@ public class BasicTest {
 		
 		Expression problem;
 		
+		problem = parse("sum({{ ( on K in 0..4 ) if K != 2 then 1 else 2}})");
+		debug(problem);
+		
 		problem = parse("sum({{ ( on K in 0..4 ) sum({{ ( on J in 0..4 ) sum({{ ( on I in 0..4 ) if K + 4 >= 0 then if J < 1 then if I = K + 4 then 8 else 3 else if K >= J then 3 else 2 else if I <= 4 then if I = 3 then 4 else 1 else if J + 1 > 0 then 8 else 0 : (K > I) and (K > 0) and (K > J + -3) }}) }}) }})");
 		debug(problem);
 		

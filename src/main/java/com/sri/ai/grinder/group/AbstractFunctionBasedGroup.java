@@ -28,10 +28,17 @@ public abstract class AbstractFunctionBasedGroup extends AbstractNumericGroup im
 	public AbstractFunctionBasedGroup() {
 		super();
 	}
+	
+	/**
+	 * Returns the string of the function to be applied to intensional sets in order to apply
+	 * this group's operation to all elements of the set.
+	 * @return
+	 */
+	abstract String getQuantifierFunctionString();
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
-		String functorString = getFunctionString();
+		String functorString = getQuantifierFunctionString();
 		Util.myAssert(() -> expression.hasFunctor(functorString), () -> "Expression expected to be application of " + functorString + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Expression body = IfThenElse.make(set.getCondition(), set.getHead(), additiveIdentityElement());
@@ -49,7 +56,7 @@ public abstract class AbstractFunctionBasedGroup extends AbstractNumericGroup im
 		List<Expression> indexExpressions = makeIndexExpressions(indices, indicesTypes);
 		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpressions); 
 		DefaultIntensionalMultiSet set = new DefaultIntensionalMultiSet(indexExpressionsSet, body, constraint);
-		Expression problem = apply(getFunctionString(), set);
+		Expression problem = apply(getQuantifierFunctionString(), set);
 		return problem;
 	}
 }

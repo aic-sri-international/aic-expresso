@@ -49,6 +49,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Times;
@@ -119,7 +120,12 @@ public class Product extends AbstractFunctionBasedGroup {
 	}
 
 	@Override
-	public String getFunctionString() {
+	public String getQuantifierFunctionString() {
 		return PRODUCT;
+	}
+
+	@Override
+	public String getFunctionString() {
+		return FunctorConstants.TIMES;
 	}
 }

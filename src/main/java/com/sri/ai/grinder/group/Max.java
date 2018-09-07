@@ -49,6 +49,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -116,7 +117,12 @@ public class Max extends AbstractFunctionBasedGroup {
 	}
 
 	@Override
-	public String getFunctionString() {
+	public String getQuantifierFunctionString() {
 		return MAX;
+	}
+
+	@Override
+	public String getFunctionString() {
+		return FunctorConstants.MAX;
 	}
 }
