@@ -275,7 +275,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			Step step;
 			if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
 				explain("Splitter contains index, so we are going to split the quantifier");
-				//step = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context); //TO BE DEPRECIATED
+				//step = splitQuantifierOnLiteralContainingIndex(bodyStep, contextForBody, context); // TO BE DEPRECATED
 				step = stepOverCombinationOfQuantifiersSplitOnLiteralContainingIndex(bodyStep, contextForBody, context);
 			}
 			else {
@@ -290,7 +290,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	//TO BE DEPRECIATED
+	// TO BE DEPRECATED
 	protected Step splitQuantifierOnLiteralContainingIndex(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context contextForBody, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
@@ -320,7 +320,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return indexConstraintSplitting;
 	}
 
-	//TO BE DEPRECIATED
+	// TO BE DEPRECATED
 	private Step computeSolutionOfSplitQuantifier(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			ConstraintSplitting indexConstraintSplitting, 
@@ -398,7 +398,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return associativeOperationStep;
 	}
 
-	//TO BE DEPRECIATED
+	// TO BE DEPRECATED
 	private Expression computeSolutionValueOfSplitQuantifier(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			ConstraintSplitting indexConstraintSplitting,
@@ -439,7 +439,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return result;
 	}
 
-	//TO BE DEPRECIATED
+	// TO BE DEPRECATED
 	private Expression solveSubProblemIfSplitterIsTrue(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep, 
 			Constraint indexConstraintAndLiteral, 
@@ -460,7 +460,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return step;
 	}
 
-	//TO BE DEPRECIATED
+	// TO BE DEPRECATED
 	private Expression solveSubProblemIfSplitterIsFalse(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			Constraint indexConstraintAndLiteralNegation, 
