@@ -59,7 +59,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		else {
 			step = takeNextStepProcessingOperands(context);
 		}
-		return null;
+		return step;
 	}
 
 	private boolean allOperandsHaveBeenProcessed() {
