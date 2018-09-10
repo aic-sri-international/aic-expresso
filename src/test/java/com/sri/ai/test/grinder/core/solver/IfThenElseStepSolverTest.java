@@ -232,14 +232,14 @@ public class IfThenElseStepSolverTest {
 		printTestHeader(testName,expression,context.getSymbolsAndTypes());
 		
 		IfThenElseStepSolver stepSolver = new IfThenElseStepSolver(expression);
-		Expression actual = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
+		Expression actualResult = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);
 		
 		if(verbose) {
 			printIndividualSteps(stepSolver,context);
 		}
-		println(" result: " + actual);
+		println(" result: " + actualResult);
 		
-		assertEquals(expectedResult, actual);
+		assertEquals(expectedResult, actualResult);
 		
 		println("\n");
 	}
