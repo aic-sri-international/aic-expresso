@@ -46,7 +46,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		String[] symbolsAndTypes = 				{};
 		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
 		Expression[] operandExpressions = 		{ parse("sum({{(on I in 1..5) if I != 3 then 30 else 40 }})"), 
-												  parse("2") };
+												  parse("sum({{(on J in 10..13) if J != 5 then J else 40 }})") };
 		
 		printTestHeader(testName, theory);
 		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
