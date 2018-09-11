@@ -120,8 +120,8 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 	private Step createStepFromProcessingOperandSolution(Step operandStep, Context context) {
 		Step step;
 		Expression operandValue = operandStep.getValue();
-		if(additiveValueShortCircuitsToAdditiveIdentity(operandValue)) {
-			step = createAdditiveIdentitySolutionStep();
+		if(operandSolutionShortCircuitsToAdditiveAbsorbativeElement(operandValue)) {
+			step = createAdditiveAbsorbativeSolutionStep(operandValue);
 		}
 		else {
 			accumulatedResult = addOperandValueToAccumulatedResult(operandValue, context);
@@ -135,11 +135,11 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		return group.addAndPossiblySolveItDeprecated(accumulatedResult, operandValue, context);
 	}
 
-	private Solution createAdditiveIdentitySolutionStep() {
-		return new Solution(group.additiveIdentityElement());
+	private Solution createAdditiveAbsorbativeSolutionStep(Expression additiveAbsorbativeValue) {
+		return new Solution(additiveAbsorbativeValue);
 	}
 
-	private boolean additiveValueShortCircuitsToAdditiveIdentity(Expression operandValue) {
+	private boolean operandSolutionShortCircuitsToAdditiveAbsorbativeElement(Expression operandValue) {
 		return group.isAdditiveAbsorbingElement(operandValue);
 	}
 
