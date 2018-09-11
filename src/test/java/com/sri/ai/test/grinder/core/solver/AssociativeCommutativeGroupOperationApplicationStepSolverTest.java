@@ -69,6 +69,68 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		
 		println();
 	}
+	
+	@Test
+	public void numericGroupCombinedTest() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{"K", "0..5"};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("sum({{(on I in 3..5) if I != 4 and K != 2 then X else 1 }})"), 
+												  parse("product({{(on J in 1..5) if J != 3 then if K != 3 then J else Y else 1 }})"),
+												  parse("max({{(on L in 0..2) if K != 0 then if L != 0 then J/L else Z else if L!=0 then 0 else 1 }})")};
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
+		
+		println();
+	}
+	
+	@Test
+	public void numericGroupTestSumOperandsWithFreeVariables() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{"K", "0..5"};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("sum({{(on I in 3..5) if I != 4 and K != 2 then X else 1 }})"), 
+												  parse("sum({{(on J in 1..5) if J != 3 then if K != 3 then J else Y else 1 }})")};
+
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
+		
+		println();
+	}
+	
+	@Test
+	public void numericGroupTestProductOperandsWithFreeVariables() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{"K", "0..5"};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("product({{(on I in 3..5) if I != 4 and K != 2 then X else 1 }})"), 
+												  parse("product({{(on J in 1..5) if J != 3 then if K != 3 then J else Y else 1 }})")};
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
+		
+		println();
+	}
+	
+	@Test
+	public void numericGroupTestMaxOperandsWithFreeVariables() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{"K", "0..5"};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("max({{(on I in 3..5) if I != 4 and K != 2 then X else 1 }})"), 
+												  parse("max({{(on J in 1..5) if J != 3 then if K != 3 then J else Y else 1 }})"),
+												  parse("max({{(on L in 0..2) if K != 0 then if L != 0 then J/L else Z else if L!=0 then 0 else 1 }})")};
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
+		
+		println();
+	}
 
 	@Test
 	public void numericGroupTest00() {
@@ -79,6 +141,36 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
 		Expression[] operandExpressions = 		{ parse("sum({{(on I in 1..5) if I != 3 then 30 else 40 }})"), 
 												  parse("sum({{(on J in 10..13) if J != 5 then J else 40 }})") };
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
+		
+		println();
+	}
+	
+	@Test
+	public void numericGroupTestWithMaxOperands() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("max({{(on I in 1..5) if I = 3 then 10 else I }})"),
+												  parse("max({{(on J in 10..20) if J < 10 then 10 else J }})")};
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
+		
+		println();
+	}
+	
+	@Test
+	public void numericGroupTestWithMaxOperandsWithFreeVariables() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("max({{(on I in 0..5) if I < 2 then I*X else Y }})"),
+												  parse("max({{(on J in 10..20) if J < 10 then Y else J*Z }})")};
 		
 		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
@@ -228,6 +320,36 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		println();
 	}
 	
+	@Test
+	public void quantifierBasedGroupTestFreeVariableInsideSummations() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{"K", "1..5"};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("there exists I in Integer : I > 3 and I < K"), 
+												  parse("for all J in Integer : if J > K and J < 10 then J != X else Y") };
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
+		
+		println();
+	}
+
+	@Test
+	public void quantifierBasedGroupTest00() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("there exists I in Integer : I > 3 and I < 10"), 
+												  parse("for all I in Integer : if I > 3 and I < 10 then true else false") };
+		
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
+		
+		println();
+	}
+	
 	
 	
 	
@@ -251,8 +373,8 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
 			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			assertTestSuccess(actualResult, expectedResult);
+							 expectedResult, actualResult);
+			assertTestSuccess(expectedResult, actualResult);
 			println("\n");
 		}
 	}
@@ -297,7 +419,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	private void printTestResults(AssociativeCommutativeGroup group, Expression[] operandExpressions,
-			Expression expressionThatAppliesGroupOperatorToOperands, Expression actualResult, Expression expectedResult) {
+			Expression expressionThatAppliesGroupOperatorToOperands, Expression expectedResult, Expression actualResult) {
 		printTestSpecs(group,operandExpressions);
 		if(printTestDetails)
 		{
@@ -350,7 +472,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	/// TEST ASSERTION ////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private void assertTestSuccess(Expression actualResult, Expression expectedResult) {
+	private void assertTestSuccess(Expression expectedResult, Expression actualResult) {
 		if(expectedResult.equals(actualResult)) {
 			println("      test evaluation:        Success");
 		}
