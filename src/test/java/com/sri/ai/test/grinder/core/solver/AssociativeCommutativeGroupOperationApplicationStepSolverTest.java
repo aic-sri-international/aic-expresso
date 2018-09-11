@@ -45,9 +45,9 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		{
 			printGroupBeingTested(group);
 			
-			for(int i = 1; ; ++i)
+			for(int testNumber = 1; ; ++testNumber)
 			{
-				String testNum = i < 10 ? "0"+i : ""+i;
+				String testNum = testNumber < 10 ? "0"+testNumber : ""+testNumber;
 				String testMethodName = "numericGroupTest"+testNum;
 				
 				Method testMethod = loadTestMethod(testMethodName);
@@ -66,9 +66,9 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		{
 			printGroupBeingTested(group);
 			
-			for(int i = 1; ; ++i)
+			for(int testNumber = 1; ; ++testNumber)
 			{
-				String testNum = i < 10 ? "0"+i : ""+i;
+				String testNum = testNumber < 10 ? "0"+testNumber : ""+testNumber;
 				String testMethodName = "quantifierBasedGroupTest"+testNum;
 				
 				Method testMethod = loadTestMethod(testMethodName);
