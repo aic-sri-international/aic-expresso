@@ -38,56 +38,41 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	static final AbstractQuantifierBasedGroup[] QUANTIFIER_BASED_GROUPS = { new Conjunction(), new Disjunction()};
 	
 	
-	
 	@Test
-	public void testNumericGroups() {
-		for(AbstractNumericGroup group : NUMERIC_GROUPS)
+	public void numericGroupTest01() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("1"), 
+												  parse("2") };
+		
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
 		{
-			printGroupBeingTested(group);
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
 			
-			for(int testNumber = 1; ; ++testNumber)
-			{
-				String testNum = testNumber < 10 ? "0"+testNumber : ""+testNumber;
-				String testMethodName = "numericGroupTest"+testNum;
-				
-				Method testMethod = loadTestMethod(testMethodName);
-				if(testMethod == null) {
-					break;
-				}
-				
-				runTest(group, testMethod);
-			}
-		}
-	}
-	
-	@Test
-	public void testQuantifierBasedGroups() {
-		for(AbstractQuantifierBasedGroup group : QUANTIFIER_BASED_GROUPS)
-		{
-			printGroupBeingTested(group);
-			
-			for(int testNumber = 1; ; ++testNumber)
-			{
-				String testNum = testNumber < 10 ? "0"+testNumber : ""+testNumber;
-				String testMethodName = "quantifierBasedGroupTest"+testNum;
-				
-				Method testMethod = loadTestMethod(testMethodName);
-				if(testMethod == null) {
-					break;
-				}
-				
-				runTest(group, testMethod);
-			}
-		}
-	}
-	
-	
-	
-	
-	
-	
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-	public void numericGroupTest02(AssociativeCommutativeGroup group) {
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
+		
+		println();
+	}
+	
+	@Test
+	public void numericGroupTest02() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
@@ -97,53 +82,30 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 												  parse("0"),
 												  parse("3")};
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
-
-	public void numericGroupTest01(AssociativeCommutativeGroup group) {
-		
-		Theory theory = 						new CommonTheory();
-		String[] symbolsAndTypes = 				{};
-		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
-		Expression[] operandExpressions = 		{ parse("1"), 
-												  parse("2") };
-		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-
+	
+	public void numericGroupTest03() {
 		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
-		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
-	}
-
-	
-	
-	public void numericGroupTest03(AssociativeCommutativeGroup group) {
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
@@ -152,25 +114,31 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 												  parse("2"),
 												  parse("3") };
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
 
-	
-	public void numericGroupTest04(AssociativeCommutativeGroup group) {
+	@Test
+	public void numericGroupTest04() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{"X", "0..2", "Y", "0..2"};
@@ -178,27 +146,33 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("if X = 1 then 2 else 3"), 
 												  parse("if Y != 2 then 4 else 5") };
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
 	
 	
 	
-
-	public void quantifierBasedGroupTest01(AssociativeCommutativeGroup group) {
+	@Test
+	public void quantifierBasedGroupTest01() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
@@ -206,25 +180,32 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("true"), 
 												  parse("true")};
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
 	
-	public void quantifierBasedGroupTest02(AssociativeCommutativeGroup group) {
+	
+	@Test
+	public void quantifierBasedGroupTest02() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
@@ -232,25 +213,31 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("true"), 
 												  parse("false")};
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
 	
-	public void quantifierBasedGroupTest03(AssociativeCommutativeGroup group) {
+	@Test
+	public void quantifierBasedGroupTest03() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
@@ -258,106 +245,94 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("false"), 
 												  parse("true")};
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
 	
-	public void quantifierBasedGroupTest04(AssociativeCommutativeGroup group) {
-		
+	@Test
+	public void quantifierBasedGroupTest04() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
+
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
 		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
 		Expression[] operandExpressions = 		{ parse("false"), 
 												  parse("false")};
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
 		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
+		println();
 	}
 	
-	public void quantifierBasedGroupTest05(AssociativeCommutativeGroup group) {
-		
+	@Test
+	public void quantifierBasedGroupTest05() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
+
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{"X", "0..2", "Y", "0..2"};
 		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
 		Expression[] operandExpressions = 		{ parse("if X != 1 then false else true"), 
 												  parse("if Y = 2 then true else false")};
 		
-		Expression actualResult = 
-				solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-						group, operandExpressions, context);
-		
-		Expression expressionThatAppliesGroupOperatorToOperands = 
-				constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-		Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
 
-
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
-		printTestResults(theory, group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-						 actualResult, expectedResult, testName);
-		
-		assertTestSuccess(actualResult, expectedResult);
-		
-		println("\n");
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	private Method loadTestMethod(String methodName) {
-		Method method = null;
-		try {
-			method = this.getClass().getMethod(methodName, AssociativeCommutativeGroup.class);
-		} 
-		catch (NoSuchMethodException | SecurityException e) {
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
 		}
-		return method;
+		
+		println();
 	}
 	
+	
 
-
-	private void runTest(AssociativeCommutativeGroup group, Method testMethod) {
-		try {
-			testMethod.invoke(this, group);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-			fail("invocation on " + testMethod.getName() + " failed");
-		}
-	}
 
 
 	private Expression constructExpectedResult(Expression expressionThatAppliesGroupOperatorToOperands, Context context) {
@@ -400,9 +375,9 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	}
 	
 	
-	private void printTestResults(Theory theory, AssociativeCommutativeGroup group, Expression[] operandExpressions,
-			Expression expressionThatAppliesGroupOperatorToOperands, Expression actualResult, Expression expectedResult, String testName) {
-		printTestHeader(testName,theory,group,operandExpressions);
+	private void printTestResults(AssociativeCommutativeGroup group, Expression[] operandExpressions,
+			Expression expressionThatAppliesGroupOperatorToOperands, Expression actualResult, Expression expectedResult) {
+		printTestSpecs(group,operandExpressions);
 		if(printTestDetails)
 		{
 			if(verbose) {
@@ -414,23 +389,25 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	
 	
 	
-	private void printGroupBeingTested(AssociativeCommutativeGroup group) {
-		println();
-		println("  ||||||||||||||||||||||||||||||||||||||||||||");
-		println("            Numeric Group:  " + group);
-		println("  ||||||||||||||||||||||||||||||||||||||||||||");
-		println();		
+	private void printTestHeader(String testName, Theory theory) {
+			println();
+			println("  ||||||||||||||||||||||||||||||||||||||||||||");
+			println("               " + testName);
+		if(printTestDetails && verbose) {
+			println("  --------------------------------------------");
+			println("   Theory: " + theory);
+		}
+			println("  ||||||||||||||||||||||||||||||||||||||||||||");
+			println();		
 	}
 		
-	private void printTestHeader( String 					   testName, 
-								  Theory					   theory, 
-								  AssociativeCommutativeGroup  group, 
+	private void printTestSpecs(  AssociativeCommutativeGroup  group, 
 								  Expression[] 				   operandExpressions) {
 		
-			println("     =================== "+ testName + " ===================");
+			println("     =======================================================");
+			println("                          "+ group);
+			println("     =======================================================");
 		if(printTestDetails) {
-			println("      Theory:                 " + theory);
-			println("      Group:                  " + group);
 			println("      Operands:               " + Arrays.toString(operandExpressions));
 			println("     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		}
