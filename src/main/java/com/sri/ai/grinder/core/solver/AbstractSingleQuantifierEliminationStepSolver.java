@@ -72,6 +72,7 @@ import com.sri.ai.grinder.interpreter.Assignment;
 import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.rewriter.core.Recursive;
+import com.sri.ai.util.base.PairOf;
 
 /**
  * An abstract implementation for step solvers for quantified expressions
@@ -350,7 +351,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 				break;
 //			case LITERAL_IS_UNDEFINED:
 //				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
-//				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
+//				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
+//						bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
 //				break;
 			case LITERAL_IS_TRUE:
 				explain("Index literal ", bodyStep.getSplitter(), " is always true under current context, so we will solve a single sub-problem");
@@ -385,19 +387,42 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Split quantifier problem result in ", RESULT);
 	}
 	
+//	private Step convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
+//			Constraint indexConstraintAndLiteral,
+//			Constraint indexConstraintAndLiteralNegation,
+//			Context context) {
+//		
+//		Theory theory = context.getTheory();
+//		Expression expressionCombiningTheSplitQuantifier = getEquivalentAssociativeOperationExpressionSubProblemDueToSplittingBodyOnUndefinedIndexedLiteral(indexConstraintAndLiteral, indexConstraintAndLiteralNegation);
+//		ExpressionLiteralSplitterStepSolver associativeOperationStepSolver = theory.makeEvaluatorStepSolver(expressionCombiningTheSplitQuantifier);
+//		Step associativeOperationStep = (Step) associativeOperationStepSolver.step(context);
+//
+//		return associativeOperationStep;
+//	}
+	
 	private Step convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
+			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			Constraint indexConstraintAndLiteral,
 			Constraint indexConstraintAndLiteralNegation,
 			Context context) {
+
+		ExpressionLiteralSplitterStepSolver subProblemIfSplitterIsTrueStepSolver = 
+				new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
+						makeSubProblemStepSolver(true, bodyStep, indexConstraintAndLiteral));
 		
-		Theory theory = context.getTheory();
-		Expression expressionCombiningTheSplitQuantifier = getEquivalentAssociativeOperationExpressionSubProblemDueToSplittingBodyOnUndefinedIndexedLiteral(indexConstraintAndLiteral, indexConstraintAndLiteralNegation);
-		ExpressionLiteralSplitterStepSolver associativeOperationStepSolver = theory.makeEvaluatorStepSolver(expressionCombiningTheSplitQuantifier);
-		Step associativeOperationStep = (Step) associativeOperationStepSolver.step(context);
+		ExpressionLiteralSplitterStepSolver subProblemIfSplitterIsFalseStepSolver = 
+				new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
+						makeSubProblemStepSolver(false, bodyStep, indexConstraintAndLiteralNegation));
+		
+		StepSolver groupStepSolver =
+				new AssociativeCommutativeGroupOperationApplicationStepSolver(
+						getGroup(), subProblemIfSplitterIsTrueStepSolver, subProblemIfSplitterIsFalseStepSolver);
+		
+		Step associativeOperationStep = (Step) groupStepSolver.step(context);
 
 		return associativeOperationStep;
 	}
-
+	
 	// TO BE DEPRECATED
 	private Expression computeSolutionValueOfSplitQuantifier(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
@@ -500,12 +525,10 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	
 	private Expression getEquivalentAssociativeOperationExpressionSubProblemDueToSplittingBodyOnUndefinedIndexedLiteral( Constraint indexConstraintAndLiteral, 
 																													     Constraint indexConstraintAndLiteralNegation) {
-		SingleVariableConstraint newIndexConstraintForWhenLiteralIsTrue = (SingleVariableConstraint) indexConstraintAndLiteral;
-		SingleVariableConstraint newIndexConstraintForWhenLiteralIsFalse = (SingleVariableConstraint) indexConstraintAndLiteralNegation;
-		SingleQuantifierEliminationProblem subProblemWhenLiteralIsTrue = getProblem().makeWithNewIndexConstraint(newIndexConstraintForWhenLiteralIsTrue);
-		SingleQuantifierEliminationProblem subProblemWhenLiteralIsFalse = getProblem().makeWithNewIndexConstraint(newIndexConstraintForWhenLiteralIsFalse);
-		Expression subProblemExpressionWhenLiteralIsTrue = subProblemWhenLiteralIsTrue.toExpression();
-		Expression subProblemExpressionWhenLiteralIsFalse = subProblemWhenLiteralIsFalse.toExpression();
+
+		PairOf<SingleQuantifierEliminationProblem> pair = makeSubProblems(indexConstraintAndLiteral, indexConstraintAndLiteralNegation);
+		Expression subProblemExpressionWhenLiteralIsTrue = pair.first.toExpression();
+		Expression subProblemExpressionWhenLiteralIsFalse = pair.second.toExpression();
 		String associativeOperation = getGroup().getFunctionString();
 		Expression equivalentExpressionToContinueSteppingOver = Expressions.apply( associativeOperation, 
 																				   subProblemExpressionWhenLiteralIsTrue,
@@ -513,6 +536,16 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		println("combined expression:  " + equivalentExpressionToContinueSteppingOver);
 		return equivalentExpressionToContinueSteppingOver;
 	
+	}
+
+	private PairOf<SingleQuantifierEliminationProblem> makeSubProblems(Constraint indexConstraintAndLiteral, Constraint indexConstraintAndLiteralNegation) {
+		
+		SingleVariableConstraint newIndexConstraintForWhenLiteralIsTrue = (SingleVariableConstraint) indexConstraintAndLiteral;
+		SingleVariableConstraint newIndexConstraintForWhenLiteralIsFalse = (SingleVariableConstraint) indexConstraintAndLiteralNegation;
+		SingleQuantifierEliminationProblem subProblemWhenLiteralIsTrue = getProblem().makeWithNewIndexConstraint(newIndexConstraintForWhenLiteralIsTrue);
+		SingleQuantifierEliminationProblem subProblemWhenLiteralIsFalse = getProblem().makeWithNewIndexConstraint(newIndexConstraintForWhenLiteralIsFalse);
+		PairOf<SingleQuantifierEliminationProblem> pair = PairOf.pairOf(subProblemWhenLiteralIsTrue, subProblemWhenLiteralIsFalse);
+		return pair;
 	}
 
 	protected ExpressionStepSolver makeSubProblemStepSolver(boolean splitterValue, ExpressionLiteralSplitterStepSolver.Step bodyStep, Constraint newIndexConstraint) {
