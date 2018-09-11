@@ -34,11 +34,28 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		this.accumulatedResult = accumulatedResult;
 	}
 
+//	@Override
+//	public AssociativeCommutativeGroupOperationApplicationStepSolver clone() {
+//		AssociativeCommutativeGroupOperationApplicationStepSolver result = null;
+//		try {
+//			result = (AssociativeCommutativeGroupOperationApplicationStepSolver) super.clone();
+//		} catch (CloneNotSupportedException e) {
+//			e.printStackTrace();
+//		}
+//		return result;
+//	}
+	
+// NOTE: cloning should be shallow because step solvers are immutable (they never change), so they can be re-used.
+// "Changes" to step solvers are materialized in their sequel step solvers; the original always remains the same.
+// The commented-out above clone method is copied from other such cloning methods; the only thing that changes is the returning type.
+// However, when I replaced your clone method the tests broke, so it seems like you are relying on changes to step solvers,
+// but it should not be like that.
+	
+
 	@Override
 	public ExpressionLiteralSplitterStepSolver clone() {
 		ExpressionLiteralSplitterStepSolver[] operandStepSolversCopy = new ExpressionLiteralSplitterStepSolver[operandStepSolvers.length];
-		for(int i = 0; i < operandStepSolvers.length; ++i)
-		{
+		for(int i = 0; i < operandStepSolvers.length; i++) {
 			operandStepSolversCopy[i] = operandStepSolvers[i].clone();
 		}
 		
@@ -53,7 +70,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 	@Override
 	public Step step(Context context) {
 		Step step;
-		if(allOperandsHaveBeenProcessed()){ //all operands have been accumulated
+		if (allOperandsHaveBeenProcessed()){ //all operands have been accumulated
 			step = constructSolutionStep();
 		}
 		else {
@@ -73,7 +90,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 	private Step takeNextStepProcessingOperands(Context context) {
 		Step step;
 		Step operandStep = takeStepOnCurrentOperand(context);
-		if(isSolution(operandStep)) {
+		if (isSolution(operandStep)) {
 			step = createStepFromProcessingOperandSolution(operandStep, context);
 		}
 		else {
@@ -101,14 +118,18 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 
 	private AssociativeCommutativeGroupOperationApplicationStepSolver createResultingStepSolverForWhenOperandItDependsOnLiteralIsFalse(
 				ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsFalse) {
-		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolverForWhenSplitterIsFalse = (AssociativeCommutativeGroupOperationApplicationStepSolver) this.clone();
+		
+		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolverForWhenSplitterIsFalse = 
+				(AssociativeCommutativeGroupOperationApplicationStepSolver) this.clone();
 		resultingStepSolverForWhenSplitterIsFalse.operandStepSolvers[currentOperand] = operandSequentialStepSolverForWhenSplitterIsFalse;
 		return resultingStepSolverForWhenSplitterIsFalse;
 	}
 
 	private ExpressionLiteralSplitterStepSolver createResultingStepSolverForWhenOperandItDependsOnLiteralIsTrue(
 				ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsTrue) {
-		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolverForWhenSplitterIsTrue = (AssociativeCommutativeGroupOperationApplicationStepSolver) this.clone();
+		
+		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolverForWhenSplitterIsTrue = 
+				(AssociativeCommutativeGroupOperationApplicationStepSolver) this.clone();
 		resultingStepSolverForWhenSplitterIsTrue.operandStepSolvers[currentOperand] = operandSequentialStepSolverForWhenSplitterIsTrue;
 		return resultingStepSolverForWhenSplitterIsTrue;
 	}
@@ -120,7 +141,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 	private Step createStepFromProcessingOperandSolution(Step operandStep, Context context) {
 		Step step;
 		Expression operandValue = operandStep.getValue();
-		if(operandSolutionShortCircuitsToAdditiveAbsorbativeElement(operandValue)) {
+		if (operandSolutionShortCircuitsToAdditiveAbsorbativeElement(operandValue)) {
 			step = createAdditiveAbsorbativeSolutionStep(operandValue);
 		}
 		else {
