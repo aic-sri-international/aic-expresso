@@ -37,10 +37,41 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	static final AbstractNumericGroup[] NUMERIC_GROUPS = { new Max(), new Product(), new Sum() };
 	static final AbstractQuantifierBasedGroup[] QUANTIFIER_BASED_GROUPS = { new Conjunction(), new Disjunction()};
 	
-	
+	@Test
+	public void numericGroupTestFreeVariableInsideSummations() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{"K", "1..5"};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("sum({{(on I in 1..5) if I != 3 and K != 4 then 30 else 40 }})"), 
+												  parse("sum({{(on J in 10..13) if J != 5 then if K != 3 then J else 0 else 40 }})") };
+		
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
+		
+		println();
+	}
+
 	@Test
 	public void numericGroupTest00() {
-		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
 		
 		Theory theory = 						new CommonTheory();
 		String[] symbolsAndTypes = 				{};
