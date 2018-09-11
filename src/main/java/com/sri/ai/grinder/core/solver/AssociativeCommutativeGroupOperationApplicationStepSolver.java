@@ -48,7 +48,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 	@Override
 	public Step step(Context context) {
 		Step step;
-		if (allOperandsHaveBeenProcessed()){ //all operands have been accumulated
+		if (allOperandsHaveBeenProcessed()) { //all operands have been accumulated
 			step = constructSolutionStep();
 		}
 		else {

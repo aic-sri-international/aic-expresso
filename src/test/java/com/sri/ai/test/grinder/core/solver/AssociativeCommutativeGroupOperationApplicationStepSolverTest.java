@@ -39,6 +39,38 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 	
 	
 	@Test
+	public void numericGroupTest00() {
+		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
+		
+		Theory theory = 						new CommonTheory();
+		String[] symbolsAndTypes = 				{};
+		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
+		Expression[] operandExpressions = 		{ parse("sum({{(on I in 1..5) if I != 3 then 30 else 40 }})"), 
+												  parse("2") };
+		
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			
+			assertTestSuccess(actualResult, expectedResult);
+			
+			println("\n");
+		}
+		
+		println();
+	}
+	
+	@Test
 	public void numericGroupTest01() {
 		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  //get method name as string
 		
