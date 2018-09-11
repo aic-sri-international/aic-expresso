@@ -34,37 +34,15 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		this.accumulatedResult = accumulatedResult;
 	}
 
-//	@Override
-//	public AssociativeCommutativeGroupOperationApplicationStepSolver clone() {
-//		AssociativeCommutativeGroupOperationApplicationStepSolver result = null;
-//		try {
-//			result = (AssociativeCommutativeGroupOperationApplicationStepSolver) super.clone();
-//		} catch (CloneNotSupportedException e) {
-//			e.printStackTrace();
-//		}
-//		return result;
-//	}
-	
-// NOTE: cloning should be shallow because step solvers are immutable (they never change), so they can be re-used.
-// "Changes" to step solvers are materialized in their sequel step solvers; the original always remains the same.
-// The commented-out above clone method is copied from other such cloning methods; the only thing that changes is the returning type.
-// However, when I replaced your clone method the tests broke, so it seems like you are relying on changes to step solvers,
-// but it should not be like that.
-	
-
 	@Override
-	public ExpressionLiteralSplitterStepSolver clone() {
-		ExpressionLiteralSplitterStepSolver[] operandStepSolversCopy = new ExpressionLiteralSplitterStepSolver[operandStepSolvers.length];
-		for(int i = 0; i < operandStepSolvers.length; i++) {
-			operandStepSolversCopy[i] = operandStepSolvers[i].clone();
+	public AssociativeCommutativeGroupOperationApplicationStepSolver clone() {
+		AssociativeCommutativeGroupOperationApplicationStepSolver result = null;
+		try {
+			result = (AssociativeCommutativeGroupOperationApplicationStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
 		}
-		
-		AssociativeCommutativeGroupOperationApplicationStepSolver clone = 
-				new AssociativeCommutativeGroupOperationApplicationStepSolver( group,
-																			   operandStepSolversCopy,
-																			   currentOperand,
-																			   accumulatedResult );
-		return clone;
+		return result;
 	}
 
 	@Override
@@ -105,9 +83,9 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsFalse = operandStep.getStepSolverForWhenSplitterIsFalse();
 		
 		ExpressionLiteralSplitterStepSolver resultingStepSolverForWhenSplitterIsTrue = 
-				createResultingStepSolverForWhenOperandItDependsOnLiteralIsTrue(operandSequentialStepSolverForWhenSplitterIsTrue);
+				createResultingStepSolverBasedOnSplittingCaseOfCurrentOperandStep(operandSequentialStepSolverForWhenSplitterIsTrue);
 		ExpressionLiteralSplitterStepSolver resultingStepSolverForWhenSplitterIsFalse = 
-				createResultingStepSolverForWhenOperandItDependsOnLiteralIsFalse(operandSequentialStepSolverForWhenSplitterIsFalse);
+				createResultingStepSolverBasedOnSplittingCaseOfCurrentOperandStep(operandSequentialStepSolverForWhenSplitterIsFalse);
 		
 		Step itDependsOnStep = new ItDependsOn( contextSplitting.getLiteral(),
 											    contextSplitting,
@@ -116,22 +94,29 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		return itDependsOnStep;
 	}
 
-	private AssociativeCommutativeGroupOperationApplicationStepSolver createResultingStepSolverForWhenOperandItDependsOnLiteralIsFalse(
-				ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsFalse) {
+	private AssociativeCommutativeGroupOperationApplicationStepSolver createResultingStepSolverBasedOnSplittingCaseOfCurrentOperandStep(
+				ExpressionLiteralSplitterStepSolver operandSequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep) {
 		
-		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolverForWhenSplitterIsFalse = 
-				(AssociativeCommutativeGroupOperationApplicationStepSolver) this.clone();
-		resultingStepSolverForWhenSplitterIsFalse.operandStepSolvers[currentOperand] = operandSequentialStepSolverForWhenSplitterIsFalse;
-		return resultingStepSolverForWhenSplitterIsFalse;
+		ExpressionLiteralSplitterStepSolver[] operandStepSolversBasedOnSplittingCaseOfCurrentOperandStep = 
+				createOperandStepSolversBasedOnSplittingCaseOfCurrentOperandStep(
+						operandSequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep);
+		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolver =
+				new AssociativeCommutativeGroupOperationApplicationStepSolver( group,
+																			   operandStepSolversBasedOnSplittingCaseOfCurrentOperandStep,
+																			   currentOperand,
+																			   accumulatedResult);
+		return resultingStepSolver;
 	}
-
-	private ExpressionLiteralSplitterStepSolver createResultingStepSolverForWhenOperandItDependsOnLiteralIsTrue(
-				ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsTrue) {
+	
+	private ExpressionLiteralSplitterStepSolver[] createOperandStepSolversBasedOnSplittingCaseOfCurrentOperandStep(
+			ExpressionLiteralSplitterStepSolver sequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep) {
 		
-		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolverForWhenSplitterIsTrue = 
-				(AssociativeCommutativeGroupOperationApplicationStepSolver) this.clone();
-		resultingStepSolverForWhenSplitterIsTrue.operandStepSolvers[currentOperand] = operandSequentialStepSolverForWhenSplitterIsTrue;
-		return resultingStepSolverForWhenSplitterIsTrue;
+		ExpressionLiteralSplitterStepSolver[] operandStepSolversBasedOnSequentialStepSolverForCurrentOperandSplittingCase =
+				operandStepSolvers.clone();		
+		operandStepSolversBasedOnSequentialStepSolverForCurrentOperandSplittingCase[currentOperand] = 
+				sequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep;
+		
+		return operandStepSolversBasedOnSequentialStepSolverForCurrentOperandSplittingCase;
 	}
 
 	private boolean isSolution(Step operandStep) {
