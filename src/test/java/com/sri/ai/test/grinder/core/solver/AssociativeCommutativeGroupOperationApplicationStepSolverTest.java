@@ -31,11 +31,29 @@ import com.sri.ai.grinder.group.Product;
 
 
 public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
-	static final boolean printTestDetails = true;
-	static final boolean verbose = true;
 	
+	
+	//////////////////////////////////////////////////////////////
+	// GLOBAL TEST SETTINGS  /////////////////////////////////////
+	//////////////////////////////////////////////////////////////
+		static final boolean printTestDetails = true;
+		static final boolean verbose = true;
+	//////////////////////////////////////////////////////////////
+	
+	
+	// GLOBAL CONSTANTS	
 	static final AbstractNumericGroup[] NUMERIC_GROUPS = { new Max(), new Product(), new Sum() };
 	static final AbstractQuantifierBasedGroup[] QUANTIFIER_BASED_GROUPS = { new Conjunction(), new Disjunction()};
+	
+	
+	
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// JUNIT TESTS ////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/// NUMERIC GROUP TESTS //////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	
 	@Test
 	public void numericGroupTestFreeVariableInsideSummations() {
@@ -47,24 +65,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("sum({{(on I in 1..5) if I != 3 and K != 4 then 30 else 40 }})"), 
 												  parse("sum({{(on J in 10..13) if J != 5 then if K != 3 then J else 0 else 40 }})") };
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
 		println();
 	}
@@ -79,24 +80,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("sum({{(on I in 1..5) if I != 3 then 30 else 40 }})"), 
 												  parse("sum({{(on J in 10..13) if J != 5 then J else 40 }})") };
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
 		println();
 	}
@@ -111,24 +95,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("1"), 
 												  parse("2") };
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
 		println();
 	}
@@ -145,24 +112,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 												  parse("0"),
 												  parse("3")};
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
 		println();
 	}
@@ -177,24 +127,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 												  parse("2"),
 												  parse("3") };
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
 		println();
 	}
@@ -209,29 +142,15 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("if X = 1 then 2 else 3"), 
 												  parse("if Y != 2 then 4 else 5") };
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : NUMERIC_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, NUMERIC_GROUPS);
 		
 		println();
 	}
 	
 	
+	
+	/// QUANTIFIER-BASED GROUP TESTS //////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	@Test
 	public void quantifierBasedGroupTest01() {
@@ -243,24 +162,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("true"), 
 												  parse("true")};
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
 		
 		println();
 	}
@@ -276,24 +178,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("true"), 
 												  parse("false")};
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
 		
 		println();
 	}
@@ -308,24 +193,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("false"), 
 												  parse("true")};
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
 		
 		println();
 	}
@@ -340,24 +208,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("false"), 
 												  parse("false")};
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
 		
 		println();
 	}
@@ -372,31 +223,39 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		Expression[] operandExpressions = 		{ parse("if X != 1 then false else true"), 
 												  parse("if Y = 2 then true else false")};
 		
-		printTestHeader(testName, theory);
-		for(AssociativeCommutativeGroup group : QUANTIFIER_BASED_GROUPS)
-		{
-			Expression actualResult = 
-					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
-							group, operandExpressions, context);
-			
-			Expression expressionThatAppliesGroupOperatorToOperands = 
-					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
-			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
-
-			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
-							 actualResult, expectedResult);
-			
-			assertTestSuccess(actualResult, expectedResult);
-			
-			println("\n");
-		}
+		repeatTestForEachRespectiveGroup(testName, theory, context, operandExpressions, QUANTIFIER_BASED_GROUPS);
 		
 		println();
 	}
 	
 	
+	
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AUXILIARY METHODS //////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/// GENERAL HELPERS ///////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+	private void repeatTestForEachRespectiveGroup(String testName, Theory theory, Context context,
+			Expression[] operandExpressions, AssociativeCommutativeGroup[] groupsToTest) {
+		
+		printTestHeader(testName, theory);
+		for(AssociativeCommutativeGroup group : groupsToTest)
+		{
+			Expression actualResult = 
+					solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
+							group, operandExpressions, context);
+			Expression expressionThatAppliesGroupOperatorToOperands = 
+					constructExpressionThatAppliesGroupOperatorToOperands(group, operandExpressions);
+			Expression expectedResult = constructExpectedResult(expressionThatAppliesGroupOperatorToOperands, context);
+			printTestResults(group, operandExpressions, expressionThatAppliesGroupOperatorToOperands, 
+							 actualResult, expectedResult);
+			assertTestSuccess(actualResult, expectedResult);
+			println("\n");
+		}
+	}
 
 	private Expression constructExpectedResult(Expression expressionThatAppliesGroupOperatorToOperands, Context context) {
 		
@@ -412,7 +271,6 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		return expressionThatAppliesOperatorToOperands;
 	}
 	
-	
 	private Expression solveUsingAssociativeCommutativeGroupOperationApplicationStepSolver(
 				AssociativeCommutativeGroup group, Expression[] operandExpressions, Context context) {
 		
@@ -425,9 +283,6 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		return result;
 	}
 	
-	
-	
-	
 	private ExpressionLiteralSplitterStepSolver[] constructArrayOfStepSolversForSolvingOperands(
 				Theory theory, Expression[] operandExpressions) {
 		
@@ -437,6 +292,9 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		return operandStepSolvers;
 	}
 	
+	
+	/// PRINTING METHODS //////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	private void printTestResults(AssociativeCommutativeGroup group, Expression[] operandExpressions,
 			Expression expressionThatAppliesGroupOperatorToOperands, Expression actualResult, Expression expectedResult) {
@@ -449,8 +307,6 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 			printResults(expectedResult, actualResult);
 		}
 	}
-	
-	
 	
 	private void printTestHeader(String testName, Theory theory) {
 			println();
@@ -490,6 +346,9 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 			println("     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 	
+	
+	/// TEST ASSERTION ////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private void assertTestSuccess(Expression actualResult, Expression expectedResult) {
 		if(expectedResult.equals(actualResult)) {
@@ -497,7 +356,8 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		}
 		else {
 			println("      test evaluation:        FAILED!!!");
-			fail();
+			fail("Expected ||" + expectedResult + "||, but produced ||" + actualResult + "|| instead");
 		}
 	}
+	
 }
