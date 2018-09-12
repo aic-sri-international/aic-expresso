@@ -1,6 +1,7 @@
 package com.sri.ai.test.grinder.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter.toExpressionLiteralSplitterStepSolver;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
@@ -28,7 +29,6 @@ import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.api.ExpressionStepSolver;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
 import com.sri.ai.grinder.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -191,7 +191,7 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapterTest {
 	}
 	
 	private void runTest(TheoryTestingSupport theoryTestingSupport, GeneralFormulaExpressionTestStepSolver generalFormulaExpressionTestStepSolver, Expression expected, Context context) {
-		ExpressionStepSolverToLiteralSplitterStepSolverAdapter stepSolver = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(generalFormulaExpressionTestStepSolver);
+		ExpressionLiteralSplitterStepSolver stepSolver = toExpressionLiteralSplitterStepSolver(generalFormulaExpressionTestStepSolver);
 		println("Evaluating " + generalFormulaExpressionTestStepSolver.getExpressionToSolve());
 		println("based in theory only (no simplification is performed and we get a tree of literals).");
 		Expression solution = ContextDependentExpressionProblemSolver.staticSolve(stepSolver, context);

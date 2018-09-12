@@ -37,10 +37,11 @@
  */
 package com.sri.ai.grinder.api;
 
+import static com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter.toExpressionLiteralSplitterStepSolver;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
-import com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 
 /**
  * A {@link StepSolver} specialized for problems with {@link Expression}-typed solutions.
@@ -56,8 +57,8 @@ import com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepS
 public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable {
 
 	default Expression solve(Context context) {
-		ExpressionStepSolverToLiteralSplitterStepSolverAdapter adapter = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(this);
-		Expression result = adapter.solve(context);
+		ExpressionLiteralSplitterStepSolver literalSplitterStepSolver = toExpressionLiteralSplitterStepSolver(this);
+		Expression result = literalSplitterStepSolver.solve(context);
 		return result;
 	}
 	

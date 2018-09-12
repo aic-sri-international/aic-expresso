@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.theory.differencearithmetic;
 
+import static com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter.toExpressionLiteralSplitterStepSolver;
 import static com.sri.ai.grinder.helper.GrinderUtil.INTEGER_TYPE;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
@@ -66,7 +67,6 @@ import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
-import com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter;
 import com.sri.ai.grinder.core.solver.QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver;
 import com.sri.ai.grinder.group.Sum;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -166,7 +166,7 @@ public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 		else {
 			formulaSplitterStepSolver = new QuantifierEliminationOnBodyInWhichIndexOnlyOccursInsideLiteralsStepSolver(problem);
 		}
-		ExpressionLiteralSplitterStepSolver result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
+		ExpressionLiteralSplitterStepSolver result = toExpressionLiteralSplitterStepSolver(formulaSplitterStepSolver);
 		return result;
 	}
 	

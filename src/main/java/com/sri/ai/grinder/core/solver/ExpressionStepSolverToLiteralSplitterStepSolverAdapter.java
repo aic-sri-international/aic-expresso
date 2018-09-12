@@ -58,7 +58,18 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 	private ExpressionStepSolver.Step currentFormulaSplitterStepSolverStep;
 	private ExpressionLiteralSplitterStepSolver currentFormulaSplitterEvaluatorStepSolver;
 
-	public ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
+	public static ExpressionLiteralSplitterStepSolver toExpressionLiteralSplitterStepSolver(ExpressionStepSolver formulaSplitterStepSolver) {
+		ExpressionLiteralSplitterStepSolver result;
+		if (formulaSplitterStepSolver instanceof ExpressionLiteralSplitterStepSolver) {
+			result = (ExpressionLiteralSplitterStepSolver) formulaSplitterStepSolver;
+		}
+		else {
+			result = new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(formulaSplitterStepSolver);
+		}
+		return result;
+	}
+	
+	private ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
 			ExpressionStepSolver formulaSplitterStepSolver) {
 		if (formulaSplitterStepSolver instanceof ExpressionLiteralSplitterStepSolver) {
 			throw new IllegalArgumentException("You should not pass an ExpressionLiteralSplitterStepSolver to " + ExpressionStepSolverToLiteralSplitterStepSolverAdapter.class);
@@ -99,8 +110,8 @@ public class ExpressionStepSolverToLiteralSplitterStepSolverAdapter implements E
 					// We need to wrap the ItDepends result sub-solvers in adapters as well.
 					result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(currentFormulaSplitterStepSolverStep.getSplitter(),
 							currentFormulaSplitterStepSolverStep.getContextSplittingWhenSplitterIsLiteral(),
-								new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsTrue()),
-								new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsFalse()));
+								toExpressionLiteralSplitterStepSolver(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsTrue()),
+								toExpressionLiteralSplitterStepSolver(currentFormulaSplitterStepSolverStep.getStepSolverForWhenSplitterIsFalse()));
 				}
 				else {	
 					// We have a new non-literal splitter formula that we have obtained from the formula splitter step solver

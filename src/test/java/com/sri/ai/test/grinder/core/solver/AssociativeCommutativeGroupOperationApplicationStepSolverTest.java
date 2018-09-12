@@ -6,6 +6,7 @@ import static com.sri.ai.util.Util.println;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -23,8 +24,8 @@ import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.group.Conjunction;
 import com.sri.ai.grinder.group.Disjunction;
 import com.sri.ai.grinder.group.Max;
-import com.sri.ai.grinder.group.Sum;
 import com.sri.ai.grinder.group.Product;
+import com.sri.ai.grinder.group.Sum;
 
 
 public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
@@ -405,7 +406,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
 		
 		Theory theory = 						new CommonTheory();
-		String[] symbolsAndTypes = 				{"K", "1..5"};
+		String[] symbolsAndTypes = 				{"K", "1..5", "X", "1..5"};
 		Context context = 						new TrueContext(theory).extendWithSymbolsAndTypes(symbolsAndTypes);
 		Expression[] operandExpressions = 		{ parse("there exists I in Integer : I > 3 and I < K"), 
 												  parse("for all J in Integer : if J > K and J < 10 then X else Y") };
@@ -468,17 +469,17 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		}
 	}
 
-	private Expression constructExpectedResult(Expression expressionThatAppliesGroupOperatorToOperands, Context context) {
-		
-		Expression expectedResult = context.evaluate(expressionThatAppliesGroupOperatorToOperands);
-		
-		return expectedResult;
-	}
+//	private Expression constructExpectedResult(Expression expressionThatAppliesGroupOperatorToOperands, Context context) {
+//		
+//		Expression expectedResult = context.evaluate(expressionThatAppliesGroupOperatorToOperands);
+//		
+//		return expectedResult;
+//	}
 	
 	private Expression constructExpressionThatAppliesGroupOperatorToOperands(AssociativeCommutativeGroup group,
 			Expression[] operandExpressions) {
 		String associativeOperation = group.getFunctionString();
-		Expression expressionThatAppliesOperatorToOperands = Expressions.apply( associativeOperation, operandExpressions);
+		Expression expressionThatAppliesOperatorToOperands = Expressions.apply( associativeOperation, (Object[]) operandExpressions);
 		return expressionThatAppliesOperatorToOperands;
 	}
 	

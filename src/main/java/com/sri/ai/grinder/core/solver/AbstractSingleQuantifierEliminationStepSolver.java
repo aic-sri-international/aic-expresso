@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
+import static com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter.toExpressionLiteralSplitterStepSolver;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
@@ -407,11 +408,11 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			Context context) {
 
 		ExpressionLiteralSplitterStepSolver subProblemIfSplitterIsTrueStepSolver = 
-				new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
+				toExpressionLiteralSplitterStepSolver(
 						makeSubProblemStepSolver(true, bodyStep, indexConstraintAndLiteral));
 		
 		ExpressionLiteralSplitterStepSolver subProblemIfSplitterIsFalseStepSolver = 
-				new ExpressionStepSolverToLiteralSplitterStepSolverAdapter(
+				toExpressionLiteralSplitterStepSolver(
 						makeSubProblemStepSolver(false, bodyStep, indexConstraintAndLiteralNegation));
 		
 		StepSolver groupStepSolver =
