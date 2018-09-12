@@ -72,7 +72,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		println();
 	}
 	
-	@Test
+	// @Test
 	public void numericGroupCombinedTest() {
 		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
 		
@@ -117,7 +117,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		println();
 	}
 	
-	@Test
+	// @Test
 	public void numericGroupTestProductOperandsWithFreeVariables() {
 		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
 		
@@ -136,7 +136,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolverTest {
 		println();
 	}
 	
-	@Test
+	// @Test
 	public void numericGroupTestMaxOperandsWithFreeVariables() {
 		String testName = new Object(){} .getClass().getEnclosingMethod().getName();  // get method name as string
 		

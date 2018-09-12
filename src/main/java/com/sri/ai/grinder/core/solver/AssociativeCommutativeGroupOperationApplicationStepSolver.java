@@ -1,8 +1,6 @@
 package com.sri.ai.grinder.core.solver;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
@@ -25,13 +23,39 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		this.accumulatedResult = group.additiveIdentityElement();
 	}
 	
-	public AssociativeCommutativeGroupOperationApplicationStepSolver(AssociativeCommutativeGroup group,
-			ExpressionLiteralSplitterStepSolver[] operandStepSolvers, int currentOperand, Expression accumulatedResult) {
+	private AssociativeCommutativeGroupOperationApplicationStepSolver(
+			AssociativeCommutativeGroup group,
+			ExpressionLiteralSplitterStepSolver[] operandStepSolvers, 
+			int currentOperand, 
+			Expression accumulatedResult) {
+		
 		this.group = group;
 		this.operandStepSolvers = operandStepSolvers;
 		this.currentOperand = currentOperand;
 		this.operandStepSolvers = operandStepSolvers;
 		this.accumulatedResult = accumulatedResult;
+	}
+
+	private AssociativeCommutativeGroupOperationApplicationStepSolver makeCopyWithNewOperandStepSolvers(
+			ExpressionLiteralSplitterStepSolver[] newOperandStepSolvers) {
+		
+		return 
+				new AssociativeCommutativeGroupOperationApplicationStepSolver(
+						group,
+						newOperandStepSolvers,
+						currentOperand,
+						accumulatedResult);
+	}
+
+	private AssociativeCommutativeGroupOperationApplicationStepSolver makeCopyWithNewCurrentOperandAndAccumulatedResult(
+			int currentOperand, Expression accumulatedResult) {
+		
+		return 
+				new AssociativeCommutativeGroupOperationApplicationStepSolver(
+						group,
+						operandStepSolvers,
+						currentOperand,
+						accumulatedResult);
 	}
 
 	@Override
@@ -48,8 +72,8 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 	@Override
 	public Step step(Context context) {
 		Step step;
-		if (allOperandsHaveBeenProcessed()) { //all operands have been accumulated
-			step = constructSolutionStep();
+		if (allOperandsHaveBeenProcessed()) { // all operands have been accumulated
+			step = makeSolutionStep();
 		}
 		else {
 			step = takeNextStepProcessingOperands(context);
@@ -61,7 +85,7 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		return currentOperand >= operandStepSolvers.length;
 	}
 
-	private Solution constructSolutionStep() {
+	private Solution makeSolutionStep() {
 		return new Solution(accumulatedResult);
 	}
 
@@ -69,70 +93,72 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		Step step;
 		Step operandStep = takeStepOnCurrentOperand(context);
 		if (isSolution(operandStep)) {
-			step = createStepFromProcessingOperandSolution(operandStep, context);
+			step = makeStepFromProcessingOperandSolution(operandStep, context);
 		}
 		else {
-			step = constructAnItDependsOnStep(operandStep, context);
+			step = makeConditionalStep(operandStep, context);
 		}
 		return step;
 	}
 
-	private Step constructAnItDependsOnStep(Step operandStep, Context context) {
-		ContextSplitting contextSplitting = operandStep.getContextSplittingWhenSplitterIsLiteral();
-		ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsTrue = operandStep.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver operandSequentialStepSolverForWhenSplitterIsFalse = operandStep.getStepSolverForWhenSplitterIsFalse();
-		
-		ExpressionLiteralSplitterStepSolver resultingStepSolverForWhenSplitterIsTrue = 
-				createResultingStepSolverBasedOnSplittingCaseOfCurrentOperandStep(operandSequentialStepSolverForWhenSplitterIsTrue);
-		ExpressionLiteralSplitterStepSolver resultingStepSolverForWhenSplitterIsFalse = 
-				createResultingStepSolverBasedOnSplittingCaseOfCurrentOperandStep(operandSequentialStepSolverForWhenSplitterIsFalse);
-		
-		Step itDependsOnStep = new ItDependsOn( contextSplitting.getLiteral(),
-											    contextSplitting,
-											    resultingStepSolverForWhenSplitterIsTrue,
-											    resultingStepSolverForWhenSplitterIsFalse);
-		return itDependsOnStep;
+	private Step takeStepOnCurrentOperand(Context context) {
+		return operandStepSolvers[currentOperand].step(context);
 	}
 
-	private AssociativeCommutativeGroupOperationApplicationStepSolver createResultingStepSolverBasedOnSplittingCaseOfCurrentOperandStep(
-				ExpressionLiteralSplitterStepSolver operandSequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep) {
+	private Step makeConditionalStep(Step operandStep, Context context) {
 		
-		ExpressionLiteralSplitterStepSolver[] operandStepSolversBasedOnSplittingCaseOfCurrentOperandStep = 
-				createOperandStepSolversBasedOnSplittingCaseOfCurrentOperandStep(
-						operandSequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep);
-		AssociativeCommutativeGroupOperationApplicationStepSolver resultingStepSolver =
-				new AssociativeCommutativeGroupOperationApplicationStepSolver( group,
-																			   operandStepSolversBasedOnSplittingCaseOfCurrentOperandStep,
-																			   currentOperand,
-																			   accumulatedResult);
-		return resultingStepSolver;
+		ContextSplitting contextSplitting = operandStep.getContextSplittingWhenSplitterIsLiteral();
+		
+		ExpressionLiteralSplitterStepSolver sequelStepSolverForWhenSplitterIsTrue = 
+				makeSequelStepSolverGivenCurrentOperandSequelStepSolver(operandStep.getStepSolverForWhenSplitterIsTrue());
+		
+		ExpressionLiteralSplitterStepSolver sequelStepSolverForWhenSplitterIsFalse = 
+				makeSequelStepSolverGivenCurrentOperandSequelStepSolver(operandStep.getStepSolverForWhenSplitterIsFalse());
+		
+		Step conditionalStep = new ItDependsOn( contextSplitting.getLiteral(),
+											    contextSplitting,
+											    sequelStepSolverForWhenSplitterIsTrue,
+											    sequelStepSolverForWhenSplitterIsFalse);
+		return conditionalStep;
 	}
-	
-	private ExpressionLiteralSplitterStepSolver[] createOperandStepSolversBasedOnSplittingCaseOfCurrentOperandStep(
-			ExpressionLiteralSplitterStepSolver sequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep) {
+
+	private AssociativeCommutativeGroupOperationApplicationStepSolver makeSequelStepSolverGivenCurrentOperandSequelStepSolver(
+				ExpressionLiteralSplitterStepSolver currentOperandSequelStepSolver) {
 		
-		ExpressionLiteralSplitterStepSolver[] operandStepSolversBasedOnSequentialStepSolverForCurrentOperandSplittingCase =
-				operandStepSolvers.clone();		
-		operandStepSolversBasedOnSequentialStepSolverForCurrentOperandSplittingCase[currentOperand] = 
-				sequentialStepSolverBasedOnSplittingCaseOfCurrentOperandStep;
+		ExpressionLiteralSplitterStepSolver[] operandSequelStepSolvers = 
+				makeOperandSequelStepSolversWithCurrentOperandStepSolverUpdatedTo(currentOperandSequelStepSolver);
 		
-		return operandStepSolversBasedOnSequentialStepSolverForCurrentOperandSplittingCase;
+		AssociativeCommutativeGroupOperationApplicationStepSolver sequelStepSolver =
+				makeCopyWithNewOperandStepSolvers(operandSequelStepSolvers);
+		
+		return sequelStepSolver;
+	}
+
+	private ExpressionLiteralSplitterStepSolver[] makeOperandSequelStepSolversWithCurrentOperandStepSolverUpdatedTo(
+			ExpressionLiteralSplitterStepSolver currentOperandSequelStepSolver) {
+		
+		ExpressionLiteralSplitterStepSolver[] operandSequelStepSolvers = operandStepSolvers.clone();		
+		
+		operandSequelStepSolvers[currentOperand] = currentOperandSequelStepSolver;
+		
+		return operandSequelStepSolvers;
 	}
 
 	private boolean isSolution(Step operandStep) {
 		return !operandStep.itDepends();
 	}
 
-	private Step createStepFromProcessingOperandSolution(Step operandStep, Context context) {
+	private Step makeStepFromProcessingOperandSolution(Step operandStep, Context context) {
 		Step step;
 		Expression operandValue = operandStep.getValue();
-		if (operandSolutionShortCircuitsToAdditiveAbsorbativeElement(operandValue)) {
-			step = createAdditiveAbsorbativeSolutionStep(operandValue);
+		if (operandSolutionShortCircuitsToAdditiveAbsorbingElement(operandValue)) {
+			step = makeAdditiveAbsorbingSolutionStep(operandValue);
 		}
 		else {
-			accumulatedResult = addOperandValueToAccumulatedResult(operandValue, context);
-			advanceToNextOperand();
-			step = this.step(context); //recursively continue taking steps until all operands are processed or an ItDependsStep is reached
+			int newCurrentOperand = currentOperand + 1;
+			Expression newAccumulatedResult = addOperandValueToAccumulatedResult(operandValue, context);
+			ExpressionLiteralSplitterStepSolver next = makeCopyWithNewCurrentOperandAndAccumulatedResult(newCurrentOperand, newAccumulatedResult);
+			step = next.step(context);
 		}
 		return step;
 	}
@@ -141,20 +167,12 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		return group.addAndPossiblySolveItDeprecated(accumulatedResult, operandValue, context);
 	}
 
-	private Solution createAdditiveAbsorbativeSolutionStep(Expression additiveAbsorbativeValue) {
-		return new Solution(additiveAbsorbativeValue);
+	private Solution makeAdditiveAbsorbingSolutionStep(Expression additiveAbsorbingValue) {
+		return new Solution(additiveAbsorbingValue);
 	}
 
-	private boolean operandSolutionShortCircuitsToAdditiveAbsorbativeElement(Expression operandValue) {
+	private boolean operandSolutionShortCircuitsToAdditiveAbsorbingElement(Expression operandValue) {
 		return group.isAdditiveAbsorbingElement(operandValue);
-	}
-
-	private void advanceToNextOperand() {
-		++currentOperand;
-	}
-
-	private Step takeStepOnCurrentOperand(Context context) {
-		return operandStepSolvers[currentOperand].step(context);
 	}
 
 }

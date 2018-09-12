@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.api;
 
+import static com.sri.ai.util.Util.myAssert;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
@@ -181,6 +183,7 @@ public interface StepSolver<T> extends Cloneable {
 				StepSolver<T> stepSolverIfSplitterIsFalse) {
 			super();
 			this.splitter = splitter;
+			myAssert(contextSplitting == null || contextSplitting.isUndefined(), () -> "Trying to make conditional step out of a constraint splitting that should be 'undefined', but whose result is " + contextSplitting.getResult());
 			this.constraintSplitting = contextSplitting;
 			this.stepSolverIfSplitterIsTrue  = stepSolverIfSplitterIsTrue;
 			this.stepSolverIfSplitterIsFalse = stepSolverIfSplitterIsFalse;

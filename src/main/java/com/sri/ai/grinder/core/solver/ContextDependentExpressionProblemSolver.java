@@ -105,7 +105,7 @@ public class ContextDependentExpressionProblemSolver {
 		explain("Problem depends on ", step);
 		Expression splitter = step.getSplitter();
 		ContextSplitting split = (ContextSplitting) step.getContextSplittingWhenSplitterIsLiteral();
-		myAssert(() -> split.isUndefined(), () -> "Undefined " + ContextSplitting.class + " result value: " + split.getResult());
+		myAssert(() -> split.isUndefined(), () -> "Context splitting is supposed to be conditional but result contradicts that: " + split.getResult());
 		Expression subSolution1 = solve(step.getStepSolverForWhenSplitterIsTrue (), split.getConstraintAndLiteral());
 		Expression subSolution2 = solve(step.getStepSolverForWhenSplitterIsFalse(), split.getConstraintAndLiteralNegation());
 		Expression result = IfThenElse.make(splitter, subSolution1, subSolution2, true);
