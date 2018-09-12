@@ -34,7 +34,7 @@ public abstract class AbstractFunctionBasedGroup extends AbstractNumericGroup im
 	 * this group's operation to all elements of the set.
 	 * @return
 	 */
-	abstract String getQuantifierFunctionString();
+	public abstract String getQuantifierFunctionString();
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromProblemExpression(Expression expression, Context context) {
