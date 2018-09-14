@@ -160,9 +160,9 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 
 			Context contextForBody = getContextForBody(context);  
 
-			if (contextForBody.isContradiction()) {								//this branch should not be included in the solution since it's context is contradictory
+			if (contextForBody.isContradiction()) {
 				explain("Context for body is contradictory");
-				step = new Solution(getGroup().additiveIdentityElement()); 	//return additive identity solution step so when this solution is combined, it will not have any effect (as if it were not part of the final solution)
+				step = new Solution(getGroup().additiveIdentityElement()); 	// a summation with a contradictory constraint is a sum of the elements of the empty set, that is, the additive identity element
 			}
 			else {
 				step = stepOverProblemWithConsistentContextForBody(contextForBody, context);
@@ -197,6 +197,58 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	private Context getContextForBody(Context context) {
 		return explanationBlock("Making context for body ", code(() -> {
 
+			////////////// DEBUGGING LINE
+			initialContextForBody = null;
+			////////////// DEBUGGING LINE
+			// TODO: the above line forces the context-for-body to be re-computed at every step.
+			// This is needed because we may be invoking a sequel step solver under a new context,
+			// different from the original context used to compute the original context-for-body.
+			// This may cause the context-for-body to leave some literals as "undefined" which are
+			// actually defined by the context being currently used.
+			// This causes the body step to be conditional when in fact it should not.
+			//
+			// For example, suppose we get a step for
+			// sum_I ... if I > 1 and K > 0 then ...
+			// under context true
+			// We still return a body step conditional on I > 1 and split the quantifier,
+			// solving an AssociativeCommutativeGroupOperationApplicationStepSolver of + applied to
+			// (sum_I:I > 1 if ... K > 0)  and (sum_I:I <= 1 if ... K > 0)
+			// with each summation being represented by a sequel body step with initialContextForBody
+			// equal to "I > 1", and "I <= 1" respectively.
+			// When the first of these two returns a step, it's conditional on K > 0.
+			// Since K is a free variable, that is passed up and eventually the first step solver reaches a solution.
+			// Then the second one needs to produce a step, but now the context contains K > 0.
+			// HOWEVERs, its initialContextForBody *still* is I <= 1, that is, it does not imply K > 0
+			// even though the contextForBody should always represent a conjuntions of the current context (here, K > 0)
+			// and the index constraint.
+			// So the body step solver will be conditioned on K > 0, and because it is a free variable, the
+			// AssociativeCommutativeGroupOperationApplicationStepSolver tries to return a step conditional on K > 0.
+			// This however throws an exception when we try to compute the context splitting for such a step,
+			// since it would be based on a splitter literal that is not actually undefined under the current context.
+			//
+			// So recomputing contextForBody at every step ensures that it always contains the information in the context.
+			// However, this is more expensive.
+			// It would be nice if we could just create a contextForBody by "concatenating" the index expression
+			// (which is a SingleVariableConstraint) to the context to create a ConjoinedContext representing the contextForBody.
+			// However, this is not robust to refinements to the original context (in our example, the context going from
+			// true to K > 0) because it may be that the index constraint was satisfiable for the original context but not
+			// the refined one.
+			// For example, if the index constraint in our example were I : I < 0 and I > K, concatenating it with "true"
+			// when the context is true works fine, but once the context is "K > 0", we cannot simply concatenate
+			// the index constraint to it, because we would obtain a ConjoinedContext that is actually contradictory
+			// but not detected as so.
+			// To be able to actually detect contradictions, we would have to really conjoin the index constraint to the
+			// context, which takes us back to the current, more expensive, solution.
+			// 
+			// So, in order to concatenated the index constraint to the context in the knowledge that it will not be contradictory,
+			// the first job of AbstractSingleQuantifierEliminationStepSolver.step
+			// is to check that the index constraint is satisfiable under all assignments satisfying the context.
+			// This can be done by running a satisfiability step solver on it under that context.
+			// If this is not the case, a conditional step solver will be returned and split the problem.
+			// Eventually, we either detect that the index constraint is always unsatisfiable under the context (a trivial case)
+			// or that it is always satisfiable.
+			// In the second case we can concatenate without risk of building an undetected contradiction.
+			
 			Context result;
 			if (initialContextForBody == null) {
 				result = context.conjoin(getIndexConstraint(), context);
@@ -350,11 +402,11 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			case CONSTRAINT_IS_CONTRADICTORY:
 				step = null;
 				break;
-//			case LITERAL_IS_UNDEFINED:
-//				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
-//				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
-//						bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
-//				break;
+			case LITERAL_IS_UNDEFINED:
+				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
+				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
+						bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
+				break;
 			case LITERAL_IS_TRUE:
 				explain("Index literal ", bodyStep.getSplitter(), " is always true under current context, so we will solve a single sub-problem");
 				step = stepOverSubProblemIfSplitterIsTrue(bodyStep, indexConstraintAndLiteral, context);
@@ -367,10 +419,10 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			/////////////////////////////////////////
 			////////// OLD IMPLEMENTATION ///////////
 			/////////////////////////////////////////
-			case LITERAL_IS_UNDEFINED:
-				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
-				step = makeSolution( solveSubProblemIfSplitterIsUndefined(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context) );
-				break;
+//			case LITERAL_IS_UNDEFINED:
+//				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
+//				step = makeSolution( solveSubProblemIfSplitterIsUndefined(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context) );
+//				break;
 //			case LITERAL_IS_TRUE:
 //				explain("Index literal ", bodyStep.getSplitter(), " is always true under current context, so we will solve a single sub-problem");
 //				step = makeSolution( solveSubProblemIfSplitterIsTrue(bodyStep, indexConstraintAndLiteral, context) );
@@ -517,6 +569,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		// (**) IF DELETING THIS MARKER, DELETE ALL THE REFERENCES TO IT IN THIS FILE
 		// This is where this step solver may return a Solution with literals in it:
 		// solveSubProblem uses an exhaustive solve.
+		// Sept 2018: this is not true anymore as sub problems are now solved by step solvers; remove code that was required for dealing with literals in sub-solutions
 		ExpressionStepSolver subProblemIfSplitterIsTrue = makeSubProblemStepSolver(true, bodyStep, indexConstraintAndLiteral);
 		ExpressionStepSolver subProblemIfSplitterIsFalse = makeSubProblemStepSolver(false, bodyStep, indexConstraintAndLiteralNegation);
 		Expression solutionValue = solveSubProblems(subProblemIfSplitterIsTrue, subProblemIfSplitterIsFalse, context);

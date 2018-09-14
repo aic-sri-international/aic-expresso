@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.number;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
+import static com.sri.ai.util.Util.removeNonDestructively;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -129,12 +130,14 @@ public class Max extends CommutativeAssociativeWithOperationOnJavaConstantsOnly 
 	 */
 	@Override
 	public Expression operationOnOperableArguments(LinkedList<Expression> operableArguments) {
-		// We need to override this method because MINUS_INFINITY
-		// is not a Java constant.
-		if (operableArguments.isEmpty()) {
+		if (operableArguments.contains(INFINITY)) {
+			return INFINITY;
+		}
+		LinkedList<Expression> operableArgumentsWithoutInfinityOrMinusInfinity = removeNonDestructively(operableArguments, MINUS_INFINITY);
+		if (operableArgumentsWithoutInfinityOrMinusInfinity.isEmpty()) {
 			return MINUS_INFINITY;
 		}
-		return super.operationOnOperableArguments(operableArguments);
+		return super.operationOnOperableArguments(operableArgumentsWithoutInfinityOrMinusInfinity);
 	}
 	
 	@SuppressWarnings("unchecked")
