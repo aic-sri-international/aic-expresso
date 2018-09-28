@@ -434,7 +434,7 @@ public class SGDPLLTTester {
 			else {
 				Expression testingVariable = singleVariableConstraint.getVariable();
 				Set<Expression> allVariables = getVariablesBeingReferenced(singleVariableConstraint, context);
-				Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
+				Collection<? extends Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
 				BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToOtherVariablesToBruteForceSolution =
 						(interpreter, contextWithAssignmentToOtherVariables)
 						-> bruteForceModelCounterForVariableGivenInterpreterAndAssignmentToOtherVariables(
@@ -669,7 +669,7 @@ public class SGDPLLTTester {
 	public static void runGroupProblemSolvingTestGivenConstraintAndProblem(Expression problem, Collection<Expression> indices, Constraint constraint, Expression body, boolean testAgainstBruteForce, TheoryTestingSupport theoryTestingSupport, Context context) throws Error {
 		Theory theory = theoryTestingSupport.getTheory();
 		
-		Collection<Expression> freeVariables = getFreeVariableMinusIndices(indices, constraint, body, context);
+		Collection<? extends Expression> freeVariables = getFreeVariableMinusIndices(indices, constraint, body, context);
 		
 		String problemDescription = problem.toString();
 		output(problemDescription);
@@ -729,10 +729,10 @@ public class SGDPLLTTester {
 		return body;
 	}
 
-	private static Collection<Expression> getFreeVariableMinusIndices(Collection<Expression> indices, Constraint constraint, Expression body, Context context) {
+	private static Collection<? extends Expression> getFreeVariableMinusIndices(Collection<? extends Expression> indices, Constraint constraint, Expression body, Context context) {
 		Set<Expression> allVariables = getVariablesBeingReferenced(constraint, context);
 		allVariables.addAll(getVariablesBeingReferenced(body, context));
-		Collection<Expression> freeVariablesMinusIndex = removeFromSetNonDestructively(allVariables, v -> indices.contains(v));
+		Collection<? extends Expression> freeVariablesMinusIndex = removeFromSetNonDestructively(allVariables, v -> indices.contains(v));
 		return freeVariablesMinusIndex;
 	}
 
@@ -749,7 +749,7 @@ public class SGDPLLTTester {
 	private static void testSymbolicVsBruteForceComputationForEachAssignment(
 			Theory theory,
 			String problemDescription,
-			Collection<Expression> freeVariables,
+			Collection<? extends Expression> freeVariables,
 			Expression symbolicSolution,
 			BinaryFunction<BruteForceCommonInterpreter, Context, Expression> fromInterpreterAndContextWithAssignmentToBruteForceSolution,
 			Context context) throws Error {

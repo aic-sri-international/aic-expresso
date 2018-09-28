@@ -62,7 +62,7 @@ import com.sri.ai.util.collect.CartesianProductInMapIterator;
 @Beta
 public class AssignmentMapsIterator extends CartesianProductInMapIterator<Expression, Expression> {
 
-	public AssignmentMapsIterator(Collection<Expression> variables, Registry registry) {
+	public AssignmentMapsIterator(Collection<? extends Expression> variables, Registry registry) {
 		super(makeMapFromVariablesToIteratorMakers(variables, registry));
 	}
 
@@ -71,7 +71,7 @@ public class AssignmentMapsIterator extends CartesianProductInMapIterator<Expres
 	}
 
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
-	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, Registry registry) {
+	makeMapFromVariablesToIteratorMakers(Collection<? extends Expression> variables, Registry registry) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
 			Expression typeDescription = GrinderUtil.getTypeExpressionOfExpression(variable, registry);

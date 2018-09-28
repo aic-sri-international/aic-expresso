@@ -51,13 +51,13 @@ import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 @Beta
 public class DefaultMultiQuantifierEliminationProblem extends AbstractMultiQuantifierEliminationProblem {
 	
-	final public List<Expression> indices;
-	final public List<Expression> indicesTypes;
+	final public List<? extends Expression> indices;
+	final public List<? extends Expression> indicesTypes;
 
 	public DefaultMultiQuantifierEliminationProblem(
 			AssociativeCommutativeGroup group, 
-			List<Expression> indices, 
-			List<Expression> indicesTypes, 
+			List<? extends Expression> indices, 
+			List<? extends Expression> indicesTypes, 
 			Expression constraint, 
 			Expression body) {
 		
@@ -69,7 +69,7 @@ public class DefaultMultiQuantifierEliminationProblem extends AbstractMultiQuant
 	
 	public DefaultMultiQuantifierEliminationProblem(
 			AssociativeCommutativeGroup group, 
-			List<Expression> indices, 
+			List<? extends Expression> indices, 
 			Expression constraint,
 			Expression body, 
 			Context context) {
@@ -80,7 +80,7 @@ public class DefaultMultiQuantifierEliminationProblem extends AbstractMultiQuant
 	DefaultMultiQuantifierEliminationProblem
 	makeProblem(
 			AssociativeCommutativeGroup group, 
-			List<Expression> indices, 
+			List<? extends Expression> indices, 
 			Expression indicesCondition,
 			Expression body, 
 			Context context) {

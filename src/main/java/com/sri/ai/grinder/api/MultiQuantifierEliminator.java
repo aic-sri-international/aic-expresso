@@ -91,7 +91,7 @@ public interface MultiQuantifierEliminator {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	default Expression solve(AssociativeCommutativeGroup group, List<Expression> indices, Expression indicesConstraint, Expression body, Context context) {
+	default Expression solve(AssociativeCommutativeGroup group, List<? extends Expression> indices, Expression indicesConstraint, Expression body, Context context) {
 		MultiQuantifierEliminationProblem problem = makeProblem(group, indices, indicesConstraint, body, context);
 		Expression result = solve(problem, context);
 		return result;

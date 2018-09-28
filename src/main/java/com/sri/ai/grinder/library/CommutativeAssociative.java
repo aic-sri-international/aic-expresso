@@ -80,7 +80,7 @@ public abstract class CommutativeAssociative implements Simplifier {
 	protected abstract Expression getAbsorbingElement();
 	protected abstract boolean isIdempotent();
 	protected abstract Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate();
-	protected abstract Expression operationOnOperableArguments(LinkedList<Expression> operableArguments);
+	protected abstract Expression operationOnOperableArguments(LinkedList<? extends Expression> operableArguments);
 
 	public Expression getNeutralElementExpression() {
 		return getNeutralElement();

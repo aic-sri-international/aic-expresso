@@ -436,7 +436,7 @@ public class Expressions {
 	 * and the single element itself otherwise.
 	 * This is a inverse operation of {@ #ensureList(Expression)}.
 	 */
-	public static Expression makeKleeneListIfNeeded(List<Expression> list) {
+	public static Expression makeKleeneListIfNeeded(List<? extends Expression> list) {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
@@ -794,7 +794,7 @@ public class Expressions {
 	 * Return a function application identical to the one received but for the i-th argument being removed.
 	 */
 	public static Expression removeIthArgument(Expression expression, int i) {
-		List<Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
+		List<? extends Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
 		return result;
 	}

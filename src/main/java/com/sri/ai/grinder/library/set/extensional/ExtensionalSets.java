@@ -61,7 +61,7 @@ public class ExtensionalSets {
 	public static final String UNI_SET_LABEL = "{ . }";
 	public static final String MULTI_SET_LABEL = "{{ . }}";
 
-	public static Expression make(Object label, List<Expression> elements) {
+	public static Expression make(Object label, List<? extends Expression> elements) {
 		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(label, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	

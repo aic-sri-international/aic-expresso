@@ -191,10 +191,10 @@ public class AbstractSGVET extends AbstractMultiQuantifierEliminator {
 
 	private static class Partition {
 		private List<Expression> index;
-		private List<Expression> remainingIndices;
+		private List<? extends Expression> remainingIndices;
 		private PairOf<List<Expression>> expressionsOnIndexAndNot;
 
-		public Partition(Expression index, List<Expression> remainingIndices, PairOf<List<Expression>> expressionsOnIndex) {
+		public Partition(Expression index, List<? extends Expression> remainingIndices, PairOf<List<Expression>> expressionsOnIndex) {
 			super();
 			this.index = list(index);
 			this.remainingIndices = remainingIndices;
@@ -229,7 +229,7 @@ public class AbstractSGVET extends AbstractMultiQuantifierEliminator {
 
 	public Partition pickPartitionForIndex(Expression index, Collection<Expression> indices, List<Expression> expressions) {
 		Partition result;
-		List<Expression> remainingIndices = removeNonDestructively(indices, index);
+		List<? extends Expression> remainingIndices = removeNonDestructively(indices, index);
 		Predicate<Expression> containsIndex = e -> isSubExpressionOf(index, e);
 		PairOf<List<Expression>> onIndexAndNot = collectToLists(expressions, containsIndex);
 		result = new Partition(index, remainingIndices, onIndexAndNot);

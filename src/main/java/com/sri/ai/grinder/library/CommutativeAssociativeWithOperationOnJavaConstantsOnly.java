@@ -60,7 +60,7 @@ public abstract class CommutativeAssociativeWithOperationOnJavaConstantsOnly ext
 	protected abstract Object operationOnOperableValues(List<? extends Object> listOfOperableArguments);
 
 	@Override
-	public Expression operationOnOperableArguments(LinkedList<Expression> operableArguments) {
+	public Expression operationOnOperableArguments(LinkedList<? extends Expression> operableArguments) {
 		List<Object> operableArgumentValues = Util.mapIntoList(operableArguments.iterator(), GetValue.INSTANCE);
 		Object resultOnOperableArguments = operationOnOperableValues(operableArgumentValues);
 		Expression result = Expressions.makeSymbol(resultOnOperableArguments);

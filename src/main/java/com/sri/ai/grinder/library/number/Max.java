@@ -89,7 +89,7 @@ public class Max extends CommutativeAssociativeWithOperationOnJavaConstantsOnly 
 			}
 			else {
 				// remove MINUS_INFINITY if any and defer to super method
-				List<Expression> argumentsWithoutMinusInfinity =
+				List<? extends Expression> argumentsWithoutMinusInfinity =
 						Util.removeNonDestructively(expression.getArguments(), MINUS_INFINITY);
 				Expression expressionWithoutMinusInfinity =
 						expression.getArguments() == argumentsWithoutMinusInfinity?
@@ -129,11 +129,11 @@ public class Max extends CommutativeAssociativeWithOperationOnJavaConstantsOnly 
 	 * Overridden method to deal with special case of an empty set of arguments.
 	 */
 	@Override
-	public Expression operationOnOperableArguments(LinkedList<Expression> operableArguments) {
+	public Expression operationOnOperableArguments(LinkedList<? extends Expression> operableArguments) {
 		if (operableArguments.contains(INFINITY)) {
 			return INFINITY;
 		}
-		LinkedList<Expression> operableArgumentsWithoutInfinityOrMinusInfinity = removeNonDestructively(operableArguments, MINUS_INFINITY);
+		LinkedList<? extends Expression> operableArgumentsWithoutInfinityOrMinusInfinity = removeNonDestructively(operableArguments, MINUS_INFINITY);
 		if (operableArgumentsWithoutInfinityOrMinusInfinity.isEmpty()) {
 			return MINUS_INFINITY;
 		}

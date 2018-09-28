@@ -219,7 +219,7 @@ public interface Context extends Registry, Constraint {
 		return result;
 	}
 
-	default List<Expression> getTypeExpressions(List<Expression> indices) {
+	default List<Expression> getTypeExpressions(List<? extends Expression> indices) {
 		List<Expression> result = mapIntoList(indices, i -> getTypeExpressionOfRegisteredSymbol(i));
 		return result;
 	}
