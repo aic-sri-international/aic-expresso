@@ -44,8 +44,7 @@ public class ContextSplittingTester {
 //CONSTRUCTORS ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public ContextSplittingTester(int numberOfVariables, int cardinalityOfVariables, boolean verbose, Theory theory)
-	{
+	public ContextSplittingTester(int numberOfVariables, int cardinalityOfVariables, boolean verbose, Theory theory) {
 		this.numberOfVariables = numberOfVariables;
 		this.cardinalityOfVariables = cardinalityOfVariables;
 		this.verbose = verbose;
@@ -54,7 +53,6 @@ public class ContextSplittingTester {
 		this.variableAssignmentExpressions = new VariableAssignmentExpressions();
 		this.numberOfPotentials = numberOfTerminalContexts(cardinalityOfVariables, numberOfVariables);
 		this.totalNumberOfContextsNeededToReachTerminalContexts = numberOfTraversedContextsPerformingBinarySplittingOfVariables(numberOfPotentials);
-
 	}
 	
 	
@@ -66,10 +64,8 @@ public class ContextSplittingTester {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public long performContextSplittingTest() {
-
 		contextSplittingResults = null;
 		recursivelySplitContext(contextToTest);
-
 		return totalSplittingTime;
 	}
 
@@ -103,18 +99,16 @@ public class ContextSplittingTester {
 		
 		public VariableAssignmentExpressions() {
 			variableAssignmentExpressions = new ArrayList<ArrayList<Expression>>(numberOfVariables);
-				variableAssignmentExpressions.add(null); //to make 1-indexed (instead of 0-indexed)
-			for(int variableNumber = 1; variableNumber <= numberOfVariables; ++variableNumber)
-			{
+			variableAssignmentExpressions.add(null); // to make 1-indexed (instead of 0-indexed)
+			for (int variableNumber = 1; variableNumber <= numberOfVariables; variableNumber++) {
 				variableAssignmentExpressions.add(constructAssignmentExpressionsForVariable(variableNumber));
 			}
 		}
 		
 		private ArrayList<Expression> constructAssignmentExpressionsForVariable(int variableNumber) {
 			ArrayList<Expression> assignmentExpressionsForVariable =  new ArrayList<Expression>(cardinalityOfVariables);
-				assignmentExpressionsForVariable.add(null); //to make 1-indexed (instead of O-indexed)
-			for(int assignmentValue = 1; assignmentValue <= cardinalityOfVariables; ++assignmentValue)
-			{
+			assignmentExpressionsForVariable.add(null); // to make 1-indexed (instead of O-indexed)
+			for (int assignmentValue = 1; assignmentValue <= cardinalityOfVariables; assignmentValue++) {
 				Expression assignmentExpression = parse("X" + variableNumber + " = " + assignmentValue);
 				assignmentExpressionsForVariable.add(assignmentExpression);
 			}
@@ -155,9 +149,8 @@ public class ContextSplittingTester {
 		Expression typeExpression = new IntegerInterval(1, cardinalityOfVariables).toExpression();
 		List<Expression> variableSymbols = new ArrayList<Expression>(numberOfVariables);
 		
-		for(int i = 1; i <= numberOfVariables; ++i) 
-		{
-			variableSymbols.add(createSymbol("X"+i));
+		for (int i = 1; i <= numberOfVariables; i++) {
+			variableSymbols.add(createSymbol("X" + i));
 			context = context.extendWithSymbolsAndTypes(variableSymbols.get(i-1), typeExpression);
 		}
 		
@@ -173,8 +166,7 @@ public class ContextSplittingTester {
 	private void recursivelySplitContext(Context contextToSplit, int variableNumber) {
 		
 		// BASE CASE
-		if(variableNumber > numberOfVariables)
-		{
+		if (variableNumber > numberOfVariables) {
 			contextSplittingResults.generatedContexts.add(contextToSplit);
 			contextSplittingResults.literalsToSplitOn.add(null);
 			contextSplittingResults.timeToSplitContext.add(0L);
@@ -186,8 +178,7 @@ public class ContextSplittingTester {
 		int nextVariable = variableNumber + 1;
 		
 		// RECURSIVE SPLITTING
-		for(int assignmentValue = 1; assignmentValue < cardinalityOfVariables; ++assignmentValue)
-		{
+		for (int assignmentValue = 1; assignmentValue < cardinalityOfVariables; assignmentValue++) {
 			contextSplittingResults.generatedContexts.add(contextToSplit);
 			
 			Expression literalToSplitOn = variableAssignmentExpressions.getVariableAssignmentExpressions(variableNumber, assignmentValue);
@@ -203,7 +194,7 @@ public class ContextSplittingTester {
 	
 	private void recursivelySplitContext(Context contextToSplit) {
 		
-		if(verbose) {
+		if (verbose) {
 			contextSplittingResults = new ContextSplittingResults(totalNumberOfContextsNeededToReachTerminalContexts, numberOfPotentials);
 			recursivelySplitContext(contextToSplit, 1);
 			totalSplittingTime = sum(contextSplittingResults.timeToSplitContext).longValue();
@@ -240,7 +231,7 @@ public class ContextSplittingTester {
 	private void recursivelySplitContextForTotalTime(Context contextToSplit, int variableNumber) {
 		
 		// BASE CASE
-		if(variableNumber > numberOfVariables)		{
+		if (variableNumber > numberOfVariables)		{
 			return;
 		}
 	
@@ -248,7 +239,7 @@ public class ContextSplittingTester {
 		int nextVariable = variableNumber + 1;
 		
 		// RECURSIVE SPLITTING
-		for(int assignmentValue = 1; assignmentValue < cardinalityOfVariables; ++assignmentValue)
+		for (int assignmentValue = 1; assignmentValue < cardinalityOfVariables; assignmentValue++)
 		{
 			Expression literalToSplitOn = variableAssignmentExpressions.getVariableAssignmentExpressions(variableNumber, assignmentValue);
 			
@@ -268,15 +259,13 @@ public class ContextSplittingTester {
 	
 	private void printContextSplittingResults() {
 		
-		if(contextSplittingResults != null)
-		{
+		if (contextSplittingResults != null) {
 			println(" Splitting Context Cosisting of:");
 			println("    Number of Variables:       " + numberOfVariables);
 			println("    Cardinality of Variables:  " + cardinalityOfVariables);
 			println();
 			println(" Contexts Generated  /  literal use to split  /  time taken to split");
-			for(int i = 0; i < contextSplittingResults.generatedContexts.size(); ++i)
-			{
+			for (int i = 0; i < contextSplittingResults.generatedContexts.size(); i++) {
 				Context context = contextSplittingResults.generatedContexts.get(i);
 				Expression literal = contextSplittingResults.literalsToSplitOn.get(i);
 				long time = contextSplittingResults.timeToSplitContext.get(i);
