@@ -50,7 +50,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters;
-import com.sri.ai.util.explanation.logging.api.ExplanationConfiguration;
 import com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger;
 
 @Beta
@@ -58,8 +57,6 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewritersTes
 
 	@Test
 	public void basicTest() {
-
-		ExplanationConfiguration.WHETHER_EXPLANATION_LOGGERS_ARE_ACTIVE_BY_DEFAULT = true;
 
 		ThreadExplanationLogger.explanationBlockToFile("explanations.txt", code( () -> {
 
@@ -95,8 +92,6 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewritersTes
 			assertEquals(expected, actual);
 
 		}));
-
-		ExplanationConfiguration.WHETHER_EXPLANATION_LOGGERS_ARE_ACTIVE_BY_DEFAULT = false;
 
 	}
 

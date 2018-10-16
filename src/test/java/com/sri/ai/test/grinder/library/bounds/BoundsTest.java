@@ -32,7 +32,6 @@ import com.sri.ai.grinder.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
 import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
-import com.sri.ai.util.explanation.logging.api.ExplanationConfiguration;
 import com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger;
 
 public class BoundsTest {
@@ -262,8 +261,6 @@ public class BoundsTest {
 	@Test
 	public void testNormalizeOneSingleElement() {
 		
-		ExplanationConfiguration.WHETHER_EXPLANATION_LOGGERS_ARE_ACTIVE_BY_DEFAULT = true;
-
 		ThreadExplanationLogger.explanationBlockToFile("explanation.txt", code(() -> {
 		assertEquals(
 				"if A then if B then 67/76 else 7/76 else 1/76",
@@ -273,5 +270,6 @@ public class BoundsTest {
 						context)
 				.toString());
 		}));
+		
 	}
 }

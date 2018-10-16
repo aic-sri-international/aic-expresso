@@ -68,7 +68,6 @@ import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory
 import com.sri.ai.grinder.theory.equality.EqualityTheory;
 import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.test.grinder.theory.base.AbstractTheoryTest;
-import com.sri.ai.util.explanation.logging.api.ExplanationConfiguration;
 import com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger;
 
 /**
@@ -121,8 +120,6 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 	@Test
 	public void basicTests() {
 		
-		ExplanationConfiguration.WHETHER_EXPLANATION_LOGGERS_ARE_ACTIVE_BY_DEFAULT = false;
-		
 		ThreadExplanationLogger.explanationBlockToFile("explanation.txt", code( () -> {
 		
 		CompoundTheory theory = 
@@ -141,12 +138,11 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 		assertEquals(expected, contextAndCondition);
 		
 		}));
+
 	}
 	
 	// @Test double-nested indices not properly dealt with in the presence of context variables with the same names
 	public void nestedIndicesTest() {
-		
-		ExplanationConfiguration.WHETHER_EXPLANATION_LOGGERS_ARE_ACTIVE_BY_DEFAULT = false;
 		
 		ThreadExplanationLogger.explanationBlockToFile("explanation.txt", code( () -> {
 		
@@ -165,6 +161,7 @@ public class CompoundTheoryWithDifferenceArithmeticTest extends AbstractTheoryTe
 		assertEquals(expected, actual);
 
 		}));
+
 	}
 
 	@Test
