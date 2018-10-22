@@ -33,47 +33,30 @@ public class IfThenElseStepSolver implements ExpressionLiteralSplitterStepSolver
 	}
 
 	@Override
-	public IfThenElseStepSolver clone() {
-		return new IfThenElseStepSolver(conditionStepSolver, condition, thenBranch, elseBranch);
-	}
-
-	@Override
 	public Step step(Context context) {
 		Step result;
 		
-		if (conditionExpressionHasNotYetBeenSteppedOver()) {
-			Theory theory = context.getTheory();
-			conditionStepSolver = theory.makeEvaluatorStepSolver(condition);
-		}
-		Step conditionStep = conditionStepSolver.step(context);
+		Step conditionStep = getConditionStepSolver(context).step(context);
 		
-		if (conditionStep.itDepends()) { // condition needs to be simplified further
-			result = createIfThenElseStepResultToContinueSteppingOverCondition(conditionStep);
+		if (conditionStep.itDepends()) {
+			result = stepWhenConditionHasNotBeenFullyEvaluatedYet(conditionStep);
 		}
-		else { // we have reached a leaf in the condition stepping
-			result = createStepResultToProcessClauses(conditionStep, context);
+		else {
+			result = stepWhenConditionHasBeenFullyEvaluated(conditionStep, context);
 		}
 		
-		return result;
-	}
-	
-	private Step createStepResultToProcessClauses(Step conditionStep, Context context) {
-		Step result;
-		
-		Theory theory = context.getTheory();
-		
-		if (conditionStep.getValue().equals(TRUE)) {
-			ExpressionLiteralSplitterStepSolver stepSolverForThenBranch = theory.makeEvaluatorStepSolver(thenBranch);
-			result = stepSolverForThenBranch.step(context);
-		}
-		else { // conditionStep.getValue().equals(FALSE)
-			ExpressionLiteralSplitterStepSolver stepSolverForElseBranch = theory.makeEvaluatorStepSolver(elseBranch);
-			result = stepSolverForElseBranch.step(context);
-		}
 		return result;
 	}
 
-	private Step createIfThenElseStepResultToContinueSteppingOverCondition(Step conditionStep) {
+	private ExpressionLiteralSplitterStepSolver getConditionStepSolver(Context context) {
+		if (conditionStepSolver == null) {
+			Theory theory = context.getTheory();
+			conditionStepSolver = theory.makeEvaluatorStepSolver(condition);
+		}
+		return conditionStepSolver;
+	}
+	
+	private Step stepWhenConditionHasNotBeenFullyEvaluatedYet(Step conditionStep) {
 		
 		Expression           splitter = conditionStep.getSplitter();
 		ContextSplitting     splitting = conditionStep.getContextSplittingWhenSplitterIsLiteral();
@@ -107,8 +90,25 @@ public class IfThenElseStepSolver implements ExpressionLiteralSplitterStepSolver
 		return sequelStepSolver;
 	}
 
-	private boolean conditionExpressionHasNotYetBeenSteppedOver() {
-		return conditionStepSolver == null;
+	private Step stepWhenConditionHasBeenFullyEvaluated(Step conditionStep, Context context) {
+		Step result;
+		
+		Theory theory = context.getTheory();
+		
+		if (conditionStep.getValue().equals(TRUE)) {
+			ExpressionLiteralSplitterStepSolver stepSolverForThenBranch = theory.makeEvaluatorStepSolver(thenBranch);
+			result = stepSolverForThenBranch.step(context);
+		}
+		else { // conditionStep.getValue().equals(FALSE)
+			ExpressionLiteralSplitterStepSolver stepSolverForElseBranch = theory.makeEvaluatorStepSolver(elseBranch);
+			result = stepSolverForElseBranch.step(context);
+		}
+		return result;
+	}
+
+	@Override
+	public IfThenElseStepSolver clone() {
+		return new IfThenElseStepSolver(conditionStepSolver, condition, thenBranch, elseBranch);
 	}
 
 }

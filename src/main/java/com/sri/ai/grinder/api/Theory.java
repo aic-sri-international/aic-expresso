@@ -162,12 +162,13 @@ public interface Theory extends Cloneable {
 			
 			ExpressionLiteralSplitterStepSolver evaluatorStepSolver = 
 					explanationBlock("Making evaluator step solver ", code( () -> 
-					makeEvaluatorStepSolver(expression)
-							), "Step solver is ", RESULT);
+						makeEvaluatorStepSolver(expression)
+					), "Step solver is ", RESULT);
 			
-			Expression result = explanationBlock("Solving step solver ", code( () -> 
-			staticSolve(evaluatorStepSolver, context)
-			), "Result is ", RESULT);
+			Expression result = 
+					explanationBlock("Solving step solver ", code( () -> 
+						staticSolve(evaluatorStepSolver, context)
+					), "Result is ", RESULT);
 			
 			return result;
 			

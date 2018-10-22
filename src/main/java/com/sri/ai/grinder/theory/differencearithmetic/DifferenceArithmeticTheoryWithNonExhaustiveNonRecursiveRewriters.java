@@ -16,9 +16,19 @@ import com.sri.ai.grinder.rewriter.core.FirstOf;
 import com.sri.ai.grinder.rewriter.core.Switch;
 import com.sri.ai.grinder.rewriter.help.LiteralRewriter;
 
+/**
+ * An experimental class (as of October 2018) that bypasses the use of an exhaustive recursive rewriter as established by
+ * its ancestor {@link AbstractTheory}.
+ * 
+ * Currently, it only includes if-then-else and sum, so it cannot deal with any other function,
+ * although it does deal with literal operators as long as the literals do not need to be simplified.
+ * 
+ * @author braz
+ *
+ */
 public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters extends DifferenceArithmeticTheory {
 	
-	TopRewriter stepSolverSwitch; //ifThenElseAndSummationStepSolverSwitchWithLiteralExternalization
+	TopRewriter stepSolverSwitch;
 	
 	public DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters(boolean atomFunctorsAreUniqueToThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super( atomFunctorsAreUniqueToThisTheory, 
@@ -26,8 +36,10 @@ public class DifferenceArithmeticTheoryWithNonExhaustiveNonRecursiveRewriters ex
 		
 		TopRewriter ifThenElseAndSummationSwitch = new Switch<>(
 				FUNCTOR,
-				map( IF_THEN_ELSE, new IfThenElseRewriter(),
-					 SUM, new SimplifierForAggregateFunctionOnIntensionalSet(new SumProduct(), new SGVET()) )
+				map( 
+						IF_THEN_ELSE, new IfThenElseRewriter(),
+						SUM, new SimplifierForAggregateFunctionOnIntensionalSet(new SumProduct(), new SGVET())
+				)
 		);
 		
 		stepSolverSwitch = new FirstOf(

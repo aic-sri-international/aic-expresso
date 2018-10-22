@@ -75,7 +75,7 @@ abstract public class AbstractTheory implements Theory {
 		super();
 	}
 
-	private void setAllRewriters(TopRewriter topRewriter) {
+	private void setTopRewriterAndRewriterAndCompleteRewriter(TopRewriter topRewriter) {
 		this.topRewriter = topRewriter;
 		this.rewriter = new Recursive(new Exhaustive(topRewriter));
 		this.completeRewriter = new CompleteRewriter(topRewriter);
@@ -84,21 +84,21 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public TopRewriter getTopRewriter() {
 		if (topRewriter == null) {
-			setAllRewriters(makeTopRewriter());
+			setTopRewriterAndRewriterAndCompleteRewriter(makeTopRewriter());
 		}
 		return topRewriter;
 	}
 
 	private Rewriter getRewriter() {
 		if (rewriter == null) {
-			setAllRewriters(makeTopRewriter());
+			setTopRewriterAndRewriterAndCompleteRewriter(makeTopRewriter());
 		}
 		return rewriter;
 	}
 	
 	private Rewriter getCompleteRewriter() {
 		if (completeRewriter == null) {
-			setAllRewriters(makeTopRewriter());
+			setTopRewriterAndRewriterAndCompleteRewriter(makeTopRewriter());
 		}
 		return completeRewriter;
 	}

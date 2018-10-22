@@ -113,7 +113,7 @@ public class ContextDependentExpressionProblemSolver {
 	}
 	
 	private Expression getDeterminedSolution(ExpressionLiteralSplitterStepSolver.Step step) {
-		explain("Problem's solution is already determined to be ", step);
+		explain("No more splitting needed. Solution is ", step);
 		Expression result = step.getValue();
 		return result;
 	}

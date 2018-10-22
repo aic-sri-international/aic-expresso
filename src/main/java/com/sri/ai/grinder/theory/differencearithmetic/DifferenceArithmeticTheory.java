@@ -88,7 +88,7 @@ import com.sri.ai.util.math.Rational;
 public class DifferenceArithmeticTheory extends AbstractNumericTheory {
 
 	/**
-	 * Creates an difference arithmetic theory for integers.
+	 * Creates a difference arithmetic theory for integers.
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundTheory} mixing multiple theories involving
 	 * equalities is being used.
