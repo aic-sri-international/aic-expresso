@@ -39,10 +39,6 @@ package com.sri.ai.grinder.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
 import static com.sri.ai.grinder.core.solver.ExpressionStepSolverToLiteralSplitterStepSolverAdapter.toExpressionLiteralSplitterStepSolver;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.explanation.logging.api.ThreadExplanationLogger.RESULT;
@@ -71,7 +67,6 @@ import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.helper.AssignmentMapsIterator;
 import com.sri.ai.grinder.interpreter.Assignment;
 import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.rewriter.core.Recursive;
 
 /**
@@ -453,94 +448,6 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 				splitterValue
 				? bodyStep.getContextSplittingWhenSplitterIsLiteral().getConstraintAndLiteral() 
 				: bodyStep.getContextSplittingWhenSplitterIsLiteral().getConstraintAndLiteralNegation();
-		return result;
-	}
-
-	protected Expression solveSubProblems(ExpressionStepSolver subProblem1, ExpressionStepSolver subProblem2, Context context) {
-		// (**) IF DELETING THIS MARKER, DELETE ALL THE REFERENCES TO IT IN THIS FILE
-		// This is where this step solver may return a Solution with literals in it:
-		// solveSubProblem uses an exhaustive solve.
-		Expression subSolution1 = solveSubProblem(subProblem1, context);
-		Expression subSolution2 = solveSubProblem(subProblem2, context);
-		Expression result = combine(subSolution1, subSolution2, context);
-		return result;
-	}
-
-	protected Expression solveSubProblem(ExpressionStepSolver subProblemStepSolver, Context context) {	
-		Expression result = subProblemStepSolver.solve(context);
-		// (**) IF DELETING THIS, DELETE ALL OTHER OCCURRENCES IN THIS FILE
-		// The above code line is the exhaustive solve mentioned in other occurrences of (**)
-		return result;
-	}
-
-	protected Expression combine(Expression solution1, Expression solution2, Context context) {
-		return explanationBlock("Combining solutions to sub-problems", code(() -> {
-
-			Expression result;
-			if (isIfThenElse(solution1)) {
-				result = addSolution1AndSolution2GivenSolution1IsConditional(solution1, solution2, context);
-			}
-			else if (isIfThenElse(solution2)) {
-				result = addSolution1AndSolution2GivenSolution2IsConditional(solution1, solution2, context);
-			}
-			else {
-				result = addNonConditionalSolutions(solution1, solution2, context);
-			}
-			return result;
-			
-		}), "COmbination is ", RESULT);
-	}
-
-	private Expression addSolution1AndSolution2GivenSolution1IsConditional(Expression solution1, Expression solution2, Context context) {
-		// (if C1 then A1 else A2) op solution2 ---> if C1 then (A1 op solution2) else (A2 op solution2)
-		Expression result;
-		ContextSplitting split = new ContextSplitting(condition(solution1), context);
-		switch (split.getResult()) {
-		case CONSTRAINT_IS_CONTRADICTORY:
-			result = null;
-			break;
-		case LITERAL_IS_UNDEFINED:
-			Expression subSolution1 = combine(thenBranch(solution1), solution2, split.getContextAndLiteral());
-			Expression subSolution2 = combine(elseBranch(solution1), solution2, split.getContextAndLiteralNegation());
-			result = IfThenElse.make(condition(solution1), subSolution1, subSolution2, true);
-			break;
-		case LITERAL_IS_TRUE:
-			result = combine(thenBranch(solution1), solution2, split.getContextAndLiteral());
-			break;
-		case LITERAL_IS_FALSE:
-			result = combine(elseBranch(solution1), solution2, split.getContextAndLiteralNegation());
-			break;
-		default: throw new Error("Unrecognized result for " + ContextSplitting.class + ": " + split.getResult());
-		}
-		return result;
-	}
-
-	private Expression addSolution1AndSolution2GivenSolution2IsConditional(Expression solution1, Expression solution2, Context context) {
-		// solution1 op (if C2 then B1 else B2) ---> if C2 then (solution1 op B2) else (solution1 op B2)
-		Expression result;
-		ContextSplitting split = new ContextSplitting(condition(solution2), context);
-		switch (split.getResult()) {
-		case CONSTRAINT_IS_CONTRADICTORY:
-			result = null;
-			break;
-		case LITERAL_IS_UNDEFINED:
-			Expression subSolution1 = combine(solution1, thenBranch(solution2), split.getContextAndLiteral());
-			Expression subSolution2 = combine(solution1, elseBranch(solution2), split.getContextAndLiteralNegation());
-			result = IfThenElse.make(condition(solution2), subSolution1, subSolution2, true);
-			break;
-		case LITERAL_IS_TRUE:
-			result = combine(solution1, thenBranch(solution2), split.getContextAndLiteral());
-			break;
-		case LITERAL_IS_FALSE:
-			result = combine(solution1, elseBranch(solution2), split.getContextAndLiteralNegation());
-			break;
-		default: throw new Error("Unrecognized result for " + ContextSplitting.class + ": " + split.getResult());
-		}
-		return result;
-	}
-
-	private Expression addNonConditionalSolutions(Expression solution1, Expression solution2, Context context) {
-		Expression result = getGroup().addAndPossiblySolveItDeprecated(solution1, solution2, context);
 		return result;
 	}
 
