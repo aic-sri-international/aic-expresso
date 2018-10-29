@@ -73,7 +73,6 @@ import com.sri.ai.grinder.interpreter.Assignment;
 import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.rewriter.core.Recursive;
-import com.sri.ai.util.base.PairOf;
 
 /**
  * An abstract implementation for step solvers for quantified expressions
@@ -218,8 +217,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			// When the first of these two returns a step, it's conditional on K > 0.
 			// Since K is a free variable, that is passed up and eventually the first step solver reaches a solution.
 			// Then the second one needs to produce a step, but now the context contains K > 0.
-			// HOWEVERs, its initialContextForBody *still* is I <= 1, that is, it does not imply K > 0
-			// even though the contextForBody should always represent a conjuntions of the current context (here, K > 0)
+			// HOWEVER, its initialContextForBody *still* is I <= 1, that is, it does not imply K > 0
+			// even though the contextForBody should always represent a conjunction of the current context (here, K > 0)
 			// and the index constraint.
 			// So the body step solver will be conditioned on K > 0, and because it is a free variable, the
 			// AssociativeCommutativeGroupOperationApplicationStepSolver tries to return a step conditional on K > 0.
@@ -228,6 +227,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			//
 			// So recomputing contextForBody at every step ensures that it always contains the information in the context.
 			// However, this is more expensive.
+			//
 			// It would be nice if we could just create a contextForBody by "concatenating" the index expression
 			// (which is a SingleVariableConstraint) to the context to create a ConjoinedContext representing the contextForBody.
 			// However, this is not robust to refinements to the original context (in our example, the context going from
@@ -240,9 +240,9 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			// To be able to actually detect contradictions, we would have to really conjoin the index constraint to the
 			// context, which takes us back to the current, more expensive, solution.
 			// 
-			// So, in order to concatenated the index constraint to the context in the knowledge that it will not be contradictory,
+			// So, in order to concatenate the index constraint to the context in the knowledge that it will not be contradictory,
 			// the first job of AbstractSingleQuantifierEliminationStepSolver.step
-			// is to check that the index constraint is satisfiable under all assignments satisfying the context.
+			// should be to check that the index constraint is satisfiable under all assignments satisfying the context.
 			// This can be done by running a satisfiability step solver on it under that context.
 			// If this is not the case, a conditional step solver will be returned and split the problem.
 			// Eventually, we either detect that the index constraint is always unsatisfiable under the context (a trivial case)
@@ -283,10 +283,12 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 
 	private ExpressionLiteralSplitterStepSolver.Step getBodyStep(Context contextForBody, Context context) {
 		return explanationBlock("Determining body step: ", code(() -> {
+			ExpressionLiteralSplitterStepSolver.Step result;
+			
 			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
 			ExpressionLiteralSplitterStepSolver.Step bodyStep = bodyStepSolver.step(contextForBody); 
 
-			// At this point, bodyStep may be a non-conditional solver step
+			// At this point, bodyStep may be a non-conditional step
 			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
 			// If one of these literals is the quantifier index, we *must* detect it.
 			// Therefore, we run EvaluatorStepSolver on it to make sure to detect literals before going on.
@@ -298,23 +300,26 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			// The answer lies in the fact that EvaluatorStepSolver returns solutions with literals
 			// because *this* class (which EvaluatorStepSolver uses to eliminate quantifiers)
 			// does so. Once all quantifiers are eliminated,
-			// EvaluatorStepSolver does no longer return such solutions.
+			// EvaluatorStepSolver no longer returns such solutions.
 			// The solution to this whole situation is to change *this* class
 			// so it does not return solutions with literals any longer.
 			// This happens in quantifier splits, when the two sub-solutions
 			// are computed with an exhaustive solve,
 			// which may return solutions with literals
-			// (it is only the step solvers that we want to prevent from doing this,
-			// not exhaustive solving).
+			// (it is only the step solvers that we want to prevent from doing this, not exhaustive solving).
 			// Check (**) in this file to see where this happens
 			explain("Body step is ", bodyStep);
 			if ( ! bodyStep.itDepends()) {
 				explain("Body step is not conditional, but it may still contain literals, so we are going to check now if really there are none");
 				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
-				bodyStep = evaluatorStepSolver.step(context);
+				result = evaluatorStepSolver.step(context);
+				// myAssert( ! result.itDepends(), () -> "We should not be getting conditional steps here anymore");
 				explain("After this check, body step is ", bodyStep);
 			}
-			return bodyStep;
+			else {
+				result = bodyStep;
+			}
+			return result;
 		}), "Body step is ", RESULT);
 	}
 
