@@ -86,8 +86,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getSplitter());
 		
-		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenSplitterIs(false);
 
 		// if X = c, the number of distinct values is at most 4, so it will never reach the limit
 		step = stepSolverIfXEqualsC.step(context);
@@ -111,8 +111,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		assertEquals(parse("Y = a"), step.getSplitter());
 		
 
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIs(false);
 
 		// ok, moving on, assuming Y = a, limit will not be reached
 		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(context);
@@ -124,8 +124,8 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getSplitter());
 		
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIs(false);
 
 		// if Y = c, then limit is not going to be reached
 		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(context);

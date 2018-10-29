@@ -76,22 +76,8 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 	Step step(Context context);
 	
 	public static interface Step extends StepSolver.Step<Expression> {		 
-		/**
-		 * Returns a {@link ExpressionLiteralSplitterStepSolver} to be used for finding the final solution
-		 * in case the literal is defined as true by the context.
-		 * This is merely an optimization, and using the original step solver should still work,
-		 * but will perform wasted working re-discovering that expressions is already true.
-		 * @return
-		 */
 		@Override
-		ExpressionStepSolver getStepSolverForWhenSplitterIsTrue();
-		
-		/**
-		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when literal is false.
-		 * @return
-		 */
-		@Override
-		ExpressionStepSolver getStepSolverForWhenSplitterIsFalse();
+		ExpressionStepSolver getStepSolverForWhenSplitterIs(boolean splitterValue);
 	}
 	
 	public static class ItDependsOn extends StepSolver.ItDependsOn<Expression> implements Step {
@@ -105,13 +91,8 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 		}
 		
 		@Override
-		public ExpressionStepSolver getStepSolverForWhenSplitterIsTrue() {
-			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIsTrue();
-		}
-		
-		@Override
-		public ExpressionStepSolver getStepSolverForWhenSplitterIsFalse() {
-			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIsFalse();
+		public ExpressionStepSolver getStepSolverForWhenSplitterIs(boolean splitterValue) {
+			return (ExpressionStepSolver) super.getStepSolverForWhenSplitterIs(splitterValue);
 		}
 	}
 	
@@ -126,12 +107,7 @@ public interface ExpressionStepSolver extends StepSolver<Expression>, Cloneable 
 		}
 		
 		@Override
-		public ExpressionStepSolver getStepSolverForWhenSplitterIsTrue() {
-			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
-		}
-
-		@Override
-		public ExpressionStepSolver getStepSolverForWhenSplitterIsFalse() {
+		public ExpressionStepSolver getStepSolverForWhenSplitterIs(boolean splitterValue) {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}

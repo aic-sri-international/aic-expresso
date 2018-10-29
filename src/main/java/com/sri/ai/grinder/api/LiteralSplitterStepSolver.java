@@ -53,11 +53,6 @@ import com.sri.ai.grinder.core.constraint.ContextSplitting;
 public interface LiteralSplitterStepSolver<T> extends StepSolver<T> {
 	public static interface Step<T> extends StepSolver.Step<T> {
 		Expression getSplitterLiteral();
-		
-		@Override
-		LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsTrue();
-		@Override
-		LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsFalse();
 	}
 	
 	public static class ItDependsOn<T> extends StepSolver.ItDependsOn<T> implements Step<T> {
@@ -76,13 +71,8 @@ public interface LiteralSplitterStepSolver<T> extends StepSolver<T> {
 		}
 		
 		@Override
-		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsTrue() {
-			return (LiteralSplitterStepSolver<T>) super.getStepSolverForWhenSplitterIsTrue();
-		}
-		
-		@Override
-		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsFalse() {
-			return (LiteralSplitterStepSolver<T>) super.getStepSolverForWhenSplitterIsFalse();
+		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIs(boolean splitterValue) {
+			return (LiteralSplitterStepSolver<T>) super.getStepSolverForWhenSplitterIs(splitterValue);
 		}
 	}
 	
@@ -96,12 +86,7 @@ public interface LiteralSplitterStepSolver<T> extends StepSolver<T> {
 		}
 		
 		@Override
-		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsTrue() {
-			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
-		}
-		
-		@Override
-		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIsFalse() {
+		public LiteralSplitterStepSolver<T> getStepSolverForWhenSplitterIs(boolean splitterValue) {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}

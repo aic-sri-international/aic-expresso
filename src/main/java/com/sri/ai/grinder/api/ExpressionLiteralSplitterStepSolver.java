@@ -72,22 +72,8 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 	ExpressionLiteralSplitterStepSolver.Step step(Context context);
 	
 	public static interface Step extends ExpressionStepSolver.Step, LiteralSplitterStepSolver.Step<Expression> {		 
-		/**
-		 * Returns a {@link ExpressionLiteralSplitterStepSolver} to be used for finding the final solution
-		 * in case the literal is defined as true by the context.
-		 * This is merely an optimization, and using the original step solver should still work,
-		 * but will perform wasted working re-discovering that expressions is already true.
-		 * @return
-		 */
 		@Override
-		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue();
-		
-		/**
-		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when literal is false.
-		 * @return
-		 */
-		@Override
-		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIs(boolean splitterValue);
 	}
 	
 	public static class ItDependsOn extends LiteralSplitterStepSolver.ItDependsOn<Expression> implements Step {
@@ -114,13 +100,8 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		}
 		
 		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
-			return (ExpressionLiteralSplitterStepSolver) super.getStepSolverForWhenSplitterIsTrue();
-		}
-		
-		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse() {
-			return (ExpressionLiteralSplitterStepSolver) super.getStepSolverForWhenSplitterIsFalse();
+		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIs(boolean splitterValue) {
+			return (ExpressionLiteralSplitterStepSolver) super.getStepSolverForWhenSplitterIs(splitterValue);
 		}
 	}
 	
@@ -131,12 +112,7 @@ public interface ExpressionLiteralSplitterStepSolver extends ExpressionStepSolve
 		}
 		
 		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsTrue() {
-			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
-		}
-
-		@Override
-		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIsFalse() {
+		public ExpressionLiteralSplitterStepSolver getStepSolverForWhenSplitterIs(boolean splitterValue) {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}

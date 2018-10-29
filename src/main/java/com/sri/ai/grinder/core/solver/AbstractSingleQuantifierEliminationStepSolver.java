@@ -121,8 +121,6 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	
 	private ExpressionLiteralSplitterStepSolver initialBodyEvaluationStepSolver;
 	
-	private Context initialContextForBody;
-	
 	/**
 	 * Key for {@link Context} global object indicating whether to compare non-conditional solutions with the result provided by {@link BruteForceCommonInterpreter};
 	 * check is done if key is present.
@@ -192,7 +190,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return explanationBlock("Making context for body ", code(() -> {
 
 			////////////// DEBUGGING LINE
-			initialContextForBody = null;
+			//initialContextForBody = null;
 			////////////// DEBUGGING LINE
 			// TODO: the above line forces the context-for-body to be re-computed at every step.
 			// This is needed because we may be invoking a sequel step solver under a new context,
@@ -244,14 +242,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			// or that it is always satisfiable.
 			// In the second case we can concatenate without risk of building an undetected contradiction.
 			
-			Context result;
-			if (initialContextForBody == null) {
-				result = context.conjoin(getIndexConstraint(), context);
-			}
-			else {
-				explain("Continuing with context for body computed in a step solver predecessing this one");
-				result = initialContextForBody;
-			}
+			Context result = context.conjoin(getIndexConstraint(), context);
 			return result;
 
 		}), "Context for body is ", RESULT);
@@ -442,20 +433,16 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		AbstractSingleQuantifierEliminationStepSolver result = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		result.initialBodyEvaluationStepSolver =
 				splitterValue
-				? bodyStep.getStepSolverForWhenSplitterIsTrue() 
-				: bodyStep.getStepSolverForWhenSplitterIsFalse();
-		result.initialContextForBody = 
-				splitterValue
-				? bodyStep.getContextSplittingWhenSplitterIsLiteral().getConstraintAndLiteral() 
-				: bodyStep.getContextSplittingWhenSplitterIsLiteral().getConstraintAndLiteralNegation();
+				? bodyStep.getStepSolverForWhenSplitterIs(true) 
+				: bodyStep.getStepSolverForWhenSplitterIs(false);
 		return result;
 	}
 
 	private Step splitOnNonIndexVariable(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
 		return explanationBlock("Splitting on non-index splitter", code(() -> {
 
-			ExpressionStepSolver ifTrue = makeStepSolverIfNonIndexSplitterIsTrue(bodyStep);
-			ExpressionStepSolver ifFalse = makeStepSolverIfNonIndexSplitterIsFalse(bodyStep);
+			ExpressionStepSolver ifTrue  = makeSequelStepSolverIfNonIndexSplitterIs(true,  bodyStep);
+			ExpressionStepSolver ifFalse = makeSequelStepSolverIfNonIndexSplitterIs(false, bodyStep);
 			ContextSplitting split = makeOriginalContextSplitting(bodyStep, context);
 
 			Step result = new ItDependsOn(bodyStep.getSplitterLiteral(), split, ifTrue, ifFalse);
@@ -465,26 +452,14 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Step is ", RESULT);
 	}
 
-	private ExpressionStepSolver makeStepSolverIfNonIndexSplitterIsTrue(ExpressionLiteralSplitterStepSolver.Step bodyStep) {
-		return explanationBlock("Making sequel step solver for when non-index splitter is true", code(() -> {
+	private ExpressionStepSolver makeSequelStepSolverIfNonIndexSplitterIs(boolean splitterValue, ExpressionLiteralSplitterStepSolver.Step bodyStep) {
+		return explanationBlock("Making sequel step solver for when non-index splitter is ", splitterValue, code(() -> {
 			
-			AbstractSingleQuantifierEliminationStepSolver ifTrue = clone();
-			ifTrue.initialBodyEvaluationStepSolver  = bodyStep.getStepSolverForWhenSplitterIsTrue();
-			ifTrue.initialContextForBody  = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteral();
-			return ifTrue;
+			AbstractSingleQuantifierEliminationStepSolver sequelStepSolver = clone();
+			sequelStepSolver.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIs(splitterValue);
+			return sequelStepSolver;
 			
-		}), "Sequel step solver for when non-index splitter is true is ", RESULT);
-	}
-
-	private ExpressionStepSolver makeStepSolverIfNonIndexSplitterIsFalse(ExpressionLiteralSplitterStepSolver.Step bodyStep) {
-		return explanationBlock("Making sequel step solver for when non-index splitter is false", code(() -> {
-
-			AbstractSingleQuantifierEliminationStepSolver ifFalse = clone();
-			ifFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIsFalse();
-			ifFalse.initialContextForBody = bodyStep.getContextSplittingWhenSplitterIsLiteral().getContextAndLiteralNegation();
-			return ifFalse;
-
-		}), "Sequel step solver for when non-index splitter is false is ", RESULT);
+		}), "Sequel step solver for when non-index splitter is ", splitterValue, " is ", RESULT);
 	}
 
 	private ContextSplitting makeOriginalContextSplitting(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {

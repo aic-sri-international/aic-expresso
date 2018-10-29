@@ -136,18 +136,12 @@ public interface StepSolver<T> extends Cloneable {
 		
 		/**
 		 * Returns a {@link StepSolver} to be used for finding the final solution
-		 * in case the splitter is defined as true by the context.
+		 * in case the splitter has the given value according to the context.
 		 * This is merely an optimization, and using the original step solver should still work,
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
 		 */
-		StepSolver<T> getStepSolverForWhenSplitterIsTrue();
-		
-		/**
-		 * Same as {@link #getStepSolverForWhenSplitterIsTrue()} but for when splitter is false.
-		 * @return
-		 */
-		StepSolver<T> getStepSolverForWhenSplitterIsFalse();
+		StepSolver<T> getStepSolverForWhenSplitterIs(boolean splitterValue);
 		
 		/**
 		 * For solutions depending on a split, provides the constraint splitting
@@ -210,13 +204,13 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public StepSolver<T> getStepSolverForWhenSplitterIsTrue() {
-			return stepSolverIfSplitterIsTrue;
-		}
-		
-		@Override
-		public StepSolver<T> getStepSolverForWhenSplitterIsFalse() {
-			return stepSolverIfSplitterIsFalse;
+		public StepSolver<T> getStepSolverForWhenSplitterIs(boolean splitterValue) {
+			if (splitterValue) {
+				return stepSolverIfSplitterIsTrue;
+			}
+			else {
+				return stepSolverIfSplitterIsFalse;
+			}
 		}
 		
 		@Override
@@ -255,15 +249,10 @@ public interface StepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public StepSolver<T> getStepSolverForWhenSplitterIsTrue() {
+		public StepSolver<T> getStepSolverForWhenSplitterIs(boolean splitterValue) {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
-
-		@Override
-		public StepSolver<T> getStepSolverForWhenSplitterIsFalse() {
-			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
-		}
-
+		
 		@Override
 		public ContextSplitting getContextSplittingWhenSplitterIsLiteral() {
 			return null;

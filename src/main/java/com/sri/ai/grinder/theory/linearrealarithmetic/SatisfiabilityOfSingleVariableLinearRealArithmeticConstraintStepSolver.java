@@ -93,9 +93,9 @@ public class SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSol
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers must be satisfiability step solvers.
 			SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver ifTrue = clone();
-			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsTrue();
+			ifTrue.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIs(true);
 			SatisfiabilityOfSingleVariableLinearRealArithmeticConstraintStepSolver ifFalse = clone();
-			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIsFalse();
+			ifFalse.modelCounting = modelCountingStep.getStepSolverForWhenSplitterIs(false);
 			return new ItDependsOn(modelCountingStep.getSplitterLiteral(), modelCountingStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 		}
 

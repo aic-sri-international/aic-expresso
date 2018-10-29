@@ -63,11 +63,11 @@ public class IfThenElseStepSolver implements ExpressionLiteralSplitterStepSolver
 		
 		IfThenElseStepSolver sequelStepSolverIfSplitterIsTrue = 
 				makeSequelStepSolver(
-						conditionStep.getStepSolverForWhenSplitterIsTrue(), splitting.getContextAndLiteral());
+						conditionStep.getStepSolverForWhenSplitterIs(true), splitting.getContextAndLiteral());
 		
 		IfThenElseStepSolver sequelStepSolverIfSplitterIsFalse = 
 				makeSequelStepSolver(
-						conditionStep.getStepSolverForWhenSplitterIsFalse(), splitting.getContextAndLiteralNegation());
+						conditionStep.getStepSolverForWhenSplitterIs(false), splitting.getContextAndLiteralNegation());
 		
 		Step result = 
 				new ItDependsOn(

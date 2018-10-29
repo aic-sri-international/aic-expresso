@@ -232,9 +232,9 @@ public class Recursive implements Rewriter {
 
 				if (step.itDepends()) {
 					RecursiveStepSolver ifTrue = clone();
-					ifTrue.initialCurrentStepSolver = step.getStepSolverForWhenSplitterIsTrue();
+					ifTrue.initialCurrentStepSolver = step.getStepSolverForWhenSplitterIs(true);
 					RecursiveStepSolver ifFalse = clone();
-					ifFalse.initialCurrentStepSolver = step.getStepSolverForWhenSplitterIsFalse();
+					ifFalse.initialCurrentStepSolver = step.getStepSolverForWhenSplitterIs(false);
 					result = new ItDependsOn(step, ifTrue, ifFalse);
 				}
 				else if (topExpressionIsNextForUsToTakeAStepOn) {

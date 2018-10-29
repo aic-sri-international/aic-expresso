@@ -82,16 +82,16 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X = c"), step.getSplitter());
 		
-		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenSplitterIs(false);
 
 		// if X = c, the number of distinct values can be 3 or 4, depending on whether Y = a, or Y = b
 		step = stepSolverIfXEqualsC.step(context);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getSplitter());
 
-		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYEqualsA = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYEqualsA = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIs(false);
 
 		// if X = c and Y = a, the number of distinct values is 3 (a, b, c)
 		step = stepSolverIfXEqualsCAndYEqualsA.step(context);
@@ -103,8 +103,8 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getSplitter());
 
-		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIs(false);
 
 		// if X = c and Y != a and Y = c, the number of distinct values is 3
 		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC.step(context);
@@ -142,8 +142,8 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = a"), step.getSplitter());
 
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenSplitterIs(false);
 
 		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(context);
 		assertEquals(false, step.itDepends());
@@ -154,8 +154,8 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y = c"), step.getSplitter());
 		
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenSplitterIsTrue();
-		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIsFalse();
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenSplitterIs(true);
+		ExpressionLiteralSplitterStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenSplitterIs(false);
 
 		// if Y = c, then there are 4 distinct values
 		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(context);

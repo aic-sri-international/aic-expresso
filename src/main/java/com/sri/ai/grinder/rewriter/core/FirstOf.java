@@ -193,10 +193,10 @@ public class FirstOf implements TopRewriter {
 			if (baseStep.itDepends()) {
 				
 				FirstOfStepSolver ifTrue = clone();
-				ifTrue.currentBaseStepSolver = baseStep.getStepSolverForWhenSplitterIsTrue();
+				ifTrue.currentBaseStepSolver = baseStep.getStepSolverForWhenSplitterIs(true);
 				
 				FirstOfStepSolver ifFalse = clone();
-				ifFalse.currentBaseStepSolver = baseStep.getStepSolverForWhenSplitterIsFalse();
+				ifFalse.currentBaseStepSolver = baseStep.getStepSolverForWhenSplitterIs(false);
 				
 				result = 
 						new ItDependsOn(

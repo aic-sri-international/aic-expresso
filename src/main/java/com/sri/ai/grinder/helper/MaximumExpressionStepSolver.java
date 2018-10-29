@@ -110,8 +110,8 @@ public class MaximumExpressionStepSolver extends AbstractExpressionsSequenceStep
 			if (innerResult.itDepends()) {
 				result = new ExpressionLiteralSplitterStepSolver.ItDependsOn(innerResult.getSplitter(), 
 								innerResult.getContextSplittingWhenSplitterIsLiteral(), 
-								(ExpressionLiteralSplitterStepSolver) innerResult.getStepSolverForWhenSplitterIsTrue(), 
-								(ExpressionLiteralSplitterStepSolver) innerResult.getStepSolverForWhenSplitterIsFalse());
+								(ExpressionLiteralSplitterStepSolver) innerResult.getStepSolverForWhenSplitterIs(true), 
+								(ExpressionLiteralSplitterStepSolver) innerResult.getStepSolverForWhenSplitterIs(false));
 			}
 			else {
 				result = new ExpressionLiteralSplitterStepSolver.Solution(innerResult.getValue());

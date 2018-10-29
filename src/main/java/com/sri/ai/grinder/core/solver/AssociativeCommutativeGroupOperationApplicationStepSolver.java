@@ -110,10 +110,10 @@ public class AssociativeCommutativeGroupOperationApplicationStepSolver implement
 		ContextSplitting contextSplitting = operandStep.getContextSplittingWhenSplitterIsLiteral();
 		
 		ExpressionLiteralSplitterStepSolver sequelStepSolverForWhenSplitterIsTrue = 
-				makeSequelStepSolverGivenCurrentOperandSequelStepSolver(operandStep.getStepSolverForWhenSplitterIsTrue());
+				makeSequelStepSolverGivenCurrentOperandSequelStepSolver(operandStep.getStepSolverForWhenSplitterIs(true));
 		
 		ExpressionLiteralSplitterStepSolver sequelStepSolverForWhenSplitterIsFalse = 
-				makeSequelStepSolverGivenCurrentOperandSequelStepSolver(operandStep.getStepSolverForWhenSplitterIsFalse());
+				makeSequelStepSolverGivenCurrentOperandSequelStepSolver(operandStep.getStepSolverForWhenSplitterIs(false));
 		
 		Step conditionalStep = new ItDependsOn( contextSplitting.getLiteral(),
 											    contextSplitting,

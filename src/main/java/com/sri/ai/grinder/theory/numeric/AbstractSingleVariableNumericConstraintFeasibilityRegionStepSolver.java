@@ -713,9 +713,9 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			ExpressionLiteralSplitterStepSolver.Step maximumLowerBoundStep = maximumLowerBoundStepSolver.step(context);
 			if (maximumLowerBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
-				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsTrue();
+				ifTrue.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIs(true);
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
-				ifFalse.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIsFalse();
+				ifFalse.initialMaximumLowerBoundStepSolver = maximumLowerBoundStep.getStepSolverForWhenSplitterIs(false);
 				ItDependsOn result = new ItDependsOn(maximumLowerBoundStep.getSplitterLiteral(), maximumLowerBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
@@ -738,9 +738,9 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 			ExpressionLiteralSplitterStepSolver.Step minimumUpperBoundStep = minimumUpperBoundStepSolver.step(context);
 			if (minimumUpperBoundStep.itDepends()) {
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
-				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
+				ifTrue.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIs(true);
 				AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
-				ifFalse.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIsFalse();
+				ifFalse.initialMinimumUpperBoundStepSolver = minimumUpperBoundStep.getStepSolverForWhenSplitterIs(false);
 				ItDependsOn result = new ItDependsOn(minimumUpperBoundStep.getSplitterLiteral(), minimumUpperBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 				return result;
 			}
@@ -763,9 +763,9 @@ public abstract class AbstractSingleVariableNumericConstraintFeasibilityRegionSt
 				StepSolver.Step<Boolean> lowerBoundIsLessThanUpperBoundStep = boundedSpaceIsNotEmptyStepSolver.step(context);
 				if (lowerBoundIsLessThanUpperBoundStep.itDepends()) {
 					AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifTrue  = makeSequelStepSolver(sequelBase);
-					ifTrue.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIsTrue();
+					ifTrue.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIs(true);
 					AbstractSingleVariableNumericConstraintFeasibilityRegionStepSolver ifFalse = makeSequelStepSolver(sequelBase);
-					ifFalse.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIsFalse();
+					ifFalse.initialBoundedSpaceIsNotEmptyStepSolver = lowerBoundIsLessThanUpperBoundStep.getStepSolverForWhenSplitterIs(false);
 					ItDependsOn result = new ItDependsOn(lowerBoundIsLessThanUpperBoundStep.getSplitter(), lowerBoundIsLessThanUpperBoundStep.getContextSplittingWhenSplitterIsLiteral(), ifTrue, ifFalse);
 					return result;
 				}

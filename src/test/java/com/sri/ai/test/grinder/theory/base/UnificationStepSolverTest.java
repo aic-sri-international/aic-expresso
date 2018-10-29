@@ -46,10 +46,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("P = Q"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("P and not Q"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -88,16 +88,16 @@ public class UnificationStepSolverTest {
 		Assert.assertEquals(true,  step.itDepends());
 		Assert.assertEquals(parse("P = unary_prop(Q)"), step.getSplitter());
 		
-		StepSolver<Boolean> falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		StepSolver<Boolean> falseItDependsSolver = step.getStepSolverForWhenSplitterIs(false);
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
-		StepSolver<Boolean> trueItDependsSolver = step.getStepSolverForWhenSplitterIsTrue();
+		StepSolver<Boolean> trueItDependsSolver = step.getStepSolverForWhenSplitterIs(true);
 		localTestContext = rootContext.conjoin(parse("P"), rootContext);
 		step = trueItDependsSolver.step(localTestContext);
 		Assert.assertEquals(true,  step.itDepends());
 		Assert.assertEquals(parse("P = unary_prop(Q)"), step.getSplitter());
 		
-		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		falseItDependsSolver = step.getStepSolverForWhenSplitterIs(false);
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
 		// Ignore: PropositionalTheory will only deal with symbol variables for now
@@ -106,7 +106,7 @@ public class UnificationStepSolverTest {
 //		Assert.assertEquals(true,  step.itDepends());
 //		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
 		
-		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		falseItDependsSolver = step.getStepSolverForWhenSplitterIs(false);
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
 		// Ignore: PropositionalTheory will only deal with symbol variables for now
@@ -115,7 +115,7 @@ public class UnificationStepSolverTest {
 //		Assert.assertEquals(true,  step.itDepends());
 //		Assert.assertEquals(parse("unary_prop(P) = Q"), step.getSplitter());
 		
-		falseItDependsSolver = step.getStepSolverForWhenSplitterIsFalse();
+		falseItDependsSolver = step.getStepSolverForWhenSplitterIs(false);
 		Assert.assertEquals(false,  falseItDependsSolver.step(rootContext).itDepends());
 		Assert.assertEquals(false, falseItDependsSolver.step(rootContext).getValue());
 		// Ignore: PropositionalTheory will only deal with symbol variables for now
@@ -160,10 +160,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("X = Y"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = a and Y = b"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -230,10 +230,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("I = J"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("I = 0 and J = 1"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -296,10 +296,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("X = Y"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = 0 and Y = 1"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -378,10 +378,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("P = Q"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		Context localTestContext = rootContext.conjoinWithConjunctiveClause(parse("P and not Q"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -410,10 +410,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("S = T"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("S = a and T = b"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -441,10 +441,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("I = J"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("I = 0 and J = 1"), rootContext);
 		step = unificationStepSolver.step(localTestContext);
@@ -472,10 +472,10 @@ public class UnificationStepSolverTest {
 		step = unificationStepSolver.step(rootContext);
 		Assert.assertEquals(true, step.itDepends());		
 		Assert.assertEquals(Expressions.parse("X = Y"), step.getSplitter());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).itDepends());
-		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIsTrue().step(rootContext).getValue());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).itDepends());
-		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIsFalse().step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(true).step(rootContext).itDepends());
+		Assert.assertEquals(true, step.getStepSolverForWhenSplitterIs(true).step(rootContext).getValue());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).itDepends());
+		Assert.assertEquals(false, step.getStepSolverForWhenSplitterIs(false).step(rootContext).getValue());
 		
 		localTestContext = rootContext.conjoinWithConjunctiveClause(parse("X = 0 and Y = 1"), rootContext);
 		step = unificationStepSolver.step(localTestContext);

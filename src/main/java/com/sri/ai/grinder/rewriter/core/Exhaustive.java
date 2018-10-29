@@ -122,10 +122,10 @@ public class Exhaustive implements Rewriter {
 			if (baseStep.itDepends()) {
 				
 				ExhaustiveStepSolver ifTrue = clone();
-				ifTrue.baseStepSolver = baseStep.getStepSolverForWhenSplitterIsTrue();
+				ifTrue.baseStepSolver = baseStep.getStepSolverForWhenSplitterIs(true);
 				
 				ExhaustiveStepSolver ifFalse = clone();
-				ifFalse.baseStepSolver = baseStep.getStepSolverForWhenSplitterIsFalse();
+				ifFalse.baseStepSolver = baseStep.getStepSolverForWhenSplitterIs(false);
 				
 				result = 
 						new ItDependsOn(

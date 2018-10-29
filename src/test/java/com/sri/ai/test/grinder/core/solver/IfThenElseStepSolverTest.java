@@ -297,8 +297,8 @@ public class IfThenElseStepSolverTest {
 			Context falseContext = splitting.getContextAndLiteralNegation();
 			int nestingOfNextStep = nestingOfStep + 1;
 			
-			result += evaluateByRecursivelyTakingSteps(step.getStepSolverForWhenSplitterIsTrue(), trueContext, stepCount, nestingOfNextStep);
-			result += evaluateByRecursivelyTakingSteps(step.getStepSolverForWhenSplitterIsFalse(), falseContext, stepCount, nestingOfNextStep);
+			result += evaluateByRecursivelyTakingSteps(step.getStepSolverForWhenSplitterIs(true), trueContext, stepCount, nestingOfNextStep);
+			result += evaluateByRecursivelyTakingSteps(step.getStepSolverForWhenSplitterIs(false), falseContext, stepCount, nestingOfNextStep);
 		}
 		else {
 			String nestingString = createNestingString(nestingOfStep);
