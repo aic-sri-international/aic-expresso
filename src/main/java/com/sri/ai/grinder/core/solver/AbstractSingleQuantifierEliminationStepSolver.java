@@ -368,12 +368,10 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 						bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
 				break;
 			case LITERAL_IS_TRUE:
-				explain("Index literal ", bodyStep.getSplitter(), " is always true under current context, so we will solve a single sub-problem");
-				step = stepOverSubProblemIfSplitterIsTrue(bodyStep, indexConstraintAndLiteral, context);
-				break;
 			case LITERAL_IS_FALSE:
-				explain("Index literal ", bodyStep.getSplitter(), " is always false under current context, so we will solve a single sub-problem");
-				step = stepOverSubProblemIfSplitterIsFalse(bodyStep, indexConstraintAndLiteralNegation, context);
+				boolean splitterValue = indexConstraintSplitting.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
+				explain("Index literal ", bodyStep.getSplitter(), " is always " + splitterValue + " under current context, so we will solve a single sub-problem");
+				step = stepOverSubProblemIfSplitterIs(splitterValue, bodyStep, indexConstraintAndLiteral, context);
 				break;
 				
 			default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
@@ -407,34 +405,21 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return associativeOperationStep;
 	}
 	
-	private Step stepOverSubProblemIfSplitterIsTrue(
+	private Step stepOverSubProblemIfSplitterIs(
+			boolean splitterValue, 
 			ExpressionLiteralSplitterStepSolver.Step bodyStep, 
-			Constraint indexConstraintAndLiteral, 
-			Context context) {
+			Constraint indexConstraintAndLiteral, Context context) {
 		
-		ExpressionStepSolver subProblemStepSolverIfSplitterIsTrue = makeSubProblemStepSolver(true, bodyStep, indexConstraintAndLiteral);
-		Step step = subProblemStepSolverIfSplitterIsTrue.step(context);
+		ExpressionStepSolver subProblemStepSolverForThisSplitterValue = makeSubProblemStepSolver(splitterValue, bodyStep, indexConstraintAndLiteral);
+		Step step = subProblemStepSolverForThisSplitterValue.step(context);
 		return step;
 	}
 	
-	private Step stepOverSubProblemIfSplitterIsFalse(
-			ExpressionLiteralSplitterStepSolver.Step bodyStep, 
-			Constraint indexConstraintAndLiteral, 
-			Context context) {
-		
-		ExpressionStepSolver subProblemStepSolverIfSplitterIsFalse = makeSubProblemStepSolver(false, bodyStep, indexConstraintAndLiteral);
-		Step step = subProblemStepSolverIfSplitterIsFalse.step(context);
-		return step;
-	}
-
 	protected ExpressionStepSolver makeSubProblemStepSolver(boolean splitterValue, ExpressionLiteralSplitterStepSolver.Step bodyStep, Constraint newIndexConstraint) {
 		
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = (SingleVariableConstraint) newIndexConstraint;
 		AbstractSingleQuantifierEliminationStepSolver result = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
-		result.initialBodyEvaluationStepSolver =
-				splitterValue
-				? bodyStep.getStepSolverForWhenSplitterIs(true) 
-				: bodyStep.getStepSolverForWhenSplitterIs(false);
+		result.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenSplitterIs(splitterValue);
 		return result;
 	}
 
