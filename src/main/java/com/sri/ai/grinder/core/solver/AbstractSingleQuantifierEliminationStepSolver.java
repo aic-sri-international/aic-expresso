@@ -359,34 +359,40 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 
 			Step step;
 			switch (indexConstraintSplitting.getResult()) {
-			case CONSTRAINT_IS_CONTRADICTORY:
-				step = null;
-				break;
 			case LITERAL_IS_UNDEFINED:
-				explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
-				step = convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
-						bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
+				step = splitOnUndefinedSplitter(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
 				break;
-			case LITERAL_IS_TRUE:
-			case LITERAL_IS_FALSE:
-				boolean splitterValue = indexConstraintSplitting.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
-				explain("Index literal ", bodyStep.getSplitter(), " is always " + splitterValue + " under current context, so we will solve a single sub-problem");
-				step = stepOverSubProblemIfSplitterIs(splitterValue, bodyStep, indexConstraintAndLiteral, context);
+			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
+				step = splitOnDefinedSplitter(bodyStep, indexConstraintSplitting, context, indexConstraintAndLiteral);
 				break;
-				
-			default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
+
+			default: throw new Error("Invalid result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
 			}
 
 			return step;
 
 		}), "Split quantifier problem result in ", RESULT);
 	}
+
+	private Step splitOnDefinedSplitter(
+			ExpressionLiteralSplitterStepSolver.Step bodyStep,
+			ConstraintSplitting indexConstraintSplitting, 
+			Context context, 
+			Constraint indexConstraintAndLiteral) {
+		
+		boolean splitterValue = indexConstraintSplitting.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
+		explain("Index literal ", bodyStep.getSplitter(), " is always " + splitterValue + " under current context, so we will solve a single sub-problem");
+		Step step = stepOverSubProblemIfSplitterIs(splitterValue, bodyStep, indexConstraintAndLiteral, context);
+		return step;
+	}
 	
-	private Step convertItDependsBodyStepOnIndexedLiteralToAStepFromTheAssociativeOperationOnTheExpressionCombiningTheSplitQuantifier(
+	private Step splitOnUndefinedSplitter(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			Constraint indexConstraintAndLiteral,
 			Constraint indexConstraintAndLiteralNegation,
 			Context context) {
+
+		explain("Index literal ", bodyStep.getSplitter(), " can be either true or false under current context, so we will solve two sub-problems");
 
 		ExpressionLiteralSplitterStepSolver subProblemIfSplitterIsTrueStepSolver = 
 				toExpressionLiteralSplitterStepSolver(
