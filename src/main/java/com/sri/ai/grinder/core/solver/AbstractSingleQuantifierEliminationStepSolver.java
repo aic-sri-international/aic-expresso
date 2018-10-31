@@ -153,11 +153,10 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			Context contextForBody = getContextForBody(context);  
 
 			if (contextForBody.isContradiction()) {
-				explain("Context for body is contradictory");
-				step = new Solution(getGroup().additiveIdentityElement()); 	// a summation with a contradictory constraint is a sum of the elements of the empty set, that is, the additive identity element
+				step = stepWhenContextForBodyIsNotConsistent();
 			}
 			else {
-				step = stepOverProblemWithConsistentContextForBody(contextForBody, context);
+				step = stepWhenContextForBodyIsConsistent(contextForBody, context);
 			}
 
 			bruteForceCheckingOfNonConditionalProblemsIfRequested(step, context);
@@ -167,25 +166,12 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Step is ", RESULT);
 	}
 
-	/**
-	 * Returns the context defined for the body of the problem
-	 * given the context to step over.
-	 * <p>
-	 * If initialContextForBody is not already defined, 
-	 * then we are taking the very first step.  Thus we must
-	 * create an appropriate context by conjoining the context 
-	 * to step over with the index constraint of the quantifier.
-	 * This context will be returned.
-	 * <p>
-	 * If initialContextForBody is already defined, then
-	 * we are continuing from a previous step and the appropriate
-	 * context is already stored in initialContextForBody.
-	 * Thus the context in link #initialContextForBody will be
-	 * returned.
-	 * 
-	 * @param context
-	 * @return
-	 */
+	private Step stepWhenContextForBodyIsNotConsistent() {
+		explain("Context for body is contradictory");
+		Step step = new Solution(getGroup().additiveIdentityElement()); 	// a summation with a contradictory constraint is a sum of the elements of the empty set, that is, the additive identity element
+		return step;
+	}
+
 	private Context getContextForBody(Context context) {
 		return explanationBlock("Making context for body ", code(() -> {
 
@@ -248,18 +234,18 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Context for body is ", RESULT);
 	}
 
-	private Step stepOverProblemWithConsistentContextForBody(Context contextForBody, Context context) {
+	private Step stepWhenContextForBodyIsConsistent(Context contextForBody, Context context) {
 		return explanationBlock("Solving problem with consistent context for body", code(() -> {
 			
 			Step step;
-			ExpressionLiteralSplitterStepSolver.Step bodyStep = getBodyStep(contextForBody, context);
+			ExpressionLiteralSplitterStepSolver.Step bodyStep = getBodyStep(contextForBody);
 			explain("Step for solving body alone is ", bodyStep);
 			
 			if (bodyStep.itDepends()) {
-				step = stepOnConditionalQuantifiedProblem(context, contextForBody, bodyStep);
+				step = stepOnProblemWithConditionalBody(bodyStep, context);
 			}
 			else {
-				step = solveNonConditionalQuantifiedProblem(bodyStep, context);
+				step = stepOnProblemWithUnconditionalBody(bodyStep, context);
 			}
 			
 			return step;
@@ -267,13 +253,15 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Step is ", RESULT);
 	}
 
-	private ExpressionLiteralSplitterStepSolver.Step getBodyStep(Context contextForBody, Context context) {
+	private ExpressionLiteralSplitterStepSolver.Step getBodyStep(Context contextForBody) {
 		return explanationBlock("Determining body step: ", code(() -> {
 			ExpressionLiteralSplitterStepSolver.Step result;
 			
-			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(context.getTheory());
+			ExpressionLiteralSplitterStepSolver bodyStepSolver = getInitialBodyStepSolver(contextForBody.getTheory());
 			ExpressionLiteralSplitterStepSolver.Step bodyStep = bodyStepSolver.step(contextForBody); 
 
+			// TODO: this method must be simplified when we eliminate all quantifier elimination rewriters that return solutions with literals
+			
 			// At this point, bodyStep may be a non-conditional step
 			// that nonetheless contains literals (we will probably prohibit step solvers from returning such "solutions" in the future).
 			// If one of these literals is the quantifier index, we *must* detect it.
@@ -297,8 +285,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 			explain("Body step is ", bodyStep);
 			if ( ! bodyStep.itDepends()) {
 				explain("Body step is not conditional, but it may still contain literals, so we are going to check now if really there are none");
-				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = context.getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
-				result = evaluatorStepSolver.step(context);
+				ExpressionLiteralSplitterStepSolver evaluatorStepSolver = contextForBody.getTheory().makeEvaluatorStepSolver(bodyStep.getValue());
+				result = evaluatorStepSolver.step(contextForBody);
 				// myAssert( ! result.itDepends(), () -> "We should not be getting conditional steps here anymore");
 				explain("After this check, body step is ", bodyStep);
 			}
@@ -309,13 +297,13 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Body step is ", RESULT);
 	}
 
-	private Step stepOnConditionalQuantifiedProblem(Context context, Context contextForBody, ExpressionLiteralSplitterStepSolver.Step bodyStep) {
+	private Step stepOnProblemWithConditionalBody(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
 		return explanationBlock("Taking step in solving problem split by splitter from body: ", bodyStep, code(() -> {
 			
 			Step step;
 			if (isSubExpressionOf(getIndex(), bodyStep.getSplitterLiteral())) {
 				explain("Splitter contains index, so we are going to split the quantifier");
-				step = stepOverCombinationOfQuantifiersSplitOnLiteralContainingIndex(bodyStep, contextForBody, context);
+				step = splitOnIndexVariable(bodyStep, context);
 			}
 			else {
 				explain("Splitter does not contains index, so we are going to make a conditional on two new subproblems");
@@ -326,7 +314,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Step is ", RESULT);
 	}
 	
-	protected Step stepOverCombinationOfQuantifiersSplitOnLiteralContainingIndex(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context contextForBody, Context context) {
+	protected Step splitOnIndexVariable(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
 		ConstraintSplitting indexConstraintSplitting = computeIndexConstraintSplitting(bodyStep, context);
@@ -363,7 +351,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 				step = splitOnUndefinedSplitter(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
 				break;
 			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
-				step = splitOnDefinedSplitter(bodyStep, indexConstraintSplitting, context, indexConstraintAndLiteral);
+				step = splitOnDefinedSplitter(bodyStep, indexConstraintSplitting, indexConstraintAndLiteral, context);
 				break;
 
 			default: throw new Error("Invalid result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
@@ -377,8 +365,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	private Step splitOnDefinedSplitter(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			ConstraintSplitting indexConstraintSplitting, 
-			Context context, 
-			Constraint indexConstraintAndLiteral) {
+			Constraint indexConstraintAndLiteral, 
+			Context context) {
 		
 		boolean splitterValue = indexConstraintSplitting.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
 		explain("Index literal ", bodyStep.getSplitter(), " is always " + splitterValue + " under current context, so we will solve a single sub-problem");
@@ -414,7 +402,8 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	private Step stepOverSubProblemIfSplitterIs(
 			boolean splitterValue, 
 			ExpressionLiteralSplitterStepSolver.Step bodyStep, 
-			Constraint indexConstraintAndLiteral, Context context) {
+			Constraint indexConstraintAndLiteral, 
+			Context context) {
 		
 		ExpressionStepSolver subProblemStepSolverForThisSplitterValue = makeSubProblemStepSolver(splitterValue, bodyStep, indexConstraintAndLiteral);
 		Step step = subProblemStepSolverForThisSplitterValue.step(context);
@@ -470,7 +459,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		}), "Splitting on original context is ", RESULT);
 	}
 
-	private Step solveNonConditionalQuantifiedProblem(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
+	private Step stepOnProblemWithUnconditionalBody(ExpressionLiteralSplitterStepSolver.Step bodyStep, Context context) {
 		return explanationBlock("Solving non-conditional problem", code(() -> {
 
 			Expression literalFreeBody = bodyStep.getValue();
