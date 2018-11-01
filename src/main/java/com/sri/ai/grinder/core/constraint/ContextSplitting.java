@@ -64,4 +64,18 @@ public class ContextSplitting extends ConstraintSplitting {
 	public Context getContextAndLiteralNegation() {
 		return getConstraintAndLiteralNegation();
 	}
+	
+	@Override
+	public Context getConstraintAndLiteralEqualTo(boolean splitterValue) {
+		return (Context) super.getConstraintAndLiteralEqualTo(splitterValue);
+	}
+	
+	/**
+	 * Same thing as {@link #getConstraintAndLiteralEqualTo(boolean splitterValue)}, but with a specialized name.
+	 * @return
+	 */
+	public Context getContextAndLiteralEqualTo(boolean splitterValue) {
+		return getConstraintAndLiteralEqualTo(splitterValue);
+	}
+	
 }

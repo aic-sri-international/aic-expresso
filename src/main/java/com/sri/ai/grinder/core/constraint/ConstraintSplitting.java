@@ -178,4 +178,16 @@ public class ConstraintSplitting {
 	public Constraint getConstraintAndLiteralNegation() {
 		return constraintAndLiteralNegation;
 	}
+	
+	/**
+	 * Returns {@link #getConstraintAndLiteral()} if splitter value is true, and {@link #getConstraintAndLiteralNegation()} otherwise.
+	 */
+	public Constraint getConstraintAndLiteralEqualTo(boolean splitterValue) {
+		if (splitterValue) {
+			return constraintAndLiteral;
+		}
+		else {
+			return constraintAndLiteralNegation;
+		}
+	}
 }

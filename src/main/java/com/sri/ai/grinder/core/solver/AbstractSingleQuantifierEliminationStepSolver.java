@@ -351,7 +351,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 				step = splitOnUndefinedSplitter(bodyStep, indexConstraintAndLiteral, indexConstraintAndLiteralNegation, context);
 				break;
 			case LITERAL_IS_TRUE: case LITERAL_IS_FALSE:
-				step = splitOnDefinedSplitter(bodyStep, indexConstraintSplitting, indexConstraintAndLiteral, context);
+				step = splitOnDefinedSplitter(bodyStep, indexConstraintSplitting, context);
 				break;
 
 			default: throw new Error("Invalid result for " + ConstraintSplitting.class + ": " + indexConstraintSplitting.getResult());
@@ -365,12 +365,12 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 	private Step splitOnDefinedSplitter(
 			ExpressionLiteralSplitterStepSolver.Step bodyStep,
 			ConstraintSplitting indexConstraintSplitting, 
-			Constraint indexConstraintAndLiteral, 
 			Context context) {
 		
 		boolean splitterValue = indexConstraintSplitting.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
 		explain("Index literal ", bodyStep.getSplitter(), " is always " + splitterValue + " under current context, so we will solve a single sub-problem");
-		Step step = stepOverSubProblemIfSplitterIs(splitterValue, bodyStep, indexConstraintAndLiteral, context);
+		Constraint indexConstrainedConjoinedWithSplitter = indexConstraintSplitting.getConstraintAndLiteralEqualTo(splitterValue);
+		Step step = stepOnSubProblemIfSplitterIs(splitterValue, bodyStep, indexConstrainedConjoinedWithSplitter, context);
 		return step;
 	}
 	
@@ -399,7 +399,7 @@ public abstract class AbstractSingleQuantifierEliminationStepSolver implements S
 		return associativeOperationStep;
 	}
 	
-	private Step stepOverSubProblemIfSplitterIs(
+	private Step stepOnSubProblemIfSplitterIs(
 			boolean splitterValue, 
 			ExpressionLiteralSplitterStepSolver.Step bodyStep, 
 			Constraint indexConstraintAndLiteral, 
