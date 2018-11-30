@@ -42,10 +42,10 @@ import static com.sri.ai.grinder.theory.base.ConstantExpressionStepSolver.consta
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.api.StepSolver;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver.ItDependsOn;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver.Solution;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver.Step;
+import com.sri.ai.grinder.api.StepSolver;
 
 /**
  * Provides a static method for generating {@link Expression}-valued solver steps based on a literal.

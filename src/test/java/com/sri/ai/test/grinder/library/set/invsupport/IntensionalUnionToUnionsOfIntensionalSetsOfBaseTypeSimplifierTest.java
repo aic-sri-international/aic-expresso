@@ -1,5 +1,7 @@
 package com.sri.ai.test.grinder.library.set.invsupport;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -7,8 +9,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.library.set.invsupport.IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifier;
-
-import static com.sri.ai.expresso.helper.Expressions.parse;
 
 public class IntensionalUnionToUnionsOfIntensionalSetsOfBaseTypeSimplifierTest {
 

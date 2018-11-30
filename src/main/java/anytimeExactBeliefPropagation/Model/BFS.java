@@ -1,6 +1,11 @@
 package anytimeExactBeliefPropagation.Model;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.Set;
 
 import com.sri.ai.util.collect.ManyToManyRelation;
 

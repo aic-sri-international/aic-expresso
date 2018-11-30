@@ -1,9 +1,9 @@
 package com.sri.ai.test.expresso.type;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import com.sri.ai.expresso.type.IntegerInterval;
 

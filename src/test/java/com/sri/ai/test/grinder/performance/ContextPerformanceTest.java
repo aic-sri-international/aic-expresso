@@ -1,10 +1,9 @@
 package com.sri.ai.test.grinder.performance;
 
-import static com.sri.ai.util.Util.println;
-
 import org.junit.Test;
-import com.sri.ai.grinder.tester.ContextSplittingTester;
+
 import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.tester.ContextSplittingTester;
 import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 
 

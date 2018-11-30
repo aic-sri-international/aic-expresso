@@ -37,10 +37,6 @@
  */
 package com.sri.ai.test.grinder.helper;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
@@ -49,6 +45,10 @@ import static com.sri.ai.grinder.helper.GrinderUtil.REAL_TYPE;
 import static com.sri.ai.grinder.helper.GrinderUtil.isTypeSubtypeOf;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;

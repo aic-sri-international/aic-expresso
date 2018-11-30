@@ -1,5 +1,10 @@
 package com.sri.ai.test.grinder.library.set.invsupport;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,11 +18,6 @@ import com.sri.ai.grinder.library.set.invsupport.IntensionalSetToConditionalSimp
 import com.sri.ai.grinder.theory.compound.CompoundTheory;
 import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
-
-import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.map;
-
-import java.util.Arrays;
 
 public class IntensionalSetToConditionalSimplifierTest {
 

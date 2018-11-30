@@ -45,6 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.api.ExpressionStepSolver;
 import com.sri.ai.grinder.api.StepSolver;
 import com.sri.ai.grinder.theory.base.AbstractExpressionsSequenceStepSolver;
 

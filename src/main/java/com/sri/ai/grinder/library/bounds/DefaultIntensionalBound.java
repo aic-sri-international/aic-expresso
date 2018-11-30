@@ -11,10 +11,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 // import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 
-
-
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -2,10 +2,10 @@ package com.sri.ai.test.grinder.theory.base;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.BOOLEAN_TYPE;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheoryTestingSupport.TESTING_INTEGER_INTERVAL_TYPE;
 import static com.sri.ai.grinder.theory.equality.EqualityTheoryTestingSupport.TESTING_CATEGORICAL_TYPE;
 import static com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheoryTestingSupport.TESTING_REAL_INTERVAL_TYPE;
+import static com.sri.ai.util.Util.map;
 
 import java.util.Random;
 

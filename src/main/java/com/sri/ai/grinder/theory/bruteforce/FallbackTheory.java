@@ -42,6 +42,7 @@ import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.api.SingleVariableConstraint;
 import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.solver.SingleQuantifierEliminationStepSolver;
 import com.sri.ai.grinder.theory.help.TheoryWrapper;
 
 /**

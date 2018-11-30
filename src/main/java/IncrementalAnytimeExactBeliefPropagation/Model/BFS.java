@@ -10,12 +10,12 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 
+import com.sri.ai.util.collect.ManyToManyRelation;
+
 import IncrementalAnytimeExactBeliefPropagation.PartitionTree;
 import IncrementalAnytimeExactBeliefPropagation.Model.Node.FactorNode;
 import IncrementalAnytimeExactBeliefPropagation.Model.Node.Node;
 import IncrementalAnytimeExactBeliefPropagation.Model.Node.VariableNode;
-
-import com.sri.ai.util.collect.ManyToManyRelation;
 
 public class BFS implements Iterator<PartitionTree> {
 	

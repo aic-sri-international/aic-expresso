@@ -7,6 +7,7 @@ import static com.sri.ai.util.Util.map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
+import com.sri.ai.grinder.core.constraint.AbstractTheory;
 import com.sri.ai.grinder.core.solver.SGVET;
 import com.sri.ai.grinder.core.solver.SimplifierForAggregateFunctionOnIntensionalSet;
 import com.sri.ai.grinder.group.SumProduct;

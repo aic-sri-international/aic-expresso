@@ -1,8 +1,5 @@
 package com.sri.ai.test.expresso.type;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.FUNCTION_TYPE;
@@ -10,6 +7,9 @@ import static com.sri.ai.grinder.library.FunctorConstants.TUPLE_TYPE;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;

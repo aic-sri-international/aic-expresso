@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
-import com.sri.ai.grinder.api.Registry;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Registry;
 
 /**
  * A predicate based on a set of given uniquely named constants (symbols) that also

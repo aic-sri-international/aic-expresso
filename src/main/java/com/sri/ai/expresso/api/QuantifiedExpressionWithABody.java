@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.api.ExpressionStepSolver;
 
 /**
  * An {@link ExpressionStepSolver} of the form <code>IDENTIFIER <index expressions> : <body></code>.

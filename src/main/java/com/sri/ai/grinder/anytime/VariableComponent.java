@@ -1,5 +1,8 @@
 package com.sri.ai.grinder.anytime;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
 import static com.sri.ai.grinder.library.FunctorConstants.IN;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
@@ -12,10 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
-
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;

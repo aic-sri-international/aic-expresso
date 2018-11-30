@@ -38,14 +38,13 @@
 package com.sri.ai.grinder.library.number;
 
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
-import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIAL;
-import static com.sri.ai.grinder.library.FunctorConstants.LOG;
-import static com.sri.ai.grinder.library.FunctorConstants.SIGMOID;
+import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.LOG;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;

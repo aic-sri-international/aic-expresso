@@ -39,8 +39,8 @@ package com.sri.ai.grinder.theory.tuple;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.grinder.theory.function.BruteForceFunctionTheoryTestingSupport.getSmallCategoricalTestingType;
+import static com.sri.ai.util.Util.map;
 
 import java.util.ArrayList;
 import java.util.Collections;

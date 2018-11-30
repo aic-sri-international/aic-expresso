@@ -47,8 +47,8 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.api.ExpressionStepSolver.Step;
+import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.Util;
 

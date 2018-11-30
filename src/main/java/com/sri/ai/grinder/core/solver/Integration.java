@@ -3,8 +3,8 @@ package com.sri.ai.grinder.core.solver;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import com.sri.ai.grinder.api.Context;
-import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 import com.sri.ai.grinder.api.ExpressionStepSolver.Step;
+import com.sri.ai.grinder.api.SingleQuantifierEliminationProblem;
 
 public class Integration {
 

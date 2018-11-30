@@ -43,6 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.rewriter.api.Rewriter;
 import com.sri.ai.grinder.rewriter.api.Simplifier;
 import com.sri.ai.grinder.rewriter.core.Switch;
 

@@ -1,30 +1,27 @@
 package com.sri.ai.grinder.parser.derivative;
 
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
+import static com.sri.ai.grinder.library.FunctorConstants.SUM;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.in;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsOfFreeVariablesIn;
-import static com.sri.ai.grinder.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Type;
-
-import static com.sri.ai.util.Util.in;
-
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-
-import static com.sri.ai.expresso.helper.Expressions.parse;
 
 public class Derivative {
 

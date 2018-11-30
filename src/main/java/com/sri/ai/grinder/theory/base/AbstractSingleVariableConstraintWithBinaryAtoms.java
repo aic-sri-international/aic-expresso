@@ -220,7 +220,7 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 		}
 		else {
 			Symbol negatedFunctor = makeSymbol(getNegationFunctor(functorString));
-			myAssert( () -> getNormalFunctors().contains(negatedFunctor), () -> getClass().getSimpleName() + ": requires negation of non-normal functors to be normal functors, but got non-normal '" + functor + "' which has non-normal negation '" + negatedFunctor + "'");
+			myAssert( () -> getNormalFunctors().contains(negatedFunctor.toString()), () -> getClass().getSimpleName() + ": requires negation of non-normal functors to be normal functors, but got non-normal '" + functor + "' which has non-normal negation '" + negatedFunctor + "'");
 			normalFunctor = negatedFunctor;
 			sign = !sign; // flip sign since we negated the functor
 		}

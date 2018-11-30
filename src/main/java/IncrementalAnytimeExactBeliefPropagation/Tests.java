@@ -15,9 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
-import IncrementalAnytimeExactBeliefPropagation.Model.Model;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
@@ -32,6 +29,9 @@ import com.sri.ai.grinder.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
+
+import IncrementalAnytimeExactBeliefPropagation.Model.BFS;
+import IncrementalAnytimeExactBeliefPropagation.Model.Model;
 
 public class Tests {
 	static Theory theory;
@@ -61,6 +61,7 @@ public class Tests {
 		runTest();		
 	}	
 
+	@SuppressWarnings("unused")
 	private static void testingAndPrintingOnFile() {
 
 		String modelName = "IsingModel3X4";
@@ -135,6 +136,7 @@ public class Tests {
 		writeInferenceResultsToFile(modelsToprintInFile, fileNameWithoutExtension + ".csv");
 	}
 
+	@SuppressWarnings("unused")
 	private static void testingAndPrintingOnFile2() {
 
 		ModelGenerator.resetRandomGenerator();
@@ -314,6 +316,7 @@ public class Tests {
 		return result;
 	}
 
+	@SuppressWarnings("unused")
 	private static void testingAndPrintingOnScreen() {
 		Model model = new Model(isingModel(7, 2, context, parse("Boolean")), theory, true);
 

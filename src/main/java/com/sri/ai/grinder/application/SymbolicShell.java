@@ -49,10 +49,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
@@ -69,6 +65,10 @@ import com.sri.ai.grinder.rewriter.core.Recursive;
 import com.sri.ai.util.console.ConsoleIterator;
 import com.sri.ai.util.console.DefaultConsoleIterator;
 import com.sri.ai.util.console.gui.GUIConsoleIterator;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 /**
  * Provides a shell for evaluating expressions.

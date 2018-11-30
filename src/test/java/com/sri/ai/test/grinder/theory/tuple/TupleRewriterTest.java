@@ -1,6 +1,9 @@
 package com.sri.ai.test.grinder.theory.tuple;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
+
+import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,10 +27,6 @@ import com.sri.ai.grinder.theory.tuple.rewriter.TupleGetSimplifier;
 import com.sri.ai.grinder.theory.tuple.rewriter.TupleQuantifierSimplifier;
 import com.sri.ai.grinder.theory.tuple.rewriter.TupleSetSimplifier;
 import com.sri.ai.grinder.theory.tuple.rewriter.TupleValuedFreeVariablesSimplifier;
-
-import static com.sri.ai.expresso.helper.Expressions.parse;
-
-import java.util.Arrays;
 
 public class TupleRewriterTest {
 	

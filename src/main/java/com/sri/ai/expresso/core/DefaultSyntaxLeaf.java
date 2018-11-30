@@ -37,9 +37,9 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation;
 import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols;
 import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsMostDecimalPlacesInExactRepresentationOfNumericalSymbols;
-import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsGreatestInitialNonZeroDecimalPlacePositionBeforeSwitchingToScientificNotation;
 import static com.sri.ai.expresso.ExpressoConfiguration.getDisplayNumericsMostIntegerPlacesBeforeSwitchingToScientificNotation;
 import static com.sri.ai.expresso.ExpressoConfiguration.isDisplayNumericsExactlyForSymbols;
 

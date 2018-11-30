@@ -1,6 +1,7 @@
 package com.sri.ai.expresso.optimization;
 
 import java.util.Set;
+
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.PointValuePair;

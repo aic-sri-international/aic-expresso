@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.sri.ai.grinder.library.bounds.Bound;
+import com.sri.ai.util.Util;
+
 import anytimeExactBeliefPropagation.Model.Model;
 import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 import anytimeExactBeliefPropagation.Model.Node.Node;
 import anytimeExactBeliefPropagation.Model.Node.VariableNode;
-
-import com.sri.ai.grinder.library.bounds.Bound;
-import com.sri.ai.util.Util;
 
 public class IncrementalBeliefPropagationWithConditioningVersion2 {
 	// private Model model;

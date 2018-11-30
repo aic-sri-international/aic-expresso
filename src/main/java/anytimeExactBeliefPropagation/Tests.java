@@ -11,10 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import anytimeExactBeliefPropagation.Model.BFS;
-import anytimeExactBeliefPropagation.Model.Model;
-import anytimeExactBeliefPropagation.Model.Node.FactorNode;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
@@ -29,6 +25,10 @@ import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
 import com.sri.ai.grinder.theory.tuple.TupleTheory;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
+
+import anytimeExactBeliefPropagation.Model.BFS;
+import anytimeExactBeliefPropagation.Model.Model;
+import anytimeExactBeliefPropagation.Model.Node.FactorNode;
 
 public class Tests {
 	
@@ -117,6 +117,7 @@ public class Tests {
 		
 	}
 
+	@SuppressWarnings("unused")
 	private static void testFunction(String modelName, Model m, boolean printAll) {
 		Iterator<FactorNode> bfsExpander = new BFS(m);
 		IncrementalBeliefPropagationWithConditioning sbp = new IncrementalBeliefPropagationWithConditioning(m);
