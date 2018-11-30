@@ -40,6 +40,7 @@ package com.sri.ai.expresso.type;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.REAL;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
@@ -94,7 +95,7 @@ public class RealInterval extends AbstractType {
 			throw new Error("Trying to build real interval from string '" + name + "' which does not parse as a real interval description (format is '[a;b]'");
 		}
 		
-		if (nameParse.equals("Real")) {
+		if (nameParse.equals(REAL)) {
 			lowerBound = UnaryMinus.make(INFINITY);
 			upperBound = INFINITY;
 			lowerBoundIsOpen = true;

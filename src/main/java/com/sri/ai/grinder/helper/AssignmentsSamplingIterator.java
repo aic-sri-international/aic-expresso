@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.interpreter.DefaultAssignment.assignment;
 
 import java.util.List;
@@ -150,10 +151,10 @@ public class AssignmentsSamplingIterator extends EZIterator<Assignment> {
 			result = new LazySampledFunctionType(functionType.getCodomain(), functionType.getArgumentTypes().toArray(new Type[functionType.getArity()]));
 		}
 		else {
-			if (condition.equals(false)) {
+			if (condition.equals(FALSE)) {
 				result = null;
 			}
-			else if (condition.equals(true)) {
+			else if (condition.equals(TRUE)) {
 				// we leave as is.
 			}
 			else if (result instanceof RealExpressoType || result instanceof RealInterval) {		

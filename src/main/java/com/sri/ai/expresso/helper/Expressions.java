@@ -139,6 +139,10 @@ public class Expressions {
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	
+	public static final Symbol BOOLEAN = makeSymbol("Boolean");
+	public static final Symbol REAL = makeSymbol("Real");
+	public static final Symbol INTEGER = makeSymbol("Integer");
+
 	/**
 	 * Returns an expression represented by a given syntax tree.
 	 * Scheduled to be removed once expressions are no longer based on syntax trees.

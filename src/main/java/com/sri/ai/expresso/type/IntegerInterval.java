@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.type;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.INTEGER;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
@@ -84,7 +85,7 @@ public class IntegerInterval extends AbstractType {
 	
 	public IntegerInterval(String name) {
 		Expression nameParse = parse(name);
-		if (nameParse.equals("Integer")) {
+		if (nameParse.equals(INTEGER)) {
 			nonStrictLowerBound = UnaryMinus.make(INFINITY);
 			nonStrictUpperBound = INFINITY;
 		}

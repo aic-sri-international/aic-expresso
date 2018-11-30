@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.library.set.invsupport;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,13 +105,13 @@ public class IntersectionIntensionalSetsSimplifier implements Simplifier {
 					Expression thereExists          = ThereExists.make(i2, And.make(c2, Equality.make(h2, h1)));
 					Context    i1ExtendedContext    = context.extendWith(i1);
 					Expression thereExistsEvaluated = context.getTheory().evaluate(thereExists, i1ExtendedContext);
-					if (thereExistsEvaluated.equals(false)) {
+					if (thereExistsEvaluated.equals(FALSE)) {
 						// They don't intersect, which means you have an empty
 						// set in the intersection, which means the whole thing
 						// results in the empty set.
 						resultIsEmptySet = true;
 					}
-					else if (!thereExistsEvaluated.equals(true)) {
+					else if (!thereExistsEvaluated.equals(TRUE)) {
 						// If we have a condition, other than false and true
 						// we will want to extend the current result by the condition
 						Expression extendedCondition = And.make(c1, thereExistsEvaluated);

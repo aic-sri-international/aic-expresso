@@ -1,5 +1,7 @@
 package com.sri.ai.test.grinder.library.set;
 
+import static com.sri.ai.expresso.helper.Expressions.INTEGER;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +12,7 @@ public class CountingFormulaEquivalentExpressionsTest {
 	
 	@Test
 	public void testGetType() {
-		Assert.assertTrue(CountingFormulaEquivalentExpressions.getType().equals("Integer"));
+		Assert.assertTrue(CountingFormulaEquivalentExpressions.getType().equals(INTEGER));
 	}
 
 	@Test

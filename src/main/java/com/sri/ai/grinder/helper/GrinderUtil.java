@@ -40,7 +40,9 @@ package com.sri.ai.grinder.helper;
 import static com.sri.ai.expresso.api.Tuple.EMPTY_TUPLE;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.INTEGER;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.REAL;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -326,13 +328,14 @@ public class GrinderUtil {
 	/**
 	 * Returns the type of given expression according to registry.
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	public static Expression getTypeExpressionOfExpression(Expression expression, Registry registry) {
 		Expression result;
 		
 		// TODO: this method is horribly hard-coded to a specific language; need to clean this up
 		
 		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
-			result = makeSymbol("Boolean");
+			result = Expressions.BOOLEAN;
 		}
 		else if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE) &&
 				list(SUM, PRODUCT, MAX).contains(expression.getFunctor().toString())) {
@@ -357,7 +360,7 @@ public class GrinderUtil {
 			}
 		}
 		else if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
-			result = makeSymbol("Boolean");
+			result = Expressions.BOOLEAN;
 		}
 		else if (
 				expression.equals(FunctorConstants.REAL_INTERVAL_CLOSED_CLOSED) ||
@@ -470,7 +473,7 @@ public class GrinderUtil {
 			result = makeSymbol("Set");
 		}
 		else if (isComparisonFunctionApplication(expression)) {
-				result = makeSymbol("Boolean");
+				result = Expressions.BOOLEAN;
 		}
 		else if (expression.hasFunctor(FunctorConstants.FUNCTION_TYPE)) {
 			// very vague type for now
@@ -511,7 +514,7 @@ public class GrinderUtil {
 				result = makeSymbol("String");
 			}
 			else if (expression.getValue() instanceof Boolean) {
-				result = makeSymbol("Boolean");
+				result = Expressions.BOOLEAN;
 			}
 			else if (expression.equals(Expressions.INFINITY) || expression.equals(Expressions.MINUS_INFINITY)) {
 				result = makeSymbol("Number");
@@ -647,7 +650,7 @@ public class GrinderUtil {
 	 * @return
 	 */
 	public static boolean isIntegerOrReal(Expression type) {
-		return type.equals("Integer") || type.equals("Real");
+		return type.equals(Expressions.INTEGER) || type.equals(Expressions.REAL);
 	}
 	
 	/**
@@ -786,13 +789,13 @@ public class GrinderUtil {
 	 */
 	public static Type fromTypeExpressionToItsIntrinsicMeaning(Expression typeExpression, Registry registry) throws Error {
 		Type type;
-		if (typeExpression.equals("Boolean")) {
+		if (typeExpression.equals(Expressions.BOOLEAN)) {
 			type = BOOLEAN_TYPE;
 		}
-		else if (typeExpression.equals("Integer")) {
+		else if (typeExpression.equals(INTEGER)) {
 			type = INTEGER_TYPE;
 		}
-		else if (typeExpression.equals("Real")) {
+		else if (typeExpression.equals(REAL)) {
 			type = REAL_TYPE;
 		}
 		else if (typeExpression.hasFunctor(INTEGER_INTERVAL) && typeExpression.numberOfArguments() == 2) {

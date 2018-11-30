@@ -248,6 +248,7 @@ public class IsolateUtil {
 	}
 	
 	
+	@SuppressWarnings("unlikely-arg-type")
 	public static void assertSupportedOperator(Expression operator) {		
 		if (!(operator.equals(FunctorConstants.EQUALITY) ||
 			  operator.equals(FunctorConstants.DISEQUALITY) ||
@@ -274,11 +275,13 @@ public class IsolateUtil {
 		return result;
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	public static boolean isEquality(Expression operator) {
 		boolean result = operator.equals(FunctorConstants.EQUALITY) || operator.equals(FunctorConstants.DISEQUALITY);
 		return result;
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	public static Expression flipInequalityOperator(Expression operator) {
 		Expression result;
 		

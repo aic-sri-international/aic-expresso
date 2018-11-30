@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.theory.differencearithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.UNKNOWN;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
@@ -131,11 +132,11 @@ public class SingleVariableDifferenceArithmeticConstraint extends AbstractSingle
 			Expression nonStrictLowerBound = interval.getNonStrictLowerBound();
 			Expression nonStrictUpperBound = interval.getNonStrictUpperBound();
 			cachedImplicitNegativeNormalizedAtoms = list();
-			if (!nonStrictLowerBound.equals("unknown") && !nonStrictLowerBound.equals(UnaryMinus.make(INFINITY))) {
+			if (!nonStrictLowerBound.equals(UNKNOWN) && !nonStrictLowerBound.equals(UnaryMinus.make(INFINITY))) {
 				cachedImplicitNegativeNormalizedAtoms.add(apply(LESS_THAN, getVariable(), nonStrictLowerBound));
 				// this is the negation of variable >= nonStrictLowerBound. We need to use a negative normalized atom because applications of >= are not considered normalized atoms
 			}
-			if (!nonStrictUpperBound.equals("unknown") && !nonStrictUpperBound.equals(INFINITY)) {
+			if (!nonStrictUpperBound.equals(UNKNOWN) && !nonStrictUpperBound.equals(INFINITY)) {
 				cachedImplicitNegativeNormalizedAtoms.add(apply(GREATER_THAN, getVariable(), nonStrictUpperBound));
 				// this is the negation of variable <= nonStrictUpperBound. We need to use a negative normalized atom because applications of <= are not considered normalized atoms
 			}

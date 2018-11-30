@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.controlflow;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
@@ -156,13 +158,13 @@ public class IfThenElse implements Simplifier {
 	 * or the condition (or its negation) if the branches are trivial.
 	 */
 	public static Expression make(Expression condition, Expression thenBranch, Expression elseBranch) {
-		if (condition.equals(true)) {
+		if (condition.equals(TRUE)) {
 			return thenBranch;
 		}
-		if (condition.equals(false)) {
+		if (condition.equals(FALSE)) {
 			return elseBranch;
 		}
-		if (thenBranch.equals(true) && elseBranch.equals(false)) {
+		if (thenBranch.equals(TRUE) && elseBranch.equals(FALSE)) {
 			return condition;
 		}
 //		if (thenBranch.equals(elseBranch)) { // breaking some code even though it should not; we want to have it eventually
@@ -180,14 +182,14 @@ public class IfThenElse implements Simplifier {
 	 * Flag 'simplifyToConditionIfPossible' authorizes simplifications "if C then true else false -> C" to occur.
 	 */
 	public static Expression make(Expression condition, Expression thenBranch, Expression elseBranch, boolean simplifyToConditionIfPossible) {
-		if (condition.equals(true)) {
+		if (condition.equals(TRUE)) {
 			return thenBranch;
 		}
-		if (condition.equals(false)) {
+		if (condition.equals(FALSE)) {
 			return elseBranch;
 		}
 		if (simplifyToConditionIfPossible) {
-			if (thenBranch.equals(true) && elseBranch.equals(false)) {
+			if (thenBranch.equals(TRUE) && elseBranch.equals(FALSE)) {
 				return condition;
 			}
 			//		if (thenBranch.equals(false) && elseBranch.equals(true)) { // this may violate normalization routines in which 'not' is moved in

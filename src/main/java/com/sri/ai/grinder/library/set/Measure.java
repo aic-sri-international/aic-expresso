@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.set;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import java.util.Arrays;
@@ -106,7 +108,7 @@ public class Measure {
 				Context intensionalSetContext      = context.extendWith(indexExpressionsSet);
 				Type indexType                     = GrinderUtil.getTypeOfExpression(intensionalSetIndex, intensionalSetContext);
 				
-				if (intensionalSetCondition.equals(false)) {
+				if (intensionalSetCondition.equals(FALSE)) {
 					evaluatedResult = Expressions.ZERO; // short circuit known empty sets up front.
 				}
 				else if (indexType instanceof RealExpressoType || indexType instanceof RealInterval) {
@@ -117,7 +119,7 @@ public class Measure {
 				}
 				else if (indexType instanceof FunctionType) {
 					
-					if (!intensionalSetCondition.equals(true)) {
+					if (!intensionalSetCondition.equals(TRUE)) {
 						throw new UnsupportedOperationException("Measure of intensional set with a function type domain currently do not support conditions: "+intensionalSet);
 					}
 					
@@ -137,7 +139,7 @@ public class Measure {
 				} 
 				else if (indexType instanceof TupleType) {
 					
-					if (!intensionalSetCondition.equals(true)) {
+					if (!intensionalSetCondition.equals(TRUE)) {
 						throw new UnsupportedOperationException("Measure of intensional set with a tuple type domain currently do not support conditions: "+intensionalSet);
 					}
 					

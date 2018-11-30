@@ -104,6 +104,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	 * @param argumentIndex the index of the argument
 	 * @return the conditioning constraint
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	private Expression getConditioningConstraint(Expression argument, int argumentIndex) {
 		Expression conditioningConstraint;
 		if (functor.equals(FunctorConstants.IF_THEN_ELSE)) { // hard-coded for now

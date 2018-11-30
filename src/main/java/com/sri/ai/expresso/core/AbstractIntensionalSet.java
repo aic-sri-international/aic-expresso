@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.SyntaxTrees.makeCompoundSyntaxTree;
 import static com.sri.ai.util.Util.castOrThrowError;
 
@@ -82,7 +83,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 		SyntaxTree scopingSyntaxTree   = new DefaultCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, parametersSyntaxTree);
 		SyntaxTree headSyntaxTree      = getHead().getSyntaxTree();
 		SyntaxTree conditionSyntaxTree =
-				(getCondition() == null || getCondition().equals("true"))?
+				(getCondition() == null || getCondition().equals(TRUE))?
 						null
 						: SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.CONDITION_LABEL, condition.getSyntaxTree());
 		cachedSyntaxTree = makeCompoundSyntaxTree(getSyntaxTreeLabel(), scopingSyntaxTree, headSyntaxTree, conditionSyntaxTree);

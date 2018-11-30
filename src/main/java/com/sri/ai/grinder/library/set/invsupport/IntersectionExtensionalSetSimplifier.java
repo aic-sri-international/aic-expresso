@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.library.set.invsupport;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -129,15 +132,15 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 							inCondition = inExtensionalSet(e, otherSet, context);
 						}
 						conjuncts.add(inCondition);
-						if (inCondition.equals(false)) {
+						if (inCondition.equals(FALSE)) {
 							break; // short circuit
 						}
 					}
 					Expression condition = And.simplify(And.make(conjuncts));
-					if (condition.equals(true)) {
+					if (condition.equals(TRUE)) {
 						unionArgs.add(ExtensionalSets.makeUniSetExpression(Arrays.asList(e)));
 					}
-					else if (!condition.equals(false)) {
+					else if (!condition.equals(FALSE)) {
 						// Not true or false (i.e. false implies empty set and can be dropped from the union up front).
 						Expression thenBranch = ExtensionalSets.makeUniSetExpression(Arrays.asList(e));
 						Expression elseBranch = Sets.EMPTY_SET;
@@ -200,7 +203,7 @@ public class IntersectionExtensionalSetSimplifier implements Simplifier {
 				Expression elementEquality = Equality.make(element, eSetElement);
 				Expression inCondition     = context.getTheory().evaluate(elementEquality, context);
 				disjuncts.add(inCondition);
-				if (inCondition.equals(true)) {
+				if (inCondition.equals(TRUE)) {
 					break; // short-circuit
 				}
 			}

@@ -87,11 +87,11 @@ public class Division implements Simplifier {
 			return ONE;
 		}
 
-		if (expression.get(0).equals(0)) { // if numerator is 0, fraction is 0.
+		if (expression.get(0).equals(ZERO)) { // if numerator is 0, fraction is 0.
 			return ZERO;
 		}
 
-		if (expression.get(1).equals(1)) { // if denominator is 1, fraction is numerator.
+		if (expression.get(1).equals(ONE)) { // if denominator is 1, fraction is numerator.
 			return expression.get(0);
 		}
 

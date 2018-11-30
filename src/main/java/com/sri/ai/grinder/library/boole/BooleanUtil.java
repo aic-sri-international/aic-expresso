@@ -71,6 +71,7 @@ public class BooleanUtil {
 	 * @param expression
 	 * @return removes any duplicates from expression
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	public static Expression removeUnnecessary(Expression expression) {
 		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			Expression functor = expression.getFunctor();
