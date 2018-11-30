@@ -470,7 +470,7 @@ public class IncrementalAnytimeBeliefPropagationWithSeparatorConditioning {
 		 */
 		Set<VariableNode> SeparatorOnThisLevel = computeSeparator(partition);
 		if (partition.node.isVariable()) {
-			SeparatorOnThisLevel.remove((VariableNode) partition.node);
+			SeparatorOnThisLevel.remove(partition.node);
 		}
 		// exclude the variables on other levels. they will be summed afterwards
 		SeparatorOnThisLevel.removeAll(SeparatorVariablesOnLevelAbove);

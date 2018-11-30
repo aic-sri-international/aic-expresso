@@ -81,6 +81,7 @@ public class AdderIterator extends EZIterator<Expression> {
 		this.context = newContext;
 	}
 	
+	@Override
 	public Expression calculateNext() {
 		Expression result;
 		if (assignmentIterator.hasNext()) {

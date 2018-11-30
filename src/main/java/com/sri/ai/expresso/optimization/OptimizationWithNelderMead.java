@@ -57,6 +57,7 @@ public class OptimizationWithNelderMead implements Optimization {
 	 * return the optimum value of a function as a double.
 	 *
 	 */
+	@Override
 	public double findOptimum() {
 
 		PointValuePair optimum = optimize(simplexOptimizer);
@@ -68,6 +69,7 @@ public class OptimizationWithNelderMead implements Optimization {
 	 * return the argopt of a function as a double[].
 	 *
 	 */
+	@Override
 	public double[] findArgopt() {
 
 		PointValuePair optimum = optimize(simplexOptimizer);

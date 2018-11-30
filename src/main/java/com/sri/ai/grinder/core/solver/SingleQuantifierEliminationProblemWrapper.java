@@ -55,6 +55,7 @@ implements SingleQuantifierEliminationProblem {
 	
 	abstract public SingleQuantifierEliminationProblemWrapper copyWithNewProblem(SingleQuantifierEliminationProblem problem);
 
+	@Override
 	public SingleQuantifierEliminationProblemWrapper copyWithNewProblem(MultiQuantifierEliminationProblem problem) {
 		myAssert(problem instanceof SingleQuantifierEliminationProblem, () -> this.getClass() + " requires " + SingleQuantifierEliminationProblem.class + " objects, but got object of type " + problem.getClass());
 		SingleQuantifierEliminationProblemWrapper result = copyWithNewProblem((SingleQuantifierEliminationProblem) problem);

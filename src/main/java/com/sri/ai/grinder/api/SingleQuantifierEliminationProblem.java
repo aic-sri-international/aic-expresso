@@ -49,7 +49,9 @@ public interface SingleQuantifierEliminationProblem extends MultiQuantifierElimi
 		return getIndicesTypes().get(0);
 	}
 	
+	@Override
 	SingleQuantifierEliminationProblem makeWithNewIndexConstraint(Expression newConstraint);
 	
+	@Override
 	SingleQuantifierEliminationProblem makeWithNewBody(Expression newBody);
 }

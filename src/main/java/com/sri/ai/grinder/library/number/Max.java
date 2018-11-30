@@ -71,8 +71,8 @@ public class Max extends CommutativeAssociativeWithOperationOnJavaConstantsOnly 
 	o.equals(Expressions.INFINITY) ||
 	o.equals(Expressions.MINUS_INFINITY) ||
 	(o instanceof Expression &&
-			((Expression)o).getSyntacticFormType().equals("Symbol") && 
-			((Expression)o).getValue() instanceof Number);
+			o.getSyntacticFormType().equals("Symbol") && 
+			o.getValue() instanceof Number);
 
 	@Override
 	public Expression applySimplifier(Expression expression, Context context) {

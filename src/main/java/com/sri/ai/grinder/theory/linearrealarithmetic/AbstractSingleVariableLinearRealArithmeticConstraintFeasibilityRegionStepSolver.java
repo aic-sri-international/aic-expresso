@@ -73,6 +73,7 @@ public abstract class AbstractSingleVariableLinearRealArithmeticConstraintFeasib
 		return (SingleVariableLinearRealArithmeticConstraint) super.getConstraint();
 	}
 
+	@Override
 	protected
 	AbstractSingleVariableLinearRealArithmeticConstraintFeasibilityRegionStepSolver 
 	makeSequelStepSolver(
@@ -101,6 +102,7 @@ public abstract class AbstractSingleVariableLinearRealArithmeticConstraintFeasib
 	
 	private Pair<Expression, Boolean> typeLowerBoundAndStrictness;
 	
+	@Override
 	protected Pair<Expression, Boolean> getTypeLowerBoundAndStrictness(Context context) {
 		if (typeLowerBoundAndStrictness == null) {
 			RealInterval type = getType(context);
@@ -112,6 +114,7 @@ public abstract class AbstractSingleVariableLinearRealArithmeticConstraintFeasib
 
 	private Pair<Expression, Boolean> typeUpperBoundAndStrictess;
 	
+	@Override
 	protected Pair<Expression, Boolean> getTypeUpperBoundAndStrictness(Context context) {
 		if (typeUpperBoundAndStrictess == null) {
 			RealInterval type = getType(context);

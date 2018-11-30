@@ -150,6 +150,7 @@ public interface Context extends Registry, Constraint {
 		return (Context) Registry.super.extendWithSymbolsAndTypes(symbolsAndTypes);
 	}
 	
+	@Override
 	default Context extendWith(IndexExpressionsSet indexExpressions) {
 		return (Context) Registry.super.extendWith(indexExpressions);
 	}

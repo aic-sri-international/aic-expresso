@@ -88,6 +88,7 @@ abstract public class AbstractTheoryTestingSupport implements TheoryTestingSuppo
 		return random;
 	}
 	
+	@Override
 	public void setRandom(Random random) {
 		this.random = random;
 	}

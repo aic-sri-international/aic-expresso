@@ -56,7 +56,8 @@ public class FunctionToOptimizeGradient implements MultivariateVectorFunction {
 	 * Implementation of the method from the interface MultivariateVectorFunction from Apache Commons Math.
 	 *
 	 */
-    public double[] value(double[] variables) {
+    @Override
+	public double[] value(double[] variables) {
 
 		Set<Expression> variablesInExpression = Expressions.freeVariables(expression, context);
 		Map<Expression, Double> map = createMap(variables, variablesInExpression);

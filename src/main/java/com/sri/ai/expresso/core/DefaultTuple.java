@@ -155,7 +155,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 
 	@Override
 	public Expression clone() {
-		return new DefaultTuple((ArrayList<Expression>) getArguments());
+		return new DefaultTuple(getArguments());
 	}
 	
 	private static class IndexAddress implements SubExpressionAddress {

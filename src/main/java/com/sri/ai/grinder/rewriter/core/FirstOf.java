@@ -187,6 +187,7 @@ public class FirstOf implements TopRewriter {
 			return result;
 		}
 		
+		@Override
 		public Step step(Context context) {
 			Step result; 
 			Step baseStep = currentBaseStepSolver.step(context);

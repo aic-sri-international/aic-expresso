@@ -116,6 +116,7 @@ public class Exhaustive implements Rewriter {
 			return result;
 		}
 		
+		@Override
 		public Step step(Context context) {
 			Step result; 
 			Step baseStep = baseStepSolver.step(context);

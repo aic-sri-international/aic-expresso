@@ -65,6 +65,7 @@ public interface Rewriter extends BinaryFunction<Expression, Context, Expression
 		return step;
 	}
 	
+	@Override
 	default Expression apply(Expression expression, Context context) {
 		Expression result = 
 				ContextDependentExpressionProblemSolver.staticSolve(

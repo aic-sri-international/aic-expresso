@@ -19,10 +19,12 @@ public abstract class AbstractIntensionalBound extends DefaultIntensionalUniSet 
 		this(new ExtensionalIndexExpressionsSet(indexExpressionsList), head, condition);
 	}
 	
+	@Override
 	public boolean isExtensionalBound() {
 		return false;
 	}
 	
+	@Override
 	public boolean isIntensionalBound() {
 		return true;
 	}

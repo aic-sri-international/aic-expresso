@@ -175,6 +175,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		return degree;
 	}
 
+	@Override
 	public Monomial negate() {
 		DefaultMonomial result = clone();
 		result.numericFactorExpression = Expressions.makeSymbol(getNumericFactor().negate());

@@ -60,6 +60,7 @@ public class OptimizationWithBOBYQA implements Optimization {
 	 * return the optimum value of a function as a double.
 	 *
 	 */
+	@Override
 	public double findOptimum() {
 
 		PointValuePair optimum = optimize(bobyqaOptimizer);
@@ -71,6 +72,7 @@ public class OptimizationWithBOBYQA implements Optimization {
 	 * return the Argopt of a function as a double[].
 	 *
 	 */
+	@Override
 	public double[] findArgopt() {
 		
 		PointValuePair optimum = optimize(bobyqaOptimizer);

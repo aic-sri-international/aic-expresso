@@ -81,6 +81,7 @@ public interface LiteralSplitterStepSolver<T> extends StepSolver<T> {
 			super(value);
 		}
 		
+		@Override
 		public Expression getSplitterLiteral() {
 			throw new Error("Solution does not define getSplitterLiteral().");
 		}

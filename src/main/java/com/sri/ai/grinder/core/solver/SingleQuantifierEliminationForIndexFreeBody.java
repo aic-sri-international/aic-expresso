@@ -33,6 +33,7 @@ public class SingleQuantifierEliminationForIndexFreeBody extends SingleQuantifie
 		this.context = context;
 	}
 	
+	@Override
 	public SingleQuantifierEliminationForIndexFreeBody copyWithNewProblem(SingleQuantifierEliminationProblem problem) {
 		return new SingleQuantifierEliminationForIndexFreeBody(problem, context);
 	}

@@ -68,14 +68,17 @@ public interface Simplifier extends TopRewriter {
 	 */
 	Expression applySimplifier(Expression expression, Context context);
 	
+	@Override
 	default Expression apply(Expression expression, Context context) { // more efficient
 		return applySimplifier(expression, context);
 	}
 	
+	@Override
 	default ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 		return new FunctionOnContextExpressionStepSolver(c -> apply(expression, c));
 	}
 	
+	@Override
 	default Step step(Expression expression, Context context) { // optimized version
 		Expression simplifiedExpression = apply(expression, context);
 		Solution result = new Solution(simplifiedExpression);

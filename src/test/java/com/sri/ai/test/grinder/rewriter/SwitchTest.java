@@ -254,6 +254,7 @@ public class SwitchTest {
 		public ExpressionLiteralSplitterStepSolver makeStepSolver(Expression expression) {
 			return new ConstantExpressionStepSolver(DefaultSymbol.createSymbol(key));
 		}
+		@Override
 		public String toString() {
 			return "Label(" + key + ")";
 		}

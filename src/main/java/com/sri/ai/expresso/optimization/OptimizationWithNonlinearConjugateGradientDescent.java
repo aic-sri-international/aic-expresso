@@ -59,6 +59,7 @@ public class OptimizationWithNonlinearConjugateGradientDescent implements Optimi
 	 * return the optimum value of a function as a double.
 	 *
 	 */
+	@Override
 	public double findOptimum() {
 
 		PointValuePair optimum = optimize(gradientOptimizer);
@@ -70,6 +71,7 @@ public class OptimizationWithNonlinearConjugateGradientDescent implements Optimi
 	 * return the argopt of a function as a double[].
 	 *
 	 */
+	@Override
 	public double[] findArgopt() {
 
 		PointValuePair optimum = optimize(gradientOptimizer);

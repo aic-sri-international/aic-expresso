@@ -74,7 +74,7 @@ public class ModelCountingOfSingleVariableDifferenceArithmeticConstraintStepSolv
 
 	@Override
 	public SingleVariableDifferenceArithmeticConstraint getConstraint() {
-		return (SingleVariableDifferenceArithmeticConstraint) super.getConstraint();
+		return super.getConstraint();
 	}
 	
 	@Override

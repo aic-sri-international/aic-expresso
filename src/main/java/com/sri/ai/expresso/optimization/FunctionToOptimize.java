@@ -45,7 +45,8 @@ public class FunctionToOptimize implements MultivariateFunction {
 	 * Implementation of the method from the interface MultivariateFunction
 	 *
 	 */
-    public double value(double[] variables) {
+    @Override
+	public double value(double[] variables) {
     	
     	Map<Expression, Double> map = createMap(variables);
     	

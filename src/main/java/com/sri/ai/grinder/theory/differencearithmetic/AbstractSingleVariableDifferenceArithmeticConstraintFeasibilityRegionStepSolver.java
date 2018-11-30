@@ -116,6 +116,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 		return (SingleVariableDifferenceArithmeticConstraint) super.getConstraint();
 	}
 
+	@Override
 	protected
 	AbstractSingleVariableDifferenceArithmeticConstraintFeasibilityRegionStepSolver 
 	makeSequelStepSolver(
@@ -311,6 +312,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 	
 	private Pair<Expression, Boolean> typeLowerBoundAndStrictness;
 	
+	@Override
 	protected Pair<Expression, Boolean> getTypeLowerBoundAndStrictness(Context context) {
 		if (typeLowerBoundAndStrictness == null) {
 			IntegerInterval type = getType(context);
@@ -327,6 +329,7 @@ public abstract class AbstractSingleVariableDifferenceArithmeticConstraintFeasib
 
 	private Pair<Expression, Boolean> typeUpperBoundAndStrictess;
 	
+	@Override
 	protected Pair<Expression, Boolean> getTypeUpperBoundAndStrictness(Context context) {
 		if (typeUpperBoundAndStrictess == null) {
 			IntegerInterval type = getType(context);

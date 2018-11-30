@@ -197,6 +197,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 	return result;
 	}
 	
+	@Override
 	public DefaultExtensionalBound sumOut(ArrayList<Expression> variablesToBeSummedOut, Context context, Theory theory) {
 		Expression varsSet = new DefaultExtensionalUniSet(variablesToBeSummedOut);
 		DefaultExtensionalBound result = sumOut(varsSet,context,theory);
@@ -210,6 +211,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 		return summingPhiTimesBound(variablesToBeSummedOut, phi, this, context, theory);
 	}	
 	
+	@Override
 	public DefaultExtensionalBound sumOutProductByFactor(ArrayList<Expression> variablesToBeSummedOut, Expression phi,
 			Context context, Theory theory) {
 		Expression varSet  = new DefaultExtensionalUniSet(variablesToBeSummedOut);

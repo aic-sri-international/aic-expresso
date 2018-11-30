@@ -19,10 +19,12 @@ public abstract class AbstractExtensionalBound extends DefaultExtensionalUniSet 
 		super(arrayList(singleElement));
 	}
 	
+	@Override
 	public boolean isExtensionalBound() {
 		return true;
 	}
 	
+	@Override
 	public boolean isIntensionalBound() {
 		return false;
 	}

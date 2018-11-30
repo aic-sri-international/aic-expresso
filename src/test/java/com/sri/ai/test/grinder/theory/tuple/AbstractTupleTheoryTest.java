@@ -19,8 +19,10 @@ public abstract class AbstractTupleTheoryTest extends AbstractTheoryTest {
 		super();
 	}
 
+	@Override
 	public abstract Random makeRandom();
 
+	@Override
 	protected abstract boolean getTestAgainstBruteForce();
 
 	@Override

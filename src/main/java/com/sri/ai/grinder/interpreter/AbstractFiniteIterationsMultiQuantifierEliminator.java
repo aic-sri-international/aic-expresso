@@ -86,6 +86,7 @@ public abstract class AbstractFiniteIterationsMultiQuantifierEliminator extends 
 		super(topRewriterUsingContextAssignments);
 	}
 
+	@Override
 	public TopRewriterUsingContextAssignments getTopRewriterUsingContextAssignments() {
 		return topRewriterUsingContextAssignments;
 	}
