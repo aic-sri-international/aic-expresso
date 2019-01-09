@@ -1253,4 +1253,21 @@ public class Expressions {
 		}
 		return result;
 	}
+
+	/**
+	 * Returns the double value of an expression with a numeric value, or throws an error with a given message if it does not contain a double value.
+	 * @param expression
+	 * @param message
+	 * @return
+	 * @throws Error
+	 */
+	public static double getConstantDoubleValueOrThrowErrorWithMessage(Expression expression, String message) throws Error {
+		try {
+			double constantDoubleValue = expression.doubleValue();
+			return constantDoubleValue;
+		}
+		catch (Throwable t) {
+			throw new Error(message, t);
+		}
+	}
 }
