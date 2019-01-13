@@ -98,6 +98,10 @@ public interface Context extends Registry, Constraint {
 	default Context addAll(Collection<Type> types) {
 		return (Context) Registry.super.addAll(types);
 	}
+
+	@Override
+	Context setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes);
+
 	
 	
 	// Constraint method (specializing return value to Context):

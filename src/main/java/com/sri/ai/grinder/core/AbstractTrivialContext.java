@@ -183,7 +183,7 @@ public abstract class AbstractTrivialContext extends AbstractExpressionWrapper i
 	}
 
 	@Override
-	public Registry setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
+	public Context setSymbolsAndTypes(Map<Expression, Expression> newSymbolsAndTypes) {
 		AbstractTrivialContext result = clone();
 		result.registry = result.registry.setSymbolsAndTypes(newSymbolsAndTypes);
 		return result;
