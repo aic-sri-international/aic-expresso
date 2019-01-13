@@ -136,7 +136,7 @@ public class Categorical extends AbstractType {
 				new IntegerIterator(knownConstants.size() + 1, cardinality + 1),
 				i -> makeSymbol(lowerCaseName + i));
 	}
-
+	
 	@Override
 	public boolean contains(Expression constant) {
 		boolean result = knownConstants.contains(constant) || isUnknownConstant(constant);
@@ -149,12 +149,36 @@ public class Categorical extends AbstractType {
 			int unknownConstantIndex = -1;
 			result = constant.getValue() instanceof String &&
 				((String) constant.getValue()).startsWith(lowerCaseName) &&
-				(unknownConstantIndex = indexOfUniquelyNamedConstant(constant)) > knownConstants.size() &&
+				(unknownConstantIndex = indexOfUnknownConstant(constant)) > knownConstants.size() &&
 				unknownConstantIndex < cardinality + 1;
 		}
 		catch (NumberFormatException e) { result = false; }
 				
 		return result;
+	}
+	
+	/**
+	 * Returns the index of the constant in the type or -1 if it is not a constant of the type.
+	 * The index of known constants is the index they have in the known constants array.
+	 * The index of unknown constants is their unknown constant index.
+	 * So, for example, if a categorical type "Dog" has size 3 and known constants "fido" and "snoopy",
+	 * "fido" has index 0, "snoopy" has overall index 1, and "dog2" has overall index 2.
+	 * @param constant
+	 * @return
+	 */
+	public int indexOfConstant(Expression constant) {
+		int index = indexOfKnownConstant(constant);
+		if (index == -1) {
+			if (isUnknownConstant(constant)) {
+				index = indexOfUnknownConstant(constant);
+			}
+		}
+		return index;
+	}
+
+	protected int indexOfKnownConstant(Expression constant) {
+		int index = knownConstants.indexOf(constant);
+		return index;
 	}
 
 	/**
@@ -162,7 +186,7 @@ public class Categorical extends AbstractType {
 	 * @param constant
 	 * @return
 	 */
-	protected int indexOfUniquelyNamedConstant(Expression constant) {
+	protected int indexOfUnknownConstant(Expression constant) {
 		int result = Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue();
 		return result;
 	}
