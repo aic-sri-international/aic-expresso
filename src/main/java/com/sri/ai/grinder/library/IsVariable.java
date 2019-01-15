@@ -71,6 +71,10 @@ public class IsVariable implements Predicate<Expression> {
 	public IsVariable(Context context, Collection<? extends Type> types, Theory theory) {
 		this(context.getIsUniquelyNamedConstantPredicate(), types, theory);
 	}
+	
+	public IsVariable(Context context) {
+		this(context, context.getTypes(), context.getTheory());
+	}
 
 	@Override
 	public boolean apply(Expression expression) {
