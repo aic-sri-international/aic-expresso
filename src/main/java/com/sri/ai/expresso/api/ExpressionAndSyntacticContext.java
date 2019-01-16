@@ -130,7 +130,7 @@ public interface ExpressionAndSyntacticContext extends Serializable {
 	Expression getConstrainingCondition();
 
 	/**
-	 * Returns the result of pluging a new sub-expression into expression according to the address of this expression and syntactic context.
+	 * Returns the result of plugging a new sub-expression into expression according to the address of this expression and syntactic context.
 	 * @param expression
 	 * @param newSubExpression
 	 * @return

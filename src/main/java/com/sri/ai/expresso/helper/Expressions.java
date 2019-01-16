@@ -695,7 +695,7 @@ public class Expressions {
 		}
 	}
 
-	public static boolean areEqualToAGivenPrecision(Expression expression1, Expression expression2, final int precision) {
+	public static boolean areEqualUpToAGivenPrecision(Expression expression1, Expression expression2, final int precision) {
 		DefaultRegistry registry = new DefaultRegistry();
 		Expression rounded1 = roundToAGivenPrecision(expression1, precision, registry);
 		Expression rounded2 = roundToAGivenPrecision(expression2, precision, registry);
@@ -738,6 +738,64 @@ public class Expressions {
 			return Expressions.makeSymbol(rounded);
 		}
 		return expression;
+	}
+	
+	public static String areEqualUpToNumericDifference(Expression expression1, Expression expression2, double difference) {
+		if (expression1.getImmediateSubExpressions().size() != expression2.getImmediateSubExpressions().size()) {
+			return expression1 + ", " + expression2 + " do not have the same number of sub-expressions";
+		}
+		
+		if (expression1.getImmediateSubExpressions().isEmpty()) {
+			if (isNumber(expression1) != isNumber(expression2)) {
+				return "One of " + expression1 + " and " + expression2 + " is numeric and the other is not";
+			}
+			else {
+				if (isNumber(expression1)) {
+					if (Math.abs(expression1.doubleValue() - expression2.doubleValue()) <= difference) {
+						return "";
+					}
+					else {
+						return "abs(" + expression1.doubleValue() + " - " + expression2.doubleValue() + ") > " + difference;
+					}
+				}
+				else {
+					if (expression1.equals(expression2)) {
+						return "";
+					}
+					else {
+						return expression1 + ", " + expression2 + " are atomic non-numeric expressions but not identical";
+					}
+				}
+			}
+		}
+		else {
+			String reasonForDifference = "";
+			Iterator<Expression> subExpressionIterator1 = expression1.getImmediateSubExpressionsIterator();
+			Iterator<Expression> subExpressionIterator2 = expression2.getImmediateSubExpressionsIterator();
+			while (reasonForDifference.equals("") && subExpressionIterator1.hasNext()) {
+				Expression subExpression1 = subExpressionIterator1.next();
+				Expression subExpression2 = subExpressionIterator2.next();
+				reasonForDifference = areEqualUpToNumericDifference(subExpression1, subExpression2, difference);
+			}
+			if (!reasonForDifference.equals("")) {
+				return reasonForDifference;
+			}
+			else {
+				Iterator<ExpressionAndSyntacticContext> subExpressionAndContextIterator1 = expression1.getImmediateSubExpressionsAndContextsIterator();
+				subExpressionIterator2 = expression2.getImmediateSubExpressionsIterator();
+				while (subExpressionAndContextIterator1.hasNext()) {
+					ExpressionAndSyntacticContext subExpressionAndContext1 = subExpressionAndContextIterator1.next();
+					Expression subExpression2 = subExpressionIterator2.next();
+					expression1 = subExpressionAndContext1.replaceSubExpressionIn(expression1, subExpression2);
+				}
+				if (expression1.equals(expression2)) {
+					return "";
+				}
+				else {
+					return expression1 + ", " + expression2 + " have all sub-expressions matching but they are not identical on the top level";
+				}
+			}
+		}
 	}
 
 	/**
