@@ -39,6 +39,7 @@ package com.sri.ai.expresso.helper;
 
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.PairOf.pairOf;
 
@@ -100,7 +101,10 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
+import com.sri.ai.util.Enclosing;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
@@ -740,7 +744,91 @@ public class Expressions {
 		return expression;
 	}
 	
+	/**
+	 * Tests whether two expressions have the same structure and corresponding pairs of numbers are within a given distance of each other.
+	 */
 	public static String areEqualUpToNumericDifference(Expression expression1, Expression expression2, double difference) {
+		return 
+				areEqualUpToPredicate(
+						expression1, expression2, 
+						(e1, e2) -> Math.abs(e1.doubleValue() - e2.doubleValue()) <= difference, 
+						(e1, e2) -> "abs(" + e1.doubleValue() + " - " + e2.doubleValue() + ") > " + difference);
+	}
+	
+	/**
+	 * Tests whether two expressions have the same structure and 
+	 * corresponding pairs of numbers are within a given percentage of each other
+	 * if they are both above a given positive magnitude and have the same sign, 
+	 * otherwise returns whether their difference is less twice the limit magnitude.
+	 * @param minimumAbs 
+	 */
+	public static String areEqualUpToNumericProportion(
+			Expression expression1, 
+			Expression expression2, 
+			double proportion, 
+			double minimumAbs) {
+		
+		myAssert(proportion > 0 && proportion <= 1, () -> (new Enclosing(){}).methodName() + " requires proportion to be in ]0,1] but got " + proportion);
+		return 
+				areEqualUpToPredicate(
+						expression1, expression2, 
+						(e1, e2) -> areLargeEnoughAndWithinProportionOf(e2, e1, proportion, minimumAbs), 
+						(e1, e2) -> e1.doubleValue() + " and " + e2.doubleValue() + " are further than proportion " + proportion);
+	}
+
+	private static boolean areLargeEnoughAndWithinProportionOf(Expression e1, Expression e2, double proportion, double minimumAbs) {
+		
+		double e1Value = e1.doubleValue();
+		double e2Value = e2.doubleValue();
+		
+		if (
+				Math.abs(e1Value) < minimumAbs ||
+				Math.abs(e2Value) < minimumAbs ||
+				e1Value == 0.0 || e1Value == -0.0 || 
+				e2Value == 0.0 || e2Value == -0.0 || 
+				Math.signum(e1Value) != Math.signum(e2Value)) {
+			
+			double absoluteDifference = Math.abs(e1Value - e2Value);
+			
+			boolean result = absoluteDifference < 2*minimumAbs;
+			return result;
+			
+		}
+		
+		if (e1Value < 0) {
+			e1Value = - e1Value;
+			e2Value = - e2Value;
+		}
+		
+		boolean result = 
+				(e2Value*proportion <= e1Value 
+				&& 
+				e1Value <= e2Value)
+				||
+				(e1Value*proportion <= e2Value 
+				&& 
+				e2Value <= e1Value)
+				;
+		
+		return result;
+	}
+
+	/**
+	 * Tests whether two expressions have the same structure and corresponding pairs of numbers satisfy a predicate,
+	 * issuing a message explaining failure or "" if successful.
+	 * The message corresponding to the predicate failure is produced by a given binary function.
+	 * @param expression1
+	 * @param expression2
+	 * @param predicate
+	 * @param messageMaker
+	 * @return
+	 */
+	public static String areEqualUpToPredicate(
+			Expression expression1, 
+			Expression expression2, 
+			BinaryPredicate<Expression, Expression> predicate,
+			BinaryFunction<Expression, Expression, String> messageMaker) {
+		
 		if (expression1.getImmediateSubExpressions().size() != expression2.getImmediateSubExpressions().size()) {
 			return expression1 + ", " + expression2 + " do not have the same number of sub-expressions";
 		}
@@ -751,11 +839,11 @@ public class Expressions {
 			}
 			else {
 				if (isNumber(expression1)) {
-					if (Math.abs(expression1.doubleValue() - expression2.doubleValue()) <= difference) {
+					if (predicate.apply(expression1, expression2)) {
 						return "";
 					}
 					else {
-						return "abs(" + expression1.doubleValue() + " - " + expression2.doubleValue() + ") > " + difference;
+						return messageMaker.apply(expression1, expression2);
 					}
 				}
 				else {
@@ -775,7 +863,7 @@ public class Expressions {
 			while (reasonForDifference.equals("") && subExpressionIterator1.hasNext()) {
 				Expression subExpression1 = subExpressionIterator1.next();
 				Expression subExpression2 = subExpressionIterator2.next();
-				reasonForDifference = areEqualUpToNumericDifference(subExpression1, subExpression2, difference);
+				reasonForDifference = areEqualUpToPredicate(subExpression1, subExpression2, predicate, messageMaker);
 			}
 			if (!reasonForDifference.equals("")) {
 				return reasonForDifference;
