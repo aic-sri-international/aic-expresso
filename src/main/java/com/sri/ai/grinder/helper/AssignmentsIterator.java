@@ -59,7 +59,7 @@ import com.sri.ai.util.collect.FunctionIterator;
 @Beta
 public class AssignmentsIterator extends FunctionIterator<Map<Expression, Expression>, Assignment> {
 
-	public AssignmentsIterator(Collection<Expression> variables, Registry registry) {
+	public AssignmentsIterator(Collection<? extends Expression> variables, Registry registry) {
 		super(new AssignmentMapsIterator(variables, registry), m -> assignment(m));
 	}
 	

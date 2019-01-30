@@ -37,10 +37,15 @@
  */
 package com.sri.ai.grinder.interpreter;
 
+import static com.sri.ai.util.Util.mapIntoList;
+
+import java.util.List;
 import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -74,5 +79,10 @@ public interface Assignment extends Map<Expression, Expression> {
 	default Context extend(Context context) {
 		Context result = extendAssignments(this, context);
 		return result;
+	}
+	
+	default Expression makeCondition() {
+		List<Expression> conjuncts = mapIntoList(entrySet(), entry -> Equality.make(entry.getKey(), entry.getValue()));
+		return And.make(conjuncts);
 	}
 }

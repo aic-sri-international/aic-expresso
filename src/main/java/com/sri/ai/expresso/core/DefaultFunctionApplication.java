@@ -228,7 +228,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	public String makeToString() {
 		String result;
 		if (hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
-			result = "if " + get(0) + " then " + get(1) + " else " + stringAsSubExpression(get(2), getPrecedence(this));
+			result = "if " + get(0) + " then " + get(1) + " else " + stringAsSubExpression(get(2), this, getPrecedence(this));
 		}
 		else if (hasFunctor(FunctorConstants.CARDINALITY) && numberOfArguments() == 1) {
 			result = "| " + get(0) + " |";
@@ -248,16 +248,16 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		else {
 			int precedence = getPrecedence(this);
 			if (hasFunctor(FunctorConstants.MINUS) && numberOfArguments() == 1) {
-				result = "-" + stringAsSubExpression(get(0), precedence);
+				result = "-" + stringAsSubExpression(get(0), this, precedence);
 			}
 			else if (hasFunctor(FunctorConstants.NOT) && numberOfArguments() == 1) {
-				result = "not " + stringAsSubExpression(get(0), precedence);
+				result = "not " + stringAsSubExpression(get(0), this, precedence);
 			}
 			else {
 				String functorString = getFunctor().toString();
 				String functorRepresentation = getFunctor() instanceof Symbol? functorString : "(" + getFunctor() + ")";
 				if (_infixFunctionsStrings.contains(functorString)) {
-					List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
+					List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, this, precedence));
 					if (hasFunctor(INTEGER_INTERVAL) && numberOfArguments() == 2) {
 						// no spaces between functor and arguments
 						result = subExpressionsStrings.get(0) + ".." + subExpressionsStrings.get(1);
@@ -283,22 +283,27 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		return result;
 	}
 	
-	private static String stringAsSubExpression(Expression expression, int parentPrecedence) {
+	private static String stringAsSubExpression(Expression expression, Expression parent, int parentPrecedence) {
 		String result = expression.toString();
 		int precedence = getPrecedence(expression);
-		if (parentPrecedence > precedence) {
+		if (parentPrecedence > precedence || parenthesesException(expression, parent)) {
 			result = "(" + result + ")";
 		}
 		return result;
 	}
 
-	private static String stringAsSubExpressionWithParenthesesIfSamePrecedence(Expression expression, int parentPrecedence) {
+	private static String stringAsSubExpressionWithParenthesesIfSamePrecedence(Expression expression, Expression parent, int parentPrecedence) {
 		String result = expression.toString();
 		int precedence = getPrecedence(expression);
-		if (parentPrecedence >= precedence) {
+		if (parentPrecedence >= precedence || parenthesesException(expression, parent)) {
 			result = "(" + result + ")";
 		}
 		return result;
+	}
+
+	private static boolean parenthesesException(Expression expression, Expression parent) {
+		// introduced because "p = q and r" is parsed back as "(p = q) and r", so we need to output "p = (q and r)"
+		return isRelationalOperator(parent) && isLogicOperator(expression);
 	}
 
 	/**
@@ -312,25 +317,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			if (
 					expression.hasFunctor(FunctorConstants.IF_THEN_ELSE)
 					||
-					expression.hasFunctor("in")
-					||
-					expression.hasFunctor("=")
-					||
-					expression.hasFunctor("!=")
-					||
-					expression.hasFunctor("<")
-					||
-					expression.hasFunctor(">")
-					||
-					expression.hasFunctor("<=")
-					||
-					expression.hasFunctor(">=")
-					||
-					expression.hasFunctor("<=>")
-					||
-					expression.hasFunctor("=>")
-					||
-					expression.hasFunctor("->")
+					isRelationalOperator(expression)
 					)
 			{
 				result = 1;
@@ -377,5 +364,41 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			}
 		}
 		return result;
+	}
+
+	private static boolean isRelationalOperator(Expression expression) {
+		return 
+				expression.hasFunctor("in")
+				||
+				expression.hasFunctor("=")
+				||
+				expression.hasFunctor("!=")
+				||
+				expression.hasFunctor("<")
+				||
+				expression.hasFunctor(">")
+				||
+				expression.hasFunctor("<=")
+				||
+				expression.hasFunctor(">=")
+				||
+				expression.hasFunctor("<=>")
+				||
+				expression.hasFunctor("=>")
+				||
+				expression.hasFunctor("->");
+	}
+
+	private static boolean isLogicOperator(Expression expression) {
+		return 
+				expression.hasFunctor("and")
+				||
+				expression.hasFunctor("or")
+				||
+				expression.hasFunctor("not")
+				||
+				expression.hasFunctor("<=>")
+				||
+				expression.hasFunctor("=>");
 	}
 }

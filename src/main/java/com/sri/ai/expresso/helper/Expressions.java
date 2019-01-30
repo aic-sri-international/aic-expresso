@@ -40,6 +40,8 @@ package com.sri.ai.expresso.helper;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.Util.reverse;
+import static com.sri.ai.util.Util.reverseListIterator;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.base.PairOf.pairOf;
 
@@ -52,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -97,6 +100,7 @@ import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSets;
@@ -112,6 +116,7 @@ import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.base.SingletonListMaker;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.IntegerIterator;
+import com.sri.ai.util.collect.ReverseListIterator;
 import com.sri.ai.util.collect.ZipIterator;
 import com.sri.ai.util.math.Rational;
 
@@ -1415,5 +1420,75 @@ public class Expressions {
 		catch (Throwable t) {
 			throw new Error(message, t);
 		}
+	}
+
+	/** 
+	 * Given two lists of conditions and branches
+	 * <code>c_1,...c_n</code> and branches <code>b_1,...b_n</code>
+	 * forms an if then else expression
+	 * <code>if c_1 then b_1 else if c_2 then b_2 else ... if c_{n-1} then b_{n-1} else b_n</code>,
+	 * Note that condition <code>c_n</code> is not used since it's implied by the negation of all previous ones.   
+	 * @param conditions
+	 * @param branches
+	 * @return
+	 */
+	public static Expression ifThenElse(List<Expression> conditions, List<Expression> branches) {
+		return ifThenElseBackwards(reverseListIterator(conditions), reverseListIterator(branches));
+	}
+
+	/** 
+	 * Given iterators to two lists of conditions and branches
+	 * <code>c_1,...c_n</code> and branches <code>b_1,...b_n</code>
+	 * forms an if then else expression
+	 * <code>if c_1 then b_1 else if c_2 then b_2 else ... if c_{n-1} then b_{n-1} else b_n</code>,
+	 * Note that condition <code>c_n</code> is not used since it's implied by the negation of all previous ones.   
+	 * @param conditions
+	 * @param branches
+	 * @return
+	 */
+	public static Expression ifThenElse(ListIterator<Expression> conditions, ListIterator<Expression> branches) {
+		return ifThenElseBackwards(new ReverseListIterator<>(conditions), new ReverseListIterator<>(branches));
+	}
+
+	/** 
+	 * Given iterators over conditions and branches
+	 * <code>c_1,...c_n</code> and branches <code>b_1,...b_n</code>
+	 * forms an if then else expression
+	 * <code>if c_1 then b_1 else if c_2 then b_2 else ... if c_{n-1} then b_{n-1} else b_n</code>,
+	 * Note that condition <code>c_n</code> is not used since it's implied by the negation of all previous ones.
+	 * Also note that this will require storing the entire ranges of the iterators in temporary lists.
+	 * The method {@link #ifThenElse(ListIterator, ListIterator)} does not require that,
+	 * but requires list iterators instead.   
+	 * @param conditions
+	 * @param branches
+	 * @return
+	 */
+	public static Expression ifThenElse(Iterator<Expression> conditions, Iterator<Expression> branches) {
+		return ifThenElseBackwards(reverse(conditions), reverse(branches));
+	}
+
+	/** 
+	 * Given two iterators on conditions and branches
+	 * going over conditions <code>c_n,...c_1</code> and branches <code>b_n,...b_1</code>
+	 * (note the backward numbers),
+	 * forms an if then else expression
+	 * <code>if c_1 then b_1 else if c_2 then b_2 else ... if c_{n-1} then b_{n-1} else b_n</code>,
+	 * Note that condition <code>c_n</code> is not used since it's implied by the negation of all previous ones.   
+	 * @param conditionsIterator
+	 * @param branchesIterator
+	 * @return
+	 */
+	public static Expression ifThenElseBackwards(
+			Iterator<Expression> conditionsIterator,
+			Iterator<Expression> branchesIterator) {
+		
+		conditionsIterator.next(); // no need for last condition, as it is implied by all the others failing
+		Expression current = branchesIterator.next();
+		while (branchesIterator.hasNext()) {
+			Expression condition = conditionsIterator.next();
+			Expression probability = branchesIterator.next();
+			current = IfThenElse.make(condition, probability, current);
+		}
+		return current;
 	}
 }
