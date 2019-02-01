@@ -935,7 +935,7 @@ public class GrinderUtil {
 		return result;
 	}
 
-	public static Type getTypeOfExpression(Expression expression, Context context) {
+	public static Type getTypeOfExpression(Expression expression, Registry context) {
 		Expression typeExpression = getTypeExpressionOfExpression(expression, context);
 		if (typeExpression == null) {
 			throw new Error("Type of expression unknown: " + expression);
