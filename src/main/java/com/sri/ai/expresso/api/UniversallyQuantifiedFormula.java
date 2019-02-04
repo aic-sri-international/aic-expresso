@@ -38,6 +38,8 @@
 package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 
 /**
  * An {@link Expression} that represents a universally quantified formula.
@@ -46,5 +48,16 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface UniversallyQuantifiedFormula extends QuantifiedExpressionWithABody {
+
+	static Expression universallyQuantify(ExtensionalIndexExpressionsSet indexExpressions, Expression body) {
+		Expression universallyQuantifiedFactor;
+		if (indexExpressions.size() != 0) {
+			universallyQuantifiedFactor = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
+		}
+		else {
+			universallyQuantifiedFactor = body;
+		}
+		return universallyQuantifiedFactor;
+	}
 
 }

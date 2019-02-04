@@ -89,6 +89,10 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet, Seri
 		return Collections.unmodifiableList(list);
 	}
 
+	public int size() {
+		return getList().size();
+	}
+
 	@Override
 	public SyntaxTree getSubSyntaxTree() {
 		List<SyntaxTree> indexExpressionsSyntaxTrees = mapIntoArrayList(getList(), Expression::getSyntaxTree);

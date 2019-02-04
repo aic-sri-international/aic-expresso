@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.helper;
 
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.myAssert;
@@ -1490,5 +1492,13 @@ public class Expressions {
 			current = IfThenElse.make(condition, probability, current);
 		}
 		return current;
+	}
+
+	public static boolean isApplicationOfLessThanOrLessThanOrEqualTo(Expression condition) {
+		boolean result = 
+				condition.hasFunctor(LESS_THAN_OR_EQUAL_TO) 
+				|| 
+				condition.hasFunctor(LESS_THAN);
+		return result;
 	}
 }
