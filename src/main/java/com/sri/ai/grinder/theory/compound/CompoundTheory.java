@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.theory.compound;
 
 import static com.sri.ai.util.Util.forAll;
-import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
@@ -115,7 +115,7 @@ public class CompoundTheory extends AbstractTheory {
 		}
 		
 		Theory result =
-				getFirstSatisfyingPredicateOrNull(
+				getFirst(
 						getSubTheories(),
 						t -> t.isSuitableFor(variableType));
 
@@ -213,7 +213,7 @@ public class CompoundTheory extends AbstractTheory {
 	@Override
 	public Expression getAtomNegation(Expression atom, Context context) {
 		Theory theory =
-				getFirstSatisfyingPredicateOrNull(getSubTheories(), t -> t.isLiteralOrBooleanConstant(atom, context));
+				getFirst(getSubTheories(), t -> t.isLiteralOrBooleanConstant(atom, context));
 		Expression result;
 		if (theory == null) {
 			result = Not.make(atom);

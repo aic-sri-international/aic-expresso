@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.containsAnyOfGivenCollectionAsSubExpression;
 import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.isLegalExponent;
 import static com.sri.ai.grinder.polynomial.core.DefaultMonomial.simplifyExponentIfPossible;
-import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 
@@ -118,7 +118,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			
 	public static Polynomial make(Expression expression, List<Expression> variables) {
 		
-		Expression nonSymbolVariable = getFirstSatisfyingPredicateOrNull(variables, v -> !v.getSyntacticFormType().equals("Symbol"));
+		Expression nonSymbolVariable = getFirst(variables, v -> !v.getSyntacticFormType().equals("Symbol"));
 		if (nonSymbolVariable != null) {
 			throw new IllegalArgumentException("Non-symbol variables in DefaultPolynomial no longer supported, but got " + nonSymbolVariable);
 		}

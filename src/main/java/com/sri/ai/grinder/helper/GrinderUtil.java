@@ -64,7 +64,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.getFirstOrNull;
-import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.ifAllTheSameOrNull;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoArrayList;
@@ -523,7 +523,7 @@ public class GrinderUtil {
 				result = registry.getTypeExpressionOfRegisteredSymbol(expression);
 
 				if (result == null) {
-					Type type = getFirstSatisfyingPredicateOrNull(registry.getTypes(), t -> t.contains(expression));
+					Type type = getFirst(registry.getTypes(), t -> t.contains(expression));
 					if (type != null) {
 						result = parse(type.getName());
 					}
