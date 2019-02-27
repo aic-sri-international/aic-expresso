@@ -41,7 +41,7 @@ import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsForIndice
 import static com.sri.ai.grinder.helper.GrinderUtil.getIndexExpressionsFromSymbolsAndTypes;
 import static com.sri.ai.grinder.helper.GrinderUtil.getListOfSymbolsAndTypesExpressionsFromSymbolsAndTypesStrings;
 import static com.sri.ai.util.Util.check;
-import static com.sri.ai.util.Util.valueOrMakeDefaultIfNull;
+import static com.sri.ai.util.Util.valueOrDefaultIfNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -239,7 +239,7 @@ public interface Registry extends Cloneable {
 	 */
 	default <T> Registry updateGlobalObject(Object key, NullaryFunction<T> defaultMaker, Function<T, T> update) {
 		@SuppressWarnings("unchecked")
-		T oldValue = valueOrMakeDefaultIfNull((T) getGlobalObject(key), defaultMaker);
+		T oldValue = valueOrDefaultIfNull((T) getGlobalObject(key), defaultMaker);
 		T newValue = update.apply(oldValue);
 		Registry result = putGlobalObject(key, newValue);
 		return result;
