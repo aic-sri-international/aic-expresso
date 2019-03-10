@@ -137,7 +137,7 @@ public class DefaultExtensionalBound extends AbstractExtensionalBound {
 			return singletonWithNumberOne;
 		}
 		
-		ArrayList<NullaryFunction<Iterator<Expression>>> iteratorForBoundList = 
+		ArrayList<NullaryFunction<Iterator<? extends Expression>>> iteratorForBoundList = 
 				mapIntoArrayList(listOfBounds, bound -> () -> getElements(bound).iterator());
 		
 		Iterator<ArrayList<Expression>> cartesianProduct = new CartesianProductIterator<Expression>(iteratorForBoundList);
