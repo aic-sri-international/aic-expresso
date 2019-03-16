@@ -668,34 +668,34 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_globalSymbolTable.put("false",       SYMBOL_FALSE);
 		// Common Numbers
 		_globalSymbolTable.put("0",             SYMBOL_0);
-		_globalSymbolTable.put(new Integer(0),  SYMBOL_0);
+		_globalSymbolTable.put(Integer.valueOf(0),  SYMBOL_0);
 		_globalSymbolTable.put(new Rational(0), SYMBOL_0);
 		_globalSymbolTable.put("1",             SYMBOL_1);
-		_globalSymbolTable.put(new Integer(1),  SYMBOL_1);
+		_globalSymbolTable.put(Integer.valueOf(1),  SYMBOL_1);
 		_globalSymbolTable.put(new Rational(1), SYMBOL_1);
 		_globalSymbolTable.put("2",             SYMBOL_2);
-		_globalSymbolTable.put(new Integer(2),  SYMBOL_2);
+		_globalSymbolTable.put(Integer.valueOf(2),  SYMBOL_2);
 		_globalSymbolTable.put(new Rational(2), SYMBOL_2);
 		_globalSymbolTable.put("3",             SYMBOL_3);
-		_globalSymbolTable.put(new Integer(3),  SYMBOL_3);
+		_globalSymbolTable.put(Integer.valueOf(3),  SYMBOL_3);
 		_globalSymbolTable.put(new Rational(3), SYMBOL_3);
 		_globalSymbolTable.put("4",             SYMBOL_4);
-		_globalSymbolTable.put(new Integer(4),  SYMBOL_4);
+		_globalSymbolTable.put(Integer.valueOf(4),  SYMBOL_4);
 		_globalSymbolTable.put(new Rational(4), SYMBOL_4);
 		_globalSymbolTable.put("5",             SYMBOL_5);
-		_globalSymbolTable.put(new Integer(5),  SYMBOL_5);
+		_globalSymbolTable.put(Integer.valueOf(5),  SYMBOL_5);
 		_globalSymbolTable.put(new Rational(5), SYMBOL_5);
 		_globalSymbolTable.put("6",             SYMBOL_6);
-		_globalSymbolTable.put(new Integer(6),  SYMBOL_6);
+		_globalSymbolTable.put(Integer.valueOf(6),  SYMBOL_6);
 		_globalSymbolTable.put(new Rational(6), SYMBOL_6);
 		_globalSymbolTable.put("7",             SYMBOL_7);
-		_globalSymbolTable.put(new Integer(7),  SYMBOL_7);
+		_globalSymbolTable.put(Integer.valueOf(7),  SYMBOL_7);
 		_globalSymbolTable.put(new Rational(7), SYMBOL_7);
 		_globalSymbolTable.put("8",             SYMBOL_8);
-		_globalSymbolTable.put(new Integer(8),  SYMBOL_8);
+		_globalSymbolTable.put(Integer.valueOf(8),  SYMBOL_8);
 		_globalSymbolTable.put(new Rational(8), SYMBOL_8);
 		_globalSymbolTable.put("9",             SYMBOL_9);
-		_globalSymbolTable.put(new Integer(9),  SYMBOL_9);
+		_globalSymbolTable.put(Integer.valueOf(9),  SYMBOL_9);
 		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 

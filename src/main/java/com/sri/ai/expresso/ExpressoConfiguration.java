@@ -54,19 +54,19 @@ import com.sri.ai.util.cache.CacheMap;
 @Beta
 public class ExpressoConfiguration extends Configuration {
 	public static final String  KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS = "expresso.display.numerics.most.decimal.places.in.exact.representation.of.numerical.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS = new Integer(10000);
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_EXACT_REPRESENTATION_OF_NUMERICAL_SYMBOLS = Integer.valueOf(10000);
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS = "expresso.display.numerics.most.decimal.places.in.approximate.representation.of.numerical.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS = new Integer(MathContext.DECIMAL128.getPrecision());
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS = Integer.valueOf(MathContext.DECIMAL128.getPrecision());
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS                      = "expresso.display.numerics.exactly.for.symbols";
 	public static final boolean DEFAULT_VALUE_DISPLAY_NUMERICS_EXACTLY_FOR_SYMBOLS            = true;
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION               = "expresso.display.numerics.most.integer.places.before.switching.to.scientific.notation";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION     = new Integer(40);
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_INTEGER_PLACES_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION     = Integer.valueOf(40);
 	//
 	public static final String  KEY_DISPLAY_NUMERICS_GREATEST_INITIAL_NON_ZERO_DECIMAL_PLACE_POSITION_BEFORE_SWITCHING_TO_SCIENTIFIC_NOTATION = "expresso.display.numerics.greatest.initial.non.zero.decimal.place.position.before.switching.to.scientific.notation";
-	public static final Integer DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES       = new Integer(40);
+	public static final Integer DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES       = Integer.valueOf(40);
 	//
 	public static final String  KEY_USE_GLOBAL_SYMBOL_TABLE                                   = "expresso.use.global.symbol.table";
 	public static final Boolean DEFAULT_VALUE_USE_GLOBAL_SYMBOL_TABLE                         = Boolean.TRUE; 
@@ -78,7 +78,7 @@ public class ExpressoConfiguration extends Configuration {
 	public static final Boolean DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS             = Boolean.FALSE;
  	//
 	public static final String KEY_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS           = "expresso.syntax.to.string.thread.cache.timeout";
-	public static final Long   DEFAULT_VALUE_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS = new Long(60);
+	public static final Long   DEFAULT_VALUE_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS = Long.valueOf(60);
 	
 			
 	public static boolean isDisplayNumericsExactlyForSymbols() {
