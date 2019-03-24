@@ -40,8 +40,9 @@ package com.sri.ai.grinder.parser.antlr;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -87,7 +88,7 @@ public class AntlrGrinderParserWrapper implements Parser {
 		try {			
 			AntlrErrorListener antlrErrorListener = new AntlrErrorListener(parserEerrorListener);
 			
-			ANTLRInputStream input = new ANTLRInputStream(string);
+			CharStream input = CharStreams.fromString(string);
 			AntlrGrinderLexer lexer = new AntlrGrinderLexer(input);
 			
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
