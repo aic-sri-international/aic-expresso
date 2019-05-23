@@ -104,7 +104,7 @@ public class IntegerInterval extends AbstractType {
 	}
 
 	/**
-	 * Creates the integer interval from first to last.
+	 * Creates the integer interval from first to last (inclusive).
 	 * @param first
 	 * @param last
 	 */
