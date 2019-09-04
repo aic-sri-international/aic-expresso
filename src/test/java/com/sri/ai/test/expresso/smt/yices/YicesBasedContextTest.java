@@ -12,16 +12,15 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
-import com.sri.ai.grinder.core.TrueContext;
 import com.sri.yices.Terms;
+import com.sri.yices.Yices;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.smt.core.yices.YicesConjunction;
+import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.expresso.type.Categorical;
 
-public class YicesConjunctionTest {
+public class YicesBasedContextTest {
 	
 	final String tab = "\t";
 	final String stab_big = "        ";
@@ -35,8 +34,8 @@ public class YicesConjunctionTest {
 	
 	
 	@Before
-	public void clearYicesTerms() throws Exception {
-        yicesUnregister_ABCDEF_VWXYZ();
+	public void resetYices() throws Exception {
+        Yices.reset();
 	}
 	
 
@@ -65,17 +64,16 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
+		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
 				"W", "Boolean",
 				"X", "Boolean", 
 				"Y", "Boolean", 
 				"Z", "Boolean"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 		
-		YicesConjunction conjunction = new YicesConjunction();
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
@@ -86,14 +84,14 @@ public class YicesConjunctionTest {
 				"not Z",
 				"X != W",
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "Y = W";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y != Z";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		
 		println();
 		println();
@@ -109,9 +107,9 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
-		context = context.makeNewContextWithAddedType(new Categorical("Staff",  2, makeSymbol("Karen"), makeSymbol("Rodrigo")));
-		context = context.makeNewContextWithAddedType(new Categorical("Intern",  10, makeSymbol("Sarah"), makeSymbol("Redouane"), makeSymbol("Roger"), makeSymbol("Bobak")));
+		YicesBasedContext context = new YicesBasedContext(theory);
+		context = (YicesBasedContext) context.makeNewContextWithAddedType(new Categorical("Staff",  2, makeSymbol("Karen"), makeSymbol("Rodrigo")));
+		context = (YicesBasedContext) context.makeNewContextWithAddedType(new Categorical("Intern",  10, makeSymbol("Sarah"), makeSymbol("Redouane"), makeSymbol("Roger"), makeSymbol("Bobak")));
 		String[] symbolsAndTypes = new String[] {
 				"S1", "Staff",
 				"S2", "Staff",
@@ -120,10 +118,10 @@ public class YicesConjunctionTest {
 				"I2", "Intern",
 				"I3", "Intern"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 		
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
@@ -137,18 +135,18 @@ public class YicesConjunctionTest {
 				"I3 != I1",
 				"I2 != I3",
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "S3 != S2";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "I2 = Roger";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "I2 = Sarah";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		
 		println();
 		println();
@@ -164,23 +162,23 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
+		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
 				"X", "Integer", 
 				"Y", "Integer", 
 				"Z", "Integer"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
 		
 		literalString = "X = 1/3";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		String[] satisfiableLiteralStrings = new String[] {
 				"X < 10",
@@ -188,14 +186,15 @@ public class YicesConjunctionTest {
 				"Z > -10.33",
 				"Y > Z"
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "Y = -100";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -1";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		context.popStackFrame();
 		
 		println();
 		println();
@@ -212,16 +211,16 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
+		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
 				"X", "Real", 
 				"Y", "Real", 
 				"Z", "Real"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
@@ -232,14 +231,14 @@ public class YicesConjunctionTest {
 				"Z > -10.33",
 				"Y > Z",
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "Y = -100/3";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -0.5";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		
 		println();
 		println();
@@ -255,39 +254,39 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
+		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
 				"X", "1..(10+2)", 
 				"Y", "-10..10", 
 				"Z", "-10..0"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
 		
 		literalString = "X = 0";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "X = 13";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "X = 12";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -11";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -10";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		String[] satisfiableLiteralStrings = new String[] {
 				"X < 10",
@@ -295,14 +294,14 @@ public class YicesConjunctionTest {
 				"Z > -10.33",
 				"Y > Z",
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "Y = -100";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -1";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		
 		println();
 		println();
@@ -318,39 +317,39 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
+		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
 				"X", "1..infinity", 
 				"Y", "-infinity..-1", 
 				"Z", "-10..10"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
 		
 		literalString = "X = 0";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "X = 1";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "X = 100000000000000000000000";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = 0";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -100000000000000000000000";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 
 		String[] satisfiableLiteralStrings = new String[] {
 				"X < 10",
@@ -358,14 +357,14 @@ public class YicesConjunctionTest {
 				"X = 2*2",
 				"Z = 7",
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "Y = 6";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -8";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		
 		println();
 		println();
@@ -382,39 +381,39 @@ public class YicesConjunctionTest {
 		println();
 		
 		Theory theory = new CommonTheory();
-		Context context = new TrueContext(theory);
+		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
 				"X", "[   1/2  ;  (10+0.25) ]", 
 				"Y", "[ -10.5  ;  10+1/3    ]", 
 				"Z", "[ -10/3  ;  0         ]"
 		};
-		context = context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		ArrayList<String> conjoinedLiterals = new ArrayList<String>(10);
 		
 		String literalString;
 		
 		literalString = "X = 0.25";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "X = 10 + 1/2";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "X = 10+1/4";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -11";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
-		literalString = "Y = -10";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		literalString = "Y = -10.5";
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		String[] satisfiableLiteralStrings = new String[] {
 				"X < 10",
@@ -422,14 +421,14 @@ public class YicesConjunctionTest {
 				"Z > -10.33",
 				"Y > Z",
 		};
-		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralsAndPrintInfo(satisfiableLiteralStrings, context, conjoinedLiterals);
 		
 		literalString = "Y = -100/3";
-		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
-		backtrackAndPrintInfo(conjunction, conjoinedLiterals);
+		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
 		literalString = "Y = -1/3";
-		conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+		conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		
 		println();
 		println();
@@ -447,8 +446,8 @@ public class YicesConjunctionTest {
 		
 		Theory theory = new CommonTheory();
 		
-		Context context = new TrueContext(theory);
-		context = context.extendWithSymbolsAndTypes("X", "Integer", "Y", "Real");
+		YicesBasedContext context = new YicesBasedContext(theory);
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes("X", "Integer", "Y", "Real");
 		
 		String[] literalStrings = new String[] {
 				"X < 1",
@@ -458,28 +457,28 @@ public class YicesConjunctionTest {
 				"Y = 0"
 		};
 		
-		YicesConjunction conjunction = new YicesConjunction();
+		
 		
 		for (String literalString : literalStrings) {
 			println("and(" + literalString + "):");
 			Expression literal = parse(literalString);
-			conjunction.and(literal, context);
-			println(stab + "isSatisfiable: " + conjunction.isSatisfiable());
-			println(stab + "getModel: " + conjunction.getModel());
+			context.assertOnNewStackFrame(literal);
+			println(stab + "isSatisfiable: " + context.isSatisfiable());
+			println(stab + "getModel: " + context.getModelAsString());
 			println();
 		}
 		
 		println("backtracking to undo (Y = 0)...");
-		conjunction.backtrack();
-		println(stab + "isSatisfiable: " + conjunction.isSatisfiable());
-		println(stab + "getModel: " + conjunction.getModel());
+		context.popStackFrame();
+		println(stab + "isSatisfiable: " + context.isSatisfiable());
+		println(stab + "getModel: " + context.getModelAsString());
 		println();
 		
 		println("and(Y = 0.3):");
 		Expression literal = parse("Y = 0.3");
-		conjunction.and(literal, context);
-		println(stab + "isSatisfiable: " + conjunction.isSatisfiable());
-		println(stab + "getModel: " + conjunction.getModel());
+		context.assertOnNewStackFrame(literal);
+		println(stab + "isSatisfiable: " + context.isSatisfiable());
+		println(stab + "getModel: " + context.getModelAsString());
 		println();
 		
         Terms.removeName("X");
@@ -521,47 +520,47 @@ public class YicesConjunctionTest {
 		hypenSepartorLine();
 	}
 
-	private void backtrackAndPrintInfo(YicesConjunction conjunction, ArrayList<String> conjoinedLiterals) {
+	private void backtrackAndPrintInfo(YicesBasedContext context, ArrayList<String> conjoinedLiterals) {
 		sparseHypenSepartorLine(false);
 		int lastElement = conjoinedLiterals.size()-1;
 		println("BACKTRACKING to undo (" + conjoinedLiterals.get(lastElement) + ")...");
 		conjoinedLiterals.remove(lastElement);
 		printlnArrayListElements(conjoinedLiterals);
-		conjunction.backtrack();
-		println(stab + "isSatisfiable: " + conjunction.isSatisfiable());
-		myAssert(conjunction.isSatisfiable(), ()->"ERROR: Conjunction should have been satisfiable!!!");
-		println(stab + "getModel: " + conjunction.getModel());
+		context.popStackFrame();
+		println(stab + "isSatisfiable: " + context.isSatisfiable());
+		myAssert(context.isSatisfiable(), ()->"ERROR: context should have been satisfiable!!!");
+		println(stab + "getModel: " + context.getModelAsString());
 		sparseHypenSepartorLine(true);
 	}
 
-	private void conjoinUnsatisfiableLiteralAndPrintInfo(String literalString, YicesConjunction conjunction,
-			Context context, ArrayList<String> conjoinedLiterals) {
+	private void conjoinUnsatisfiableLiteralAndPrintInfo(String literalString, YicesBasedContext context,
+			ArrayList<String> conjoinedLiterals) {
 		conjoinedLiterals.add(literalString);
 		printlnArrayListElements(conjoinedLiterals);
 		Expression literal = parse(literalString);
-		conjunction.and(literal, context);
-		println(stab + "isSatisfiable: " + conjunction.isSatisfiable());
-		myAssert(!conjunction.isSatisfiable(), ()->"ERROR: Conjunction should NOT have been satisfiable!!!");
-		println(stab + "getModel: " + conjunction.getModel());
+		context.assertOnNewStackFrame(literal);
+		println(stab + "isSatisfiable: " + context.isSatisfiable());
+		myAssert(!context.isSatisfiable(), ()->"ERROR: context should NOT have been satisfiable!!!");
+		println(stab + "getModel: " + context.getModelAsString());
 		println();
 	}
 
-	private void conjoinSatisfiableLiteralsAndPrintInfo(String[] satisfiableLiteralStrings, YicesConjunction conjunction,
-			Context context, ArrayList<String> conjoinedLiterals) {
+	private void conjoinSatisfiableLiteralsAndPrintInfo(String[] satisfiableLiteralStrings, YicesBasedContext context,
+			ArrayList<String> conjoinedLiterals) {
 		for (String literalString : satisfiableLiteralStrings) {
-			conjoinSatisfiableLiteralAndPrintInfo(literalString, conjunction, context, conjoinedLiterals);
+			conjoinSatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		}
 	}
 	
-	private void conjoinSatisfiableLiteralAndPrintInfo(String literalString, YicesConjunction conjunction,
-			Context context, ArrayList<String> conjoinedLiterals) {
+	private void conjoinSatisfiableLiteralAndPrintInfo(String literalString, YicesBasedContext context,
+			ArrayList<String> conjoinedLiterals) {
 		conjoinedLiterals.add(literalString);
 		printlnArrayListElements(conjoinedLiterals);
 		Expression literal = parse(literalString);
-		conjunction.and(literal, context);
-		println(stab + "isSatisfiable: " + conjunction.isSatisfiable());
-		myAssert(conjunction.isSatisfiable(), ()->"ERROR: Conjunction should have been satisfiable!!!");
-		println(stab + "getModel: " + conjunction.getModel());
+		context.assertOnNewStackFrame(literal);
+		println(stab + "isSatisfiable: " + context.isSatisfiable());
+		myAssert(context.isSatisfiable(), ()->"ERROR: context should have been satisfiable!!!");
+		println(stab + "getModel: " + context.getModelAsString());
 		println();
 	}
 	
@@ -574,21 +573,6 @@ public class YicesConjunctionTest {
 		}
 		println();
 	}
-	
-	private void yicesUnregister_ABCDEF_VWXYZ() {
-		Terms.removeName("A");
-        Terms.removeName("B");
-        Terms.removeName("C");
-        Terms.removeName("D");
-        Terms.removeName("E");
-        Terms.removeName("F");
-        Terms.removeName("V");
-        Terms.removeName("W");
-        Terms.removeName("X");
-        Terms.removeName("Y");
-        Terms.removeName("Z");
-	}
-	
 	
 }
 

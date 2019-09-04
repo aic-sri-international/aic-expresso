@@ -1,38 +1,64 @@
 package com.sri.ai.expresso.smt.api;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Context;
 
+/**
+ * An Expresso interface for representing an integrated SMT Solver (such as
+ * Yices or Z3).  Expresso SMTSolver-derived classes will represent specific
+ * SMT solvers and allow Expresso to utilize their functionality through
+ * generalized methods.
+ * 
+ * @author Bobak
+ *
+ */
 public interface SMTSolver {
+
+	public Class<? extends SMTBasedContext> getExpressoSMTContextClass();
+	public Class<? extends SMTExpression> 	getExpressoSMTExpressionClass();
+	Class<? extends SMTModel> 				getExpressoSMTModelClass();
+	Class<? extends SMTType> 				getExpressoSMTTypeClass();
 	
-	public Class<? extends Object> getSMTSolverContextClass();
-	public Class<? extends Object> getSMTSolverTermClass();
-	public  Class<? extends Object> getSMTSolverFormulaClass();
 	
-	public Class<? extends SMTContext> getCorrespondingExpressoSMTContextClassBranch();
-	public Class<? extends SMTTerm> getCorrespondingExpressoSMTTermClassBranch();
-	public  Class<? extends SMTFormula> getCorrespondingExpressoSMTFormulaClassBranch();
+	Object 			makeSMTSolverExpressionObjectFromExpressionLiteral(Expression literal, SMTBasedContext smtContext);
+	String 			getExpressionString(SMTExpression smtFormula);
+	SMTType 		getExpressionType(SMTExpression smtFormula);
+	String 			getExpressionTypeSimpleName(SMTExpression smtFormula);
+	String 			getExpressionTypeNativeName(SMTExpression smtFormula);
+	public boolean	isBooleanType(SMTExpression smtExpression);
+	public boolean	isIntegerType(SMTExpression smtExpression);
+	public boolean	isRealType(SMTExpression smtExpression);
+	
+	
+	//SMTContext Utilities
+	public Object 	makeSMTSolverContextObject();
+	public Object 	assertOntoContext(SMTBasedContext smtContext, SMTExpression smtFormula);
+	public Object 	assertOntoContext(SMTBasedContext smtContext, SMTExpression... smtFormula);
+	public Object 	pushStackFrame(SMTBasedContext smtContext);
+	public Object 	popStackFrame(SMTBasedContext smtContext);
+	public boolean 	contextIsSatisfiable(SMTBasedContext smtContext);
+	public boolean 	contextIsSatisfiable(SMTBasedContext smtContext, SMTExpression smtFormula);
+	public Object 	assertOntoContext(SMTBasedContext smtContext, Expression formula);
+	public boolean 	contextIsSatisfiable(SMTBasedContext smtContext, Expression formula);
+	public Object 	assertOntoContext(SMTBasedContext smtContext, Expression[] formulas);
+	public SMTModel getModel(SMTBasedContext smtContext);
+	String 			getModelAsString(SMTBasedContext smtContext);
 
 
-	public SMTFormula makeExpressoSMTFormulaFromExpressionLiteral(Expression literal, Context context, SMTContext smtContext);
-	public SMTTerm makeExpressoSMTTermFromExpressoExpression(Expression expression, Context context, SMTContext smtContext);
-	public SMTContext makeExpressoSMTContext();
+	//SMTModel Utilities
+	Expression getValueOfVariable(Expression variable, SMTModel smtModel, SMTBasedContext smtContext);
 
-	public Object makeSMTSolverFormulaObjectFromExpressionLiteral(Expression literal, Context context, SMTContext smtContext);
-	public String getFormulaString(Object smtFormula);
-	
-	public Object makeSMTSolverTermObjectFromExpressoExpression(Expression expression, Context context, SMTContext smtContext);
-	public Object getTypeReference(Object smtTerm);
-	public String getTypeName(Object smtTerm);
-	public boolean isRegistered(Object smtTerm);
-	public String getSymbolName(Object smtTerm);
-	
-	public Object makeSMTSolverContextObject();
-	public Object assertOntoContex(Object smtContext, SMTFormula smtFormula);
-	public Object assertOntoContex(Object smtContext, SMTFormula... smtFormula);
-	public Object pushStackFrame(Object smtContext);
-	public Object popStackFrame(Object smtContext);
-	public boolean contextIsSatisfiable(Object smtContext);
-	public String getModel(Object smtContext);
+	boolean expressionIsAssertible(SMTExpression smtFormula);
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

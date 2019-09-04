@@ -1,5 +1,6 @@
 package com.sri.ai.expresso.smt.core.yices;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.println;
 
@@ -15,9 +16,10 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.smt.api.SMTSolver;
-import com.sri.ai.expresso.smt.api.SMTContext;
-import com.sri.ai.expresso.smt.api.SMTFormula;
-import com.sri.ai.expresso.smt.api.SMTTerm;
+import com.sri.ai.expresso.smt.api.SMTBasedContext;
+import com.sri.ai.expresso.smt.api.SMTExpression;
+import com.sri.ai.expresso.smt.api.SMTModel;
+import com.sri.ai.expresso.smt.api.SMTType;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerExpressoType;
@@ -40,58 +42,81 @@ public class Yices implements SMTSolver {
 	
 	// STATIC INSTANTIATION OF CLASS INSTANCE
 	//////////////////////////////////////////////////////	
-	public static final Yices EXPRESSO_TO_YICES_UTIL = new Yices();
+	public static final Yices YICES_SMT_SOLVER = new Yices();
 	
 	
 	
 	// CLASSES CORRESPONDING TO YICES
 	//////////////////////////////////////////////////////	
 	
-	private static final Class<com.sri.yices.Context> SMT_SOLVER_SMT_CONTEXT_CLASS = com.sri.yices.Context.class;
-	private static final Class<Integer> SMT_SOLVER_SMT_TERM_CLASS = Integer.class;
-	private static final  Class<Integer> SMT_SOLVER_SMT_FORMULA_CLASS = Integer.class;
+//	private static final Class<com.sri.yices.Context> SMT_SOLVER_CONTEXT_CLASS = com.sri.yices.Context.class;
+//	private static final Class<Integer> SMT_SOLVER_TERM_CLASS = Integer.class;
+//	private static final Class<Integer> SMT_SOLVER_TYPE_CLASS = Integer.class;
+//	private static final Class<Model> SMT_SOLVER_MODEL_CLASS = Model.class;
+//	
+//	@Override
+//	public Class<? extends Object> getSMTSolverContextClass() {
+//		return SMT_SOLVER_CONTEXT_CLASS;
+//	}
+//	@Override
+//	public Class<? extends Object> getSMTSolverTermClass() {
+//		return SMT_SOLVER_TERM_CLASS;
+//	}
+//	@Override
+//	public Class<? extends Object> getSMTSolverFormulaClass() {
+//		return SMT_SOLVER_FORMULA_CLASS;
+//	}
+//	@Override
+//	public Class<? extends Object> getSMTSolverModelClass() {
+//		return SMT_SOLVER_MODEL_CLASS;
+//	}
+	
+	
+	private static final Class<? extends SMTBasedContext> EXPRESSO_SMT_CONTEXT_CLASS = YicesBasedContext.class;
+	private static final Class<? extends SMTExpression> EXPRESSO_SMT_EXPRESSION_CLASS = YicesExpression.class;
+	private static final  Class<? extends SMTModel> EXPRESSO_SMT_MODEL_CLASS = YicesModel.class;
+	private static final  Class<? extends SMTType> EXPRESSO_SMT_TYPE_CLASS = YicesType.class;
 	
 	@Override
-	public Class<? extends Object> getSMTSolverContextClass() {
-		return SMT_SOLVER_SMT_CONTEXT_CLASS;
+	public Class<? extends SMTBasedContext> getExpressoSMTContextClass(){
+		return EXPRESSO_SMT_CONTEXT_CLASS;
 	}
 	@Override
-	public Class<? extends Object> getSMTSolverTermClass() {
-		return SMT_SOLVER_SMT_TERM_CLASS;
+	public Class<? extends SMTExpression> getExpressoSMTExpressionClass() {
+		return EXPRESSO_SMT_EXPRESSION_CLASS;
 	}
 	@Override
-	public Class<? extends Object> getSMTSolverFormulaClass() {
-		return SMT_SOLVER_SMT_FORMULA_CLASS;
-	}
-	
-	
-	private static final Class<? extends SMTContext> EXPRESSO_SMT_CONTEXT_CLASS_BRANCH = YicesContext.class;
-	private static final Class<? extends SMTTerm> EXPRESSO_SMT_TERM_CLASS_BRANCH = YicesTerm.class;
-	private static final  Class<? extends SMTFormula> EXPRESSO_SMT_FORMULA_CLASS_BRANCH = YicesFormula.class;
-	
-	@Override
-	public Class<? extends SMTContext> getCorrespondingExpressoSMTContextClassBranch(){
-		return EXPRESSO_SMT_CONTEXT_CLASS_BRANCH;
+	public  Class<? extends SMTModel> getExpressoSMTModelClass() {
+		return EXPRESSO_SMT_MODEL_CLASS;
 	}
 	@Override
-	public Class<? extends SMTTerm> getCorrespondingExpressoSMTTermClassBranch() {
-		return EXPRESSO_SMT_TERM_CLASS_BRANCH;
-	}
-	@Override
-	public  Class<? extends SMTFormula> getCorrespondingExpressoSMTFormulaClassBranch() {
-		return EXPRESSO_SMT_FORMULA_CLASS_BRANCH;
+	public  Class<? extends SMTType> getExpressoSMTTypeClass() {
+		return EXPRESSO_SMT_TYPE_CLASS;
 	}
 	
 	
+
 	
-	
-	
-	//////////////// YICES FORMULA  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+//////////////// YICES EXPRESSION  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	// STATIC DATA FIELDS
 	//////////////////////////////////////////////////////
+	private static final Map< Class<? extends Type>, ToIntFunction<ExpressoToYicesSymbolRegistrationInformation> > 
+	EXPRESSO_SYMBOL_TYPE_TO_YICES_SYMBOL_REGISTRATION_METHODS = 
+			new LinkedHashMap<>() {
+				private static final long serialVersionUID = 1L;
+			{
+        put(Categorical.class, (symbolInfo)->registerCategoricalYicesSymbol(symbolInfo));
+        put(FunctionType.class, (symbolInfo)->registerFunctionalYicesSymbol(symbolInfo));
+        put(IntegerExpressoType.class, (symbolInfo)->registerIntegerYicesSymbol(symbolInfo));
+        put(IntegerInterval.class, (symbolInfo)->registerIntegerIntervalYicesSymbol(symbolInfo));
+        put(RealExpressoType.class, (symbolInfo)->registerRealYicesSymbol(symbolInfo));
+        put(RealInterval.class, (symbolInfo)->registerRealIntervalYicesSymbol(symbolInfo));
+        put(TupleType.class, (symbolInfo)->registerTupleYicesSymbol(symbolInfo));
+    }};	
+    
 	//TODO create objects in another, more general, class such as in FunctorConstants
 	private static final Expression EQUALITY_EXPRESSION_FUNCTOR  = Expressions.makeSymbol("=");
 	private static final Expression DISEQUALITY_EXPRESSION_FUNCTOR  = Expressions.makeSymbol("!=");
@@ -107,346 +132,25 @@ public class Yices implements SMTSolver {
 	private static final Expression DIVISION_EXPRESSION_FUNCTOR = Expressions.makeSymbol("/");
 	private static final Expression EXPONENTIATION_EXPRESSION_FUNCTOR = Expressions.makeSymbol("^");
 	
-	private static final Map< Expression, ToIntFunction<YicesTerm[]> > EXPRESSO_FUNCTOR_TO_YICES_FUNCTION_APPLICATION =
-			new LinkedHashMap<>() {
-				private static final long serialVersionUID = 1L;
-			{
-        put(EQUALITY_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesEqualityFormula(functionArguments));
-        put(DISEQUALITY_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesDisequalityFormula(functionArguments));
-        put(GREATER_THAN_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesGreaterThanFormula(functionArguments));
-        put(LESS_THAN_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesLessThanFormula(functionArguments));
-        put(LESS_THAN_OR_EQUAL_TO_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesLessThanOrEqualToFormula(functionArguments));
-        put(GREATER_THAN_OR_EQUAL_TO_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesGreaterThanOrEqualToFormula(functionArguments));
-        put(NOT_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesNotFormula(functionArguments));
-        
-        put(PLUS_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesPlusTerm(functionArguments));
-        put(MINUS_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesMinusTerm(functionArguments));
-        put(TIMES_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesTimesTerm(functionArguments));
-        put(DIVISION_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesDivisionTerm(functionArguments));
-        put(EXPONENTIATION_EXPRESSION_FUNCTOR, (functionArguments)->makeYicesExponentiationTerm(functionArguments));
-    }};
+	private static final Map< Expression, ToIntFunction<Integer[]> > EXPRESSO_FUNCTOR_TO_YICES_FUNCTION_APPLICATION =
+	new LinkedHashMap<>() {
+		private static final long serialVersionUID = 1L;
+	{
+	put(EQUALITY_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesEqualityExpression(functionArguments));
+	put(DISEQUALITY_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesDisequalityExpression(functionArguments));
+	put(GREATER_THAN_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesGreaterThanExpression(functionArguments));
+	put(LESS_THAN_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesLessThanExpression(functionArguments));
+	put(LESS_THAN_OR_EQUAL_TO_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesLessThanOrEqualToExpression(functionArguments));
+	put(GREATER_THAN_OR_EQUAL_TO_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesGreaterThanOrEqualToExpression(functionArguments));
+	put(NOT_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesNotExpression(functionArguments));
 	
-    
-	
-	// FORMULA MAKERS
-	//////////////////////////////////////////////////////
-    @Override
-    public Object makeSMTSolverFormulaObjectFromExpressionLiteral(Expression literal, Context context, SMTContext smtContext) {
-    	int yicesFormula = makeYicesSolverFormulaObjectFromExpressoExpressionLiteral(literal, context, smtContext);
-    	return yicesFormula;
-    }
-	
-	@Override
-	public SMTFormula makeExpressoSMTFormulaFromExpressionLiteral(Expression literal, Context context, SMTContext smtContext) {
-		int yicesFormula = makeYicesSolverFormulaObjectFromExpressoExpressionLiteral(literal, context, smtContext);
-		SMTFormula expressoYicesFormula = new YicesFormula(yicesFormula);
-		return expressoYicesFormula;
-	}
-    
-    ///////////////////////////////////////////////////////
-    
-	public static int makeYicesSolverFormulaObjectFromExpressoExpressionLiteral(Expression literal, Context context, SMTContext smtContext) {
-		//myAssert(context.isLiteral(literal), ()->"ERROR: The Expression (" + literal.toString() + ") is not an Expresso literal!");
-		myAssert(EXPRESSO_SMT_CONTEXT_CLASS_BRANCH.isAssignableFrom(smtContext.getClass()), ()->"ERROR: Attempting to construct Yices formula with " + smtContext.getClass().getSimpleName() + "!");
-		int yicesFormula = -1;
-		Expression functor = literal.getFunctor();
-		if (functor != null){
-			List<Expression> functionArguments = literal.getArguments();
-			YicesTerm[] smtSymbols = makeCorrespondingYicesTerms(functionArguments, context, smtContext);
-			yicesFormula = applyYicesFunctionApplication(functor, smtSymbols);
-		}
-		else { //(functor == null, implying expression is a Boolean symbol)
-			//TODO remove assertion
-			myAssert(context.getTypeOfRegisteredSymbol(literal) == GrinderUtil.BOOLEAN_TYPE, ()->"ERROR: Attempting to create a Yices Boolean symbol from" + literal.toString() + ", which is not an Expresso Boolean type!");
-			YicesTerm yicesSymbol = new YicesTerm(literal, context, smtContext);
-			yicesFormula = (int) yicesSymbol.getEmeddedReference();
-		}
-		return yicesFormula;
-	}
-	
-	
-	
-	// UTILITY METHODS
-	//////////////////////////////////////////////////////
-    
-	@Override
-	public String getFormulaString(Object smtFormula) {
-		String yicesFormulaString = getCorrespondingFormulaString(smtFormula);
-		return yicesFormulaString;
-	}
-	
-    ///////////////////////////////////////////////////////
-	
-	public static String getCorrespondingFormulaString(Object smtFormula) {
-		myAssert(SMT_SOLVER_SMT_FORMULA_CLASS.isAssignableFrom(smtFormula.getClass()), ()->"ERROR: smtFormula is of type " + smtFormula.getClass().getSimpleName() + " which is not an appropriate Yices term reference!");
-		Integer yicesFormulaReference = (Integer) smtFormula;
-		String yicesFormulaString = Terms.getName(yicesFormulaReference);
-		return yicesFormulaString;
-	}
+	put(PLUS_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesPlusExpression(functionArguments));
+	put(MINUS_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesMinusExpression(functionArguments));
+	put(TIMES_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesTimesExpression(functionArguments));
+	put(DIVISION_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesDivisionExpression(functionArguments));
+	put(EXPONENTIATION_EXPRESSION_FUNCTOR, (functionArguments)->_makeYicesExponentiationExpression(functionArguments));
+	}};
 
-	
-	
-	// PRIVATE HELPER METHODS
-	//////////////////////////////////////////////////////	
-	private static int applyYicesFunctionApplication(Expression functor, YicesTerm[] functionArguments) {
-		ToIntFunction<YicesTerm[]> correspondingYicesFunctor = 
-				EXPRESSO_FUNCTOR_TO_YICES_FUNCTION_APPLICATION.get(functor);
-		int yicesLiteral = correspondingYicesFunctor.applyAsInt(functionArguments);
-		return yicesLiteral;
-	}
-
-	private static int makeYicesEqualityFormula(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesEqualityFormula = Terms.eq(arg1, arg2);
-		return yicesEqualityFormula;
-	}
-	
-	private static int makeYicesDisequalityFormula(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesDisequalityFormula = Terms.neq(arg1, arg2);
-		return yicesDisequalityFormula;
-	}
-	
-	private static int makeYicesGreaterThanFormula(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesGreaterThanFormula = Terms.arithGt(arg1, arg2);
-		return yicesGreaterThanFormula;
-	}
-	
-	private static int makeYicesLessThanFormula(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesLessThanFormula = Terms.arithLt(arg1, arg2);
-		return yicesLessThanFormula;
-	}
-	
-	private static int makeYicesLessThanOrEqualToFormula(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesLessThanOrEqualToFormula = Terms.arithLeq(arg1, arg2);
-		return yicesLessThanOrEqualToFormula;
-	}
-	
-	private static int makeYicesGreaterThanOrEqualToFormula(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesGreaterThanOrEqualToFormula = Terms.arithGeq(arg1, arg2);
-		return yicesGreaterThanOrEqualToFormula;
-	}
-	
-	private static int makeYicesNotFormula(YicesTerm[] functionArguments) {
-		int arg = (int) functionArguments[0].getEmeddedReference();
-		int yicesNotFormula = Terms.not(arg);
-		return yicesNotFormula;
-	}
-	
-	private static int makeYicesPlusTerm(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesPlusTerm = Terms.add(arg1, arg2);
-		return yicesPlusTerm;
-	}
-	
-	private static int makeYicesMinusTerm(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesMinusTerm = Terms.sub(arg1, arg2);
-		return yicesMinusTerm;
-	}
-	
-	private static int makeYicesTimesTerm(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesTimesTerm = Terms.mul(arg1, arg2);
-		return yicesTimesTerm;
-	}
-	
-	private static int makeYicesDivisionTerm(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesDivisionTerm = Terms.div(arg1, arg2);
-		return yicesDivisionTerm;
-	}
-	
-	private static int makeYicesExponentiationTerm(YicesTerm[] functionArguments) {
-		int arg1 = (int) functionArguments[0].getEmeddedReference();
-		int arg2 = (int) functionArguments[1].getEmeddedReference();
-		int yicesExponentiationTerm = -1;
-		try{
-			yicesExponentiationTerm = Terms.power(arg1, arg2);
-		}
-		catch (Exception e) {
-			yicesExponentiationTerm = -1;
-			println(e);
-			println("||| ERROR: Could not construct Yices Power Term with arguments " + arg1 + " and " + arg2 + "!|||");
-		}
-		return yicesExponentiationTerm;
-	}
-	
-	
-	
-	
-	
-	//////////////// YICES CONTEXT ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	// CONTEXT MAKERS
-	//////////////////////////////////////////////////////	
-    @Override
-    public Object makeSMTSolverContextObject() {
-    	com.sri.yices.Context yicesContext = makeYicesSolverContextObject();
-    	return yicesContext;
-    }
-    
-    @Override
-    public SMTContext makeExpressoSMTContext() {
-    	com.sri.yices.Context yicesContext = makeYicesSolverContextObject();
-    	SMTContext expressoSMTContext = new YicesContext(yicesContext);
-    	return expressoSMTContext;
-    }
-    
-    ///////////////////////////////////////////////////////
-    
-	public static com.sri.yices.Context makeYicesSolverContextObject() {
-		com.sri.yices.Context yicesContext = new com.sri.yices.Context();
-		return yicesContext;
-	}
-	
-	public static com.sri.yices.Context makeYicesSolverContextObject(String contextConfiguration) {
-		Config cfg = new Config();
-        cfg.set("mode", contextConfiguration);
-		com.sri.yices.Context yicesContext = new com.sri.yices.Context(cfg);
-		return yicesContext;
-	}
-
-	
-	
-	// UTILITY METHODS
-	//////////////////////////////////////////////////////
-	@Override
-	public Object assertOntoContex(Object smtContext, SMTFormula smtFormula) {
-		Object assertedSMTContext = assertOntoContext(smtContext,smtFormula);
-		return assertedSMTContext;
-	}
-
-	@Override
-	public Object assertOntoContex(Object smtContext, SMTFormula... smtFormula) {
-		Object assertedSMTContext = assertOntoContext(smtContext,smtFormula);
-		return assertedSMTContext;
-	}
-	
-	@Override
-	public Object pushStackFrame(Object smtContext) {
-		Object yicesContext = pushYicesContextStackFrame(smtContext);
-		return yicesContext;
-	}
-
-	@Override
-	public Object popStackFrame(Object smtContext) {
-		Object yicesContext = popYicesContextStackFrame(smtContext);
-		return yicesContext;
-	}
-
-	@Override
-	public boolean contextIsSatisfiable(Object smtContext) {
-		boolean contextIsSAT = yicesContextIsSatisfiable(smtContext);
-		return contextIsSAT;
-	}
-	
-	@Override
-	public String getModel(Object smtContext) {
-		String model = getYicesModel(smtContext);
-		return model;
-	}
-	
-	///////////////////////////////////////////////////////////////////////////////////
-	
-	public static Object assertOntoContext(Object smtContext, SMTFormula smtFormula) {
-		myAssert(SMT_SOLVER_SMT_CONTEXT_CLASS.isAssignableFrom(smtContext.getClass()), ()->"ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " which is not an appropriate Yices context!");
-		myAssert(EXPRESSO_SMT_FORMULA_CLASS_BRANCH.isAssignableFrom(smtFormula.getClass()), ()->"ERROR: smtFormula is of type " + smtFormula.getClass().getSimpleName() + " which is not an appropriate Yices formula reference!");
-		int yicesFormula = (int) smtFormula.getEmbeddedFormulaObject();
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext;
-		yicesContext.assertFormula(yicesFormula);
-		return yicesContext;
-	}
-	
-	public static Object assertOntoContext(Object smtContext, SMTFormula... smtFormula) {
-		myAssert(SMT_SOLVER_SMT_CONTEXT_CLASS.isAssignableFrom(smtContext.getClass()), ()->"ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " which is not an appropriate Yices context!");
-		myAssert(EXPRESSO_SMT_FORMULA_CLASS_BRANCH.isAssignableFrom(smtFormula[0].getClass()), ()->"ERROR: smtFormula is array of type " + smtFormula[0].getClass().getSimpleName() + " which is not an appropriate Yices formula reference!");
-		int[] embeddedYicesFormulas = new int[smtFormula.length];
-		int i = 0;
-		for(SMTFormula yicesFormula : smtFormula) {
-			embeddedYicesFormulas[i] = (int) yicesFormula.getEmbeddedFormulaObject();
-			++i;
-		}
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext;
-		yicesContext.assertFormulas(embeddedYicesFormulas);
-		return yicesContext;
-	}
-	
-	public static com.sri.yices.Context pushYicesContextStackFrame(Object smtContext) {
-		myAssert(SMT_SOLVER_SMT_CONTEXT_CLASS.isAssignableFrom(smtContext.getClass()), ()->"ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " which is not an appropriate Yices context!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext;
-		yicesContext.push();
-		return yicesContext;
-	}
-	
-	public static com.sri.yices.Context popYicesContextStackFrame(Object smtContext) {
-		myAssert(SMT_SOLVER_SMT_CONTEXT_CLASS.isAssignableFrom(smtContext.getClass()), ()->"ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " which is not an appropriate Yices context!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext;
-		yicesContext.pop();
-		return yicesContext;
-	}
-
-	public static boolean yicesContextIsSatisfiable(Object smtContext) {
-		myAssert(SMT_SOLVER_SMT_CONTEXT_CLASS.isAssignableFrom(smtContext.getClass()), ()->"ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " which is not an appropriate Yices context!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext;
-		boolean yicesContextIsSatisfiable = (yicesContext.check() == Status.SAT);
-		return yicesContextIsSatisfiable;
-	}
-	
-	public static String getYicesModel(Object smtContext) {
-		myAssert(SMT_SOLVER_SMT_CONTEXT_CLASS.isAssignableFrom(smtContext.getClass()), ()->"ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " which is not an appropriate Yices context!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext;
-		String model;
-		try{
-			Model m = yicesContext.getModel();
-			model = m.toString().replace("\n", " ").replace("\r", "");
-		}
-		catch (YicesException e) {
-			model = "Unable to extract model given the smt context state!!!";
-		}
-		return model;
-	}
-
-	
-	
-	
-
-	//////////////// YICES TERM //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// STATIC DATA FIELDS
-	//////////////////////////////////////////////////////	
-	private static final Map< Class<? extends Type>, ToIntFunction<ExpressoToYicesSymbolRegistrationInformation> > 
-	EXPRESSO_SYMBOL_TYPE_TO_YICES_SYMBOL_REGISTRATION_METHODS = 
-			new LinkedHashMap<>() {
-				private static final long serialVersionUID = 1L;
-			{
-        put(Categorical.class, (symbolInfo)->registerCategoricalYicesSymbol(symbolInfo));
-        put(FunctionType.class, (symbolInfo)->registerFunctionalYicesSymbol(symbolInfo));
-        put(IntegerExpressoType.class, (symbolInfo)->registerIntegerYicesSymbol(symbolInfo));
-        put(IntegerInterval.class, (symbolInfo)->registerIntegerIntervalYicesSymbol(symbolInfo));
-        put(RealExpressoType.class, (symbolInfo)->registerRealYicesSymbol(symbolInfo));
-        put(RealInterval.class, (symbolInfo)->registerRealIntervalYicesSymbol(symbolInfo));
-        put(TupleType.class, (symbolInfo)->registerTupleYicesSymbol(symbolInfo));
-    }};	
-	
 	
 	
 	// INNER CLASSES
@@ -456,14 +160,12 @@ public class Yices implements SMTSolver {
 		private final String name;
 		private final Expression expression;
     	private final Type type;
-    	private final Context context;
-    	private final SMTContext smtContext;
+    	private final SMTBasedContext smtContext;
     	
-    	ExpressoToYicesSymbolRegistrationInformation(String symbolName, Expression expression, Type type, Context context, SMTContext smtContext){
+    	ExpressoToYicesSymbolRegistrationInformation(String symbolName, Expression expression, Type type, SMTBasedContext smtContext){
     		this.name = symbolName;
     		this.expression = expression;
     		this.type = type;
-    		this.context = context;
     		this.smtContext = smtContext;
     	}
     	
@@ -476,60 +178,130 @@ public class Yices implements SMTSolver {
 		Type getType() {
 			return type;
 		}
-		Context getContext() {
-			return context;
-		}
-		SMTContext getSMTContext() {
+		SMTBasedContext getSMTContext() {
 			return smtContext;
 		}
     }
-    
-    
 	
-	// TERM MAKERS
-	//////////////////////////////////////////////////////	
-    @Override
-    public Object makeSMTSolverTermObjectFromExpressoExpression(Expression expression, Context context, SMTContext smtContext) {
-    	int yicesTerm = makeYicesSolverTermObjectFromExpressoExpression(expression, context, smtContext);
-    	return yicesTerm;
-    }
+	
+	
+	// UTILITY METHODS SMTExpression
+	//////////////////////////////////////////////////////
+	@Override
+	public Object makeSMTSolverExpressionObjectFromExpressionLiteral(Expression literal, SMTBasedContext smtContext) {
+		int yicesFormula = makeYicesSolverExpressionObjectFromExpressoExpression(literal, smtContext);
+		return yicesFormula;
+	}
 
 	@Override
-	public SMTTerm makeExpressoSMTTermFromExpressoExpression(Expression expression, Context context, SMTContext smtContext) {
-		int yicesTerm = makeYicesSolverTermObjectFromExpressoExpression(expression, context, smtContext);
-		SMTTerm expressoYicesTerm = new YicesTerm(yicesTerm);
-		return expressoYicesTerm;
+	public String getExpressionString(SMTExpression smtFormula) {
+		myAssert(smtFormula instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		String yicesFormulaString;
+		Integer yicesFormulaReference = (Integer) smtFormula.getEmeddedSMTObject();
+		yicesFormulaString = Terms.getName(yicesFormulaReference);
+		return yicesFormulaString;
 	}
-    
-    ///////////////////////////////////////////////////////
-    
-	public static int makeYicesSolverTermObjectFromExpressoExpression(Expression expression, Context context, SMTContext smtContext) {
-		myAssert(EXPRESSO_SMT_CONTEXT_CLASS_BRANCH.isAssignableFrom(smtContext.getClass()), ()->"ERROR: Attempting to construct Yices term with " + smtContext.getClass().getSimpleName() + "!");
+	
+	@Override
+	public SMTType getExpressionType(SMTExpression smtFormula) {
+		myAssert(smtFormula instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int type = Terms.typeOf(yicesSMTFormula);
+		SMTType smtType = new YicesType(type);
+		return smtType;
+	}
+	
+	@Override
+	public String getExpressionTypeSimpleName(SMTExpression smtFormula) {
+		myAssert(smtFormula instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int type = Terms.typeOf(yicesSMTFormula);
+		String typeName = Types.getName(type);
+		return typeName;
+	}
+	
+	@Override
+	public String getExpressionTypeNativeName(SMTExpression smtFormula) {
+		myAssert(smtFormula instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int type = Terms.typeOf(yicesSMTFormula);
+		String typeName = Types.toString(type);
+		return typeName;
+	}
+	
+	@Override
+	public boolean expressionIsAssertible(SMTExpression smtFormula) {
+		myAssert(smtFormula instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		boolean isAssertible = Terms.isBool(yicesSMTFormula);
+		return isAssertible;
+	}
+	
+	@Override
+	public boolean isBooleanType(SMTExpression smtExpression) {
+		myAssert(smtExpression instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtExpression.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesExpression = (int) smtExpression.getEmeddedSMTObject();
+		boolean isBool = Terms.isBool(yicesExpression);
+		return isBool;
+	}
+	
+	@Override
+	public boolean isIntegerType(SMTExpression smtExpression) {
+		myAssert(smtExpression instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtExpression.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesExpression = (int) smtExpression.getEmeddedSMTObject();
+		boolean isInteger = Terms.isInteger(yicesExpression);
+		return isInteger;
+	}
+	
+	@Override
+	public boolean isRealType(SMTExpression smtExpression) {
+		myAssert(smtExpression instanceof YicesExpression,
+				() -> "ERROR: smtContext is of type " + smtExpression.getClass().getSimpleName() + " but expected type "
+						+ YicesExpression.class.getSimpleName() + "!");
+		int yicesExpression = (int) smtExpression.getEmeddedSMTObject();
+		boolean isReal = Terms.isReal(yicesExpression);
+		return isReal;
+	}
 
-		int yicesTermReference = -1;
-		
-		Expression simplifiedExpression = simplifyExpression(expression, context);
-		Class<? extends Expression> simplifiedExpressionClass = simplifiedExpression.getClass();
-		boolean simplifiedExpressionIsSymbol = Symbol.class.isAssignableFrom(simplifiedExpressionClass);
-		boolean simplifiedExpressionIsDefaultFunctionApplication = DefaultFunctionApplication.class.isAssignableFrom(simplifiedExpressionClass);
-		myAssert(simplifiedExpressionIsSymbol || simplifiedExpressionIsDefaultFunctionApplication,
-				()->"ERROR: In attempts to simplify a " + expression.getClass().getSimpleName() + " object, a resulting " + simplifiedExpressionClass.getSimpleName() + " object was created but a " + Symbol.class.getSimpleName() + " or a " + DefaultFunctionApplication.class.getSimpleName() + " was expected!" );
 
-		if(Symbol.class.isAssignableFrom(simplifiedExpressionClass)) {
-			yicesTermReference = makeYicesSymbolFromExpressoSymbol(simplifiedExpression, context, smtContext);
-		}
-		else { //simplified expression is a DefaultFunctionApplication
+
+	// PRIVATE HELPER METHODS
+	//////////////////////////////////////////////////////
+	private static int makeYicesSolverExpressionObjectFromExpressoExpression(Expression expression, SMTBasedContext smtContext) {
+		int yicesTerm = -1;
+		Class<? extends Expression> expressionClass = expression.getClass();
+		boolean expressionIsSymbol = Symbol.class.isAssignableFrom(expressionClass);
+		boolean expressionIsDefaultFunctionApplication = DefaultFunctionApplication.class.isAssignableFrom(expressionClass);
+		myAssert(expressionIsSymbol || expressionIsDefaultFunctionApplication,
+				()->"ERROR: the Expresso Expression was a " + expressionClass.getSimpleName() + " object, but conversion to Yices is currently only supported for " + Symbol.class.getSimpleName() + " and " + DefaultFunctionApplication.class.getSimpleName() + " Expression types!" );
+
+		if (expressionIsDefaultFunctionApplication) {
 			Expression functor = expression.getFunctor();
-			List<Expression> expressionArguments = expression.getArguments();
-			YicesTerm[] yicesTerms = makeCorrespondingYicesTerms(expressionArguments, context, smtContext);
-			yicesTermReference = applyYicesFunctionApplication(functor, yicesTerms);
+			List<Expression> functionArguments = expression.getArguments();
+			Integer[] smtSymbols = makeYicesTerms(functionArguments, smtContext);
+			yicesTerm = applyYicesFunctionApplication(functor, smtSymbols);
+		} 
+		else { // expression is Symbol
+			yicesTerm = makeYicesSymbolFromExpressoSymbol(expression, smtContext);
 		}
-
-		return yicesTermReference;
+		return yicesTerm;
 	}
-
-	private static int makeYicesSymbolFromExpressoSymbol(Expression symbol, Context context,
-			SMTContext smtContext) {
+	
+	private static int makeYicesSymbolFromExpressoSymbol(Expression symbol, SMTBasedContext smtContext) {
 		int yicesTermReference;
 		String symbolName = symbol.toString();
 		yicesTermReference = Terms.getByName(symbolName);
@@ -544,87 +316,133 @@ public class Yices implements SMTSolver {
 				yicesTermReference = Terms.rationalConst(symbolBigRationalValue);
 			}
 			else {
-				Type symbolType = GrinderUtil.getTypeOfExpression(symbol, context);
+				Type symbolType = GrinderUtil.getTypeOfExpression(symbol, smtContext);
 				ExpressoToYicesSymbolRegistrationInformation symbolInfo = 
-						new ExpressoToYicesSymbolRegistrationInformation(symbolName, symbol, symbolType, context, smtContext);
+						new ExpressoToYicesSymbolRegistrationInformation(symbolName, symbol, symbolType, smtContext);
 				yicesTermReference = registerSymbolWithYices(symbolType, symbolInfo);
 			}
 		}
 		return yicesTermReference;
 	}
 	
-	private static YicesTerm[] makeCorrespondingYicesTerms(List<Expression> expressionTerms, Context context, SMTContext smtContext) {
-		YicesTerm[] yicesTerms = new YicesTerm[expressionTerms.size()];
-		int i = 0;
-		for(Expression expression : expressionTerms) {
-			yicesTerms[i] = new YicesTerm(expression, context, smtContext);
-			++i;
-		}
-		return yicesTerms;
-	}
-	
-	
-	
-	// UTILITY METHODS
-	//////////////////////////////////////////////////////
-    @Override
-	public boolean isRegistered(Object smtTerm) {
-		boolean yicesTermIsRegistered = yicesTermIsRegistered(smtTerm);
-		return yicesTermIsRegistered;
-	}
-    
-	@Override
-	public Object getTypeReference(Object smtTerm) {
-		Object symbolTypeReference = getCorrespondingSMTTypeReference(smtTerm);
-		return symbolTypeReference;
-	}
-
-	@Override
-	public String getTypeName(Object smtTerm) {
-		String typeNmae = getCorrespondingSMTTypeName(smtTerm);
-		return typeNmae;
-	}
-	
-	@Override
-	public String getSymbolName(Object smtTerm) {
-		String symbolName = getSymbolName(smtTerm);
-		return symbolName;
-	}
-    
-    //////////////////////////////////////////////////////
-	
-	public static boolean yicesTermIsRegistered(Object smtTerm) {
-		myAssert(SMT_SOLVER_SMT_TERM_CLASS.isAssignableFrom(smtTerm.getClass()), ()->"ERROR: Attempting to check Yices registration of " + smtTerm.getClass().getSimpleName() + "!");
+	private static boolean yicesTermIsRegistered(Object smtTerm) {
+		myAssert(smtTerm instanceof Integer,
+				() -> "ERROR: Attempting to check Yices registration of " + smtTerm.getClass().getSimpleName() + "!");
 		int yicesReference = (int) smtTerm;
 		boolean symbolIsRegistered = (yicesReference >= 0);
 		return symbolIsRegistered;
 	}
 	
-	public static Object getCorrespondingSMTTypeReference(Object smtTerm) {
-		myAssert(SMT_SOLVER_SMT_TERM_CLASS.isAssignableFrom(smtTerm.getClass()), ()->"ERROR: smtTerm is of type " + smtTerm.getClass().getSimpleName() + " which is not an appropriate Yices term reference!");
-		Integer yicesTermReference = (Integer) smtTerm;
-		int symbolTypeReference = Terms.typeOf(yicesTermReference);
-		return symbolTypeReference;
-	}
-
-	public static String getCorrespondingSMTTypeName(Object smtTerm) {
-		myAssert(SMT_SOLVER_SMT_TERM_CLASS.isAssignableFrom(smtTerm.getClass()), ()->"ERROR: smtTerm is of type " + smtTerm.getClass().getSimpleName() + " which is not an appropriate Yices term reference!");
-		Integer yicesTermReference = (Integer) smtTerm;
-		String typeNmae = Types.getName( Terms.typeOf(yicesTermReference) );
-		return typeNmae;
+	private static Integer[] makeYicesTerms(List<Expression> expressionTerms, SMTBasedContext smtContext) {
+		Integer[] yicesTerms = new Integer[expressionTerms.size()];
+		int i = 0;
+		for(Expression expression : expressionTerms) {
+			yicesTerms[i] = makeYicesSolverExpressionObjectFromExpressoExpression(expression, smtContext);
+			++i;
+		}
+		return yicesTerms;
 	}
 	
-	public static String getCorrespondingSMTSymbolName(Object smtTerm) {
-		myAssert(SMT_SOLVER_SMT_TERM_CLASS.isAssignableFrom(smtTerm.getClass()), ()->"ERROR: smtTerm is of type " + smtTerm.getClass().getSimpleName() + " which is not an appropriate Yices term reference!");
-		Integer yicesTermReference = (Integer) smtTerm;
-		String symbolName = Terms.getName(yicesTermReference);
-		return symbolName;
+	private static int applyYicesFunctionApplication(Expression functor, Integer[] functionArguments) {
+		ToIntFunction<Integer[]> correspondingYicesFunctor = EXPRESSO_FUNCTOR_TO_YICES_FUNCTION_APPLICATION
+				.get(functor);
+		int yicesLiteral = correspondingYicesFunctor.applyAsInt(functionArguments);
+		return yicesLiteral;
 	}
 
-	
+	private static int _makeYicesEqualityExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesEqualityFormula = Terms.eq(arg1, arg2);
+		return yicesEqualityFormula;
+	}
 
-	// PRIVATE HELPER METHODS 
-	//////////////////////////////////////////////////////
+	private static int _makeYicesDisequalityExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesDisequalityFormula = Terms.neq(arg1, arg2);
+		return yicesDisequalityFormula;
+	}
+
+	private static int _makeYicesGreaterThanExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesGreaterThanFormula = Terms.arithGt(arg1, arg2);
+		return yicesGreaterThanFormula;
+	}
+
+	private static int _makeYicesLessThanExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesLessThanFormula = Terms.arithLt(arg1, arg2);
+		return yicesLessThanFormula;
+	}
+
+	private static int _makeYicesLessThanOrEqualToExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesLessThanOrEqualToFormula = Terms.arithLeq(arg1, arg2);
+		return yicesLessThanOrEqualToFormula;
+	}
+
+	private static int _makeYicesGreaterThanOrEqualToExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesGreaterThanOrEqualToFormula = Terms.arithGeq(arg1, arg2);
+		return yicesGreaterThanOrEqualToFormula;
+	}
+
+	private static int _makeYicesNotExpression(Integer[] functionArguments) {
+		int arg = functionArguments[0];
+		int yicesNotFormula = Terms.not(arg);
+		return yicesNotFormula;
+	}
+
+	private static int _makeYicesPlusExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesPlusTerm = Terms.add(arg1, arg2);
+		return yicesPlusTerm;
+	}
+
+	private static int _makeYicesMinusExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesMinusTerm = Terms.sub(arg1, arg2);
+		return yicesMinusTerm;
+	}
+
+	private static int _makeYicesTimesExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesTimesTerm = Terms.mul(arg1, arg2);
+		return yicesTimesTerm;
+	}
+
+	private static int _makeYicesDivisionExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesDivisionTerm = Terms.div(arg1, arg2);
+		return yicesDivisionTerm;
+	}
+
+	private static int _makeYicesExponentiationExpression(Integer[] functionArguments) {
+		int arg1 = functionArguments[0];
+		int arg2 = functionArguments[1];
+		int yicesExponentiationTerm = -1;
+		try {
+			yicesExponentiationTerm = Terms.power(arg1, arg2);
+		} 
+		catch (Exception e) {
+			yicesExponentiationTerm = -1;
+			println(e);
+			println("||| ERROR: Could not construct Yices Power Term with arguments " + arg1 + " and " + arg2 + "!|||");
+		}
+		return yicesExponentiationTerm;
+	}
+	
+	
+	
 	private static boolean isValidRationalValue(Rational rationalValue) {
 		boolean isValidRationalValue = (rationalValue != null);
 		return isValidRationalValue;
@@ -780,29 +598,35 @@ public class Yices implements SMTSolver {
 		//TODO use BigIntegerNumber instead of BigInteger (currently Terms.intConst(BigInteger) is incompatible with BigIntegerNumber)
 		//TODO more efficient conversion from Rational to BigInteger (ie. instead of passing in the string)?
 		
-		SMTContext smtContext = symbolInfo.getSMTContext();
+		SMTBasedContext smtContext = symbolInfo.getSMTContext();
 		IntegerInterval symbolIntegerIntervalType = (IntegerInterval) symbolInfo.getType();
+		boolean boundWasEnforced = false;
 
 		if (symbolIntegerIntervalType.noLowerBound()) {
 			; //no lower bound to assert onto smtContext
 		}
 		else {
-			Expression lowerBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictLowerBound(), symbolInfo.getContext());
+			Expression lowerBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictLowerBound(), symbolInfo.getSMTContext());
 			Rational rationalLowerBound = lowerBoundExpression.rationalValue();
 			BigInteger bigIntegerLowerBound = new BigInteger(rationalLowerBound.toString());
-			SMTFormula yicesLowerBoundTerm = new YicesFormula( Terms.arithGeq(yicesSymbolRegistration, Terms.intConst(bigIntegerLowerBound)) );
-			smtContext.assertOntoContext(yicesLowerBoundTerm);
+			SMTExpression yicesLowerBoundTerm = new YicesExpression( Terms.arithGeq(yicesSymbolRegistration, Terms.intConst(bigIntegerLowerBound)) );
+			smtContext.assertOnExistingStackFrame(yicesLowerBoundTerm);
+			boundWasEnforced = true;
 		}
 		
 		if (symbolIntegerIntervalType.noUpperBound()) {
 			; //no upper bound to assert onto smt Context
 		}
 		else {
-			Expression upperBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictUpperBound(), symbolInfo.getContext());
+			Expression upperBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictUpperBound(), symbolInfo.getSMTContext());
 			Rational rationalUpperBound = upperBoundExpression.rationalValue();
 			BigInteger bigIntegerUpperBound = new BigInteger(rationalUpperBound.toString());
-			SMTFormula yicesUpperBoundTerm = new YicesFormula( Terms.arithLeq(yicesSymbolRegistration, Terms.intConst(bigIntegerUpperBound)) );
-			smtContext.assertOntoContext(yicesUpperBoundTerm);
+			SMTExpression yicesUpperBoundTerm = new YicesExpression( Terms.arithLeq(yicesSymbolRegistration, Terms.intConst(bigIntegerUpperBound)) );
+			smtContext.assertOnExistingStackFrame(yicesUpperBoundTerm);
+			boundWasEnforced = true;
+		}
+		if(boundWasEnforced) {
+			smtContext.pushStackFrame();
 		}
 	}
 	
@@ -811,43 +635,314 @@ public class Yices implements SMTSolver {
 		//TODO use Rational instead of BigRational (currently Terms.rationalConst(BigRational) is incompatible with Rational)
 		//TODO more efficient conversion from Rational to BigRational. (ex. using Terms.parseRational(), but that still parses a string...)
 		
-		SMTContext smtContext = symbolInfo.getSMTContext();
+		SMTBasedContext smtContext = symbolInfo.getSMTContext();
 		RealInterval symbolRealIntervalType = (RealInterval) symbolInfo.getType();
-
+		boolean boundWasEnforced = false;
+		
 		if(symbolRealIntervalType.noLowerBound()) {
 			; //no lower bound to assert onto smtContext
 		}
 		else {
-			Expression lowerBoundExpression = simplifyExpression(symbolRealIntervalType.getLowerBound(), symbolInfo.getContext());
+			Expression lowerBoundExpression = simplifyExpression(symbolRealIntervalType.getLowerBound(), symbolInfo.getSMTContext());
 			Rational rationalLowerBound = lowerBoundExpression.rationalValue();
 			BigRational bigRationalLowerBound = new BigRational(rationalLowerBound.toString());
 			
-			SMTFormula yicesLowerBoundTerm;
+			SMTExpression yicesLowerBoundTerm;
 			if(symbolRealIntervalType.lowerBoundIsOpen()) {
-				yicesLowerBoundTerm = new YicesFormula( Terms.arithGt(yicesSymbolRegistration, Terms.rationalConst(bigRationalLowerBound)) );
+				yicesLowerBoundTerm = new YicesExpression( Terms.arithGt(yicesSymbolRegistration, Terms.rationalConst(bigRationalLowerBound)) );
 			}
 			else {
-				yicesLowerBoundTerm = new YicesFormula( Terms.arithGeq(yicesSymbolRegistration, Terms.rationalConst(bigRationalLowerBound)) );
+				yicesLowerBoundTerm = new YicesExpression( Terms.arithGeq(yicesSymbolRegistration, Terms.rationalConst(bigRationalLowerBound)) );
 			}
-			smtContext.assertOntoContext(yicesLowerBoundTerm);
+			smtContext.assertOnExistingStackFrame(yicesLowerBoundTerm);
+			boundWasEnforced = true;
 		}
 		if (symbolRealIntervalType.noUpperBound()){
 			; //no upper bound to assert onto smt Context
 		}
 		else {
-			Expression upperBoundExpression = simplifyExpression(symbolRealIntervalType.getUpperBound(), symbolInfo.getContext());
+			Expression upperBoundExpression = simplifyExpression(symbolRealIntervalType.getUpperBound(), symbolInfo.getSMTContext());
 			Rational rationalUpperBound = upperBoundExpression.rationalValue();
 			BigRational bigRationalUpperBound = new BigRational(rationalUpperBound.toString());
 			
-			SMTFormula yicesUpperBoundTerm;
+			SMTExpression yicesUpperBoundTerm;
 			if(symbolRealIntervalType.upperBoundIsOpen()) {
-				yicesUpperBoundTerm = new YicesFormula( Terms.arithLt(yicesSymbolRegistration, Terms.rationalConst(bigRationalUpperBound)) );
+				yicesUpperBoundTerm = new YicesExpression( Terms.arithLt(yicesSymbolRegistration, Terms.rationalConst(bigRationalUpperBound)) );
 			}
 			else {
-				yicesUpperBoundTerm = new YicesFormula( Terms.arithLeq(yicesSymbolRegistration, Terms.rationalConst(bigRationalUpperBound)) );
+				yicesUpperBoundTerm = new YicesExpression( Terms.arithLeq(yicesSymbolRegistration, Terms.rationalConst(bigRationalUpperBound)) );
 			}
-			smtContext.assertOntoContext(yicesUpperBoundTerm);
+			smtContext.assertOnExistingStackFrame(yicesUpperBoundTerm);
+			boundWasEnforced = true;
+		}
+		if(boundWasEnforced) {
+			smtContext.pushStackFrame();
 		}
 	}
+	
+	
+	
+	
+	
+	//////////////// YICES CONTEXT ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	// UTILITY METHODS SMTBasedContext
+	//////////////////////////////////////////////////////	
+    @Override
+    public Object makeSMTSolverContextObject() {
+    	com.sri.yices.Context yicesContext = new com.sri.yices.Context();
+    	yicesContext.push();
+    	return yicesContext;
+    }
+	
+	public com.sri.yices.Context makeYicesSolverContextObject(String contextConfiguration) {
+		Config cfg = new Config();
+        cfg.set("mode", contextConfiguration);
+		com.sri.yices.Context yicesContext = new com.sri.yices.Context(cfg);
+		return yicesContext;
+	}
+
+	@Override
+	public Object assertOntoContext(SMTBasedContext smtContext, SMTExpression smtFormula) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		myAssert(smtFormula instanceof YicesExpression, () -> "ERROR: smtFormula is of type "
+				+ smtFormula.getClass().getSimpleName() + " but expected type YicesExpression!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		Integer yicesFormula = (Integer) smtFormula.getEmeddedSMTObject();
+		yicesContext.assertFormula(yicesFormula);
+		return yicesContext;
+	}
+
+	@Override
+	public Object assertOntoContext(SMTBasedContext smtContext, SMTExpression... smtFormulas) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		myAssert(smtFormulas instanceof SMTExpression[], () -> "ERROR: smtFormula is of type "
+				+ smtFormulas.getClass().getSimpleName() + " but expected type " + YicesExpression.class.getSimpleName() + " array!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		int[] yicesFormulas = new int[smtFormulas.length];
+		int i = 0;
+		for(SMTExpression yicesFormula : smtFormulas) {
+			yicesFormulas[i] = (int) yicesFormula.getEmeddedSMTObject();
+			++i;
+		}
+		yicesContext.assertFormulas(yicesFormulas);
+		return yicesContext;
+	}
+	
+	@Override
+	public Object assertOntoContext(SMTBasedContext smtContext, Expression formula) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		int yicesFormula = makeYicesSolverExpressionObjectFromExpressoExpression(formula, smtContext);
+		yicesContext.assertFormula(yicesFormula);
+		return yicesContext;
+	}
+	
+	@Override
+	public Object assertOntoContext(SMTBasedContext smtContext, Expression[] formulas) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		int[] yicesFormulas = new int[formulas.length];
+		int i = 0;
+		for(Expression formula : formulas) {
+			yicesFormulas[i] = makeYicesSolverExpressionObjectFromExpressoExpression(formula, smtContext);
+			++i;
+		}
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		yicesContext.assertFormulas(yicesFormulas);
+		return yicesContext;
+		
+	}
+	
+	@Override
+	public Object pushStackFrame(SMTBasedContext smtContext) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		yicesContext.push();
+		return yicesContext;
+	}
+
+	@Override
+	public Object popStackFrame(SMTBasedContext smtContext) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		yicesContext.pop();
+		return yicesContext;
+	}
+
+	@Override
+	public boolean contextIsSatisfiable(SMTBasedContext smtContext) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		boolean contextIsSatisfiable = (yicesContext.check() == Status.SAT);
+		return contextIsSatisfiable;
+	}
+	
+	@Override
+	public boolean contextIsSatisfiable(SMTBasedContext smtContext, SMTExpression smtFormula) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		Integer yicesFormula = (Integer) smtFormula.getEmeddedSMTObject();
+		yicesContext.push();
+		yicesContext.assertFormula(yicesFormula);
+		boolean contextIsSatisfiable = (yicesContext.check() == Status.SAT);
+		yicesContext.pop();
+		return contextIsSatisfiable;
+	}
+	
+	@Override
+	public boolean contextIsSatisfiable(SMTBasedContext smtContext, Expression formula) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		int yicesFormula = makeYicesSolverExpressionObjectFromExpressoExpression(formula, smtContext);
+		yicesContext.push();
+		yicesContext.assertFormula(yicesFormula);
+		boolean contextIsSatisfiable = (yicesContext.check() == Status.SAT);
+		yicesContext.pop();
+		return contextIsSatisfiable;
+	}
+	
+	@Override
+	public String getModelAsString(SMTBasedContext smtContext) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		yicesContext.check();
+		Model model = getYicesModelIfContextIsSatisfiable(yicesContext);
+		String modelAsString = formatModelString(model);
+		return modelAsString;
+	}
+	
+	@Override
+	public SMTModel getModel(SMTBasedContext smtContext) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		yicesContext.check();
+		Model model = getYicesModelIfContextIsSatisfiable(yicesContext);
+		SMTModel expressoYicesModel = new YicesModel(model);
+		return expressoYicesModel;
+	}
+	
+
+
+	// PRIVATE HELPER METHODS
+	//////////////////////////////////////////////////////
+	private static Model getYicesModelIfContextIsSatisfiable(com.sri.yices.Context yicesContext) {
+		Model model;
+		try{
+			model = yicesContext.getModel();
+		}
+		catch (YicesException e) {
+			model = null;
+		}
+		return model;
+	}
+	
+	private static String formatModelString(Model model) {
+		String modelAsString;
+		if(model != null) {
+			modelAsString = model.toString().replace("\n", " ").replace("\r", "");
+		}
+		else {
+			modelAsString = "Unable to extract model given the smt context state!!!";
+		}
+		return modelAsString;
+	}
+
+	
+	
+	
+
+	
+	//////////////// YICES MODEL /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+
+	// UTILITY METHODS: SMTModel
+	//////////////////////////////////////////////////////
+	@Override
+	public Expression getValueOfVariable(Expression expression, SMTModel smtModel, SMTBasedContext smtContext) {
+		myAssert(smtModel instanceof YicesModel, () -> "ERROR: Expected a " + YicesModel.class.getSimpleName()
+				+ " object, but received a " + smtModel.getClass().getSimpleName() + " object instead!");
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+
+		int yicesExpression = makeYicesSolverExpressionObjectFromExpressoExpression(expression, smtContext);
+		Model model = (Model) smtModel.getEmbeddedSMTSolverObject();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		
+		int yicesVariableValue;
+		if(Terms.isBool(yicesExpression)) {
+			boolean b = model.boolValue(yicesExpression);
+			yicesVariableValue = Terms.mkBoolConst(b);
+		}
+		else if(Terms.isInteger(yicesExpression)) {
+			BigInteger i = model.bigIntegerValue(yicesExpression);
+			yicesVariableValue = Terms.intConst(i);
+		}
+		else if(Terms.isReal(yicesExpression)) {
+			BigRational r = model.bigRationalValue(yicesExpression);
+			yicesVariableValue = Terms.rationalConst(r);
+		}
+		else {
+			//TODO handle other types such as categorical types
+			yicesVariableValue = -1;
+		}
+
+		int yicesNotEqualExpression = Terms.neq(yicesExpression, yicesVariableValue);
+		yicesContext.push();
+		yicesContext.assertFormula(yicesNotEqualExpression);
+		Expression result = null;
+		if(yicesContext.check() == Status.SAT) {
+			result = parse(Terms.toString(yicesVariableValue));
+		}
+		yicesContext.pop();
+		return result;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//////////////// YICES TYPE //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
 
 }
