@@ -3,12 +3,18 @@ package com.sri.ai.expresso.smt.core;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.println;
+import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.List;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
+import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.smt.api.SMTBasedEvaluator;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.api.SMTModel;
+import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.expresso.smt.core.yices.YicesExpression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
@@ -18,52 +24,93 @@ import com.sri.ai.util.base.Pair;
 public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 	
 	@Override
-	public Expression eval(Expression expression, Context context) {
+	public Expression eval(Expression expression, SMTBasedContext smtContext) {
 		Expression unsimplifiedResult = null;
-		Expression literal = findLiteral(expression, context);
-		if(literal == null) {
-			unsimplifiedResult = unconditionalEval(expression, context);
+		if(smtContext.isVariable(expression)) {
+			unsimplifiedResult = expression;
 		}
 		else {
-			Theory theory = context.getTheory();
-			Expression literalNegation = theory.getLiteralNegation(literal, context);	
-			
-			boolean literalIsSatisfiable = isSatisfiable(context, literal);
-			boolean literalNegationIsSatisfiable = isSatisfiable(context, literalNegation);
-			
-			Expression expressionUnderTrueLiteralValue;
-			Expression expressionUnderFalseLiteralValue;
-			Expression evaluatedExpressionUnderTrueLiteralValue;
-			Expression evaluatedExpressionUnderFalseLiteralValue;
-			if(literalIsSatisfiable && literalNegationIsSatisfiable) {
-				expressionUnderTrueLiteralValue = makeExpressionUnderLiteralValue(expression, literal, TRUE, context);
-				evaluatedExpressionUnderTrueLiteralValue = eval(expressionUnderTrueLiteralValue, context.conjoin(literal));
-				
-				expressionUnderFalseLiteralValue = makeExpressionUnderLiteralValue(expression, literal, FALSE, context);
-				evaluatedExpressionUnderFalseLiteralValue = eval(expressionUnderFalseLiteralValue, context.conjoin(literalNegation));
-				
-				unsimplifiedResult = IfThenElse.make(literal, evaluatedExpressionUnderTrueLiteralValue, evaluatedExpressionUnderFalseLiteralValue);
-			}
-			else if(literalIsSatisfiable) {
-				expressionUnderTrueLiteralValue = makeExpressionUnderLiteralValue(expression, literal, TRUE, context);
-				evaluatedExpressionUnderTrueLiteralValue = eval(expressionUnderTrueLiteralValue, context.conjoin(literal));
-				
-				unsimplifiedResult = expressionUnderTrueLiteralValue;
+			Expression literal = findLiteral(expression, smtContext);
+			if(literal == null) {
+				unsimplifiedResult = expression;
 			}
 			else {
-				expressionUnderFalseLiteralValue = makeExpressionUnderLiteralValue(expression, literal, FALSE, context);
-				evaluatedExpressionUnderFalseLiteralValue = eval(expressionUnderFalseLiteralValue, context.conjoin(literalNegation));
+				Theory theory = smtContext.getTheory();
+				Expression literalNegation = theory.getLiteralNegation(literal, smtContext);	
 				
-				unsimplifiedResult = expressionUnderFalseLiteralValue;
+				boolean literalIsSatisfiable = isSatisfiable(smtContext, literal);
+				boolean literalNegationIsSatisfiable = isSatisfiable(smtContext, literalNegation);
+				
+				Expression expressionUnderTrueLiteralValue;
+				Expression expressionUnderFalseLiteralValue;
+				Expression evaluatedExpressionUnderTrueLiteralValue;
+				Expression evaluatedExpressionUnderFalseLiteralValue;
+				if(literalIsSatisfiable && literalNegationIsSatisfiable) {
+					expressionUnderTrueLiteralValue = makeExpressionUnderLiteralValue(expression, literal, TRUE, smtContext);
+					evaluatedExpressionUnderTrueLiteralValue = eval(expressionUnderTrueLiteralValue, (SMTBasedContext) smtContext.conjoin(literal));
+					smtContext.popStackFrame();
+
+					
+					expressionUnderFalseLiteralValue = makeExpressionUnderLiteralValue(expression, literal, FALSE, smtContext);
+					evaluatedExpressionUnderFalseLiteralValue = eval(expressionUnderFalseLiteralValue, (SMTBasedContext) smtContext.conjoin(literalNegation));
+					smtContext.popStackFrame();
+
+					
+					unsimplifiedResult = IfThenElse.make(literal, evaluatedExpressionUnderTrueLiteralValue, evaluatedExpressionUnderFalseLiteralValue);
+				}
+				else if(literalIsSatisfiable) {
+					expressionUnderTrueLiteralValue = makeExpressionUnderLiteralValue(expression, literal, TRUE, smtContext);
+					evaluatedExpressionUnderTrueLiteralValue = eval(expressionUnderTrueLiteralValue, (SMTBasedContext) smtContext.conjoin(literal));
+					smtContext.popStackFrame();
+
+					
+					unsimplifiedResult = expressionUnderTrueLiteralValue;
+				}
+				else {
+					expressionUnderFalseLiteralValue = makeExpressionUnderLiteralValue(expression, literal, FALSE, smtContext);
+					evaluatedExpressionUnderFalseLiteralValue = eval(expressionUnderFalseLiteralValue, (SMTBasedContext) smtContext.conjoin(literalNegation));
+					smtContext.popStackFrame();
+
+					
+					unsimplifiedResult = expressionUnderFalseLiteralValue;
+				}
 			}
 		}
-		Expression simplifiedResult = unconditionalEval(unsimplifiedResult, context);
+		Expression simplifiedResult = unconditionalEval(unsimplifiedResult, smtContext);
 		return simplifiedResult;
 	}
 
-	private Expression unconditionalEval(Expression expression, Context context) {
-		// TODO Auto-generated method stub
-		return null;
+	private Expression unconditionalEval(Expression expression, SMTBasedContext smtContext) {
+		Expression result = null;
+		if(smtContext.isUniquelyNamedConstant(expression)) {
+			result = expression;
+		}
+		else if(smtContext.isVariable(expression)) {
+			Expression valueOfVariableBasedOnContext = smtContext.getValueOfVariable(expression);
+			if(valueOfVariableBasedOnContext == null) {
+				result = expression;
+			}
+			else {
+				result = valueOfVariableBasedOnContext;
+			}
+		}
+		else if(FunctionApplication.class.isAssignableFrom(expression.getClass())) {
+			Theory theory = smtContext.getTheory();
+			Expression functor = expression.getFunctor();
+			List<Expression> functionArguments = expression.getArguments();
+			List<Expression> simplifiedFunctionArguments = mapIntoArrayList(functionArguments, (a)->unconditionalEval(a,smtContext));
+			Expression newFunctionApplication = new DefaultFunctionApplication(functor,simplifiedFunctionArguments);
+			Expression simplifiedNewFunctionApplication = theory.getTopRewriter().apply(newFunctionApplication, smtContext);
+			while(newFunctionApplication != simplifiedNewFunctionApplication) {
+				newFunctionApplication = simplifiedNewFunctionApplication;
+				simplifiedNewFunctionApplication = theory.getTopRewriter().apply(newFunctionApplication, smtContext);
+			}
+			result = simplifiedNewFunctionApplication;
+		}
+		else {
+			throw new Error("ERROR: unconditionalEval() called on " + expression + ", which is unsupported as it is neither a constant, variable, or function application!");
+		}
+		return result;
 	}
 	
 	private Expression makeExpressionUnderLiteralValue(Expression expression, Expression literal, Expression literalValue,
@@ -117,7 +164,7 @@ public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 			literal = expression;
 		}
 		else {
-			findLiteralInSubExpressions(expression, context);
+			literal = findLiteralInSubExpressions(expression, context);
 		}
 		return literal;
 	}

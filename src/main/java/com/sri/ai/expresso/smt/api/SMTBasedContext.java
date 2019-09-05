@@ -124,4 +124,6 @@ public interface SMTBasedContext extends Context {
 	public SMTBasedContext pushStackFrame();
 	public SMTBasedContext popStackFrame();
 
+	Expression getValueOfVariable(Expression var);
+
 }

@@ -460,17 +460,17 @@ public class Yices implements SMTSolver {
 		return isRegisteredType;
 	}
 	
-	private static Expression simplifyExpression(Expression expression, Context context) {
-		Expression simplifiedExpression;
-		Class<? extends Expression> expressionClass = expression.getClass();
-		if( Symbol.class.isAssignableFrom(expressionClass) ) {
-			simplifiedExpression = expression;
-		}
-		else {
-			simplifiedExpression = context.simplify(expression);
-		}
-		return simplifiedExpression;
-	}
+//	private static Expression simplifyExpression(Expression expression, Context context) {
+//		Expression simplifiedExpression;
+//		Class<? extends Expression> expressionClass = expression.getClass();
+//		if( Symbol.class.isAssignableFrom(expressionClass) ) {
+//			simplifiedExpression = expression;
+//		}
+//		else {
+//			simplifiedExpression = context.simplify(expression);
+//		}
+//		return simplifiedExpression;
+//	}
 	
 	private static int registerCategoricalYicesSymbol(ExpressoToYicesSymbolRegistrationInformation symbolInfo) {
 		int yicesSymbolRegistration = -1;
@@ -606,7 +606,8 @@ public class Yices implements SMTSolver {
 			; //no lower bound to assert onto smtContext
 		}
 		else {
-			Expression lowerBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictLowerBound(), symbolInfo.getSMTContext());
+			//Expression lowerBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictLowerBound(), symbolInfo.getSMTContext());
+			Expression lowerBoundExpression = symbolIntegerIntervalType.getNonStrictLowerBound();
 			Rational rationalLowerBound = lowerBoundExpression.rationalValue();
 			BigInteger bigIntegerLowerBound = new BigInteger(rationalLowerBound.toString());
 			SMTExpression yicesLowerBoundTerm = new YicesExpression( Terms.arithGeq(yicesSymbolRegistration, Terms.intConst(bigIntegerLowerBound)) );
@@ -618,7 +619,8 @@ public class Yices implements SMTSolver {
 			; //no upper bound to assert onto smt Context
 		}
 		else {
-			Expression upperBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictUpperBound(), symbolInfo.getSMTContext());
+			//Expression upperBoundExpression = simplifyExpression(symbolIntegerIntervalType.getNonStrictUpperBound(), symbolInfo.getSMTContext());
+			Expression upperBoundExpression = symbolIntegerIntervalType.getNonStrictUpperBound();
 			Rational rationalUpperBound = upperBoundExpression.rationalValue();
 			BigInteger bigIntegerUpperBound = new BigInteger(rationalUpperBound.toString());
 			SMTExpression yicesUpperBoundTerm = new YicesExpression( Terms.arithLeq(yicesSymbolRegistration, Terms.intConst(bigIntegerUpperBound)) );
@@ -626,7 +628,7 @@ public class Yices implements SMTSolver {
 			boundWasEnforced = true;
 		}
 		if(boundWasEnforced) {
-			smtContext.pushStackFrame();
+			//smtContext.pushStackFrame();
 		}
 	}
 	
@@ -643,7 +645,8 @@ public class Yices implements SMTSolver {
 			; //no lower bound to assert onto smtContext
 		}
 		else {
-			Expression lowerBoundExpression = simplifyExpression(symbolRealIntervalType.getLowerBound(), symbolInfo.getSMTContext());
+			//Expression lowerBoundExpression = simplifyExpression(symbolRealIntervalType.getLowerBound(), symbolInfo.getSMTContext());
+			Expression lowerBoundExpression = symbolRealIntervalType.getLowerBound();
 			Rational rationalLowerBound = lowerBoundExpression.rationalValue();
 			BigRational bigRationalLowerBound = new BigRational(rationalLowerBound.toString());
 			
@@ -661,7 +664,8 @@ public class Yices implements SMTSolver {
 			; //no upper bound to assert onto smt Context
 		}
 		else {
-			Expression upperBoundExpression = simplifyExpression(symbolRealIntervalType.getUpperBound(), symbolInfo.getSMTContext());
+			//Expression upperBoundExpression = simplifyExpression(symbolRealIntervalType.getUpperBound(), symbolInfo.getSMTContext());
+			Expression upperBoundExpression = symbolRealIntervalType.getUpperBound();
 			Rational rationalUpperBound = upperBoundExpression.rationalValue();
 			BigRational bigRationalUpperBound = new BigRational(rationalUpperBound.toString());
 			
@@ -676,7 +680,7 @@ public class Yices implements SMTSolver {
 			boundWasEnforced = true;
 		}
 		if(boundWasEnforced) {
-			smtContext.pushStackFrame();
+			//smtContext.pushStackFrame();
 		}
 	}
 	
@@ -917,7 +921,7 @@ public class Yices implements SMTSolver {
 		yicesContext.push();
 		yicesContext.assertFormula(yicesNotEqualExpression);
 		Expression result = null;
-		if(yicesContext.check() == Status.SAT) {
+		if(yicesContext.check() == Status.UNSAT) {
 			result = parse(Terms.toString(yicesVariableValue));
 		}
 		yicesContext.pop();

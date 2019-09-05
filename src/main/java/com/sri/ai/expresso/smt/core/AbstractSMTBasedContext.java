@@ -4,6 +4,9 @@ import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.TrueContext;
+
+import static com.sri.ai.util.Util.myAssert;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.api.SMTExpression;
@@ -163,9 +166,18 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 		return smtSolver;
 	}
 	
+	@Override
 	public SMTModel getModel() {
 		SMTModel model = smtSolver.getModel(this);
 		return model;
+	}
+	
+	@Override
+	public Expression getValueOfVariable(Expression var) {
+		myAssert(this.isVariable(var), ()->"ERROR: attempting to obtain value of " + var + " which is not a variable expression!");
+		SMTModel model = getModel();
+		Expression result = model.getValueOfVariable(var, this);
+		return result;
 	}
 	
 

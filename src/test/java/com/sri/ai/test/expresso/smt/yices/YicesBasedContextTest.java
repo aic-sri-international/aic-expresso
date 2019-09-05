@@ -373,6 +373,99 @@ public class YicesBasedContextTest {
 	
 	
 	
+	
+	@Test
+	public void testRealIntervalsModified() throws Exception {
+		println("////////////////////////////////////////////////////////");
+		println( new Object() {}.getClass().getEnclosingMethod().getName() );
+		println("////////////////////////////////////////////////////////");
+		println();
+		
+		Theory theory = new CommonTheory();
+		YicesBasedContext context = new YicesBasedContext(theory);
+		String[] symbolsAndTypes = new String[] {
+				"X", "[   0.5  ;  10.25 ]", 
+				"Y", "[ -10.5  ;  10.33    ]", 
+				"Z", "[ -9.33  ;  0         ]"
+		};
+		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
+		printSymbolsAndTypes(symbolsAndTypes);
+		
+		String literalString;
+		Expression literal;
+		
+		literalString = "X = 10 + 1/2";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isContradiction());
+		context.popStackFrame();
+		
+		literalString = "X = 0.25";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isContradiction());
+		context.popStackFrame();
+		
+		literalString = "X = 10+1/4";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		context.popStackFrame();
+		
+		literalString = "Y = -11";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isContradiction());
+		context.popStackFrame();
+		
+		literalString = "Y = -10.5";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		context.popStackFrame();
+		
+		
+		
+		literalString = "X < 10";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		
+		literalString = "Y < X";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		
+		literalString = "Z > -10.33";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		
+		literalString = "Y > Z";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		
+		
+		
+		literalString = "Y = -100/3";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isContradiction());
+		context.popStackFrame();
+		
+		literalString = "Y = -1/3";
+		literal = parse(literalString);
+		context.conjoin(literal);
+		assert(context.isSatisfiable());
+		
+		println();
+		println();
+		println();
+	}
+	
+	
+	
 	@Test
 	public void testRealIntervals() throws Exception {
 		println("////////////////////////////////////////////////////////");
@@ -383,9 +476,12 @@ public class YicesBasedContextTest {
 		Theory theory = new CommonTheory();
 		YicesBasedContext context = new YicesBasedContext(theory);
 		String[] symbolsAndTypes = new String[] {
-				"X", "[   1/2  ;  (10+0.25) ]", 
-				"Y", "[ -10.5  ;  10+1/3    ]", 
-				"Z", "[ -10/3  ;  0         ]"
+//				"X", "[   1/2  ;  (10+0.25) ]", 
+//				"Y", "[ -10.5  ;  10+1/3    ]", 
+//				"Z", "[ -10/3  ;  0         ]"
+				"X", "[   0.5  ;  10.25 ]", 
+				"Y", "[ -10.5  ;  10.33    ]", 
+				"Z", "[ -9.33  ;  0         ]"
 		};
 		context = (YicesBasedContext) context.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
@@ -399,7 +495,11 @@ public class YicesBasedContextTest {
 		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
-		literalString = "X = 10 + 1/2";
+//		literalString = "X = 10 + 1/2";
+//		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
+//		backtrackAndPrintInfo(context, conjoinedLiterals);
+		
+		literalString = "X = 10.5";
 		conjoinUnsatisfiableLiteralAndPrintInfo(literalString, context, conjoinedLiterals);
 		backtrackAndPrintInfo(context, conjoinedLiterals);
 		
