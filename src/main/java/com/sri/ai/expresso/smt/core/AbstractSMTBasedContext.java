@@ -3,6 +3,7 @@ package com.sri.ai.expresso.smt.core;
 import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.core.AbstractTrivialContext;
 import com.sri.ai.grinder.core.TrueContext;
 
 import static com.sri.ai.util.Util.myAssert;
@@ -32,6 +33,32 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 		this.smtSolver = expressoToSMTUtil;
 		this.smtContext = expressoToSMTUtil.makeSMTSolverContextObject();
 	}
+	
+	
+	
+	// OVERRIDING INHERITED METHODS : Cloneable 
+	//////////////////////////////////////////////////////
+//	@Override
+//	public AbstractSMTBasedContext clone() {
+//		AbstractSMTBasedContext result = (AbstractSMTBasedContext) super.clone();
+//		return result;
+//	}
+//	
+//	
+//	
+//	// OVERRIDING INHERITED METHODS : Registry 
+//	//////////////////////////////////////////////////////
+//	@Override
+//	public Context extendWithSymbolsAndTypes(Expression... symbolsAndTypes) {
+//		
+//		return null;
+//	}
+//	
+//	@Override
+//	public Context extendWithSymbolsAndTypes(String... symbolsAndTypes) {
+//		
+//		return null;
+//	}
 	
 	
 	

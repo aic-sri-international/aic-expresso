@@ -17,9 +17,11 @@ import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
+import com.sri.ai.expresso.smt.api.SMTBasedEvaluator;
 import com.sri.ai.expresso.smt.api.SMTExpression;
 import com.sri.ai.expresso.smt.api.SMTModel;
 import com.sri.ai.expresso.smt.api.SMTType;
+import com.sri.ai.expresso.smt.core.DefaultSMTBasedEvaluator;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerExpressoType;
@@ -43,6 +45,12 @@ public class Yices implements SMTSolver {
 	// STATIC INSTANTIATION OF CLASS INSTANCE
 	//////////////////////////////////////////////////////	
 	public static final Yices YICES_SMT_SOLVER = new Yices();
+	
+	
+	
+	// PRIVATE STATIC FIELDS
+	//////////////////////////////////////////////////////	
+	private static final SMTBasedEvaluator evaluator = new DefaultSMTBasedEvaluator();
 	
 	
 	
@@ -899,22 +907,28 @@ public class Yices implements SMTSolver {
 		Model model = (Model) smtModel.getEmbeddedSMTSolverObject();
 		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
 		
+		Object variableValue;
 		int yicesVariableValue;
 		if(Terms.isBool(yicesExpression)) {
 			boolean b = model.boolValue(yicesExpression);
+			variableValue = Boolean.valueOf(b);
 			yicesVariableValue = Terms.mkBoolConst(b);
 		}
 		else if(Terms.isInteger(yicesExpression)) {
 			BigInteger i = model.bigIntegerValue(yicesExpression);
+			variableValue = i;
 			yicesVariableValue = Terms.intConst(i);
 		}
 		else if(Terms.isReal(yicesExpression)) {
 			BigRational r = model.bigRationalValue(yicesExpression);
+			variableValue = r;
 			yicesVariableValue = Terms.rationalConst(r);
 		}
 		else {
 			//TODO handle other types such as categorical types
+			variableValue = null;
 			yicesVariableValue = -1;
+			throw new Error("cannot get value of variables of this type");
 		}
 
 		int yicesNotEqualExpression = Terms.neq(yicesExpression, yicesVariableValue);
@@ -922,7 +936,23 @@ public class Yices implements SMTSolver {
 		yicesContext.assertFormula(yicesNotEqualExpression);
 		Expression result = null;
 		if(yicesContext.check() == Status.UNSAT) {
+//			result = parse(Terms.toString(yicesVariableValue));
+			
+//			result = Expressions.makeSymbol(variableValue); // doesn't work well because it'll make a symbol with
+//															// BigRational and BigInteger which will not evaluate equal
+//															// to another symbol of the same value made by a Rational or
+//															// TopRewriting/Simplifying (which likely also creates the
+//															// symbol with a Rational)
+			
+//			result = parse(Terms.toString(yicesVariableValue));
+//			if(variableValue instanceof BigRational) {
+//				result = evaluator.eval(result, smtContext);
+//			}
+			
 			result = parse(Terms.toString(yicesVariableValue));
+			if(variableValue instanceof BigRational) {
+				result = smtContext.getTheory().getTopRewriter().apply(result, smtContext);
+			}
 		}
 		yicesContext.pop();
 		return result;

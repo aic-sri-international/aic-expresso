@@ -575,7 +575,7 @@ public class YicesContextPerformanceTest {
 			Expression literal = theoryTestingSupport.makeRandomLiteral(context);							//println(tab + "Original: " + literal);
 			
 			//reducing constants smaller numbers
-			literal = boundConstantsInLiteral(literal, context, rand);
+			literal = makeCopyOfExpressionAlteringAnyConstantsSoThatTheyAreWithinPredeterminedBounds(literal, context, rand);
 			
 			literals.add(literal);
 			if(printLiterals) {
@@ -584,7 +584,7 @@ public class YicesContextPerformanceTest {
 		}
 	}
 
-	public static Expression boundConstantsInLiteral(Expression literal, Context context, Random rand) {
+	public static Expression makeCopyOfExpressionAlteringAnyConstantsSoThatTheyAreWithinPredeterminedBounds(Expression literal, Context context, Random rand) {
 		List<Expression> literalArguments = literal.getArguments();
 		for(Expression argument : literalArguments) {
 			if(context.isUniquelyNamedConstant(argument)) {													//println(argument);
@@ -597,7 +597,7 @@ public class YicesContextPerformanceTest {
 				}
 			}
 			else if(argument.getFunctor() != null) { //argument has functor
-				literal = literal.replaceAllOccurrences(argument, boundConstantsInLiteral(argument, context, rand), context);
+				literal = literal.replaceAllOccurrences(argument, makeCopyOfExpressionAlteringAnyConstantsSoThatTheyAreWithinPredeterminedBounds(argument, context, rand), context);
 			}
 		}
 		return literal;

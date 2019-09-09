@@ -26,7 +26,7 @@ public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 	@Override
 	public Expression eval(Expression expression, SMTBasedContext smtContext) {
 		Expression unsimplifiedResult = null;
-		if(smtContext.isVariable(expression)) {
+		if(smtContext.isVariable(expression) || smtContext.isUniquelyNamedConstant(expression)) {
 			unsimplifiedResult = expression;
 		}
 		else {
