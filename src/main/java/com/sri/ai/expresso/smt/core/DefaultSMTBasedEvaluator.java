@@ -2,24 +2,15 @@ package com.sri.ai.expresso.smt.core;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.mapIntoArrayList;
-import static com.sri.ai.util.Util.myAssert;
-import static com.sri.ai.expresso.helper.Expressions.parse;
-
 import java.util.List;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.smt.api.SMTBasedEvaluator;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
-import com.sri.ai.expresso.smt.api.SMTModel;
-import com.sri.ai.expresso.smt.api.SMTSolver;
-import com.sri.ai.expresso.smt.core.yices.YicesExpression;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.base.Pair;
 
 public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 	
@@ -64,7 +55,7 @@ public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 					smtContext.popStackFrame();
 
 					
-					unsimplifiedResult = expressionUnderTrueLiteralValue;
+					unsimplifiedResult = evaluatedExpressionUnderTrueLiteralValue;
 				}
 				else {
 					expressionUnderFalseLiteralValue = makeExpressionUnderLiteralValue(expression, literal, FALSE, smtContext);
@@ -72,31 +63,38 @@ public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 					smtContext.popStackFrame();
 
 					
-					unsimplifiedResult = expressionUnderFalseLiteralValue;
+					unsimplifiedResult = evaluatedExpressionUnderFalseLiteralValue;
 				}
 			}
 		}
 		Expression simplifiedResult = unconditionalEval(unsimplifiedResult, smtContext);
+				
 		return simplifiedResult;
 	}
+	
+
 
 	private Expression unconditionalEval(Expression expression, SMTBasedContext smtContext) {
+// NEW
 		Expression result = null;
-		if(smtContext.isUniquelyNamedConstant(expression)) {
-			result = expression;
-		}
-		else if(smtContext.isVariable(expression)) {
-			Expression valueOfVariableBasedOnContext = smtContext.getValueOfVariable(expression);
-			if(valueOfVariableBasedOnContext == null) {
+		
+		Expression functor = expression.getFunctor();
+		if(functor == null) {
+			if(smtContext.isUniquelyNamedConstant(expression)) {
 				result = expression;
 			}
-			else {
-				result = valueOfVariableBasedOnContext;
-			}
+			else if(smtContext.isVariable(expression)) {
+				Expression valueOfVariableBasedOnContext = smtContext.getValueOfVariable(expression);
+				if(valueOfVariableBasedOnContext == null) {
+					result = expression;
+				}
+				else {
+					result = valueOfVariableBasedOnContext;
+				}
+			}	
 		}
-		else if(FunctionApplication.class.isAssignableFrom(expression.getClass())) {
+		else {
 			Theory theory = smtContext.getTheory();
-			Expression functor = expression.getFunctor();
 			List<Expression> functionArguments = expression.getArguments();
 			List<Expression> simplifiedFunctionArguments = mapIntoArrayList(functionArguments, (a)->unconditionalEval(a,smtContext));
 			Expression newFunctionApplication = new DefaultFunctionApplication(functor,simplifiedFunctionArguments);
@@ -106,9 +104,6 @@ public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 				simplifiedNewFunctionApplication = theory.getTopRewriter().apply(newFunctionApplication, smtContext);
 			}
 			result = simplifiedNewFunctionApplication;
-		}
-		else {
-			throw new Error("ERROR: unconditionalEval() called on " + expression + ", which is unsupported as it is neither a constant, variable, or function application!");
 		}
 		return result;
 	}
@@ -182,42 +177,6 @@ public class DefaultSMTBasedEvaluator implements SMTBasedEvaluator {
 		}
 		return literal;
 	}
-	
-	private Expression findOccurrenceOfExpressionContainingLiteral(Expression expression, Expression literal, Context context) {
-		//TODO: add to Expressions methods
-		//TODO: make iterative instead of recursive
-		Expression literalParentExpression = null;
-		if(expression.equals(literal)) {
-			literalParentExpression = expression;
-		}
-		else {
-			literalParentExpression = 
-					findOccurrenceOfExpressionContainingLiteralWithoutCheckingIfTheRootExpressionIsTheLiteral(expression, literal, context);
-		}
-		return literalParentExpression;
-	}
-	
-	private Expression findOccurrenceOfExpressionContainingLiteralWithoutCheckingIfTheRootExpressionIsTheLiteral(
-			Expression expression, Expression literal, Context context) {
-		//TODO: add to Expressions methods
-		//TODO: make iterative instead of recursive
-		Expression literalParentExpression = null;
-		List<Expression> subExpressions = expression.getArguments();
-		for(Expression subExpression : subExpressions) {
-			if(subExpression.equals(literal)) {
-				literalParentExpression = expression;
-			}
-			else {
-				literalParentExpression = findOccurrenceOfExpressionContainingLiteralWithoutCheckingIfTheRootExpressionIsTheLiteral(
-						subExpression, literal, context);
-			}
-			if(literalParentExpression != null) {
-				break;
-			}
-		}
-		return literalParentExpression;
-	}
-
 	
 	public boolean isSatisfiable(Context context, Expression literal) {
 		return !context.isContradiction(literal);

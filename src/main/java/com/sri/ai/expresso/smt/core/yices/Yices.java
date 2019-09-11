@@ -11,17 +11,13 @@ import java.util.Map;
 import java.util.function.ToIntFunction;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
-import com.sri.ai.expresso.smt.api.SMTBasedEvaluator;
 import com.sri.ai.expresso.smt.api.SMTExpression;
 import com.sri.ai.expresso.smt.api.SMTModel;
 import com.sri.ai.expresso.smt.api.SMTType;
-import com.sri.ai.expresso.smt.core.DefaultSMTBasedEvaluator;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.expresso.type.FunctionType;
 import com.sri.ai.expresso.type.IntegerExpressoType;
@@ -29,7 +25,6 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.expresso.type.RealExpressoType;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.expresso.type.TupleType;
-import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.util.math.Rational;
 import com.sri.yices.BigRational;
@@ -48,38 +43,8 @@ public class Yices implements SMTSolver {
 	
 	
 	
-	// PRIVATE STATIC FIELDS
-	//////////////////////////////////////////////////////	
-	private static final SMTBasedEvaluator evaluator = new DefaultSMTBasedEvaluator();
-	
-	
-	
 	// CLASSES CORRESPONDING TO YICES
 	//////////////////////////////////////////////////////	
-	
-//	private static final Class<com.sri.yices.Context> SMT_SOLVER_CONTEXT_CLASS = com.sri.yices.Context.class;
-//	private static final Class<Integer> SMT_SOLVER_TERM_CLASS = Integer.class;
-//	private static final Class<Integer> SMT_SOLVER_TYPE_CLASS = Integer.class;
-//	private static final Class<Model> SMT_SOLVER_MODEL_CLASS = Model.class;
-//	
-//	@Override
-//	public Class<? extends Object> getSMTSolverContextClass() {
-//		return SMT_SOLVER_CONTEXT_CLASS;
-//	}
-//	@Override
-//	public Class<? extends Object> getSMTSolverTermClass() {
-//		return SMT_SOLVER_TERM_CLASS;
-//	}
-//	@Override
-//	public Class<? extends Object> getSMTSolverFormulaClass() {
-//		return SMT_SOLVER_FORMULA_CLASS;
-//	}
-//	@Override
-//	public Class<? extends Object> getSMTSolverModelClass() {
-//		return SMT_SOLVER_MODEL_CLASS;
-//	}
-	
-	
 	private static final Class<? extends SMTBasedContext> EXPRESSO_SMT_CONTEXT_CLASS = YicesBasedContext.class;
 	private static final Class<? extends SMTExpression> EXPRESSO_SMT_EXPRESSION_CLASS = YicesExpression.class;
 	private static final  Class<? extends SMTModel> EXPRESSO_SMT_MODEL_CLASS = YicesModel.class;
@@ -291,20 +256,16 @@ public class Yices implements SMTSolver {
 	//////////////////////////////////////////////////////
 	private static int makeYicesSolverExpressionObjectFromExpressoExpression(Expression expression, SMTBasedContext smtContext) {
 		int yicesTerm = -1;
-		Class<? extends Expression> expressionClass = expression.getClass();
-		boolean expressionIsSymbol = Symbol.class.isAssignableFrom(expressionClass);
-		boolean expressionIsDefaultFunctionApplication = DefaultFunctionApplication.class.isAssignableFrom(expressionClass);
-		myAssert(expressionIsSymbol || expressionIsDefaultFunctionApplication,
-				()->"ERROR: the Expresso Expression was a " + expressionClass.getSimpleName() + " object, but conversion to Yices is currently only supported for " + Symbol.class.getSimpleName() + " and " + DefaultFunctionApplication.class.getSimpleName() + " Expression types!" );
+		Expression functor = expression.getFunctor();
 
-		if (expressionIsDefaultFunctionApplication) {
-			Expression functor = expression.getFunctor();
+		if (functor == null) {
+			yicesTerm = makeYicesSymbolFromExpressoSymbol(expression, smtContext);
+
+		} 
+		else { 
 			List<Expression> functionArguments = expression.getArguments();
 			Integer[] smtSymbols = makeYicesTerms(functionArguments, smtContext);
 			yicesTerm = applyYicesFunctionApplication(functor, smtSymbols);
-		} 
-		else { // expression is Symbol
-			yicesTerm = makeYicesSymbolFromExpressoSymbol(expression, smtContext);
 		}
 		return yicesTerm;
 	}
@@ -407,23 +368,38 @@ public class Yices implements SMTSolver {
 	}
 
 	private static int _makeYicesPlusExpression(Integer[] functionArguments) {
-		int arg1 = functionArguments[0];
-		int arg2 = functionArguments[1];
-		int yicesPlusTerm = Terms.add(arg1, arg2);
+		int[] args = new int[functionArguments.length];
+		int i = 0;
+		for(Integer arg : functionArguments) {
+			args[i] = arg;
+			++i;
+		}
+		int yicesPlusTerm = Terms.add(args);
 		return yicesPlusTerm;
 	}
 
 	private static int _makeYicesMinusExpression(Integer[] functionArguments) {
-		int arg1 = functionArguments[0];
-		int arg2 = functionArguments[1];
-		int yicesMinusTerm = Terms.sub(arg1, arg2);
+		int yicesMinusTerm;
+		if(functionArguments.length == 1) {
+			int arg1 = functionArguments[0];
+			yicesMinusTerm = Terms.neg(arg1);
+		}
+		else {
+			int arg1 = functionArguments[0];
+			int arg2 = functionArguments[1];
+			yicesMinusTerm = Terms.sub(arg1, arg2);
+		}
 		return yicesMinusTerm;
 	}
 
 	private static int _makeYicesTimesExpression(Integer[] functionArguments) {
-		int arg1 = functionArguments[0];
-		int arg2 = functionArguments[1];
-		int yicesTimesTerm = Terms.mul(arg1, arg2);
+		int[] args = new int[functionArguments.length];
+		int i = 0;
+		for(Integer arg : functionArguments) {
+			args[i] = arg;
+			++i;
+		}
+		int yicesTimesTerm = Terms.mul(args);
 		return yicesTimesTerm;
 	}
 
@@ -936,20 +912,18 @@ public class Yices implements SMTSolver {
 		yicesContext.assertFormula(yicesNotEqualExpression);
 		Expression result = null;
 		if(yicesContext.check() == Status.UNSAT) {
-//			result = parse(Terms.toString(yicesVariableValue));
-			
 //			result = Expressions.makeSymbol(variableValue); // doesn't work well because it'll make a symbol with
 //															// BigRational and BigInteger which will not evaluate equal
 //															// to another symbol of the same value made by a Rational or
 //															// TopRewriting/Simplifying (which likely also creates the
 //															// symbol with a Rational)
 			
-//			result = parse(Terms.toString(yicesVariableValue));
+//			result = parse(variableValue.toString());
 //			if(variableValue instanceof BigRational) {
 //				result = evaluator.eval(result, smtContext);
 //			}
 			
-			result = parse(Terms.toString(yicesVariableValue));
+			result = parse(variableValue.toString());
 			if(variableValue instanceof BigRational) {
 				result = smtContext.getTheory().getTopRewriter().apply(result, smtContext);
 			}

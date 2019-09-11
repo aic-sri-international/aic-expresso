@@ -3,11 +3,9 @@ package com.sri.ai.expresso.smt.core;
 import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
-import com.sri.ai.grinder.core.AbstractTrivialContext;
 import com.sri.ai.grinder.core.TrueContext;
 
 import static com.sri.ai.util.Util.myAssert;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.api.SMTExpression;
@@ -35,17 +33,7 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 	}
 	
 	
-	
-	// OVERRIDING INHERITED METHODS : Cloneable 
-	//////////////////////////////////////////////////////
-//	@Override
-//	public AbstractSMTBasedContext clone() {
-//		AbstractSMTBasedContext result = (AbstractSMTBasedContext) super.clone();
-//		return result;
-//	}
-//	
-//	
-//	
+	//TODO: register symbols with smt context when registering with Expresso
 //	// OVERRIDING INHERITED METHODS : Registry 
 //	//////////////////////////////////////////////////////
 //	@Override
@@ -177,7 +165,6 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 
 	@Override
 	public boolean isSatisfiable(Expression formula) {
-//		SMTExpression SMTExpression = smtSolver.makeExpressoSMTExpressionFromExpressionLiteral(formula, this);
 		boolean isSAT = smtSolver.contextIsSatisfiable(this, formula);
 		return isSAT;
 	}
@@ -206,17 +193,5 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 		Expression result = model.getValueOfVariable(var, this);
 		return result;
 	}
-	
-
-	
-	
-//	private SMTExpression[] convertExpressionFormulasToExpressoSMTFormuas(Expression... formulas) {
-//		SMTExpression[] smtFormulas = new SMTExpression[formulas.length];
-//		int i = 0;
-//		for(Expression formula : formulas) {
-//			smtFormulas[i] = smtSolver.makeExpressoSMTExpressionFromExpressionLiteral(formula, this);
-//		}		
-//		return smtFormulas;
-//	}
 	
 }

@@ -50,11 +50,14 @@ public class YicesContextPerformanceTest {
 	static final String integerIntervalType = integerIntervalLowerBound + ".." + integerIntervalUpperBound;
 	static final String integerType = "Integer";
 	static final String booleanType = "Boolean";
+	static final String realType = "Real";
 	
+	static final String[] types = new String[] {booleanType, integerType};
 	//static final String[] types = new String[] {booleanType, integerType, integerIntervalType};
+	//static final String[] types = new String[] {booleanType, integerType, realType};
 	//static final String[] types = new String[] {booleanType};
 	//static final String[] types = new String[] {integerType};
-	static final String[] types = new String[] {integerIntervalType};
+	//static final String[] types = new String[] {integerIntervalType};
 	
 	static final int numLiteralsForBurnIn = Math.min(10, maxNumLiterals);
 	static final int numBurnInIterations = 3;
@@ -95,7 +98,6 @@ public class YicesContextPerformanceTest {
 			}
 			println();
 		}
-		
 		
 		println();
 		println();
@@ -555,6 +557,9 @@ public class YicesContextPerformanceTest {
 			String symbol = symbolsAndTypes[i*2];
 			Expression variable = parse(symbolsAndTypes[i*2]);
 			Type type = context.getTypeOfRegisteredSymbol(variable);
+//			if(type == GrinderUtil.REAL_TYPE) {
+//				type = GrinderUtil.INTEGER_TYPE;
+//			}
 			variableNamesAndTypes.put(symbol,  type);
 		}
 		CompoundTheory cmpdTheory = new CompoundTheory(
@@ -565,9 +570,9 @@ public class YicesContextPerformanceTest {
 				new PropositionalTheory(),
 				new BruteForceFunctionTheory()
 			);
-		TheoryTestingSupport theoryTestingSupport = new CompoundTheoryTestingSupport(cmpdTheory, makeRandom());
+		TheoryTestingSupport theoryTestingSupport = new CompoundTheoryTestingSupport(cmpdTheory, rand);
 		theoryTestingSupport.setVariableNamesAndTypesForTesting(variableNamesAndTypes);
-		context = theoryTestingSupport.makeContextWithTestingInformation();
+		//context = theoryTestingSupport.makeContextWithTestingInformation();
 		if(printLiterals) {
 			println(smallTab + "Literals:");
 		}

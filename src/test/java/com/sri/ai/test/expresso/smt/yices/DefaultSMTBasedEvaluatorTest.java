@@ -1,14 +1,12 @@
 package com.sri.ai.test.expresso.smt.yices;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.println;
+import static com.sri.ai.util.Util.arrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.junit.Before;
@@ -16,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.api.SMTBasedEvaluator;
@@ -25,38 +23,12 @@ import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
-import com.sri.ai.grinder.core.TrueContext;
-import com.sri.ai.grinder.tester.TheoryTestingSupport;
-import com.sri.ai.grinder.theory.compound.CompoundTheory;
-import com.sri.ai.grinder.theory.compound.CompoundTheoryTestingSupport;
-import com.sri.ai.grinder.theory.differencearithmetic.DifferenceArithmeticTheory;
-import com.sri.ai.grinder.theory.equality.EqualityTheory;
-import com.sri.ai.grinder.theory.function.BruteForceFunctionTheory;
-import com.sri.ai.grinder.theory.linearrealarithmetic.LinearRealArithmeticTheory;
-import com.sri.ai.grinder.theory.propositional.PropositionalTheory;
-import com.sri.ai.grinder.theory.tuple.TupleTheory;
-import com.sri.ai.util.Timer;
-import com.sri.ai.util.math.Rational;
-import com.sri.yices.BigRational;
+import com.sri.ai.grinder.tester.RandomCondtionalDifferenceArithmeticExpressionGenerator;
 import com.sri.yices.Yices;
 
 public class DefaultSMTBasedEvaluatorTest {
 	
-	private static final SMTBasedEvaluator smtBasedEvaluator = new DefaultSMTBasedEvaluator();
-
-	
-	@Test
-	public void blankTest() throws Exception {
-		String testFunctionName = new Object() {}.getClass().getEnclosingMethod().getName();
-		printTestTitle(testFunctionName, false);
-		println();
-		
-		
-		println();
-		println();
-		println();
-	}
-	
+	private static final SMTBasedEvaluator smtBasedEvaluator = new DefaultSMTBasedEvaluator();	
 	
 	@Test
 	public void evaluateVariablesThatHaveNoUniqueValue() throws Exception {
@@ -78,7 +50,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"true"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression result;
 		Expression expression;
@@ -89,21 +61,21 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		
@@ -136,7 +108,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"Y = 1/2"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
 		Expression rawExpectedResult;
@@ -147,21 +119,21 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("false");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X");
 		rawExpectedResult = parse("1");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y");
 		rawExpectedResult = parse("1/2");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		
@@ -197,7 +169,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"Y >= 0.5"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
 		Expression rawExpectedResult;
@@ -208,21 +180,21 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("false");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X");
 		rawExpectedResult = parse("1");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y");
 		rawExpectedResult = parse("1/2");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		
@@ -254,7 +226,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"true"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
 		Expression rawExpectedResult;
@@ -265,21 +237,21 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("if B1 then B2 else false");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X + 1");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y + 1");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		
@@ -310,7 +282,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"true"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
 		Expression rawExpectedResult;
@@ -321,14 +293,14 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("if X > 0 then if X < 10 then 101 else 102 else 104");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("1/2 + if Y > 1/2 then if Y < 10 then 0 else 1/2 else if Y = 1 then 1 else 1/3");
 		rawExpectedResult = parse("if Y > 0.5 then if Y < 10 then 0.5 else 1 else 5/6");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		println();
@@ -359,7 +331,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"true"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
 		Expression rawExpectedResult;
@@ -370,14 +342,14 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("if X > 0 then if X < 10 then 101 else 102 else 104");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("1/2 + if Y > 1/2 then if Y < 10 then 0 else 1/2 else if Y = 1 then 1 else 1/3");
 		rawExpectedResult = parse("if Y > 0.5 then if Y < 10 then 0.5 else 1 else 5/6");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		println();
@@ -421,7 +393,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"Y3 = 1/4"
 		};
 		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
-		smtBasedContext = conjoinConstraints(smtBasedContext, constraints);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
 		Expression rawExpectedResult;
@@ -432,78 +404,146 @@ public class DefaultSMTBasedEvaluatorTest {
 //		rawExpectedResult = parse("true");
 //		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 //		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-//		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+//		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 //		assert(result.equals(expectedResult));
 		
 		expression = parse("X1 = 1");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y1 = 1/2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X2 = 1");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y2 = 1/2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("B1 = B2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X1 = X2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y1 = Y2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("B1 = B2 and B3");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X1 = X3 - 2*X2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y1 = 2*Y2 - Y3/0.5");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval(" + expression + ") = " + result);
+		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
 		assert(result.equals(expectedResult));
+		
+		
+		println();
+		println();
+		println();
+	}
+
+	
+	@Test
+	public void evaluateRandomlyGeneratedExpressions() throws Exception {
+		String testFunctionName = new Object() {}.getClass().getEnclosingMethod().getName();
+		printTestTitle(testFunctionName, false);
+		println();
+		
+		Theory theory = new CommonTheory();
+		String[] symbolsAndTypes = new String[] {
+				"X1", "Integer", 
+				"X2", "Integer", 
+				"X3", "Integer", 
+				"Y1", "Real",
+				"Y2", "Real",
+				"Y3", "Real",
+		};
+		SMTBasedContext smtBasedContext = new YicesBasedContext(theory);
+		smtBasedContext = (SMTBasedContext) smtBasedContext.extendWithSymbolsAndTypes(symbolsAndTypes);
+		printSymbolsAndTypes(symbolsAndTypes);
+		
+		RandomCondtionalDifferenceArithmeticExpressionGenerator expressionGenerator =
+				new RandomCondtionalDifferenceArithmeticExpressionGenerator(smtBasedContext, 3, makeRandom());
+		
+		String[] constraintStrings = new String[] {
+				"true"
+		};
+		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
+		
+		final Expression EQUALITY = Expressions.makeSymbol("=");
+		Expression expression;
+		Expression simplified;
+		Expression rawExpectedResult;
+		Expression expectedResult;
+		Expression equality;
+		Expression result;
+		
+		for(int i = 0; i < 1000; ++i) {
+			expression = expressionGenerator.apply();
+			simplified = smtBasedEvaluator.eval(expression, smtBasedContext);
+			rawExpectedResult = parse("true");
+			expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
+			equality = new DefaultFunctionApplication(EQUALITY, arrayList(expression,simplified));
+			result = smtBasedEvaluator.eval(equality, smtBasedContext);
+			println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + " = " + simplified + "] = " + result);
+			result = smtBasedEvaluator.eval(result, smtBasedContext);
+			assert(result.equals(expectedResult));
+		}
+		
+		
+		println();
+		println();
+		println();
+	}
+	
+	
+	@Test
+	public void blankTest() throws Exception {
+		String testFunctionName = new Object() {}.getClass().getEnclosingMethod().getName();
+		printTestTitle(testFunctionName, false);
+		println();
 		
 		
 		println();
@@ -534,7 +574,7 @@ public class DefaultSMTBasedEvaluatorTest {
 	private String makeConjunctionString(String[] constraintStrings) {
 		StringBuilder conjunctionConstruction = new StringBuilder();
 		String conjunctionStringConstant = "^";
-		conjunctionConstruction.append('{');
+		conjunctionConstruction.append("{");
 		for(String constraintString : constraintStrings) {
 			conjunctionConstruction.append('(');
 			conjunctionConstruction.append(constraintString);
@@ -542,22 +582,22 @@ public class DefaultSMTBasedEvaluatorTest {
 			conjunctionConstruction.append(conjunctionStringConstant);
 		}
 		conjunctionConstruction.setLength(conjunctionConstruction.length() - conjunctionStringConstant.length());
-		conjunctionConstruction.append('}');
+		conjunctionConstruction.append("}");
 		String conjunction = conjunctionConstruction.toString();
 		return conjunction;
 	}
 
 
-	public SMTBasedContext conjoinConstraints(SMTBasedContext smtBasedContext, List<Expression> constraints) {
+	public Context conjoinConstraints(Context smtBasedContext, List<Expression> constraints) {
 		for(Expression constraint : constraints) {
-			smtBasedContext = (SMTBasedContext) smtBasedContext.conjoin(constraint);
+			smtBasedContext = smtBasedContext.conjoin(constraint);
 		}
 		return smtBasedContext;
 	}
 
 
 	private static List<Expression> parseExpressionStringsToList(String[] expressionStrings) {
-		ArrayList<Expression> expressions = new ArrayList(expressionStrings.length);
+		ArrayList<Expression> expressions = new ArrayList<Expression>(expressionStrings.length);
 		for(String constraintString : expressionStrings) {
 			Expression constraint = parse(constraintString);
 			expressions.add(constraint);
@@ -633,28 +673,6 @@ public class DefaultSMTBasedEvaluatorTest {
 		println();
 	}
 
-	private static void updateVariableName(char[] variableName) {
-		updateVariableName(variableName,0);
-	}
-	
-	private static void updateVariableName(char[] variableName, int i) {
-		if(variableName[i] == '\0') {
-			variableName[i] = 'A';
-		}
-		else if(variableName[i] == 90) {
-			variableName[i] = 65;
-			updateVariableName(variableName, i+1);
-		}
-		else {
-			++variableName[i];
-		}
-	}
-	
-	
-	
-	
-	
-	
 	@Before
 	public void resetForNextTest() throws Exception {
 		resetYices();
