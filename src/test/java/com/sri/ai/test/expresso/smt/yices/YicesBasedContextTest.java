@@ -246,7 +246,7 @@ public class YicesBasedContextTest {
 	}
 
 
-	@Test
+	//@Test
 	public void testClosedIntegerIntervals() throws Exception {
 		println("////////////////////////////////////////////////////////");
 		println( new Object() {}.getClass().getEnclosingMethod().getName() );
@@ -309,7 +309,7 @@ public class YicesBasedContextTest {
 	}
 	
 	
-	@Test
+	//@Test
 	public void testOpenIntegerIntervals() throws Exception {
 		println("////////////////////////////////////////////////////////");
 		println( new Object() {}.getClass().getEnclosingMethod().getName() );
@@ -466,7 +466,7 @@ public class YicesBasedContextTest {
 //	
 	
 	
-	@Test
+	//@Test
 	public void testRealIntervals() throws Exception {
 		println("////////////////////////////////////////////////////////");
 		println( new Object() {}.getClass().getEnclosingMethod().getName() );
