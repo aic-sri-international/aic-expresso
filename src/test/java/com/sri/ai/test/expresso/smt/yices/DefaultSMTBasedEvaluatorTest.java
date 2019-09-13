@@ -1,6 +1,7 @@
 package com.sri.ai.test.expresso.smt.yices;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.arrayList;
 
@@ -23,6 +24,7 @@ import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
+import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.tester.RandomCondtionalDifferenceArithmeticExpressionGenerator;
 import com.sri.yices.Yices;
 
@@ -528,7 +530,6 @@ public class DefaultSMTBasedEvaluatorTest {
 			equality = new DefaultFunctionApplication(EQUALITY, arrayList(expression,simplified));
 			result = smtBasedEvaluator.eval(equality, smtBasedContext);
 			println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + " = " + simplified + "] = " + result);
-			result = smtBasedEvaluator.eval(result, smtBasedContext);
 			assert(result.equals(expectedResult));
 		}
 		
