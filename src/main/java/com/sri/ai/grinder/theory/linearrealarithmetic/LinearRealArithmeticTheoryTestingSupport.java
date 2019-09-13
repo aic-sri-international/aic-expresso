@@ -37,12 +37,21 @@
  */
 package com.sri.ai.grinder.theory.linearrealarithmetic;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.pickUniformly;
+import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
+import static com.sri.ai.util.Util.arrayListFrom;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.theory.base.AbstractTheoryWithBinaryAtomsTestingSupport;
@@ -58,13 +67,102 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWith
 	
 	/**
 	 * Makes a linear real arithmetic random atom on variable.
-	 * Currently unimplemented, throwing an Error instead
-	 * (generating random atoms is not as useful for this theory,
-	 * since it cannot be tested by brute force).
 	 */
 	@Override
-	public Expression makeRandomAtomOn(String variable, Context context) {
-		// TODO: write this method
-		throw new Error("Random generation of linear real arithmetic not yet implemented.");
+	public Expression makeRandomAtomOn(String mainVariable, Context context) {
+		String mainVariableName = getVariableName(mainVariable);
+		Type mainType = getTestingVariableType(mainVariable);
+		
+		ArrayList<String> variableNamesThatAreSubtypesOf = arrayListFrom(getVariableNamesWhoseTypesAreSubtypesOf(mainType));
+		
+		int numberOfOtherVariablesInAtom = getRandom().nextInt(variableNamesThatAreSubtypesOf.size()); //0,1,2...size-1
+		int totalNumberOfVariablesInAtom = numberOfOtherVariablesInAtom + 1;
+
+		ArrayList<String> otherVariablesForAtom = pickUpToKElementsWithoutReplacement(
+				variableNamesThatAreSubtypesOf, numberOfOtherVariablesInAtom, otherName -> !otherName.equals(mainVariableName), getRandom());
+		
+		int numberOfOtherVariablesOnLeftHandSide = getRandom().nextInt(totalNumberOfVariablesInAtom); //0,1,2...size
+		
+		ArrayList<Expression> leftHandSideAlgebraicTerms = constructAlgebraicTermsForFormula(mainVariable,otherVariablesForAtom, numberOfOtherVariablesOnLeftHandSide, true);
+		ArrayList<Expression> rightHandSideAlgebraicTerms = constructAlgebraicTermsForFormula(mainVariable,otherVariablesForAtom, numberOfOtherVariablesOnLeftHandSide, false);
+		int whereToPutConstant = getRandom().nextInt(3);
+		if(whereToPutConstant == 0) {
+			leftHandSideAlgebraicTerms.add(makeRealValuedConstantExpression());
+		}
+		else if(whereToPutConstant == 1) {
+			rightHandSideAlgebraicTerms.add(makeRealValuedConstantExpression());
+		}
+
+		Expression leftHandSide;
+		Expression rightHandSide;
+		if(leftHandSideAlgebraicTerms.size() > 1) {
+			leftHandSide = apply("+", leftHandSideAlgebraicTerms);
+		}
+		else {
+			leftHandSide = leftHandSideAlgebraicTerms.get(0);
+		}
+		if(rightHandSideAlgebraicTerms.size() > 1) {
+			rightHandSide = apply("+", rightHandSideAlgebraicTerms);
+		}
+		else {
+			rightHandSide = rightHandSideAlgebraicTerms.get(0);
+		}
+		
+		String functor = pickUniformly(getTheoryFunctors(), getRandom());
+		Expression randomAtom = apply(functor, leftHandSide, rightHandSide);	
+		
+		return randomAtom;
+	}
+	
+	private ArrayList<Expression> constructAlgebraicTermsForFormula(String mainVariable, ArrayList<String> otherVariablesForAtom,
+			int numberOfOtherVariablesOnLeftHandSide, boolean constructingLeftHandSide) {
+		ArrayList<Expression> constructedTerms = new ArrayList<>();
+		int inclusiveLowerBound;
+		int exclusiveUpperBound;
+		
+		if(constructingLeftHandSide) {
+			constructedTerms.add(makeVariableTermWithRandomCoefficient(mainVariable));
+			inclusiveLowerBound = 0;
+			exclusiveUpperBound = numberOfOtherVariablesOnLeftHandSide;
+			for(int i = inclusiveLowerBound; i < exclusiveUpperBound; ++i) {
+				String variableSymbol = otherVariablesForAtom.get(i);
+				constructedTerms.add(makeVariableTermWithRandomCoefficient(variableSymbol));
+			}
+		}
+		else {
+			inclusiveLowerBound = numberOfOtherVariablesOnLeftHandSide;
+			exclusiveUpperBound = otherVariablesForAtom.size();
+			if(inclusiveLowerBound == exclusiveUpperBound) {
+				constructedTerms.add(makeSymbol(0));
+			}
+			else {
+				for(int i = inclusiveLowerBound; i < exclusiveUpperBound; ++i) {
+					String variableSymbol = otherVariablesForAtom.get(i);
+					constructedTerms.add(makeVariableTermWithRandomCoefficient(variableSymbol));
+				}
+			}
+		}
+		
+		return constructedTerms;
+	}
+
+	private Expression makeVariableTermWithRandomCoefficient(String variableSymbol) {
+		Expression result;
+		Expression variable = parse(variableSymbol);
+		if(getRandom().nextBoolean()) {
+			Expression constantExpression = makeRealValuedConstantExpression();
+			Expression variableTermWithCoefficient = apply("*", variable, constantExpression);
+			result = variableTermWithCoefficient;
+		}
+		else {
+			result = variable;
+		}
+		return result;
+	}
+
+	public Expression makeRealValuedConstantExpression() {
+		double constant = getRandom().nextDouble();
+		Expression constantExpression = makeSymbol(constant);
+		return constantExpression;
 	}
 }
