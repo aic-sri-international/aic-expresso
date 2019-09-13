@@ -1,7 +1,6 @@
 package com.sri.ai.test.expresso.smt.yices;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.arrayList;
 
@@ -24,7 +23,6 @@ import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
-import com.sri.ai.grinder.core.TrueContext;
 import com.sri.ai.grinder.tester.RandomCondtionalDifferenceArithmeticExpressionGenerator;
 import com.sri.yices.Yices;
 
@@ -63,21 +61,33 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		
@@ -121,21 +131,33 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("false");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X");
 		rawExpectedResult = parse("1");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y");
 		rawExpectedResult = parse("1/2");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		
@@ -182,21 +204,33 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("false");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X");
 		rawExpectedResult = parse("1");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y");
 		rawExpectedResult = parse("1/2");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		
@@ -239,21 +273,33 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("if B1 then B2 else false");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X + 1");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y + 1");
 		rawExpectedResult = expression;
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		
@@ -295,14 +341,22 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("if X > 0 then if X < 10 then 101 else 102 else 104");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("1/2 + if Y > 1/2 then if Y < 10 then 0 else 1/2 else if Y = 1 then 1 else 1/3");
 		rawExpectedResult = parse("if Y > 0.5 then if Y < 10 then 0.5 else 1 else 5/6");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		println();
@@ -344,14 +398,22 @@ public class DefaultSMTBasedEvaluatorTest {
 		rawExpectedResult = parse("if X > 0 then if X < 10 then 101 else 102 else 104");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("1/2 + if Y > 1/2 then if Y < 10 then 0 else 1/2 else if Y = 1 then 1 else 1/3");
 		rawExpectedResult = parse("if Y > 0.5 then if Y < 10 then 0.5 else 1 else 5/6");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		println();
@@ -402,81 +464,114 @@ public class DefaultSMTBasedEvaluatorTest {
 		Expression expectedResult;
 		Expression result;
 		
-//		expression = parse("B1 = false");
-//		rawExpectedResult = parse("true");
-//		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
-//		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-//		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
-//		assert(result.equals(expectedResult));
-		
 		expression = parse("X1 = 1");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y1 = 1/2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X2 = 1");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y2 = 1/2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("B1 = B2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X1 = X2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y1 = Y2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("B1 = B2 and B3");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("X1 = X3 - 2*X2");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		expression = parse("Y1 = 2*Y2 - Y3/0.5");
 		rawExpectedResult = parse("true");
 		expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 		result = smtBasedEvaluator.eval(expression, smtBasedContext);
-		println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + "] = " + result);
+		println(smallTab + "   context: " + makeConjunctionString(constraintStrings));
+		println(smallTab + "expression: " + expression);
+		println(smallTab + " evaluated: " + result);
+		println(smallTab + "  expected: " + expectedResult);
+		println();
 		assert(result.equals(expectedResult));
 		
 		
@@ -529,7 +624,13 @@ public class DefaultSMTBasedEvaluatorTest {
 			expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 			equality = new DefaultFunctionApplication(EQUALITY, arrayList(expression,simplified));
 			result = smtBasedEvaluator.eval(equality, smtBasedContext);
-			println(smallTab + makeConjunctionString(constraintStrings) + ".eval[" + expression + " = " + simplified + "] = " + result);
+			println(smallTab + "           context: " + makeConjunctionString(constraintStrings));
+			println(smallTab + "        expression: " + expression);
+			println(smallTab + "         evaluated: " + simplified);
+			println(smallTab + "          equality: " + expression + " = " + simplified);
+			println(smallTab + "evaluated equality: " + result);
+			println(smallTab + "          expected: " + expectedResult);
+			println();
 			assert(result.equals(expectedResult));
 		}
 		
@@ -575,7 +676,6 @@ public class DefaultSMTBasedEvaluatorTest {
 	private String makeConjunctionString(String[] constraintStrings) {
 		StringBuilder conjunctionConstruction = new StringBuilder();
 		String conjunctionStringConstant = "^";
-		conjunctionConstruction.append("{");
 		for(String constraintString : constraintStrings) {
 			conjunctionConstruction.append('(');
 			conjunctionConstruction.append(constraintString);
@@ -583,7 +683,6 @@ public class DefaultSMTBasedEvaluatorTest {
 			conjunctionConstruction.append(conjunctionStringConstant);
 		}
 		conjunctionConstruction.setLength(conjunctionConstruction.length() - conjunctionStringConstant.length());
-		conjunctionConstruction.append("}");
 		String conjunction = conjunctionConstruction.toString();
 		return conjunction;
 	}
