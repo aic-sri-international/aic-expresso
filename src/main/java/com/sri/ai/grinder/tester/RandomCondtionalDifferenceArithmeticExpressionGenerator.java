@@ -199,7 +199,7 @@ public class RandomCondtionalDifferenceArithmeticExpressionGenerator implements 
 			if(type == GrinderUtil.REAL_TYPE || type instanceof RealInterval) {
 				//continue;
 				//TODO: once literals with mix of integers and real types can be handled, uncomment below...
-				type = GrinderUtil.INTEGER_TYPE;
+//				type = GrinderUtil.INTEGER_TYPE;
 			}
 			symbolsAndTypesAsStringsAndTypes.put(symbol,  type);
 		}
