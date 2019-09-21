@@ -257,10 +257,8 @@ public class Yices implements SMTSolver {
 	private static int makeYicesSolverExpressionObjectFromExpressoExpression(Expression expression, SMTBasedContext smtContext) {
 		int yicesTerm = -1;
 		Expression functor = expression.getFunctor();
-
 		if (functor == null) {
 			yicesTerm = makeYicesSymbolFromExpressoSymbol(expression, smtContext);
-
 		} 
 		else { 
 			List<Expression> functionArguments = expression.getArguments();
@@ -444,17 +442,6 @@ public class Yices implements SMTSolver {
 		return isRegisteredType;
 	}
 	
-//	private static Expression simplifyExpression(Expression expression, Context context) {
-//		Expression simplifiedExpression;
-//		Class<? extends Expression> expressionClass = expression.getClass();
-//		if( Symbol.class.isAssignableFrom(expressionClass) ) {
-//			simplifiedExpression = expression;
-//		}
-//		else {
-//			simplifiedExpression = context.simplify(expression);
-//		}
-//		return simplifiedExpression;
-//	}
 	
 	private static int registerCategoricalYicesSymbol(ExpressoToYicesSymbolRegistrationInformation symbolInfo) {
 		int yicesSymbolRegistration = -1;
@@ -584,7 +571,7 @@ public class Yices implements SMTSolver {
 		
 		SMTBasedContext smtContext = symbolInfo.getSMTContext();
 		IntegerInterval symbolIntegerIntervalType = (IntegerInterval) symbolInfo.getType();
-		boolean boundWasEnforced = false;
+		//boolean boundWasEnforced = false;
 
 		if (symbolIntegerIntervalType.noLowerBound()) {
 			; //no lower bound to assert onto smtContext
@@ -596,7 +583,7 @@ public class Yices implements SMTSolver {
 			BigInteger bigIntegerLowerBound = new BigInteger(rationalLowerBound.toString());
 			SMTExpression yicesLowerBoundTerm = new YicesExpression( Terms.arithGeq(yicesSymbolRegistration, Terms.intConst(bigIntegerLowerBound)) );
 			smtContext.assertOnExistingStackFrame(yicesLowerBoundTerm);
-			boundWasEnforced = true;
+			//boundWasEnforced = true;
 		}
 		
 		if (symbolIntegerIntervalType.noUpperBound()) {
@@ -609,11 +596,11 @@ public class Yices implements SMTSolver {
 			BigInteger bigIntegerUpperBound = new BigInteger(rationalUpperBound.toString());
 			SMTExpression yicesUpperBoundTerm = new YicesExpression( Terms.arithLeq(yicesSymbolRegistration, Terms.intConst(bigIntegerUpperBound)) );
 			smtContext.assertOnExistingStackFrame(yicesUpperBoundTerm);
-			boundWasEnforced = true;
+			//boundWasEnforced = true;
 		}
-		if(boundWasEnforced) {
-			//smtContext.pushStackFrame();
-		}
+//		if(boundWasEnforced) {
+//			//smtContext.pushStackFrame();
+//		}
 	}
 	
 	private static void enforceRealIntervalBounds(int yicesSymbolRegistration,
@@ -623,7 +610,7 @@ public class Yices implements SMTSolver {
 		
 		SMTBasedContext smtContext = symbolInfo.getSMTContext();
 		RealInterval symbolRealIntervalType = (RealInterval) symbolInfo.getType();
-		boolean boundWasEnforced = false;
+		//boolean boundWasEnforced = false;
 		
 		if(symbolRealIntervalType.noLowerBound()) {
 			; //no lower bound to assert onto smtContext
@@ -642,7 +629,7 @@ public class Yices implements SMTSolver {
 				yicesLowerBoundTerm = new YicesExpression( Terms.arithGeq(yicesSymbolRegistration, Terms.rationalConst(bigRationalLowerBound)) );
 			}
 			smtContext.assertOnExistingStackFrame(yicesLowerBoundTerm);
-			boundWasEnforced = true;
+			//boundWasEnforced = true;
 		}
 		if (symbolRealIntervalType.noUpperBound()){
 			; //no upper bound to assert onto smt Context
@@ -661,11 +648,11 @@ public class Yices implements SMTSolver {
 				yicesUpperBoundTerm = new YicesExpression( Terms.arithLeq(yicesSymbolRegistration, Terms.rationalConst(bigRationalUpperBound)) );
 			}
 			smtContext.assertOnExistingStackFrame(yicesUpperBoundTerm);
-			boundWasEnforced = true;
+			//boundWasEnforced = true;
 		}
-		if(boundWasEnforced) {
-			//smtContext.pushStackFrame();
-		}
+//		if(boundWasEnforced) {
+//			//smtContext.pushStackFrame();
+//		}
 	}
 	
 	
@@ -917,12 +904,6 @@ public class Yices implements SMTSolver {
 //															// to another symbol of the same value made by a Rational or
 //															// TopRewriting/Simplifying (which likely also creates the
 //															// symbol with a Rational)
-			
-//			result = parse(variableValue.toString());
-//			if(variableValue instanceof BigRational) {
-//				result = evaluator.eval(result, smtContext);
-//			}
-			
 			result = parse(variableValue.toString());
 			if(variableValue instanceof BigRational) {
 				result = smtContext.getTheory().getTopRewriter().apply(result, smtContext);
@@ -933,24 +914,5 @@ public class Yices implements SMTSolver {
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//////////////// YICES TYPE //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
 
 }

@@ -52,9 +52,9 @@ public class YicesContextPerformanceTest {
 	static final String booleanType = "Boolean";
 	static final String realType = "Real";
 	
-	static final String[] types = new String[] {booleanType, integerType};
+	//static final String[] types = new String[] {booleanType, integerType};
 	//static final String[] types = new String[] {booleanType, integerType, integerIntervalType};
-	//static final String[] types = new String[] {booleanType, integerType, realType};
+	static final String[] types = new String[] {booleanType, integerType, realType};
 	//static final String[] types = new String[] {booleanType};
 	//static final String[] types = new String[] {integerType};
 	//static final String[] types = new String[] {integerIntervalType};

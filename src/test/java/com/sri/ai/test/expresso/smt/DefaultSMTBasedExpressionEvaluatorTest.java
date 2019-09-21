@@ -1,4 +1,4 @@
-package com.sri.ai.test.expresso.smt.yices;
+package com.sri.ai.test.expresso.smt;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.println;
@@ -17,18 +17,18 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
-import com.sri.ai.expresso.smt.api.SMTBasedEvaluator;
-import com.sri.ai.expresso.smt.core.DefaultSMTBasedEvaluator;
+import com.sri.ai.expresso.smt.core.DefaultSMTBasedExpressionEvaluator;
 import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionEvaluator;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
-import com.sri.ai.grinder.tester.RandomCondtionalDifferenceArithmeticExpressionGenerator;
+import com.sri.ai.grinder.tester.RandomCondtionalArithmeticExpressionGenerator;
 import com.sri.yices.Yices;
 
-public class DefaultSMTBasedEvaluatorTest {
+public class DefaultSMTBasedExpressionEvaluatorTest {
 	
-	private static final SMTBasedEvaluator smtBasedEvaluator = new DefaultSMTBasedEvaluator();	
+	private static final ExpressionEvaluator smtBasedEvaluator = new DefaultSMTBasedExpressionEvaluator();	
 	
 	@Test
 	public void evaluateVariablesThatHaveNoUniqueValue() throws Exception {
@@ -49,7 +49,7 @@ public class DefaultSMTBasedEvaluatorTest {
 		String[] constraintStrings = new String[] {
 				"true"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression result;
@@ -119,7 +119,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"X = 1", 
 				"Y = 1/2"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
@@ -192,7 +192,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"Y <= 0.5",
 				"Y >= 0.5"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
@@ -261,7 +261,7 @@ public class DefaultSMTBasedEvaluatorTest {
 		String[] constraintStrings = new String[] {
 				"true"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
@@ -329,7 +329,7 @@ public class DefaultSMTBasedEvaluatorTest {
 		String[] constraintStrings = new String[] {
 				"true"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
@@ -386,7 +386,7 @@ public class DefaultSMTBasedEvaluatorTest {
 		String[] constraintStrings = new String[] {
 				"true"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
@@ -456,7 +456,7 @@ public class DefaultSMTBasedEvaluatorTest {
 				"Y2 = 0.5",
 				"Y3 = 1/4"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		Expression expression;
@@ -589,6 +589,9 @@ public class DefaultSMTBasedEvaluatorTest {
 		
 		Theory theory = new CommonTheory();
 		String[] symbolsAndTypes = new String[] {
+				"B1", "Boolean", 
+				"B2", "Boolean", 
+				"B3", "Boolean", 
 				"X1", "Integer", 
 				"X2", "Integer", 
 				"X3", "Integer", 
@@ -600,13 +603,13 @@ public class DefaultSMTBasedEvaluatorTest {
 		smtBasedContext = (SMTBasedContext) smtBasedContext.extendWithSymbolsAndTypes(symbolsAndTypes);
 		printSymbolsAndTypes(symbolsAndTypes);
 		
-		RandomCondtionalDifferenceArithmeticExpressionGenerator expressionGenerator =
-				new RandomCondtionalDifferenceArithmeticExpressionGenerator(smtBasedContext, 3, makeRandom());
+		RandomCondtionalArithmeticExpressionGenerator expressionGenerator =
+				new RandomCondtionalArithmeticExpressionGenerator(smtBasedContext, "BalancedTree", 8, 4, false, makeRandom());
 		
 		String[] constraintStrings = new String[] {
 				"true"
 		};
-		List<Expression> constraints = parseExpressionStringsToList(constraintStrings);
+		List<Expression> constraints = parseStringsToExpressionList(constraintStrings);
 		smtBasedContext = (SMTBasedContext) conjoinConstraints(smtBasedContext, constraints);
 		
 		final Expression EQUALITY = Expressions.makeSymbol("=");
@@ -624,6 +627,8 @@ public class DefaultSMTBasedEvaluatorTest {
 			expectedResult = smtBasedEvaluator.eval(rawExpectedResult, smtBasedContext);
 			equality = new DefaultFunctionApplication(EQUALITY, arrayList(expression,simplified));
 			result = smtBasedEvaluator.eval(equality, smtBasedContext);
+			println(smallTab + "Trial " + i);
+			printSparseHypenSepartorLine(false);
 			println(smallTab + "           context: " + makeConjunctionString(constraintStrings));
 			println(smallTab + "        expression: " + expression);
 			println(smallTab + "         evaluated: " + simplified);
@@ -696,7 +701,7 @@ public class DefaultSMTBasedEvaluatorTest {
 	}
 
 
-	private static List<Expression> parseExpressionStringsToList(String[] expressionStrings) {
+	private static List<Expression> parseStringsToExpressionList(String[] expressionStrings) {
 		ArrayList<Expression> expressions = new ArrayList<Expression>(expressionStrings.length);
 		for(String constraintString : expressionStrings) {
 			Expression constraint = parse(constraintString);
@@ -767,7 +772,7 @@ public class DefaultSMTBasedEvaluatorTest {
 	public static void prepareSymbolsAndTypesAndLiterals() throws Exception {
 		printTestTitle("DefaultSMTBasedEvaluator JUnit Tests", true);
 		println();
-		println(smallTab + "IMPORTANT:  NEED TO EXTEND TESTS TO INTEGER AND REAL INTERVAL TYPES!");
+		println(smallTab + "IMPORTANT:  NEED TO EXTEND TESTS TO INTEGER AND REAL ***INTERVAL*** TYPES!");
 		println();
 		println();
 		println();
@@ -839,12 +844,11 @@ public class DefaultSMTBasedEvaluatorTest {
 		println();
 	}
 	
-	public static void sparseHypenSepartorLine(boolean withLeadingNewline) {
+	public static void printSparseHypenSepartorLine(boolean withLeadingNewline) {
 		if(withLeadingNewline) {
 			println();
 		}
 		println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-		println();
 	}	
 	
 }

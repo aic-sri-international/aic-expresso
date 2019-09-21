@@ -2,11 +2,13 @@ package com.sri.ai.test.expresso.smt.yices;
 
 import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.print;
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Before;
@@ -14,9 +16,13 @@ import org.junit.Test;
 
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.application.CommonTheory;
+import com.sri.ai.grinder.tester.RandomCondtionalArithmeticExpressionGenerator;
 import com.sri.yices.Terms;
 import com.sri.yices.Yices;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.expresso.type.Categorical;
 
@@ -585,6 +591,58 @@ public class YicesBasedContextTest {
         Terms.removeName("Y");
         Terms.removeName("Z");
         
+		
+		println();
+		println();
+		println();
+	}
+	
+	
+	@Test
+	public void evaluateRandomlyGeneratedExpressions() throws Exception {
+		println("////////////////////////////////////////////////////////");
+		println( new Object() {}.getClass().getEnclosingMethod().getName() );
+		println("////////////////////////////////////////////////////////");
+		println();
+		
+		Theory theory = new CommonTheory();
+		String[] symbolsAndTypes = new String[] {
+				"B1", "Boolean", 
+				"B2", "Boolean", 
+				"B3", "Boolean", 
+				"X1", "Integer", 
+				"X2", "Integer", 
+				"X3", "Integer", 
+				"Y1", "Real",
+				"Y2", "Real",
+				"Y3", "Real",
+		};
+		SMTBasedContext smtBasedContext = new YicesBasedContext(theory);
+		smtBasedContext = (SMTBasedContext) smtBasedContext.extendWithSymbolsAndTypes(symbolsAndTypes);
+		
+		RandomCondtionalArithmeticExpressionGenerator expressionGenerator =
+				new RandomCondtionalArithmeticExpressionGenerator(smtBasedContext, "BalancedTree", 8, 4, true, makeRandom());
+		
+		final Expression EQUALITY = Expressions.makeSymbol("=");
+		Expression expression;
+		Expression simplified;
+		Expression rawExpectedResult;
+		Expression expectedResult;
+		Expression equality;
+		Expression result;
+		
+		for(int i = 0; i < 1000; ++i) {
+			expression = expressionGenerator.apply();
+			simplified = smtBasedContext.evaluate(expression);
+			rawExpectedResult = parse("true");
+			expectedResult = smtBasedContext.evaluate(rawExpectedResult);
+			equality = new DefaultFunctionApplication(EQUALITY, arrayList(expression,simplified));
+			result = smtBasedContext.evaluate(equality);
+			assert(result.equals(expectedResult));
+		}
+		
+		println("Evaluations of random expressions by YicesContext were successful =)");
+		
 		
 		println();
 		println();

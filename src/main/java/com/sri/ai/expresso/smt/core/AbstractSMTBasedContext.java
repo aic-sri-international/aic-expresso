@@ -2,10 +2,15 @@ package com.sri.ai.expresso.smt.core;
 
 import com.sri.ai.expresso.smt.api.SMTSolver;
 import com.sri.ai.grinder.api.Context;
+import com.sri.ai.grinder.api.ExpressionEvaluator;
 import com.sri.ai.grinder.api.Theory;
 import com.sri.ai.grinder.core.TrueContext;
 
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.Util.println;
+
+import java.text.DecimalFormat;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.api.SMTExpression;
@@ -15,11 +20,17 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 	
 	private static final long serialVersionUID = 1L;
 	
+	// STATIC FIELDS 
+	//////////////////////////////////////////////////////
+	private static final ExpressionEvaluator smtBasedEvaluator = new DefaultSMTBasedExpressionEvaluator();
+	private static long totalEvaluateTime = 0;
+	
+	
+	
 	// DATA MEMBERS 
 	//////////////////////////////////////////////////////
 	protected final Object smtContext;
 	protected final SMTSolver smtSolver;
-
 
 	
 	
@@ -80,6 +91,46 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 		return result;
 	}
 	
+//	@Override
+//	public Expression evaluate(Expression expression) {
+//		Expression result = smtBasedEvaluator.eval(expression, this);
+//		return result;
+//	}
+	@Override
+	public Expression evaluate(Expression expression) {
+		long initialTime = System.currentTimeMillis();
+		Expression result = smtBasedEvaluator.eval(expression, this);
+		long finalTime = System.currentTimeMillis();
+		totalEvaluateTime += (finalTime - initialTime);
+		return result;
+	}
+	public void printEvaluateTimeBreakdown() {
+		DecimalFormat df = new DecimalFormat();
+		df.setMaximumFractionDigits(2);
+		long topRewriteTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getTopRewriteTime();
+		long literalNegationTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getLiteralNegationTime();
+		long expressionEqualsTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getExpressionEqualsTime();
+		long isVariableOrConstantTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getIsVariableOrConstantTime();
+		long isContradictionTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getIsContradictionTime();
+		long isLiteralTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getIsLiteralTime();
+		long makeExpressionUnderLiteralValueTime = ((DefaultSMTBasedExpressionEvaluator) smtBasedEvaluator).getMakeExpressionUnderLiteralValueTime();
+		println("                                  Total smtContext.evaluate() time:  " + totalEvaluateTime);
+		println("                             Total theory.topRewriter.apply() time:  " + topRewriteTime);
+		println("                                   Percentage of topRewrite() time:  " + df.format(  100.0*topRewriteTime/totalEvaluateTime ) + "%");
+		println("                            Total theory.getLiteralNegation() time:  " + literalNegationTime);
+		println("                           Percentage of getLiteralNegation() time:  " + df.format(  100.0*literalNegationTime/totalEvaluateTime ) + "%");
+		println("                                    Total expression.equals() time:  " + expressionEqualsTime);
+		println("                                       Percentage of equals() time:  " + df.format(  100.0*expressionEqualsTime/totalEvaluateTime ) + "%");
+		println(" Total context.isVariable()+context.isUniquelyNamedConstant() time:  " + isVariableOrConstantTime);
+		println("         Percentage of isVariable()+isUniquelyNamedConstant() time:  " + df.format(  100.0*isVariableOrConstantTime/totalEvaluateTime ) + "%");
+		println("                              Total context.isContradiction() time:  " + isContradictionTime);
+		println("                              Percentage of isContradiction() time:  " + df.format(  100.0*isContradictionTime/totalEvaluateTime ) + "%");
+		println("                                    Total context.isLiteral() time:  " + isLiteralTime);
+		println("                                    Percentage of isLiteral() time:  " + df.format(  100.0*isLiteralTime/totalEvaluateTime ) + "%");
+		println("                      Total makeExpressionUnderLiteralValue() time:  " + makeExpressionUnderLiteralValueTime);
+		println("              Percentage of makeExpressionUnderLiteralValue() time:  " + df.format(  100.0*makeExpressionUnderLiteralValueTime/totalEvaluateTime ) + "%");
+	}
+	
 	
 	
 	// OVERRIDING INHERITED METHODS : SMTContext 
@@ -137,7 +188,6 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 	@Override
 	public AbstractSMTBasedContext assertOnNewStackFrame(Expression formula) {
 		smtSolver.pushStackFrame(this);
-//		SMTExpression SMTExpression = smtSolver.makeExpressoSMTExpressionFromExpressionLiteral(formula, this);
 		smtSolver.assertOntoContext(this, formula);
 		return this;
 	}
@@ -152,7 +202,6 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 	@Override
 	public AbstractSMTBasedContext assertOnNewStackFrame(Expression... formulas) {
 		smtSolver.pushStackFrame(this);
-//		SMTExpression[] smtFormulas = convertExpressionFormulasToExpressoSMTFormuas(formulas);
 		smtSolver.assertOntoContext(this, formulas);
 		return this;
 	}

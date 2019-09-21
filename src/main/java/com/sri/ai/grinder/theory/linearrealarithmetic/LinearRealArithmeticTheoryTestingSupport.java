@@ -39,6 +39,7 @@ package com.sri.ai.grinder.theory.linearrealarithmetic;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.pickUniformly;
 import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
 import static com.sri.ai.util.Util.arrayListFrom;
@@ -55,6 +56,9 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.RealInterval;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.theory.base.AbstractTheoryWithBinaryAtomsTestingSupport;
+import com.sri.ai.util.math.BigIntegerNumber;
+import com.sri.ai.util.math.BigIntegerNumberExact;
+import com.sri.ai.util.math.Rational;
 
 @Beta
 public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWithBinaryAtomsTestingSupport {
@@ -85,11 +89,11 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWith
 		
 		ArrayList<Expression> leftHandSideAlgebraicTerms = constructAlgebraicTermsForFormula(mainVariable,otherVariablesForAtom, numberOfOtherVariablesOnLeftHandSide, true);
 		ArrayList<Expression> rightHandSideAlgebraicTerms = constructAlgebraicTermsForFormula(mainVariable,otherVariablesForAtom, numberOfOtherVariablesOnLeftHandSide, false);
-		int whereToPutConstant = getRandom().nextInt(3);
-		if(whereToPutConstant == 0) {
+		int whichSideOfTheEquationIfAnyToPutConstant = getRandom().nextInt(3);
+		if(whichSideOfTheEquationIfAnyToPutConstant == 0) {
 			leftHandSideAlgebraicTerms.add(makeRealValuedConstantExpression());
 		}
-		else if(whereToPutConstant == 1) {
+		else if(whichSideOfTheEquationIfAnyToPutConstant == 1) {
 			rightHandSideAlgebraicTerms.add(makeRealValuedConstantExpression());
 		}
 
@@ -161,8 +165,9 @@ public class LinearRealArithmeticTheoryTestingSupport extends AbstractTheoryWith
 	}
 
 	public Expression makeRealValuedConstantExpression() {
-		double constant = getRandom().nextDouble();
-		Expression constantExpression = makeSymbol(constant);
+		BigIntegerNumber num = new BigIntegerNumberExact( getRandom().nextInt(Integer.MAX_VALUE) );
+		BigIntegerNumber den = new BigIntegerNumberExact( 1 + getRandom().nextInt(Integer.MAX_VALUE-1) );
+		Expression constantExpression = makeSymbol(new Rational(num,den));
 		return constantExpression;
 	}
 }
