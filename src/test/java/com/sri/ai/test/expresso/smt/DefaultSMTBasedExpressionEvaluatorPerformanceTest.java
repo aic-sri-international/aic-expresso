@@ -109,9 +109,14 @@ public class DefaultSMTBasedExpressionEvaluatorPerformanceTest {
 		printTestTitle(testFunctionName, false);
 		println();
 		
+		final boolean printToFile = false;
+		final String fileNameToPrintTo = "C:\\Users\\Bobak\\Documents\\SRI\\AIC\\2019_Summer_Internship\\comprehensiveEvaluationTest.txt";
+		
 		PrintStream stdout = System.out;
-		PrintStream fout = new PrintStream(new FileOutputStream("C:\\Users\\Bobak\\Documents\\SRI\\AIC\\2019_Summer_Internship\\comprehensiveEvaluationTest.txt"));
-		System.setOut(fout);
+		if (printToFile) {
+			PrintStream fout = new PrintStream(new FileOutputStream(fileNameToPrintTo));
+			System.setOut(fout);
+		}
 		
 		final int maxNumberOfVariables = 3;
 		final int numberOfVariablesIncrement = 1;

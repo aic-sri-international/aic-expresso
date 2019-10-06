@@ -51,19 +51,19 @@ public class Yices implements SMTSolver {
 	private static final  Class<? extends SMTType> EXPRESSO_SMT_TYPE_CLASS = YicesType.class;
 	
 	@Override
-	public Class<? extends SMTBasedContext> getExpressoSMTContextClass(){
+	public Class<? extends SMTBasedContext> getExpressoWrapperClassForSMTContextObject(){
 		return EXPRESSO_SMT_CONTEXT_CLASS;
 	}
 	@Override
-	public Class<? extends SMTExpression> getExpressoSMTExpressionClass() {
+	public Class<? extends SMTExpression> getExpressoWrapperClassForSMTExpressionObject() {
 		return EXPRESSO_SMT_EXPRESSION_CLASS;
 	}
 	@Override
-	public  Class<? extends SMTModel> getExpressoSMTModelClass() {
+	public  Class<? extends SMTModel> getExpressoWrapperClassForSMTModelObject() {
 		return EXPRESSO_SMT_MODEL_CLASS;
 	}
 	@Override
-	public  Class<? extends SMTType> getExpressoSMTTypeClass() {
+	public  Class<? extends SMTType> getExpressoWrapperClassForSMTTypeObject() {
 		return EXPRESSO_SMT_TYPE_CLASS;
 	}
 	
@@ -172,7 +172,7 @@ public class Yices implements SMTSolver {
 				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
 		String yicesFormulaString;
-		Integer yicesFormulaReference = (Integer) smtFormula.getEmeddedSMTObject();
+		Integer yicesFormulaReference = (Integer) smtFormula.getEmeddedSMTSolverExpressionObject();
 		yicesFormulaString = Terms.getName(yicesFormulaReference);
 		return yicesFormulaString;
 	}
@@ -182,18 +182,18 @@ public class Yices implements SMTSolver {
 		myAssert(smtFormula instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTSolverExpressionObject();
 		int type = Terms.typeOf(yicesSMTFormula);
 		SMTType smtType = new YicesType(type);
 		return smtType;
 	}
 	
 	@Override
-	public String getExpressionTypeSimpleName(SMTExpression smtFormula) {
+	public String getExpressionTypeSetName(SMTExpression smtFormula) {
 		myAssert(smtFormula instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTSolverExpressionObject();
 		int type = Terms.typeOf(yicesSMTFormula);
 		String typeName = Types.getName(type);
 		return typeName;
@@ -204,7 +204,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtFormula instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTSolverExpressionObject();
 		int type = Terms.typeOf(yicesSMTFormula);
 		String typeName = Types.toString(type);
 		return typeName;
@@ -215,7 +215,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtFormula instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtFormula.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTObject();
+		int yicesSMTFormula = (int) smtFormula.getEmeddedSMTSolverExpressionObject();
 		boolean isAssertible = Terms.isBool(yicesSMTFormula);
 		return isAssertible;
 	}
@@ -225,7 +225,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtExpression instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtExpression.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesExpression = (int) smtExpression.getEmeddedSMTObject();
+		int yicesExpression = (int) smtExpression.getEmeddedSMTSolverExpressionObject();
 		boolean isBool = Terms.isBool(yicesExpression);
 		return isBool;
 	}
@@ -235,7 +235,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtExpression instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtExpression.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesExpression = (int) smtExpression.getEmeddedSMTObject();
+		int yicesExpression = (int) smtExpression.getEmeddedSMTSolverExpressionObject();
 		boolean isInteger = Terms.isInteger(yicesExpression);
 		return isInteger;
 	}
@@ -245,7 +245,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtExpression instanceof YicesExpression,
 				() -> "ERROR: smtContext is of type " + smtExpression.getClass().getSimpleName() + " but expected type "
 						+ YicesExpression.class.getSimpleName() + "!");
-		int yicesExpression = (int) smtExpression.getEmeddedSMTObject();
+		int yicesExpression = (int) smtExpression.getEmeddedSMTSolverExpressionObject();
 		boolean isReal = Terms.isReal(yicesExpression);
 		return isReal;
 	}
@@ -686,8 +686,8 @@ public class Yices implements SMTSolver {
 						+ YicesBasedContext.class.getSimpleName() + "!");
 		myAssert(smtFormula instanceof YicesExpression, () -> "ERROR: smtFormula is of type "
 				+ smtFormula.getClass().getSimpleName() + " but expected type YicesExpression!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
-		Integer yicesFormula = (Integer) smtFormula.getEmeddedSMTObject();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
+		Integer yicesFormula = (Integer) smtFormula.getEmeddedSMTSolverExpressionObject();
 		yicesContext.assertFormula(yicesFormula);
 		return yicesContext;
 	}
@@ -699,11 +699,11 @@ public class Yices implements SMTSolver {
 						+ YicesBasedContext.class.getSimpleName() + "!");
 		myAssert(smtFormulas instanceof SMTExpression[], () -> "ERROR: smtFormula is of type "
 				+ smtFormulas.getClass().getSimpleName() + " but expected type " + YicesExpression.class.getSimpleName() + " array!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		int[] yicesFormulas = new int[smtFormulas.length];
 		int i = 0;
 		for(SMTExpression yicesFormula : smtFormulas) {
-			yicesFormulas[i] = (int) yicesFormula.getEmeddedSMTObject();
+			yicesFormulas[i] = (int) yicesFormula.getEmeddedSMTSolverExpressionObject();
 			++i;
 		}
 		yicesContext.assertFormulas(yicesFormulas);
@@ -715,14 +715,14 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		int yicesFormula = makeYicesSolverExpressionObjectFromExpressoExpression(formula, smtContext);
 		yicesContext.assertFormula(yicesFormula);
 		return yicesContext;
 	}
 	
 	@Override
-	public Object assertOntoContext(SMTBasedContext smtContext, Expression[] formulas) {
+	public Object assertOntoContext(SMTBasedContext smtContext, Expression... formulas) {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
@@ -732,7 +732,7 @@ public class Yices implements SMTSolver {
 			yicesFormulas[i] = makeYicesSolverExpressionObjectFromExpressoExpression(formula, smtContext);
 			++i;
 		}
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		yicesContext.assertFormulas(yicesFormulas);
 		return yicesContext;
 		
@@ -743,7 +743,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		yicesContext.push();
 		return yicesContext;
 	}
@@ -753,7 +753,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		yicesContext.pop();
 		return yicesContext;
 	}
@@ -763,7 +763,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		boolean contextIsSatisfiable = (yicesContext.check() == Status.SAT);
 		return contextIsSatisfiable;
 	}
@@ -773,8 +773,8 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
-		Integer yicesFormula = (Integer) smtFormula.getEmeddedSMTObject();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
+		Integer yicesFormula = (Integer) smtFormula.getEmeddedSMTSolverExpressionObject();
 		yicesContext.push();
 		yicesContext.assertFormula(yicesFormula);
 		boolean contextIsSatisfiable = (yicesContext.check() == Status.SAT);
@@ -787,7 +787,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		int yicesFormula = makeYicesSolverExpressionObjectFromExpressoExpression(formula, smtContext);
 		yicesContext.push();
 		yicesContext.assertFormula(yicesFormula);
@@ -801,7 +801,7 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
 		yicesContext.check();
 		Model model = getYicesModelIfContextIsSatisfiable(yicesContext);
 		String modelAsString = formatModelString(model);
@@ -813,11 +813,66 @@ public class Yices implements SMTSolver {
 		myAssert(smtContext instanceof YicesBasedContext,
 				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
 						+ YicesBasedContext.class.getSimpleName() + "!");
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
-		yicesContext.check();
-		Model model = getYicesModelIfContextIsSatisfiable(yicesContext);
-		SMTModel expressoYicesModel = new YicesModel(model);
+		SMTModel expressoYicesModel = null;
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
+		if(yicesContext.check() == Status.SAT) {
+			Model model = getYicesModelIfContextIsSatisfiable(yicesContext);
+			expressoYicesModel = new YicesModel(model);
+		}
 		return expressoYicesModel;
+	}
+	
+	@Override
+	public Expression getValueOfVariable(Expression expression, SMTBasedContext smtContext) {
+		myAssert(smtContext instanceof YicesBasedContext,
+				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
+						+ YicesBasedContext.class.getSimpleName() + "!");
+
+		Expression result = null;
+		int yicesExpression = makeYicesSolverExpressionObjectFromExpressoExpression(expression, smtContext);
+		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTSolverContextObject();
+		if(yicesContext.check() == Status.SAT) {
+			Model model = getYicesModelIfContextIsSatisfiable(yicesContext);
+			Object variableValue;
+			int yicesVariableValue;
+			if(Terms.isBool(yicesExpression)) {
+				boolean b = model.boolValue(yicesExpression);
+				variableValue = Boolean.valueOf(b);
+				yicesVariableValue = Terms.mkBoolConst(b);
+			}
+			else if(Terms.isInteger(yicesExpression)) {
+				BigInteger i = model.bigIntegerValue(yicesExpression);
+				variableValue = i;
+				yicesVariableValue = Terms.intConst(i);
+			}
+			else if(Terms.isReal(yicesExpression)) {
+				BigRational r = model.bigRationalValue(yicesExpression);
+				variableValue = r;
+				yicesVariableValue = Terms.rationalConst(r);
+			}
+			else {
+				//TODO handle other types such as categorical types
+				variableValue = null;
+				yicesVariableValue = -1;
+				throw new Error("cannot get value of variables of this type");
+			}
+			int yicesNotEqualExpression = Terms.neq(yicesExpression, yicesVariableValue);
+			yicesContext.push();
+			yicesContext.assertFormula(yicesNotEqualExpression);
+			if(yicesContext.check() == Status.UNSAT) {
+//				result = Expressions.makeSymbol(variableValue); // doesn't work well because it'll make a symbol with
+//																// BigRational and BigInteger which will not evaluate equal
+//																// to another symbol of the same value made by a Rational or
+//																// TopRewriting/Simplifying (which likely also creates the
+//																// symbol with a Rational)
+				result = parse(variableValue.toString());
+				if(variableValue instanceof BigRational) {
+					result = smtContext.getTheory().getTopRewriter().apply(result, smtContext);
+				}
+			}
+			yicesContext.pop();
+		}
+		return result;
 	}
 	
 
@@ -858,60 +913,6 @@ public class Yices implements SMTSolver {
 
 	// UTILITY METHODS: SMTModel
 	//////////////////////////////////////////////////////
-	@Override
-	public Expression getValueOfVariable(Expression expression, SMTModel smtModel, SMTBasedContext smtContext) {
-		myAssert(smtModel instanceof YicesModel, () -> "ERROR: Expected a " + YicesModel.class.getSimpleName()
-				+ " object, but received a " + smtModel.getClass().getSimpleName() + " object instead!");
-		myAssert(smtContext instanceof YicesBasedContext,
-				() -> "ERROR: smtContext is of type " + smtContext.getClass().getSimpleName() + " but expected type "
-						+ YicesBasedContext.class.getSimpleName() + "!");
-
-		int yicesExpression = makeYicesSolverExpressionObjectFromExpressoExpression(expression, smtContext);
-		Model model = (Model) smtModel.getEmbeddedSMTSolverObject();
-		com.sri.yices.Context yicesContext = (com.sri.yices.Context) smtContext.getEmbeddedSMTContext();
-		
-		Object variableValue;
-		int yicesVariableValue;
-		if(Terms.isBool(yicesExpression)) {
-			boolean b = model.boolValue(yicesExpression);
-			variableValue = Boolean.valueOf(b);
-			yicesVariableValue = Terms.mkBoolConst(b);
-		}
-		else if(Terms.isInteger(yicesExpression)) {
-			BigInteger i = model.bigIntegerValue(yicesExpression);
-			variableValue = i;
-			yicesVariableValue = Terms.intConst(i);
-		}
-		else if(Terms.isReal(yicesExpression)) {
-			BigRational r = model.bigRationalValue(yicesExpression);
-			variableValue = r;
-			yicesVariableValue = Terms.rationalConst(r);
-		}
-		else {
-			//TODO handle other types such as categorical types
-			variableValue = null;
-			yicesVariableValue = -1;
-			throw new Error("cannot get value of variables of this type");
-		}
-
-		int yicesNotEqualExpression = Terms.neq(yicesExpression, yicesVariableValue);
-		yicesContext.push();
-		yicesContext.assertFormula(yicesNotEqualExpression);
-		Expression result = null;
-		if(yicesContext.check() == Status.UNSAT) {
-//			result = Expressions.makeSymbol(variableValue); // doesn't work well because it'll make a symbol with
-//															// BigRational and BigInteger which will not evaluate equal
-//															// to another symbol of the same value made by a Rational or
-//															// TopRewriting/Simplifying (which likely also creates the
-//															// symbol with a Rational)
-			result = parse(variableValue.toString());
-			if(variableValue instanceof BigRational) {
-				result = smtContext.getTheory().getTopRewriter().apply(result, smtContext);
-			}
-		}
-		yicesContext.pop();
-		return result;
-	}
 	
 	///////////////////////////////////////////////////////////////////////////////////
 

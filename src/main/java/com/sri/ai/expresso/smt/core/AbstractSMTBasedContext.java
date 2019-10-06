@@ -91,11 +91,6 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 		return result;
 	}
 	
-//	@Override
-//	public Expression evaluate(Expression expression) {
-//		Expression result = smtBasedEvaluator.eval(expression, this);
-//		return result;
-//	}
 	@Override
 	public Expression evaluate(Expression expression) {
 		long initialTime = System.currentTimeMillis();
@@ -136,7 +131,7 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 	// OVERRIDING INHERITED METHODS : SMTContext 
 	//////////////////////////////////////////////////////
 	@Override
-	public Object getEmbeddedSMTContext() {
+	public Object getEmbeddedSMTSolverContextObject() {
 		return smtContext;
 	}
 	
@@ -238,8 +233,8 @@ public abstract class AbstractSMTBasedContext extends TrueContext implements SMT
 	@Override
 	public Expression getValueOfVariable(Expression var) {
 		myAssert(this.isVariable(var), ()->"ERROR: attempting to obtain value of " + var + " which is not a variable expression!");
-		SMTModel model = getModel();
-		Expression result = model.getValueOfVariable(var, this);
+		Expression result;
+		result = smtSolver.getValueOfVariable(var, this);
 		return result;
 	}
 	

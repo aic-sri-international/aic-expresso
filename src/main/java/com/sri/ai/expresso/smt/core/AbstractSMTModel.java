@@ -23,14 +23,8 @@ public abstract class AbstractSMTModel implements SMTModel {
 
 
 	@Override
-	public Object getEmbeddedSMTSolverObject() {
+	public Object getEmbeddedSMTSolverModelObject() {
 		return smtModel;
-	}
-	
-	@Override
-	public Expression getValueOfVariable(Expression variable, SMTBasedContext smtContext) {
-		Expression value = smtSolver.getValueOfVariable(variable, this, smtContext);
-		return value;
 	}
 
 }

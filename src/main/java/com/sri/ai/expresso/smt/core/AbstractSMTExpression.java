@@ -31,7 +31,7 @@ public abstract class AbstractSMTExpression implements SMTExpression {
 	// OVERRIDING INHERITED METHODS : SMTFormula 
 	//////////////////////////////////////////////////////
 	@Override
-	public Object getEmeddedSMTObject() {
+	public Object getEmeddedSMTSolverExpressionObject() {
 		return smtExpression;
 	}
 
