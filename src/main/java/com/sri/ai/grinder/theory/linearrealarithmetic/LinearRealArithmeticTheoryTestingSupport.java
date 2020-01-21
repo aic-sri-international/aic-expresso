@@ -37,17 +37,15 @@
  */
 package com.sri.ai.grinder.theory.linearrealarithmetic;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.arrayListFrom;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.pickUniformly;
 import static com.sri.ai.util.Util.pickUpToKElementsWithoutReplacement;
-import static com.sri.ai.util.Util.arrayListFrom;
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;

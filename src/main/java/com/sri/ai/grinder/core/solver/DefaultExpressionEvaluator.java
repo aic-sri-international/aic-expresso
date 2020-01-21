@@ -3,13 +3,12 @@ package com.sri.ai.grinder.core.solver;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.mapIntoArrayList;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
-import com.sri.ai.expresso.smt.api.SMTBasedContext;
+// import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionEvaluator;
 import com.sri.ai.grinder.api.Theory;
@@ -26,7 +25,7 @@ public class DefaultExpressionEvaluator implements ExpressionEvaluator {
 	
 	@Override
 	public Expression eval(Expression expression, Context context) {
-		myAssert(!SMTBasedContext.class.isAssignableFrom(context.getClass()), ()->"ERROR: " + this.getClass().getSimpleName() + " assumes a non-mutable context, but it recieved an SMTBasedContext which may be mutable!");
+// 		myAssert(!SMTBasedContext.class.isAssignableFrom(context.getClass()), ()->"ERROR: " + this.getClass().getSimpleName() + " assumes a non-mutable context, but it recieved an SMTBasedContext which may be mutable!");
 		
 		Expression unsimplifiedResult = null;
 		

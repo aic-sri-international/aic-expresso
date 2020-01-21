@@ -1,10 +1,9 @@
 package com.sri.ai.grinder.tester;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.println;
 import static com.sri.ai.util.Util.myAssert;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
@@ -65,6 +63,7 @@ public class RandomCondtionalArithmeticExpressionGenerator implements NullaryFun
 	private final Expression DIVISION_FUNCTOR = Expressions.makeSymbol("/");
 	
 	private final Map<String, BiFunction<Integer, Integer, Expression>> randomExpressionGeneratorMethods = new HashMap<>() {
+		private static final long serialVersionUID = 1L;
 		{
 			put("LinearTree", (numFunctions,numLiterals) -> applyAsLinearExpressionTree(numFunctions,numLiterals));
 			put("BalancedTree", (numFunctions,numLiterals) -> applyAsFullExpressionTree(numFunctions,numLiterals));
@@ -313,7 +312,7 @@ public class RandomCondtionalArithmeticExpressionGenerator implements NullaryFun
 	
 	public static Expression makeCopyOfExpressionAlteringAnyNumericalConstantsSoThatTheyAreWithinPresetBounds(Expression expression, Context context, Random rand) {
 		List<Expression> literalArguments = expression.getArguments();
-		final BigIntegerNumberExact one = new BigIntegerNumberExact(1);
+//		final BigIntegerNumberExact one = new BigIntegerNumberExact(1);
 		final int exclusiveIntMaxNumOrDen = (int)Math.pow(10, maxNumberOfDigitsInNumeratorOrDenominatorInRandomlyCreatedConstants);
 		final BigIntegerNumber exclusiveBigIntegerMaxNumOrDen = new BigIntegerNumberExact(exclusiveIntMaxNumOrDen);
 		for(Expression argument : literalArguments) {
