@@ -1,30 +1,29 @@
 package com.sri.ai.test.expresso.smt.yices;
 
-import static com.sri.ai.util.Util.println;
-import static com.sri.ai.util.Util.print;
-import static com.sri.ai.util.Util.arrayList;
-import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.Util.print;
+import static com.sri.ai.util.Util.println;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sri.ai.grinder.api.Theory;
-import com.sri.ai.grinder.application.CommonTheory;
-import com.sri.ai.grinder.tester.RandomCondtionalArithmeticExpressionGenerator;
-import com.sri.yices.Terms;
-import com.sri.yices.Yices;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.core.yices.YicesBasedContext;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.grinder.api.Theory;
+import com.sri.ai.grinder.application.CommonTheory;
+import com.sri.ai.grinder.tester.RandomCondtionalArithmeticExpressionGenerator;
+import com.sri.yices.Terms;
+import com.sri.yices.Yices;
 
 public class YicesBasedContextTest {
 	

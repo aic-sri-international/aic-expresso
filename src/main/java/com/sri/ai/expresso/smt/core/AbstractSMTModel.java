@@ -1,7 +1,5 @@
 package com.sri.ai.expresso.smt.core;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.smt.api.SMTBasedContext;
 import com.sri.ai.expresso.smt.api.SMTModel;
 import com.sri.ai.expresso.smt.api.SMTSolver;
 
