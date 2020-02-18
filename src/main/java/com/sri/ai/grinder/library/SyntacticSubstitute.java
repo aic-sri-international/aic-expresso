@@ -122,7 +122,7 @@ public class SyntacticSubstitute {
 			Set<Expression> freeSymbolsInReplaced    = Expressions.freeSymbols(replaced, registry);
 			Set<Expression> freeSymbolsInReplacement = Expressions.freeSymbols(replacement, registry);
 			this.allSymbolsInReplacedAndReplacement =
-					Util.addAllElementsOfCollectionsToList(
+					Util.makeListWithElementsOfTwoCollections(
 							freeSymbolsInReplacement,
 							freeSymbolsInReplaced);
 		}
