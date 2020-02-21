@@ -275,7 +275,7 @@ public interface Registry extends Cloneable {
 		}
 	}
 
-	default IndexExpressionsSet getIndexExpressions(List<? extends Expression> indices) {
+	default IndexExpressionsSet getIndexExpressions(Collection<? extends Expression> indices) {
 		ExtensionalIndexExpressionsSet result = getIndexExpressionsForIndicesInListAndTypesInRegistry(indices, this);
 		return result;		
 	}

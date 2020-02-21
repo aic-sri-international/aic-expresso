@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.util.Util.myAssert;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -361,7 +361,7 @@ public class Sets {
 		return result;
 	}
 
-	public static Expression intensionalMultiSet(List<? extends Expression> indices, Expression body, Context context) {
+	public static Expression intensionalMultiSet(Collection<? extends Expression> indices, Expression body, Context context) {
 		IndexExpressionsSet indexExpressions = context.getIndexExpressions(indices);
 		Expression result = new DefaultIntensionalMultiSet(indexExpressions, body, TRUE);
 		return result;
