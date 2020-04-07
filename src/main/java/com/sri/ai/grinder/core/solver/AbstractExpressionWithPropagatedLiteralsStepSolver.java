@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.storeIterableOfIterablesInArrayListOfArrayLists;
+import static com.sri.ai.util.Util.union;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,7 +56,6 @@ import com.sri.ai.grinder.api.Context;
 import com.sri.ai.grinder.api.ExpressionLiteralSplitterStepSolver;
 import com.sri.ai.grinder.core.constraint.ContextSplitting;
 import com.sri.ai.util.collect.FunctionIterator;
-import com.sri.ai.util.collect.NestedIterator;
 
 /**
  * An abstract implementation for step solvers for problems based on a propagated literals, and a propagated CNF.
@@ -207,11 +207,10 @@ public abstract class AbstractExpressionWithPropagatedLiteralsStepSolver impleme
 	protected ArrayList<ArrayList<Expression>> makePropagatedCNF(Context context) {
 		ArrayList<ArrayList<Expression>> result;
 		
-		Iterable<Iterable<Expression>> propagatedCNFIterable =
-				in(
-						NestedIterator.make(
-								fromLiteralsToCNF(getPropagatedLiterals(context)),
-								getPropagatedCNFBesidesPropagatedLiterals(context)));
+		Iterable<Iterable<Expression>> propagatedCNFIterable = 
+				union(
+						in(fromLiteralsToCNF(getPropagatedLiterals(context))),
+						getPropagatedCNFBesidesPropagatedLiterals(context));
 		
 		result = storeIterableOfIterablesInArrayListOfArrayLists(propagatedCNFIterable);
 		
