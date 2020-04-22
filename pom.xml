@@ -91,6 +91,13 @@
 			<artifactId>javafx-fxml</artifactId>
 			<version>${javafx.version}</version>
 		</dependency>
+		<dependency> <!-- DIRTY TEMPORARY SOLUTION!!!!!!!!!!!!!!!!!!!!! -->
+			<groupId>com.sri</groupId>
+			<artifactId>yices</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>C:\Users\E26638\git\aic-expresso\lib\yices2java.jar</systemPath>
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.aic-util</groupId>
 			<artifactId>aic-util</artifactId>
