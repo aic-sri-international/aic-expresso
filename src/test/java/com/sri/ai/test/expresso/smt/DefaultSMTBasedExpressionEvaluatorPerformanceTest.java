@@ -224,6 +224,7 @@ public class DefaultSMTBasedExpressionEvaluatorPerformanceTest {
 	}
 
 
+	@SuppressWarnings("unused")
 	private void printRatios(long trueContextEvaluationTime, long smtBasedContextEvaluationTime) {
 		println(smallTab + "      trueContext.evaluate() time:  " + trueContextEvaluationTime);
 		println(smallTab + "  smtBasedContext.evaluate() time:  " + smtBasedContextEvaluationTime);
@@ -235,6 +236,7 @@ public class DefaultSMTBasedExpressionEvaluatorPerformanceTest {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void printRatios(long trueContextEvaluationTime, long modifiedTrueContextEvaluateTime, long smtBasedContextEvaluationTime) {
 		println(smallTab + "                trueContext.evaluate() time:  " + trueContextEvaluationTime);
 		println(smallTab + "        modifiedTrueContext.evaluate() time:  " + modifiedTrueContextEvaluateTime);
@@ -361,6 +363,7 @@ public class DefaultSMTBasedExpressionEvaluatorPerformanceTest {
 		return framedTestName;
 	}
 	
+	@SuppressWarnings("unused")
 	private static List<Expression> parseStringsToExpressionList(String[] expressionStrings) {
 		ArrayList<Expression> expressions = new ArrayList<Expression>(expressionStrings.length);
 		for(String constraintString : expressionStrings) {
@@ -465,6 +468,7 @@ public class DefaultSMTBasedExpressionEvaluatorPerformanceTest {
 
 	public static Expression makeCopyOfExpressionAlteringAnyNumericalConstantsSoThatTheyAreWithinPresetBounds(Expression expression, Context context, Random rand) {
 		List<Expression> literalArguments = expression.getArguments();
+		@SuppressWarnings("unused")
 		final BigIntegerNumberExact one = new BigIntegerNumberExact(1);
 		final int exclusiveIntMaxNumOrDen = (int)Math.pow(10, maxNumberOfDigitsInNumeratorOrDenominatorInRandomlyCreatedConstants);
 		final BigIntegerNumber exclusiveBigIntegerMaxNumOrDen = new BigIntegerNumberExact(exclusiveIntMaxNumOrDen);
