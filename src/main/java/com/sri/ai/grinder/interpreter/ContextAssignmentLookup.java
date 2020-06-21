@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.interpreter;
 
+import static com.sri.ai.util.Util.map;
+
 import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
@@ -61,5 +63,16 @@ public abstract class ContextAssignmentLookup {
 
 	public static Context setAssignments(Context context, Map<Expression, Expression> extendedAssignments) {
 		return context.putGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY, extendedAssignments);
+	}
+
+	public static Context setAssignment(Context context, Expression variable, Expression value) {
+		@SuppressWarnings("unchecked")
+		var assignments = (Map<Expression, Expression>) context.getGlobalObject(ASSIGNMENTS_GLOBAL_OBJECTS_KEY);
+		if (assignments == null) {
+			assignments = map();
+			context = setAssignments(context, assignments);
+		}
+		assignments.put(variable, value);
+		return context;
 	}
 }

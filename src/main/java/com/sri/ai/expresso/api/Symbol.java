@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.core.DefaultSymbol;
 
 /**
  * An {@link Expression} that represents a symbol.
@@ -64,4 +65,12 @@ public interface Symbol extends Expression {
 	 */
 	@Override
 	boolean isStringLiteral();
+	
+	/**
+	 * Makes an expression based on a symbol with given value.
+	 */
+	public static Symbol makeSymbol(Object object) {
+		return DefaultSymbol.createSymbol(object);
+	}
+	
 }
