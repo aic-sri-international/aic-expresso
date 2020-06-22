@@ -55,6 +55,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NullaryFunction;
@@ -120,6 +121,12 @@ public interface Registry extends Cloneable {
 		Expression typeExpression = getMandatoryTypeExpressionOfRegisteredSymbol(symbol);
 		Type result = getTypeFromTypeExpression(typeExpression);
 		return result;
+	}
+	
+	default int getCardinalityOfIntegerIntervalTypedRegisteredSymbol(Expression integerIntervalTypedSymbol) {
+		var type = (IntegerInterval) getTypeOfRegisteredSymbol(integerIntervalTypedSymbol);
+		var cardinality = type.cardinality().intValue();
+		return cardinality;
 	}
 	
 	/**

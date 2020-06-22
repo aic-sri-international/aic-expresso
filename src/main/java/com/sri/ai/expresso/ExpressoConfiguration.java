@@ -112,6 +112,9 @@ public class ExpressoConfiguration extends Configuration {
 	
 	/**
 	 * Get the number of maximum number of decimal places to use when approximately representing a numeric symbol.
+	 * TODO: this may give the erroneous impression that it regulates precision for symbols with double values,
+	 * but that is regulated by the precision for exact representation (because the double being stored will
+	 * be exactly represented). It would be best to clarify all that.
 	 */
 	public static int getDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols() {
 		int result = getInt(KEY_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERICS_MOST_DECIMAL_PLACES_IN_APPROXIMATE_REPRESENTATION_OF_NUMERICAL_SYMBOLS);

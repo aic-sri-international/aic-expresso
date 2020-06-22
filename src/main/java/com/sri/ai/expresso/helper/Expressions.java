@@ -708,8 +708,8 @@ public class Expressions {
 
 	public static boolean areEqualUpToAGivenPrecision(Expression expression1, Expression expression2, final int precision) {
 		DefaultRegistry registry = new DefaultRegistry();
-		Expression rounded1 = roundToAGivenPrecision(expression1, precision, registry);
-		Expression rounded2 = roundToAGivenPrecision(expression2, precision, registry);
+		Expression rounded1 = roundAll(expression1, precision, registry);
+		Expression rounded2 = roundAll(expression2, precision, registry);
 		boolean result = rounded1.equals(rounded2);
 		return result;
 	}
@@ -717,7 +717,7 @@ public class Expressions {
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
 	 */
-	public static Expression roundToAGivenPrecision(Expression expression, final int precision, Registry registry) {
+	public static Expression roundAll(Expression expression, final int precision, Registry registry) {
 		Function<Expression, Expression> rounder = new Function<Expression, Expression>() {
 			
 			@Override
@@ -736,7 +736,7 @@ public class Expressions {
 	 * replaces it by a rounded value according to a precision (a number of significant digits to be kept); 
 	 * otherwise, return the expression itself.
 	 */
-	public  static Expression round(Expression expression, int precision) {
+	public static Expression round(Expression expression, int precision) {
 		if (isNumber(expression)) {
 			Rational value = expression.rationalValue();
 			String rounded = "";
