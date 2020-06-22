@@ -1,5 +1,7 @@
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.util.Util.set;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -25,6 +27,10 @@ public class UniquelyNamedConstantIncludingBooleansAndNumbersPredicate implement
 	
 	public UniquelyNamedConstantIncludingBooleansAndNumbersPredicate(Set<Expression> uniquelyNamedConstants) {
 		this.uniquelyNamedConstants = uniquelyNamedConstants;
+	}
+	
+	public UniquelyNamedConstantIncludingBooleansAndNumbersPredicate() {
+		this(set());
 	}
 	
 	@Override
