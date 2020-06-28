@@ -3,7 +3,6 @@ package com.sri.ai.expresso.smt.core.yices;
 import static com.sri.ai.util.Util.myAssert;
 
 import com.sri.ai.expresso.smt.core.AbstractSMTModel;
-import com.sri.ai.expresso.smt.core.yices.Yices;
 import com.sri.yices.Model;
 
 public class YicesModel extends AbstractSMTModel {
