@@ -38,7 +38,7 @@ public class OptimizationWithNonlinearConjugateGradientDescent implements Optimi
 	public OptimizationWithNonlinearConjugateGradientDescent(Expression expression, GoalType goalType, double[] initialPoint) {
 		
 		this(expression, goalType, initialPoint, new NonLinearConjugateGradientOptimizer(NonLinearConjugateGradientOptimizer.Formula.POLAK_RIBIERE, 
-				new SimpleValueChecker(1e-13, 1e-13)), new MaxEval(10000));
+				new SimpleValueChecker(1e-6, 1e-6)), new MaxEval(10000));
 	}
 	
 	/**
