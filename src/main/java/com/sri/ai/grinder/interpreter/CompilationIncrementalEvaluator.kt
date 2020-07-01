@@ -27,7 +27,23 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
     }
 
     override fun supplementaryDefinitions(expression: Expression): String {
-        return subExpressionMethodDefinitions(expression)
+        return (
+                """
+                    ${cacheDefinitions()}
+                    ${subExpressionMethodDefinitions(expression)}
+                """
+                )
+    }
+
+    private fun cacheDefinitions(): String {
+        return (
+                """
+                    int intCache[] = new int[$nextID];
+                    boolean booleanCache[] = new boolean[$nextID];
+                    int indexOfMostSignificantVariableToChange;
+                    boolean noAssignmentsHaveBeenComputedYet = true;
+                """.trimIndent()
+                )
     }
 
     private fun subExpressionMethodDefinitions(expression: Expression): String {
@@ -40,10 +56,43 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
         // We use super.javaExpressionAndType, which expands into, for example, javaExpressionAndType(arg0) + javaExpressionAndType(arg1),
         // which in turn will use *this* class' javaExpressionAndType which is just the expression's method invocation.
         val (javaExpression, type) = subExpressionSuperJavaExpressionsAndTypes[expression] as Pair<String, String>
+        val expressionID = subExpressionIDs[expression]
+
+        val computeMostSignificantVariableToChangeIfNeeded =
+                if (expressionID == 0) {
+                    """
+                        if (noAssignmentsHaveBeenComputedYet) {
+                            indexOfMostSignificantVariableToChange = 0;
+                        }
+                        else {
+                            for (indexOfMostSignificantVariableToChange = ${variables.size} - 1;
+                                assignment[indexOfMostSignificantVariableToChange] == 0 && indexOfMostSignificantVariableToChange != 0;
+                                indexOfMostSignificantVariableToChange--);
+                        }
+                    """.trimIndent()
+                }
+                else ""
+
+        val setNoAssignmentsHaveBeenComputedYetIfNeeded =
+                if (expressionID == 0) {
+                    "noAssignmentsHaveBeenComputedYet = false;"
+                }
+                else ""
+
         return (
         """
             private $type ${methodName(expression)}(int[] assignment) {
-                return $javaExpression;
+                $computeMostSignificantVariableToChangeIfNeeded
+                $type value;
+                if (noAssignmentsHaveBeenComputedYet || ${subExpressionsMaxVariableIndex[expression]} < indexOfMostSignificantVariableToChange) {
+                    value = $javaExpression;
+                    ${type}Cache[$expressionID] = value;
+                }
+                else {
+                    value = ${type}Cache[$expressionID];
+                }
+                $setNoAssignmentsHaveBeenComputedYetIfNeeded
+                return value;
             }
         """.trimIndent())
     }
@@ -70,7 +119,7 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
     }
 
     private fun collectMaxVariableIndicesFromSymbol(expression: Expression) {
-        subExpressionsMaxVariableIndex[expression] = variableIndices[expression] ?: variableIndices.size
+        subExpressionsMaxVariableIndex[expression] = variableIndices[expression] ?: variables.size
     }
 
     private fun collectMaxVariableIndicesFromCompoundExpression(expression: Expression) {

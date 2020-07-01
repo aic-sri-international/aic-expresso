@@ -53,7 +53,7 @@ open class CompilationEvaluator(open val variables: List<Expression>) {
                 -> Pair(expression.toString(), "int")
 
                 expression.hasFunctor("+")
-                -> Pair(join("+", expression.arguments.map(::javaExpression)), "int")
+                -> Pair(expression.arguments.joinToString(" + ") { javaExpression(it) }, "int")
 
                 expression.hasFunctor(">")
                 -> Pair("${javaExpression(expression.get(0))} > ${javaExpression(expression.get(1))}", "boolean")
