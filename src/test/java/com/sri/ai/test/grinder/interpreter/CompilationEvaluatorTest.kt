@@ -5,6 +5,7 @@ import com.sri.ai.expresso.helper.Expressions
 import com.sri.ai.expresso.helper.Expressions.parse
 import com.sri.ai.grinder.core.TrueContext
 import com.sri.ai.grinder.interpreter.CompilationEvaluator
+import com.sri.ai.grinder.interpreter.CompilationIncrementalEvaluator
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -13,6 +14,12 @@ class CompilationEvaluatorTest {
 
     @Test
     fun evaluate() {
+        val evaluatorMakers = listOf<(Expression) -> CompilationEvaluator>(
+                { expression -> CompilationEvaluator(variablesInOrder(expression)) }
+                ,
+                { expression -> CompilationIncrementalEvaluator(variablesInOrder(expression)) }
+        )
+
         val tests =
                 listOf(
                         "X + Y"
@@ -37,14 +44,17 @@ class CompilationEvaluatorTest {
         for ((expressionString, expressionTests) in tests) {
             for ((assignment, expected) in expressionTests) {
                 val expression = parse(expressionString)
-                val interpreter = CompilationEvaluator(variablesInOrder(expression))
+                for (evaluatorMaker in evaluatorMakers) {
+                    println(expression)
+                    println(variablesInOrder(expression))
+                    val evaluator = evaluatorMaker(expression)
 
-                println("Java expression of $expression: ${interpreter.javaExpression(expression)}")
-                println("Evaluator definition of $expression:\n${interpreter.evaluatorDefinition(expression)}")
+                    println("Evaluator definition of $expression:\n${evaluator.evaluatorClassDefinition(expression)}")
 
-                val actual = interpreter.evaluate(expression, assignment)
-                println("Value of $expression under ${interpreter.assignmentMap(assignment)}: $actual")
-                assertEquals(expected, actual)
+                    val actual = evaluator.evaluate(expression, assignment)
+                    println("Value of $expression under ${evaluator.assignmentMap(assignment)}: $actual")
+                    assertEquals(expected, actual)
+                }
             }
         }
     }
