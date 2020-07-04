@@ -6,6 +6,16 @@ import com.sri.ai.util.Util
 
 class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationEvaluator(variables) {
 
+    companion object {
+        @JvmStatic
+        fun makeWithVariablesFrom(expression: Expression) =
+                CompilationIncrementalEvaluator(variablesInOrder(expression))
+
+        @JvmStatic
+        fun makeEvaluatorForVariablesInOccurrenceOrderIn(expression: Expression): Evaluator? =
+            makeEvaluatorForVariablesInOccurrenceOrderIn(::CompilationIncrementalEvaluator, expression)
+    }
+
     // In this extension, Java expressions for a sub-expression can be of two types:
     // a method invocation of the respective method, or the body of that method decomposing
     // the expression into an operation on the Java expression of its arguments (sub-expressions).
@@ -16,10 +26,13 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
     // Java expressions of its arguments, which will be method invocations.
 
     private val subExpressionIDs = mutableMapOf<Expression, Int>()
+    private val subExpressionStrings = mutableMapOf<Expression, String>()
     private var nextID: Int = 0
     private var subExpressionsMaxVariableIndex = mutableMapOf<Expression, Int>()
 
-    private var subExpressionSuperJavaExpressionsAndTypes = mutableMapOf<Expression, Pair<String, String>>()
+    private var subExpressionSuperTypedJavas = mutableMapOf<Expression, TypedJava>()
+
+    private var alreadyGenerated = mutableSetOf<Expression>()
 
     override fun evaluatorClassDefinition(expression: Expression): String {
         collectInformationFromRootExpression(expression)
@@ -35,10 +48,28 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
                 )
     }
 
+//    private fun joinCode(): String {
+//        return ("""
+//            private String join(int[] assignment) {
+//                String result = "";
+//                for (int i = 0; i != assignment.length; i++) {
+//                    if (i == 0) {
+//                        result = result + assignment[0];
+//                    }
+//                    else {
+//                        result = result + ", " + assignment[i];
+//                    }
+//                }
+//                return result;
+//            }
+//        """.trimIndent())
+//    }
+
     private fun cacheDefinitions(): String {
         return (
                 """
                     int intCache[] = new int[$nextID];
+                    double doubleCache[] = new double[$nextID];
                     boolean booleanCache[] = new boolean[$nextID];
                     int indexOfMostSignificantVariableToChange;
                     boolean noAssignmentsHaveBeenComputedYet = true;
@@ -53,21 +84,33 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
     }
 
     private fun subExpressionMethodDefinition(expression: Expression): String {
+
+        if (expression in alreadyGenerated) {
+            return ""
+        }
+        alreadyGenerated.add(expression)
+
         // We use super.javaExpressionAndType, which expands into, for example, javaExpressionAndType(arg0) + javaExpressionAndType(arg1),
         // which in turn will use *this* class' javaExpressionAndType which is just the expression's method invocation.
-        val (javaExpression, type) = subExpressionSuperJavaExpressionsAndTypes[expression] as Pair<String, String>
+        var (javaExpression, type) = subExpressionSuperTypedJavas[expression] as TypedJava
         val expressionID = subExpressionIDs[expression]
+        val expressionString = subExpressionStrings[expression]
 
         val computeMostSignificantVariableToChangeIfNeeded =
                 if (expressionID == 0) {
                     """
+                        // System.out.println("Starting assignment " + join(assignment));
+                        
                         if (noAssignmentsHaveBeenComputedYet) {
                             indexOfMostSignificantVariableToChange = 0;
                         }
                         else {
                             for (indexOfMostSignificantVariableToChange = ${variables.size} - 1;
-                                assignment[indexOfMostSignificantVariableToChange] == 0 && indexOfMostSignificantVariableToChange != 0;
+                                indexOfMostSignificantVariableToChange != 0 && assignment[indexOfMostSignificantVariableToChange - 1] == 0;
                                 indexOfMostSignificantVariableToChange--);
+                            if (indexOfMostSignificantVariableToChange != 0) {
+                                indexOfMostSignificantVariableToChange--;
+                            }
                         }
                     """.trimIndent()
                 }
@@ -84,12 +127,14 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
             private $type ${methodName(expression)}(int[] assignment) {
                 $computeMostSignificantVariableToChangeIfNeeded
                 $type value;
-                if (noAssignmentsHaveBeenComputedYet || ${subExpressionsMaxVariableIndex[expression]} < indexOfMostSignificantVariableToChange) {
+                if (noAssignmentsHaveBeenComputedYet || ${subExpressionsMaxVariableIndex[expression]} >= indexOfMostSignificantVariableToChange) {
                     value = $javaExpression;
                     ${type}Cache[$expressionID] = value;
+                    // System.out.println("Computed $expressionString on " + join(assignment) + ": " + value); 
                 }
                 else {
                     value = ${type}Cache[$expressionID];
+                    // System.out.println("Used cache for $expressionString on " + join(assignment) + ": " + value); 
                 }
                 $setNoAssignmentsHaveBeenComputedYetIfNeeded
                 return value;
@@ -98,8 +143,9 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
     }
 
     private fun collectInformationFromRootExpression(expression: Expression) {
+        alreadyGenerated.clear()
         collectIDsAndMaxVariableIndicesFromRootExpression(expression)
-        collectSuperJavaExpressionsAndTypesFromRootExpression(expression)
+        collectSuperTypedJavasFromRootExpression(expression)
     }
 
     private fun collectIDsAndMaxVariableIndicesFromRootExpression(expression: Expression) {
@@ -110,6 +156,7 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
 
     private fun collectIDsAndMaxVariableIndices(expression: Expression) {
         subExpressionIDs[expression] = nextID++
+        subExpressionStrings[expression] = expression.toString();
         if (expression.syntacticFormType == "Symbol") {
             collectMaxVariableIndicesFromSymbol(expression)
         }
@@ -119,7 +166,7 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
     }
 
     private fun collectMaxVariableIndicesFromSymbol(expression: Expression) {
-        subExpressionsMaxVariableIndex[expression] = variableIndices[expression] ?: variables.size
+        subExpressionsMaxVariableIndex[expression] = variableIndices[expression] ?: -1
     }
 
     private fun collectMaxVariableIndicesFromCompoundExpression(expression: Expression) {
@@ -128,17 +175,17 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
         subExpressionsMaxVariableIndex[expression] = subMaxVariableIndices.max() as Int
     }
 
-    private fun collectSuperJavaExpressionsAndTypesFromRootExpression(expression: Expression) {
-        subExpressionSuperJavaExpressionsAndTypes = mutableMapOf()
-        collectSuperJavaExpressionsAndTypes(expression)
+    private fun collectSuperTypedJavasFromRootExpression(expression: Expression) {
+        subExpressionSuperTypedJavas = mutableMapOf()
+        collectSuperTypedJavas(expression)
     }
 
-    private fun collectSuperJavaExpressionsAndTypes(expression: Expression) {
-        subExpressionSuperJavaExpressionsAndTypes[expression] = super.javaExpressionAndType(expression)
-        expression.arguments.forEach(::collectSuperJavaExpressionsAndTypes)
+    private fun collectSuperTypedJavas(expression: Expression) {
+        subExpressionSuperTypedJavas[expression] = super.typedJava(expression)
+        expression.arguments.forEach(::collectSuperTypedJavas)
     }
 
-    override fun javaExpression(expression: Expression): String {
+    override fun java(expression: Expression): String {
         return if (isNonVariableSymbol(expression)) {
             expression.toString()
         }
