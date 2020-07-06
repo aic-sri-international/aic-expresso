@@ -8,12 +8,12 @@ class CompilationIncrementalEvaluator(variables: List<Expression>): CompilationE
 
     companion object {
         @JvmStatic
-        fun makeWithVariablesFrom(expression: Expression) =
-                CompilationIncrementalEvaluator(variablesInOrder(expression))
+        fun makeWithVariablesFrom(expression: Expression) = CompilationIncrementalEvaluator(variablesInOrder(expression))
+
 
         @JvmStatic
-        fun makeEvaluatorForVariablesInOccurrenceOrderIn(expression: Expression): Evaluator? =
-            makeEvaluatorForVariablesInOccurrenceOrderIn(::CompilationIncrementalEvaluator, expression)
+        fun makeEvaluator(expression: Expression, variables: ArrayList<out Expression>): Evaluator? =
+            makeEvaluator(::CompilationIncrementalEvaluator, expression, variables)
     }
 
     // In this extension, Java expressions for a sub-expression can be of two types:

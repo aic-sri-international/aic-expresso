@@ -23,19 +23,19 @@ open class CompilationEvaluator(open val variables: List<Expression>) {
                         .toMutableSet()
 
         @JvmStatic
-        fun makeWithVariablesFrom(expression: Expression) =
-                CompilationEvaluator(variablesInOrder(expression))
+        fun makeWithVariablesFrom(expression: Expression) = CompilationEvaluator(variablesInOrder(expression))
 
         @JvmStatic
-        fun makeEvaluatorForVariablesInOccurrenceOrderIn(expression: Expression): Evaluator? {
-            return makeEvaluatorForVariablesInOccurrenceOrderIn(::CompilationEvaluator, expression)
+        fun makeEvaluator(expression: Expression, variables: ArrayList<out Expression>): Evaluator? {
+            return makeEvaluator(::CompilationEvaluator, expression, variables)
         }
 
-        fun makeEvaluatorForVariablesInOccurrenceOrderIn(
+        fun makeEvaluator(
                 fromVariablesInOrderToCompilationEvaluatorInstance: (List<Expression>) -> CompilationEvaluator,
-                expression: Expression): Evaluator? {
+                expression: Expression,
+                variables: ArrayList<out Expression>): Evaluator? {
 
-            val compiler = fromVariablesInOrderToCompilationEvaluatorInstance(variablesInOrder(expression))
+            val compiler = fromVariablesInOrderToCompilationEvaluatorInstance(variables)
             val start = System.currentTimeMillis()
             val compiledClass = compiler.compile(expression)
             val end = System.currentTimeMillis()

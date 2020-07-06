@@ -9,6 +9,7 @@ import com.sri.ai.grinder.interpreter.CompilationIncrementalEvaluator
 import org.junit.Test
 
 import org.junit.Assert.*
+import java.util.LinkedHashSet
 
 class CompilationEvaluatorTest {
 

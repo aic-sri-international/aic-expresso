@@ -40,11 +40,7 @@ package com.sri.ai.expresso.helper;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
-import static com.sri.ai.util.Util.mapIntoList;
-import static com.sri.ai.util.Util.myAssert;
-import static com.sri.ai.util.Util.reverse;
-import static com.sri.ai.util.Util.reverseListIterator;
-import static com.sri.ai.util.Util.thereExists;
+import static com.sri.ai.util.Util.*;
 import static com.sri.ai.util.base.PairOf.pairOf;
 
 import java.util.ArrayList;
@@ -1501,4 +1497,29 @@ public class Expressions {
 				condition.hasFunctor(LESS_THAN);
 		return result;
 	}
+
+	public static int getMaxDepthOfOccurrences(Expression subExpression, Expression expression) {
+		var max = max(getDepthsOfOccurrences(subExpression, expression));
+		if (max == null) throw new Error("Depth of " + subExpression + " requested but it does not occur in " + expression);
+		return max.intValue();
+	}
+
+	public
+	static Collection<? extends Integer>
+	getDepthsOfOccurrences(Expression subExpression, Expression expression) {
+		return getDepthsOfOccurrences(0, subExpression, expression);
+	}
+
+	public
+	static Collection<? extends Integer>
+	getDepthsOfOccurrences(int baseLevel, Expression subExpression, Expression expression) {
+		if (expression.equals(subExpression)) {
+			return list(baseLevel);
+		}
+		else {
+			var subs = expression.getArguments();
+			return union(subs, s -> getDepthsOfOccurrences(baseLevel + 1, subExpression, s));
+		}
+	}
+
 }
