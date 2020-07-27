@@ -321,7 +321,7 @@ public interface Theory extends Cloneable {
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
 	 * where a generalized variable is an expression that is not a boolean connective or an interpreted element in this theory
-	 * (see {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, Context)}).
+	 * (see {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression)}).
 	 * @param expression
 	 * @param context
 	 * @return
@@ -376,12 +376,12 @@ public interface Theory extends Cloneable {
 		boolean result = 
 				expression.getSyntacticFormType().equals("Symbol")
 				&&
-				knownSymbolIsInterpretedInThisTheory(expression);
+				expressionKnownToBeSymbolIsInterpretedInThisTheory(expression);
 		return result;
 	}
 	
 	/** Indicates whether an expression known to be a symbol is interpreted in this theory. */
-	default boolean knownSymbolIsInterpretedInThisTheory(Expression symbol) {
+	default boolean expressionKnownToBeSymbolIsInterpretedInThisTheory(Expression symbol) {
 		boolean result = 
 				isInterpretedInPropositionalLogicIncludingConditionals(symbol)  
 				|| 

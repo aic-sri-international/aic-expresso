@@ -116,7 +116,7 @@ public class IsVariable implements Predicate<Expression> {
 		boolean result =
 				theory != null
 				&&
-				theory.knownSymbolIsInterpretedInThisTheory(symbol);
+				theory.expressionKnownToBeSymbolIsInterpretedInThisTheory(symbol);
 		return result;
 	}
 }

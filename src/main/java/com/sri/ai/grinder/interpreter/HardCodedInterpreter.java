@@ -173,25 +173,37 @@ public class HardCodedInterpreter implements BinaryFunction<Expression, Context,
 	}
 
 	private Symbol evaluateEqualTo(ArrayList<Expression> evaluatedArguments) {
-		return evaluateRelationalOperatorOnNumbers((d1, d2) -> d1.doubleValue() == d2.doubleValue(), "=", evaluatedArguments);
+		return evaluateRelationalOperatorOnObjects((d1, d2) -> d1 == d2, "=", evaluatedArguments);
 	}
 
 	private Symbol evaluateNotEqualTo(ArrayList<Expression> evaluatedArguments) {
-		return evaluateRelationalOperatorOnNumbers((d1, d2) -> d1.doubleValue() != d2.doubleValue(), "!=", evaluatedArguments);
+		return evaluateRelationalOperatorOnObjects((d1, d2) -> d1 != d2, "!=", evaluatedArguments);
 	}
 
 	private Symbol evaluateRelationalOperatorOnNumbers(
 			BinaryFunction<Number, Number, Boolean> binaryOperator,
 			String operatorName,
 			ArrayList<Expression> evaluatedArguments) {
-		
+
 		myAssert(evaluatedArguments.size() == 2, () -> operatorName + " applied to more than two arguments: " + evaluatedArguments);
 		ArrayList<Number> numericValues = mapIntoArrayList(evaluatedArguments, a -> (Number) a.getValue());
 		var resultingValue = binaryOperator.apply(numericValues.get(0), numericValues.get(1));
 		var result = makeSymbol(resultingValue);
 		return result;
 	}
-	
+
+	private Symbol evaluateRelationalOperatorOnObjects(
+			BinaryFunction<Object, Object, Boolean> binaryOperator,
+			String operatorName,
+			ArrayList<Expression> evaluatedArguments) {
+
+		myAssert(evaluatedArguments.size() == 2, () -> operatorName + " applied to more than two arguments: " + evaluatedArguments);
+		ArrayList<Object> objectValues = mapIntoArrayList(evaluatedArguments, a -> a.getValue());
+		var resultingValue = binaryOperator.apply(objectValues.get(0), objectValues.get(1));
+		var result = makeSymbol(resultingValue);
+		return result;
+	}
+
 	public static void main(String[] args) {
 		Map<Expression, Expression> assignments = map(parse("y"), makeSymbol(10), parse("x"), makeSymbol(2));
 		var expression = Expressions.parse(
