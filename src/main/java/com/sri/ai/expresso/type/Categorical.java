@@ -193,6 +193,8 @@ public class Categorical extends AbstractType {
 	 */
 	protected int indexOfUnknownConstant(Expression constant) {
 		int result = Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue();
+        myAssert(result >= knownConstants.size(), () -> "'Unknown' constant " + constant + " for Categorical type " + this + " has invalid index. Unknown constants must have indices greater than or equal to the number of known constants, because smaller indices are assumed to correspond to the known constants. There are " + knownConstants.size() + " known constants in this type");
+        myAssert(cardinality < 0 || result < cardinality, () -> "'Unknown' constant " + constant + " for Categorical type " + this + " has index greater than or equal to cardinality " + cardinality + ". That is not possible because this implies there being more constants in the type than its cardinality");
 		return result;
 	}
 	
