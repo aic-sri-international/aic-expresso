@@ -46,6 +46,7 @@ import java.util.*;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -150,6 +151,15 @@ public class Categorical extends AbstractType {
 		catch (NumberFormatException e) { result = false; }
 				
 		return result;
+	}
+
+	public Expression constantOfIndex(int index) {
+		if (index < knownConstants.size()) {
+			return knownConstants.get(index);
+		}
+		else {
+			return Symbol.makeSymbol(lowerCaseName + index);
+		}
 	}
 	
 	/**
