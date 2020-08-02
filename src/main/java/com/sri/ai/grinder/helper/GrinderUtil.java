@@ -770,7 +770,7 @@ public class GrinderUtil {
 		return result;
 	}
 
-	public static final Categorical BOOLEAN_TYPE = new Categorical("Boolean", 2, arrayList(FALSE, TRUE));
+	public static final Categorical BOOLEAN_TYPE = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
 	public static final IntegerExpressoType INTEGER_TYPE = new IntegerExpressoType();
 	public static final RealExpressoType REAL_TYPE = new RealExpressoType();
 	
